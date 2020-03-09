@@ -1,0 +1,25 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio 15
+VisualStudioVersion = 15.0.28307.645
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "IngestDB", "IngestDB\IngestDB.csproj", "{8D4E0550-C373-45E5-B582-F3A4786A8151}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{8D4E0550-C373-45E5-B582-F3A4786A8151}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{8D4E0550-C373-45E5-B582-F3A4786A8151}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{8D4E0550-C373-45E5-B582-F3A4786A8151}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{8D4E0550-C373-45E5-B582-F3A4786A8151}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {98696BFC-44A3-4355-B438-A3953923FF58}
+	EndGlobalSection
+EndGlobal

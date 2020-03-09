@@ -1,6 +1,6 @@
 node_modules/
 dist/
-vs/
+.vs/
 app/data
 app/npm-debug.log
 IngestDB/obj
