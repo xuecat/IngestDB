@@ -11,3 +11,11 @@ IngestDB/bin/
 IngestDB/obj/
 IngestDB/IngestDB/bin/
 IngestDB/IngestDB/obj/
+IngestDBCore/obj/
+IngestDBCore/bin/
+IngestDBInterface/obj/
+IngestDBInterface/bin/
+MSVNotifyPlugin/obj/
+MSVNotifyPlugin/bin/
+OrleansNotifyPlugin/obj/
+OrleansNotifyPlugin/bin/
