@@ -1,0 +1,13 @@
+node_modules/
+dist/
+vs/
+app/data
+app/npm-debug.log
+IngestDB/obj
+IngestDB/packages
+*.cache
+bin/
+IngestDB/bin/
+IngestDB/obj/
+IngestDB/IngestDB/bin/
+IngestDB/IngestDB/obj/
