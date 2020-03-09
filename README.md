@@ -1,7 +1,7 @@
 > nothing
 > 有空就更
 
-![avatar](/IngestSplash.bmp)
+![avatar](IngestSplash.png)
 
 - Ingest
   - **IngestDB**
