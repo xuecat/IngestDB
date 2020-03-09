@@ -1,7 +1,7 @@
-nothing
-有空就更
+> nothing
+> 有空就更
 
-![](/IngestSplash.bmp)
+![avatar](/IngestSplash.bmp)
 
 - Ingest
   - **IngestDB**
