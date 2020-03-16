@@ -23,7 +23,7 @@ namespace IngestDBCore
         public string IngestDBUrl { get; set; }
         public string IngestMatrixUrl { get; set; }
         public string IngestVtrUrl { get; set; }
-        public string NebulaUrl { get; set; }
+        public string VIP { get; set; }
         public string CMServerUrl { get; set; }
         public string CMServerWindowsUrl { get; set; }
         public ApplicationContext(IServiceCollection serviceContainer)
