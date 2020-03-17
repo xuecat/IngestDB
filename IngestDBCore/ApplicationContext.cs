@@ -17,6 +17,7 @@ namespace IngestDBCore
         public static ApplicationContext Current { get; private set; }
         public ApplicationConfig Config { get; protected set; }
         public IServiceProvider ServiceProvider { get; set; }
+        public IServiceProvider AppServiceProvider { get; set; }
         public IPluginFactory PluginFactory { get; set; }
         public IApplicationBuilder ApplicationBuilder { get; set; }
         public string ConnectionString { get; set; }
