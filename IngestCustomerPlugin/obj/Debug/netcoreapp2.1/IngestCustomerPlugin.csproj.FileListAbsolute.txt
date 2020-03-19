@@ -1,0 +1,9 @@
+C:\Project\git\IngestDB\IngestCustomerPlugin\bin\Debug\netcoreapp2.1\IngestCustomerPlugin.deps.json
+C:\Project\git\IngestDB\IngestCustomerPlugin\bin\Debug\netcoreapp2.1\IngestCustomerPlugin.dll
+C:\Project\git\IngestDB\IngestCustomerPlugin\bin\Debug\netcoreapp2.1\IngestCustomerPlugin.pdb
+C:\Project\git\IngestDB\IngestCustomerPlugin\obj\Debug\netcoreapp2.1\IngestCustomerPlugin.csprojAssemblyReference.cache
+C:\Project\git\IngestDB\IngestCustomerPlugin\obj\Debug\netcoreapp2.1\IngestCustomerPlugin.csproj.CoreCompileInputs.cache
+C:\Project\git\IngestDB\IngestCustomerPlugin\obj\Debug\netcoreapp2.1\IngestCustomerPlugin.AssemblyInfoInputs.cache
+C:\Project\git\IngestDB\IngestCustomerPlugin\obj\Debug\netcoreapp2.1\IngestCustomerPlugin.AssemblyInfo.cs
+C:\Project\git\IngestDB\IngestCustomerPlugin\obj\Debug\netcoreapp2.1\IngestCustomerPlugin.dll
+C:\Project\git\IngestDB\IngestCustomerPlugin\obj\Debug\netcoreapp2.1\IngestCustomerPlugin.pdb

@@ -5,15 +5,19 @@ VisualStudioVersion = 15.0.28307.645
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "IngestDB", "IngestDB\IngestDB.csproj", "{8D4E0550-C373-45E5-B582-F3A4786A8151}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "IngestDBCore", "IngestDBCore\IngestDBCore.csproj", "{CBF601DC-621A-40FB-87DD-221640425D32}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "IngestDBCore", "IngestDBCore\IngestDBCore.csproj", "{CBF601DC-621A-40FB-87DD-221640425D32}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "IngestDBInterface", "IngestDBInterface\IngestDBInterface.csproj", "{7F94C597-96CB-403D-B8AE-039FE297B9BA}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "IngestDBInterface", "IngestDBInterface\IngestDBInterface.csproj", "{7F94C597-96CB-403D-B8AE-039FE297B9BA}"
 EndProject
-Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Plugins", "Plugins", "{DE951F8D-8B2D-435E-A6CD-13CD60AC5FA9}"
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "NotifyPlugins", "NotifyPlugins", "{DE951F8D-8B2D-435E-A6CD-13CD60AC5FA9}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MSVNotifyPlugin", "MSVNotifyPlugin\MSVNotifyPlugin.csproj", "{86CCE252-1319-43DF-9B93-329F8AF5C520}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "MSVNotifyPlugin", "MSVNotifyPlugin\MSVNotifyPlugin.csproj", "{86CCE252-1319-43DF-9B93-329F8AF5C520}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "OrleansNotifyPlugin", "OrleansNotifyPlugin\OrleansNotifyPlugin.csproj", "{FB02A288-49BE-4E57-A357-69131462F5A0}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "OrleansNotifyPlugin", "OrleansNotifyPlugin\OrleansNotifyPlugin.csproj", "{FB02A288-49BE-4E57-A357-69131462F5A0}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "ControllerPlugins", "ControllerPlugins", "{59AD4432-774F-470C-B163-FFDE4F9097EC}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "IngestCustomerPlugin", "IngestCustomerPlugin\IngestCustomerPlugin.csproj", "{652D5155-E130-4589-B948-2EE8A7866411}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -41,6 +45,10 @@ Global
 		{FB02A288-49BE-4E57-A357-69131462F5A0}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{FB02A288-49BE-4E57-A357-69131462F5A0}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{FB02A288-49BE-4E57-A357-69131462F5A0}.Release|Any CPU.Build.0 = Release|Any CPU
+		{652D5155-E130-4589-B948-2EE8A7866411}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{652D5155-E130-4589-B948-2EE8A7866411}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{652D5155-E130-4589-B948-2EE8A7866411}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{652D5155-E130-4589-B948-2EE8A7866411}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -48,6 +56,7 @@ Global
 	GlobalSection(NestedProjects) = preSolution
 		{86CCE252-1319-43DF-9B93-329F8AF5C520} = {DE951F8D-8B2D-435E-A6CD-13CD60AC5FA9}
 		{FB02A288-49BE-4E57-A357-69131462F5A0} = {DE951F8D-8B2D-435E-A6CD-13CD60AC5FA9}
+		{652D5155-E130-4589-B948-2EE8A7866411} = {59AD4432-774F-470C-B163-FFDE4F9097EC}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {98696BFC-44A3-4355-B438-A3953923FF58}
