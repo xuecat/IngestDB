@@ -2,7 +2,7 @@
 
 namespace IngestCustomerPlugin
 {
-    public class Class1
+    public class Plugin
     {
     }
 }

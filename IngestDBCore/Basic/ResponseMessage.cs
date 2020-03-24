@@ -7,7 +7,7 @@ namespace IngestDBCore
     public class ResponseMessage
     {
         public string Code { get; set; }
-        public string Message { get; set; }
+        public string Msg { get; set; }
 
         public ResponseMessage()
         {
@@ -26,15 +26,15 @@ namespace IngestDBCore
 
     public class ResponseMessage<TEx> : ResponseMessage
     {
-        public TEx Extension { get; set; }
+        public TEx Ext { get; set; }
     }
 
-    public class PagingResponseMessage<Tentity> : ResponseMessage<List<Tentity>>
-    {
-        public int PageIndex { get; set; }
+    //public class PagingResponseMessage<Tentity> : ResponseMessage<List<Tentity>>
+    //{
+    //    public int PageIndex { get; set; }
 
-        public int PageSize { get; set; }
+    //    public int PageSize { get; set; }
 
-        public long TotalCount { get; set; }
-    }
+    //    public long TotalCount { get; set; }
+    //}
 }

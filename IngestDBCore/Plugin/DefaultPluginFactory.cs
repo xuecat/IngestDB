@@ -159,7 +159,7 @@ namespace IngestDBCore.Plugin
                 {
                     var r = await pi.Instance.Init(context);
                     pi.SetInitFail(r.Code != "0");
-                    pi.SetMessage(r.Message);
+                    pi.SetMessage(r.Msg);
                     //Logger.Debug("plugin {0} init {1} {2}", pi.Name, r.Code, r.Message ?? "");
                 }
                 catch (Exception e)
@@ -182,7 +182,7 @@ namespace IngestDBCore.Plugin
                 {
                     var r = await pi.Instance.Start(context);
                     pi.SetStartFail(r.Code != "0");
-                    pi.SetMessage(r.Message);
+                    pi.SetMessage(r.Msg);
                     //Logger.Debug("plugin {0} start {1} {2}", pi.Name, r.Code, r.Message ?? "");
                     if (r.IsSuccess())
                     {
@@ -209,7 +209,7 @@ namespace IngestDBCore.Plugin
                 try
                 {
                     var r = await pi.Instance.Stop(context);
-                    pi.SetMessage(r.Message);
+                    pi.SetMessage(r.Msg);
                     //Logger.Debug("plugin {0} stop {1} {2}", pi.Name, r.Code, r.Message ?? "");
                     if (r.IsSuccess())
                     {
