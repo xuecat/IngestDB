@@ -1,5 +1,8 @@
 ﻿using IngestDBCore;
+using IngestDBCore.Interface;
 using IngestDBCore.Plugin;
+using IngestTaskPlugin.Controllers.v1;
+using Microsoft.Extensions.DependencyInjection;
 using System;
 using System.Threading.Tasks;
 
@@ -18,8 +21,8 @@ namespace IngestTaskInterfacePlugin
         public override Task<ResponseMessage> Init(ApplicationContext context)
         {
             
-            //context.Services.AddScoped<IHumanInterface, HumanInterfaceImplement>();
-            //context.Services.AddScoped<HumanInfoController>();
+            context.Services.AddScoped<IIngestTaskInterface, IngestTaskInterfaceImplement>();
+            context.Services.AddScoped<TaskController>();
             return base.Init(context);
         }
 

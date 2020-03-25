@@ -1,37 +1,34 @@
+using Sobey.Core.Log;
 using System;
 using System.Diagnostics;
 using System.Text;
 
-namespace SystemFrameWorks
+namespace IngestDBCore
 {
 	/// <summary>
 	/// Summary description for BaseException.
 	/// </summary>
 	public class BaseException : System.ApplicationException
 	{
-		//构造
-		//无错误码
-		protected BaseException(string strMessage, System.Exception oInner, int LogLevel):base(strMessage,oInner)
+        public int ErrorCode { get; set; }
+        //构造
+        //无错误码
+        protected BaseException(string strMessage, System.Exception oInner, ILogger logger, int lerrcode) :base(strMessage,oInner)
 		{
-			Dump(Format(strMessage, oInner), LogLevel);
+            ErrorCode = lerrcode;
+			Dump(Format(strMessage, oInner), logger);
 		}
 
-		private void Dump(string str, int loglevel)
+		private void Dump(string str, ILogger logger)
 		{
-			//Trace.WriteLine(str);
-			ApplicationLog.WriteError(str,loglevel);
-		}
-		//有错误码
-		protected BaseException(string strMessage, System.Exception oInner, int LogLevel, int lLogErrorCode):base(strMessage,oInner)
-		{
-			Dump(Format(strMessage, oInner), LogLevel,lLogErrorCode);
-		}
+            if (logger != null)
+            {
+                logger.Error(str);
+            }
 
-		private void Dump(string str, int loglevel,int lLogErrorCode)
-		{
-			//Trace.WriteLine(str);   //在调试和release模式下输出到侦听器
-			ApplicationLog.WriteError(str,lLogErrorCode,loglevel);
-		}
+            
+        }
+        //有错误码
 
 		public static string Format(string msg, System.Exception inner)
 		{
@@ -88,9 +85,10 @@ namespace SystemFrameWorks
 		}
 	}
 
-	public class SobeyRecException:BaseException
+	public class SobeyRecException: BaseException
 	{
-		private SobeyRecException(string strMessage, System.Exception oInner, int LogLevel, int lLogErrorCode):base(strMessage,oInner,LogLevel,lLogErrorCode)
+        
+		private SobeyRecException(string strMessage, System.Exception oInner, ILogger logger, int lLogErrorCode):base(strMessage,oInner, logger, lLogErrorCode)
 		{
 		}
 
@@ -101,11 +99,11 @@ namespace SystemFrameWorks
         /// <remarks>
         /// Add by chenzhi 2013-06-04
         /// </remarks>
-        public static void ThrowSelf(int lLogErrorCode)
-        {
-            SobeyRecException ex = new SobeyRecException(GlobalDictionary.Instance.GetMessageByCode(lLogErrorCode), null, 0, lLogErrorCode);
-            throw ex;
-        }
+        //public static void ThrowSelf(int lLogErrorCode, ILogger logger)
+        //{
+        //    SobeyRecException ex = new SobeyRecException(GlobalDictionary.Instance.GetMessageByCode(lLogErrorCode), null, logger, lLogErrorCode);
+        //    throw ex;
+        //}
 
         /// <summary>
         /// 通过自定义异常代码及上层异常抛出自定义异常
@@ -115,36 +113,32 @@ namespace SystemFrameWorks
         /// <remarks>
         /// Add by chenzhi 2013-06-18
         /// </remarks>
-        public static void ThrowSelf(int lLogErrorCode, System.Exception oInner)
+        public static void ThrowSelfNoParam(int lLogErrorCode, ILogger logger, System.Exception oInner)
         {
             string strMessage = GlobalDictionary.Instance.GetMessageByCode(lLogErrorCode);
             BuildErrInfo(oInner, ref strMessage);
-            SobeyRecException ex = new SobeyRecException(strMessage, oInner, 0, lLogErrorCode);
+            SobeyRecException ex = new SobeyRecException(strMessage, oInner, logger, lLogErrorCode);
             throw ex;
         }
 
-		public static void ThrowSelf(string strMessage, int lLogErrorCode )
-		{
-			SobeyRecException ex = new SobeyRecException(strMessage,null, 0, lLogErrorCode);
-			throw ex;
-		}
-		public static void ThrowSelf(string strMessage,int LogLevel, int lLogErrorCode )
-		{
-			SobeyRecException ex = new SobeyRecException(strMessage,null, LogLevel, lLogErrorCode);
-			throw ex;
-		}
-		public static void ThrowSelf(string strMessage, System.Exception oInner, int lLogErrorCode )
-		{
-			BuildErrInfo(oInner, ref strMessage);
-			SobeyRecException ex = new SobeyRecException(strMessage,oInner, 0, lLogErrorCode);
-			throw ex;
-		}
-		public static void ThrowSelf(string strMessage, System.Exception oInner, int LogLevel, int lLogErrorCode )
-		{
-			BuildErrInfo(oInner, ref strMessage);
-			SobeyRecException ex = new SobeyRecException(strMessage,oInner,LogLevel,lLogErrorCode);
-			throw ex;
-		}
+        public static void ThrowSelfOneParam(int lLogErrorCode, ILogger logger, object p, System.Exception oInner)
+        {
+            string strMessage = GlobalDictionary.Instance.GetMessageByCode(lLogErrorCode);
+            strMessage = string.Format(strMessage, p.ToString());
+            BuildErrInfo(oInner, ref strMessage);
+            SobeyRecException ex = new SobeyRecException(strMessage, oInner, logger, lLogErrorCode);
+            throw ex;
+        }
+
+        public static void ThrowSelfTwoParam(int lLogErrorCode, ILogger logger, object p1, object p2, System.Exception oInner)
+        {
+            string strMessage = GlobalDictionary.Instance.GetMessageByCode(lLogErrorCode);
+            strMessage = string.Format(strMessage, p1.ToString(), p2.ToString());
+            BuildErrInfo(oInner, ref strMessage);
+            SobeyRecException ex = new SobeyRecException(strMessage, oInner, logger, lLogErrorCode);
+            throw ex;
+        }
+
 		private static void BuildErrInfo(Exception oInner, ref string strMessage)
 		{
 			System.Exception walker = oInner;

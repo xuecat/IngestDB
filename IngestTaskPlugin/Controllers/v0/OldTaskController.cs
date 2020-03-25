@@ -11,11 +11,11 @@ namespace IngestTaskPlugin.Controllers.v0
 {
     [IngestAuthentication]
     [Produces("application/json")]
-    [Route("api/v1.0/task")]
-    public class TaskController : ControllerBase
+    [Route("api/v0/task")]
+    public class OldTaskController : ControllerBase
     {
         private readonly ILogger Logger = LoggerManager.GetLogger("TaskInfo");
-        private readonly NormalTaskManager _monthManage;
+        private readonly TaskManager _monthManage;
         private readonly RestClient _restClient;
     }
 }

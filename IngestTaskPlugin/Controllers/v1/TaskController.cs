@@ -13,15 +13,14 @@ using System.Threading.Tasks;
 namespace IngestTaskPlugin.Controllers.v1
 {
     [IngestAuthentication]
-    [Produces("application/json")]
-    [Route("api/v1.1/task")]
+    [Route("api/v1/task")]
     public class TaskController : ControllerBase
     {
         private readonly ILogger Logger = LoggerManager.GetLogger("TaskInfo");
-        private readonly NormalTaskManager _taskManage;
+        private readonly TaskManager _taskManage;
         private readonly RestClient _restClient;
 
-        public TaskController(RestClient rsc, NormalTaskManager task)
+        public TaskController(RestClient rsc, TaskManager task)
         {
             _taskManage = task;
             _restClient = rsc;
@@ -32,7 +31,7 @@ namespace IngestTaskPlugin.Controllers.v1
         /// </summary>
         /// <param name="testinfo"></param>
         /// <returns></returns>
-        [HttpGet("taskmetadata")]
+        [HttpGet("taskmetadata/{taskid}")]
         public async Task<ResponseMessage<TaskMetadataResponse>> GetTaskMetaData([FromRoute]int taskid, [FromQuery]int type)
         {
             var Response = new ResponseMessage<TaskMetadataResponse>();
@@ -43,14 +42,22 @@ namespace IngestTaskPlugin.Controllers.v1
             }
             try
             {
-                //var lastmonth = await _monthManage.GetLastMonth();
-                //Response.Extension = lastmonth.SettleTime.GetValueOrDefault();
+                Response.Ext = await _taskManage.GetTaskMetadataAsync(taskid, type);
             }
             catch (Exception e)
             {
-                Response.Code = ResponseCodeDefines.ServiceError;
-                Response.Msg = "error info：" + e.ToString();
-                Logger.Error(Response.Msg);
+                if (e.GetType() == typeof(SobeyRecException))//sobeyexcep会自动打印错误
+                {
+                    SobeyRecException se = (SobeyRecException)e;
+                    Response.Code = se.ErrorCode.ToString();
+                    Response.Msg = se.Message;
+                }
+                else
+                {
+                    Response.Code = ResponseCodeDefines.ServiceError;
+                    Response.Msg = "error info：" + e.ToString();
+                    Logger.Error(Response.Msg);
+                }
             }
             return Response;
         }

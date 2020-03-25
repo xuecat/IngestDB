@@ -1,5 +1,7 @@
 ﻿using IngestDBCore;
 using IngestDBCore.Plugin;
+using IngestTaskPlugin.Managers;
+using IngestTaskPlugin.Stores;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
 using System;
@@ -37,19 +39,8 @@ namespace IngestTaskPlugin
         public override Task<ResponseMessage> Init(ApplicationContext context)
         {
             context.Services.AddDbContext<IngestTaskPlugin.Models.IngestTaskDBContext>(options => options.UseMySql(context.ConnectionString), ServiceLifetime.Scoped);
-            //context.Services.AddScoped<IHumanManageStore, HumanManageStore>();
-            //context.Services.AddScoped<HumanManager>();
-            //context.Services.AddScoped<HumanInfoManager>();
-            //context.Services.AddScoped<MonthManager>();
-            //context.Services.AddScoped<StationManager>();
-            //context.Services.AddScoped<SalaryManager>();
-            //context.Services.AddScoped<BlackManager>();
-            //context.Services.AddScoped<AttendanceManager>();
-            //context.Services.AddScoped<PermissionExpansionManager>();
-            //context.Services.AddScoped<RewardPunishmentManager>();
-
-            //context.Services.AddScoped<HumanInfoManager>();
-            //context.Services.AddScoped<IHumanInfoStore, HumanInfoStore>();
+            context.Services.AddScoped<ITaskStore, TaskInfoStore>();
+            context.Services.AddScoped<TaskManager>();
 
             return base.Init(context);
         }

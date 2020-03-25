@@ -1,4 +1,4 @@
-Ôªøusing System;
+using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
@@ -9,15 +9,14 @@ using IngestDBCore;
 using IngestDBCore.Plugin;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.HttpsPolicy;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.ApplicationParts;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
-using Microsoft.Extensions.Logging;
-using Microsoft.Extensions.Options;
 
-namespace IngestDB
+namespace IngestDBRun
 {
     public class Startup
     {
@@ -28,17 +27,25 @@ namespace IngestDB
 
         public IConfiguration Configuration { get; }
         private static ApplicationContextImpl applicationContext = null;
+
         // This method gets called by the runtime. Use this method to add services to the container.
         public void ConfigureServices(IServiceCollection services)
         {
-            //Âä†ËΩΩÂ≠óÂÖ∏
+            services.Configure<CookiePolicyOptions>(options =>
+            {
+                // This lambda determines whether user consent for non-essential cookies is needed for a given request.
+                options.CheckConsentNeeded = context => true;
+                options.MinimumSameSitePolicy = SameSiteMode.None;
+            });
+
+
             IngestDBCore.GlobalDictionary.Instance.GetType();
 
             var cfg = new ConfigurationBuilder()
-                //.AddXmlFile("publicsetting.xml") //Â•ΩÊ∞î  Áî®‰∏ç‰∫Ü,Âè™ËÉΩËá™Â∑±ÊâãÂä®Ëß£Êûê
+                //.AddXmlFile("publicsetting.xml") //∫√∆¯  ”√≤ª¡À,÷ªƒ‹◊‘º∫ ÷∂ØΩ‚Œˆ
                 .AddEnvironmentVariables()
                 .Build();
-                
+
             services.AddSingleton<IConfigurationRoot>(cfg);
             services.AddMvc().SetCompatibilityVersion(CompatibilityVersion.Version_2_1);
 
@@ -69,7 +76,7 @@ namespace IngestDB
             if (apppart != null)
             {
                 ApplicationPartManager apm = apppart as ApplicationPartManager;
-                //ÊâÄÊúâÈôÑ‰ª∂Á®ãÂ∫èÈõÜ
+                //À˘”–∏Ωº˛≥Ã–ÚºØ
                 ApplicationContextImpl ac = ApplicationContext.Current as ApplicationContextImpl;
                 ac.AdditionalAssembly.ForEach((a) =>
                 {
@@ -81,10 +88,9 @@ namespace IngestDB
             services.AddToolDefined();
 
 
-            //Êèí‰ª∂Âä†ËΩΩ‰πãÂêéÂºïÁî®
+            //≤Âº˛º”‘ÿ÷Æ∫Û“˝”√
             services.AddAutoMapper(typeof(Startup));
         }
-
         public string CreateConfigURI(string str)
         {
             if (str.IndexOf("http:") >= 0 || str.IndexOf("https:") >= 0)
@@ -106,7 +112,7 @@ namespace IngestDB
                     return string.Format(
                 "Server={0};Port={4};Database={1};Uid={2};Pwd={3};Pooling=true;allowuservariables=True;cacheserverproperties=True;minpoolsize=1;MaximumPoolSize=20;SslMode=none;Convert Zero Datetime=True;Allow Zero Datetime=True",
                 vip, item.Element("Instance").Value,
-                item.Element("Username").Value, 
+                item.Element("Username").Value,
                 IngestDBCore.Tool.Base64SQL.Base64_Decode(item.Element("Password").Value),
                 item.Element("Port").Value);
                 }
@@ -114,7 +120,6 @@ namespace IngestDB
 
             return "";
         }
-
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
         public void Configure(IApplicationBuilder app, IHostingEnvironment env)
         {
@@ -124,28 +129,16 @@ namespace IngestDB
             }
             else
             {
+                app.UseExceptionHandler("/Error");
                 app.UseHsts();
             }
-            //Ë∑®Âüü
-            app.UseCors(options =>
-            {
-                options.AllowAnyHeader();
-                options.AllowAnyMethod();
-                options.AllowAnyOrigin();
-                options.AllowCredentials();
-            });
 
-            //ÈúÄË¶ÅÂêóÔºüÔºüÔºü
-            //app.UseStaticFiles(new StaticFileOptions()  
-            //{                                                                       
-            //    FileProvider = new PhysicalFileProvider(                                 
-            //Path.Combine(Directory.GetCurrentDirectory(), @"MyStaticFiles")),
-            //    RequestPath = new PathString("/StaticFiles")         
-            //});
+            app.UseHttpsRedirection();
+            app.UseStaticFiles();
+            app.UseCookiePolicy();
 
-            //app.UseHttpsRedirection();
             app.UseMvc();
-            applicationContext.AppServiceProvider= app.ApplicationServices;
+            applicationContext.AppServiceProvider = app.ApplicationServices;
             using (var scope = app.ApplicationServices.GetRequiredService<IServiceScopeFactory>().CreateScope())
             {
                 applicationContext.ServiceProvider = scope.ServiceProvider;

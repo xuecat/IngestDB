@@ -1,0 +1,34 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<PublicSetting>
+	<System>
+     <Sys_VIP>172.16.0.205</Sys_VIP>
+    <CMServer>172.16.0.205:9023</CMServer>
+    <CMserver_windows>172.16.0.205:9037</CMserver_windows>
+    <CMweb>172.16.168.0:9021</CMweb>
+    <Fls>172.16.168.0:9031</Fls>
+    <FLSvr>172.16.168.0:9033</FLSvr>
+    <Jove>172.16.168.0:9027</Jove>
+    <PLS_Windows>172.16.0.205:9035</PLS_Windows>
+    <IngestDBSvr>172.16.0.205:9025</IngestDBSvr>
+    <IngestDEVCTL>172.16.0.205:9039</IngestDEVCTL>
+    <IngestTaskSvr>172.16.0.205:9041</IngestTaskSvr>
+    <IngestMsgSvr>172.16.0.205:9043</IngestMsgSvr>
+    <Otc>172.16.0.205:9045</Otc>
+    <SangHa>172.16.0.205:4505</SangHa>
+    <SangHaSvr>172.16.0.205:9047</SangHaSvr>
+    <SangHaWeb>172.16.0.205:9049</SangHaWeb>
+    <SNSServer>172.16.0.205:9053</SNSServer>
+    <XDCAMAIRService>172.16.135.38:9099</XDCAMAIRService>
+	</System>
+	<DBConfig>
+		<DatabaseConfig key="1" value="1" module="INGESTDB">
+			<Instance>ingestdb</Instance>
+			<Username>ingestdba</Username>
+			<Password>MEiS97VU8Woh</Password>
+			<Port>3307</Port>
+		</DatabaseConfig>
+	</DBConfig>
+	<Other>
+		<Encoding>1</Encoding>
+	</Other>
+</PublicSetting>

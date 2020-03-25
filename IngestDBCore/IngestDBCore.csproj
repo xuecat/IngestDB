@@ -19,6 +19,7 @@
 
   <ItemGroup>
     <Folder Include="RSA\" />
+    <Folder Include="Exception\" />
   </ItemGroup>
 
 </Project>
