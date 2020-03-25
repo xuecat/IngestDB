@@ -31,8 +31,6 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "IngestGlobalPlugin", "Inges
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "IngestGlobalInterfacePlugin", "IngestGlobalInterfacePlugin\IngestGlobalInterfacePlugin.csproj", "{7E71E1D6-1C0C-4C0D-8145-96A0C329571A}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "IngestDBRun", "IngestDBRun\IngestDBRun.csproj", "{8E51B6EA-F96E-4C17-AE99-B1B57A65C18B}"
-EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -87,10 +85,6 @@ Global
 		{7E71E1D6-1C0C-4C0D-8145-96A0C329571A}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{7E71E1D6-1C0C-4C0D-8145-96A0C329571A}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{7E71E1D6-1C0C-4C0D-8145-96A0C329571A}.Release|Any CPU.Build.0 = Release|Any CPU
-		{8E51B6EA-F96E-4C17-AE99-B1B57A65C18B}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{8E51B6EA-F96E-4C17-AE99-B1B57A65C18B}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{8E51B6EA-F96E-4C17-AE99-B1B57A65C18B}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{8E51B6EA-F96E-4C17-AE99-B1B57A65C18B}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

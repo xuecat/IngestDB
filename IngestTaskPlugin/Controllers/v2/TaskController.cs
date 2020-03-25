@@ -12,18 +12,30 @@ using System.Threading.Tasks;
 
 namespace IngestTaskPlugin.Controllers
 {
-    //[IngestAuthentication]
-    //[Produces("application/json")]
-    //[ApiVersion("1.0")]
-    //[Route("api/v0/task")]
-    //[ApiController]
+    [IngestAuthentication]
+    [Route("api/v{version:apiVersion}/task")]
+    [ApiVersion("1.0")]
+    [ApiVersion("2.0")]
+    [ApiController]
     public partial class TaskController : ControllerBase
     {
-        //private readonly ILogger Logger = LoggerManager.GetLogger("TaskInfo");
-        //private readonly TaskManager _monthManage;
-        //private readonly RestClient _restClient;
-        [HttpGet("taskmetadata/{taskid}"), MapToApiVersion("1.0")]
-        public async Task<ResponseMessage<TaskMetadataResponse>> OldGetTaskMetaData([FromRoute]int taskid, [FromQuery]int type)
+        private readonly ILogger Logger = LoggerManager.GetLogger("TaskInfo");
+        private readonly TaskManager _taskManage;
+        private readonly RestClient _restClient;
+
+        public TaskController(RestClient rsc, TaskManager task)
+        {
+            _taskManage = task;
+            _restClient = rsc;
+        }
+
+        /// <summary>
+        /// 使用路由 /taskmetadata/{taskid}?type=1
+        /// </summary>
+        /// <param name="testinfo"></param>
+        /// <returns></returns>
+        [HttpGet("taskmetadata/{taskid}")]
+        public async Task<ResponseMessage<TaskMetadataResponse>> GetTaskMetaData([FromRoute]int taskid, [FromQuery]int type)
         {
             var Response = new ResponseMessage<TaskMetadataResponse>();
             if (taskid < 1)

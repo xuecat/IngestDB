@@ -12,7 +12,7 @@ using System.Threading.Tasks;
 namespace IngestDBCore.Basic
 {
     [AttributeUsage(AttributeTargets.Class | AttributeTargets.Method)]
-    public class IngestAuthentication : AuthorizeAttribute, IAuthorizationFilter
+    public class IngestAuthentication : ActionFilterAttribute
     {
         public void OnAuthorization(AuthorizationFilterContext context)
         {
@@ -26,6 +26,13 @@ namespace IngestDBCore.Basic
             }
 
             //base.OnAuthorization(context);
+        }
+        public override void OnActionExecuting(ActionExecutingContext context)
+        {
+            if (!IsValidRequestAsync(context.HttpContext.Request))
+            {
+                context.Result = new BadRequestObjectResult(context.ModelState);
+            }
         }
 
         public static string UnBase64String(string value)
@@ -41,7 +48,7 @@ namespace IngestDBCore.Basic
         {
             var headerExists = request.Headers["sobeyhive-ingest-signature"];
                 //"sobeyhive-ingest-signature", out signature);
-            if (!Microsoft.Extensions.Primitives.StringValues.IsNullOrEmpty(headerExists) || headerExists.Count <=0) return false;
+            if (Microsoft.Extensions.Primitives.StringValues.IsNullOrEmpty(headerExists) || headerExists.Count <=0) return false;
 
             if (headerExists.First() == "ingest_admin")
             {

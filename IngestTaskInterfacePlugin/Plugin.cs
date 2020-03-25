@@ -1,7 +1,7 @@
 ﻿using IngestDBCore;
 using IngestDBCore.Interface;
 using IngestDBCore.Plugin;
-using IngestTaskPlugin.Controllers.v1;
+using IngestTaskPlugin.Controllers;
 using Microsoft.Extensions.DependencyInjection;
 using System;
 using System.Threading.Tasks;

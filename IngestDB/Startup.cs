@@ -79,7 +79,7 @@ namespace IngestDB
             bool InitIsOk = applicationContext.Init().Result;
 
             services.AddToolDefined();
-
+            services.AddApiVersioning(o => o.AssumeDefaultVersionWhenUnspecified = true);
 
             //插件加载之后引用
             services.AddAutoMapper(typeof(Startup));
@@ -104,7 +104,7 @@ namespace IngestDB
                 if (item.Attribute("module").Value.CompareTo("INGESTDB") == 0)
                 {
                     return string.Format(
-                "Server={0};Port={4};Database={1};Uid={2};Pwd={3};Pooling=true;allowuservariables=True;cacheserverproperties=True;minpoolsize=1;MaximumPoolSize=20;SslMode=none;Convert Zero Datetime=True;Allow Zero Datetime=True",
+                "Server={0};Port={4};Database={1};Uid={2};Pwd={3};Pooling=true;allowuservariables=True;cacheserverproperties=True;minpoolsize=1;MaximumPoolSize=40;SslMode=none;Convert Zero Datetime=True;Allow Zero Datetime=True",
                 vip, item.Element("Instance").Value,
                 item.Element("Username").Value, 
                 IngestDBCore.Tool.Base64SQL.Base64_Decode(item.Element("Password").Value),
