@@ -64,5 +64,36 @@ namespace IngestTaskPlugin.Controllers
             }
             return Response;
         }
+
+        [HttpPut("stopgrouptask/{taskid}")]
+        public async Task<ResponseMessage> GroupTask([FromRoute]int taskid)
+        {
+            var Response = new ResponseMessage();
+            if (taskid < 1)
+            {
+                Response.Code = ResponseCodeDefines.ModelStateInvalid;
+                Response.Msg = "请求参数不正确";
+            }
+            try
+            {
+                Response.Ext = await _taskManage.GetTaskMetadataAsync<TaskMetadataResponse>(taskid, type);
+            }
+            catch (Exception e)
+            {
+                if (e.GetType() == typeof(SobeyRecException))//sobeyexcep会自动打印错误
+                {
+                    SobeyRecException se = e as SobeyRecException;
+                    Response.Code = se.ErrorCode.ToString();
+                    Response.Msg = se.Message;
+                }
+                else
+                {
+                    Response.Code = ResponseCodeDefines.ServiceError;
+                    Response.Msg = "error info：" + e.ToString();
+                    Logger.Error(Response.Msg);
+                }
+            }
+            return Response;
+        }
     }
 }

@@ -368,7 +368,8 @@ namespace IngestDBCore
                 _globalDict.Add(GLOBALDICT_CODE_CANNOTMODIFYTASK_WHERE_FILING, "任务正在采集，不能修改@Can not modify where the task is running@任務正在採集，不能修改@");
                 _globalDict.Add(GLOBALDICT_CODE_PROGRAM_NAME_REPEATED, "信号源名字不能重复@Signal name can not repeat@信號源名字不能重複@");
 
-
+                _globalDict.Add(GLOBALDICT_CODE_FILL_GETTASKMETADATA_EXCEPTION, "在GetTaskMetaData过程中发生错误@Error in GetTaskMetaData.@在GetTaskMetaData過程中發生錯誤@");
+                
                 // 调试日志
                 //ApplicationLog.WriteDebugTraceLog0(string.Format("### GlobalDictionary having {0} count Dict record. ###", _globalDict.Count));
             }
@@ -1759,7 +1760,7 @@ namespace IngestDBCore
 
         public const int GLOBALDICT_CODE_CANNOTMODIFYTASK_WHERE_FILING = 18272;
         public const int GLOBALDICT_CODE_PROGRAM_NAME_REPEATED = 18273;
-
+        public const int GLOBALDICT_CODE_FILL_GETTASKMETADATA_EXCEPTION = 18274;
         #endregion
 
         #endregion

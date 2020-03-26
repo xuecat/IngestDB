@@ -10,11 +10,7 @@ using System.Threading.Tasks;
 
 namespace IngestDevicePlugin
 {
-    public enum DBVersion
-    {
-        V1,
-        V2
-    }
+    
     public class Plugin : PluginBase
     {
         public override string PluginID

@@ -18,6 +18,7 @@ namespace IngestTaskPlugin
                 .ForMember(a => a.Metadata, (map) => map.MapFrom(b => b.Metadatalong));
 
             CreateMap<DbpTaskMetadata, GetQueryTaskMetaData_param>()
+                .ForMember(a => a.MetaData, (map) => map.MapFrom(b => b.Metadatalong))
                 .AfterMap((a, b) => {
                     if (!string.IsNullOrEmpty(a.Metadatalong))
                     {

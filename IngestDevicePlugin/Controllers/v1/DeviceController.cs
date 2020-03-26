@@ -21,6 +21,7 @@ namespace IngestDevicePlugin.Controllers
             var Response = new GetAllRouterInPortInfo_param()
             {
                 bRet = true,
+                errStr = "OK",
                 nVaildDataCount = 0,
             };
 

@@ -59,7 +59,6 @@ namespace IngestDBCore
 
 			if(chain != null)
 			{
-				stack_builder.Append("Error Stack \n").Append("-------------------------\n");
 
 				inner = chain;
 
@@ -70,7 +69,7 @@ namespace IngestDBCore
 					num++;
 				}
 
-				stack_builder.Append("\n---------------------\n").Append("Call Stack\n");
+				stack_builder.Append("Call Stack\n");
 				stack_builder.Append(chain.StackTrace);
 				error_stack = stack_builder.ToString();
 			}
@@ -113,26 +112,29 @@ namespace IngestDBCore
         /// <remarks>
         /// Add by chenzhi 2013-06-18
         /// </remarks>
-        public static void ThrowSelfNoParam(int lLogErrorCode, ILogger logger, System.Exception oInner)
+        public static void ThrowSelfNoParam(string custommessage, int lLogErrorCode, ILogger logger, System.Exception oInner)
         {
-            string strMessage = GlobalDictionary.Instance.GetMessageByCode(lLogErrorCode);
+            string strMessage = custommessage + ':';
+            strMessage += GlobalDictionary.Instance.GetMessageByCode(lLogErrorCode);
             BuildErrInfo(oInner, ref strMessage);
             SobeyRecException ex = new SobeyRecException(strMessage, oInner, logger, lLogErrorCode);
             throw ex;
         }
 
-        public static void ThrowSelfOneParam(int lLogErrorCode, ILogger logger, object p, System.Exception oInner)
+        public static void ThrowSelfOneParam(string custommessage, int lLogErrorCode, ILogger logger, object p, System.Exception oInner)
         {
-            string strMessage = GlobalDictionary.Instance.GetMessageByCode(lLogErrorCode);
+            string strMessage = custommessage + ':';
+            strMessage += GlobalDictionary.Instance.GetMessageByCode(lLogErrorCode);
             strMessage = string.Format(strMessage, p.ToString());
             BuildErrInfo(oInner, ref strMessage);
             SobeyRecException ex = new SobeyRecException(strMessage, oInner, logger, lLogErrorCode);
             throw ex;
         }
 
-        public static void ThrowSelfTwoParam(int lLogErrorCode, ILogger logger, object p1, object p2, System.Exception oInner)
+        public static void ThrowSelfTwoParam(string custommessage, int lLogErrorCode, ILogger logger, object p1, object p2, System.Exception oInner)
         {
-            string strMessage = GlobalDictionary.Instance.GetMessageByCode(lLogErrorCode);
+            string strMessage = custommessage + ':';
+            strMessage += GlobalDictionary.Instance.GetMessageByCode(lLogErrorCode);
             strMessage = string.Format(strMessage, p1.ToString(), p2.ToString());
             BuildErrInfo(oInner, ref strMessage);
             SobeyRecException ex = new SobeyRecException(strMessage, oInner, logger, lLogErrorCode);

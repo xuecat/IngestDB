@@ -39,7 +39,7 @@ namespace IngestDevicePlugin.Controllers
         /// </summary>
         /// <param name="testinfo"></param>
         /// <returns></returns>
-        [HttpGet("allrouterin")]
+        [HttpGet("routerinport")]
         [IngestAuthentication]//device有点特殊，做了监听端口的所以不能全类检验
         public async Task<ResponseMessage<List<RouterInResponse>>> AllRouterInPortInfo()
         {

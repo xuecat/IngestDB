@@ -29,7 +29,8 @@ namespace IngestTaskPlugin.Controllers
             {
                 var Response = new GetQueryTaskMetaData_param
                 {
-                    bRet = false
+                    bRet = false,
+                    errStr = "OK"
                 };
                 return Response;
             }

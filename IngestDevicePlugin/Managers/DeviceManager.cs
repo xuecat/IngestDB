@@ -21,7 +21,7 @@ namespace IngestTaskPlugin.Managers
         protected IDeviceStore Store { get; }
         protected IMapper _mapper { get; }
 
-        public async Task<List<TResult>> GetAllRouterInPortAsync<TResult>()
+        public async virtual Task<List<TResult>> GetAllRouterInPortAsync<TResult>()
         { 
             return _mapper.Map<List<TResult>>(await Store.GetAllRouterInPortInfoAsync(a=>a));
         }
