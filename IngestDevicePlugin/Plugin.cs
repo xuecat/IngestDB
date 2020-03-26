@@ -1,30 +1,36 @@
 ﻿using IngestDBCore;
 using IngestDBCore.Plugin;
+using IngestDevicePlugin.Models;
+using IngestDevicePlugin.Stores;
 using IngestTaskPlugin.Managers;
-using IngestTaskPlugin.Stores;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
 using System;
 using System.Threading.Tasks;
 
-namespace IngestTaskPlugin
+namespace IngestDevicePlugin
 {
-    
+    public enum DBVersion
+    {
+        V1,
+        V2
+    }
     public class Plugin : PluginBase
     {
         public override string PluginID
         {
             get
             {
-                return "e7acec14-a68b-4116-b9a0-7d07be69de58";
+                return "D018511A-DBE7-45D6-B9AD-7A43360450C6";
             }
         }
+       
 
         public override string PluginName
         {
             get
             {
-                return "IngestTask";
+                return "IngestDevice";
             }
         }
 
@@ -32,16 +38,16 @@ namespace IngestTaskPlugin
         {
             get
             {
-                return "IngestTaskManager";
+                return "IngestDeviceManager";
             }
         }
 
 
         public override Task<ResponseMessage> Init(ApplicationContext context)
         {
-            context.Services.AddDbContext<IngestTaskPlugin.Models.IngestTaskDBContext>(options => options.UseMySql(context.ConnectionString), ServiceLifetime.Scoped);
-            context.Services.AddScoped<ITaskStore, TaskInfoStore>();
-            context.Services.AddScoped<TaskManager>();
+            context.Services.AddDbContext<IngestDeviceDBContext>(options => options.UseMySql(context.ConnectionString), ServiceLifetime.Scoped);
+            context.Services.AddScoped<IDeviceStore, DeviceInfoStore>();
+            context.Services.AddScoped<DeviceManager>();
 
             return base.Init(context);
         }

@@ -16,7 +16,7 @@ namespace Sobey.Ingest.CommonHelper
             var rsa = CommonHelper.ConvertFromPemPublicKey(publicKey);
             RSACryptoServiceProvider rsab = new RSACryptoServiceProvider();
             rsab.ImportParameters(rsa);
-            string str = $"INGEST_INGESTSERVER_{ ConvertDateTimeInt(DateTime.Now)}";
+            string str = $"INGESTSERVER_INGESTSERVER_{ ConvertDateTimeInt(DateTime.Now)}";
             byte[] sample = rsab.Encrypt(Encoding.UTF8.GetBytes(str), false);
             str = Convert.ToBase64String(sample);
             return str; 

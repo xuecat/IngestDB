@@ -20,10 +20,10 @@ namespace IngestTaskPlugin.Managers
         protected ITaskStore Store { get; }
         protected IMapper _mapper { get; }
 
-        public async Task<TaskMetadataResponse> GetTaskMetadataAsync(int taskid, int ntype)
+        public async Task<TResult> GetTaskMetadataAsync<TResult>( int taskid, int ntype)
         {
             var f = await Store.GetTaskMetaDataAsync(a => a.Where(b => b.Taskid == taskid && b.Metadatatype == ntype));
-            return _mapper.Map<TaskMetadataResponse>(f);
+            return _mapper.Map<TResult>(f);
         }
     }
 }

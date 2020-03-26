@@ -22,35 +22,40 @@ namespace IngestTaskPlugin.Controllers
         //private readonly ILogger Logger = LoggerManager.GetLogger("TaskInfo");
         //private readonly TaskManager _monthManage;
         //private readonly RestClient _restClient;
-        [HttpGet("taskmetadata/{taskid}"), MapToApiVersion("1.0")]
-        public async Task<ResponseMessage<TaskMetadataResponse>> OldGetTaskMetaData([FromRoute]int taskid, [FromQuery]int type)
+        [HttpGet("GetQueryTaskMetaData"), MapToApiVersion("1.0")]
+        public async Task<GetQueryTaskMetaData_param> OldGetTaskMetaData([FromQuery]int nTaskID, [FromQuery]int Type)
         {
-            var Response = new ResponseMessage<TaskMetadataResponse>();
-            if (taskid < 1)
+            if (nTaskID < 1)
             {
-                Response.Code = ResponseCodeDefines.ModelStateInvalid;
-                Response.Msg = "请求参数不正确";
+                var Response = new GetQueryTaskMetaData_param
+                {
+                    bRet = false
+                };
+                return Response;
             }
             try
             {
-                Response.Ext = await _taskManage.GetTaskMetadataAsync(taskid, type);
+                return await _taskManage.GetTaskMetadataAsync<GetQueryTaskMetaData_param>(nTaskID, Type);
             }
             catch (Exception e)
             {
+                var Response = new GetQueryTaskMetaData_param()
+                {
+                    bRet = false
+                };
                 if (e.GetType() == typeof(SobeyRecException))//sobeyexcep会自动打印错误
                 {
-                    SobeyRecException se = (SobeyRecException)e;
-                    Response.Code = se.ErrorCode.ToString();
-                    Response.Msg = se.Message;
+                    SobeyRecException se = e as SobeyRecException;
+                    Response.errStr = se.ErrorCode.ToString();
                 }
                 else
                 {
-                    Response.Code = ResponseCodeDefines.ServiceError;
-                    Response.Msg = "error info：" + e.ToString();
-                    Logger.Error(Response.Msg);
+                    Response.errStr = "error info：" + e.ToString();
+                    Logger.Error(Response.errStr);
                 }
+                return Response;
             }
-            return Response;
+            
         }
     }
 }

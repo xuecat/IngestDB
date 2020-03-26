@@ -12,7 +12,7 @@ namespace Sobey.Ingest.CommonHelper
     {
         public static void SetHeaderValue(this HttpContentHeaders Headers)
         {
-          Headers.Add("sobeyhive-http-system", "INGEST");
+          Headers.Add("sobeyhive-http-system", "INGESTSERVER");
           Headers.Add("sobeyhive-http-site", "S1");
           Headers.Add("sobeyhive-http-tool", "INGESTSERVER");
           Headers.Add("sobeyhive-http-secret", RSAHelper.RSAstr());
@@ -20,7 +20,7 @@ namespace Sobey.Ingest.CommonHelper
         }
         public static void SetHeaderValue(this HttpRequestHeaders Headers)
         {
-            Headers.Add("sobeyhive-http-system", "INGEST");
+            Headers.Add("sobeyhive-http-system", "INGESTSERVER");
             Headers.Add("sobeyhive-http-site", "S1");
             Headers.Add("sobeyhive-http-tool", "INGESTSERVER");
             Headers.Add("sobeyhive-http-secret", RSAHelper.RSAstr());
@@ -28,7 +28,7 @@ namespace Sobey.Ingest.CommonHelper
         }
         public static void SetHeaderValue(this HttpRequestHeaders Headers, string code)
         {
-            Headers.Add("sobeyhive-http-system", "INGEST");
+            Headers.Add("sobeyhive-http-system", "INGESTSERVER");
             Headers.Add("sobeyhive-http-site", "S1");
             Headers.Add("sobeyhive-http-tool", "INGESTSERVER");
             Headers.Add("sobeyhive-http-secret", RSAHelper.RSAstr());

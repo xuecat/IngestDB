@@ -4,6 +4,7 @@ using System.Text;
 
 namespace IngestDBCore
 {
+    
     public class ResponseMessage
     {
         public string Code { get; set; }

@@ -1,7 +1,6 @@
 ﻿using IngestDBCore;
 using IngestDBCore.Basic;
-using IngestDBCore.Tool;
-using IngestTaskPlugin.Dto;
+using IngestDevicePlugin.Dto.Response;
 using IngestTaskPlugin.Managers;
 using Microsoft.AspNetCore.Mvc;
 using Sobey.Core.Log;
@@ -10,23 +9,29 @@ using System.Collections.Generic;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace IngestTaskPlugin.Controllers
+namespace IngestDevicePlugin.Controllers
 {
-    [IngestAuthentication]
+    
+    
     [Route("api/v{version:apiVersion}/[controller]")]
     [ApiVersion("1.0")]
     [ApiVersion("2.0")]
     [ApiController]
-    public partial class TaskController : ControllerBase
+    public partial class DeviceController : ControllerBase
     {
-        private readonly ILogger Logger = LoggerManager.GetLogger("TaskInfo");
-        private readonly TaskManager _taskManage;
-        private readonly RestClient _restClient;
+        private readonly ILogger Logger = LoggerManager.GetLogger("DeviceInfo");
+        private readonly DeviceManager _deviceManage;
+        //private readonly RestClient _restClient;
 
-        public TaskController(RestClient rsc, TaskManager task)
+        public DeviceController(DeviceManager task)
         {
-            _taskManage = task;
-            _restClient = rsc;
+            _deviceManage = task;
+        }
+
+        public string Get()
+        {
+
+            return "DBPlatform Service is already startup at " + DateTime.Now.ToString();
         }
 
         /// <summary>
@@ -34,18 +39,15 @@ namespace IngestTaskPlugin.Controllers
         /// </summary>
         /// <param name="testinfo"></param>
         /// <returns></returns>
-        [HttpGet("taskmetadata/{taskid}")]
-        public async Task<ResponseMessage<TaskMetadataResponse>> GetTaskMetaData([FromRoute]int taskid, [FromQuery]int type)
+        [HttpGet("allrouterin")]
+        [IngestAuthentication]//device有点特殊，做了监听端口的所以不能全类检验
+        public async Task<ResponseMessage<List<RouterInResponse>>> AllRouterInPortInfo()
         {
-            var Response = new ResponseMessage<TaskMetadataResponse>();
-            if (taskid < 1)
-            {
-                Response.Code = ResponseCodeDefines.ModelStateInvalid;
-                Response.Msg = "请求参数不正确";
-            }
+            var Response = new ResponseMessage<List<RouterInResponse>>();
+            
             try
             {
-                Response.Ext = await _taskManage.GetTaskMetadataAsync<TaskMetadataResponse>(taskid, type);
+                Response.Ext = await _deviceManage.GetAllRouterInPortAsync<RouterInResponse>();
             }
             catch (Exception e)
             {

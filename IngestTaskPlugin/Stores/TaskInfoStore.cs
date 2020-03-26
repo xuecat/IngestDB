@@ -24,7 +24,6 @@ namespace IngestTaskPlugin.Stores
             {
                 throw new ArgumentNullException(nameof(query));
             }
-
             return await query.Invoke(Context.DbpTaskMetadata).SingleOrDefaultAsync();
         }
     }
