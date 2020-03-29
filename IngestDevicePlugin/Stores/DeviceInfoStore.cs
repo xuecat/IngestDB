@@ -17,13 +17,17 @@ namespace IngestDevicePlugin.Stores
 
         protected IngestDeviceDBContext Context { get; }
 
-        public async Task<List<DbpRcdindesc>> GetAllRouterInPortInfoAsync<TResult>(Func<IQueryable<DbpRcdindesc>, IQueryable<TResult>> query)
+        public async Task<List<DbpRcdindesc>> GetAllRouterInPortInfoAsync<TResult>(Func<IQueryable<DbpRcdindesc>, IQueryable<TResult>> query, bool notrack = false)
         {
             if (query == null)
             {
                 throw new ArgumentNullException(nameof(query));
             }
 
+            if (notrack)
+            {
+                return await Context.DbpRcdindesc.AsNoTracking().ToListAsync();
+            }
             return await Context.DbpRcdindesc.ToListAsync();
         }
 

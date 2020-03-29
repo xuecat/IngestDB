@@ -26,7 +26,7 @@ namespace IngestTaskPlugin.Managers
 
         public async virtual Task<TResult> GetTaskMetadataAsync<TResult>( int taskid, int ntype)
         {
-            var f = await Store.GetTaskMetaDataAsync(a => a.Where(b => b.Taskid == taskid && b.Metadatatype == ntype));
+            var f = await Store.GetTaskMetaDataAsync(a => a.Where(b => b.Taskid == taskid && b.Metadatatype == ntype), true);
             return _mapper.Map<TResult>(f);
         }
 
@@ -45,13 +45,19 @@ namespace IngestTaskPlugin.Managers
                 var groupitems = content.Element("GroupItems").Elements();
 
                 var channellist = groupitems.Select(l => int.Parse(l.Element("ItemData").Value));
-
-
+                
+                
             }
             catch (Exception e)
             {
                 SobeyRecException.ThrowSelfNoParam(taskid.ToString(), GlobalDictionary.GLOBALDICT_CODE_FILL_GETTASKMETADATA_EXCEPTION, Logger, e);
             }
         }
+
+        public async Task GetCapturingTask(int channelid)
+        { }
+
+        public async Task GetCapturingTaskList(List<int> channelid)
+        { }
     }
 }
