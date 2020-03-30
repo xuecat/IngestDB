@@ -23,7 +23,7 @@ namespace IngestTaskPlugin.Managers
 
         public async virtual Task<List<TResult>> GetAllRouterInPortAsync<TResult>()
         { 
-            return _mapper.Map<List<TResult>>(await Store.GetAllRouterInPortInfoAsync(a=>a));
+            return _mapper.Map<List<TResult>>(await Store.GetAllRouterInPortInfoAsync(a=>a, true));
         }
     }
 }

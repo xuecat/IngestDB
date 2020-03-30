@@ -7,11 +7,12 @@ using System.Threading.Tasks;
 
 namespace IngestDevicePlugin.Stores
 {
+    
     public interface IDeviceStore
     {
         //IQueryable<TaskInfo> SimpleQuery { get; }
 
-        Task<List<DbpRcdindesc>> GetAllRouterInPortInfoAsync<TResult>(Func<IQueryable<DbpRcdindesc>, IQueryable<TResult>> query);
+        Task<List<DbpRcdindesc>> GetAllRouterInPortInfoAsync<TResult>(Func<IQueryable<DbpRcdindesc>, IQueryable<TResult>> query, bool notrack = false);
 
     }
 }

@@ -13,6 +13,7 @@ namespace IngestDB
 {
     public class Program
     {
+
         private static Sobey.Core.Log.ILogger ExceptionLogger = null;
         public static void Main(string[] args)
         {
