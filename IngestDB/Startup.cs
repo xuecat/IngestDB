@@ -6,6 +6,7 @@ using System.Threading.Tasks;
 using System.Xml.Linq;
 using AutoMapper;
 using IngestDBCore;
+using IngestDBCore.Basic;
 using IngestDBCore.Plugin;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
@@ -17,6 +18,7 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
+using Microsoft.OpenApi.Models;
 
 namespace IngestDB
 {
@@ -81,12 +83,39 @@ namespace IngestDB
 
             services.AddToolDefined();
             services.AddApiVersioning(o => {
-                //o.ReportApiVersions = true;
+                o.ReportApiVersions = true;
                 //o.AssumeDefaultVersionWhenUnspecified = true;
-                //o.DefaultApiVersion = new ApiVersion(1, 0);
-                o.ApiVersionReader = new QueryStringApiVersionReader();
+                o.DefaultApiVersion = new ApiVersion(1, 0);
+                //o.ApiVersionReader = new QueryStringApiVersionReader();
                 o.AssumeDefaultVersionWhenUnspecified = true;
-                o.ApiVersionSelector = new CurrentImplementationApiVersionSelector(o);
+                //o.ApiVersionSelector = new CurrentImplementationApiVersionSelector(o);
+            });
+
+
+            services.AddSwaggerGen(c =>
+            {
+                c.SwaggerDoc("v1", new OpenApiInfo
+                {
+                    Version = "v1",
+                    Title = "应用网关接口文档",
+                    Description = "A simple example Ingest Web API",
+                    Contact = new OpenApiContact { Name = "XueCat", Email = "", Url = new Uri("http://xuecat")},
+                    TermsOfService = new Uri("None"),
+                });
+                //Set the comments path for the swagger json and ui.
+                var basePath = AppContext.BaseDirectory;
+                //var xmlPath6 = Path.Combine(basePath, "Plugin", "IngestGlobalPlugin.xml");
+                //var xmlPath7 = Path.Combine(basePath, "Plugin", "IngestDevicePlugin.xml");
+                var xmlPath8 = Path.Combine(basePath, "Plugin", "IngestTaskPlugin.xml");
+                //c.IncludeXmlComments(xmlPath);
+                //c.IncludeXmlComments(xmlPath2);
+                //c.IncludeXmlComments(xmlPath3);
+                //c.IncludeXmlComments(xmlPath4);
+                //c.IncludeXmlComments(xmlPath5);
+                //c.IncludeXmlComments(xmlPath6);
+                //c.IncludeXmlComments(xmlPath7);
+                c.IncludeXmlComments(xmlPath8);
+                c.OperationFilter<HttpHeaderOperation>(); // 添加httpHeader参数
             });
 
             //插件加载之后引用
@@ -141,6 +170,11 @@ namespace IngestDB
                 options.AllowAnyMethod();
                 options.AllowAnyOrigin();
                 options.AllowCredentials();
+            });
+            app.UseSwagger().UseSwaggerUI(c => {
+                c.SwaggerEndpoint("/swagger/v1/swagger.json", "IngestGateway API V1");
+                c.RoutePrefix = string.Empty;
+                //c.ShowRequestHeaders();
             });
 
             //需要吗？？？

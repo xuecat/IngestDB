@@ -34,7 +34,7 @@ namespace IngestTaskPlugin.Stores
         //Task<List<DbpTask>> GetCapturingTaskListAsync(List<int> lstchannel);
         Task SetVtrUploadTaskListState(List<int> lsttaskid, VTRUPLOADTASKSTATE vtrstate, string errinfo);
         Task SetVtrUploadTaskState(int taskid, VTRUPLOADTASKSTATE vtrstate, string errinfo);
-        Task StopCapturingChannelAsync(int Channel);
+        Task<int> StopCapturingChannelAsync(int Channel);
         Task<List<int>> StopCapturingListChannelAsync(List<int> lstChaneel);
     }
 }
