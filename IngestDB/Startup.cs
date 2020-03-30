@@ -54,6 +54,7 @@ namespace IngestDB
                 XElement sys = ps.Element("System");
 
                 applicationContext = new ApplicationContextImpl(services);
+                applicationContext.UseSwagger = false;
                 applicationContext.PluginFactory = new DefaultPluginFactory();
 
                 applicationContext.VIP = sys.Element("Sys_VIP").Value;//cfg["PublicSetting:System:Sys_VIP"];
@@ -91,32 +92,34 @@ namespace IngestDB
                 //o.ApiVersionSelector = new CurrentImplementationApiVersionSelector(o);
             });
 
+            var basePath = AppContext.BaseDirectory;
+            var xmlPath1 = Path.Combine(basePath, "Plugin", "IngestGlobalPlugin.xml");
+            var xmlPath2 = Path.Combine(basePath, "Plugin", "IngestDevicePlugin.xml");
+            var xmlPath3 = Path.Combine(basePath, "Plugin", "IngestTaskPlugin.xml");
 
-            services.AddSwaggerGen(c =>
+            if (File.Exists(xmlPath1) && File.Exists(xmlPath2) && File.Exists(xmlPath3))
             {
-                c.SwaggerDoc("v1", new OpenApiInfo
+                applicationContext.UseSwagger = true;
+                services.AddSwaggerGen(c =>
                 {
-                    Version = "v1",
-                    Title = "应用网关接口文档",
-                    Description = "A simple example Ingest Web API",
-                    Contact = new OpenApiContact { Name = "XueCat", Email = "", Url = new Uri("http://xuecat")},
-                    TermsOfService = new Uri("None"),
+                    c.SwaggerDoc("v1", new OpenApiInfo
+                    {
+                        Version = "v1",
+                        Title = "应用网关接口文档",
+                        Description = "A simple example Ingest Web API",
+                        Contact = new OpenApiContact { Name = "XueCat", Email = "", Url = new Uri("http://xuecat") },
+                        TermsOfService = new Uri("None"),
+                    });
+                    //Set the comments path for the swagger json and ui.
+
+
+                    //c.IncludeXmlComments(xmlPath5);
+                    //c.IncludeXmlComments(xmlPath6);
+                    //c.IncludeXmlComments(xmlPath7);
+                    c.IncludeXmlComments(xmlPath3);
+                    c.OperationFilter<HttpHeaderOperation>(); // 添加httpHeader参数
                 });
-                //Set the comments path for the swagger json and ui.
-                var basePath = AppContext.BaseDirectory;
-                //var xmlPath6 = Path.Combine(basePath, "Plugin", "IngestGlobalPlugin.xml");
-                //var xmlPath7 = Path.Combine(basePath, "Plugin", "IngestDevicePlugin.xml");
-                var xmlPath8 = Path.Combine(basePath, "Plugin", "IngestTaskPlugin.xml");
-                //c.IncludeXmlComments(xmlPath);
-                //c.IncludeXmlComments(xmlPath2);
-                //c.IncludeXmlComments(xmlPath3);
-                //c.IncludeXmlComments(xmlPath4);
-                //c.IncludeXmlComments(xmlPath5);
-                //c.IncludeXmlComments(xmlPath6);
-                //c.IncludeXmlComments(xmlPath7);
-                c.IncludeXmlComments(xmlPath8);
-                c.OperationFilter<HttpHeaderOperation>(); // 添加httpHeader参数
-            });
+            }
 
             //插件加载之后引用
             services.AddAutoMapper(applicationContext.AdditionalAssembly);
@@ -171,11 +174,15 @@ namespace IngestDB
                 options.AllowAnyOrigin();
                 options.AllowCredentials();
             });
-            app.UseSwagger().UseSwaggerUI(c => {
-                c.SwaggerEndpoint("/swagger/v1/swagger.json", "IngestGateway API V1");
-                c.RoutePrefix = string.Empty;
-                //c.ShowRequestHeaders();
-            });
+
+            if (applicationContext.UseSwagger)
+            {
+                app.UseSwagger().UseSwaggerUI(c => {
+                    c.SwaggerEndpoint("/swagger/v1/swagger.json", "IngestGateway API V1");
+                    c.RoutePrefix = string.Empty;
+                    //c.ShowRequestHeaders();
+                });
+            }
 
             //需要吗？？？
             //app.UseStaticFiles(new StaticFileOptions()  
