@@ -96,10 +96,10 @@ namespace IngestDBCore
                 _globalDict.Add(GLOBALDICT_CODE_DATABASE_FATAL_ERROR, "致命的数据库错误@Database fatal error@致命的數據庫錯誤@");
                 _globalDict.Add(GLOBALDICT_CODE_NO_CAPTURE_PARAM, "没有配置采集参数@No Capture Param@沒有配置採集參數@");
                 _globalDict.Add(GLOBALDICT_CODE_THE_NCHANNEL_CANNOT_NEGATIVE, "通道ID不合法@The Channel cannot negative!@通道ID不合法@");
-                _globalDict.Add(GLOBALDICT_CODE_NO_USEABLE_CHANNEL_CONFLICT_TASKS, "没有可用的通道，相冲突的任务是{0}@No Useable Channel, Conflict Tasks:{0}@沒有可用的通道，相衝突的任務是{0}@");
+                _globalDict.Add(GLOBALDICT_CODE_NO_USEABLE_CHANNEL_CONFLICT_TASKS_ONEPARAM, "没有可用的通道，相冲突的任务是{0}@No Useable Channel, Conflict Tasks:{0}@沒有可用的通道，相衝突的任務是{0}@");
                 _globalDict.Add(GLOBALDICT_CODE_SELECTED_CHANNEL_IS_BUSY, "选择的通道正在执行任务@Selected Channel is busy!@選擇的通道正在執行任務@");
                 _globalDict.Add(GLOBALDICT_CODE_ALL_USEABLE_CHANNELS_ARE_BUSY, " 所有可用通道都正在执行任务@ All useable channels are busy!@ 所有可用通道都正在執行任務@");
-                _globalDict.Add(GLOBALDICT_CODE_CHANNEL_IS_BUSY_AND_CLASH_TASK_INFO, "通道正在执行任务，冲突任务信息：任务名{0}，任务开始时间{1}@This channel is busy! Conflict task information is:[TASKNAME:{0}**STARTTIME:{1}]@通道正在執行任務，衝突任務信息：任務名{0}，任務開始時間{1}@");
+                _globalDict.Add(GLOBALDICT_CODE_CHANNEL_IS_BUSY_AND_CLASH_TASK_INFO_TWOPARAM, "通道正在执行任务，冲突任务信息：任务名{0}，任务开始时间{1}@This channel is busy! Conflict task information is:[TASKNAME:{0}**STARTTIME:{1}]@通道正在執行任務，衝突任務信息：任務名{0}，任務開始時間{1}@");
                 _globalDict.Add(GLOBALDICT_CODE_CAN_NOT_FIND_SIGNAL_SRC_FOR_CHANNEL, "不能为信号源找到可用通道@Can not find signal src for channel@不能為信號源找到可用通道@");
                 _globalDict.Add(GLOBALDICT_CODE_CAN_NOT_FIND_THE_END_DATE_IN_CAPTURE_PARAM, "在采集参数中未能找到采集截止时间@Can not find the end date in capture param!@在採集參數中未能找到採集截止時間@");
                 _globalDict.Add(GLOBALDICT_CODE_NO_USEABLE_CHANNEL, "没有可用的通道@No Useable Channel.@沒有可用的通道@");
@@ -113,9 +113,9 @@ namespace IngestDBCore
                 _globalDict.Add(GLOBALDICT_CODE_TASK_TIME_IS_OVER_24_HOURS, "任务信息错误，非周期任务的时长超过24小时@The task's time is over 24 hours@任務信息錯誤，非週期任務的時長超過24小時@");
                 _globalDict.Add(GLOBALDICT_CODE_TASK_IS_LOCKED, "任务被锁定@Task Is Locked!@任務被鎖定@");
                 _globalDict.Add(GLOBALDICT_CODE_SIGNAL_AND_CHANNEL_IS_MISMATCHED, "信号源和通道不匹配@The signal and channel is mismatched@信號源和通道不匹配@");
-                _globalDict.Add(GLOBALDICT_CODE_CAN_NOT_FIND_THE_TASK, "找不到ID为{0}的任务@Can not find the task.TaskId = {0}@找不到ID為{0}的任務@");
-                _globalDict.Add(GLOBALDICT_CODE_VTR_HAS_BEEN_USED_BY_OTHER_TASKS, "{0}的VTR设备已经被其它任务所占用@{0} has been used by other tasks@{0}的VTR設備已經被其它任務所佔用@");
-                _globalDict.Add(GLOBALDICT_CODE_CAN_NOT_MODIFY_TIME_CONFLICT_TASKS, "不能更改任务时间，冲突任务包括{0}@Can Not Modify Time, Conflict Tasks:{0}@不能更改任務時間，衝突任務包括{0}@");
+                _globalDict.Add(GLOBALDICT_CODE_CAN_NOT_FIND_THE_TASK_ONEPARAM, "找不到ID为{0}的任务@Can not find the task.TaskId = {0}@找不到ID為{0}的任務@");
+                _globalDict.Add(GLOBALDICT_CODE_VTR_HAS_BEEN_USED_BY_OTHER_TASKS_ONEPARAM, "{0}的VTR设备已经被其它任务所占用@{0} has been used by other tasks@{0}的VTR設備已經被其它任務所佔用@");
+                _globalDict.Add(GLOBALDICT_CODE_CAN_NOT_MODIFY_TIME_CONFLICT_TASKS_ONEPARAM, "不能更改任务时间，冲突任务包括{0}@Can Not Modify Time, Conflict Tasks:{0}@不能更改任務時間，衝突任務包括{0}@");
                 _globalDict.Add(GLOBALDICT_CODE_SET_TASKMETADATA_FAIL, "更新任务元数据失败@Set task metadata Fail.@更新任務元數據失敗@");
                 _globalDict.Add(GLOBALDICT_CODE_TASK_IS_NOT_A_PERIODIC_TASK, "任务不是一个周期任务@The Task is not a Periodic Task.@任務不是一個週期任務@");
                 _globalDict.Add(GLOBALDICT_CODE_NOT_DISPOSE_SEPARATE_PERIODIC_TASK, "不能单独处理已拆分出来的周期任务@Can not process separate periodic task.@不能單獨處理已拆分出來的週期任務@");
@@ -128,12 +128,12 @@ namespace IngestDBCore
                 _globalDict.Add(GLOBALDICT_CODE_MATERIAL_DOES_NOT_EXIST, "素材不存在@Material does not exist.@素材不存在@");
                 _globalDict.Add(GLOBALDICT_CODE_FILL_PLANNING_FAILED, "保存计划任务数据失败@Fail to save scheduled task metadata.@保存計劃任務數據失敗@");
                 _globalDict.Add(GLOBALDICT_CODE_TASK_ID_DOES_NOT_EXIST, "任务ID不存在@Task ID Does Not Exist@任務ID不存在@");
-                _globalDict.Add(GLOBALDICT_CODE_TASK_IS_A_STENCIL_PLATE_TASK_OF_PERIODIC_TASKS, "修改任务状态时，该任务是一个周期任务的模板而不能修改，任务ID：{0}@In SetTaskState, Task is a stencil-plate task of periodic tasks, ID:{0}@修改任務狀態時，該任務是一個週期任務的模板而不能修改，任務ID：{0}@");
-                _globalDict.Add(GLOBALDICT_CODE_TASK_ID_IS_NOT_AVAILABLE_OR_TASK_IS_LOCKED, "任务信息不可用或任务正处理锁定状态不能操作，任务ID：{0}@Task ID is not available Or Task Is Locked! ID:{0}@任務信息不可用或任務正處理鎖定狀態不能操作，任務ID：{0}@");
+                _globalDict.Add(GLOBALDICT_CODE_TASK_IS_A_STENCIL_PLATE_TASK_OF_PERIODIC_TASKS_ONEPARAM, "修改任务状态时，该任务是一个周期任务的模板而不能修改，任务ID：{0}@In SetTaskState, Task is a stencil-plate task of periodic tasks, ID:{0}@修改任務狀態時，該任務是一個週期任務的模板而不能修改，任務ID：{0}@");
+                _globalDict.Add(GLOBALDICT_CODE_TASK_ID_IS_NOT_AVAILABLE_OR_TASK_IS_LOCKED_ONEPARAM, "任务信息不可用或任务正处理锁定状态不能操作，任务ID：{0}@Task ID is not available Or Task Is Locked! ID:{0}@任務信息不可用或任務正處理鎖定狀態不能操作，任務ID：{0}@");
                 _globalDict.Add(GLOBALDICT_CODE_TASK_ID_IS_NOT_AVAILABLE, "任务ID是不可用的@Task ID is not available@任務ID是不可用的@");
-                _globalDict.Add(GLOBALDICT_CODE_TASK_IS_NOT_EXSIT, "任务ID为{0}的任务并不存在@Task is not exsit: Task ID:{0}@任務ID為{0}的任務並不存在@");
-                _globalDict.Add(GLOBALDICT_CODE_IN_STOPMANUTASK_TASK_IS_A_STENCIL_PLATE_TASK, "在停止手动任务操作中，任务ID为{0}的任务是周期任务的模板任务@In StopManuTask, Task is a stencil-plate task of periodic tasks, ID:{0}@在停止手動任務操作中，任務ID為{0}的任務是週期任務的模板任務@");
-                _globalDict.Add(GLOBALDICT_CODE_IN_STOPCAPTURE_TASK_IS_A_STENCIL_PLATE_TASK, "在停止采集操作中，任务ID为{0}的任务是周期任务的模板任务@In StopCapture, Task is a stencil-plate task of periodic tasks, ID:{0}@在停止採集操作中，任務ID為{0}的任務是週期任務的模板任務@");
+                _globalDict.Add(GLOBALDICT_CODE_TASK_IS_NOT_EXSIT_ONEPARAM, "任务ID为{0}的任务并不存在@Task is not exsit: Task ID:{0}@任務ID為{0}的任務並不存在@");
+                _globalDict.Add(GLOBALDICT_CODE_IN_STOPMANUTASK_TASK_IS_A_STENCIL_PLATE_TASK_ONEPARAM, "在停止手动任务操作中，任务ID为{0}的任务是周期任务的模板任务@In StopManuTask, Task is a stencil-plate task of periodic tasks, ID:{0}@在停止手動任務操作中，任務ID為{0}的任務是週期任務的模板任務@");
+                _globalDict.Add(GLOBALDICT_CODE_IN_STOPCAPTURE_TASK_IS_A_STENCIL_PLATE_TASK_ONEPARAM, "在停止采集操作中，任务ID为{0}的任务是周期任务的模板任务@In StopCapture, Task is a stencil-plate task of periodic tasks, ID:{0}@在停止採集操作中，任務ID為{0}的任務是週期任務的模板任務@");
                 _globalDict.Add(GLOBALDICT_CODE_TASK_GUID_IS_NULL, "任务信息中的GUID为空@Task Guid is null@任務信息中的GUID為空@");
                 _globalDict.Add(GLOBALDICT_CODE_TASKSET_IS_NULL, "任务数据记录为空@TaskSet is null@任務數據記錄為空@");
                 _globalDict.Add(GLOBALDICT_CODE_UPDATE_TASKSOURCE_FAILED, "更新任务信息中的源信息时失败@Update TaskSource Failed@更新任務信息中的源信息時失敗@");
@@ -165,15 +165,15 @@ namespace IngestDBCore
                 _globalDict.Add(GLOBALDICT_CODE_XDCAM_TASK_FILE_DOES_NOT_EXIST, "指定的XDCAM任务文件并不存在@XDCAM Task File does not exist.@指定的XDCAM任務文件並不存在@");
                 _globalDict.Add(GLOBALDICT_CODE_USABLE_XDCAM_DISK_DOES_NOT_EXIST, "可以使用的XDCAM磁盘并不存在@No usable XDCAM Disc.@可以使用的XDCAM磁盤並不存在@");
                 _globalDict.Add(GLOBALDICT_CODE_DISKES_IS_MORE_THAN_THE_DEVICES, "XDCAM磁盘数超过XDCAM设备数@The count of XDCAM Disc is more than the count of XDCAM Device.@XDCAM磁盤數超過XDCAM設備數@");
-                _globalDict.Add(GLOBALDICT_CODE_VTRID_DOES_NOT_EXIST_THE_NVTRID_IS, "ID为{0}的VTR设备并不存在！@VTR ID does not exist: VTR ID is {0}.@ID為{0}的VTR設備並不存在！@");
+                _globalDict.Add(GLOBALDICT_CODE_VTRID_DOES_NOT_EXIST_THE_NVTRID_IS_ONEPARAM, "ID为{0}的VTR设备并不存在！@VTR ID does not exist: VTR ID is {0}.@ID為{0}的VTR設備並不存在！@");
                 _globalDict.Add(GLOBALDICT_CODE_INSET_AND_OUTSET_SEQUENCE_OF_THE_NUMBER_DOES_NOT_MATCH, "入出点序列个数不匹配@The number between IN point and OUT point is mismatched.@入出點序列個數不匹配@");
-                _globalDict.Add(GLOBALDICT_CODE_IN_SETVTRTAPEMAP_TAPEID_IS_NOT_EXIST, "在SetVtrTapeMap操作中，传入的磁带ID{0}并不存在@In SetVtrTapeMap,TapeID is not exist,TapeID = {0}@在SetVtrTapeMap操作中，傳入的磁帶ID{0}並不存在@");
-                _globalDict.Add(GLOBALDICT_CODE_IN_SETVTRTAPEMAP2_TAPEID_IS_NOT_EXIST, "在SetVtrTapeMap2操作中，传入的磁带ID{0}并不存在@In SetVtrTapeMap2,TapeID is not exist,TapeID = {0}@在SetVtrTapeMap2操作中，傳入的磁帶ID{0}並不存在@");
+                _globalDict.Add(GLOBALDICT_CODE_IN_SETVTRTAPEMAP_TAPEID_IS_NOT_EXIST_ONEPARAM, "在SetVtrTapeMap操作中，传入的磁带ID{0}并不存在@In SetVtrTapeMap,TapeID is not exist,TapeID = {0}@在SetVtrTapeMap操作中，傳入的磁帶ID{0}並不存在@");
+                _globalDict.Add(GLOBALDICT_CODE_IN_SETVTRTAPEMAP2_TAPEID_IS_NOT_EXIST_ONEPARAM, "在SetVtrTapeMap2操作中，传入的磁带ID{0}并不存在@In SetVtrTapeMap2,TapeID is not exist,TapeID = {0}@在SetVtrTapeMap2操作中，傳入的磁帶ID{0}並不存在@");
                 _globalDict.Add(GLOBALDICT_CODE_USER_ID_DOES_NOT_EXIST, "传入的用户ID并不存在@User ID does not exist.@傳入的用戶ID並不存在@");
                 _globalDict.Add(GLOBALDICT_CODE_USER_PARAM_ID_DOES_NOT_EXIST, "传入的用户参数ID并不存在@User Parameter ID does not exist.@傳入的用戶參數ID並不存在@");
                 _globalDict.Add(GLOBALDICT_CODE_USER_PARAM_DOES_NOT_EXIST, "用户参数信息并不存在@User Parameter does not exist.@用戶參數信息並不存在@");
-                _globalDict.Add(GLOBALDICT_CODE_THE_USER_TEMPLATE_HAS_EXISTS, "名为{0}的用户模板配置信息已经存在@User tempalte is already existed: Title {0}@名為{0}的用戶模板配置信息已經存在@");
-                _globalDict.Add(GLOBALDICT_CODE_CAN_NOT_FIND_THE_TEMPLATE_ID_IS, "找不到ID为{0}的用户模板配置信息@Can not find the template. ID = {0}@找不到ID為{0}的用戶模板配置信息@");
+                _globalDict.Add(GLOBALDICT_CODE_THE_USER_TEMPLATE_HAS_EXISTS_ONEPARAM, "名为{0}的用户模板配置信息已经存在@User tempalte is already existed: Title {0}@名為{0}的用戶模板配置信息已經存在@");
+                _globalDict.Add(GLOBALDICT_CODE_CAN_NOT_FIND_THE_TEMPLATE_ID_IS_ONEPARAM, "找不到ID为{0}的用户模板配置信息@Can not find the template. ID = {0}@找不到ID為{0}的用戶模板配置信息@");
                 _globalDict.Add(GLOBALDICT_CODE_FAIL_TO_GET_NEXT_VALUE_FOR_DBP_SQ_TRANSCODEID, "从DBP_SQ_TRANSCODEID中取下一序列值失败@Faield to get the next value for DBP_SQ_TRANSCODEID.@從DBP_SQ_TRANSCODEID中取下一序列值失敗@");
                 _globalDict.Add(GLOBALDICT_CODE_FAIL_TO_FIND_THE_APPOINTED_TRANSCODE, "无法找到指定的转码模板@Failed to find the transcode template.@無法找到指定的轉碼模板@");
                 _globalDict.Add(GLOBALDICT_CODE_FAIL_TO_FIND_THE_APPOINTED_ARCHIVETYPE, "无法找到指定的存档类型@Failed to find the Archive type.@無法找到指定的存檔類型@");
@@ -185,9 +185,9 @@ namespace IngestDBCore
                 _globalDict.Add(GLOBALDICT_CODE_TASK_POLICY_DOES_NOT_EXIST, "任务的策略信息并不存在@Information of task policy is not existed.@任務的策略信息並不存在@");
                 _globalDict.Add(GLOBALDICT_CODE_CONVERT_PARAMS_ERROR_IN_MEDIAROW2MEDIASTRUCT, "在MediaRow2MediaStruct过程中，转换参数失败@Convert Params Error in MediaRow2MediaStruct@在MediaRow2MediaStruct過程中，轉換參數失敗@");
                 _globalDict.Add(GLOBALDICT_CODE_FAIL_TO_FIND_THE_APPOINTED_MATERIAL, "无法找到指定的素材@Failed to find the material.@無法找到指定的素材@");
-                _globalDict.Add(GLOBALDICT_CODE_MATERIAL_ID_DOES_NOT_EXIST, "ID为{0}的素材并不存在@Material ID {0} is not existed.@ID為{0}的素材並不存在@");
+                _globalDict.Add(GLOBALDICT_CODE_MATERIAL_ID_DOES_NOT_EXIST_ONEPARAM, "ID为{0}的素材并不存在@Material ID {0} is not existed.@ID為{0}的素材並不存在@");
                 _globalDict.Add(GLOBALDICT_CODE_MATERIAL_POLICY_DOES_NOT_EXIST, "素材的策略信息并不存在@Material policy is not existed.@素材的策略信息並不存在@");
-                _globalDict.Add(GLOBALDICT_CODE_FAILED_TO_GET_MATERIAL_BY_TASKID_FOR_POLICYID, "通过任务ID{0}和策略ID{1}获取素材失败@Failed to get task ID {0} and policy ID {1}.@通過任務ID{0}和策略ID{1}獲取素材失敗@");
+                _globalDict.Add(GLOBALDICT_CODE_FAILED_TO_GET_MATERIAL_BY_TASKID_FOR_POLICYID_TWOPARAM, "通过任务ID{0}和策略ID{1}获取素材失败@Failed to get task ID {0} and policy ID {1}.@通過任務ID{0}和策略ID{1}獲取素材失敗@");
                 _globalDict.Add(GLOBALDICT_CODE_IMPORT_TASK_ID_DOES_NOT_EXIST, "引入任务的ID并不存在@Importing task ID is not existed.@引入任務的ID並不存在@");
                 _globalDict.Add(GLOBALDICT_CODE_ROUTER_SERVER_ID_DOES_NOT_EXIST, "Router服务器的ID并不存在@Router Server ID is not existed.@Router服務器的ID並不存在@");
                 _globalDict.Add(GLOBALDICT_CODE_MESSAGE_ID_DOES_NOT_EXIST, "消息ID并不存在@Message ID is not existed.@消息ID並不存在@");
@@ -363,13 +363,13 @@ namespace IngestDBCore
                 _globalDict.Add(GLOBALDICT_CODE_NEXT_TIME_IS_MORE_THAN_1_MINUTE, "周期任务下次执行的时间在1分钟之后@The next time is more than 1 minute.@週期任務下次執行的時間在1分鐘之後@");
                 _globalDict.Add(GLOBALDICT_CODE_TASKID_IS_NULL, "任务ID为空值@The TaskID is null.@任務ID為空值@");
                 _globalDict.Add(GLOBALDICT_CODE_CAN_NOT_DELETE_THE_COMPLETE_TASK, "不能删除已完成的任务@Can not delete the complete task.@不能刪除已完成的任務@");
-                _globalDict.Add(GLOBALDICT_CODE_CHANNEL_IS_NOT_AVAILABLE, "通道不可用！任务{0}会在{1}调度执行。@Channel is not available! Scheduled task {0} will begin at {1}.@通道不可用！任務{0}會在{1}調度執行。@");
-                _globalDict.Add(GLOBALDICT_CODE_SCHEDULED_TASK_WILL_BEGIN_AT, "任务{0}会在{1}的时刻调度执行。@Scheduled task {0} will begin at {1}. @任務{0}會在{1}的時刻調度執行。@");
+                _globalDict.Add(GLOBALDICT_CODE_CHANNEL_IS_NOT_AVAILABLE_TWOPARAM, "通道不可用！任务{0}会在{1}调度执行。@Channel is not available! Scheduled task {0} will begin at {1}.@通道不可用！任務{0}會在{1}調度執行。@");
+                _globalDict.Add(GLOBALDICT_CODE_SCHEDULED_TASK_WILL_BEGIN_AT_TWOPARAM, "任务{0}会在{1}的时刻调度执行。@Scheduled task {0} will begin at {1}. @任務{0}會在{1}的時刻調度執行。@");
                 _globalDict.Add(GLOBALDICT_CODE_CANNOTMODIFYTASK_WHERE_FILING, "任务正在采集，不能修改@Can not modify where the task is running@任務正在採集，不能修改@");
                 _globalDict.Add(GLOBALDICT_CODE_PROGRAM_NAME_REPEATED, "信号源名字不能重复@Signal name can not repeat@信號源名字不能重複@");
 
                 _globalDict.Add(GLOBALDICT_CODE_FILL_GETTASKMETADATA_EXCEPTION, "在GetTaskMetaData过程中发生错误@Error in GetTaskMetaData.@在GetTaskMetaData過程中發生錯誤@");
-                
+                 
                 // 调试日志
                 //ApplicationLog.WriteDebugTraceLog0(string.Format("### GlobalDictionary having {0} count Dict record. ###", _globalDict.Count));
             }
@@ -415,7 +415,7 @@ namespace IngestDBCore
         /// <summary>
         /// 没有可用的通道，相冲突的任务是: 18003
         /// </summary>
-        public const int GLOBALDICT_CODE_NO_USEABLE_CHANNEL_CONFLICT_TASKS = 18003;
+        public const int GLOBALDICT_CODE_NO_USEABLE_CHANNEL_CONFLICT_TASKS_ONEPARAM = 18003;
 
         /// <summary>
         /// 选择的通道正忙: 18004
@@ -430,7 +430,7 @@ namespace IngestDBCore
         /// <summary>
         /// 通道正忙，冲突的任务信息是: 18006
         /// </summary>
-        public const int GLOBALDICT_CODE_CHANNEL_IS_BUSY_AND_CLASH_TASK_INFO = 18006;
+        public const int GLOBALDICT_CODE_CHANNEL_IS_BUSY_AND_CLASH_TASK_INFO_TWOPARAM = 18006;
 
         /// <summary>
         /// 不能为信号源找到可用通道: 18007
@@ -500,17 +500,17 @@ namespace IngestDBCore
         /// <summary>
         /// 找不到ID为*的任务: 18020
         /// </summary>
-        public const int GLOBALDICT_CODE_CAN_NOT_FIND_THE_TASK = 18020;
+        public const int GLOBALDICT_CODE_CAN_NOT_FIND_THE_TASK_ONEPARAM = 18020;
 
         /// <summary>
         /// VTR设备已经被其它任务所占用: 18021
         /// </summary>
-        public const int GLOBALDICT_CODE_VTR_HAS_BEEN_USED_BY_OTHER_TASKS = 18021;
+        public const int GLOBALDICT_CODE_VTR_HAS_BEEN_USED_BY_OTHER_TASKS_ONEPARAM = 18021;
 
         /// <summary>
         /// 不能更改任务时间，冲突任务包括: 18022
         /// </summary>
-        public const int GLOBALDICT_CODE_CAN_NOT_MODIFY_TIME_CONFLICT_TASKS = 18022;
+        public const int GLOBALDICT_CODE_CAN_NOT_MODIFY_TIME_CONFLICT_TASKS_ONEPARAM = 18022;
 
         /// <summary>
         /// 更新任务元数据失败: 18023
@@ -575,12 +575,12 @@ namespace IngestDBCore
         /// <summary>
         /// 修改任务状态时，该任务是一个周期任务的模板而不能修改: 18035
         /// </summary>
-        public const int GLOBALDICT_CODE_TASK_IS_A_STENCIL_PLATE_TASK_OF_PERIODIC_TASKS = 18035;
+        public const int GLOBALDICT_CODE_TASK_IS_A_STENCIL_PLATE_TASK_OF_PERIODIC_TASKS_ONEPARAM = 18035;
 
         /// <summary>
         /// 任务信息不可用或任务正处理锁定状态不能操作: 18036
         /// </summary>
-        public const int GLOBALDICT_CODE_TASK_ID_IS_NOT_AVAILABLE_OR_TASK_IS_LOCKED = 18036;
+        public const int GLOBALDICT_CODE_TASK_ID_IS_NOT_AVAILABLE_OR_TASK_IS_LOCKED_ONEPARAM = 18036;
 
         /// <summary>
         /// 任务ID是不可用的: 18037
@@ -590,17 +590,17 @@ namespace IngestDBCore
         /// <summary>
         /// 任务ID为{0}的任务并不存在: 18038
         /// </summary>
-        public const int GLOBALDICT_CODE_TASK_IS_NOT_EXSIT = 18038;
+        public const int GLOBALDICT_CODE_TASK_IS_NOT_EXSIT_ONEPARAM = 18038;
 
         /// <summary>
         /// 在停止手动任务操作中，任务ID为{0}的任务是周期任务的模板任务: 18039
         /// </summary>
-        public const int GLOBALDICT_CODE_IN_STOPMANUTASK_TASK_IS_A_STENCIL_PLATE_TASK = 18039;
+        public const int GLOBALDICT_CODE_IN_STOPMANUTASK_TASK_IS_A_STENCIL_PLATE_TASK_ONEPARAM = 18039;
 
         /// <summary>
         /// 在停止采集操作中，任务ID为{0}的任务是周期任务的模板任务: 18040
         /// </summary>
-        public const int GLOBALDICT_CODE_IN_STOPCAPTURE_TASK_IS_A_STENCIL_PLATE_TASK = 18040;
+        public const int GLOBALDICT_CODE_IN_STOPCAPTURE_TASK_IS_A_STENCIL_PLATE_TASK_ONEPARAM = 18040;
 
         /// <summary>
         /// 任务信息中的唯一标识为空: 18041
@@ -760,7 +760,7 @@ namespace IngestDBCore
         /// <summary>
         /// ID为{0}的VTR设备并不存在: 18072
         /// </summary>
-        public const int GLOBALDICT_CODE_VTRID_DOES_NOT_EXIST_THE_NVTRID_IS = 18072;
+        public const int GLOBALDICT_CODE_VTRID_DOES_NOT_EXIST_THE_NVTRID_IS_ONEPARAM = 18072;
 
         /// <summary>
         /// 入出点序列个数不匹配: 18073
@@ -770,12 +770,12 @@ namespace IngestDBCore
         /// <summary>
         /// 在SetVtrTapeMap操作中，传入的磁带ID{0}并不存在: 18074
         /// </summary>
-        public const int GLOBALDICT_CODE_IN_SETVTRTAPEMAP_TAPEID_IS_NOT_EXIST = 18074;
+        public const int GLOBALDICT_CODE_IN_SETVTRTAPEMAP_TAPEID_IS_NOT_EXIST_ONEPARAM = 18074;
 
         /// <summary>
         /// 在SetVtrTapeMap2操作中，传入的磁带ID{0}并不存在: 18075
         /// </summary>
-        public const int GLOBALDICT_CODE_IN_SETVTRTAPEMAP2_TAPEID_IS_NOT_EXIST = 18075;
+        public const int GLOBALDICT_CODE_IN_SETVTRTAPEMAP2_TAPEID_IS_NOT_EXIST_ONEPARAM = 18075;
 
         /// <summary>
         /// 传入的用户ID并不存在: 18076
@@ -795,12 +795,12 @@ namespace IngestDBCore
         /// <summary>
         /// 名为{0}的用户模板配置信息已经存在
         /// </summary>
-        public const int GLOBALDICT_CODE_THE_USER_TEMPLATE_HAS_EXISTS = 18079;
+        public const int GLOBALDICT_CODE_THE_USER_TEMPLATE_HAS_EXISTS_ONEPARAM = 18079;
 
         /// <summary>
         /// 找不到ID为{0}的用户模板配置信息: 18080
         /// </summary>
-        public const int GLOBALDICT_CODE_CAN_NOT_FIND_THE_TEMPLATE_ID_IS = 18080;
+        public const int GLOBALDICT_CODE_CAN_NOT_FIND_THE_TEMPLATE_ID_IS_ONEPARAM = 18080;
 
         /// <summary>
         /// 从DBP_SQ_TRANSCODEID中取下一序列值失败: 18081
@@ -860,7 +860,7 @@ namespace IngestDBCore
         /// <summary>
         /// ID为{0}的素材并不存在: 18092
         /// </summary>
-        public const int GLOBALDICT_CODE_MATERIAL_ID_DOES_NOT_EXIST = 18092;
+        public const int GLOBALDICT_CODE_MATERIAL_ID_DOES_NOT_EXIST_ONEPARAM = 18092;
 
         /// <summary>
         /// 素材的策略信息并不存在: 18093
@@ -870,7 +870,7 @@ namespace IngestDBCore
         /// <summary>
         /// 通过任务ID{0}和策略ID{1}获取素材失败: 18094
         /// </summary>
-        public const int GLOBALDICT_CODE_FAILED_TO_GET_MATERIAL_BY_TASKID_FOR_POLICYID = 18094;
+        public const int GLOBALDICT_CODE_FAILED_TO_GET_MATERIAL_BY_TASKID_FOR_POLICYID_TWOPARAM = 18094;
 
         /// <summary>
         /// 引入任务的ID并不存在: 18095
@@ -1750,13 +1750,13 @@ namespace IngestDBCore
         /// <summary>
         /// 通道不可用！ \r\n 任务{0}会在{1}调度执行。: 18270
         /// </summary>
-        public const int GLOBALDICT_CODE_CHANNEL_IS_NOT_AVAILABLE = 18270;
+        public const int GLOBALDICT_CODE_CHANNEL_IS_NOT_AVAILABLE_TWOPARAM = 18270;
 
 
         /// <summary>
         /// 任务{0}会在{1}的时刻调度执行。: 18271
         /// </summary>
-        public const int GLOBALDICT_CODE_SCHEDULED_TASK_WILL_BEGIN_AT = 18271;
+        public const int GLOBALDICT_CODE_SCHEDULED_TASK_WILL_BEGIN_AT_TWOPARAM = 18271;
 
         public const int GLOBALDICT_CODE_CANNOTMODIFYTASK_WHERE_FILING = 18272;
         public const int GLOBALDICT_CODE_PROGRAM_NAME_REPEATED = 18273;
