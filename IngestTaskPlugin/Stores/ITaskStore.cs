@@ -31,10 +31,10 @@ namespace IngestTaskPlugin.Stores
         Task<TResult> GetTaskMetaDataAsync<TResult>(Func<IQueryable<DbpTaskMetadata>, IQueryable<TResult>> query, bool notrack = false);
         Task<List<TResult>> GetTaskListAsync<TResult>(Func<IQueryable<DbpTask>, IQueryable<TResult>> query, bool notrack = false);
         Task<TResult> GetTaskAsync<TResult>(Func<IQueryable<DbpTask>, IQueryable<TResult>> query, bool notrack = false);
-
         //Task<List<DbpTask>> GetCapturingTaskListAsync(List<int> lstchannel);
-
+        Task SetVtrUploadTaskListState(List<int> lsttaskid, VTRUPLOADTASKSTATE vtrstate, string errinfo);
+        Task SetVtrUploadTaskState(int taskid, VTRUPLOADTASKSTATE vtrstate, string errinfo);
         Task StopCapturingChannelAsync(int Channel);
-        Task StopCapturingListChannelAsync(List<int> lstChaneel);
+        Task<List<int>> StopCapturingListChannelAsync(List<int> lstChaneel);
     }
 }

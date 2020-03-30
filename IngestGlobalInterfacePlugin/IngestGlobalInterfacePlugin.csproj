@@ -8,4 +8,8 @@
     <OutputPath>..\Bin\Plugin</OutputPath>
   </PropertyGroup>
 
+  <ItemGroup>
+    <ProjectReference Include="..\IngestGlobalPlugin\IngestGlobalPlugin.csproj" />
+  </ItemGroup>
+
 </Project>

@@ -1,9 +1,11 @@
 ﻿using IngestDBCore;
 using IngestDBCore.Basic;
+using IngestDBCore.Interface;
 using IngestDBCore.Tool;
 using IngestTaskPlugin.Dto;
 using IngestTaskPlugin.Managers;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.Extensions.DependencyInjection;
 using Sobey.Core.Log;
 using System;
 using System.Collections.Generic;
@@ -66,9 +68,9 @@ namespace IngestTaskPlugin.Controllers
         }
 
         [HttpPut("stopgrouptask/{taskid}")]
-        public async Task<ResponseMessage> GroupTask([FromRoute]int taskid)
+        public async Task<ResponseMessage<List<int>>> StopGroupTask([FromRoute]int taskid)
         {
-            var Response = new ResponseMessage();
+            var Response = new ResponseMessage<List<int>>();
             if (taskid < 1)
             {
                 Response.Code = ResponseCodeDefines.ModelStateInvalid;
@@ -76,7 +78,18 @@ namespace IngestTaskPlugin.Controllers
             }
             try
             {
-                Response.Ext = await _taskManage.GetTaskMetadataAsync<TaskMetadataResponse>(taskid, type);
+                Response.Ext = await _taskManage.StopGroupTask(taskid);
+
+                var _globalinterface = ApplicationContext.Current.ServiceProvider.GetRequiredService<IIngestGlobalInterface>();
+                if (_globalinterface != null)
+                {
+                    GlobalInternals re = new GlobalInternals() { funtype = FunctionType.SetGlobalState, State = GlobalStateName.MODTASK };
+                    var response1 = await _globalinterface.SubmitGlobalCallBack(re);
+                    if (response1.Code != ResponseCodeDefines.SuccessCode)
+                    {
+                        Logger.Error("SetGlobalState modtask error");
+                    }
+                }
             }
             catch (Exception e)
             {
@@ -95,5 +108,37 @@ namespace IngestTaskPlugin.Controllers
             }
             return Response;
         }
+
+        [HttpDelete("deletegrouptask/{taskid}")]
+        public async Task<ResponseMessage<List<int>>> DeleteGroupTask([FromRoute]int taskid)
+        {
+            var Response = new ResponseMessage<List<int>>();
+            if (taskid < 1)
+            {
+                Response.Code = ResponseCodeDefines.ModelStateInvalid;
+                Response.Msg = "请求参数不正确";
+            }
+            try
+            {
+                //Response.Ext = await _taskManage.StopGroupTask(taskid);
+            }
+            catch (Exception e)
+            {
+                if (e.GetType() == typeof(SobeyRecException))//sobeyexcep会自动打印错误
+                {
+                    SobeyRecException se = e as SobeyRecException;
+                    Response.Code = se.ErrorCode.ToString();
+                    Response.Msg = se.Message;
+                }
+                else
+                {
+                    Response.Code = ResponseCodeDefines.ServiceError;
+                    Response.Msg = "error info：" + e.ToString();
+                    Logger.Error(Response.Msg);
+                }
+            }
+            return Response;
+        }
+        //////////////////////////
     }
 }
