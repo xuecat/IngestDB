@@ -20,6 +20,7 @@ namespace IngestDBCore
         public IServiceProvider AppServiceProvider { get; set; }
         public IPluginFactory PluginFactory { get; set; }
         public IApplicationBuilder ApplicationBuilder { get; set; }
+        public bool UseSwagger { get; set; }
         public string ConnectionString { get; set; }
         public string IngestDBUrl { get; set; }
         public string IngestMatrixUrl { get; set; }

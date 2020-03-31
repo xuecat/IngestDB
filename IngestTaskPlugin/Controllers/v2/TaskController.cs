@@ -34,8 +34,12 @@ namespace IngestTaskPlugin.Controllers
         /// <summary>
         /// 使用路由 /taskmetadata/{taskid}?type=1
         /// </summary>
-        /// <param name="testinfo"></param>
-        /// <returns></returns>
+        /// <param name="type">数据类型</param>
+        /// <remarks>
+        /// 例子:
+        /// Get api/v2/taskmetadata/1?type=2
+        /// </remarks>
+        /// <returns>任务元数据</returns>     
         [HttpGet("taskmetadata/{taskid}")]
         public async Task<ResponseMessage<TaskMetadataResponse>> GetTaskMetaData([FromRoute]int taskid, [FromQuery]int type)
         {
@@ -67,6 +71,15 @@ namespace IngestTaskPlugin.Controllers
             return Response;
         }
 
+        /// <summary>
+        /// 停止组任务
+        /// </summary>
+        /// <remarks>
+        /// 例子:
+        /// Get api/v2/stopgrouptask/1
+        /// </remarks>
+        /// <param name="taskid">单个组任务id</param>
+        /// <returns>停止的所有任务id</returns>
         [HttpPut("stopgrouptask/{taskid}")]
         public async Task<ResponseMessage<List<int>>> StopGroupTask([FromRoute]int taskid)
         {
@@ -109,6 +122,15 @@ namespace IngestTaskPlugin.Controllers
             return Response;
         }
 
+        /// <summary>
+        /// 删除组任务
+        /// </summary>
+        /// <remarks>
+        /// 例子:
+        /// Get api/v2/deletegrouptask/1
+        /// </remarks>
+        /// <param name="taskid">单个组任务id</param>
+        /// <returns>停止的所有任务id</returns>
         [HttpDelete("deletegrouptask/{taskid}")]
         public async Task<ResponseMessage<List<int>>> DeleteGroupTask([FromRoute]int taskid)
         {
