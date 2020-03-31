@@ -18,3 +18,4 @@
   * 内部通信请使用相应的`Interface`接口
   * 统一使用`linq xml`增大效率
   * 老数据结构的`Arrayy`一律改成`List`
+  * 调内部函数注意`SaveChangesAsync` 尽量避免多次提交
