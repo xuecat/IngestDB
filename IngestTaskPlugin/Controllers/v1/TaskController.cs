@@ -111,6 +111,55 @@ namespace IngestTaskPlugin.Controllers
 
         }
 
+
+        [HttpGet("DeleteGroupTaskById"), MapToApiVersion("1.0")]
+        public async Task<GroupTaskParam_OUT> DeleteGroupTaskById([FromQuery]int nTaskID)
+        {
+            var Response = new GroupTaskParam_OUT
+            {
+                bRet = true,
+                errStr = "OK"
+            };
+
+            if (nTaskID < 1)
+            {
+                Response.bRet = false;
+                return Response;
+            }
+            try
+            {
+                Response.taskResults = await _taskManage.DeleteGroupTask(nTaskID);
+
+                var _globalinterface = ApplicationContext.Current.ServiceProvider.GetRequiredService<IIngestGlobalInterface>();
+                if (_globalinterface != null)
+                {
+                    GlobalInternals re = new GlobalInternals() { funtype = FunctionType.SetGlobalState, State = GlobalStateName.MODTASK };
+                    var response1 = await _globalinterface.SubmitGlobalCallBack(re);
+                    if (response1.Code != ResponseCodeDefines.SuccessCode)
+                    {
+                        Logger.Error("SetGlobalState modtask error");
+                    }
+                }
+
+                return Response;
+            }
+            catch (Exception e)
+            {
+                Response.bRet = false;
+                if (e.GetType() == typeof(SobeyRecException))//sobeyexcep会自动打印错误
+                {
+                    SobeyRecException se = e as SobeyRecException;
+                    Response.errStr = se.ErrorCode.ToString();
+                }
+                else
+                {
+                    Response.errStr = "error info：" + e.ToString();
+                    Logger.Error(Response.errStr);
+                }
+                return Response;
+            }
+
+        }
         ////////////////////////////
     }
 }

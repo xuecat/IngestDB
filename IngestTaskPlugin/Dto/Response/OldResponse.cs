@@ -110,6 +110,76 @@ namespace IngestTaskPlugin.Dto
         /// </summary>
 		tsDisabled
     }
+    /// <summary>
+    /// 任务调度状态
+    /// </summary>
+    public enum dispatchState
+    {
+        /// <summary>
+        /// 未调度 = 0
+        /// </summary>
+		dpsNotDispatch = 0,
+        /// <summary>
+        /// 需要重调度 = 1
+        /// </summary>
+		dpsRedispatch,
+        /// <summary>
+        /// 已调度 = 2
+        /// </summary>
+		dpsDispatched,
+        /// <summary>
+        /// 调度失败 = 3
+        /// </summary>
+		dpsDispatchFailed,
+        /// <summary>
+        /// 无效 = 4
+        /// </summary>
+		dpsInvalid,
+        /// <summary>
+        /// 禁用 = 5
+        /// </summary>
+		dpsDisabled
+    };
+    /// <summary>
+    /// 任务同步状态
+    /// </summary>
+	public enum syncState
+    {
+        /// <summary>
+        /// 未同步 = 0
+        /// </summary>
+		ssNot = 0,
+        /// <summary>
+        /// 已同步 = 1
+        /// </summary>
+		ssSync,
+        /// <summary>
+        /// 同步失败 = 2
+        /// </summary>
+		ssFailed
+    };
+    /// <summary>
+    /// 任务操作类型
+    /// </summary>
+	public enum opType
+    {
+        /// <summary>
+        /// 添加 = 0
+        /// </summary>
+		otAdd = 0,
+        /// <summary>
+        /// 删除 = 1
+        /// </summary>
+		otDel,
+        /// <summary>
+        /// 移动 = 2
+        /// </summary>
+		otMove,
+        /// <summary>
+        /// 修改 = 3
+        /// </summary>
+		otModify
+    };
     public enum VTRUPLOADTASKSTATE
     {
         VTR_ALL_UPLOAD_STATE = 0, //所有状态
