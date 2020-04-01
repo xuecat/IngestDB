@@ -59,7 +59,7 @@ namespace IngestTaskPlugin.Stores
             return await query.Invoke(Context.DbpTaskMetadata).SingleOrDefaultAsync();
         }
 
-        public async Task SetVtrUploadTaskListState(List<int> lsttaskid, VTRUPLOADTASKSTATE vtrstate, string errinfo)
+        public async Task UpdateVtrUploadTaskListStateAsync(List<int> lsttaskid, VTRUPLOADTASKSTATE vtrstate, string errinfo, bool savechange = true)
         {
             var lsttask = await Context.VtrUploadtask.Where(a => lsttaskid.Contains(a.Taskid))
                 .Select(item => new VtrUploadtask {
@@ -90,17 +90,20 @@ namespace IngestTaskPlugin.Stores
                 entry.Property(x => x.Usertoken).IsModified = true;
             }
 
-            try
+            if (savechange)
             {
-                await Context.SaveChangesAsync();
-            }
-            catch (DbUpdateException e)
-            {
-                throw e;
+                try
+                {
+                    await Context.SaveChangesAsync();
+                }
+                catch (DbUpdateException e)
+                {
+                    throw e;
+                }
             }
         }
 
-        public async Task SetVtrUploadTaskState(int taskid, VTRUPLOADTASKSTATE vtrstate, string errinfo)
+        public async Task UpdateVtrUploadTaskStateAsync(int taskid, VTRUPLOADTASKSTATE vtrstate, string errinfo, bool savechange= true)
         {
             var itm = await Context.VtrUploadtask.Where(a => taskid == a.Taskid)
                 .Select(item => new VtrUploadtask
@@ -128,13 +131,108 @@ namespace IngestTaskPlugin.Stores
             entry.Property(x => x.Taskstate).IsModified = true;
             entry.Property(x => x.Usertoken).IsModified = true;
 
-            try
+            if (savechange)
             {
-                await Context.SaveChangesAsync();
+                try
+                {
+                    await Context.SaveChangesAsync();
+                }
+                catch (DbUpdateException e)
+                {
+                    throw e;
+                }
             }
-            catch (DbUpdateException e)
+        }
+        
+        public async Task DeleteVtrUploadTaskAsync(int taskid, DbpTask task, bool savechange = true)
+        {
+            var itm = await Context.VtrUploadtask.Where(a => taskid == a.Taskid)
+                .Select(item => new VtrUploadtask
+                {
+                    Taskid = item.Taskid,
+                    Usertoken = item.Usertoken,
+                    Taskstate = item.Taskstate
+                }).SingleOrDefaultAsync();
+
+            if (task == null)
             {
-                throw e;
+                task = await GetTaskAsync<DbpTask>(a => a
+                    .Where(x => x.Taskid == taskid)
+                    .Select(ite =>
+                    new DbpTask
+                    {
+                        Tasktype = ite.Tasktype,
+                        State = ite.State,
+                        DispatchState = ite.DispatchState,
+                        OpType = ite.OpType,
+                        SyncState = ite.SyncState,
+                        Endtime = ite.Endtime,
+                        NewEndtime = ite.Endtime,
+                        Recunitid = ite.Recunitid,
+                    }
+                    ));
+            }
+
+            if (itm.Taskstate == (int)VTRUPLOADTASKSTATE.VTR_UPLOAD_TEMPSAVE ||
+                                itm.Taskstate == (int)VTRUPLOADTASKSTATE.VTR_UPLOAD_FAIL ||
+                                itm.Taskstate == (int)VTRUPLOADTASKSTATE.VTR_UPLOAD_DELETE ||
+                                itm.Taskstate == (int)VTRUPLOADTASKSTATE.VTR_UPLOAD_COMMIT)
+            {
+                Context.VtrUploadtask.Attach(itm);
+                Context.VtrUploadtask.Remove(itm);
+                Context.DbpTask.Attach(task);
+                Context.DbpTask.Remove(task);
+            }
+            else if (itm.Taskstate == (int)VTRUPLOADTASKSTATE.VTR_UPLOAD_PRE_EXECUTE)
+            {
+                itm.Taskstate = (int)VTRUPLOADTASKSTATE.VTR_UPLOAD_DELETE;
+                task.State = (int)taskState.tsDelete;
+                task.OpType = (int)opType.otDel;
+                task.DispatchState = (int)dispatchState.dpsDispatchFailed;
+
+                Context.Attach(itm);
+                var itmentry = Context.Entry(itm);
+                itmentry.Property(x => x.Taskstate).IsModified = true;
+
+                Context.Attach(task);
+                var entry = Context.Entry(task);
+                entry.Property(x => x.State).IsModified = true;
+                entry.Property(x => x.OpType).IsModified = true;
+                entry.Property(x => x.DispatchState).IsModified = true;
+            }
+            else if (itm.Taskstate == (int)VTRUPLOADTASKSTATE.VTR_UPLOAD_EXECUTE)
+            {
+                itm.Taskstate = (int)VTRUPLOADTASKSTATE.VTR_UPLOAD_DELETE;
+                task.SyncState = (int)syncState.ssNot;
+                task.OpType = (int)opType.otDel;
+                task.DispatchState = (int)dispatchState.dpsInvalid;
+                task.State = (int)taskState.tsInvaild;
+                task.Endtime = task.NewEndtime = DateTime.Now;
+
+                Context.Attach(itm);
+                var itmentry = Context.Entry(itm);
+                itmentry.Property(x => x.Taskstate).IsModified = true;
+
+                Context.Attach(task);
+                var entry = Context.Entry(task);
+                entry.Property(x => x.Endtime).IsModified = true;
+                entry.Property(x => x.NewEndtime).IsModified = true;
+                entry.Property(x => x.SyncState).IsModified = true;
+                entry.Property(x => x.State).IsModified = true;
+                entry.Property(x => x.OpType).IsModified = true;
+                entry.Property(x => x.DispatchState).IsModified = true;
+            }
+
+            if (savechange)
+            {
+                try
+                {
+                    await Context.SaveChangesAsync();
+                }
+                catch (DbUpdateException e)
+                {
+                    throw e;
+                }
             }
         }
 
@@ -150,14 +248,13 @@ namespace IngestTaskPlugin.Stores
                 Endtime = ite.Endtime,
                 NewEndtime = ite.Endtime,
                 Recunitid = ite.Recunitid,
-            }
-            ));
+            }));
 
             ntaskid = ltask.Taskid;
             if (ltask.Tasktype == (int)TaskType.TT_VTRUPLOAD)
             {
                 //vtr更新
-                await SetVtrUploadTaskState(ltask.Taskid, VTRUPLOADTASKSTATE.VTR_UPLOAD_COMPLETE, string.Empty);
+                await UpdateVtrUploadTaskStateAsync(ltask.Taskid, VTRUPLOADTASKSTATE.VTR_UPLOAD_COMPLETE, string.Empty, false);
             }
             else
             {
@@ -216,7 +313,7 @@ namespace IngestTaskPlugin.Stores
                 if (item.Key == (int)TaskType.TT_VTRUPLOAD)
                 {
                     //vtr更新
-                    await SetVtrUploadTaskListState(item.Select(f => f.Taskid).ToList(), VTRUPLOADTASKSTATE.VTR_UPLOAD_COMPLETE, string.Empty);
+                    await UpdateVtrUploadTaskListStateAsync(item.Select(f => f.Taskid).ToList(), VTRUPLOADTASKSTATE.VTR_UPLOAD_COMPLETE, string.Empty, false);
                 }
                 else
                 {
@@ -262,12 +359,104 @@ namespace IngestTaskPlugin.Stores
             .Select(ite =>
             new DbpTask
             {
+                Taskid = ite.Taskid,
+                //                Taskguid = ite.Taskguid,
                 Tasktype = ite.Tasktype,
+                State = ite.State,
+                OpType = ite.OpType,
+                SyncState = ite.SyncState,
                 Endtime = ite.Endtime,
                 NewEndtime = ite.Endtime,
                 Recunitid = ite.Recunitid,
+                DispatchState = ite.DispatchState,
+            }));
+
+            if (ltask.Tasktype == (int)TaskType.TT_VTRUPLOAD)
+            {
+                //vtr更新
+                await DeleteVtrUploadTaskAsync(ltask.Taskid, ltask, false);
+                ntaskid = ltask.Taskid;
             }
-            ));
+            else
+            {
+                
+                if (ltask.State == (int)taskState.tsComplete)
+                {
+                    await UnLockTask(ltask.Taskid);
+                    SobeyRecException.ThrowSelfNoParam(ltask.Taskid.ToString(), GlobalDictionary.GLOBALDICT_CODE_CAN_NOT_DELETE_THE_COMPLETE_TASK, Logger, null);
+                }
+
+                bool isNeedDelFromDB = false;
+                ltask.OpType = (int)opType.otDel;//先暂时注释，看看后面会有更新不
+                if (ltask.DispatchState == (int)dispatchState.dpsNotDispatch ||
+                    ltask.DispatchState == (int)dispatchState.dpsRedispatch ||
+                    ltask.DispatchState == (int)dispatchState.dpsDispatchFailed ||
+                    (ltask.DispatchState == (int)dispatchState.dpsDispatched && ltask.SyncState == (int)syncState.ssNot))
+                {
+                    //对未分发任务的处理
+                    ltask.DispatchState = (int)dispatchState.dpsDispatched;
+                    ltask.SyncState = (int)syncState.ssSync;
+                    ltask.State = (int)taskState.tsDelete;
+                    isNeedDelFromDB = true;
+                }
+                else
+                {
+                    ltask.SyncState = (int)syncState.ssNot;
+                    ltask.Endtime = DateTime.Now;
+
+                    Logger.Info("strEnd = GlobalFun.DateTimeToString(DateTime.Now) = dpsDispatched nTaskID = {0}", ltask.Taskid);
+                }
+
+                //解锁
+                ltask.Tasklock = string.Empty;
+                //Tie Up 直接删除
+                if (ltask.Tasktype == (int)TaskType.TT_TIEUP)
+                {
+                    ltask.SyncState = (int)syncState.ssSync;
+                    ltask.State = (int)taskState.tsDelete;
+                    isNeedDelFromDB = true;
+                }
+
+                //zmj 2010-12-06 修改个别任务由于开始时间接收得比较晚，造成状态有问题
+                //此状态，任务已经开始执行了，但是由于消息队列原因，导致接收的时间比较晚，状态还没有变成正在执行状态
+                //这个时间，也需要将任务的结束时间改变，保证正常结束
+                if (ltask.State == (int)taskState.tsExecuting
+                    || (ltask.DispatchState == (int)dispatchState.dpsDispatched && ltask.SyncState == (int)syncState.ssSync))
+                {
+                    ltask.Endtime = DateTime.Now;
+                    ltask.Recunitid = ltask.Recunitid | 0x8000;
+                }
+
+                if (isNeedDelFromDB)
+                {
+                    Logger.Info("delete task", ltask.Taskid);
+                    Context.Attach(ltask);
+                    Context.DbpTask.Remove(ltask);
+                }
+                else
+                {
+                    //接下来是modifytask逻辑
+                    ltask.Tasklock = string.Empty;
+
+                    Context.Attach(ltask);
+                    var entry = Context.Entry(ltask);
+                    entry.Property(x => x.Endtime).IsModified = true;
+                    entry.Property(x => x.SyncState).IsModified = true;
+                    entry.Property(x => x.NewEndtime).IsModified = true;
+                    entry.Property(x => x.Recunitid).IsModified = true;
+                }
+
+                ntaskid = ltask.Taskid;
+
+                try
+                {
+                    await Context.SaveChangesAsync();
+                }
+                catch (DbUpdateException e)
+                {
+                    throw e;
+                }
+            }
 
             return ntaskid;
         }
@@ -282,11 +471,15 @@ namespace IngestTaskPlugin.Stores
             new DbpTask
             {
                 Taskid = ite.Taskid,
-                Taskguid = ite.Taskguid,
+//                Taskguid = ite.Taskguid,
                 Tasktype = ite.Tasktype,
+                State = ite.State,
+                OpType = ite.OpType,
+                SyncState = ite.SyncState,
                 Endtime = ite.Endtime,
                 NewEndtime = ite.Endtime,
                 Recunitid = ite.Recunitid,
+                DispatchState = ite.DispatchState,
             }
             ));
 
@@ -297,7 +490,11 @@ namespace IngestTaskPlugin.Stores
                 if (item.Key == (int)TaskType.TT_VTRUPLOAD)
                 {
                     //vtr更新
-                    await SetVtrUploadTaskListState(item.Select(f => f.Taskid).ToList(), VTRUPLOADTASKSTATE.VTR_UPLOAD_COMPLETE, string.Empty);
+                    foreach (var itm in item)
+                    {
+                        await DeleteVtrUploadTaskAsync(itm.Taskid, itm, false);
+                        lstnreture.Add(itm.Taskid);
+                    }
                 }
                 else
                 {
@@ -309,22 +506,66 @@ namespace IngestTaskPlugin.Stores
                             SobeyRecException.ThrowSelfNoParam(itm.Taskid.ToString(), GlobalDictionary.GLOBALDICT_CODE_CAN_NOT_DELETE_THE_COMPLETE_TASK, Logger, null);
                         }
 
-                        itm.Endtime = DateTime.Now;
-                        itm.NewEndtime = itm.Endtime;
-                        itm.Recunitid = itm.Recunitid | 0x8000;
-
-                        if (itm.Tasktype == (int)TaskType.TT_MANUTASK
-                            || itm.Tasktype == (int)TaskType.TT_OPENEND
-                            || itm.Tasktype == (int)TaskType.TT_TIEUP)
+                        bool isNeedDelFromDB = false;
+                        itm.OpType = (int)opType.otDel;//先暂时注释，看看后面会有更新不
+                        if (itm.DispatchState == (int)dispatchState.dpsNotDispatch ||
+                            itm.DispatchState == (int)dispatchState.dpsRedispatch ||
+                            itm.DispatchState == (int)dispatchState.dpsDispatchFailed ||
+                            (itm.DispatchState == (int)dispatchState.dpsDispatched && itm.SyncState == (int)syncState.ssNot))
                         {
-                            itm.Tasktype = (int)TaskType.TT_NORMAL;
+                            //对未分发任务的处理
+                            itm.DispatchState = (int)dispatchState.dpsDispatched;
+                            itm.SyncState = (int)syncState.ssSync;
+                            itm.State = (int)taskState.tsDelete;
+                            isNeedDelFromDB = true;
+                        }
+                        else
+                        {
+                            itm.SyncState = (int)syncState.ssNot;
+                            itm.Endtime = DateTime.Now;
+
+                            Logger.Info("strEnd = GlobalFun.DateTimeToString(DateTime.Now) = dpsDispatched nTaskID = {0}", itm.Taskid);
                         }
 
-                        Context.Attach(itm);
-                        var entry = Context.Entry(itm);
-                        entry.Property(x => x.Endtime).IsModified = true;
-                        entry.Property(x => x.NewEndtime).IsModified = true;
-                        entry.Property(x => x.Recunitid).IsModified = true;
+                        //解锁
+                        itm.Tasklock = string.Empty;
+                        //Tie Up 直接删除
+                        if (itm.Tasktype == (int)TaskType.TT_TIEUP)
+                        {
+                            itm.SyncState = (int)syncState.ssSync;
+                            itm.State = (int)taskState.tsDelete;
+                            isNeedDelFromDB = true;
+                        }
+
+                        //zmj 2010-12-06 修改个别任务由于开始时间接收得比较晚，造成状态有问题
+                        //此状态，任务已经开始执行了，但是由于消息队列原因，导致接收的时间比较晚，状态还没有变成正在执行状态
+                        //这个时间，也需要将任务的结束时间改变，保证正常结束
+                        if (itm.State == (int)taskState.tsExecuting
+                            || (itm.DispatchState == (int)dispatchState.dpsDispatched && itm.SyncState == (int)syncState.ssSync))
+                        {
+                            itm.Endtime = DateTime.Now;
+                            itm.Recunitid = itm.Recunitid | 0x8000;
+                        }
+
+                        if (isNeedDelFromDB)
+                        {
+                            Logger.Info("delete task", itm.Taskid);
+                            Context.Attach(itm);
+                            Context.DbpTask.Remove(itm);
+                        }
+                        else
+                        {
+                            //接下来是modifytask逻辑
+                            itm.Tasklock = string.Empty;
+
+                            Context.Attach(itm);
+                            var entry = Context.Entry(itm);
+                            entry.Property(x => x.Endtime).IsModified = true;
+                            entry.Property(x => x.SyncState).IsModified = true;
+                            entry.Property(x => x.NewEndtime).IsModified = true;
+                            entry.Property(x => x.Recunitid).IsModified = true;
+                        }
+                        
                         lstnreture.Add(itm.Taskid);
                     }
 

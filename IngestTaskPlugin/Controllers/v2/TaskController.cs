@@ -142,7 +142,7 @@ namespace IngestTaskPlugin.Controllers
             }
             try
             {
-                //Response.Ext = await _taskManage.StopGroupTask(taskid);
+                Response.Ext = await _taskManage.DeleteGroupTask(taskid);
             }
             catch (Exception e)
             {
