@@ -156,9 +156,12 @@ namespace IngestTaskPlugin.Controllers
         /// 使用路由 /updatetaskmetadata/{taskid}
         /// </summary>
         /// <remarks>
+        /// 假如没有此属性会新加，有此属性会更新
         /// 例子:
         /// Get api/v2/updatetaskmetadata/1
         /// </remarks>
+        /// <param name="tasktype">元数据类型</param>
+        /// <param name="lst">键值对应需要更新的数据，proterty和value</param>
         /// <returns>任务计划元数据结构体</returns>     
         [HttpGet("updatetaskmetadata/{taskid}")]
         public async Task<ResponseMessage<string>> UpdateTaskMetaData([FromRoute]int taskid, [FromQuery]int tasktype, [FromBody]List<PropertyResponse> lst)
