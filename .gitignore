@@ -34,9 +34,13 @@ IngestDevicePlugin/bin/
 
 IngestTaskInterfacePlugin/obj/
 IngestTaskInterfacePlugin/bin/
-
+IngestCustomerPlugin/obj/
+IngestCustomerPlugin/bin/
 IngestTaskPlugin/obj/
 IngestTaskPlugin/bin/
+
+IngestCustomerInterfacePlugin/obj/
+IngestCustomerInterfacePlugin/bin/
 
 IngestTaskInterfacePlugin/obj/
 IngestTaskInterfacePlugin/bin/
