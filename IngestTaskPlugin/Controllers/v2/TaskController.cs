@@ -17,6 +17,8 @@ using TaskPlanningRequest = IngestTaskPlugin.Dto.TaskPlanningResponse;
 using TaskSplitRequest = IngestTaskPlugin.Dto.TaskSplitResponse;
 using PropertyRequest = IngestTaskPlugin.Dto.PropertyResponse;
 using TaskCustomMetadataRequest = IngestTaskPlugin.Dto.TaskCustomMetadataResponse;
+using Microsoft.AspNetCore.Mvc.ModelBinding;
+
 namespace IngestTaskPlugin.Controllers
 {
     [IngestAuthentication]
@@ -45,7 +47,8 @@ namespace IngestTaskPlugin.Controllers
         /// </remarks>
         /// <returns>素材任务元数据结构体</returns>     
         [HttpGet("taskmaterialmetadata/{taskid}")]
-        public async Task<ResponseMessage<TaskMaterialMetaResponse>> GetTaskMaterialMetaData([FromRoute]int taskid)
+        [ApiExplorerSettings(GroupName = "v2")]
+        public async Task<ResponseMessage<TaskMaterialMetaResponse>> GetTaskMaterialMetaData([FromRoute, BindRequired]int taskid)
         {
             var Response = new ResponseMessage<TaskMaterialMetaResponse>();
             if (taskid < 1)
@@ -84,7 +87,8 @@ namespace IngestTaskPlugin.Controllers
         /// </remarks>
         /// <returns>任务元数据结构体</returns>     
         [HttpGet("taskcontentmetadata/{taskid}")]
-        public async Task<ResponseMessage<TaskContentMetaResponse>> GetTaskContentMetaData([FromRoute]int taskid)
+        [ApiExplorerSettings(GroupName = "v2")]
+        public async Task<ResponseMessage<TaskContentMetaResponse>> GetTaskContentMetaData([FromRoute, BindRequired]int taskid)
         {
             var Response = new ResponseMessage<TaskContentMetaResponse>();
             if (taskid < 1)
@@ -123,7 +127,8 @@ namespace IngestTaskPlugin.Controllers
         /// </remarks>
         /// <returns>任务计划元数据结构体</returns>     
         [HttpGet("taskplanningmetadata/{taskid}")]
-        public async Task<ResponseMessage<TaskPlanningResponse>> GetTaskPlanningMetaData([FromRoute]int taskid)
+        [ApiExplorerSettings(GroupName = "v2")]
+        public async Task<ResponseMessage<TaskPlanningResponse>> GetTaskPlanningMetaData([FromRoute, BindRequired]int taskid)
         {
             var Response = new ResponseMessage<TaskPlanningResponse>();
             if (taskid < 1)
@@ -166,7 +171,8 @@ namespace IngestTaskPlugin.Controllers
         /// <param name="lst">键值对应需要更新的数据，proterty和value</param>
         /// <returns>任务计划元数据结构体</returns>     
         [HttpPost("taskmetadata/{taskid}")]
-        public async Task<ResponseMessage<string>> UpdateTaskMetaData([FromRoute]int taskid, [FromQuery]int tasktype, [FromBody]List<PropertyResponse> lst)
+        [ApiExplorerSettings(GroupName = "v2")]
+        public async Task<ResponseMessage<string>> UpdateTaskMetaData([FromRoute, BindRequired]int taskid, [FromQuery, BindRequired]int tasktype, [FromBody, BindRequired]List<PropertyResponse> lst)
         {
             var Response = new ResponseMessage<string>();
             if (taskid < 1)
@@ -205,7 +211,8 @@ namespace IngestTaskPlugin.Controllers
         /// </remarks>
         /// <returns>获取任务自定义数据</returns>     
         [HttpGet("taskcustommetadata/{taskid}")]
-        public async Task<ResponseMessage<TaskCustomMetadataResponse>> GetTaskCustomMetaData([FromRoute]int taskid)
+        [ApiExplorerSettings(GroupName = "v2")]
+        public async Task<ResponseMessage<TaskCustomMetadataResponse>> GetTaskCustomMetaData([FromRoute, BindRequired]int taskid)
         {
             var Response = new ResponseMessage<TaskCustomMetadataResponse>();
             if (taskid < 1)
@@ -246,7 +253,8 @@ namespace IngestTaskPlugin.Controllers
         /// <param name="data">更新数据，taskid填不填看你，我不会用</param>
         /// <returns>获取任务自定义数据</returns>     
         [HttpPost("taskcustommetadata/{taskid}")]
-        public async Task<ResponseMessage<int>> UpdateTaskCustomMetaData([FromRoute]int taskid, [FromBody]TaskCustomMetadataRequest data)
+        [ApiExplorerSettings(GroupName = "v2")]
+        public async Task<ResponseMessage<int>> UpdateTaskCustomMetaData([FromRoute, BindRequired]int taskid, [FromBody, BindRequired]TaskCustomMetadataRequest data)
         {
             var Response = new ResponseMessage<int>();
             if (taskid < 1)
@@ -287,7 +295,8 @@ namespace IngestTaskPlugin.Controllers
         /// <param name="taskid">单个组任务id</param>
         /// <returns>停止的所有任务id</returns>
         [HttpPut("grouptask/stop/{taskid}")]
-        public async Task<ResponseMessage<List<int>>> StopGroupTask([FromRoute]int taskid)
+        [ApiExplorerSettings(GroupName = "v2")]
+        public async Task<ResponseMessage<List<int>>> StopGroupTask([FromRoute, BindRequired]int taskid)
         {
             var Response = new ResponseMessage<List<int>>();
             if (taskid < 1)
@@ -338,7 +347,8 @@ namespace IngestTaskPlugin.Controllers
         /// <param name="taskid">单个组任务id</param>
         /// <returns>停止的所有任务id</returns>
         [HttpDelete("grouptask/{taskid}")]
-        public async Task<ResponseMessage<List<int>>> DeleteGroupTask([FromRoute]int taskid)
+        [ApiExplorerSettings(GroupName = "v2")]
+        public async Task<ResponseMessage<List<int>>> DeleteGroupTask([FromRoute, BindRequired]int taskid)
         {
             var Response = new ResponseMessage<List<int>>();
             if (taskid < 1)
@@ -373,12 +383,13 @@ namespace IngestTaskPlugin.Controllers
         /// </summary>
         /// <remarks>
         /// 例子:
-        /// Get api/v2/task/withoutpolicy
+        /// Get api/v2/task/withoutpolicytask
         /// </remarks>
         /// <param name="task">添加任务数据</param>
         /// <returns>基本任务信息附带任务id</returns>
-        [HttpPost("withoutpolicy")]
-        public async Task<ResponseMessage<List<int>>> AddTaskWithoutPolicy([FromBody]int task)
+        [HttpPost("withoutpolicytask")]
+        [ApiExplorerSettings(GroupName = "v2")]
+        public async Task<ResponseMessage<List<int>>> AddTaskWithoutPolicy([FromBody, BindRequired]int task)
         {
             var Response = new ResponseMessage<List<int>>();
             if (task < 1)

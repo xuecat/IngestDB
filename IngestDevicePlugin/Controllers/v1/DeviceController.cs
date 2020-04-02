@@ -16,6 +16,7 @@ namespace IngestDevicePlugin.Controllers
         //private readonly RestClient _restClient;
         [HttpGet("GetAllRouterInPortInfo"), MapToApiVersion("1.0")]
         [IngestAuthentication]//device有点特殊，做了监听端口的所以不能全类检验
+        [ApiExplorerSettings(GroupName = "v1")]
         public async Task<GetAllRouterInPortInfo_param> GetAllRouterInPortInfo()
         {
             var Response = new GetAllRouterInPortInfo_param()

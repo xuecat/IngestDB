@@ -23,9 +23,9 @@ namespace IngestDBCore.Basic
             {
                 operation.Parameters.Add(new OpenApiParameter()
                 {
-                    Name = "Api-Version",
+                    Name = "sobeyhive-ingest-signature",
                     In = ParameterLocation.Header,
-                    Description = "Api-Version",
+                    Description = "sobeyhive-ingest-signature",
                     Required = true,
                     Schema = new OpenApiSchema // Parameter variable format 
                     {

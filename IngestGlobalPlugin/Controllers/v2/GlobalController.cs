@@ -39,6 +39,7 @@ namespace IngestGlobalPlugin.Controllers
         /// <param name="strLabel">GlobalStateName枚举</param>
         /// <returns></returns>
         [HttpPost("globalstate")]
+        [ApiExplorerSettings(GroupName = "v2")]
         public async Task<ResponseMessage> SetGlobalState([FromQuery]string strLabel)
         {
             var Response = new ResponseMessage();

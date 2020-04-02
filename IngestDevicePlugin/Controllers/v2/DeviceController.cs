@@ -27,7 +27,12 @@ namespace IngestDevicePlugin.Controllers
         {
             _deviceManage = task;
         }
-
+        /// <summary>
+        /// 监听接口 /get/
+        /// </summary>
+        /// <returns></returns>
+        [HttpGet("Get")]
+        [ApiExplorerSettings(GroupName = "v2")]
         public string Get()
         {
 
@@ -35,12 +40,12 @@ namespace IngestDevicePlugin.Controllers
         }
 
         /// <summary>
-        /// 使用路由 /taskmetadata/{taskid}?type=1
+        /// 使用路由 /routerinport/
         /// </summary>
-        /// <param name="testinfo"></param>
         /// <returns></returns>
         [HttpGet("routerinport")]
         [IngestAuthentication]//device有点特殊，做了监听端口的所以不能全类检验
+        [ApiExplorerSettings(GroupName = "v2")]
         public async Task<ResponseMessage<List<RouterInResponse>>> AllRouterInPortInfo()
         {
             var Response = new ResponseMessage<List<RouterInResponse>>();

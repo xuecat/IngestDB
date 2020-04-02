@@ -19,6 +19,7 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using Microsoft.OpenApi.Models;
+using Newtonsoft.Json.Converters;
 
 namespace IngestDB
 {
@@ -43,7 +44,10 @@ namespace IngestDB
                 .Build();
                 
             services.AddSingleton<IConfigurationRoot>(cfg);
-            services.AddMvc().SetCompatibilityVersion(CompatibilityVersion.Version_2_1);
+            services.AddMvc()
+                .SetCompatibilityVersion(CompatibilityVersion.Version_2_1);
+                //.AddJsonOptions(options =>//为swagger加的
+                //options.SerializerSettings.Converters.Add(new StringEnumConverter()));
 
             string path = AppDomain.CurrentDomain.BaseDirectory.Replace("\\", "/") + "/publicsetting.xml";
             if (File.Exists(path))
@@ -102,22 +106,34 @@ namespace IngestDB
                 applicationContext.UseSwagger = true;
                 services.AddSwaggerGen(c =>
                 {
+                    c.SwaggerDoc("v2", new OpenApiInfo
+                    {
+                        Version = "v2",
+                        Title = "> 收录新版本网关接口文档",
+                        Description = "**Ingest Web API**(接口设计原则: `Post`->新加和修改，`Post`->新加；`Put`->修改)",
+                        Contact = new OpenApiContact { Name = "XueCat", Email = "", Url = new Uri("http://xuecat.com") },
+                        //TermsOfService = new Uri("None"),
+                    });
+
                     c.SwaggerDoc("v1", new OpenApiInfo
                     {
                         Version = "v1",
-                        Title = "应用网关接口文档",
-                        Description = "A simple example Ingest Web API(接口设计原则: `Post`->新加和修改，`Post`->新加；`Put`->修改)",
+                        Title = "> 收录老版本网关接口文档",
+                        Description = "**A simple example Ingest Web API**(接口设计原则: `Post`->新加和修改，`Post`->新加；`Put`->修改)",
                         Contact = new OpenApiContact { Name = "XueCat", Email = "", Url = new Uri("http://xuecat.com") },
-                        TermsOfService = new Uri("None"),
+                        //TermsOfService = new Uri("None"),
                     });
                     //Set the comments path for the swagger json and ui.
 
+                    c.OrderActionsBy((apiDesc) => $"{apiDesc.ActionDescriptor.RouteValues["controller"]}_{apiDesc.HttpMethod}");
 
-                    //c.IncludeXmlComments(xmlPath5);
+                    // http://localhost:9024/swagger/v1/swagger.json
+                    // http://localhost:9024/swagger/
                     c.IncludeXmlComments(xmlPath1);
                     c.IncludeXmlComments(xmlPath2);
                     c.IncludeXmlComments(xmlPath3);
-                    //c.OperationFilter<HttpHeaderOperation>(); // 添加httpHeader参数
+                    //c.DescribeAllEnumsAsStrings();
+                    c.OperationFilter<HttpHeaderOperation>(); // 添加httpHeader参数
                 });
             }
 
@@ -179,7 +195,7 @@ namespace IngestDB
             {
                 app.UseSwagger().UseSwaggerUI(c => {
                     c.SwaggerEndpoint("/swagger/v1/swagger.json", "IngestGateway API V1");
-                    c.RoutePrefix = string.Empty;
+                    c.SwaggerEndpoint("/swagger/v2/swagger.json", "IngestGateway API V2");
                     //c.ShowRequestHeaders();
                 });
             }

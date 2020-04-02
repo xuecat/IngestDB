@@ -9,6 +9,7 @@ namespace IngestGlobalPlugin.Controllers
     public partial class GlobalController : ControllerBase
     {
         [HttpGet("GetQueryTaskMetaData"), MapToApiVersion("1.0")]
+        [ApiExplorerSettings(GroupName = "v1")]
         public async Task SetGlobalState1([FromQuery]int nTaskID)
         {
             

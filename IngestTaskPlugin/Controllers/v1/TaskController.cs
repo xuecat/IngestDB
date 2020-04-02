@@ -25,6 +25,7 @@ namespace IngestTaskPlugin.Controllers
         //private readonly TaskManager _monthManage;
         //private readonly RestClient _restClient;
         [HttpGet("GetQueryTaskMetaData"), MapToApiVersion("1.0")]
+        [ApiExplorerSettings(GroupName = "v1")]
         public async Task<GetQueryTaskMetaData_param> OldGetTaskMetaData([FromQuery]int nTaskID, [FromQuery]int Type)
         {
             if (nTaskID < 1)
@@ -62,6 +63,7 @@ namespace IngestTaskPlugin.Controllers
         }
 
         [HttpPost("PostSetTaskMetaData"), MapToApiVersion("1.0")]
+        [ApiExplorerSettings(GroupName = "v1")]
         public async Task<PostSetTaskMetaData_OUT> PostSetTaskMetaData([FromBody]PostSetTaskMetaData_IN pIn)
         {
             if (pIn == null)
@@ -118,6 +120,7 @@ namespace IngestTaskPlugin.Controllers
         }
 
         [HttpGet("GetTaskCustomMetadata"), MapToApiVersion("1.0")]
+        [ApiExplorerSettings(GroupName = "v1")]
         public async Task<GetTaskCustomMetadata_OUT> GetTaskCustomMetadata([FromQuery]int nTaskID)
         {
             if (nTaskID < 1)
@@ -158,6 +161,7 @@ namespace IngestTaskPlugin.Controllers
         }
 
         [HttpPost("SetTaskCustomMetadata"), MapToApiVersion("1.0")]
+        [ApiExplorerSettings(GroupName = "v1")]
         public async Task<SetTaskCustomMetadata_OUT> PostSetTaskCustomMetadata([FromBody]SetTaskCustomMetadata_IN pIn)
         {
             if (pIn == null)
@@ -202,6 +206,7 @@ namespace IngestTaskPlugin.Controllers
         }
 
         [HttpGet("StopGroupTaskById"), MapToApiVersion("1.0")]
+        [ApiExplorerSettings(GroupName = "v1")]
         public async Task<GroupTaskParam_OUT> StopGroupTaskById([FromQuery]int nTaskID)
         {
             var Response = new GroupTaskParam_OUT
@@ -252,6 +257,7 @@ namespace IngestTaskPlugin.Controllers
 
 
         [HttpGet("DeleteGroupTaskById"), MapToApiVersion("1.0")]
+        [ApiExplorerSettings(GroupName = "v1")]
         public async Task<GroupTaskParam_OUT> DeleteGroupTaskById([FromQuery]int nTaskID)
         {
             var Response = new GroupTaskParam_OUT
