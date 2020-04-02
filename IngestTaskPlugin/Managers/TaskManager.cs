@@ -138,6 +138,12 @@ namespace IngestTaskPlugin.Managers
             //return _mapper.Map<TResult>(f);
         }
 
+        //这个接口是为老写的
+        public async Task UpdateTaskMetaDataAsync(int taskid, int type, string metadata)
+        {
+            await Store.UpdateTaskMetaDataAsync(taskid, type, metadata);
+        }
+
         public async virtual Task<string> UpdateMetadataPropertyAsync(int taskid, int type, List<PropertyResponse> lst)
         {
             var f = await Store.GetTaskMetaDataAsync(a => a
@@ -185,7 +191,19 @@ namespace IngestTaskPlugin.Managers
             //return _mapper.Map<TResult>(f);
         }
 
-        public async Task<List<int>> StopGroupTask(int taskid)
+
+        public async Task UpdateCustomMetadataAsync(int taskid, string metadata)
+        {
+            await Store.UpdateTaskCutomMetaDataAsync(taskid, metadata);
+        }
+
+        public async virtual Task<TResult> GetCustomMetadataAsync<TResult>(int taskid)
+        {
+            var f = await Store.GetTaskCustomMetaDataAsync(a => a.Where(b => b.Taskid == taskid), true);
+            return _mapper.Map<TResult>(f);
+        }
+
+        public async Task<List<int>> StopGroupTaskAsync(int taskid)
         {
             var f = await Store.GetTaskMetaDataAsync(a => a.Where(b => b.Taskid == taskid && b.Metadatatype ==(int)MetaDataType.emContentMetaData));
 
@@ -210,7 +228,7 @@ namespace IngestTaskPlugin.Managers
             return null;
         }
 
-        public async Task<List<int>> DeleteGroupTask(int taskid)
+        public async Task<List<int>> DeleteGroupTaskAsync(int taskid)
         {
             var f = await Store.GetTaskMetaDataAsync(a => a.Where(b => b.Taskid == taskid && b.Metadatatype == (int)MetaDataType.emContentMetaData));
 

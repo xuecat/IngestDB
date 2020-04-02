@@ -26,6 +26,9 @@ namespace IngestTaskPlugin
                         b.errStr = "OK";
                     }
                 });
+
+            CreateMap<DbpTaskCustommetadata, TaskCustomMetadataResponse>();
+            CreateMap<DbpTaskCustommetadata, GetTaskCustomMetadata_OUT>();
                 
             //ReverseMap
         }

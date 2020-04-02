@@ -106,18 +106,18 @@ namespace IngestDB
                     {
                         Version = "v1",
                         Title = "应用网关接口文档",
-                        Description = "A simple example Ingest Web API",
-                        Contact = new OpenApiContact { Name = "XueCat", Email = "", Url = new Uri("http://xuecat") },
-                        TermsOfService = new Uri("None"),
+                        Description = "A simple example Ingest Web API(接口设计原则: `Post`->新加和修改，`Post`->新加；`Put`->修改)",
+                        Contact = new OpenApiContact { Name = "XueCat", Email = "", Url = new Uri("http://xuecat.github.com") },
+                        //TermsOfService = new Uri("None"),
                     });
                     //Set the comments path for the swagger json and ui.
 
 
                     //c.IncludeXmlComments(xmlPath5);
-                    //c.IncludeXmlComments(xmlPath6);
-                    //c.IncludeXmlComments(xmlPath7);
+                    c.IncludeXmlComments(xmlPath1);
+                    c.IncludeXmlComments(xmlPath2);
                     c.IncludeXmlComments(xmlPath3);
-                    c.OperationFilter<HttpHeaderOperation>(); // 添加httpHeader参数
+                    //c.OperationFilter<HttpHeaderOperation>(); // 添加httpHeader参数
                 });
             }
 

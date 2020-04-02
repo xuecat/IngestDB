@@ -59,6 +59,68 @@ namespace IngestTaskPlugin.Stores
             return await query.Invoke(Context.DbpTaskMetadata).SingleOrDefaultAsync();
         }
 
+        public async Task<TResult> GetTaskCustomMetaDataAsync<TResult>(Func<IQueryable<DbpTaskCustommetadata>, IQueryable<TResult>> query, bool notrack = false)
+        {
+            if (query == null)
+            {
+                throw new ArgumentNullException(nameof(query));
+            }
+            if (notrack)
+            {
+                return await query.Invoke(Context.DbpTaskCustommetadata.AsNoTracking()).SingleOrDefaultAsync();
+            }
+            return await query.Invoke(Context.DbpTaskCustommetadata).SingleOrDefaultAsync();
+        }
+
+        public async Task UpdateTaskMetaDataAsync(int taskid, int type, string metadata)
+        {
+            var item = await Context.DbpTaskMetadata.Where(x => x.Taskid == taskid && x.Metadatatype == type).SingleAsync();
+            if (item == null)
+            {
+                await Context.DbpTaskMetadata.AddAsync(new DbpTaskMetadata()
+                {
+                    Taskid = taskid,
+                    Metadatatype = type,
+                    Metadatalong = metadata
+                });
+            }
+            else
+                item.Metadatalong = metadata;
+
+            try
+            {
+                await Context.SaveChangesAsync();
+            }
+            catch (DbUpdateException e)
+            {
+                throw e;
+            }
+        }
+
+        public async Task UpdateTaskCutomMetaDataAsync(int taskid, string metadata)
+        {
+            var item = await Context.DbpTaskCustommetadata.Where(x => x.Taskid == taskid).SingleAsync();
+            if (item == null)
+            {
+                await Context.DbpTaskCustommetadata.AddAsync(new DbpTaskCustommetadata()
+                {
+                    Taskid = taskid,
+                    Metadata = metadata
+                });
+            }
+            else
+                item.Metadata = metadata;
+
+            try
+            {
+                await Context.SaveChangesAsync();
+            }
+            catch (DbUpdateException e)
+            {
+                throw e;
+            }
+        }
+
         public async Task SageChangeAsync()
         {
             try

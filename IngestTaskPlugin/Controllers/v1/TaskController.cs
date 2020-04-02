@@ -61,6 +61,145 @@ namespace IngestTaskPlugin.Controllers
             
         }
 
+        [HttpPost("PostSetTaskMetaData"), MapToApiVersion("1.0")]
+        public async Task<PostSetTaskMetaData_OUT> PostSetTaskMetaData([FromBody]PostSetTaskMetaData_IN pIn)
+        {
+            if (pIn == null)
+            {
+                var Response = new PostSetTaskMetaData_OUT
+                {
+                    bRet = false,
+                    errStr = "OK"
+                };
+                return Response;
+            }
+            try
+            {
+                PostSetTaskMetaData_OUT pOut = new PostSetTaskMetaData_OUT();
+                if (pIn.MateData == null)
+                {
+                    pOut.errStr = "MetaData";
+                    pOut.bRet = false;
+                }
+               
+                if (pIn.MateData.Length <= 0 && pIn.Type != MetaDataType.emAmfsData)
+                {
+                    pOut.errStr = "MetaData";
+                    pOut.bRet = false;
+                }
+
+                if (pIn.Type == MetaDataType.emAmfsData)
+                    pIn.MateData = System.Guid.NewGuid().ToString();
+
+                await _taskManage.UpdateTaskMetaDataAsync(pIn.nTaskID, (int)pIn.Type, pIn.MateData);
+
+                pOut.bRet = true;
+                return pOut;
+            }
+            catch (Exception e)
+            {
+                var Response = new PostSetTaskMetaData_OUT()
+                {
+                    bRet = false
+                };
+                if (e.GetType() == typeof(SobeyRecException))//sobeyexcep会自动打印错误
+                {
+                    SobeyRecException se = e as SobeyRecException;
+                    Response.errStr = se.ErrorCode.ToString();
+                }
+                else
+                {
+                    Response.errStr = "error info：" + e.ToString();
+                    Logger.Error(Response.errStr);
+                }
+                return Response;
+            }
+
+        }
+
+        [HttpGet("GetTaskCustomMetadata"), MapToApiVersion("1.0")]
+        public async Task<GetTaskCustomMetadata_OUT> GetTaskCustomMetadata([FromQuery]int nTaskID)
+        {
+            if (nTaskID < 1)
+            {
+                var Response = new GetTaskCustomMetadata_OUT
+                {
+                    bRet = false,
+                    errStr = "OK"
+                };
+                return Response;
+            }
+            try
+            {
+                var ret = await _taskManage.GetCustomMetadataAsync<GetTaskCustomMetadata_OUT>(nTaskID);
+                ret.bRet = true;
+                ret.errStr = "OK";
+                return ret;
+            }
+            catch (Exception e)
+            {
+                var Response = new GetTaskCustomMetadata_OUT()
+                {
+                    bRet = false
+                };
+                if (e.GetType() == typeof(SobeyRecException))//sobeyexcep会自动打印错误
+                {
+                    SobeyRecException se = e as SobeyRecException;
+                    Response.errStr = se.ErrorCode.ToString();
+                }
+                else
+                {
+                    Response.errStr = "error info：" + e.ToString();
+                    Logger.Error(Response.errStr);
+                }
+                return Response;
+            }
+
+        }
+
+        [HttpPost("SetTaskCustomMetadata"), MapToApiVersion("1.0")]
+        public async Task<SetTaskCustomMetadata_OUT> PostSetTaskCustomMetadata([FromBody]SetTaskCustomMetadata_IN pIn)
+        {
+            if (pIn == null)
+            {
+                var Response = new SetTaskCustomMetadata_OUT
+                {
+                    bRet = false,
+                    errStr = "OK"
+                };
+                return Response;
+            }
+            try
+            {
+                SetTaskCustomMetadata_OUT pOut = new SetTaskCustomMetadata_OUT() {
+                    bRet = true,
+                    errStr = "OK"
+                };
+
+                await _taskManage.UpdateCustomMetadataAsync(pIn.nTaskID, pIn.Metadata);
+
+                return pOut;
+            }
+            catch (Exception e)
+            {
+                var Response = new SetTaskCustomMetadata_OUT()
+                {
+                    bRet = false
+                };
+                if (e.GetType() == typeof(SobeyRecException))//sobeyexcep会自动打印错误
+                {
+                    SobeyRecException se = e as SobeyRecException;
+                    Response.errStr = se.ErrorCode.ToString();
+                }
+                else
+                {
+                    Response.errStr = "error info：" + e.ToString();
+                    Logger.Error(Response.errStr);
+                }
+                return Response;
+            }
+
+        }
 
         [HttpGet("StopGroupTaskById"), MapToApiVersion("1.0")]
         public async Task<GroupTaskParam_OUT> StopGroupTaskById([FromQuery]int nTaskID)
@@ -78,7 +217,7 @@ namespace IngestTaskPlugin.Controllers
             }
             try
             {
-                Response.taskResults = await _taskManage.StopGroupTask(nTaskID);
+                Response.taskResults = await _taskManage.StopGroupTaskAsync(nTaskID);
 
                 var _globalinterface = ApplicationContext.Current.ServiceProvider.GetRequiredService<IIngestGlobalInterface>();
                 if (_globalinterface != null)
@@ -128,7 +267,7 @@ namespace IngestTaskPlugin.Controllers
             }
             try
             {
-                Response.taskResults = await _taskManage.DeleteGroupTask(nTaskID);
+                Response.taskResults = await _taskManage.DeleteGroupTaskAsync(nTaskID);
 
                 var _globalinterface = ApplicationContext.Current.ServiceProvider.GetRequiredService<IIngestGlobalInterface>();
                 if (_globalinterface != null)

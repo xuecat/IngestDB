@@ -217,4 +217,33 @@ namespace IngestTaskPlugin.Dto
         public string errStr;
         public bool bRet;
     }
+    public class PostSetTaskMetaData_IN
+    {
+        public int nTaskID;
+        public MetaDataType Type;
+        public string MateData;
+        public string TypeID;
+    }
+    public class PostSetTaskMetaData_OUT
+    {
+        public string errStr;
+        public bool bRet;
+    }
+    public class SetTaskCustomMetadata_IN
+    {
+        public int nTaskID;
+        public string Metadata;
+    }
+    public class SetTaskCustomMetadata_OUT
+    {
+        public string errStr;
+        public bool bRet;
+    }
+    public class GetTaskCustomMetadata_OUT
+    {
+        public string Metadata;
+        public string errStr;
+        public bool bRet;
+    }
+
 }

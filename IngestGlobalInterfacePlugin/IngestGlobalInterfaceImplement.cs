@@ -26,7 +26,7 @@ namespace IngestGlobalInterfacePlugin
                 switch (examineResponse.funtype)
                 {
                     case FunctionType.SetGlobalState:
-                        return reqService.SetGlobalState2(examineResponse.State);
+                        return reqService.SetGlobalState(examineResponse.State);
                     default:
                         break;
                 }
