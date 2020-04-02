@@ -11,7 +11,7 @@ namespace IngestGlobalPlugin.Stores
 {
     public class GlobalInfoStore : IGlobalStore
     {
-        private readonly ILogger Logger = LoggerManager.GetLogger("GlobalInfoStore");
+        private readonly ILogger Logger = LoggerManager.GetLogger("GlobalInfo");
         protected IngestGlobalDBContext Context { get; }
 
         public GlobalInfoStore(IngestGlobalDBContext baseDataDbContext)
@@ -32,11 +32,9 @@ namespace IngestGlobalPlugin.Stores
         //    return await query.Invoke(Context.DbpTask).SingleOrDefaultAsync();
         //}
 
-        public async Task GetGlobalStateAsync(string strLabel)
+        public async Task UpdateGlobalStateAsync(string strLabel)
         {
-            var state = await Context.DbpGlobalState.Where(a => a.Label == strLabel).FirstOrDefaultAsync();
-
-            if(state == null)
+            if(!Context.DbpGlobalState.AsNoTracking().Any(a => a.Label == strLabel))
             {
                 //add
                 Context.DbpGlobalState.Add(new DbpGlobalState() {
@@ -47,7 +45,11 @@ namespace IngestGlobalPlugin.Stores
             else
             {
                 //update
-                state.Lasttime = DateTime.Now;
+                var state = new DbpGlobalState()
+                {
+                    Label = strLabel,
+                    Lasttime = DateTime.Now  //.ToString("yyyy-MM-dd HH:mm:ss")
+                };
                 Context.Attach(state);
                 Context.Entry(state).Property(x => x.Lasttime).IsModified = true;
             }

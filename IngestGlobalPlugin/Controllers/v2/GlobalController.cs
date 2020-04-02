@@ -19,7 +19,7 @@ namespace IngestGlobalPlugin.Controllers
     [ApiController]
     public partial class GlobalController : ControllerBase
     {
-        private readonly ILogger Logger = LoggerManager.GetLogger("TaskInfo");
+        private readonly ILogger Logger = LoggerManager.GetLogger("GlobalInfo");
         private readonly GlobalManager _GlobalManager;
         private readonly RestClient _restClient;
 
@@ -34,12 +34,12 @@ namespace IngestGlobalPlugin.Controllers
         /// </summary>
         /// <remarks>
         /// 例子:
-        /// Get api/v2/setglobalstate2?strLabel=
+        /// Get api/v2/globalstate?strLabel=
         /// </remarks>
         /// <param name="strLabel">GlobalStateName枚举</param>
         /// <returns></returns>
-        [HttpGet("setglobalstate2")]
-        public async Task<ResponseMessage> SetGlobalState2([FromQuery]string strLabel)
+        [HttpPost("globalstate")]
+        public async Task<ResponseMessage> SetGlobalState([FromQuery]string strLabel)
         {
             var Response = new ResponseMessage();
             if (strLabel == null || strLabel == string.Empty)
@@ -50,7 +50,7 @@ namespace IngestGlobalPlugin.Controllers
             }
             try
             {
-                await _GlobalManager.SetGlobalState2(strLabel);
+                await _GlobalManager.SetGlobalState(strLabel);
             }
             catch (Exception e)
             {

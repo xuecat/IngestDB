@@ -204,6 +204,7 @@ namespace IngestTaskPlugin.Dto
         VTR_CAPTURE_ARCHIVEFILE = 19,//正在迁移文件
         VTR_UPLOAD_PRE_EXECUTE = 20,//预执行状态，表示vtr在卷带的时候
     };
+
     public class GroupTaskParam_OUT
     {
         public string errStr;

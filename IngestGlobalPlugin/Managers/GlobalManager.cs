@@ -19,9 +19,9 @@ namespace IngestGlobalPlugin.Managers
         }
 
 
-        public async Task SetGlobalState2(string strLabel)
+        public async Task SetGlobalState(string strLabel)
         {
-            await Store.GetGlobalStateAsync(strLabel);
+            await Store.UpdateGlobalStateAsync(strLabel);
         }
     }
 }

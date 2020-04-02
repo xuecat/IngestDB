@@ -9,6 +9,6 @@ namespace IngestGlobalPlugin.Stores
 {
     public interface IGlobalStore
     {
-        Task GetGlobalStateAsync(string strLabel);
+        Task UpdateGlobalStateAsync(string strLabel);
     }
 }

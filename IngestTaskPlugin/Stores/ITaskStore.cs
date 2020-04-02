@@ -27,7 +27,7 @@ namespace IngestTaskPlugin.Stores
     public interface ITaskStore
     {
         //IQueryable<TaskInfo> SimpleQuery { get; }
-
+        Task SageChangeAsync();
         Task<TResult> GetTaskMetaDataAsync<TResult>(Func<IQueryable<DbpTaskMetadata>, IQueryable<TResult>> query, bool notrack = false);
         Task<List<TResult>> GetTaskListAsync<TResult>(Func<IQueryable<DbpTask>, IQueryable<TResult>> query, bool notrack = false);
         Task<TResult> GetTaskAsync<TResult>(Func<IQueryable<DbpTask>, IQueryable<TResult>> query, bool notrack = false);

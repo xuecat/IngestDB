@@ -59,6 +59,18 @@ namespace IngestTaskPlugin.Stores
             return await query.Invoke(Context.DbpTaskMetadata).SingleOrDefaultAsync();
         }
 
+        public async Task SageChangeAsync()
+        {
+            try
+            {
+                await Context.SaveChangesAsync();
+            }
+            catch (DbUpdateException e)
+            {
+                throw e;
+            }
+        }
+
         public async Task UpdateVtrUploadTaskListStateAsync(List<int> lsttaskid, VTRUPLOADTASKSTATE vtrstate, string errinfo, bool savechange = true)
         {
             var lsttask = await Context.VtrUploadtask.Where(a => lsttaskid.Contains(a.Taskid))

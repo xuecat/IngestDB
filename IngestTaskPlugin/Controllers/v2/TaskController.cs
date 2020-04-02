@@ -11,7 +11,11 @@ using System;
 using System.Collections.Generic;
 using System.Text;
 using System.Threading.Tasks;
-
+using TaskMaterialMetaRequest = IngestTaskPlugin.Dto.TaskMaterialMetaResponse;
+using TaskContentMetaRequest = IngestTaskPlugin.Dto.TaskContentMetaResponse;
+using TaskPlanningRequest = IngestTaskPlugin.Dto.TaskPlanningResponse;
+using TaskSplitRequest = IngestTaskPlugin.Dto.TaskSplitResponse;
+using PropertyRequest = IngestTaskPlugin.Dto.PropertyResponse;
 namespace IngestTaskPlugin.Controllers
 {
     [IngestAuthentication]
@@ -32,18 +36,17 @@ namespace IngestTaskPlugin.Controllers
         }
 
         /// <summary>
-        /// 使用路由 /taskmetadata/{taskid}?type=1
+        /// 使用路由 /taskmaterialmetadata/{taskid}
         /// </summary>
-        /// <param name="type">数据类型</param>
         /// <remarks>
         /// 例子:
-        /// Get api/v2/taskmetadata/1?type=2
+        /// Get api/v2/taskmaterialmetadata/1
         /// </remarks>
-        /// <returns>任务元数据</returns>     
-        [HttpGet("taskmetadata/{taskid}")]
-        public async Task<ResponseMessage<TaskMetadataResponse>> GetTaskMetaData([FromRoute]int taskid, [FromQuery]int type)
+        /// <returns>素材任务元数据结构体</returns>     
+        [HttpGet("taskmaterialmetadata/{taskid}")]
+        public async Task<ResponseMessage<TaskMaterialMetaResponse>> GetTaskMaterialMetaData([FromRoute]int taskid)
         {
-            var Response = new ResponseMessage<TaskMetadataResponse>();
+            var Response = new ResponseMessage<TaskMaterialMetaResponse>();
             if (taskid < 1)
             {
                 Response.Code = ResponseCodeDefines.ModelStateInvalid;
@@ -51,7 +54,124 @@ namespace IngestTaskPlugin.Controllers
             }
             try
             {
-                Response.Ext = await _taskManage.GetTaskMetadataAsync<TaskMetadataResponse>(taskid, type);
+                Response.Ext = await _taskManage.GetTaskMaterialMetadataAsync(taskid);
+            }
+            catch (Exception e)
+            {
+                if (e.GetType() == typeof(SobeyRecException))//sobeyexcep会自动打印错误
+                {
+                    SobeyRecException se = e as SobeyRecException;
+                    Response.Code = se.ErrorCode.ToString();
+                    Response.Msg = se.Message;
+                }
+                else
+                {
+                    Response.Code = ResponseCodeDefines.ServiceError;
+                    Response.Msg = "error info：" + e.ToString();
+                    Logger.Error(Response.Msg);
+                }
+            }
+            return Response;
+        }
+
+        /// <summary>
+        /// 使用路由 /taskcontentmetadata/{taskid}
+        /// </summary>
+        /// <remarks>
+        /// 例子:
+        /// Get api/v2/taskcontentmetadata/1
+        /// </remarks>
+        /// <returns>任务元数据结构体</returns>     
+        [HttpGet("taskcontentmetadata/{taskid}")]
+        public async Task<ResponseMessage<TaskContentMetaResponse>> GetTaskContentMetaData([FromRoute]int taskid)
+        {
+            var Response = new ResponseMessage<TaskContentMetaResponse>();
+            if (taskid < 1)
+            {
+                Response.Code = ResponseCodeDefines.ModelStateInvalid;
+                Response.Msg = "请求参数不正确";
+            }
+            try
+            {
+                Response.Ext = await _taskManage.GetTaskContentMetadataAsync(taskid);
+            }
+            catch (Exception e)
+            {
+                if (e.GetType() == typeof(SobeyRecException))//sobeyexcep会自动打印错误
+                {
+                    SobeyRecException se = e as SobeyRecException;
+                    Response.Code = se.ErrorCode.ToString();
+                    Response.Msg = se.Message;
+                }
+                else
+                {
+                    Response.Code = ResponseCodeDefines.ServiceError;
+                    Response.Msg = "error info：" + e.ToString();
+                    Logger.Error(Response.Msg);
+                }
+            }
+            return Response;
+        }
+
+        /// <summary>
+        /// 使用路由 /taskplanningmetadata/{taskid}
+        /// </summary>
+        /// <remarks>
+        /// 例子:
+        /// Get api/v2/taskplanningmetadata/1
+        /// </remarks>
+        /// <returns>任务计划元数据结构体</returns>     
+        [HttpGet("taskplanningmetadata/{taskid}")]
+        public async Task<ResponseMessage<TaskPlanningResponse>> GetTaskPlanningMetaData([FromRoute]int taskid)
+        {
+            var Response = new ResponseMessage<TaskPlanningResponse>();
+            if (taskid < 1)
+            {
+                Response.Code = ResponseCodeDefines.ModelStateInvalid;
+                Response.Msg = "请求参数不正确";
+            }
+            try
+            {
+                Response.Ext = await _taskManage.GetTaskPlanningMetadataAsync(taskid);
+            }
+            catch (Exception e)
+            {
+                if (e.GetType() == typeof(SobeyRecException))//sobeyexcep会自动打印错误
+                {
+                    SobeyRecException se = e as SobeyRecException;
+                    Response.Code = se.ErrorCode.ToString();
+                    Response.Msg = se.Message;
+                }
+                else
+                {
+                    Response.Code = ResponseCodeDefines.ServiceError;
+                    Response.Msg = "error info：" + e.ToString();
+                    Logger.Error(Response.Msg);
+                }
+            }
+            return Response;
+        }
+
+        /// <summary>
+        /// 使用路由 /updatetaskmetadata/{taskid}
+        /// </summary>
+        /// <remarks>
+        /// 例子:
+        /// Get api/v2/updatetaskmetadata/1
+        /// </remarks>
+        /// <returns>任务计划元数据结构体</returns>     
+        [HttpGet("updatetaskmetadata/{taskid}")]
+        public async Task<ResponseMessage<string>> UpdateTaskMetaData([FromRoute]int taskid, [FromQuery]int tasktype, [FromBody]List<PropertyResponse> lst)
+        {
+            var Response = new ResponseMessage<string>();
+            if (taskid < 1)
+            {
+                Response.Code = ResponseCodeDefines.ModelStateInvalid;
+                Response.Msg = "请求参数不正确";
+            }
+            try
+            {
+                Response.Ext = await _taskManage.UpdateMetadataPropertyAsync(taskid, tasktype, lst);
             }
             catch (Exception e)
             {
