@@ -246,4 +246,135 @@ namespace IngestTaskPlugin.Dto
         public bool bRet;
     }
 
+    /// <summary>
+    /// 任务来源
+    /// </summary>
+	public enum TaskSource
+    {
+        /// <summary>
+        /// MSV Upload Task = 0
+        /// </summary>
+        emMSVUploadTask = 0,
+        /// <summary>
+        /// VTR Upload Task = 1
+        /// </summary>
+		emVTRUploadTask = 1,
+        /// <summary>
+        /// XDCAM Upload Task = 2
+        /// </summary>
+		emXDCAMUploadTask = 2,
+        /// <summary>
+        /// IP TS流 收录 = 3
+        /// </summary>
+		emIPTSUploadTask = 3,
+        /// <summary>
+        /// 流媒体 = 4
+        /// </summary>
+        emStreamMediaUploadTask = 4,
+        /// <summary>
+        /// UnknowTask = -1
+        /// </summary>
+        emUnknowTask = -1
+    }
+
+    /// <summary>
+    /// 任务附加类型
+    /// </summary>
+    public enum CooperantType
+    {
+        /// <summary>
+        /// 一般任务 = 0
+        /// </summary>
+		emPureTask = 0,
+        /// <summary>
+        /// 同时收录到播出 = 1
+        /// </summary>
+		emKamataki = 1,
+        /// <summary>
+        /// vtr上载同时到播出 = 2
+        /// </summary>
+		emVTRKamataki = 2,
+        /// <summary>
+        /// VTR备份 = 3
+        /// </summary>
+		emVTRBackup = 3,
+        /// <summary>
+        /// Kamataki完成标识 = 4
+        /// </summary>
+		emKamatakiFinish = 4,
+        /// <summary>
+        /// VTR备份完成标识 = 5
+        /// </summary>
+		emVTRBackupFinish = 5,
+        /// <summary>
+        /// VTR备份失败标识 = 6
+        /// </summary>
+		emVTRBackupFailed = 6
+    }
+    /// <summary>
+    /// 任务优先级
+    /// </summary>
+    public enum TaskPriority
+    {
+        /// <summary>
+        /// 最低优先级
+        /// </summary>
+        TP_Lowest,
+        /// <summary>
+        /// 较低优先级
+        /// </summary>
+        TP_BelowNormal,
+        /// <summary>
+        /// 普通优先级
+        /// </summary>
+        TP_Normal,
+        /// <summary>
+        /// 较高优先级
+        /// </summary>
+        TP_AboveNormal,
+        /// <summary>
+        /// 最高优先级
+        /// </summary>
+        TP_Highest
+    }
+
+    public class TaskContent
+    {
+        public int nTaskID = 0;
+        public string strTaskName = string.Empty;
+        public string strTaskDesc = string.Empty;
+        public string strClassify = string.Empty;
+        public int nChannelID = 0;
+        public int nUnit = 0;
+        public string strUserCode = string.Empty;
+        public int nSignalID = 0;
+        public string strBegin = DateTime.MinValue.ToString("yyyy-MM-dd HH:mm:ss");
+        public string strEnd = DateTime.MinValue.ToString("yyyy-MM-dd HH:mm:ss");
+        public TaskType emTaskType = TaskType.TT_NORMAL;
+        public CooperantType emCooperantType = CooperantType.emPureTask;
+        public taskState emState;
+        public string strStampImage = string.Empty;
+        public string strTaskGUID = string.Empty;
+        public int nBackupVTRID = 0;
+        public TaskPriority emPriority = TaskPriority.TP_Normal;
+        public int nStampTitleIndex = 0;
+        public int nStampImageType = 0;
+        public int nSGroupColor = 0;
+    }
+
+    public class TaskFullInfo
+    {
+        public TaskContent taskContent;
+        public int nOldChannelID;
+        public dispatchState emDispatchState;
+        public syncState emSyncState;
+        public opType emOpType;
+        public string strNewBeginTime = DateTime.MinValue.ToString("yyyy-MM-dd HH:mm:ss");
+        public string strNewEndTime = DateTime.MinValue.ToString("yyyy-MM-dd HH:mm:ss");
+        public string strTaskLock = string.Empty;
+        public TaskFullInfo()
+        {
+            taskContent = new TaskContent();
+        }
+    }
 }

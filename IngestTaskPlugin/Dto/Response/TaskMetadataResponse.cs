@@ -23,12 +23,14 @@ namespace IngestTaskPlugin.Dto
         public string JournaList { get; set; }
         public string CateGory { get; set; }
         public string ProgramName {get;set;}
+        public int Datefolder { get; set; }
     }
 
     public class TaskContentMetaResponse
     {
         public int HouseTC { get; set; }
         public int Presetstamp { get; set; }
+        public PeriodParamResponse PeriodParam { get; set; }
         public int SixteenToNine { get; set; }
         public int SourceTapeID { get; set; }
         public int DeleteFlag { get; set; }
@@ -40,6 +42,7 @@ namespace IngestTaskPlugin.Dto
         public int TcMode { get; set; }
         public int ClipSum { get; set; }
         public int TransState { get; set; }
+        
     }
 
     public class TaskPlanningResponse
@@ -65,6 +68,16 @@ namespace IngestTaskPlugin.Dto
     public class TaskSplitResponse
     {
         public string VtrStart { get; set; }
+    }
+
+    public class PeriodParamResponse
+    {
+        public string BeginDate { get; set; }
+        public string EndDate { get; set; }
+        public int AppDate { get; set; }
+        public string AppDateFormat { get; set; }
+        public int Mode { get; set; }
+        public List<int> Params { get; set; }//DAY
     }
 
     public class PropertyResponse

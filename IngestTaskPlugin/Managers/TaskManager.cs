@@ -1,5 +1,6 @@
 ﻿using AutoMapper;
 using IngestDBCore;
+using IngestDBCore.Tool;
 using IngestTaskPlugin.Dto;
 using IngestTaskPlugin.Stores;
 using Sobey.Core.Log;
@@ -52,6 +53,7 @@ namespace IngestTaskPlugin.Managers
                 ret.JournaList = material?.Element("JOURNALIST")?.Value;
                 ret.CateGory = material?.Element("CATEGORY")?.Value;
                 ret.ProgramName = material?.Element("PROGRAMNAME")?.Value;
+                ret.Datefolder = int.Parse(material?.Element("DATEFOLDER")?.Value);
 
                 return ret;
             }
@@ -88,6 +90,16 @@ namespace IngestTaskPlugin.Managers
                 ret.TcMode = int.Parse(material?.Element("TCMODE")?.Value);
                 ret.ClipSum = int.Parse(material?.Element("ClipSum")?.Value);
                 ret.TransState = int.Parse(material?.Element("TransState")?.Value);
+
+                var period = material?.Element("PERIODPARAM");
+                ret.PeriodParam = new PeriodParamResponse();
+                ret.PeriodParam.BeginDate = period?.Element("BEGINDATE").Value;
+                ret.PeriodParam.EndDate = period?.Element("ENDDATE").Value;
+                ret.PeriodParam.AppDate = int.Parse(period?.Element("APPDATE").Value);
+                ret.PeriodParam.AppDateFormat = period?.Element("APPDATEFORMAT").Value;
+                ret.PeriodParam.Mode = int.Parse(period?.Element("MODE").Value);
+
+                ret.PeriodParam.Params = period.Descendants("DAY").Select(x => int.Parse(x.Value)).ToList();
 
                 return ret;
             }
@@ -250,6 +262,60 @@ namespace IngestTaskPlugin.Managers
             {
                 SobeyRecException.ThrowSelfNoParam(taskid.ToString(), GlobalDictionary.GLOBALDICT_CODE_FILL_GETTASKMETADATA_EXCEPTION, Logger, e);
             }
+            return null;
+        }
+
+        public async Task<TaskContentResponse> AddTaskWithoutPolicy(TaskInfoResponse taskinfo)
+        {
+            
+            
+            if (taskinfo.TaskContent.TaskType == TaskType.TT_MANUTASK)
+            {
+
+            }
+            else
+            {
+                if (taskinfo.TaskContent.TaskType == TaskType.TT_PERIODIC)
+                {
+                    DateTime EndTime = DateTimeFormat.DateTimeFromString(taskinfo.ContentMeta.PeriodParam.EndDate);
+                    DateTime TaskEnd = DateTimeFormat.DateTimeFromString(taskinfo.TaskContent.End);
+                    DateTime RealEnd = new DateTime(EndTime.Year, EndTime.Month, EndTime.Day, TaskEnd.Hour, TaskEnd.Minute, TaskEnd.Second);
+                    taskinfo.TaskContent.End = DateTimeFormat.DateTimeToString(RealEnd);
+
+                    DateTime BeginTime = DateTimeFormat.DateTimeFromString(taskinfo.TaskContent.Begin);
+                    if (BeginTime.TimeOfDay <= RealEnd.TimeOfDay)//是跨天的任务
+                    {
+                        DateTime dtFirstDayEndTime = new DateTime(BeginTime.Year, BeginTime.Month, BeginTime.Day, RealEnd.Hour, RealEnd.Minute, RealEnd.Second);
+                        DateTime dtNow = DateTime.Now;
+
+                        //zmj2008-11-11修改考虑到当前时间前几天的问题
+                        if (dtFirstDayEndTime < dtNow)//如果当天任务的结束时间结束后，开始时间往后推后到当天的后一天
+                        {
+                            DateTime dtNewBeginTime = new DateTime(dtNow.Year, dtNow.Month, dtNow.Day, BeginTime.Hour, BeginTime.Minute, BeginTime.Second);
+                            DateTime dtNowDayEndTime = new DateTime(dtNow.Year, dtNow.Month, dtNow.Day, RealEnd.Hour, RealEnd.Minute, RealEnd.Second);
+
+                            if (dtNowDayEndTime < dtNow)
+                            {
+                                taskinfo.TaskContent.Begin = DateTimeFormat.DateTimeToString(dtNewBeginTime.AddDays(1));
+                            }
+                            else
+                            {
+                                taskinfo.TaskContent.Begin = DateTimeFormat.DateTimeToString(dtNewBeginTime);
+                            }
+                        }
+                    }
+                }
+
+                if (string.IsNullOrEmpty(taskinfo.CaptureMeta))
+                {
+                    SobeyRecException.ThrowSelfNoParam("AddTaskWithoutPolicy CaptureMeta empty", GlobalDictionary.GLOBALDICT_CODE_FILL_GETTASKMETADATA_EXCEPTION, Logger, e);
+                }
+
+
+
+
+            }
+
             return null;
         }
     }
