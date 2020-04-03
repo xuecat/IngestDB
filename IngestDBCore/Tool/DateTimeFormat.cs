@@ -37,5 +37,17 @@ namespace IngestDBCore.Tool
                 return DateTime.MinValue;
             }
         }
+
+        public static string DateTimeToString(DateTime tmDateTime)
+        {
+            try
+            {
+                return tmDateTime.ToString("yyyy-MM-dd HH:mm:ss");
+            }
+            catch (System.Exception ex)
+            {
+                return DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss");
+            }
+        }
     }
 }
