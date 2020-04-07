@@ -1,4 +1,5 @@
-﻿using IngestDBCore;
+﻿using AutoMapper;
+using IngestDBCore;
 using IngestDBCore.Interface;
 using IngestDevicePlugin.Controllers;
 using IngestDevicePlugin.Dto;
@@ -13,6 +14,11 @@ namespace IngestTaskInterfacePlugin
 {
     public class IngestDeviceInterfaceImplement : IIngestDeviceInterface
     {
+        public IngestDeviceInterfaceImplement(IMapper mapper)
+        {
+            _mapper = mapper ?? throw new ArgumentNullException(nameof(mapper));
+        }
+        protected IMapper _mapper { get; }
         public async Task<ResponseMessage> GetDeviceCallBack(DeviceInternals examineResponse)
         {
             using (var scope = ApplicationContext.Current.ServiceProvider.GetRequiredService<IServiceScopeFactory>().CreateScope())
@@ -22,7 +28,17 @@ namespace IngestTaskInterfacePlugin
                 switch (examineResponse.funtype)
                 {
                     case FunctionType.ChannelInfoBySrc:
-                        return await reqService.ChannelsByProgrammeId(examineResponse.SrcId);
+                        {
+                            var f = await reqService.ChannelsByProgrammeId(examineResponse.SrcId);
+                            var ret = new ResponseMessage<List<CaptureChannelInfoInterface>>()
+                            {
+                                Code = f.Code,
+                                Msg = f.Msg,
+                                Ext = _mapper.Map<List<CaptureChannelInfoInterface>>(f.Ext),
+                            };
+                            return ret;
+                        } break;
+                        
                     default:
                         break;
                 }
