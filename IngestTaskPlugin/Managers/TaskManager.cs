@@ -12,6 +12,8 @@ using System.Threading.Tasks;
 using System.Xml.Linq;
 using TaskInfoRequest = IngestTaskPlugin.Dto.TaskInfoResponse;
 using TaskContentRequest = IngestTaskPlugin.Dto.TaskContentResponse;
+using IngestDBCore.Interface;
+using Microsoft.Extensions.DependencyInjection;
 
 namespace IngestTaskPlugin.Managers
 {
@@ -342,6 +344,17 @@ namespace IngestTaskPlugin.Managers
 
         public async List<int> GetMatchedChannelForSignal(int SignalID, int ChID, CHSelCondition condition)
         {
+            var _globalinterface = ApplicationContext.Current.ServiceProvider.GetRequiredService<IIngestDeviceInterface>();
+            if (_globalinterface != null)
+            {
+                DeviceInternals re = new DeviceInternals() { funtype = IngestDBCore.DeviceInternals.FunctionType.ChannelInfoBySrc, SrcId = SignalID };
+                var response1 = await _globalinterface.GetDeviceCallBack(re);
+                if (response1.Code != ResponseCodeDefines.SuccessCode)
+                {
+                    Logger.Error("SetGlobalState modtask error");
+                }
+            }
+
 
         }
         ///////////////////////////////
