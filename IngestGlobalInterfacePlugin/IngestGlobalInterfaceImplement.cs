@@ -7,17 +7,18 @@ using System;
 using System.Collections.Generic;
 using System.Text;
 using System.Threading.Tasks;
+using static IngestDBCore.GlobalInternals;
 
 namespace IngestGlobalInterfacePlugin
 {
     public class IngestGlobalInterfaceImplement : IIngestGlobalInterface
     {
-        public Task<ResponseMessage> GetGlobalCallBack(GlobalInternals examineResponse)
+        public async Task<ResponseMessage> GetGlobalCallBack(GlobalInternals examineResponse)
         {
             throw new NotImplementedException();
         }
 
-        public Task<ResponseMessage> SubmitGlobalCallBack(GlobalInternals examineResponse)
+        public async Task<ResponseMessage> SubmitGlobalCallBack(GlobalInternals examineResponse)
         {
             using (var scope = ApplicationContext.Current.ServiceProvider.GetRequiredService<IServiceScopeFactory>().CreateScope())
             {
@@ -26,7 +27,7 @@ namespace IngestGlobalInterfacePlugin
                 switch (examineResponse.funtype)
                 {
                     case FunctionType.SetGlobalState:
-                        return reqService.SetGlobalState(examineResponse.State);
+                        return await reqService.SetGlobalState(examineResponse.State);
                     default:
                         break;
                 }

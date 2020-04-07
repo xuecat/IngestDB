@@ -11,13 +11,16 @@ using System;
 using System.Collections.Generic;
 using System.Text;
 using System.Threading.Tasks;
+using Microsoft.AspNetCore.Mvc.ModelBinding;
+
 using TaskMaterialMetaRequest = IngestTaskPlugin.Dto.TaskMaterialMetaResponse;
 using TaskContentMetaRequest = IngestTaskPlugin.Dto.TaskContentMetaResponse;
 using TaskPlanningRequest = IngestTaskPlugin.Dto.TaskPlanningResponse;
 using TaskSplitRequest = IngestTaskPlugin.Dto.TaskSplitResponse;
 using PropertyRequest = IngestTaskPlugin.Dto.PropertyResponse;
+using TaskInfoRequest = IngestTaskPlugin.Dto.TaskInfoResponse;
+using TaskContentRequest = IngestTaskPlugin.Dto.TaskContentResponse;
 using TaskCustomMetadataRequest = IngestTaskPlugin.Dto.TaskCustomMetadataResponse;
-using Microsoft.AspNetCore.Mvc.ModelBinding;
 
 /// <summary>
 /// Creates a TodoItem.

@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using System.Text;
 
-namespace IngestDevicePlugin.Dto.Response
+namespace IngestDevicePlugin.Dto
 {
     public class RouterInResponse
     {

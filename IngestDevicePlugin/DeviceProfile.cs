@@ -1,5 +1,5 @@
 ﻿using AutoMapper;
-using IngestDevicePlugin.Dto.Response;
+using IngestDevicePlugin.Dto;
 using IngestDevicePlugin.Models;
 using System;
 using System.Collections.Generic;
@@ -23,6 +23,18 @@ namespace IngestDevicePlugin
                 .ForMember(a => a.nSignalSource, (map) => map.MapFrom(b => b.Signalsource))
                 .ForMember(a => a.nSignalSrcID, (map) => map.MapFrom(b => b.Signalsrcid));
 
+            CreateMap<CaptureChannelInfoResponse, CaptureChannelInfo>()
+                .ForMember(a => a.nID, (map) => map.MapFrom(b => b.ID))
+                .ForMember(a => a.strName, (map) => map.MapFrom(b => b.Name))
+                .ForMember(a => a.strDesc, (map) => map.MapFrom(b => b.Desc))
+                .ForMember(a => a.nCPDeviceID, (map) => map.MapFrom(b => b.CPDeviceID))
+                .ForMember(a => a.nChannelIndex, (map) => map.MapFrom(b => b.ChannelIndex))
+                .ForMember(a => a.nDeviceTypeID, (map) => map.MapFrom(b => b.DeviceTypeID))
+                .ForMember(a => a.BackState, (map) => map.MapFrom(b => b.BackState))
+                .ForMember(a => a.nCarrierID, (map) => map.MapFrom(b => b.CarrierID))
+                .ForMember(a => a.orderCode, (map) => map.MapFrom(b => b.OrderCode))
+                .ForMember(a => a.nCPSignalType, (map) => map.MapFrom(b => b.CPSignalType))
+                .ForMember(a => a.nGroupID, (map) => map.MapFrom(b => b.GroupID));
             //CreateMap<DbpTaskMetadata, TaskMetadataResponse>()
             //    .ForMember(a => a.Metadata, (map) => map.MapFrom(b => b.Metadatalong));
 

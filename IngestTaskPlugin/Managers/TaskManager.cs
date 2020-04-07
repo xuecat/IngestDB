@@ -10,6 +10,8 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using System.Xml.Linq;
+using TaskInfoRequest = IngestTaskPlugin.Dto.TaskInfoResponse;
+using TaskContentRequest = IngestTaskPlugin.Dto.TaskContentResponse;
 
 namespace IngestTaskPlugin.Managers
 {
@@ -265,7 +267,7 @@ namespace IngestTaskPlugin.Managers
             return null;
         }
 
-        public async Task<TaskContentResponse> AddTaskWithoutPolicy(TaskInfoResponse taskinfo)
+        public async Task<TaskContentResponse> AddTaskWithoutPolicy(TaskInfoRequest taskinfo)
         {
             
             
@@ -273,7 +275,7 @@ namespace IngestTaskPlugin.Managers
             {
 
             }
-            else
+            else //非手动任务选通道
             {
                 if (taskinfo.TaskContent.TaskType == TaskType.TT_PERIODIC)
                 {
@@ -308,15 +310,40 @@ namespace IngestTaskPlugin.Managers
 
                 if (string.IsNullOrEmpty(taskinfo.CaptureMeta))
                 {
-                    SobeyRecException.ThrowSelfNoParam("AddTaskWithoutPolicy CaptureMeta empty", GlobalDictionary.GLOBALDICT_CODE_FILL_GETTASKMETADATA_EXCEPTION, Logger, e);
+                    SobeyRecException.ThrowSelfNoParam("AddTaskWithoutPolicy CaptureMeta empty", GlobalDictionary.GLOBALDICT_CODE_NO_CAPTURE_PARAM, Logger, null);
                 }
 
-
+                bool bLockChannel = taskinfo.TaskContent.ChannelID > 0 ? false : true;
 
 
             }
 
             return null;
         }
+
+        public async Task<int> CHSelectForNormalTask(TaskContentRequest request, CHSelCondition condition)
+        {
+            Logger.Info((string.Format("###Begin to Select channel for Normal task:{0}, signalid:{1}, channelid:{2}, bBackupCH:{3}, bCheckState:{4}, nBaseCH:{5}, OnlyLocal:{6},bExcuting:{7}",
+            request.TaskID, request.SignalID, request.ChannelID,
+            condition.BackupCHSel, condition.CheckCHCurState, condition.BaseCHID, condition.OnlyLocalChannel, condition.MoveExcutingOpenTask)));
+
+            if (request.SignalID <= 0)
+            {
+                return -1;
+            }
+
+            //1. 为信号源选择所有匹配的通道
+            //2. 根据条件筛选通道，这些条件是固定属性，放在前面筛选掉，不用互斥
+
+        }
+
+        public async Task<int> CHSelectForPeriodicTask(TaskContentRequest request, CHSelCondition condition)
+        { }
+
+        public async List<int> GetMatchedChannelForSignal(int SignalID, int ChID, CHSelCondition condition)
+        {
+
+        }
+        ///////////////////////////////
     }
 }
