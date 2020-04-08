@@ -339,7 +339,23 @@ namespace IngestTaskPlugin.Managers
             var matchlst = await GetMatchedChannelForSignal(request.SignalID, request.ChannelID, condition);
             if (matchlst != null && matchlst.Count > 0)
             {
+                Logger.Info("CHSelectForNormalTask matchcount {0}", matchlst.Count);
 
+                DateTime Begin = DateTimeFormat.DateTimeFromString(request.Begin);
+                DateTime End = DateTimeFormat.DateTimeFromString(request.End);
+                List<int> freeChannelIdList = await Store.GetFreeChannels(matchlst, Begin, End);
+
+                Logger.Info("GetFreeChannels freeChannelIdList {0}", freeChannelIdList.Count);
+
+                if (freeChannelIdList?.Count > 0)
+                {
+                    /*
+                     @ brief 这里按照老逻辑会赛选下被锁住的通道，全是超时锁
+                     @ 选择通道时锁住通道，添加任务完了再释放锁，这什么鬼逻辑
+                     @ 决定放弃这个通道锁这个逻辑，后面不行再补上
+                     */
+
+                }
             }
             else
                 Logger.Error("CHSelectForNormalTask matchcount error");

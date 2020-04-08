@@ -659,7 +659,28 @@ namespace IngestTaskPlugin.Stores
 
         public async Task<List<int>> GetFreeChannels(List<int> lst, DateTime begin, DateTime end)
         {
+            var lstchn = await Context.DbpTask.AsNoTracking().Where(x => x.Endtime > DateTime.Now
+            && ((x.Starttime >= begin && x.Starttime < end) 
+            || (x.Endtime > begin && x.Endtime <= end))
+            && (x.State != (int)taskState.tsConflict && x.State != (int)taskState.tsDelete && x.State != (int)taskState.tsInvaild)
+            && x.DispatchState != (int)dispatchState.dpsInvalid
+            && x.OpType != (int)opType.otDel
+            && (x.Tasktype != (int)TaskType.TT_PERIODIC && x.Tasktype != (int)TaskType.TT_OPENEND && x.Tasktype != (int)TaskType.TT_OPENENDEX))
+            .Select(y => y.Channelid).ToListAsync();
 
+            //bool overday = false;
+            //if (begin.Date != end.Date)
+            //{
+            //    overday = true;
+            //}
+
+            DateTime periodbegin = begin; periodbegin.AddDays(-1);
+            DateTime periodend = end; periodend.AddDays(-1);
+
+            var lstperiod = await Context.DbpTask.AsNoTracking().Where(x => );
+
+            lst.RemoveAll(z => lstchn.Contains(z));
+            return lst;
         }
 
         public async Task LockTask(int taskid)
