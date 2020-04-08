@@ -61,36 +61,23 @@ namespace IngestGlobalPlugin.Controllers
 
         }
 
-
-        /// <summary>
-        /// 锁对象
-        /// </summary>
-        /// <remarks>
-        /// 例子:
-        /// Post api/v1/lockobject
-        /// </remarks>
-        /// <param name="pIn">锁对象参数</param>
-        /// <returns>锁对象结果</returns>
-        [HttpPost("lockobject"), MapToApiVersion("1.0")]
+        
+        [HttpPost("PostLockObject"), MapToApiVersion("1.0")]
         [ApiExplorerSettings(GroupName = "v1")]
-        public async Task<PostLockObject_param_out> PostLockObject([FromBody] PostLockObject_param_in pIn)
+        public async Task<PostLockObject_param_out> OldPostLockObject([FromBody] PostLockObject_param_in pIn)
         {
             PostLockObject_param_out pOut = new PostLockObject_param_out();
             
             try
             {
-
                 if (pIn.ObjectID < 0)
                 {
-                    //LoggerService.Error("ObjectID < 0 ,参数传递错误");
-                    string message = "ObjectID < 0 ,参数传递错误";
-                    SobeyRecException.ThrowSelfNoParam(message, GlobalDictionary.GLOBALDICT_CODE_LOCK_OBJECTID_WRONG,Logger, new Exception());
+                    Logger.Error("ObjectID < 0 ,参数传递错误");
+                    SobeyRecException.ThrowSelfNoParam(pIn.ObjectID.ToString(), GlobalDictionary.GLOBALDICT_CODE_LOCK_OBJECTID_WRONG, Logger, null);
                 }
                 if (pIn.ObjectTypeID < OTID.OTID_VTR || pIn.ObjectTypeID > OTID.OTID_OTHER)
                 {
-                    string message = pIn.ObjectTypeID.ToString();
-                    SobeyRecException.ThrowSelfNoParam(message, GlobalDictionary.GLOBALDICT_CODE_LOCK_OBJECT_TPYEID_IS_NOT_EXIST, Logger, new Exception());
-
+                    SobeyRecException.ThrowSelfNoParam(pIn.ObjectTypeID.ToString(), GlobalDictionary.GLOBALDICT_CODE_LOCK_OBJECT_TPYEID_IS_NOT_EXIST, Logger, null);
                 }
                 if (string.IsNullOrEmpty(pIn.userName))//   == "" || pIn.userName == string.Empty)
                 {
@@ -98,8 +85,7 @@ namespace IngestGlobalPlugin.Controllers
                 }
                 if (pIn.TimeOut < 0)
                 {
-                    string message = pIn.TimeOut.ToString();
-                    SobeyRecException.ThrowSelfNoParam(message, GlobalDictionary.GLOBALDICT_CODE_LOCK_OBJECT_TIMEOUT_IS_WRONG, Logger, new Exception());
+                    SobeyRecException.ThrowSelfNoParam(pIn.TimeOut.ToString(), GlobalDictionary.GLOBALDICT_CODE_LOCK_OBJECT_TIMEOUT_IS_WRONG, Logger, null);
                 }
 
                 pOut.bRet = await _GlobalManager.SetLockObject(pIn.ObjectID, pIn.ObjectTypeID, pIn.userName, pIn.TimeOut);
@@ -124,9 +110,9 @@ namespace IngestGlobalPlugin.Controllers
         /// </remarks>
         /// <param name="pIn">锁对象参数</param>
         /// <returns>锁对象结果</returns>
-        [HttpPost("unlockobject"), MapToApiVersion("1.0")]
+        [HttpPost("PostUnlockObject"), MapToApiVersion("1.0")]
         [ApiExplorerSettings(GroupName = "v1")]
-        public async Task<PostLockObject_param_out> PostUnlockObject([FromBody] PostLockObject_param_in pIn)
+        public async Task<PostLockObject_param_out> OldPostUnlockObject([FromBody] PostLockObject_param_in pIn)
         {
 
             PostLockObject_param_out pOut = new PostLockObject_param_out();
@@ -233,11 +219,8 @@ namespace IngestGlobalPlugin.Controllers
             {
                 if (strValue == null)
                     strValue = "";
-                bool ret = await _GlobalManager.UpdateGlobalValueAsync(strKey, strValue);
-                if (ret == true)
-                    res.nCode = 1;
-                else
-                    res.nCode = 0;
+                await _GlobalManager.UpdateGlobalValueAsync(strKey, strValue);
+                res.nCode = 1;
             }
             catch (Exception ex)
             {
