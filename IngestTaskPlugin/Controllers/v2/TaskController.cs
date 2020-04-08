@@ -11,13 +11,38 @@ using System;
 using System.Collections.Generic;
 using System.Text;
 using System.Threading.Tasks;
+using Microsoft.AspNetCore.Mvc.ModelBinding;
+
 using TaskMaterialMetaRequest = IngestTaskPlugin.Dto.TaskMaterialMetaResponse;
 using TaskContentMetaRequest = IngestTaskPlugin.Dto.TaskContentMetaResponse;
 using TaskPlanningRequest = IngestTaskPlugin.Dto.TaskPlanningResponse;
 using TaskSplitRequest = IngestTaskPlugin.Dto.TaskSplitResponse;
 using PropertyRequest = IngestTaskPlugin.Dto.PropertyResponse;
+using TaskInfoRequest = IngestTaskPlugin.Dto.TaskInfoResponse;
+using TaskContentRequest = IngestTaskPlugin.Dto.TaskContentResponse;
 using TaskCustomMetadataRequest = IngestTaskPlugin.Dto.TaskCustomMetadataResponse;
-using Microsoft.AspNetCore.Mvc.ModelBinding;
+
+/// <summary>
+/// Creates a TodoItem.
+/// </summary>
+/// <remarks>
+/// 例子:
+///
+///     POST /Todo
+///     {
+///        "id": 1,
+///        "name": "Item1",
+///        "isComplete": true
+///     }
+///
+/// </remarks>
+/// <param name="item"></param>
+/// <returns>A newly created TodoItem</returns>
+/// <response code="201">Returns the newly created item</response>
+/// <response code="400">If the item is null</response>            
+//[HttpPost]
+//[ProducesResponseType(StatusCodes.Status201Created)]
+//[ProducesResponseType(StatusCodes.Status400BadRequest)]
 
 namespace IngestTaskPlugin.Controllers
 {
@@ -43,7 +68,7 @@ namespace IngestTaskPlugin.Controllers
         /// </summary>
         /// <remarks>
         /// 例子:
-        /// Get api/v2/task/taskmaterialmetadata/1
+        ///     Get api/v2/task/taskmaterialmetadata/1
         /// </remarks>
         /// <returns>素材任务元数据结构体</returns>     
         [HttpGet("taskmaterialmetadata/{taskid}")]
@@ -83,7 +108,7 @@ namespace IngestTaskPlugin.Controllers
         /// </summary>
         /// <remarks>
         /// 例子:
-        /// Get api/v2/task/taskcontentmetadata/1
+        ///     Get api/v2/task/taskcontentmetadata/1
         /// </remarks>
         /// <returns>任务元数据结构体</returns>     
         [HttpGet("taskcontentmetadata/{taskid}")]
@@ -123,7 +148,7 @@ namespace IngestTaskPlugin.Controllers
         /// </summary>
         /// <remarks>
         /// 例子:
-        /// Get api/v2/task/taskplanningmetadata/1
+        ///     Get api/v2/task/taskplanningmetadata/1
         /// </remarks>
         /// <returns>任务计划元数据结构体</returns>     
         [HttpGet("taskplanningmetadata/{taskid}")]
@@ -164,7 +189,7 @@ namespace IngestTaskPlugin.Controllers
         /// <remarks>
         /// 假如没有此属性会新加，有此属性会更新
         /// 例子:
-        /// Get api/v2/task/taskmetadata/1
+        ///     Get api/v2/task/taskmetadata/1
         /// </remarks>
         /// <param name="taskid"></param>
         /// <param name="tasktype">元数据类型</param>
@@ -207,7 +232,7 @@ namespace IngestTaskPlugin.Controllers
         /// </summary>
         /// <remarks>
         /// 例子:
-        /// Get api/v2/task/taskcustommetadata/1
+        ///     Get api/v2/task/taskcustommetadata/1
         /// </remarks>
         /// <returns>获取任务自定义数据</returns>     
         [HttpGet("taskcustommetadata/{taskid}")]
@@ -247,7 +272,7 @@ namespace IngestTaskPlugin.Controllers
         /// </summary>
         /// <remarks>
         /// 例子:
-        /// Get api/v2/task/taskcustommetadata/1
+        ///     Get api/v2/task/taskcustommetadata/1
         /// </remarks>
         /// <param name="taskid">任务id</param>
         /// <param name="data">更新数据，taskid填不填看你，我不会用</param>
@@ -290,7 +315,7 @@ namespace IngestTaskPlugin.Controllers
         /// </summary>
         /// <remarks>
         /// 例子:
-        /// Get api/v2/task/grouptask/stop/1
+        ///     Get api/v2/task/grouptask/stop/1
         /// </remarks>
         /// <param name="taskid">单个组任务id</param>
         /// <returns>停止的所有任务id</returns>
@@ -311,7 +336,7 @@ namespace IngestTaskPlugin.Controllers
                 var _globalinterface = ApplicationContext.Current.ServiceProvider.GetRequiredService<IIngestGlobalInterface>();
                 if (_globalinterface != null)
                 {
-                    GlobalInternals re = new GlobalInternals() { funtype = FunctionType.SetGlobalState, State = GlobalStateName.MODTASK };
+                    GlobalInternals re = new GlobalInternals() { funtype = IngestDBCore.GlobalInternals.FunctionType.SetGlobalState, State = GlobalStateName.MODTASK };
                     var response1 = await _globalinterface.SubmitGlobalCallBack(re);
                     if (response1.Code != ResponseCodeDefines.SuccessCode)
                     {
@@ -342,7 +367,7 @@ namespace IngestTaskPlugin.Controllers
         /// </summary>
         /// <remarks>
         /// 例子:
-        /// Get api/v2/task/grouptask/1
+        ///     Get api/v2/task/grouptask/1
         /// </remarks>
         /// <param name="taskid">单个组任务id</param>
         /// <returns>停止的所有任务id</returns>
@@ -359,6 +384,17 @@ namespace IngestTaskPlugin.Controllers
             try
             {
                 Response.Ext = await _taskManage.DeleteGroupTaskAsync(taskid);
+
+                var _globalinterface = ApplicationContext.Current.ServiceProvider.GetRequiredService<IIngestGlobalInterface>();
+                if (_globalinterface != null)
+                {
+                    GlobalInternals re = new GlobalInternals() { funtype = IngestDBCore.GlobalInternals.FunctionType.SetGlobalState, State = GlobalStateName.MODTASK };
+                    var response1 = await _globalinterface.SubmitGlobalCallBack(re);
+                    if (response1.Code != ResponseCodeDefines.SuccessCode)
+                    {
+                        Logger.Error("SetGlobalState modtask error");
+                    }
+                }
             }
             catch (Exception e)
             {
@@ -379,20 +415,27 @@ namespace IngestTaskPlugin.Controllers
         }
 
         /// <summary>
-        /// 添加任务(fow gpi 引入在用, web别用 对应老接口的PostAddTaskSvr)
+        /// 仅仅添加任务对应老接口的PostAddTaskSvr (fow gpi 引入在用;;;   web别用 )
         /// </summary>
         /// <remarks>
         /// 例子:
-        /// Get api/v2/task/withoutpolicytask
+        ///
+        ///     POST /Todo
+        ///     {
+        ///        "id": 1,
+        ///        "name": "Item1",
+        ///        "isComplete": true
+        ///     }
+        ///
         /// </remarks>
         /// <param name="task">添加任务数据</param>
         /// <returns>基本任务信息附带任务id</returns>
         [HttpPost("withoutpolicytask")]
         [ApiExplorerSettings(GroupName = "v2")]
-        public async Task<ResponseMessage<List<int>>> AddTaskWithoutPolicy([FromBody, BindRequired]int task)
+        public async Task<ResponseMessage<List<int>>> AddTaskWithoutPolicy([FromBody, BindRequired]TaskInfoResponse task)
         {
             var Response = new ResponseMessage<List<int>>();
-            if (task < 1)
+            if (task == null)
             {
                 Response.Code = ResponseCodeDefines.ModelStateInvalid;
                 Response.Msg = "请求参数不正确";

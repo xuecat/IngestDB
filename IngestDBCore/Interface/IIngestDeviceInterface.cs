@@ -7,7 +7,7 @@ namespace IngestDBCore.Interface
 {
     public interface IIngestDeviceInterface
     {
-        Task<ResponseMessage> SubmitDeviceCallBack(TaskInternals examineResponse);
-        Task<ResponseMessage> GetDeviceCallBack(TaskInternals examineResponse);
+        Task<ResponseMessage> SubmitDeviceCallBack(DeviceInternals examineResponse);
+        Task<ResponseMessage> GetDeviceCallBack(DeviceInternals examineResponse);
     }
 }

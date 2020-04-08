@@ -22,7 +22,7 @@ namespace IngestGlobalInterfacePlugin
         {
 
             context.Services.AddScoped<IIngestGlobalInterface, IngestGlobalInterfaceImplement>();
-            //context.Services.AddScoped<TaskController>();
+            context.Services.AddScoped<IngestGlobalPlugin.Controllers.GlobalController>();
             return base.Init(context);
         }
 

@@ -35,7 +35,7 @@ namespace IngestGlobalPlugin.Controllers
         /// </summary>
         /// <remarks>
         /// 例子:
-        /// Get api/v2/globalstate?strLabel=
+        ///     Get api/v2/globalstate?strLabel=
         /// </remarks>
         /// <param name="strLabel">GlobalStateName枚举</param>
         /// <returns></returns>

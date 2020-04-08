@@ -14,13 +14,15 @@ namespace IngestDBCore
         static public string BACKUP { get { return "BACKUP"; } }
     }
 
-    public enum FunctionType
-    {
-        SetGlobalState
-    }
+    
 
     public class GlobalInternals
     {
+        public enum FunctionType
+        {
+            SetGlobalState
+        }
+
         public FunctionType funtype { get; set; }
 
         public string State { get; set; }

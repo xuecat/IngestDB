@@ -112,6 +112,7 @@ namespace IngestDB
                         Title = "> 收录新版本网关接口文档",
                         Description = "**Ingest Web API**(接口设计原则: `Post`->新加和修改，`Post`->新加；`Put`->修改)",
                         Contact = new OpenApiContact { Name = "XueCat", Email = "", Url = new Uri("http://xuecat.com") },
+                        License = new OpenApiLicense { Name = "Sobey", Url = new Uri("http://www.sobey.com")}
                         //TermsOfService = new Uri("None"),
                     });
 
@@ -121,6 +122,7 @@ namespace IngestDB
                         Title = "> 收录老版本网关接口文档",
                         Description = "**A simple example Ingest Web API**(接口设计原则: `Post`->新加和修改，`Post`->新加；`Put`->修改)",
                         Contact = new OpenApiContact { Name = "XueCat", Email = "", Url = new Uri("http://xuecat.com") },
+                        License = new OpenApiLicense { Name = "Sobey", Url = new Uri("http://www.sobey.com") }
                         //TermsOfService = new Uri("None"),
                     });
                     //Set the comments path for the swagger json and ui.
