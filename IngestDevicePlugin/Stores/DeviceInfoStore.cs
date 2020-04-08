@@ -90,30 +90,59 @@ namespace IngestDevicePlugin.Stores
         }
 
         //老接口GetAllCaptureChannels
-        public async Task<List<CaptureChannelInfoDto>> GetAllCaptureChannelsAsync()
+        public async Task<List<CaptureChannelInfoDto>> GetAllCaptureChannelsAsync(int status)
         {
             //device按nOrderCode排升序
             //channel 按RECOUTIDX排序
-            var lst = await (from channel in Context.DbpCapturechannels
-             join device in Context.DbpCapturedevice on channel.Cpdeviceid equals device.Cpdeviceid into ps1
-             //join recout in Context.DbpRcdoutdesc on channel.Channelid equals recout.Channelid into ps2
-             join grp in Context.DbpChannelgroupmap on channel.Cpdeviceid equals grp.Channelid into ps3
-             from p1 in ps1.DefaultIfEmpty()
-             //from p2 in ps2.DefaultIfEmpty()
-             from p3 in ps3.DefaultIfEmpty()
-             select new CaptureChannelInfoDto
-             {
-                 ID = channel.Channelid,
-                 Name = channel.Channelname,
-                 Desc = channel.Channeldesc,
-                 CPDeviceID = channel.Cpdeviceid,
-                 ChannelIndex = channel.Channelindex ?? 0,
-                 DeviceTypeID = (int)CaptureChannelType.emMsvChannel,
-                 BackState = (emBackupFlag)channel.Backupflag,
-                 CPSignalType = channel.Cpsignaltype ?? 0,
-                 OrderCode = p1 != null? p1.Ordercode.GetValueOrDefault() :-1,
-                 GroupID = p3 != null ? p3.Groupid:-1
-             }).ToListAsync();
+            List<CaptureChannelInfoDto> lst = null;
+            if (status == 0)
+            {
+                lst = await (from channel in Context.DbpCapturechannels
+                       join device in Context.DbpCapturedevice on channel.Cpdeviceid equals device.Cpdeviceid into ps1
+                       //join recout in Context.DbpRcdoutdesc on channel.Channelid equals recout.Channelid into ps2
+                       join grp in Context.DbpChannelgroupmap on channel.Cpdeviceid equals grp.Channelid into ps3
+                       from p1 in ps1.DefaultIfEmpty()
+                           //from p2 in ps2.DefaultIfEmpty()
+                       from p3 in ps3.DefaultIfEmpty()
+                       select new CaptureChannelInfoDto
+                       {
+                           ID = channel.Channelid,
+                           Name = channel.Channelname,
+                           Desc = channel.Channeldesc,
+                           CPDeviceID = channel.Cpdeviceid,
+                           ChannelIndex = channel.Channelindex ?? 0,
+                           DeviceTypeID = (int)CaptureChannelType.emMsvChannel,
+                           BackState = (emBackupFlag)channel.Backupflag,
+                           CPSignalType = channel.Cpsignaltype ?? 0,
+                           OrderCode = p1 != null ? p1.Ordercode.GetValueOrDefault() : -1,
+                           GroupID = p3 != null ? p3.Groupid : -1
+                       }).ToListAsync();
+            }
+            else
+            {
+                lst = await (from channel in Context.DbpCapturechannels
+                             join device in Context.DbpCapturedevice on channel.Cpdeviceid equals device.Cpdeviceid into ps1
+                             join cstatu in Context.DbpMsvchannelState on channel.Channelid equals cstatu.Channelid into ps2
+                             join grp in Context.DbpChannelgroupmap on channel.Cpdeviceid equals grp.Channelid into ps3
+                             from p1 in ps1.DefaultIfEmpty()
+                             from p2 in ps2.DefaultIfEmpty()
+                             from p3 in ps3.DefaultIfEmpty()
+                             where p2 != null && p2.Devstate != 0 && p2.Msvmode != 0
+                             select new CaptureChannelInfoDto
+                             {
+                                 ID = channel.Channelid,
+                                 Name = channel.Channelname,
+                                 Desc = channel.Channeldesc,
+                                 CPDeviceID = channel.Cpdeviceid,
+                                 ChannelIndex = channel.Channelindex ?? 0,
+                                 DeviceTypeID = (int)CaptureChannelType.emMsvChannel,
+                                 BackState = (emBackupFlag)channel.Backupflag,
+                                 CPSignalType = channel.Cpsignaltype ?? 0,
+                                 OrderCode = p1 != null ? p1.Ordercode.GetValueOrDefault() : -1,
+                                 GroupID = p3 != null ? p3.Groupid : -1
+                             }).ToListAsync();
+            }
+            
 
             //DBP_IP_VIRTUALCHANNEL 现在应该是没有用了
             var iplst = await Context.DbpIpVirtualchannel.AsNoTracking().Select(x => new CaptureChannelInfoDto

@@ -657,6 +657,11 @@ namespace IngestTaskPlugin.Stores
             return lstnreture;
         }
 
+        public async Task<List<int>> GetFreeChannels(List<int> lst, DateTime begin, DateTime end)
+        {
+
+        }
+
         public async Task LockTask(int taskid)
         {
             

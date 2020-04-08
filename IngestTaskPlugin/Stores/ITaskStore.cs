@@ -43,6 +43,7 @@ namespace IngestTaskPlugin.Stores
         Task<List<int>> StopCapturingListChannelAsync(List<int> lstChaneel);
         Task<int> DeleteCapturingChannelAsync(int Channel);
         Task<List<int>> DeleteCapturingListChannelAsync(List<int> lstChaneel);
+        Task<List<int>> GetFreeChannels(List<int> lst, DateTime begin, DateTime end);
 
         Task LockTask(int taskid);
         Task UnLockTask(int taskid);

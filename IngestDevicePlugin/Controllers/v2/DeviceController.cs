@@ -78,17 +78,18 @@ namespace IngestDevicePlugin.Controllers
         /// <remarks>
         /// </remarks>
         /// <param name="programmeId">信号源id</param>
+        /// <param name="status">int 0是不选返回所有通道信息，1是选通道和msv连接正常的通道信息</param>
         /// <returns>当前信号源匹配通道，是list</returns>
         [HttpGet("programme")]
         [IngestAuthentication]//device有点特殊，做了监听端口的所以不能全类检验
         [ApiExplorerSettings(GroupName = "v2")]
-        public async Task<ResponseMessage<List<CaptureChannelInfoResponse>>> ChannelsByProgrammeId(int programmeId)
+        public async Task<ResponseMessage<List<CaptureChannelInfoResponse>>> ChannelsByProgrammeId(int programmeId, int status)
         {
             var Response = new ResponseMessage<List<CaptureChannelInfoResponse>>();
 
             try
             {
-                Response.Ext = await _deviceManage.GetChannelsByProgrammeIdAsync<CaptureChannelInfoResponse>(programmeId);
+                Response.Ext = await _deviceManage.GetChannelsByProgrammeIdAsync<CaptureChannelInfoResponse>(programmeId, status);
             }
             catch (Exception e)
             {

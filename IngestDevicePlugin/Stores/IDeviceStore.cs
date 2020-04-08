@@ -20,7 +20,7 @@ namespace IngestDevicePlugin.Stores
 
         Task<ProgrammeInfoDto> GetSignalInfoAsync(int srcid);
 
-        Task<List<CaptureChannelInfoDto>> GetAllCaptureChannelsAsync();
+        Task<List<CaptureChannelInfoDto>> GetAllCaptureChannelsAsync(int status);
         Task<List<int>> GetChannelIdsBySignalIdForNotMatrix(int signalid);
     }
 }

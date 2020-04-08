@@ -15,6 +15,8 @@ namespace IngestDBCore
         public FunctionType funtype { get; set; }
 
         public int SrcId { get; set; }
+
+        public int Status { get; set; }
     }
 
     //采集通道类型

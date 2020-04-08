@@ -336,27 +336,48 @@ namespace IngestTaskPlugin.Managers
 
             //1. 为信号源选择所有匹配的通道
             //2. 根据条件筛选通道，这些条件是固定属性，放在前面筛选掉，不用互斥
+            var matchlst = await GetMatchedChannelForSignal(request.SignalID, request.ChannelID, condition);
+            if (matchlst != null && matchlst.Count > 0)
+            {
 
+            }
+            else
+                Logger.Error("CHSelectForNormalTask matchcount error");
         }
 
         public async Task<int> CHSelectForPeriodicTask(TaskContentRequest request, CHSelCondition condition)
         { }
 
-        public async List<int> GetMatchedChannelForSignal(int SignalID, int ChID, CHSelCondition condition)
+        public async Task<List<int>> GetMatchedChannelForSignal(int SignalID, int ChID, CHSelCondition condition)
         {
             var _globalinterface = ApplicationContext.Current.ServiceProvider.GetRequiredService<IIngestDeviceInterface>();
             if (_globalinterface != null)
             {
-                DeviceInternals re = new DeviceInternals() { funtype = IngestDBCore.DeviceInternals.FunctionType.ChannelInfoBySrc, SrcId = SignalID };
+                DeviceInternals re = new DeviceInternals() { funtype = IngestDBCore.DeviceInternals.FunctionType.ChannelInfoBySrc, SrcId = SignalID, Status = condition.CheckCHCurState?1:0};
                 var response1 = await _globalinterface.GetDeviceCallBack(re);
                 if (response1.Code != ResponseCodeDefines.SuccessCode)
                 {
-                    Logger.Error("SetGlobalState modtask error");
+                    Logger.Error("GetMatchedChannelForSignal ChannelInfoBySrc error");
+                    return null;
+                }
+
+                Logger.Info(string.Format("GetMatchedChannelForSignal match {0}  {1}  {2}", condition.BaseCHID, condition.BackupCHSel, ChID));
+
+                var fresponse = response1 as ResponseMessage<List<CaptureChannelInfoInterface>>;
+                if (fresponse != null && fresponse.Ext?.Count > 1)
+                {
+                    fresponse.Ext.RemoveAll(x => ChID != x.ID && (x.BackState == BackupFlagInterface.emAllowBackUp && ChID != -1));
+
+                    /// 如果存在onlybackup属性的通道，优先考虑
+                    return fresponse.Ext.OrderByDescending(x => x.BackState).Select(y =>y.ID).ToList();/// 如果存在onlybackup属性的通道，优先考虑
                 }
             }
 
-
+            return null;
         }
+
+        
+
         ///////////////////////////////
     }
 }

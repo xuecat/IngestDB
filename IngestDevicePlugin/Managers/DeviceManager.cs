@@ -36,13 +36,13 @@ namespace IngestTaskPlugin.Managers
             return await Store.GetSignalInfoAsync(programeid);
         }
 
-        public async virtual Task<List<TResult>> GetChannelsByProgrammeIdAsync<TResult>(int programmid)
+        public async virtual Task<List<TResult>> GetChannelsByProgrammeIdAsync<TResult>(int programmid, int state)
         {
             //判断是否是无矩阵
             bool isHaveMatrix = await HaveMatrixAsync();
             var programinfo = await GetProgrammeInfoByIdAsync(programmid);
 
-            var channels = await Store.GetAllCaptureChannelsAsync();
+            var channels = await Store.GetAllCaptureChannelsAsync(state);
             List<CaptureChannelInfoResponse> channelInfoList = new List<CaptureChannelInfoResponse>();
             foreach (var item in channels)
             {

@@ -29,7 +29,7 @@ namespace IngestTaskInterfacePlugin
                 {
                     case FunctionType.ChannelInfoBySrc:
                         {
-                            var f = await reqService.ChannelsByProgrammeId(examineResponse.SrcId);
+                            var f = await reqService.ChannelsByProgrammeId(examineResponse.SrcId, examineResponse.Status);
                             var ret = new ResponseMessage<List<CaptureChannelInfoInterface>>()
                             {
                                 Code = f.Code,

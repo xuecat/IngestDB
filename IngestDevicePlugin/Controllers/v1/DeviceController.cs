@@ -63,7 +63,7 @@ namespace IngestDevicePlugin.Controllers
 
             try
             {
-                Response.channelInfos = await _deviceManage.GetChannelsByProgrammeIdAsync<CaptureChannelInfo>(programeid);
+                Response.channelInfos = await _deviceManage.GetChannelsByProgrammeIdAsync<CaptureChannelInfo>(programeid, 0);
             }
             catch (Exception e)
             {

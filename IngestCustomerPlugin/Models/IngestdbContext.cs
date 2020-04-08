@@ -61,7 +61,7 @@ namespace IngestCustomerPlugin.Models
         public virtual DbSet<DbpMsgFailedrecord> DbpMsgFailedrecord { get; set; }
         public virtual DbSet<DbpMsmqmsg> DbpMsmqmsg { get; set; }
         public virtual DbSet<DbpMsmqmsgFailed> DbpMsmqmsgFailed { get; set; }
-        public virtual DbSet<DbpMsvchannelState> DbpMsvchannelState { get; set; }
+        
         public virtual DbSet<DbpNewimportClip> DbpNewimportClip { get; set; }
         public virtual DbSet<DbpNewimportRemote> DbpNewimportRemote { get; set; }
         public virtual DbSet<DbpNewimportTask> DbpNewimportTask { get; set; }
@@ -810,46 +810,7 @@ namespace IngestCustomerPlugin.Models
                     .HasDefaultValueSql("'0000-00-00 00:00:00'");
             });
 
-            modelBuilder.Entity<DbpMsvchannelState>(entity =>
-            {
-                entity.HasKey(e => e.Channelid);
-
-                entity.ToTable("dbp_msvchannel_state");
-
-                entity.Property(e => e.Channelid)
-                    .HasColumnName("CHANNELID")
-                    .HasColumnType("int(11)");
-
-                entity.Property(e => e.Curusercode)
-                    .HasColumnName("CURUSERCODE")
-                    .HasColumnType("varchar(128)")
-                    .HasDefaultValueSql("''");
-
-                entity.Property(e => e.Devstate)
-                    .HasColumnName("DEVSTATE")
-                    .HasColumnType("int(11)")
-                    .HasDefaultValueSql("'0'");
-
-                entity.Property(e => e.Kamatakiinfo)
-                    .HasColumnName("KAMATAKIINFO")
-                    .HasColumnType("varchar(512)")
-                    .HasDefaultValueSql("''");
-
-                entity.Property(e => e.Msvmode)
-                    .HasColumnName("MSVMODE")
-                    .HasColumnType("int(11)")
-                    .HasDefaultValueSql("'0'");
-
-                entity.Property(e => e.Sourcevtrid)
-                    .HasColumnName("SOURCEVTRID")
-                    .HasColumnType("int(11)")
-                    .HasDefaultValueSql("'-1'");
-
-                entity.Property(e => e.Uploadstate)
-                    .HasColumnName("UPLOADSTATE")
-                    .HasColumnType("int(11)")
-                    .HasDefaultValueSql("'0'");
-            });
+            
 
             modelBuilder.Entity<DbpNewimportClip>(entity =>
             {
