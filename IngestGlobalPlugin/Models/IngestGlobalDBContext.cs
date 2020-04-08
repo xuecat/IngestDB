@@ -21,6 +21,7 @@ namespace IngestGlobalPlugin.Models
         public virtual DbSet<DbpGlobal> DbpGlobal { get; set; }
         public virtual DbSet<DbpGlobalProgram> DbpGlobalProgram { get; set; }
         public virtual DbSet<DbpGlobalState> DbpGlobalState { get; set; }
+        public virtual DbSet<DbpObjectstateinfo> DbpObjectstateinfo { get; set; }
 
     
 
@@ -159,6 +160,20 @@ namespace IngestGlobalPlugin.Models
                     .HasDefaultValueSql("'CURRENT_TIMESTAMP'")
                     .ValueGeneratedOnAddOrUpdate();
             });
+
+            modelBuilder.Entity<DbpObjectstateinfo>(entity => {
+                entity.HasKey(e => new { e.Objectid, e.Objecttypeid });
+
+                entity.ToTable("dbp_objectstateinfo");
+
+                entity.Property(e => e.Objectid).HasColumnName("OBJECTID").HasColumnType("int(11)");
+                entity.Property(e => e.Objecttypeid).HasColumnName("OBJECTTYPEID").HasColumnType("int(11)");
+                entity.Property(e => e.Username).HasColumnName("USERNAME").HasColumnType("varchar(128)").HasDefaultValueSql("''");
+                entity.Property(e => e.Begintime).HasColumnName("BEGINTIME").HasColumnType("timestamp");
+                entity.Property(e => e.Timeout).HasColumnName("TIMEOUT").HasColumnType("int(11)");
+                entity.Property(e => e.Locklock).HasColumnName("LOCKLOCK").HasColumnType("varchar(128)");
+            });
+
         }
     }
 }
