@@ -23,29 +23,57 @@ namespace IngestGlobalPlugin.Managers
             _mapper = mapper ?? throw new ArgumentNullException(nameof(mapper));
         }
 
+        
+        #region global Manager
+        public async Task<string> GetValueStringAsync(string strKey)
+        {
+            return await Store.GetGlobalValueStringAsync(strKey);
+        }
 
-        public async Task SetGlobalState(string strLabel)
+        public async Task UpdateGlobalValueAsync(string strKey, string strValue)
+        {
+            await Store.UpdateGlobalValueAsync(strKey, strValue);
+        }
+        
+        #endregion
+
+        
+
+        //用于老接口
+        public async Task<bool> SetLockObject(int objectID, OTID objectTypeID, string userName, int TimeOut)
+        {
+            return await Store.SetLockObject(objectID, objectTypeID, userName, TimeOut);
+        }
+        
+        //用于老街口
+        public async Task<bool> SetUnlockObject(int objectID, OTID objectTypeID, string userName)
+        {
+            return await Store.SetUnLockObject(objectID, objectTypeID, userName);
+        }
+        
+
+        #region globalstate manager
+        public async Task<TResult> GetAllGlobalStateAsync<TResult>()
+        {
+            var globalstates = await Store.GetAllGlobalStateAsync();
+            return _mapper.Map<TResult>(globalstates);
+            
+        }
+
+        public async Task UpdateGlobalStateAsync(string strLabel)
         {
             await Store.UpdateGlobalStateAsync(strLabel);
         }
+        #endregion
 
-        public async Task<string> GetValueStringAsync(string strKey)
-        {
-            return await Store.GetValueStringAsync(strKey);
-        }
-
-        public async Task<GlobalTcResponse> GetDefaultSTC(TC_MODE tcMode)
-        {
-            return await Store.GetDefaultSTC(tcMode);
-        }
-
+        #region Lock Objects Manager
         public async Task<bool> SetLockObjectAsync(int objectID, OTID objectTypeID, string userName, int TimeOut)
         {
             if (TimeOut < 0)
                 TimeOut *= -1;
 
-            var dbpObjState = await Store.GetObjStateInfoAsync(a => a.Where(x => x.Objectid == objectID && x.Objecttypeid == (int)objectTypeID));
-            if(dbpObjState == null)
+            var dbpObjState = await Store.GetObjectstateinfoAsync(a => a.Where(x => x.Objectid == objectID && x.Objecttypeid == (int)objectTypeID));
+            if (dbpObjState == null)
             {
                 return await Store.AddDbpObjStateAsync(objectID, objectTypeID, userName, TimeOut);
             }
@@ -59,10 +87,10 @@ namespace IngestGlobalPlugin.Managers
                     System.Threading.Thread.Sleep(100);
                 }
 
-                objectstateinfo = await Store.LockRowsAsync(objectID, objectTypeID, userName);
+                objectstateinfo = await Store.LockRowsByConditionAsync(objectID, objectTypeID, userName);
             }
 
-            if(objectstateinfo == null)
+            if (objectstateinfo == null)
             {
                 return false;
             }
@@ -70,20 +98,6 @@ namespace IngestGlobalPlugin.Managers
             //修改加锁信息，清空locklock
             return await Store.UnLockRowsAsync(objectstateinfo, TimeOut);
             //return await Store.SetLockObject(objectID, objectTypeID, userName, TimeOut);
-        }
-
-        //用于老接口
-        public async Task<bool> SetLockObject(int objectID, OTID objectTypeID, string userName, int TimeOut)
-        {
-            return await Store.SetLockObject(objectID, objectTypeID, userName, TimeOut);
-        }
-
-
-
-        //用于老街口
-        public async Task<bool> SetUnlockObject(int objectID, OTID objectTypeID, string userName)
-        {
-            return await Store.SetUnLockObject(objectID, objectTypeID, userName);
         }
 
         public async Task<bool> SetUnlockObjectAsync(int objectID, OTID objectTypeID, string userName)
@@ -97,26 +111,49 @@ namespace IngestGlobalPlugin.Managers
                     System.Threading.Thread.Sleep(100);
                 }
 
-                objectstateinfo = await Store.LockRowsAsync(objectID, objectTypeID, userName);
+                objectstateinfo = await Store.LockRowsByConditionAsync(objectID, objectTypeID, userName);
             }
 
             if (objectstateinfo == null)
             {
                 return false;
             }
-            
+
             return await Store.UnLockObjectAsync(objectstateinfo);
             //return await Store.SetUnLockObject(objectID, objectTypeID, userName);
         }
 
-        internal async Task<GetGlobalState_OUT> GetAllGlobalState()
+        //GetAllUnlockObjects
+        public async Task<List<ObjectContent>> GetVTRUnlockObjects()
         {
-            return await Store.GetAllGlobalState();
+            return await Store.GetObjectstateinfoListAsync<ObjectContent>(x => x.Where(a => a.Objecttypeid == (int)OTID.OTID_VTR && string.IsNullOrEmpty(a.Locklock) && a.Begintime.AddMilliseconds(Convert.ToInt32(a.Timeout)) > DateTime.Now)
+            .Select(res => new ObjectContent {
+                 ObjectID = res.Objectid,
+                 ObjectType = (OTID)res.Objecttypeid,
+                 UserName = res.Username,
+                 BeginTime = res.Begintime,
+                 TimeOut = res.Timeout
+            }), true);
         }
 
-        public async Task UpdateGlobalValueAsync(string strKey, string strValue)
+        //
+        public async Task<bool> IsChannelLock(int nChannel)
         {
-            await Store.UpdateGlobalValueAsync(strKey, strValue);
+            bool ret = false;
+            try
+            {
+                var objectsateinfo = await Store.GetObjectstateinfoAsync(a => a.Where(x => x.Objectid == nChannel && x.Objecttypeid == (int)OTID.OTID_CHANNEL && x.Begintime.AddMilliseconds(x.Timeout) > DateTime.Now));
+
+                ret = objectsateinfo == null ? true : false;//true 无锁
+            }
+            catch (Exception ex)
+            {
+                SobeyRecException.ThrowSelfNoParam(nChannel.ToString(), GlobalDictionary.GLOBALDICT_CODE_IN_ISCHANNELLOCK_READ_DATA_FAILED, null, ex);
+            }
+            return ret;
+
         }
+
+        #endregion
     }
 }

@@ -22,7 +22,8 @@ namespace IngestGlobalPlugin.Stores
             Context = baseDataDbContext;
         }
 
-        public async Task<DbpObjectstateinfo> GetObjStateInfoAsync(Func<IQueryable<DbpObjectstateinfo>, IQueryable<DbpObjectstateinfo>> query, bool notrack = false)
+        #region Objectstateinfo
+        public async Task<TResult> GetObjectstateinfoAsync<TResult>(Func<IQueryable<DbpObjectstateinfo>, IQueryable<TResult>> query, bool notrack = false)
         {
             if (query == null)
             {
@@ -35,6 +36,240 @@ namespace IngestGlobalPlugin.Stores
             return await query.Invoke(Context.DbpObjectstateinfo).FirstOrDefaultAsync();
         }
 
+        public async Task<List<TResult>> GetObjectstateinfoListAsync<TResult>(Func<IQueryable<DbpObjectstateinfo>, IQueryable<TResult>> query, bool notrack = false)
+        {
+            if (query == null)
+            {
+                throw new ArgumentNullException(nameof(query));
+            }
+            if (notrack)
+            {
+                return await query.Invoke(Context.DbpObjectstateinfo.AsNoTracking()).ToListAsync();
+            }
+            return await query.Invoke(Context.DbpObjectstateinfo).ToListAsync();
+        }
+
+        public async Task<bool> AddDbpObjStateAsync(int objectID, OTID objectTypeID, string userName, int TimeOut)
+        {
+            bool result = false;
+            try
+            {
+                Context.DbpObjectstateinfo.Add(new DbpObjectstateinfo()
+                {
+                    Objectid = objectID,
+                    Objecttypeid = (int)objectTypeID,
+                    Username = userName,
+                    Begintime = DateTime.Now,
+                    Timeout = TimeOut
+                });
+
+                int saveResult = await Context.SaveChangesAsync();
+                result = saveResult != 0 ? true : false;
+            }
+            catch (Exception ex)
+            {
+                Logger.Error(ex.ToString());
+                result = false;
+                throw ex;
+            }
+            return result;
+        }
+
+        public async Task<DbpObjectstateinfo> LockRowsByConditionAsync(int objectID, OTID objectTypeID, string userName, int TimeOut = 500)
+        {
+            DbpObjectstateinfo objectstateinfo = null;
+            try
+            {
+                objectstateinfo = await Context.DbpObjectstateinfo.SingleOrDefaultAsync(x => ((objectID >= 0 && x.Objectid == objectID) || objectID < 0) && (((int)objectTypeID >= 0 && x.Objecttypeid == (int)objectTypeID) || (int)objectTypeID < 0) && ((!string.IsNullOrEmpty(userName) && x.Username == userName) || string.IsNullOrEmpty(userName)) && (x.Locklock == "" || x.Locklock == null || x.Begintime < DateTime.Now.AddMilliseconds(TimeOut * (-1))));
+
+                if (objectstateinfo != null)
+                {
+                    objectstateinfo.Locklock = Guid.NewGuid().ToString();
+                    await Context.SaveChangesAsync();
+                }
+            }
+            catch (Exception ex)
+            {
+                SobeyRecException.ThrowSelfNoParam(objectID.ToString(), GlobalDictionary.GLOBALDICT_CODE_EXECUTE_COMMAND_ERROR, Logger, ex);
+            }
+            return objectstateinfo;
+        }
+
+        public async Task<bool> UnLockRowsAsync(DbpObjectstateinfo objectstateinfo, int TimeOut)
+        {
+            bool result = false;
+            try
+            {
+                int nTime = -1;
+                DateTime dtLock = new DateTime();
+
+                try
+                {
+                    System.Globalization.DateTimeFormatInfo dtfi = new System.Globalization.CultureInfo("en-US", false).DateTimeFormat;
+                    dtfi.ShortTimePattern = "t";
+                    //DateTime dt = DateTime.Parse("02-28-12 03:07PM", dtfi);
+                    nTime = Convert.ToInt32(objectstateinfo.Timeout);
+
+                    dtLock = DateTime.Parse(objectstateinfo.Begintime.ToString(), dtfi);
+                }
+                catch (System.Exception ex)
+                {
+                    //Logger.Error(ex.ToString());
+                    Logger.Error("UnLockRowsAsync 时间格式转换不对: " + ex.Message);
+                    return false;
+                }
+
+                DateTime AddMillSec = dtLock.AddMilliseconds(nTime);
+
+                DateTime dtNow = DateTime.Now;
+
+                var selectResult = await Context.DbpObjectstateinfo.SingleOrDefaultAsync(x => x.Objectid == objectstateinfo.Objectid && x.Objecttypeid == objectstateinfo.Objecttypeid && x.Username == objectstateinfo.Username);
+
+                if (AddMillSec < dtNow) //锁超时
+                {
+                    result = true;
+                    //UpdateLock(userName, dtNow, Convert.ToInt32(TimeOut), objectID, objectTypeID);
+                    if (selectResult != null)
+                    {
+                        selectResult.Begintime = dtNow;
+                        selectResult.Timeout = Convert.ToInt32(TimeOut);
+                    }
+                }
+                //UnLock(objectID, objectTypeID, userName);
+                if (selectResult != null)
+                {
+                    selectResult.Locklock = null;
+                    await Context.SaveChangesAsync();
+                }
+                return result;
+            }
+            catch (Exception ex)
+            {
+                SobeyRecException.ThrowSelfNoParam(objectstateinfo.Objectid.ToString(), GlobalDictionary.GLOBALDICT_CODE_EXECUTE_COMMAND_ERROR, Logger, ex);
+                result = false;
+                throw ex;
+            }
+        }
+
+        public async Task<bool> UnLockObjectAsync(DbpObjectstateinfo arrObjects)
+        {
+            try
+            {
+                if (arrObjects == null)
+                {
+                    Logger.Error("arrObjects == null || arrObjects.Count <= 0 成立，解锁函数return false，解锁失败");
+                    return false;
+                }
+                //加锁
+                //var deleteObj = await Context.DbpObjectstateinfo.FirstOrDefaultAsync(x => x.Username == userName && ((objectID >= 0 && x.Objectid == objectID) || objectID < 0) && ((objectTypeID >= 0 && x.Objecttypeid == (int)objectTypeID) || objectTypeID < 0));
+
+                Context.Remove(arrObjects);
+                int LineNum = await Context.SaveChangesAsync();
+
+                bool ret = false;
+                if (LineNum > 0)
+                {
+                    ret = true;//删除了锁，才返回正确
+                }
+                else
+                {
+                    Logger.Info("UnLockObjectAsync UnLockObject return false，解锁失败");
+                    ret = false;
+
+                    arrObjects.Locklock = null;
+                    await Context.SaveChangesAsync();
+                }
+                //解锁
+                //UnLock(objectID, objectTypeID, userName);
+                return ret;
+            }
+            catch (MySqlException ex)
+            {
+                Logger.Error(ex.ToString());
+                string message = "UnLockObject";
+                SobeyRecException.ThrowSelfNoParam(message, GlobalDictionary.GLOBALDICT_CODE_IN_SETUNLOCKOBJECT_READ_DATA_FAILED, Logger, ex);
+                return false;
+            }
+            catch (System.Exception ex)
+            {
+                Logger.Error(ex.ToString());
+                string message = "UnLockObject";
+                SobeyRecException.ThrowSelfNoParam(message, GlobalDictionary.GLOBALDICT_CODE_IN_SETUNLOCKOBJECT_EXCEPTION, Logger, ex);
+                return false;
+            }
+        }
+
+        #endregion
+        
+        #region global method
+        public async Task<string> GetGlobalValueStringAsync(string strKey)
+        {
+            string strValue = string.Empty;
+
+            try
+            {
+                var dbpGlobal = await Context.DbpGlobal.AsNoTracking().SingleOrDefaultAsync(x => x.GlobalKey == strKey);
+                if (dbpGlobal != null)
+                {
+                    strValue = dbpGlobal.GlobalValue;
+                }
+            }
+            catch(Exception ex)
+            {
+                throw ex;
+            }
+
+            return strValue;
+        }
+
+        public async Task UpdateGlobalValueAsync(string strKey, string strValue)
+        {
+            
+            try
+            {
+                if (!Context.DbpGlobal.AsNoTracking().Any(a => a.GlobalKey == strKey))
+                {
+                    //add
+                    Context.DbpGlobal.Add(new DbpGlobal()
+                    {
+                        GlobalKey = strKey,
+                        GlobalValue = strValue
+                    });
+                }
+                else
+                {
+                    //update
+                    var state = new DbpGlobal()
+                    {
+                        GlobalKey = strKey,
+                        GlobalValue = strValue
+                    };
+                    Context.Attach(state);
+                    Context.Entry(state).Property(x => x.GlobalValue).IsModified = true;
+                }
+                await Context.SaveChangesAsync();
+            }
+            catch (System.Exception ex)
+            {
+                Logger.Error(ex.ToString());
+                throw ex;
+            }
+        }
+        #endregion
+
+        #region Globalstate Method
+        public async Task<List<DbpGlobalState>> GetAllGlobalStateAsync()
+        {
+            try
+            {
+                return await Context.DbpGlobalState.AsNoTracking().ToListAsync();
+            }
+            catch (Exception ex)
+            {
+                Logger.Error("GetAllGlobalState : " + ex.ToString());
+                throw ex;
+            }
+        }
 
         public async Task UpdateGlobalStateAsync(string strLabel)
         {
@@ -68,58 +303,9 @@ namespace IngestGlobalPlugin.Stores
                 throw e;
             }
         }
+        #endregion
 
-        public async Task<string> GetValueStringAsync(string strKey)
-        {
-            string strValue = string.Empty;
-
-            try
-            {
-                var dbpGlobal = await Context.DbpGlobal.AsNoTracking().SingleOrDefaultAsync(x => x.GlobalKey == strKey);
-                if (dbpGlobal != null)
-                {
-                    strValue = dbpGlobal.GlobalValue;
-                }
-            }
-            catch(Exception ex)
-            {
-                throw ex;
-            }
-
-            return strValue;
-        }
-
-        public async Task<GlobalTcResponse> GetDefaultSTC(TC_MODE tcMode)
-        {
-            string strKey = string.Empty;
-            if (tcMode == TC_MODE.emForLine)
-                strKey = "DEFAULT_STC_LINE";
-            else
-                strKey = "DEFAULT_STC_OTHER";
-
-            GlobalTcResponse response = new GlobalTcResponse();
-            try
-            {
-                var global = await Context.DbpGlobal.AsNoTracking().FirstOrDefaultAsync(x => x.GlobalKey == strKey);
-                if (global != null)
-                {
-                    response.tcType = (TC_TYPE)Convert.ToInt32(global.GlobalValue);
-                }
-
-                global = await Context.DbpGlobal.AsNoTracking().FirstOrDefaultAsync(x => x.GlobalKey == "PRESET_STC");
-                if (global != null)
-                {
-                    response.nTC = Convert.ToInt32(global.GlobalValue);
-                }
-            }
-            catch(Exception ex)
-            {
-                throw ex;
-            }
-
-            return response;
-        }
-
+        #region lock and unlock
         public async Task<bool> SetLockObject(int objectID, OTID objectTypeID, string userName, int TimeOut)
         {
             if (TimeOut < 0)
@@ -360,205 +546,11 @@ namespace IngestGlobalPlugin.Stores
                 return false;
             }
         }
+        
 
-        public async Task<GetGlobalState_OUT> GetAllGlobalState()
-        {
-            GetGlobalState_OUT state_OUT = new GetGlobalState_OUT();
-            state_OUT.strErr = "OK";
-            state_OUT.arrGlobalState = null;
-            try
-            {
-                state_OUT.arrGlobalState = await Context.DbpGlobalState.ToArrayAsync();
-                if(state_OUT.arrGlobalState.Count() < 1)
-                {
-                    state_OUT.strErr = "No record in the table";
-                    state_OUT.bRet = false;
-                }
-            }
-            catch (Exception ex)
-            {
-                Logger.Error(ex.ToString());
-                state_OUT.strErr = ex.Message;
-                state_OUT.bRet = false;
-            }
-            return state_OUT;
-        }
-
-        public async Task UpdateGlobalValueAsync(string strKey, string strValue)
-        {
-            try
-            {
-                var gbpGlobal = await Context.DbpGlobal.SingleOrDefaultAsync(x => x.GlobalKey == strKey);
-                if(gbpGlobal == null)
-                {
-                    Context.DbpGlobal.Add(new DbpGlobal() {
-                        GlobalKey = strKey,
-                        GlobalValue = strValue
-                    });
-                }
-                else
-                {
-                    gbpGlobal.GlobalValue = strValue;
-                }
-                await Context.SaveChangesAsync();
-            }
-            catch (System.Exception ex)
-            {
-                Logger.Error(ex.ToString());
-                throw ex;
-            }
-        }
-
-        public async Task<bool> AddDbpObjStateAsync(int objectID, OTID objectTypeID, string userName, int TimeOut)
-        {
-            bool result = false;
-            try
-            {
-                Context.DbpObjectstateinfo.Add(new DbpObjectstateinfo()
-                {
-                    Objectid = objectID,
-                    Objecttypeid = (int)objectTypeID,
-                    Username = userName,
-                    Begintime = DateTime.Now,
-                    Timeout = TimeOut
-                });
-                
-                int saveResult = await Context.SaveChangesAsync();
-                result = saveResult != 0 ? true : false;
-            }
-            catch (Exception ex)
-            {
-                Logger.Error(ex.ToString());
-                result = false;
-                throw ex;
-            }
-            return result;
-        }
-
-        public async Task<DbpObjectstateinfo> LockRowsAsync(int objectID, OTID objectTypeID, string userName, int TimeOut = 500)
-        {
-            DbpObjectstateinfo objectstateinfo = null;
-            try
-            {
-                objectstateinfo = await Context.DbpObjectstateinfo.SingleOrDefaultAsync(x => ((objectID >= 0 && x.Objectid == objectID) || objectID < 0 )&& (((int)objectTypeID >= 0 && x.Objecttypeid == (int)objectTypeID) || (int)objectTypeID < 0) && ((!string.IsNullOrEmpty(userName) && x.Username == userName) || string.IsNullOrEmpty(userName)) && (x.Locklock == "" || x.Locklock == null || x.Begintime < DateTime.Now.AddMilliseconds(TimeOut * (-1))));
-
-                if (objectstateinfo != null)
-                {
-                    objectstateinfo.Locklock = Guid.NewGuid().ToString();
-                    await Context.SaveChangesAsync();
-                }
-            }
-            catch (Exception ex)
-            {
-                SobeyRecException.ThrowSelfNoParam(objectID.ToString(), GlobalDictionary.GLOBALDICT_CODE_EXECUTE_COMMAND_ERROR, Logger, ex);
-            }
-            return objectstateinfo;
-        }
-
-        public async Task<bool> UnLockRowsAsync(DbpObjectstateinfo objectstateinfo, int TimeOut)
-        {
-            bool result = false;
-            try
-            {
-                int nTime = -1;
-                DateTime dtLock = new DateTime();
-                
-                try
-                {
-                    System.Globalization.DateTimeFormatInfo dtfi = new System.Globalization.CultureInfo("en-US", false).DateTimeFormat;
-                    dtfi.ShortTimePattern = "t";
-                    //DateTime dt = DateTime.Parse("02-28-12 03:07PM", dtfi);
-                    nTime = Convert.ToInt32(objectstateinfo.Timeout);
-
-                    dtLock = DateTime.Parse(objectstateinfo.Begintime.ToString(), dtfi);
-                }
-                catch (System.Exception ex)
-                {
-                    //Logger.Error(ex.ToString());
-                    Logger.Error("UnLockRowsAsync 时间格式转换不对: " + ex.Message);
-                    return false;
-                }
-                
-                DateTime AddMillSec = dtLock.AddMilliseconds(nTime);
-
-                DateTime dtNow = DateTime.Now;
-
-                var selectResult = await Context.DbpObjectstateinfo.SingleOrDefaultAsync(x => x.Objectid == objectstateinfo.Objectid && x.Objecttypeid == objectstateinfo.Objecttypeid && x.Username == objectstateinfo.Username);
-
-                if (AddMillSec < dtNow) //锁超时
-                {
-                    result = true;
-                    //UpdateLock(userName, dtNow, Convert.ToInt32(TimeOut), objectID, objectTypeID);
-                    if (selectResult != null)
-                    {
-                        selectResult.Begintime = dtNow;
-                        selectResult.Timeout = Convert.ToInt32(TimeOut);
-                    }
-                }
-                //UnLock(objectID, objectTypeID, userName);
-                if (selectResult != null)
-                {
-                    selectResult.Locklock = null;
-                    await Context.SaveChangesAsync();
-                }
-                return result;
-            }
-            catch (Exception ex)
-            {
-                SobeyRecException.ThrowSelfNoParam(objectstateinfo.Objectid.ToString(), GlobalDictionary.GLOBALDICT_CODE_EXECUTE_COMMAND_ERROR, Logger, ex);
-                result = false;
-                throw ex;
-            }
-
-        }
-
-        public async Task<bool> UnLockObjectAsync(DbpObjectstateinfo arrObjects)
-        {
-            try
-            {
-                if (arrObjects == null)
-                {
-                    Logger.Error("arrObjects == null || arrObjects.Count <= 0 成立，解锁函数return false，解锁失败");
-                    return false;
-                }
-                //加锁
-                //var deleteObj = await Context.DbpObjectstateinfo.FirstOrDefaultAsync(x => x.Username == userName && ((objectID >= 0 && x.Objectid == objectID) || objectID < 0) && ((objectTypeID >= 0 && x.Objecttypeid == (int)objectTypeID) || objectTypeID < 0));
-
-                Context.Remove(arrObjects);
-                int LineNum = await Context.SaveChangesAsync();
-
-                bool ret = false;
-                if (LineNum > 0)
-                {
-                    ret = true;//删除了锁，才返回正确
-                }
-                else
-                {
-                    Logger.Info("UnLockObjectAsync UnLockObject return false，解锁失败");
-                    ret = false;
-                    
-                    arrObjects.Locklock = null;
-                    await Context.SaveChangesAsync();
-                }
-                //解锁
-                //UnLock(objectID, objectTypeID, userName);
-                return ret;
-            }
-            catch (MySqlException ex)
-            {
-                Logger.Error(ex.ToString());
-                string message = "UnLockObject";
-                SobeyRecException.ThrowSelfNoParam(message, GlobalDictionary.GLOBALDICT_CODE_IN_SETUNLOCKOBJECT_READ_DATA_FAILED, Logger, ex);
-                return false;
-            }
-            catch (System.Exception ex)
-            {
-                Logger.Error(ex.ToString());
-                string message = "UnLockObject";
-                SobeyRecException.ThrowSelfNoParam(message, GlobalDictionary.GLOBALDICT_CODE_IN_SETUNLOCKOBJECT_EXCEPTION, Logger, ex);
-                return false;
-            }
-        }
+        #endregion
+        
+        
 
     }
 }

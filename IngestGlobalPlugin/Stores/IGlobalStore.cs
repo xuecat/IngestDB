@@ -10,19 +10,27 @@ namespace IngestGlobalPlugin.Stores
 {
     public interface IGlobalStore
     {
-        Task<DbpObjectstateinfo> GetObjStateInfoAsync(Func<IQueryable<DbpObjectstateinfo>, IQueryable<DbpObjectstateinfo>> query, bool notrack = false);
-        Task<bool> AddDbpObjStateAsync(int objectID, OTID objectTypeID, string userName, int TimeOut);
-        Task<DbpObjectstateinfo> LockRowsAsync(int objectID, OTID objectTypeID, string userName, int TimeOut = 500);
-        Task<bool> UnLockRowsAsync(DbpObjectstateinfo objectstateinfo, int TimeOut);
-        Task<bool> UnLockObjectAsync(DbpObjectstateinfo arrObjects);
-
-        Task UpdateGlobalStateAsync(string strLabel);
-        Task<GlobalTcResponse> GetDefaultSTC(TC_MODE tcMode);
         Task<bool> SetLockObject(int objectID, OTID objectTypeID, string userName, int TimeOut);
         Task<bool> SetUnLockObject(int objectID, OTID objectTypeID, string userName);
-        Task<GetGlobalState_OUT> GetAllGlobalState();
+        //Task<GetGlobalState_OUT> GetAllGlobalState();
 
-        Task<string> GetValueStringAsync(string strKey);
+        #region global
+        Task<string> GetGlobalValueStringAsync(string strKey);
         Task UpdateGlobalValueAsync(string strKey, string strValue);
+        #endregion
+
+        #region globalstate interface
+        Task<List<DbpGlobalState>> GetAllGlobalStateAsync();
+        Task UpdateGlobalStateAsync(string strLabel);
+        #endregion
+
+        #region Objectstateinfo
+        Task<TResult> GetObjectstateinfoAsync<TResult>(Func<IQueryable<DbpObjectstateinfo>, IQueryable<TResult>> query, bool notrack = false);
+        Task<List<TResult>> GetObjectstateinfoListAsync<TResult>(Func<IQueryable<DbpObjectstateinfo>, IQueryable<TResult>> query, bool notrack = false);
+        Task<bool> AddDbpObjStateAsync(int objectID, OTID objectTypeID, string userName, int TimeOut);
+        Task<DbpObjectstateinfo> LockRowsByConditionAsync(int objectID, OTID objectTypeID, string userName, int TimeOut = 500);
+        Task<bool> UnLockRowsAsync(DbpObjectstateinfo objectstateinfo, int TimeOut);
+        Task<bool> UnLockObjectAsync(DbpObjectstateinfo arrObjects);
+        #endregion
     }
 }
