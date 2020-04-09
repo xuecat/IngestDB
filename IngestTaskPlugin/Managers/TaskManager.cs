@@ -354,16 +354,96 @@ namespace IngestTaskPlugin.Managers
                      @ 选择通道时锁住通道，添加任务完了再释放锁，这什么鬼逻辑
                      @ 决定放弃这个通道锁这个逻辑，后面不行再补上
                      */
-
+                    return ChooseBestChannel(request, freeChannelIdList, condition);
                 }
             }
             else
                 Logger.Error("CHSelectForNormalTask matchcount error");
+
+            return -1;
         }
 
         public async Task<int> CHSelectForPeriodicTask(TaskContentRequest request, CHSelCondition condition)
-        { }
+        {
+            Logger.Info((string.Format("###Begin to Select channel for Normal task:{0}, signalid:{1}, channelid:{2}, bBackupCH:{3}, bCheckState:{4}, nBaseCH:{5}, OnlyLocal:{6},bExcuting:{7}",
+            request.TaskID, request.SignalID, request.ChannelID,
+            condition.BackupCHSel, condition.CheckCHCurState, condition.BaseCHID, condition.OnlyLocalChannel, condition.MoveExcutingOpenTask)));
 
+            if (request.SignalID <= 0)
+            {
+                return -1;
+            }
+
+            //1. 为信号源选择所有匹配的通道
+            //2. 根据条件筛选通道，这些条件是固定属性，放在前面筛选掉，不用互斥
+            var matchlst = await GetMatchedChannelForSignal(request.SignalID, request.ChannelID, condition);
+            if (matchlst != null && matchlst.Count > 0)
+            {
+                Logger.Info("CHSelectForNormalTask matchcount {0}", matchlst.Count);
+
+                DateTime Begin = DateTimeFormat.DateTimeFromString(request.Begin);
+                DateTime End = DateTimeFormat.DateTimeFromString(request.End);
+                List<int> freeChannelIdList = await Store.GetFreePerodiChannels(matchlst, Begin, End);
+
+                Logger.Info("GetFreeChannels freeChannelIdList {0}", freeChannelIdList.Count);
+
+                if (freeChannelIdList?.Count > 0)
+                {
+                    /*
+                     @ brief 这里按照老逻辑会赛选下被锁住的通道，全是超时锁
+                     @ 选择通道时锁住通道，添加任务完了再释放锁，这什么鬼逻辑
+                     @ 决定放弃这个通道锁这个逻辑，后面不行再补上
+                     */
+                    //return ChooseBestChannel(request, freeChannelIdList, condition);
+                }
+            }
+            else
+                Logger.Error("CHSelectForNormalTask matchcount error");
+
+            return -1;
+        }
+
+        public int ChooseBestChannel(TaskContentRequest request, List<int> freeChannelIdList, CHSelCondition condition)
+        {
+            /*
+             * @ 我擦还要通过ip排序nBaseCHID，有没有天理啊，艹，随便排了，不管了
+             */
+
+            Logger.Info("ChooseBestChannel {0} {1} {2}", request.ChannelID, string.Join(",", freeChannelIdList), condition.OnlyLocalChannel);
+            int nSelCH = -1;
+            //如果只能在指定通道创建任务，那么这里单独判断
+            if (request.ChannelID > 0 && condition.OnlyLocalChannel)
+            {
+                for (int i = 0; i < freeChannelIdList.Count; i++)
+                {
+                    if (request.ChannelID == freeChannelIdList[i])
+                    {
+                        nSelCH = request.ChannelID;
+                        break;
+                    }
+                }
+                //对于外面指定了通道的情况，目前通常是由终端已经锁定了通道，所以这里就不再加锁，否则一定会失败
+                //if (nSelCH > 0 && LockChannelById(nSelCH, 3000))
+                if (nSelCH > 0)
+                {
+                    //return nSelCH;
+                    Logger.Info(string.Format("The OnlyLocalChannel taskAdd.nChannelID:{0} is useable", request.ChannelID));
+                }
+                else
+                {
+                    string strErr = GlobalDictionary.Instance.GetMessageByCode(GlobalDictionary.GLOBALDICT_CODE_SELECTED_CHANNEL_IS_BUSY_OR_CAN_NOT_BE_SUITED_TO_PROGRAMME);
+                    Logger.Info(string.Format("The Channel is not useable,nSelCH:{0}, err:{1}", nSelCH, strErr));
+                    nSelCH = -1;
+                }
+            }
+            else
+            {
+                //按照已经排定的顺序依次去锁定通道，锁成功了，就表示可用
+                nSelCH = freeChannelIdList[0];
+                Logger.Info(string.Format("The zero taskAdd.nChannelID:{0} is useable", nSelCH));
+            }
+            return nSelCH;
+        }
         public async Task<List<int>> GetMatchedChannelForSignal(int SignalID, int ChID, CHSelCondition condition)
         {
             var _globalinterface = ApplicationContext.Current.ServiceProvider.GetRequiredService<IIngestDeviceInterface>();

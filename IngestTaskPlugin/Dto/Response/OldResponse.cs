@@ -377,8 +377,14 @@ namespace IngestTaskPlugin.Dto
             taskContent = new TaskContent();
         }
     }
+    public enum TimeLineType
+    {
+        em24HourDay = 0,
+        em32HourDay = 1,
+        em36HourDay = 2,
+        em48HourDay = 3
+    }
 
 
-    
 }
 
