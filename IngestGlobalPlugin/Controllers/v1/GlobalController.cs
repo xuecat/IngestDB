@@ -12,56 +12,17 @@ namespace IngestGlobalPlugin.Controllers
     {
         string no_err = "OK";
 
-        [HttpGet("GetQueryTaskMetaData"), MapToApiVersion("1.0")]
+        [HttpGet("SetGlobalState"), MapToApiVersion("1.0")]
         [ApiExplorerSettings(GroupName = "v1")]
-        public async Task SetGlobalState1([FromQuery]int nTaskID)
+        public async Task OldSetGlobalState([FromQuery]int nTaskID)
         {
             
 
 
         }
-        
-
-        /// <summary>
-        /// 获取dbpGLOBAL中GLOBAL_KEY对应的value,和上面函数可合并
-        /// </summary>
-        /// <remarks>
-        /// 例子:
-        /// Get api/v1/defaultstc?tcMode=
-        /// </remarks>
-        /// <param name="tcMode">键值</param>
-        /// <returns></returns>
-        [HttpGet("defaultstc"), MapToApiVersion("1.0")]
-        [ApiExplorerSettings(GroupName = "v1")]
-        public async Task<ResponseMessage<GlobalTcResponse>> GetDefaultSTC(int tcMode)
-        {
-            ResponseMessage<GlobalTcResponse> Response = new ResponseMessage<GlobalTcResponse>();
-
-            try
-            {
-                Response.Ext = await _GlobalManager.GetDefaultSTC((TC_MODE)tcMode);
-            }
-            catch (Exception e)
-            {
-                if (e.GetType() == typeof(SobeyRecException))//sobeyexcep会自动打印错误
-                {
-                    SobeyRecException se = e as SobeyRecException;
-                    Response.Code = se.ErrorCode.ToString();
-                    Response.Msg = se.Message;
-                }
-                else
-                {
-                    Response.Code = ResponseCodeDefines.ServiceError;
-                    Response.Msg = "error info：" + e.ToString();
-                    Logger.Error(Response.Msg);
-                }
-            }
-
-            return Response;
-
-        }
 
         
+
         [HttpPost("PostLockObject"), MapToApiVersion("1.0")]
         [ApiExplorerSettings(GroupName = "v1")]
         public async Task<PostLockObject_param_out> OldPostLockObject([FromBody] PostLockObject_param_in pIn)
@@ -148,42 +109,43 @@ namespace IngestGlobalPlugin.Controllers
             return pOut;
         }
 
+        #region GlobalState Controller
         /// <summary>
-        /// 获取Global状态
+        /// 获取globalstate表结果
         /// </summary>
-        /// <remarks>
-        /// 例子:
-        /// Get api/v1/allglobalstate
-        /// </remarks>
-        /// <returns>获取状态结果</returns>
-        [HttpGet("allglobalstate"), MapToApiVersion("1.0")]
+        /// <returns>globalstate表结果</returns>
+        [HttpGet("GetGlobalState"), MapToApiVersion("1.0")]
         [ApiExplorerSettings(GroupName = "v1")]
-        public async Task<GetGlobalState_OUT> GetGlobalState()
+        public async Task<GetGlobalState_OUT> OldGetGlobalState()
         {
             GetGlobalState_OUT p = new GetGlobalState_OUT();
             p.strErr = no_err;
             p.arrGlobalState = null;
             try
             {
-                p = await _GlobalManager.GetAllGlobalState();
+                p.arrGlobalState = await _GlobalManager.GetAllGlobalStateAsync<GlobalState[]>();
+                if (p.arrGlobalState.Length < 1)
+                {
+                    p.strErr = "No record in the table";
+                    p.bRet = false;
+                }
+                p.bRet = true;
             }
             catch (System.Exception ex)
             {
-                Logger.Error(ex.ToString());
+                Logger.Error("OldGetGlobalState is error:"+ ex.ToString());
                 p.strErr = ex.Message;
             }
             return p;
         }
+        #endregion
 
+        #region Global controller
         /// <summary>
         /// 获取global value
         /// </summary>
-        /// <remarks>
-        /// 例子:
-        /// Get api/v1/GetValueString
-        /// </remarks>
-        /// <param name="strKey"></param>
-        /// <returns></returns>
+        /// <param name="strKey">global strKey值</param>
+        /// <returns>获取global value</returns>
         [HttpGet("GetValueString"), MapToApiVersion("1.0")]
         [ApiExplorerSettings(GroupName = "v1")]
         public async Task<string> OldGetValueString(string strKey)
@@ -197,7 +159,7 @@ namespace IngestGlobalPlugin.Controllers
             }
             catch (System.Exception ex)
             {
-                Logger.Error(ex.ToString());
+                Logger.Error("OldGetValueString : " + ex.ToString());
                 return "";
             }
         }
@@ -205,10 +167,6 @@ namespace IngestGlobalPlugin.Controllers
         /// <summary>
         /// 设置Global value
         /// </summary>
-        /// <remarks>
-        /// 例子:
-        /// Get api/v1/SetValue
-        /// </remarks>
         /// <returns>获取状态结果</returns>
         [HttpGet("SetValue"), MapToApiVersion("1.0")]
         [ApiExplorerSettings(GroupName = "v1")]
@@ -231,6 +189,38 @@ namespace IngestGlobalPlugin.Controllers
             return res;
 
         }
+
+        [HttpGet("GetDefaultSTC"), MapToApiVersion("1.0")]
+        [ApiExplorerSettings(GroupName = "v1")]
+        public async Task<GetDefaultSTC_param> OldGetDefaultSTC(int tcMode)
+        {
+
+            GetDefaultSTC_param p = new GetDefaultSTC_param();
+            p.errStr = no_err;
+            p.tcType = (int)0;
+            p.nTC = 0;
+            try
+            {
+                string strKey = string.Empty;
+                if ((TC_MODE)tcMode == TC_MODE.emForLine)
+                    strKey = "DEFAULT_STC_LINE";
+                else
+                    strKey = "DEFAULT_STC_OTHER";
+
+                string tcType = await _GlobalManager.GetValueStringAsync(strKey);
+                p.tcType = (TC_TYPE)Convert.ToInt32(tcType);
+                p.nTC = Convert.ToInt32(await _GlobalManager.GetValueStringAsync("PRESET_STC"));
+                p.bRet = true;
+            }
+            catch (Exception ex)
+            {
+                Logger.Error(ex.ToString());
+                p.errStr = ex.Message;
+                p.bRet = false;
+            }
+            return p;
+        }
+        #endregion
 
     }
 }

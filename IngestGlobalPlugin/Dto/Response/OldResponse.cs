@@ -47,7 +47,7 @@ namespace IngestGlobalPlugin.Dto
 
     public class GetGlobalState_OUT
     {
-        public DbpGlobalState[] arrGlobalState;
+        public GlobalState[] arrGlobalState;
         public string strErr;
         public bool bRet;
     }
@@ -61,6 +61,29 @@ namespace IngestGlobalPlugin.Dto
             nCode = 1;          //1代表成功，0代表失败
             message = "OK";
         }
+    }
+
+    public class GetDefaultSTC_param
+    {
+        public TC_TYPE tcType;
+        public int nTC;
+        public string errStr;
+        public bool bRet;
+    }
+
+    public class GlobalState
+    {
+        public string strLabel = string.Empty;
+        public string dtLastTime = DateTime.MinValue.ToString("yyyy-MM-dd HH:mm:ss");
+    }
+
+    public class ObjectContent
+    {
+        public int ObjectID = -1;//对象ID
+        public OTID ObjectType = OTID.OTID_ALL;//对象类型
+        public string UserName = string.Empty;//用户名
+        public DateTime BeginTime = DateTime.MinValue;//开始时间
+        public int TimeOut = 0;//超时时间
     }
 
 }
