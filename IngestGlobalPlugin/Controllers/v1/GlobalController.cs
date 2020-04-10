@@ -25,9 +25,9 @@ namespace IngestGlobalPlugin.Controllers
 
         [HttpPost("PostLockObject"), MapToApiVersion("1.0")]
         [ApiExplorerSettings(GroupName = "v1")]
-        public async Task<PostLockObject_param_out> OldPostLockObject([FromBody] PostLockObject_param_in pIn)
+        public async Task<OldPostParam_Out> OldPostLockObject([FromBody] PostLockObject_param_in pIn)
         {
-            PostLockObject_param_out pOut = new PostLockObject_param_out();
+            OldPostParam_Out pOut = new OldPostParam_Out();
             
             try
             {
@@ -73,10 +73,10 @@ namespace IngestGlobalPlugin.Controllers
         /// <returns>锁对象结果</returns>
         [HttpPost("PostUnlockObject"), MapToApiVersion("1.0")]
         [ApiExplorerSettings(GroupName = "v1")]
-        public async Task<PostLockObject_param_out> OldPostUnlockObject([FromBody] PostLockObject_param_in pIn)
+        public async Task<OldPostParam_Out> OldPostUnlockObject([FromBody] PostLockObject_param_in pIn)
         {
 
-            PostLockObject_param_out pOut = new PostLockObject_param_out();
+            OldPostParam_Out pOut = new OldPostParam_Out();
             pOut.errStr = no_err;
             pOut.bRet = true;
 
@@ -220,6 +220,123 @@ namespace IngestGlobalPlugin.Controllers
             }
             return p;
         }
+        #endregion
+
+        #region User
+        [HttpPost("Post_SetUserSetting"), MapToApiVersion("1.0")]
+        [ApiExplorerSettings(GroupName = "v1")]
+        public async Task<OldPostParam_Out> OldPost_SetUserSetting(SetUserSetting_IN pIn)
+        {
+            OldPostParam_Out pOut = new OldPostParam_Out();
+            pOut.errStr = no_err;
+            try
+            {
+                if (string.IsNullOrWhiteSpace(pIn.strUserCode)) // pIn.strUserCode == null || pIn.strUserCode == "" || pIn.strUserCode == string.Empty)
+                {
+                    pOut.errStr = "The usercode is null.";
+                    pOut.bRet = false;
+                    return pOut;
+                }
+
+                if (string.IsNullOrWhiteSpace(pIn.strSettingtype))// == null || pIn.strSettingtype == "" || pIn.strSettingtype == string.Empty)
+                {
+                    pOut.errStr = "The setting type is null.";
+                    pOut.bRet = false;
+                    return pOut;
+                }
+                
+                await _GlobalManager.UpdateUserSettingAsync(pIn.strUserCode, pIn.strSettingtype, pIn.strSettingText);
+                pOut.bRet = true;
+            }
+            catch (Exception ex)//其他未知的异常，写异常日志
+            {
+                pOut.errStr = ex.Message;
+                Logger.Error("Post_SetUserSetting : " + ex.ToString());
+                pOut.bRet = false;
+            }
+            return pOut;
+        }
+        #endregion
+
+        #region ParamTemplate
+        
+        [HttpGet("GetParamTemplateByID"), MapToApiVersion("1.0")]
+        [ApiExplorerSettings(GroupName = "v1")]
+        public async Task<GetParamTemplateByID_out> OldGetParamTemplateByID(int nCaptureParamID, int nFlag)
+        {
+            GetParamTemplateByID_out p = new GetParamTemplateByID_out();
+            p.errStr = no_err;
+            p.strCaptureParam = string.Empty;
+            try
+            {
+                //读取采集参数模板
+                string temp = await _GlobalManager.GetParamTemplateByIDAsync(nCaptureParamID, nFlag);
+                if (string.IsNullOrEmpty(temp))
+                {
+                    p.errStr = "There's no CaptureParam!";
+                    p.bRet = false;
+                    return p;
+                }
+                p.strCaptureParam = temp;
+                p.bRet = true;
+            }
+            catch (Exception ex)//其他未知的异常，写异常日志
+            {
+                Logger.Error("OldGetParamTemplateByID : " + ex.ToString());
+                p.errStr = ex.Message;
+                p.bRet = false;
+            }
+            return p;
+        }
+        #endregion
+
+        #region UserTemplate
+        /// <summary>
+        /// 增加一个新的用户模板
+        /// </summary>
+        /// <param name="userTemplate"></param>
+        /// <returns>extention 为用户模版ID</returns>
+        [HttpPost("AddUserTemplate"), MapToApiVersion("1.0")]
+        [ApiExplorerSettings(GroupName = "v1")]
+        public OldResponseMessage<int> OldAddUserTemplate([FromBody] UserTemplate userTemplate)
+        {
+            OldResponseMessage<int> res = new OldResponseMessage<int>();
+            res.message = no_err;
+            res.extention = -1;
+
+            if (userTemplate == null)
+            {
+                res.message = "userTemplate is null.";
+                res.nCode = 0;
+                return res;
+            }
+            if (userTemplate.nTemplateID > 0)
+            {
+                res.message = "Template ID is larger than 0";
+                res.nCode = 0;
+                return res;
+            }
+            if (userTemplate.strUserCode == string.Empty ||
+                 userTemplate.strTemplateName == string.Empty)
+            {
+                res.message = "UserCode or TemplateName is null.";
+                res.nCode = 0;
+                return res;
+            }
+            try
+            {
+                //res.extention = _GlobalManager.AddUserTemplateAsync(userTemplate);
+                res.nCode = 1;
+            }
+            catch (System.Exception ex)
+            {
+                Logger.Error("OldAddUserTemplate : " + ex.ToString());
+                res.message = ex.Message;
+                res.nCode = 0;
+            }
+            return res;
+        }
+
         #endregion
 
     }

@@ -546,11 +546,76 @@ namespace IngestGlobalPlugin.Stores
                 return false;
             }
         }
-        
+
 
         #endregion
+
+        #region User
+
+        public async Task UpdateUsersettingsAsync(DbpUsersettings usersetting)
+        {
+            try
+            {
+                if (!Context.DbpUsersetting.AsNoTracking().Any(x=> x.Usercode == usersetting.Usercode && x.Settingtype == usersetting.Settingtype))
+                {
+                    //add
+                    Context.DbpUsersetting.Add(usersetting);
+                }
+                else
+                {
+                    //update
+                    Context.Attach(usersetting);
+                    Context.Entry(usersetting).Property(x => x.Settingtext).IsModified = true;
+                    Context.Entry(usersetting).Property(x => x.Settingtextlong).IsModified = true;
+                }
+
+                await Context.SaveChangesAsync();
+                
+            }
+            catch (System.Exception ex)
+            {
+                Logger.Error(ex.ToString());
+                //SobeyRecException.ThrowSelf(Locallanguage.LoadString("Fill SetUserSetting Exception "),ex,2,10013019);	
+                SobeyRecException.ThrowSelfNoParam("UpdateUsersettingsAsync", GlobalDictionary.GLOBALDICT_CODE_FILL_USER_SETUSERSETTING_EXCEPTION, Logger, ex);
+            }
+        }
         
+        #endregion
+
+        #region CaptureTemplate
+
         
+        public async Task<TResult> GetCaptureparamtemplateAsync<TResult>(Func<IQueryable<DbpCaptureparamtemplate>, IQueryable<TResult>> query, bool notrack = false)
+        {
+            if (query == null)
+            {
+                throw new ArgumentNullException(nameof(query));
+            }
+            if (notrack)
+            {
+                return await query.Invoke(Context.DbpCaptureparamtemplate.AsNoTracking()).FirstOrDefaultAsync();
+            }
+            return await query.Invoke(Context.DbpCaptureparamtemplate).FirstOrDefaultAsync();
+        }
+
+        #endregion
+
+        #region UserTemplate
+
+        public async Task<TResult> GetUsertemplateAsync<TResult>(Func<IQueryable<DbpUsertemplate>, IQueryable<TResult>> query, bool notrack = false)
+        {
+            if (query == null)
+            {
+                throw new ArgumentNullException(nameof(query));
+            }
+            if (notrack)
+            {
+                return await query.Invoke(Context.DbpUsertemplate.AsNoTracking()).FirstOrDefaultAsync();
+            }
+            return await query.Invoke(Context.DbpUsertemplate).FirstOrDefaultAsync();
+        }
+
+        #endregion
 
     }
 }

@@ -22,6 +22,8 @@ namespace IngestGlobalPlugin.Models
         public virtual DbSet<DbpGlobalProgram> DbpGlobalProgram { get; set; }
         public virtual DbSet<DbpGlobalState> DbpGlobalState { get; set; }
         public virtual DbSet<DbpObjectstateinfo> DbpObjectstateinfo { get; set; }
+        public virtual DbSet<DbpUsersettings> DbpUsersetting { get; set; }
+        public virtual DbSet<DbpUsertemplate> DbpUsertemplate { get; set; }
 
     
 
@@ -174,6 +176,23 @@ namespace IngestGlobalPlugin.Models
                 entity.Property(e => e.Locklock).HasColumnName("LOCKLOCK").HasColumnType("varchar(128)");
             });
 
+            modelBuilder.Entity<DbpUsersettings>(entity => {
+                entity.HasKey(e => new { e.Usercode, e.Settingtype });
+                entity.ToTable("dbp_usersettings");
+                entity.Property(e => e.Usercode).HasColumnName("USERCODE").HasColumnType("varchar(255)");
+                entity.Property(e => e.Settingtype).HasColumnName("SETTINGTYPE").HasColumnType("varchar(128)");
+                entity.Property(e => e.Settingtext).HasColumnName("SETTINGTEXT").HasColumnType("varchar(4000)");
+                entity.Property(e => e.Settingtextlong).HasColumnName("SETTINGTEXTLONG").HasColumnType("text");
+            });
+
+            modelBuilder.Entity<DbpUsertemplate>(entity => {
+                entity.HasKey(e => e.Templateid);
+                entity.ToTable("dbp_usertemplate");
+                entity.Property(e => e.Templateid).HasColumnName("TEMPLATEID").HasColumnType("int(11)");
+                entity.Property(e => e.Usercode).HasColumnName("USERCODE").HasColumnType("varchar(256)");
+                entity.Property(e => e.Templatename).HasColumnName("TEMPLATENAME").HasColumnType("varchar(256)");
+                entity.Property(e => e.Templatecontent).HasColumnName("TEMPLATECONTENT").HasColumnType("text");
+            });
         }
     }
 }

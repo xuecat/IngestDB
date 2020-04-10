@@ -9,6 +9,7 @@ using Microsoft.EntityFrameworkCore;
 using IngestGlobalPlugin.Dto;
 using AutoMapper;
 using IngestGlobalPlugin.Models;
+using System.Xml;
 
 namespace IngestGlobalPlugin.Managers
 {
@@ -155,5 +156,117 @@ namespace IngestGlobalPlugin.Managers
         }
 
         #endregion
+
+        #region User
+
+        public async Task UpdateUserSettingAsync(string userCode, string settingType, string settingText)
+        {
+            if (userCode == string.Empty || settingType == string.Empty)
+            {
+                return;
+            }
+
+            int byteLength = 0;
+            byteLength = Encoding.UTF8.GetByteCount(settingText);
+
+            //修改为当字符串的字节数小于4000时，将METADATA存入到METADATA中，反之存到METADATALONG，不过在存之前先判断字符串的字符数，
+            //若字符数小于或等于4000，将补足空格到4001个字符，存入到METADATALONG中。
+            var usersetting = new DbpUsersettings()
+            {
+                Usercode = userCode,
+                Settingtype = settingType
+            };
+
+            if (byteLength > 4000)
+            {
+                usersetting.Settingtextlong = FillBlankToString(settingText, byteLength);
+            }
+            else
+            {
+                usersetting.Settingtext = settingText;
+            }
+
+            await Store.UpdateUsersettingsAsync(usersetting);
+        }
+
+        private string FillBlankToString(string strTemp, int byteLength)
+        {
+            //升级到VS2005时删除
+            int charLength = strTemp.Length;
+            if (byteLength > 4000 && charLength <= 4000)
+            {
+                strTemp = strTemp.PadRight(4001);
+            }
+
+            return strTemp;
+        }
+
+        public async Task<string> GetParamTemplateByIDAsync(int nCaptureParamID, int nFlag)
+        {
+            string strCaptureparam = null;
+            var capturetemplate = await Store.GetCaptureparamtemplateAsync(a => a.Where(x=>x.Captureparamid == nCaptureParamID));
+
+            if (capturetemplate == null || string.IsNullOrEmpty(capturetemplate.Captureparam))
+            {
+                return string.Empty;
+            }
+
+            //在模板头尾加上根节点以便于xml解析
+            string temp = capturetemplate.Captureparam;
+            temp = "<root>" + temp + "</root>";
+            XmlDocument xml = new XmlDocument();
+            xml.LoadXml(temp);
+            int i = 0;
+            foreach (XmlNode n in xml.SelectNodes("/root/CAPTUREPARAM"))
+            {
+                //HD
+                if (nFlag == 1 && i == 0)
+                {
+                    strCaptureparam = n.OuterXml;
+                    break;
+                }
+                //SD
+                else if (nFlag == 0 && i == 1)
+                {
+                    strCaptureparam = n.OuterXml;
+                    break;
+                }
+                //UHD
+                else if (nFlag == 2 && i == 2)
+                {
+                    strCaptureparam = n.OuterXml;
+                    break;
+                }
+                ++i;
+            }
+            return strCaptureparam;
+        }
+
+        #region UserTemplate
+        public async Task<int> AddUserTemplateAsync(UserTemplate userTemplate)
+        {
+            var usertemplate = await Store.GetUsertemplateAsync(a => a.Where(x => x.Usercode == userTemplate.strUserCode && x.Templatename == userTemplate.strTemplateName && x.Templateid != userTemplate.nTemplateID));
+
+            if(usertemplate != null && usertemplate.Templateid > 0)
+            {
+                SobeyRecException.ThrowSelfOneParam(userTemplate.strTemplateName, GlobalDictionary.GLOBALDICT_CODE_THE_USER_TEMPLATE_HAS_EXISTS_ONEPARAM, null, string.Format(GlobalDictionary.Instance.GetMessageByCode(GlobalDictionary.GLOBALDICT_CODE_THE_USER_TEMPLATE_HAS_EXISTS_ONEPARAM),
+                    userTemplate.strTemplateName), null);
+                return -1;
+            }
+            
+            //if (userTemplate.nTemplateID <= 0)
+            //{
+            //    userTemplate.nTemplateID = SequenceFactory.GetSequenceGennerator().GetSequenceID("DBP_SQ_UESRTEMPLATEID");
+            //}
+
+            //DBACCESS.AddUserTemplate(userTemplate);
+
+            return userTemplate.nTemplateID;
+        }
+
+        #endregion
+
+        #endregion
+
     }
 }

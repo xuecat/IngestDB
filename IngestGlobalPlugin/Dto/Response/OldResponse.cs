@@ -39,10 +39,20 @@ namespace IngestGlobalPlugin.Dto
         public int TimeOut;
     }
 
-    public class PostLockObject_param_out
+    /// <summary>
+    /// 很多重复的类字段一样，进行整合：PostLockObject_param_out,SetUserSetting_OUT
+    /// </summary>
+    public class OldPostParam_Out
     {
         public string errStr;
         public bool bRet;
+    }
+
+    public class SetUserSetting_IN
+    {
+        public string strUserCode;
+        public string strSettingtype;
+        public string strSettingText;
     }
 
     public class GetGlobalState_OUT
@@ -61,6 +71,11 @@ namespace IngestGlobalPlugin.Dto
             nCode = 1;          //1代表成功，0代表失败
             message = "OK";
         }
+    }
+
+    public class OldResponseMessage<T> : OldResponseMessage
+    {
+        public T extention;
     }
 
     public class GetDefaultSTC_param
@@ -84,6 +99,21 @@ namespace IngestGlobalPlugin.Dto
         public string UserName = string.Empty;//用户名
         public DateTime BeginTime = DateTime.MinValue;//开始时间
         public int TimeOut = 0;//超时时间
+    }
+
+    public class GetParamTemplateByID_out
+    {
+        public string strCaptureParam;
+        public string errStr;
+        public bool bRet;
+    }
+
+    public class UserTemplate
+    {
+        public int nTemplateID = -1;                    //模板ID
+        public string strUserCode = string.Empty;       //用户名
+        public string strTemplateName = string.Empty;   //模板名
+        public string strTemplateContent = string.Empty;//模板内容   
     }
 
 }
