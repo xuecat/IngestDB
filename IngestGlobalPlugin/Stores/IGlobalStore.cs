@@ -32,5 +32,24 @@ namespace IngestGlobalPlugin.Stores
         Task<bool> UnLockRowsAsync(DbpObjectstateinfo objectstateinfo, int TimeOut);
         Task<bool> UnLockObjectAsync(DbpObjectstateinfo arrObjects);
         #endregion
+
+        #region user
+
+        Task UpdateUsersettingsAsync(DbpUsersettings usersetting);
+
+        #endregion
+
+        #region Capturetemplate
+
+        Task<TResult> GetCaptureparamtemplateAsync<TResult>(Func<IQueryable<DbpCaptureparamtemplate>, IQueryable<TResult>> query, bool notrack = false);
+
+        #endregion
+
+        #region Usertemplate
+
+        Task<TResult> GetUsertemplateAsync<TResult>(Func<IQueryable<DbpUsertemplate>, IQueryable<TResult>> query, bool notrack = false);
+
+        #endregion
+
     }
 }

@@ -374,5 +374,108 @@ namespace IngestGlobalPlugin.Controllers
         }
 
         #endregion
+
+        #region User
+        /// <summary>
+        /// 获取globalstate表结果
+        /// </summary>
+        /// <returns>globalstate表结果</returns>
+        /// <remarks>
+        /// 例子:
+        /// Get api/v2/usersetting
+        /// </remarks>
+        [HttpPost("usersetting")]
+        [ApiExplorerSettings(GroupName = "v2")]
+        public async Task<ResponseMessage> Post_SetUserSetting([FromBody]SetUserSetting_IN pIn)
+        {
+            ResponseMessage Response = new ResponseMessage();
+            try
+            {
+                if (string.IsNullOrWhiteSpace(pIn.strUserCode)) 
+                {
+                    Response.Msg = "The usercode is null.";
+                    Response.Code = ResponseCodeDefines.ArgumentNullError;
+                    return Response;
+                }
+                if (string.IsNullOrWhiteSpace(pIn.strSettingtype))
+                {
+                    Response.Msg = "The setting type is null.";
+                    Response.Code = ResponseCodeDefines.ArgumentNullError;
+                    return Response;
+                }
+
+                await _GlobalManager.UpdateUserSettingAsync(pIn.strUserCode, pIn.strSettingtype, pIn.strSettingText);
+                Response.Code = ResponseCodeDefines.SuccessCode;
+            }
+            catch (Exception e)//其他未知的异常，写异常日志
+            {
+                if (e.GetType() == typeof(SobeyRecException))//sobeyexcep会自动打印错误
+                {
+                    SobeyRecException se = e as SobeyRecException;
+                    Response.Code = se.ErrorCode.ToString();
+                    Response.Msg = se.Message;
+                }
+                else
+                {
+                    Response.Code = ResponseCodeDefines.ServiceError;
+                    Response.Msg = "error info：" + e.ToString();
+                    Logger.Error(Response.Msg);
+                }
+            }
+            return Response;
+        }
+
+        #endregion
+
+        #region ParamTemplate
+
+        /// <summary>
+        /// 获取captureparamtemplate指定captureid和nflag的值，返回param
+        /// </summary>
+        /// <param name="nCaptureParamID">capid</param>
+        /// <param name="nFlag">类型</param>
+        /// <returns>globalstate表结果</returns>
+        /// <remarks>
+        /// 例子:
+        /// Get api/v2/captureparamtemplate
+        /// </remarks>
+        [HttpGet("captureparamtemplate")]
+        [ApiExplorerSettings(GroupName = "v2")]
+        public async Task<ResponseMessage<string>> GetParamTemplateByID([FromQuery]int nCaptureParamID, [FromQuery]int nFlag)
+        {
+            ResponseMessage<string> Response = new ResponseMessage<string>();
+            try
+            {
+                //读取采集参数模板
+                string temp = await _GlobalManager.GetParamTemplateByIDAsync(nCaptureParamID, nFlag);
+                if (string.IsNullOrEmpty(temp))
+                {
+                    Response.Msg = "There's no CaptureParam!";
+                    Response.Code = ResponseCodeDefines.PartialFailure;
+                    return Response;
+                }
+                Response.Ext = temp;
+                Response.Code = ResponseCodeDefines.SuccessCode;
+            }
+            catch (Exception e)//其他未知的异常，写异常日志
+            {
+                if (e.GetType() == typeof(SobeyRecException))//sobeyexcep会自动打印错误
+                {
+                    SobeyRecException se = e as SobeyRecException;
+                    Response.Code = se.ErrorCode.ToString();
+                    Response.Msg = se.Message;
+                }
+                else
+                {
+                    Response.Code = ResponseCodeDefines.ServiceError;
+                    Response.Msg = "error info：" + e.ToString();
+                    Logger.Error(Response.Msg);
+                }
+            }
+            return Response;
+        }
+
+        #endregion
+
     }
 }
