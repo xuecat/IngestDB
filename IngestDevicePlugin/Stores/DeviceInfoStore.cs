@@ -89,6 +89,59 @@ namespace IngestDevicePlugin.Stores
             return query;
         }
 
+        public async Task<int> GetMatrixChannelBySignal(int channelid)
+        {
+            return await (from src in Context.DbpRcdindesc
+                   join device in Context.DbpVirtualmatrixportstate on src.Recinidx equals device.Virtualinport into ps1
+                   join grp in Context.DbpRcdoutdesc on channelid equals grp.Channelid into ps3
+                   from p1 in ps1.DefaultIfEmpty()
+                   from p3 in ps3.DefaultIfEmpty()
+                   where p1.Virtualoutport == p3.Recoutidx&& p1.State == 1
+                   select src.Signalsrcid).SingleOrDefaultAsync();
+        }
+
+        public async Task<CaptureChannelInfoDto> GetCaptureChannelByIDAsync(int channelid)
+        {
+            var lst = await (from channel in Context.DbpCapturechannels
+                         join device in Context.DbpCapturedevice on channel.Cpdeviceid equals device.Cpdeviceid into ps1
+                         join grp in Context.DbpChannelgroupmap on channel.Cpdeviceid equals grp.Channelid into ps3
+                         from p1 in ps1.DefaultIfEmpty()
+                         from p3 in ps3.DefaultIfEmpty()
+                         where channel.Channelid == channelid
+                         select new CaptureChannelInfoDto
+                         {
+                             ID = channel.Channelid,
+                             Name = channel.Channelname,
+                             Desc = channel.Channeldesc,
+                             CPDeviceID = channel.Cpdeviceid,
+                             ChannelIndex = channel.Channelindex ?? 0,
+                             DeviceTypeID = (int)CaptureChannelType.emMsvChannel,
+                             BackState = (emBackupFlag)channel.Backupflag,
+                             CPSignalType = channel.Cpsignaltype ?? 0,
+                             OrderCode = p1 != null ? p1.Ordercode.GetValueOrDefault() : -1,
+                             GroupID = p3 != null ? p3.Groupid : -1
+                         }).SingleOrDefaultAsync();
+
+            if (lst == null)
+            {
+                 lst = await Context.DbpIpVirtualchannel.AsNoTracking().Where(x=> x.Channelid == channelid).Select(x => new CaptureChannelInfoDto
+                {
+                    ID = x.Channelid,
+                    Name = x.Channelname,
+                    Desc = x.Ipaddress,
+                    CPDeviceID = x.Deviceid,
+                    ChannelIndex = x.Ctrlport ?? 0,
+                    DeviceTypeID = x.Channeltype ?? (int)CaptureChannelType.emMsvChannel,
+                    BackState = (emBackupFlag)x.Backuptype.GetValueOrDefault(),
+                    CarrierID = x.Carrierid ?? 0,
+                    OrderCode = x.Deviceindex ?? -1,
+                    CPSignalType = x.Cpsignaltype ?? 0
+                }).SingleOrDefaultAsync();
+            }
+
+            return lst;
+        }
+
         //老接口GetAllCaptureChannels
         public async Task<List<CaptureChannelInfoDto>> GetAllCaptureChannelsAsync(int status)
         {
@@ -182,7 +235,14 @@ namespace IngestDevicePlugin.Stores
                 .Where(x => x.ID == signalid).Select(f => f.Channel).ToListAsync();
 
         }
-
+        public async Task<List<int>> GetSignalIdsByChannelIdForNotMatrix(int channelid)
+        {
+            return await Context.DbpRcdindesc.Join(Context.DbpRcdoutdesc,
+                rcin => rcin.Recinidx,
+                rcout => rcout.Recoutidx,
+                (rcin, rcout) => new { ID = rcin.Signalsrcid, Channel = rcout.Channelid })
+                .Where(x => x.Channel == channelid).Select(f => f.ID).ToListAsync();
+        }
         ////////////////
 
     }

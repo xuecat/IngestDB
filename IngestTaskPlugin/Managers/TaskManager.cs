@@ -316,8 +316,45 @@ namespace IngestTaskPlugin.Managers
                 }
 
                 bool bLockChannel = taskinfo.TaskContent.ChannelID > 0 ? false : true;
+                CHSelCondition condition = new CHSelCondition();
+                condition.BackupCHSel = false;
+                condition.CheckCHCurState = true;//检查当前通道状态
+                condition.MoveExcutingOpenTask = false;
+                condition.OnlyLocalChannel = true;
+                condition.BaseCHID = -1;
+                //condition. = true;
 
+                int nSelCH = -1;
+                if (taskinfo.TaskContent.TaskType != TaskType.TT_PERIODIC)
+                {
+                    
+                    nSelCH = await CHSelectForNormalTask(taskinfo.TaskContent, condition);
+                }
+                else
+                {
+                    nSelCH = await CHSelectForPeriodicTask(taskinfo.TaskContent, condition);
+                }
 
+                if (nSelCH <= 0)
+                {
+                    if (taskinfo.TaskContent.ChannelID > 0)
+                    {
+                        SobeyRecException.ThrowSelfNoParam("AddTaskWithoutPolicy GLOBALDICT_CODE_SELECTED_CHANNEL_IS_BUSY_OR_CAN_NOT_BE_SUITED_TO_PROGRAMME", GlobalDictionary.GLOBALDICT_CODE_SELECTED_CHANNEL_IS_BUSY_OR_CAN_NOT_BE_SUITED_TO_PROGRAMME, Logger, null);
+                    }
+                    else
+                    {
+                        SobeyRecException.ThrowSelfNoParam("AddTaskWithoutPolicy GLOBALDICT_CODE_ALL_USEABLE_CHANNELS_ARE_BUSY", GlobalDictionary.GLOBALDICT_CODE_ALL_USEABLE_CHANNELS_ARE_BUSY, Logger, null);
+                    }
+                }
+                else
+                {
+                    taskinfo.TaskContent.ChannelID = nSelCH;
+                }
+
+                if (taskinfo.TaskContent.GroupColor > 0)
+                {
+                    taskinfo.TaskContent.SignalID = DEVICESACCESS.GetChannelSignalSrc(taskAdd.nChannelID);
+                }
             }
 
             return null;
@@ -383,7 +420,7 @@ namespace IngestTaskPlugin.Managers
 
                 DateTime Begin = DateTimeFormat.DateTimeFromString(request.Begin);
                 DateTime End = DateTimeFormat.DateTimeFromString(request.End);
-                List<int> freeChannelIdList = await Store.GetFreePerodiChannels(matchlst, Begin, End);
+                List<int> freeChannelIdList = await Store.GetFreePerodiChannels(matchlst, -1, request.Unit, request.SignalID, request.ChannelID, request.Classify, Begin, End);
 
                 Logger.Info("GetFreeChannels freeChannelIdList {0}", freeChannelIdList.Count);
 
@@ -394,7 +431,7 @@ namespace IngestTaskPlugin.Managers
                      @ 选择通道时锁住通道，添加任务完了再释放锁，这什么鬼逻辑
                      @ 决定放弃这个通道锁这个逻辑，后面不行再补上
                      */
-                    //return ChooseBestChannel(request, freeChannelIdList, condition);
+                    return ChooseBestChannel(request, freeChannelIdList, condition);
                 }
             }
             else

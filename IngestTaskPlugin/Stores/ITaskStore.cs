@@ -44,7 +44,7 @@ namespace IngestTaskPlugin.Stores
         Task<int> DeleteCapturingChannelAsync(int Channel);
         Task<List<int>> DeleteCapturingListChannelAsync(List<int> lstChaneel);
         Task<List<int>> GetFreeChannels(List<int> lst, DateTime begin, DateTime end);
-        Task<List<int>> GetFreePerodiChannels(List<int> lst, DateTime begin, DateTime end);
+        Task<List<int>> GetFreePerodiChannels(List<int> lst, int nTaskID, int nUnitID, int nSigID, int nChannelID, string Category, DateTime begin, DateTime end);
         DbpTask FixPeroidcTaskTimeDisplay(DbpTask taskContent, ref DateTime tmDay, TimeLineType nTimeMode, ref bool isAdd2);
         Task LockTask(int taskid);
         Task UnLockTask(int taskid);

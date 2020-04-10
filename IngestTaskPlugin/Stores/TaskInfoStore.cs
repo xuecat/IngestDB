@@ -758,7 +758,7 @@ namespace IngestTaskPlugin.Stores
         }
 
         //需要比较和普通任务的冲突，以及和周期任务的冲突
-        public async Task<List<int>> GetFreePerodiChannels(List<int> lst, int nTaskID, int nUnitID, int nSigID, int nChannelID, bool bIncludePerodic, DateTime begin, DateTime end)
+        public async Task<List<int>> GetFreePerodiChannels(List<int> lst, int nTaskID, int nUnitID, int nSigID, int nChannelID, string Category, DateTime begin, DateTime end)
         {
             //先得到所有可用通道
             //和普通任务的冲突：1.把所有时间段上冲突的选出来 2.对比下看实际的冲突情况，过滤出真正冲突的。
@@ -771,16 +771,225 @@ namespace IngestTaskPlugin.Stores
             dtNowBegin = dtNowBegin.AddSeconds(1);
             dtNowEnd = dtNowEnd.AddSeconds(-1);
 
-            Context.DbpTask.AsNoTracking().Where(x => 
-            (x.Starttime >= dtNowBegin.AddDays(-1) && x.Starttime<= dtNowEnd)
-            && (x.Endtime >=dtNowBegin && x.Endtime <= dtNowEnd.AddDays(1))
-            && (x.State == (int)taskState.tsReady|| x.State == (int)taskState.tsExecuting)
+            var lsttask = await Context.DbpTask.AsNoTracking().Where(x => 
+            //我也不知道老代码这些部分啥意思
+            //(x.Starttime >= dtNowBegin.AddDays(-1) && x.Starttime<= dtNowEnd)
+            //&& (x.Endtime >=dtNowBegin && x.Endtime <= dtNowEnd.AddDays(1))
+            ((x.Starttime >= dtNowBegin && x.Starttime <= dtNowEnd)
+             || (x.Endtime >= dtNowBegin && x.Endtime <= dtNowEnd) || (x.Starttime < dtNowBegin && x.Endtime>dtNowEnd))
+            && (x.State != (int)taskState.tsDelete /*|| x.State == (int)taskState.tsExecuting*/)
             && (x.DispatchState == (int)dispatchState.dpsDispatched || x.DispatchState == (int)dispatchState.dpsNotDispatch)
             && (nChannelID<=0||(nChannelID>0 && x.Channelid == nChannelID))
             && (nUnitID <=0 || (nUnitID>0&&x.Recunitid == nUnitID))
-            && (bIncludePerodic || (!bIncludePerodic && x.Tasktype == (int)TaskType.TT_PERIODIC))
-            );
+            //&& (bIncludePerodic || (!bIncludePerodic && x.Tasktype != (int)TaskType.TT_PERIODIC))
+            ).ToListAsync();
 
+            if (lsttask != null && lsttask.Count > 0)
+            {
+                List<DbpTask> filterconficttasklst = new List<DbpTask>();
+                foreach (var item in lsttask)
+                {
+                    if (item.Tasktype == (int)TaskType.TT_PERIODIC)
+                    {
+                        int addflag = -1;
+                        int compflag = -1;
+                        DateTime dtStartCheck = (begin > item.Starttime) ? begin : item.Starttime;
+                        DateTime dtEndCheck = (end < item.Endtime) ? end : item.Endtime;
+
+                        var addlist = GetDayList(Category, ref addflag);
+                        var complist = GetDayList(item.Category, ref compflag);
+
+                        if (addflag > 0 && compflag > 0)
+                        {
+                            //zmj2008-10-10修改周期任务与周期任务之前的冲突判断
+                            var addExcludeList = GetDateTimeFromString(Category);
+                            var cmpExcludeList = GetDateTimeFromString(item.Category);
+
+                            while (dtStartCheck.Date <= dtEndCheck.Date)
+                            {
+                                int m = 0; //判断nAddFlag是否不为0.1.2
+                                int n = 0;//判断nCmpFlag是否不为0.1.2
+                                bool isExistInaddArray = addExcludeList.Any(x => dtStartCheck.Date == x.Date);
+                                bool isExistIncmpArray = cmpExcludeList.Any(x => dtStartCheck.Date == x.Date);
+
+                                if (addflag == 0 && !isExistInaddArray)
+                                {
+                                    m = 1;
+                                }
+                                else if (addflag == 1)
+                                {
+                                    if (addlist.IndexOf((int)dtStartCheck.DayOfWeek) >= 0 && !isExistInaddArray)
+                                        m = 1;
+                                }
+                                else if (addflag == 2)
+                                {
+                                    if (addlist.IndexOf((int)dtStartCheck.Day) >= 0 && !isExistInaddArray)
+                                        m = 1;
+                                }
+                                if (m == 0)
+                                {
+                                    dtStartCheck = dtStartCheck.AddDays(1);
+                                    continue;
+                                }
+
+                                if (compflag == 0 && !isExistIncmpArray)
+                                    n = 1;
+                                else if (compflag == 1)
+                                {
+                                    if (complist.IndexOf((int)dtStartCheck.DayOfWeek) >= 0 && !isExistIncmpArray)
+                                        n = 1;
+                                }
+                                else if (compflag == 2)
+                                {
+                                    if (complist.IndexOf((int)dtStartCheck.Day) >= 0 && !isExistIncmpArray)
+                                        n = 1;
+                                }
+                                if ((m & n) == 1)
+                                {
+                                    //outCheckContent = checkContent;
+                                    //outCheckContent.strBegin = dtStartCheck.ToString();
+                                    filterconficttasklst.Add(item);
+                                    //return false;
+                                    break;
+                                }
+                                try
+                                {
+                                    dtStartCheck = dtStartCheck.AddDays(1);
+                                }
+                                catch (Exception ex)
+                                {
+                                    Logger.Error($"GetFreePerodiChannels error {ex.Message}");
+
+                                    filterconficttasklst.Add(item);
+                                    break;
+                                    //return false;
+                                }
+                            }
+                        }
+                    }
+                    else
+                    {
+                        var lstdate = GetAllValidePerodicTask(begin, end, Category);
+
+                        Logger.Info("GetFreePerodiChannels period task " + string.Join(",", lsttask.Select(y => y.Taskid).ToList()));
+
+                        if (lstdate != null && lstdate.Count > 0)
+                        {
+                            Logger.Info("GetFreePerodiChannels period data" + string.Join(",", lstdate.Select(y => y.Begin.ToString() + "  " + y.End.ToString()).ToList()));
+
+                            if (lstdate.Any(y =>
+                            (y.End > item.Starttime && y.End < item.Endtime)
+                            || (y.Begin < item.Starttime && y.End > item.Endtime)
+                            || (y.Begin > item.Starttime && y.End < item.Endtime)
+                            || (y.Begin > item.Starttime && y.Begin < item.Endtime)))
+                            {
+                                filterconficttasklst.Add(item);
+                            }
+
+                            //var lsttaskfilter = lsttask.FindAll(x =>
+                            //lstdate.Any(y =>
+                            //((y.End > x.Starttime && y.End < x.Endtime)
+                            //|| (y.Begin < x.Starttime && y.End > x.Endtime)
+                            //|| (y.Begin > x.Starttime && y.End < x.Endtime)
+                            //|| (y.Begin > x.Starttime && y.Begin < x.Endtime)))).Select(z => z.Channelid).ToList();
+
+                            ////////////////////////////////
+                            //判断跨天,我不明白为啥判断跨天
+                            if (end.TimeOfDay < begin.TimeOfDay)
+                            {
+
+                            }
+
+                            ////////////////////////////////
+
+                            //if (lsttaskfilter != null && lsttaskfilter.Count > 0)
+                            //{
+                            //    Logger.Info("GetFreePerodiChannels period lsttaskfilter" + string.Join(",", lsttaskfilter));
+
+                            //    lst.RemoveAll(z => lsttaskfilter.Contains(z));
+                            //}
+                        }
+                    }
+                }
+
+                if (filterconficttasklst != null && filterconficttasklst.Count > 0)
+                {
+                    Logger.Info("GetFreePerodiChannels period filterconficttasklst" + string.Join(",", filterconficttasklst));
+
+                    lst.RemoveAll(z => filterconficttasklst.Select(x=> x.Channelid).Contains(z));
+                }
+
+            }
+            else
+                Logger.Info("GetFreePerodiChannels empty");
+
+
+            return lst;
+        }
+
+
+
+        public List<TaskSimpleTime> GetAllValidePerodicTask(DateTime tmBegin, DateTime tmEnd, string strPerodicDesc)
+        {
+            List<TaskSimpleTime> taskList = new List<TaskSimpleTime>();
+            bool bOverDay = false;
+
+            if (tmBegin.TimeOfDay > tmEnd.TimeOfDay)
+                bOverDay = true;//跨天
+
+            DateTime tmTmpBegin = tmBegin;
+            if (strPerodicDesc.IndexOf("D") >= 0) //Daily
+            {
+                while (tmTmpBegin < tmEnd)
+                {
+                    TaskSimpleTime tpTask = new TaskSimpleTime();
+                    int nAddDay = bOverDay ? 1 : 0;
+                    tpTask.Begin = new DateTime(tmTmpBegin.Year, tmTmpBegin.Month, tmTmpBegin.Day, tmBegin.Hour, tmBegin.Minute, tmBegin.Second);
+                    tpTask.End = new DateTime(tmTmpBegin.AddDays(nAddDay).Year, tmTmpBegin.AddDays(nAddDay).Month, tmTmpBegin.AddDays(nAddDay).Day, tmEnd.Hour, tmEnd.Minute, tmEnd.Second);
+                    taskList.Add(tpTask);
+                    tmTmpBegin = tmTmpBegin.AddDays(1);
+                }
+
+            }
+            else if (strPerodicDesc.IndexOf("W") >= 0)  //Weekly
+            {
+                while (tmTmpBegin < tmEnd)
+                {
+                    int nDayofWeek = (int)tmTmpBegin.DayOfWeek;
+                    TaskSimpleTime tpTask = new TaskSimpleTime();
+                    if (strPerodicDesc.IndexOf("W" + Convert.ToString(nDayofWeek) + "+") >= 0)
+                    {
+                        int nAddDay = bOverDay ? 1 : 0;
+                        tpTask.Begin = new DateTime(tmTmpBegin.Year, tmTmpBegin.Month, tmTmpBegin.Day, tmBegin.Hour, tmBegin.Minute, tmBegin.Second);
+                        tpTask.End = new DateTime(tmTmpBegin.AddDays(nAddDay).Year, tmTmpBegin.AddDays(nAddDay).Month, tmTmpBegin.AddDays(nAddDay).Day, tmEnd.Hour, tmEnd.Minute, tmEnd.Second);
+                        break;
+                    }
+                    taskList.Add(tpTask);
+                    tmTmpBegin = tmTmpBegin.AddDays(1);
+                }
+
+
+            }
+            else if (strPerodicDesc.IndexOf("M") >= 0)  //Monthly
+            {
+
+                while (tmTmpBegin < tmEnd)
+                {
+                    int nDayofMonth = tmTmpBegin.Day;
+                    TaskSimpleTime tpTask = new TaskSimpleTime();
+                    if (strPerodicDesc.IndexOf("M" + Convert.ToString(nDayofMonth) + "+") >= 0)
+                    {
+                        int nAddDay = bOverDay ? 1 : 0;
+                        tpTask.Begin = new DateTime(tmTmpBegin.Year, tmTmpBegin.Month, tmTmpBegin.Day, tmBegin.Hour, tmBegin.Minute, tmBegin.Second);
+                        tpTask.End = new DateTime(tmTmpBegin.AddDays(nAddDay).Year, tmTmpBegin.AddDays(nAddDay).Month, tmTmpBegin.AddDays(nAddDay).Day, tmEnd.Hour, tmEnd.Minute, tmEnd.Second);
+                        break;
+                    }
+                    taskList.Add(tpTask);
+                    tmTmpBegin = tmTmpBegin.AddDays(1);
+                }
+
+            }
+            return taskList;
         }
 
         public DbpTask DeepClone(DbpTask obj)
@@ -959,7 +1168,7 @@ namespace IngestTaskPlugin.Stores
             string strDayOfMonth = "M" + Convert.ToString(nDayOfMonth) + "+";
             string strEveryDay = "D";
             //zmj2008-10-17修改判断排除掉例外的任务
-            var arrinValidList = GetDateTimeFromStringForStatic(strPerodicDesc);
+            var arrinValidList = GetDateTimeFromString(strPerodicDesc);
             bool isInInValid = IsExistInArrayForStatic(arrinValidList, tmDay);
             if (strPerodicDesc.IndexOf(strDayOfWeek) != -1 && dtPerodicValidDateMin.Date <= tmDay.Date && dtPerodicValidDateMax.Date >= tmDay.Date && !isInInValid)
                 return true;
@@ -1002,7 +1211,38 @@ namespace IngestTaskPlugin.Stores
             }
             return false;
         }
-        private List<DateTime> GetDateTimeFromStringForStatic(string str)
+
+        //根据CATEGORY获取执行日列表
+        private List<int> GetDayList(string str, ref int nFlag)//0每天 1周任务 2月任务
+        {
+            List<int> list = new List<int>();
+            if (str.IndexOf("D") >= 0)
+            {
+                nFlag = 0;
+            }
+            else if (str.IndexOf("W") >= 0)
+            {
+                nFlag = 1;
+                for (int i = 0; i < 7; i++)
+                {
+                    string strDay = "W" + i.ToString() + "+";
+                    if (str.IndexOf(strDay) >= 0)
+                        list.Add(i);
+                }
+            }
+            else
+            {
+                nFlag = 2;
+                for (int i = 1; i < 32; i++)
+                {
+                    string strDay = "M" + i.ToString() + "+";
+                    if (str.IndexOf(strDay) >= 0)
+                        list.Add(i);
+                }
+            }
+            return list;
+        }
+        private List<DateTime> GetDateTimeFromString(string str)
         {
             List<DateTime> DatetimeArray = new List<DateTime>();
             int nLPos = 0;

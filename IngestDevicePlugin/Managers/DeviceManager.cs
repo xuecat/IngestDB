@@ -36,6 +36,25 @@ namespace IngestTaskPlugin.Managers
             return await Store.GetSignalInfoAsync(programeid);
         }
 
+        public async Task<int> GetChannelSignalSrc(int channelid)
+        {
+            //判断是否是无矩阵
+            bool isHaveMatrix = await HaveMatrixAsync();
+            if (!isHaveMatrix)
+            {
+                var item = await Store.GetCaptureChannelByIDAsync(channelid);
+                if (item != null && item.DeviceTypeID == (int)CaptureChannelType.emMsvChannel)
+                {
+                    return (await Store.GetSignalIdsByChannelIdForNotMatrix(channelid)).ElementAt(0);
+                }
+            }
+            else
+                return await Store.GetMatrixChannelBySignal(channelid);
+
+            Logger.Error("GetChannelSignalSrc error getno");
+            return 0;
+        }
+
         public async virtual Task<List<TResult>> GetChannelsByProgrammeIdAsync<TResult>(int programmid, int state)
         {
             //判断是否是无矩阵

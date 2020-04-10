@@ -46,4 +46,11 @@ namespace IngestTaskPlugin.Dto
         public bool OnlyLocalChannel { get; set; } = true;//1:只能在本通道；其他：优先在本通道
         public int BaseCHID { get; set; } = -1;//这个ID是外面穿进来的，如果>0,那么将跟这个通道在同一个物理机上的通道优先级降低
     }
+
+    public class TaskSimpleTime
+    {
+        public int TaskID { get; set; }
+        public DateTime Begin { get; set; }
+        public DateTime End { get; set; }
+    }
 }
