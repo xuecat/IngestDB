@@ -67,7 +67,7 @@ namespace IngestCustomerPlugin.Models
         public virtual DbSet<DbpNewimportTask> DbpNewimportTask { get; set; }
         public virtual DbSet<DbpObjectstateinfo> DbpObjectstateinfo { get; set; }
         public virtual DbSet<DbpPlans> DbpPlans { get; set; }
-        public virtual DbSet<DbpPolicytask> DbpPolicytask { get; set; }
+        
         public virtual DbSet<DbpPolicyuser> DbpPolicyuser { get; set; }
         public virtual DbSet<DbpPolicyuserclass> DbpPolicyuserclass { get; set; }
         public virtual DbSet<DbpProgramparamMap> DbpProgramparamMap { get; set; }
@@ -1053,20 +1053,7 @@ namespace IngestCustomerPlugin.Models
                     .HasColumnType("varchar(4000)");
             });
 
-            modelBuilder.Entity<DbpPolicytask>(entity =>
-            {
-                entity.HasKey(e => new { e.Policyid, e.Taskid });
-
-                entity.ToTable("dbp_policytask");
-
-                entity.Property(e => e.Policyid)
-                    .HasColumnName("POLICYID")
-                    .HasColumnType("int(11)");
-
-                entity.Property(e => e.Taskid)
-                    .HasColumnName("TASKID")
-                    .HasColumnType("int(11)");
-            });
+            
 
             modelBuilder.Entity<DbpPolicyuser>(entity =>
             {

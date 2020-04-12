@@ -14,7 +14,8 @@ namespace IngestDeviceInterfacePlugin
         {
             
             CreateMap<CaptureChannelInfoResponse, CaptureChannelInfoInterface>();
-
+            CreateMap<RecUnitMap, RecUnitMapInterface>();
+            CreateMap<RecUnitMap, RecUnitMapInterface>().ReverseMap();
 
         }
     }

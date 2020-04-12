@@ -93,7 +93,7 @@ namespace IngestTaskPlugin.Controllers
                 if (pIn.Type == MetaDataType.emAmfsData)
                     pIn.MateData = System.Guid.NewGuid().ToString();
 
-                await _taskManage.UpdateTaskMetaDataAsync(pIn.nTaskID, (int)pIn.Type, pIn.MateData);
+                await _taskManage.UpdateTaskMetaDataAsync(pIn.nTaskID, pIn.Type, pIn.MateData);
 
                 pOut.bRet = true;
                 return pOut;
@@ -274,6 +274,51 @@ namespace IngestTaskPlugin.Controllers
             try
             {
                 Response.taskResults = await _taskManage.DeleteGroupTaskAsync(nTaskID);
+
+                var _globalinterface = ApplicationContext.Current.ServiceProvider.GetRequiredService<IIngestGlobalInterface>();
+                if (_globalinterface != null)
+                {
+                    GlobalInternals re = new GlobalInternals() { funtype = IngestDBCore.GlobalInternals.FunctionType.SetGlobalState, State = GlobalStateName.MODTASK };
+                    var response1 = await _globalinterface.SubmitGlobalCallBack(re);
+                    if (response1.Code != ResponseCodeDefines.SuccessCode)
+                    {
+                        Logger.Error("SetGlobalState modtask error");
+                    }
+                }
+
+                return Response;
+            }
+            catch (Exception e)
+            {
+                Response.bRet = false;
+                if (e.GetType() == typeof(SobeyRecException))//sobeyexcep会自动打印错误
+                {
+                    SobeyRecException se = e as SobeyRecException;
+                    Response.errStr = se.ErrorCode.ToString();
+                }
+                else
+                {
+                    Response.errStr = "error info：" + e.ToString();
+                    Logger.Error(Response.errStr);
+                }
+                return Response;
+            }
+
+        }
+
+        [HttpPost("PostAddTaskSvr"), MapToApiVersion("1.0")]
+        [ApiExplorerSettings(GroupName = "v1")]
+        public async Task<AddTaskSvr_OUT> PostAddTaskSvr([FromBody] AddTaskSvr_IN pIn)
+        {
+            var Response = new AddTaskSvr_OUT
+            {
+                bRet = true,
+                errStr = "OK"
+            };
+
+            try
+            {
+                Response.taskResults = await _taskManage.StopGroupTaskAsync(nTaskID);
 
                 var _globalinterface = ApplicationContext.Current.ServiceProvider.GetRequiredService<IIngestGlobalInterface>();
                 if (_globalinterface != null)

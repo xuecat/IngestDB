@@ -9,16 +9,24 @@ namespace IngestDBCore
     {
         public enum FunctionType
         {
-            ChannelInfoBySrc
+            ChannelInfoBySrc,
+            SingnalInfoByChannel,
+            AllChannelUnitMap,
+            ChannelUnitMap
         }
 
         public FunctionType funtype { get; set; }
 
         public int SrcId { get; set; }
+        public int ChannelId { get; set; }
 
         public int Status { get; set; }
     }
-
+    public class RecUnitMapInterface
+    {
+        public int UnitID { get; set; }
+        public int ConnectorID { get; set; }
+    }
     //采集通道类型
     public enum CaptureChannelTypeInterface
     {

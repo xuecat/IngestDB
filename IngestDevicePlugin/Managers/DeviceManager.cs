@@ -113,6 +113,15 @@ namespace IngestTaskPlugin.Managers
 
             return  _mapper.Map<List<TResult>>(channelInfoList);
         }
+
+        public async Task<List<RecUnitMap>> GetAllChannelUnitMap()
+        {
+            return _mapper.Map<List<RecUnitMap>>(await Store.GetAllChannelUnitMap());
+        }
+        public async Task<RecUnitMap> GetChannelUnitMap(int channel)
+        {
+            return _mapper.Map<RecUnitMap>(await Store.GetChannelUnitMap(channel));
+        }
         ////////////////////
     }
 }

@@ -14,6 +14,7 @@ using TaskInfoRequest = IngestTaskPlugin.Dto.TaskInfoResponse;
 using TaskContentRequest = IngestTaskPlugin.Dto.TaskContentResponse;
 using IngestDBCore.Interface;
 using Microsoft.Extensions.DependencyInjection;
+using IngestTaskPlugin.Models;
 
 namespace IngestTaskPlugin.Managers
 {
@@ -35,6 +36,82 @@ namespace IngestTaskPlugin.Managers
             return _mapper.Map<TResult>(f);
         }
 
+        public string ConverTaskMaterialMetaString(TaskMaterialMetaResponse re)
+        {
+            XDocument xdoc = new XDocument(
+                new XElement("MATERIAL",
+                 new XElement("TITLE", re.Title),
+                 new XElement("MATERIALID", re.MaterialID),
+                 new XElement("RIGHTS", re.Rights),
+                 new XElement("COMMENTS", re.Comments),
+                 new XElement("DESTINATION", re.Destination),
+                 new XElement("FOLDERID", re.FolderID),
+                 new XElement("ITEMNAME", re.ItemName),
+                 new XElement("JOURNALIST", re.JournaList),
+                 new XElement("CATEGORY", re.CateGory),
+                 new XElement("PROGRAMNAME", re.ProgramName),
+                 new XElement("DATEFOLDER", re.Datefolder))
+                );
+            return xdoc.ToString();
+        }
+        public string ConverTaskContentMetaString(TaskContentMetaResponse re)
+        {
+           var par = new XElement("PARAMS");
+            foreach (var item in re.PeriodParam.Params)
+            {
+                par.Add(new XElement("DAY", item));
+            }
+            XDocument xdoc = new XDocument(
+                new XElement("TaskContentMetaData",
+                 new XElement("HOUSETC", re.HouseTC),
+                 new XElement("PRESETSTAMP", re.Presetstamp),
+                 new XElement("SIXTEENTONINE", re.SixteenToNine),
+                 new XElement("SOURCETAPEID", re.SourceTapeID),
+                 new XElement("DELETEFLAG", re.DeleteFlag),
+                 new XElement("SOURCETAPEBARCODE", re.SourceTapeBarcode),
+                 new XElement("BACKTAPEID", re.BackTapeID),
+                 new XElement("USERMEDIAID", re.UserMediaID),
+                 new XElement("UserToken", re.UserToken),
+                 new XElement("VTRSTART", re.VtrStart),
+                 new XElement("TCMODE", re.TcMode),
+                 new XElement("ClipSum", re.ClipSum),
+                 new XElement("TransState", re.TransState),
+                 new XElement("PERIODPARAM", 
+                    new XElement("BEGINDATE", re.PeriodParam.BeginDate),
+                    new XElement("ENDDATE", re.PeriodParam.EndDate),
+                    new XElement("APPDATE", re.PeriodParam.AppDate),
+                    new XElement("APPDATEFORMAT", re.PeriodParam.AppDateFormat),
+                    new XElement("MODE", re.PeriodParam.Mode),
+                    par
+                    ))
+                );
+
+            return xdoc.ToString();
+        }
+        public string ConverTaskPlanningMetaString(TaskPlanningResponse re)
+        {
+            XDocument xdoc = new XDocument(
+                new XElement("Planning",
+                 new XElement("PLANGUID", re.PlanGuid),
+                 new XElement("PLANNAME", re.PlanName),
+                 new XElement("CREATORNAME", re.CreaToRName),
+                 new XElement("CREATEDATE", re.CreateDate),
+                 new XElement("MODIFYNAME", re.ModifyName),
+                 new XElement("MODIFYDATE", re.ModifyDate),
+                 new XElement("VERSION", re.Version),
+                 new XElement("PLACE", re.Place),
+                 new XElement("PLANNINGDATE", re.PlanningDate),
+                 new XElement("DIRECTOR", re.Director),
+                 new XElement("PHOTOGRAPHER", re.Photographer),
+                 new XElement("REPORTER", re.Reporter),
+                 new XElement("OTHER", re.Other),
+                 new XElement("EQUIPMENT", re.Equipment),
+                 new XElement("CONTACTINFO", re.ContactInfo),
+                 new XElement("PLANNINGXML", re.PlanningXml))
+                );
+            return xdoc.ToString();
+        }
+
         public async virtual Task<TaskMaterialMetaResponse> GetTaskMaterialMetadataAsync(int taskid)
         {
             var f = await Store.GetTaskMetaDataAsync(a => a
@@ -43,7 +120,7 @@ namespace IngestTaskPlugin.Managers
 
             try
             {
-                var root = XDocument.Load(f);
+                var root = XDocument.Parse(f);
                 var material = root.Element("MATERIAL");
 
                 TaskMaterialMetaResponse ret = new TaskMaterialMetaResponse();
@@ -77,7 +154,7 @@ namespace IngestTaskPlugin.Managers
 
             try
             {
-                var root = XDocument.Load(f);
+                var root = XDocument.Parse(f);
                 var material = root.Element("TaskContentMetaData");
 
                 TaskContentMetaResponse ret = new TaskContentMetaResponse();
@@ -123,7 +200,7 @@ namespace IngestTaskPlugin.Managers
 
             try
             {
-                var root = XDocument.Load(f);
+                var root = XDocument.Parse(f);
                 var material = root.Element("Planning");
 
                 TaskPlanningResponse ret = new TaskPlanningResponse();
@@ -155,7 +232,7 @@ namespace IngestTaskPlugin.Managers
         }
 
         //这个接口是为老写的
-        public async Task UpdateTaskMetaDataAsync(int taskid, int type, string metadata)
+        public async Task UpdateTaskMetaDataAsync(int taskid, MetaDataType type, string metadata)
         {
             await Store.UpdateTaskMetaDataAsync(taskid, type, metadata);
         }
@@ -196,7 +273,7 @@ namespace IngestTaskPlugin.Managers
                 }
 
                 f.Metadatalong = root.ToString();
-                await Store.SageChangeAsync();
+                await Store.SaveChangeAsync();
                 return f.Metadatalong;
             }
             catch (Exception e)
@@ -269,13 +346,60 @@ namespace IngestTaskPlugin.Managers
             return null;
         }
 
-        public async Task<TaskContentResponse> AddTaskWithoutPolicy(TaskInfoRequest taskinfo)
+        public async Task<TaskContentResponse> AddTaskWithoutPolicy(TaskInfoRequest taskinfo, string CaptureMeta, string ContentMeta, string MatiralMeta, string PlanningMeta)
         {
-            
-            
             if (taskinfo.TaskContent.TaskType == TaskType.TT_MANUTASK)
             {
+                var _globalinterface = ApplicationContext.Current.ServiceProvider.GetRequiredService<IIngestDeviceInterface>();
+                if (_globalinterface != null)
+                {
+                    DeviceInternals re = new DeviceInternals() { funtype = IngestDBCore.DeviceInternals.FunctionType.ChannelUnitMap, ChannelId = taskinfo.TaskContent.ChannelID };
+                    var response1 = await _globalinterface.GetDeviceCallBack(re);
+                    if (response1.Code != ResponseCodeDefines.SuccessCode)
+                    {
+                        Logger.Error("AddTaskWithoutPolicy ChannelInfoBySrc error");
+                        return null;
+                    }
+                    var fr = response1 as ResponseMessage<int>;
+                    taskinfo.TaskContent.Unit = fr.Ext;
 
+                    var lst = await Store.GetTaskListAsync(new TaskCondition() {
+                        StateIncludeLst = new List<int>() { ((int)taskState.tsReady), },
+                        MaxBeginTime = DateTime.Now,
+                        MinEndTime = DateTime.Now,
+                        ChannelID = taskinfo.TaskContent.ChannelID,
+                        TaskTypeIncludeLst = new List<int>() { ((int)TaskType.TT_TIEUP)}
+                    }, true, false);
+                    if (lst != null && lst.Count > 0)
+                    {
+                        lst[0].Tasktype = (int)TaskType.TT_NORMAL;
+                        lst[0].SyncState = (int)syncState.ssNot;
+                        lst[0].DispatchState = (int)dispatchState.dpsDispatched;
+                        lst[0].Taskguid = taskinfo.TaskContent.TaskGUID;
+
+                        //await Store.SaveChangeAsync();
+                        await Store.UpdateTaskMetaDataAsync(taskinfo.TaskContent.TaskID, MetaDataType.emCapatureMetaData, taskinfo.CaptureMeta);
+                        return _mapper.Map<TaskContentResponse>(lst[0]);
+                    }
+                    else
+                    {
+                        var back = await Store.AddTaskWithPolicys(_mapper.Map<TaskContentResponse, DbpTask>(taskinfo.TaskContent, opt =>
+                        opt.AfterMap((src, dest) =>
+                        {
+                            dest.OpType = (int)opType.otAdd;
+                            dest.DispatchState = (int)dispatchState.dpsDispatched;
+                            dest.State = (int)taskState.tsExecuting;
+                            dest.SyncState = (int)syncState.ssNot;
+                            dest.Tasklock = string.Empty;
+                            dest.Taskid = -1;
+                        })), true, TaskSource.emMSVUploadTask,
+                        string.IsNullOrEmpty(ContentMeta) ? taskinfo.CaptureMeta:CaptureMeta, 
+                        string.IsNullOrEmpty(ContentMeta)?ConverTaskContentMetaString(taskinfo.ContentMeta): ContentMeta,
+                        string.IsNullOrEmpty(MatiralMeta)?ConverTaskMaterialMetaString(taskinfo.MaterialMeta): MatiralMeta,
+                        string.IsNullOrEmpty(PlanningMeta)?ConverTaskPlanningMetaString(taskinfo.PlanningMeta):PlanningMeta,
+                        null);
+                    }
+                }
             }
             else //非手动任务选通道
             {
@@ -353,8 +477,44 @@ namespace IngestTaskPlugin.Managers
 
                 if (taskinfo.TaskContent.GroupColor > 0)
                 {
-                    taskinfo.TaskContent.SignalID = DEVICESACCESS.GetChannelSignalSrc(taskAdd.nChannelID);
+                    var _globalinterface = ApplicationContext.Current.ServiceProvider.GetRequiredService<IIngestDeviceInterface>();
+                    if (_globalinterface != null)
+                    {
+                        DeviceInternals re = new DeviceInternals() { funtype = IngestDBCore.DeviceInternals.FunctionType.SingnalInfoByChannel, ChannelId= taskinfo.TaskContent.ChannelID};
+                        var response1 = await _globalinterface.GetDeviceCallBack(re);
+                        if (response1.Code != ResponseCodeDefines.SuccessCode)
+                        {
+                            Logger.Error("AddTaskWithoutPolicy ChannelInfoBySrc error");
+                            return null;
+                        }
+                        var fr= response1 as ResponseMessage<int>;
+                        taskinfo.TaskContent.SignalID = fr.Ext;
+                    }
+                        
                 }
+
+                var back = await Store.AddTaskWithPolicys(_mapper.Map<TaskContentResponse, DbpTask>(taskinfo.TaskContent, opt =>
+                opt.AfterMap((src, dest) => {
+                    dest.OpType = (int)opType.otAdd;
+                    dest.DispatchState = (int)dispatchState.dpsNotDispatch;
+                    dest.State = (int)taskState.tsReady;
+                    dest.SyncState = (int)syncState.ssSync;
+                    dest.Tasklock = string.Empty;
+                    dest.Taskid = -1;
+                })), true, taskinfo.TaskSource,
+                string.IsNullOrEmpty(ContentMeta) ? taskinfo.CaptureMeta : CaptureMeta,
+                string.IsNullOrEmpty(ContentMeta) ? ConverTaskContentMetaString(taskinfo.ContentMeta) : ContentMeta,
+                string.IsNullOrEmpty(MatiralMeta) ? ConverTaskMaterialMetaString(taskinfo.MaterialMeta) : MatiralMeta,
+                string.IsNullOrEmpty(PlanningMeta) ? ConverTaskPlanningMetaString(taskinfo.PlanningMeta) : PlanningMeta,
+                null);
+                //taskinfo.TaskContent.
+
+                if (back.Taskid > 0)
+                {
+                    //存metadata
+                }
+
+                return _mapper.Map<TaskContentResponse>(back);
             }
 
             return null;

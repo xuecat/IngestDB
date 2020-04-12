@@ -384,7 +384,23 @@ namespace IngestTaskPlugin.Dto
         em36HourDay = 2,
         em48HourDay = 3
     }
-
-
+    public class MetadataPair
+    {
+        public int nTaskID;
+        public string strMetadata;
+        public MetaDataType emtype;
+    }
+    public class AddTaskSvr_IN
+    {
+        public TaskContent taskAdd;
+        public TaskSource taskSrc;
+        public MetadataPair[] metadatas;
+    }
+    public class AddTaskSvr_OUT
+    {
+        public int newTaskId;
+        public string errStr;
+        public bool bRet;
+    }
 }
 

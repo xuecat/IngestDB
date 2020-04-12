@@ -75,15 +75,69 @@ namespace IngestTaskPlugin.Stores
             return await query.Invoke(Context.DbpTaskCustommetadata).SingleOrDefaultAsync();
         }
 
-        public async Task UpdateTaskMetaDataAsync(int taskid, int type, string metadata)
+        /// <summary>
+        /// lock现在没有用
+        /// </summary>
+        /// <param name="uselock">没用</param>
+        /// <param name="condition">查询条件</param>
+        /// <returns></returns>
+        public async Task<List<DbpTask>> GetTaskListAsync(TaskCondition condition, bool Track, bool uselock)
         {
-            var item = await Context.DbpTaskMetadata.Where(x => x.Taskid == taskid && x.Metadatatype == type).SingleAsync();
+            if (!Track)
+            {
+                return await Context.DbpTask.AsNoTracking().Where(x =>
+                (condition.ChannelID <= 0 || x.Channelid == condition.ChannelID)
+                && (condition.RecUnit <= 0 || x.Recunitid == condition.RecUnit)
+                && (condition.SignalID <= 0 || x.Signalid == condition.SignalID)
+                && (condition.StateIncludeLst == null || condition.StateIncludeLst.Count <= 0 || condition.StateIncludeLst.Contains(x.State.GetValueOrDefault()))
+                && (condition.TaskTypeIncludeLst == null || condition.TaskTypeIncludeLst.Count <= 0 || condition.TaskTypeIncludeLst.Contains(x.Tasktype.GetValueOrDefault()))
+                && (string.IsNullOrEmpty(condition.LockStr) || x.Tasklock == condition.LockStr)
+                && (condition.SyncStateIncludeLst == null || condition.SyncStateIncludeLst.Count <= 0 || condition.SyncStateIncludeLst.Contains(x.SyncState.GetValueOrDefault()))
+                && (condition.DispatchStateIncludeLst == null || condition.DispatchStateIncludeLst.Count <= 0 || condition.DispatchStateIncludeLst.Contains(x.DispatchState.GetValueOrDefault()))
+                && (condition.MaxBeginTime == DateTime.MinValue || x.Starttime < condition.MaxBeginTime)
+                && (condition.MinBeginTime == DateTime.MinValue || x.Starttime > condition.MinBeginTime)
+                && (condition.MaxEndTime == DateTime.MinValue || x.Endtime < condition.MaxEndTime)
+                && (condition.MinEndTime == DateTime.MinValue || x.Endtime > condition.MinEndTime)
+                && (condition.MaxNewBeginTime == DateTime.MinValue || x.NewBegintime < condition.MaxNewBeginTime)
+                && (condition.MinNewBeginTime == DateTime.MinValue || x.NewBegintime > condition.MinNewBeginTime)
+                && (condition.MaxNewEndTime == DateTime.MinValue || x.NewEndtime < condition.MaxNewEndTime)
+                && (condition.MinNewEndTime == DateTime.MinValue || x.NewEndtime > condition.MinNewEndTime)
+                ).ToListAsync();
+            }
+            else
+            {
+                return await Context.DbpTask.Where(x =>
+                (condition.ChannelID <= 0 || x.Channelid == condition.ChannelID)
+                && (condition.RecUnit <= 0 || x.Recunitid == condition.RecUnit)
+                && (condition.SignalID <= 0 || x.Signalid == condition.SignalID)
+                && (condition.StateIncludeLst == null || condition.StateIncludeLst.Count <= 0 || condition.StateIncludeLst.Contains(x.State.GetValueOrDefault()))
+                && (condition.TaskTypeIncludeLst == null || condition.TaskTypeIncludeLst.Count <= 0 || condition.TaskTypeIncludeLst.Contains(x.Tasktype.GetValueOrDefault()))
+                && (string.IsNullOrEmpty(condition.LockStr) || x.Tasklock == condition.LockStr)
+                && (condition.SyncStateIncludeLst == null || condition.SyncStateIncludeLst.Count <= 0 || condition.SyncStateIncludeLst.Contains(x.SyncState.GetValueOrDefault()))
+                && (condition.DispatchStateIncludeLst == null || condition.DispatchStateIncludeLst.Count <= 0 || condition.DispatchStateIncludeLst.Contains(x.DispatchState.GetValueOrDefault()))
+                && (condition.MaxBeginTime == DateTime.MinValue || x.Starttime < condition.MaxBeginTime)
+                && (condition.MinBeginTime == DateTime.MinValue || x.Starttime > condition.MinBeginTime)
+                && (condition.MaxEndTime == DateTime.MinValue || x.Endtime < condition.MaxEndTime)
+                && (condition.MinEndTime == DateTime.MinValue || x.Endtime > condition.MinEndTime)
+                && (condition.MaxNewBeginTime == DateTime.MinValue || x.NewBegintime < condition.MaxNewBeginTime)
+                && (condition.MinNewBeginTime == DateTime.MinValue || x.NewBegintime > condition.MinNewBeginTime)
+                && (condition.MaxNewEndTime == DateTime.MinValue || x.NewEndtime < condition.MaxNewEndTime)
+                && (condition.MinNewEndTime == DateTime.MinValue || x.NewEndtime > condition.MinNewEndTime)
+                ).ToListAsync();
+            }
+            
+
+        }
+
+        public async Task UpdateTaskMetaDataAsync(int taskid, MetaDataType type, string metadata)
+        {
+            var item = await Context.DbpTaskMetadata.Where(x => x.Taskid == taskid && x.Metadatatype == (int)type).SingleAsync();
             if (item == null)
             {
                 await Context.DbpTaskMetadata.AddAsync(new DbpTaskMetadata()
                 {
                     Taskid = taskid,
-                    Metadatatype = type,
+                    Metadatatype = (int)type,
                     Metadatalong = metadata
                 });
             }
@@ -124,7 +178,7 @@ namespace IngestTaskPlugin.Stores
             }
         }
 
-        public async Task SageChangeAsync()
+        public async Task SaveChangeAsync()
         {
             try
             {
@@ -927,7 +981,217 @@ namespace IngestTaskPlugin.Stores
             return lst;
         }
 
+        public async Task<DbpTask> AddTaskWithPolicys(DbpTask task, bool bAddForInDB, TaskSource taskSrc, string CaptureMeta, string ContentMeta, string MatiralMeta, string PlanningMeta, int[] arrPolicys)
+        {
+            if (task.Taskid <= 0)
+            {
+                task.Taskid = IngestTaskDBContext.next_val("DBP_SQ_TASKID");
+            }
+            if (task.Tasktype != (int)TaskType.TT_PERIODIC)
+            {
+                task.Category = "A";
+                task.NewBegintime = task.Starttime;
+                task.NewEndtime = task.Endtime;
+            }
+            else
+            {
+                DateTime NewBeginTime = task.NewBegintime;
+                DateTime NewEndTime = task.NewEndtime;
+                Logger.Info("AddTask GetPerodicTaskNextExectueTime ID:{0},NewBeginTime:{1}, taskcontent.begin:{2}", task.Taskid, NewBeginTime, task.Starttime );
 
+                bool bIsValid = GetPerodicTaskNextExectueTime(task.Starttime,
+                    task.Endtime, task.Category, ref NewBeginTime, ref NewEndTime);
+                if (bIsValid)
+                {
+                    task.NewBegintime = NewBeginTime;
+                    task.NewEndtime = NewEndTime;
+                }
+                else
+                {
+                    task.NewBegintime = DateTime.MinValue;
+                    task.NewEndtime = DateTime.MinValue;
+                }
+            }
+
+            if (string.IsNullOrEmpty(task.Taskguid))
+            {
+                task.Taskguid = Guid.NewGuid().ToString("N");
+            }
+
+            if (bAddForInDB)
+            {
+                await Context.DbpTaskSource.AddAsync(new DbpTaskSource() { Taskid = task.Taskid, Tasksource = (int)taskSrc });
+
+                //目前只有一种入库策略，何必再写，全部省略
+
+                //MetaDataPolicy[] PolicyList = PPLICYACCESS.GetPolicyByUserID(taskInfo.taskContent.strUserCode);
+                //foreach (MetaDataPolicy policy in PolicyList)
+                //{
+                //PPLICYACCESS.AddPolicyTask(policy.nID, taskInfo.taskContent.nTaskID);
+                await Context.DbpPolicytask.AddAsync(new DbpPolicytask() { Policyid = 1, Taskid = task.Taskid });
+                //}
+            }
+
+            Context.DbpTask.Add(task);
+
+            if (!string.IsNullOrEmpty(ContentMeta))
+            {
+                Context.DbpTaskMetadata.Add(new DbpTaskMetadata() { Taskid = task.Taskid, Metadatatype = (int)MetaDataType.emContentMetaData, Metadatalong = ContentMeta});
+            }
+            if (!string.IsNullOrEmpty(MatiralMeta))
+            {
+                Context.DbpTaskMetadata.Add(new DbpTaskMetadata() { Taskid = task.Taskid, Metadatatype = (int)MetaDataType.emStoreMetaData, Metadatalong = MatiralMeta });
+            }
+            if (!string.IsNullOrEmpty(PlanningMeta))
+            {
+                Context.DbpTaskMetadata.Add(new DbpTaskMetadata() { Taskid = task.Taskid, Metadatatype = (int)MetaDataType.emPlanMetaData, Metadatalong = PlanningMeta });
+            }
+            if (!string.IsNullOrEmpty(CaptureMeta))
+            {
+                Context.DbpTaskMetadata.Add(new DbpTaskMetadata() { Taskid = task.Taskid, Metadatatype = (int)MetaDataType.emCapatureMetaData, Metadatalong = CaptureMeta });
+            }
+
+            try
+            {
+                await Context.SaveChangesAsync();
+                return task;
+            }
+            catch (DbUpdateException e)
+            {
+                throw e;
+            }
+            return null;
+        }
+
+        private bool GetPerodicTaskNextExectueTime(DateTime tmBegin, DateTime tmEnd, string strPerodicDesc, ref DateTime tmExecuteBegin, ref DateTime tmExecuteEnd)
+        {
+
+            DateTime dtNow = DateTime.Now;
+
+            bool bOverDay = false;
+            if (tmBegin.TimeOfDay > tmEnd.TimeOfDay)
+                bOverDay = true;//跨天
+
+            DateTime dtCountBegin = dtNow;
+            if (tmBegin.Date > dtNow.Date)
+            {
+                dtCountBegin = tmBegin;
+            }
+            PerodicHandle(strPerodicDesc, tmEnd, tmBegin, dtCountBegin, bOverDay, ref tmExecuteBegin, ref tmExecuteEnd);
+
+            DateTime dtTmpCount = dtCountBegin;
+            //如果出来的这天已经被标记无效了，那么就推到再下一次执行
+            while (IsInvalidPerodicTask(strPerodicDesc, tmExecuteBegin))
+            {
+                dtTmpCount = dtTmpCount.AddDays(1);
+                DateTime tmpExecBegin = tmExecuteBegin;
+                PerodicHandle(strPerodicDesc, tmEnd, tmBegin, dtTmpCount, bOverDay, ref tmExecuteBegin, ref tmExecuteEnd);
+                if (tmpExecBegin.Date >= tmExecuteBegin.Date) //算法有问题，怎么会这一次的还大于等于下一次的执行日期呢？
+                {
+                    return false;
+                }
+                if (tmExecuteBegin.Date > tmEnd.Date) //已经过期了!
+                {
+                    return false;
+                }
+            }
+
+            return true;
+        }
+        private void PerodicHandle(string strPerodicDesc, DateTime tmEnd, DateTime tmBegin, DateTime dtCountBegin, bool bOverDay, ref DateTime tmExecuteBegin, ref DateTime tmExecuteEnd)
+        {
+            if (strPerodicDesc.IndexOf("D") >= 0) //Daily
+            {
+                if (tmEnd.TimeOfDay > dtCountBegin.TimeOfDay) //当天任务还没结束
+                {
+                    if (bOverDay)
+                    {
+                        int timeDiff = DateTime.Now.DayOfWeek - tmBegin.DayOfWeek;
+                        if (timeDiff >= 0)//zmj2008-11-06修改两天的周期任务，分任务时出现了错误
+                        {
+                            tmExecuteBegin = new DateTime(dtCountBegin.Year, dtCountBegin.Month, dtCountBegin.Day, tmBegin.Hour, tmBegin.Minute, tmBegin.Second);
+                            tmExecuteEnd = new DateTime(dtCountBegin.AddDays(1).Year, dtCountBegin.AddDays(1).Month, dtCountBegin.AddDays(1).Day, tmEnd.Hour, tmEnd.Minute, tmEnd.Second);
+
+                        }
+                        else
+                        {
+                            tmExecuteBegin = new DateTime(dtCountBegin.AddDays(-1).Year, dtCountBegin.AddDays(-1).Month, dtCountBegin.AddDays(-1).Day, tmBegin.Hour, tmBegin.Minute, tmBegin.Second);
+                            tmExecuteEnd = new DateTime(dtCountBegin.Year, dtCountBegin.Month, dtCountBegin.Day, tmEnd.Hour, tmEnd.Minute, tmEnd.Second);
+
+                        }
+                    }
+                    else
+                    {
+                        tmExecuteBegin = new DateTime(dtCountBegin.Year, dtCountBegin.Month, dtCountBegin.Day, tmBegin.Hour, tmBegin.Minute, tmBegin.Second);
+                        tmExecuteEnd = new DateTime(dtCountBegin.Year, dtCountBegin.Month, dtCountBegin.Day, tmEnd.Hour, tmEnd.Minute, tmEnd.Second);
+                    }
+
+                }
+                else
+                {
+                    if (bOverDay)
+                    {
+                        tmExecuteBegin = new DateTime(dtCountBegin.Year, dtCountBegin.Month, dtCountBegin.Day, tmBegin.Hour, tmBegin.Minute, tmBegin.Second);
+                        tmExecuteEnd = new DateTime(dtCountBegin.AddDays(1).Year, dtCountBegin.AddDays(1).Month, dtCountBegin.AddDays(1).Day, tmEnd.Hour, tmEnd.Minute, tmEnd.Second);
+                    }
+                    else
+                    {
+                        tmExecuteBegin = new DateTime(dtCountBegin.AddDays(1).Year, dtCountBegin.AddDays(1).Month, dtCountBegin.AddDays(1).Day, tmBegin.Hour, tmBegin.Minute, tmBegin.Second);
+                        tmExecuteEnd = new DateTime(dtCountBegin.AddDays(1).Year, dtCountBegin.AddDays(1).Month, dtCountBegin.AddDays(1).Day, tmEnd.Hour, tmEnd.Minute, tmEnd.Second);
+                    }
+                }
+
+            }
+            else if (strPerodicDesc.IndexOf("W") >= 0)  //Weekly
+            {
+                DateTime tmSearchDay = dtCountBegin;
+                //没有考虑到跨天任务的处理,每周任务在跨0点时，添加时出现错误zmj2008-8-29
+                if (tmEnd.TimeOfDay < dtCountBegin.TimeOfDay
+                    && !bOverDay //zmj2008-8-29
+                    ) //当天任务已经结束，搜索任务时从明天开始
+                {
+                    tmSearchDay = dtCountBegin.AddDays(1);
+                }
+                for (int i = 0; i < 8; i++)
+                {
+                    int nDayofWeek = (int)tmSearchDay.DayOfWeek;
+                    if (strPerodicDesc.IndexOf("W" + Convert.ToString(nDayofWeek) + "+") >= 0)
+                    {
+                        int nAddDay = bOverDay ? 1 : 0;
+                        tmExecuteBegin = new DateTime(tmSearchDay.Year, tmSearchDay.Month, tmSearchDay.Day, tmBegin.Hour, tmBegin.Minute, tmBegin.Second);
+                        tmExecuteEnd = new DateTime(tmSearchDay.AddDays(nAddDay).Year, tmSearchDay.AddDays(nAddDay).Month, tmSearchDay.AddDays(nAddDay).Day, tmEnd.Hour, tmEnd.Minute, tmEnd.Second);
+                        break;
+                    }
+                    tmSearchDay = tmSearchDay.AddDays(1);
+                }
+
+
+            }
+            else if (strPerodicDesc.IndexOf("M") >= 0)  //Monthly
+            {
+                DateTime tmSearchDay = dtCountBegin;
+                if (tmEnd.TimeOfDay < dtCountBegin.TimeOfDay
+                    && !bOverDay//zmj2008-8-29
+                    ) //当天任务已经结束，搜索任务时从明天开始
+                {
+                    tmSearchDay = dtCountBegin.AddDays(1);
+                }
+
+                for (int i = 0; i < 63; i++)//找两个月，肯定可以找到对应的天,连续的两个月最多62天
+                {
+                    int nDayofMonth = tmSearchDay.Day;
+                    if (strPerodicDesc.IndexOf("M" + Convert.ToString(nDayofMonth) + "+") >= 0)
+                    {
+                        int nAddDay = bOverDay ? 1 : 0;
+                        tmExecuteBegin = new DateTime(tmSearchDay.Year, tmSearchDay.Month, tmSearchDay.Day, tmBegin.Hour, tmBegin.Minute, tmBegin.Second);
+                        tmExecuteEnd = new DateTime(tmSearchDay.AddDays(nAddDay).Year, tmSearchDay.AddDays(nAddDay).Month, tmSearchDay.AddDays(nAddDay).Day, tmEnd.Hour, tmEnd.Minute, tmEnd.Second);
+                        break;
+                    }
+                    tmSearchDay = tmSearchDay.AddDays(1);
+                }
+
+            }
+        }
 
         public List<TaskSimpleTime> GetAllValidePerodicTask(DateTime tmBegin, DateTime tmEnd, string strPerodicDesc)
         {

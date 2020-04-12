@@ -30,6 +30,7 @@ namespace IngestTaskPlugin.Models
         public virtual DbSet<DbpXdcamTaskMetadata> DbpXdcamTaskMetadata { get; set; }
         public virtual DbSet<VtrRecordtask> VtrRecordtask { get; set; }
         public virtual DbSet<VtrUploadtask> VtrUploadtask { get; set; }
+        public virtual DbSet<DbpPolicytask> DbpPolicytask { get; set; }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
@@ -979,6 +980,27 @@ namespace IngestTaskPlugin.Models
                     .HasColumnType("int(11)")
                     .HasDefaultValueSql("'0'");
             });
+            modelBuilder.Entity<DbpPolicytask>(entity =>
+            {
+                entity.HasKey(e => new { e.Policyid, e.Taskid });
+
+                entity.ToTable("dbp_policytask");
+
+                entity.Property(e => e.Policyid)
+                    .HasColumnName("POLICYID")
+                    .HasColumnType("int(11)");
+
+                entity.Property(e => e.Taskid)
+                    .HasColumnName("TASKID")
+                    .HasColumnType("int(11)");
+            });
+
+        }
+
+        [DbFunction]
+        public static int next_val(string value)
+        {
+            throw new NotImplementedException();
         }
     }
 }

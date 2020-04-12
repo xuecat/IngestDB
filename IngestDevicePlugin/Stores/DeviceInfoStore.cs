@@ -226,6 +226,16 @@ namespace IngestDevicePlugin.Stores
             return lst.OrderBy(x => x.OrderCode).ToList();
         }
 
+        public async Task<List<DbpChannelRecmap>> GetAllChannelUnitMap()
+        {
+            return await Context.DbpChannelRecmap.AsNoTracking().ToListAsync();
+        }
+
+        public async Task<DbpChannelRecmap> GetChannelUnitMap(int channel)
+        {
+            return await Context.DbpChannelRecmap.Where(x => x.Channelid == channel).SingleAsync();
+        }
+
         public async Task<List<int>> GetChannelIdsBySignalIdForNotMatrix(int signalid)
         {
             return await Context.DbpRcdindesc.Join(Context.DbpRcdoutdesc,

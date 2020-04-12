@@ -27,10 +27,12 @@ namespace IngestTaskPlugin.Stores
     public interface ITaskStore
     {
         //IQueryable<TaskInfo> SimpleQuery { get; }
-        Task SageChangeAsync();
+        Task SaveChangeAsync();
+
+        Task<List<DbpTask>> GetTaskListAsync(TaskCondition condition , bool Track, bool uselock);
         Task<TResult> GetTaskMetaDataAsync<TResult>(Func<IQueryable<DbpTaskMetadata>, IQueryable<TResult>> query, bool notrack = false);
         Task<TResult> GetTaskCustomMetaDataAsync<TResult>(Func<IQueryable<DbpTaskCustommetadata>, IQueryable<TResult>> query, bool notrack = false);
-        Task UpdateTaskMetaDataAsync(int taskid, int type, string metadata);
+        Task UpdateTaskMetaDataAsync(int taskid, MetaDataType type, string metadata);
         Task UpdateTaskCutomMetaDataAsync(int taskid, string metadata);
         Task<List<TResult>> GetTaskListAsync<TResult>(Func<IQueryable<DbpTask>, IQueryable<TResult>> query, bool notrack = false);
         Task<TResult> GetTaskAsync<TResult>(Func<IQueryable<DbpTask>, IQueryable<TResult>> query, bool notrack = false);
@@ -45,7 +47,7 @@ namespace IngestTaskPlugin.Stores
         Task<List<int>> DeleteCapturingListChannelAsync(List<int> lstChaneel);
         Task<List<int>> GetFreeChannels(List<int> lst, DateTime begin, DateTime end);
         Task<List<int>> GetFreePerodiChannels(List<int> lst, int nTaskID, int nUnitID, int nSigID, int nChannelID, string Category, DateTime begin, DateTime end);
-        DbpTask FixPeroidcTaskTimeDisplay(DbpTask taskContent, ref DateTime tmDay, TimeLineType nTimeMode, ref bool isAdd2);
+        Task<DbpTask> AddTaskWithPolicys(DbpTask task, bool bAddForInDB, TaskSource taskSrc, string CaptureMeta, string ContentMeta, string MatiralMeta, string PlanningMeta, int[] arrPolicys);
         Task LockTask(int taskid);
         Task UnLockTask(int taskid);
     }

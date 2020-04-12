@@ -38,7 +38,18 @@ namespace IngestTaskInterfacePlugin
                             };
                             return ret;
                         } break;
-                        
+
+                    case FunctionType.SingnalInfoByChannel:
+                        {
+                            return await reqService.GetChannelSignalSrc(examineResponse.ChannelId);
+                        }
+
+                    case FunctionType.ChannelUnitMap:
+                        {
+                             return await reqService.GetChannelUnitMapID(examineResponse.ChannelId);
+                        }
+
+
                     default:
                         break;
                 }

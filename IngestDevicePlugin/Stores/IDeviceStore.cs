@@ -24,6 +24,8 @@ namespace IngestDevicePlugin.Stores
         Task<List<CaptureChannelInfoDto>> GetAllCaptureChannelsAsync(int status);
         Task<List<int>> GetChannelIdsBySignalIdForNotMatrix(int signalid);
         Task<List<int>> GetSignalIdsByChannelIdForNotMatrix(int channelid);
+        Task<List<DbpChannelRecmap>> GetAllChannelUnitMap();
+        Task<DbpChannelRecmap> GetChannelUnitMap(int channel);
 
         Task<int> GetMatrixChannelBySignal(int channelid);
     }

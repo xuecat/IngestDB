@@ -432,9 +432,9 @@ namespace IngestTaskPlugin.Controllers
         /// <returns>基本任务信息附带任务id</returns>
         [HttpPost("withoutpolicytask")]
         [ApiExplorerSettings(GroupName = "v2")]
-        public async Task<ResponseMessage<List<int>>> AddTaskWithoutPolicy([FromBody, BindRequired]TaskInfoResponse task)
+        public async Task<ResponseMessage<TaskContentResponse>> AddTaskWithoutPolicy([FromBody, BindRequired]TaskInfoRequest task)
         {
-            var Response = new ResponseMessage<List<int>>();
+            var Response = new ResponseMessage<TaskContentResponse>();
             if (task == null)
             {
                 Response.Code = ResponseCodeDefines.ModelStateInvalid;
@@ -442,7 +442,7 @@ namespace IngestTaskPlugin.Controllers
             }
             try
             {
-                //Response.Ext = await _taskManage.DeleteGroupTaskAsync(taskid);
+                Response.Ext = await _taskManage.AddTaskWithoutPolicy(task, string.Empty, string.Empty, string.Empty, string.Empty);
             }
             catch (Exception e)
             {

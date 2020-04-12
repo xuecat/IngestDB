@@ -38,6 +38,15 @@ namespace IngestDevicePlugin
             //CreateMap<DbpTaskMetadata, TaskMetadataResponse>()
             //    .ForMember(a => a.Metadata, (map) => map.MapFrom(b => b.Metadatalong));
 
+            CreateMap<RecUnitMap, DbpChannelRecmap>()
+                .ForMember(a => a.Channelid, (map) => map.MapFrom(b => b.ConnectorID))
+                .ForMember(a => a.Recid, (map) => map.MapFrom(b => b.UnitID));
+
+
+            CreateMap<DbpChannelRecmap ,RecUnitMap>()
+                .ForMember(a => a.ConnectorID, (map) => map.MapFrom(b => b.Channelid))
+                .ForMember(a => a.UnitID, (map) => map.MapFrom(b => b.Recid));
+
             //ReverseMap
         }
     }

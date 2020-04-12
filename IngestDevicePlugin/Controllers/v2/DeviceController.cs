@@ -3,6 +3,7 @@ using IngestDBCore.Basic;
 using IngestDevicePlugin.Dto;
 using IngestTaskPlugin.Managers;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Mvc.ModelBinding;
 using Sobey.Core.Log;
 using System;
 using System.Collections.Generic;
@@ -40,10 +41,10 @@ namespace IngestDevicePlugin.Controllers
         }
 
         /// <summary>
-        /// 使用路由 /routerinport/
+        /// 使用路由 /routerinport/all
         /// </summary>
         /// <returns></returns>
-        [HttpGet("routerinport")]
+        [HttpGet("routerinport/all")]
         [IngestAuthentication]//device有点特殊，做了监听端口的所以不能全类检验
         [ApiExplorerSettings(GroupName = "v2")]
         public async Task<ResponseMessage<List<RouterInResponse>>> AllRouterInPortInfo()
@@ -80,16 +81,127 @@ namespace IngestDevicePlugin.Controllers
         /// <param name="programmeId">信号源id</param>
         /// <param name="status">int 0是不选返回所有通道信息，1是选通道和msv连接正常的通道信息</param>
         /// <returns>当前信号源匹配通道，是list</returns>
-        [HttpGet("programme")]
+        [HttpGet("programme/{programmeId}")]
         [IngestAuthentication]//device有点特殊，做了监听端口的所以不能全类检验
         [ApiExplorerSettings(GroupName = "v2")]
-        public async Task<ResponseMessage<List<CaptureChannelInfoResponse>>> ChannelsByProgrammeId(int programmeId, int status)
+        public async Task<ResponseMessage<List<CaptureChannelInfoResponse>>> ChannelsByProgrammeId([FromRoute, BindRequired]int programmeId, [FromQuery, BindRequired]int status)
         {
             var Response = new ResponseMessage<List<CaptureChannelInfoResponse>>();
 
             try
             {
                 Response.Ext = await _deviceManage.GetChannelsByProgrammeIdAsync<CaptureChannelInfoResponse>(programmeId, status);
+            }
+            catch (Exception e)
+            {
+                if (e.GetType() == typeof(SobeyRecException))//sobeyexcep会自动打印错误
+                {
+                    SobeyRecException se = e as SobeyRecException;
+                    Response.Code = se.ErrorCode.ToString();
+                    Response.Msg = se.Message;
+                }
+                else
+                {
+                    Response.Code = ResponseCodeDefines.ServiceError;
+                    Response.Msg = "error info：" + e.ToString();
+                    Logger.Error(Response.Msg);
+                }
+            }
+            return Response;
+        }
+
+        /// <summary>
+        /// 根据通道ID获取相应的信号源id
+        /// </summary>
+        /// <remarks>
+        /// </remarks>
+        /// <param name="channelid">通道id</param>
+        [HttpGet("signalinfo/id/{channelid}")]
+        [IngestAuthentication]//device有点特殊，做了监听端口的所以不能全类检验
+        [ApiExplorerSettings(GroupName = "v2")]
+        public async Task<ResponseMessage<int>> GetChannelSignalSrc([FromRoute, BindRequired]int channelid)
+        {
+            var Response = new ResponseMessage<int>();
+
+            try
+            {
+                Response.Ext = await _deviceManage.GetChannelSignalSrc(channelid);
+            }
+            catch (Exception e)
+            {
+                if (e.GetType() == typeof(SobeyRecException))//sobeyexcep会自动打印错误
+                {
+                    SobeyRecException se = e as SobeyRecException;
+                    Response.Code = se.ErrorCode.ToString();
+                    Response.Msg = se.Message;
+                }
+                else
+                {
+                    Response.Code = ResponseCodeDefines.ServiceError;
+                    Response.Msg = "error info：" + e.ToString();
+                    Logger.Error(Response.Msg);
+                }
+            }
+            return Response;
+        }
+
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <remarks>
+        /// </remarks>
+        /// GetAllChannelUnitMap
+        [HttpGet("channelunitmap/all")]
+        [IngestAuthentication]//device有点特殊，做了监听端口的所以不能全类检验
+        [ApiExplorerSettings(GroupName = "v2")]
+        public async Task<ResponseMessage<List<RecUnitMap>>> GetAllChannelUnitMap()
+        {
+            var Response = new ResponseMessage<List<RecUnitMap>>();
+
+            try
+            {
+                Response.Ext = await _deviceManage.GetAllChannelUnitMap();
+            }
+            catch (Exception e)
+            {
+                if (e.GetType() == typeof(SobeyRecException))//sobeyexcep会自动打印错误
+                {
+                    SobeyRecException se = e as SobeyRecException;
+                    Response.Code = se.ErrorCode.ToString();
+                    Response.Msg = se.Message;
+                }
+                else
+                {
+                    Response.Code = ResponseCodeDefines.ServiceError;
+                    Response.Msg = "error info：" + e.ToString();
+                    Logger.Error(Response.Msg);
+                }
+            }
+            return Response;
+        }
+
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <remarks>
+        /// </remarks>
+        /// GetAllChannelUnitMap
+        [HttpGet("channelunitmap/id/{channel}")]
+        [IngestAuthentication]//device有点特殊，做了监听端口的所以不能全类检验
+        [ApiExplorerSettings(GroupName = "v2")]
+        public async Task<ResponseMessage<int>> GetChannelUnitMapID([FromRoute, BindRequired]int channel)
+        {
+            var Response = new ResponseMessage<int>();
+
+            try
+            {
+                var f = await _deviceManage.GetChannelUnitMap(channel);
+                if (f != null)
+                {
+                    Response.Ext = f.UnitID;
+                }
+                else
+                    Response.Ext = -1;
             }
             catch (Exception e)
             {
