@@ -318,18 +318,19 @@ namespace IngestTaskPlugin.Controllers
 
             try
             {
-                Response.taskResults = await _taskManage.StopGroupTaskAsync(nTaskID);
+                Response.newTaskId = (await _taskManage.AddTaskWithoutPolicy());
 
                 var _globalinterface = ApplicationContext.Current.ServiceProvider.GetRequiredService<IIngestGlobalInterface>();
                 if (_globalinterface != null)
                 {
-                    GlobalInternals re = new GlobalInternals() { funtype = IngestDBCore.GlobalInternals.FunctionType.SetGlobalState, State = GlobalStateName.MODTASK };
+                    GlobalInternals re = new GlobalInternals() { funtype = IngestDBCore.GlobalInternals.FunctionType.SetGlobalState, State = GlobalStateName.ADDTASK };
                     var response1 = await _globalinterface.SubmitGlobalCallBack(re);
                     if (response1.Code != ResponseCodeDefines.SuccessCode)
                     {
                         Logger.Error("SetGlobalState modtask error");
                     }
                 }
+
 
                 return Response;
             }

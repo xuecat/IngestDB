@@ -7,8 +7,13 @@ using System.Text;
 
 namespace IngestTaskPlugin
 {
+    public class TaskInfoConvertResolver: IValueResolver<>
+    {
+
+    }
     public class TaskProfile : Profile
     {
+        
         public TaskProfile()
         {
             CreateMap<TaskMetadataResponse, DbpTaskMetadata>()
@@ -51,6 +56,9 @@ namespace IngestTaskPlugin
                 .ForMember(a => a.StampImageType, (map) => map.MapFrom(b => b.Stampimagetype))
                 .ForMember(a => a.Priority, (map) => map.MapFrom(b => b.Taskpriority))
                 .ForMember(a => a.CooperantType, (map) => map.MapFrom(b => b.Backtype));
+
+
+            CreateMap<AddTaskSvr_IN, TaskContentResponse>();
 
 
             //ReverseMap
