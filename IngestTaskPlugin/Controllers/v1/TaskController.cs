@@ -54,7 +54,7 @@ namespace IngestTaskPlugin.Controllers
                 }
                 else
                 {
-                    Response.errStr = "error info：" + e.ToString();
+                    Response.errStr = "OldGetTaskMetaData error info：" + e.ToString();
                     Logger.Error(Response.errStr);
                 }
                 return Response;
@@ -111,7 +111,7 @@ namespace IngestTaskPlugin.Controllers
                 }
                 else
                 {
-                    Response.errStr = "error info：" + e.ToString();
+                    Response.errStr = "PostSetTaskMetaData error info：" + e.ToString();
                     Logger.Error(Response.errStr);
                 }
                 return Response;
@@ -152,7 +152,7 @@ namespace IngestTaskPlugin.Controllers
                 }
                 else
                 {
-                    Response.errStr = "error info：" + e.ToString();
+                    Response.errStr = "GetTaskCustomMetadata error info：" + e.ToString();
                     Logger.Error(Response.errStr);
                 }
                 return Response;
@@ -197,7 +197,7 @@ namespace IngestTaskPlugin.Controllers
                 }
                 else
                 {
-                    Response.errStr = "error info：" + e.ToString();
+                    Response.errStr = "PostSetTaskCustomMetadata error info：" + e.ToString();
                     Logger.Error(Response.errStr);
                 }
                 return Response;
@@ -247,7 +247,7 @@ namespace IngestTaskPlugin.Controllers
                 }
                 else
                 {
-                    Response.errStr = "error info：" + e.ToString();
+                    Response.errStr = "StopGroupTaskById error info：" + e.ToString();
                     Logger.Error(Response.errStr);
                 }
                 return Response;
@@ -298,7 +298,7 @@ namespace IngestTaskPlugin.Controllers
                 }
                 else
                 {
-                    Response.errStr = "error info：" + e.ToString();
+                    Response.errStr = "DeleteGroupTaskById error info：" + e.ToString();
                     Logger.Error(Response.errStr);
                 }
                 return Response;
@@ -318,7 +318,30 @@ namespace IngestTaskPlugin.Controllers
 
             try
             {
-                Response.newTaskId = (await _taskManage.AddTaskWithoutPolicy());
+                string CaptureMeta = string.Empty;
+                string ContentMeta = string.Empty;
+                string MatiralMeta = string.Empty;
+                string PlanningMeta = string.Empty;
+                foreach (var item in pIn.metadatas)
+                {
+                    if (item.emtype == MetaDataType.emCapatureMetaData)
+                    {
+                        CaptureMeta = item.strMetadata;
+                    }
+                    else if (item.emtype == MetaDataType.emStoreMetaData)
+                    {
+                        MatiralMeta = item.strMetadata;
+                    }
+                    else if (item.emtype == MetaDataType.emContentMetaData)
+                    {
+                        ContentMeta = item.strMetadata;
+                    }
+                    else if (item.emtype == MetaDataType.emPlanMetaData)
+                    {
+                        PlanningMeta = item.strMetadata;
+                    }
+                }
+                Response.newTaskId = (await _taskManage.AddTaskWithoutPolicy<AddTaskSvr_IN>(pIn, CaptureMeta, ContentMeta, MatiralMeta, PlanningMeta)).TaskID;
 
                 var _globalinterface = ApplicationContext.Current.ServiceProvider.GetRequiredService<IIngestGlobalInterface>();
                 if (_globalinterface != null)
@@ -344,8 +367,107 @@ namespace IngestTaskPlugin.Controllers
                 }
                 else
                 {
-                    Response.errStr = "error info：" + e.ToString();
+                    Response.errStr = "PostAddTaskSvr error info：" + e.ToString();
                     Logger.Error(Response.errStr);
+                }
+                return Response;
+            }
+
+        }
+
+        [HttpGet("GetTaskIDByTaskGUID"), MapToApiVersion("1.0")]
+        [ApiExplorerSettings(GroupName = "v1")]
+        public async Task<GetTaskIDByTaskGUID_OUT> GetTaskIDByTaskGUID([FromQuery]string strTaskGUID)
+        {
+            var Response = new GetTaskIDByTaskGUID_OUT
+            {
+                bRet = true,
+                errStr = "OK"
+            };
+
+            try
+            {
+                Response.nTaskID = await _taskManage.GetTaskIDByTaskGUID(strTaskGUID);
+                return Response;
+            }
+            catch (Exception e)
+            {
+                if (e.GetType() == typeof(SobeyRecException))//sobeyexcep会自动打印错误
+                {
+                    SobeyRecException se = e as SobeyRecException;
+                    Response.errStr = se.ErrorCode.ToString();
+                }
+                else
+                {
+                    Response.errStr = "error info：" + e.ToString();
+                    Logger.Error("GetTaskIDByTaskGUID" + e.ToString());
+                }
+                return Response;
+            }
+
+        }
+
+
+        [HttpPost("GetAllChannelCapturingTask"), MapToApiVersion("1.0")]
+        [ApiExplorerSettings(GroupName = "v1")]
+        public async Task<GetAllChannelCapturingTask_OUT> GetAllChannelCapturingTask()
+        {
+            var Response = new GetAllChannelCapturingTask_OUT
+            {
+                bRet = true,
+                errStr = "OK"
+            };
+
+            try
+            {
+                Response.content = await _taskManage.GetAllChannelCapturingTask<TaskContent>();
+                Response.nVaildDataCount = Response.content.Count;
+                return Response;
+            }
+            catch (Exception e)
+            {
+                if (e.GetType() == typeof(SobeyRecException))//sobeyexcep会自动打印错误
+                {
+                    SobeyRecException se = e as SobeyRecException;
+                    Response.errStr = se.ErrorCode.ToString();
+                }
+                else
+                {
+                    Response.errStr = "error info：" + e.ToString();
+                    Logger.Error("GetAllChannelCapturingTask" + e.ToString());
+                }
+                return Response;
+            }
+
+        }
+
+        [HttpPost("GetChannelCapturingTask"), MapToApiVersion("1.0")]
+        [ApiExplorerSettings(GroupName = "v1")]
+        public async Task<GetChannelCapturingTask_out> GetChannelCapturingTask(int nChannelID)
+        {
+            var Response = new GetChannelCapturingTask_out
+            {
+                bRet = true,
+                errStr = "OK",
+                nChannelID = nChannelID
+            };
+
+            try
+            {
+                Response.content = await _taskManage.GetChannelCapturingTask<TaskContent>(nChannelID);
+                return Response;
+            }
+            catch (Exception e)
+            {
+                if (e.GetType() == typeof(SobeyRecException))//sobeyexcep会自动打印错误
+                {
+                    SobeyRecException se = e as SobeyRecException;
+                    Response.errStr = se.ErrorCode.ToString();
+                }
+                else
+                {
+                    Response.errStr = "error info：" + e.ToString();
+                    Logger.Error("GetAllChannelCapturingTask" + e.ToString());
                 }
                 return Response;
             }

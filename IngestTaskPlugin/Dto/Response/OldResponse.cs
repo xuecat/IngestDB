@@ -394,13 +394,53 @@ namespace IngestTaskPlugin.Dto
     {
         public TaskContent taskAdd;
         public TaskSource taskSrc;
-        public MetadataPair[] metadatas;
+        public List<MetadataPair> metadatas;
     }
     public class AddTaskSvr_OUT
     {
         public int newTaskId;
         public string errStr;
         public bool bRet;
+    }
+
+    public class GetTaskIDByTaskGUID_OUT
+    {
+        public int nTaskID;
+        public string errStr;
+        public bool bRet;
+    }
+
+    public class GetAllChannelCapturingTask_OUT
+    {
+        public List<TaskContent> content;
+        public int nVaildDataCount;
+        public string errStr;
+        public bool bRet;
+    }
+    public class GetChannelCapturingTask_out
+    {
+        public int nChannelID;
+        public TaskContent content;
+        public string errStr;
+        public bool bRet;
+    }
+
+    public enum VTRDOWNLOADTASKSTATE
+    {
+        VTR_ALL_DOWNLOAD_STATE = 0,//所有状态
+        VTR_DOWNLOAD_TEMPSAVE = 1,//暂存
+        VTR_DOWNLOAD_COMMIT = 2,//提交待执行
+        VTR_DOWNLOAD_EXECUTE = 3,//正在执行
+        VTR_DOWNLOAD_COMPLETE = 4,//执行完成
+        VTR_DOWNLOAD_FAIL = 5,//执行失败	
+        VTR_DOWNLOAD_DELETE = 6 //删除上载任务
+    }
+
+    public enum VTRUPLOADTASKTYPE
+    {
+        VTR_MANUAL_UPLOAD = 0,              //vtr手动上载
+        VTR_SCHEDULE_UPLOAD,                //vtr计划上载，已经分配了通道
+                                            //VTR_KAMATAKI_UPLOAD					//vtr做Kamataki
     }
 }
 

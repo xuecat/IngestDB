@@ -346,8 +346,216 @@ namespace IngestTaskPlugin.Managers
             return null;
         }
 
-        public async Task<TaskContentResponse> AddTaskWithoutPolicy(TaskInfoRequest taskinfo, string CaptureMeta, string ContentMeta, string MatiralMeta, string PlanningMeta)
+        public async Task<int> GetTaskIDByTaskGUID(string taskguid)
         {
+            var task = await Store.GetTaskAsync(a => a.Where(b => b.Taskguid.Equals(taskguid, StringComparison.OrdinalIgnoreCase)).Select(f => f.Taskid), true);
+            if (task <= 0)
+            {
+                return await Store.GetTaskBackupAsync(a => a.Where(b => b.Taskguid.Equals(taskguid, StringComparison.OrdinalIgnoreCase)).Select(f => f.Taskid), true);
+            }
+            else
+                return task;
+        }
+
+        public async Task<List<TResult>> GetAllChannelCapturingTask<TResult>()
+        {
+            return _mapper.Map<List<TResult>>(await Store.GetTaskListAsync(a => a.Where( b => b.State == (int)taskState.tsExecuting || b.State == (int)taskState.tsManuexecuting), true));
+            
+        }
+
+        public async Task<TResult> GetChannelCapturingTask<TResult>(int channelid)
+        {
+            return _mapper.Map<TResult>(await Store.GetTaskAsync(a => 
+            a.Where(b =>b.Channelid == channelid && (b.State == (int)taskState.tsExecuting || b.State == (int)taskState.tsManuexecuting)), true));
+        }
+
+        public async Task<TaskContentResponse> ModifyTask<TResult>(TResult task, string ContentMeta, string MatiralMeta)
+        {
+            var taskModify = _mapper.Map<TaskContentRequest>(task);
+
+            if (DateTimeFormat.DateTimeFromString(taskModify.End) < DateTimeFormat.DateTimeFromString(taskModify.Begin))
+            {
+                SobeyRecException.ThrowSelfNoParam("ModifyTask time empty", GlobalDictionary.GLOBALDICT_CODE_TASK_END_TIME_IS_SMALLER_THAN_BEING_TIME, Logger, null);
+            }
+
+            var findtask = await Store.GetTaskAsync(a => a.Where(b => b.Taskid == taskModify.TaskID));
+
+            if (findtask == null)
+            {
+                SobeyRecException.ThrowSelfNoParam("ModifyTask findtask empty", GlobalDictionary.GLOBALDICT_CODE_TASKSET_IS_NULL, Logger, null);
+            }
+
+            //如果是已分发、已同步的任务，不允许改变通道
+            if (findtask.Channelid != taskModify.ChannelID
+                && findtask.DispatchState == (int)dispatchState.dpsDispatched
+                && findtask.SyncState == (int)syncState.ssSync)
+            {
+                await Store.UnLockTask(findtask.Taskid);
+                SobeyRecException.ThrowSelfNoParam("ModifyTask findtask empty", GlobalDictionary.GLOBALDICT_CODE_TASK_IS_LOCKED, Logger, null);
+            }
+
+            //如果是改变了信号源或者通道，判断一下信号源和通道是不是匹配的
+            bool match = false;
+            if (findtask.Channelid != taskModify.ChannelID || findtask.Signalid != taskModify.SignalID)
+            {
+                var _globalinterface = ApplicationContext.Current.ServiceProvider.GetRequiredService<IIngestDeviceInterface>();
+                if (_globalinterface != null)
+                {
+                    DeviceInternals re = new DeviceInternals() { funtype = IngestDBCore.DeviceInternals.FunctionType.ChannelInfoBySrc, SrcId = SignalID, Status = condition.CheckCHCurState ? 1 : 0 };
+                    var response1 = await _globalinterface.GetDeviceCallBack(re);
+                    if (response1.Code != ResponseCodeDefines.SuccessCode)
+                    {
+                        Logger.Error("GetMatchedChannelForSignal ChannelInfoBySrc error");
+                        return null;
+                    }
+
+                    var fresponse = response1 as ResponseMessage<List<CaptureChannelInfoInterface>>;
+                    if (fresponse != null && fresponse.Ext?.Count > 1)
+                    {
+                        if (fresponse.Ext.Any(x => x.ID == taskModify.ChannelID))
+                            match = true;
+                    }
+                }
+
+                if (!match)
+                {
+                    await Store.UnLockTask(findtask.Taskid);
+                    SobeyRecException.ThrowSelfNoParam("ModifyTask match empty", GlobalDictionary.GLOBALDICT_CODE_SIGNAL_AND_CHANNEL_IS_MISMATCHED, Logger, null);
+                }
+            }
+
+            //如果是手动任务改成自动任务，强行改成已调度已同步状态
+            if (findtask.Tasktype == (int)TaskType.TT_MANUTASK && taskModify.TaskType == TaskType.TT_NORMAL)
+            {
+                findtask.SyncState = (int)syncState.ssSync;
+                findtask.DispatchState = (int)dispatchState.dpsDispatched;
+            }
+
+            if (findtask.Tasktype == (int)TaskType.TT_VTRUPLOAD)
+            {
+                var vtrtask = await Store.GetVtrUploadTaskAsync(a => a.Where(b => b.Taskid == findtask.Taskid), true);
+                if (vtrtask == null)
+                {
+                    await Store.UnLockTask(findtask.Taskid);
+                    SobeyRecException.ThrowSelfOneParam("ModifyTask vtrtask empty", GlobalDictionary.GLOBALDICT_CODE_CAN_NOT_FIND_THE_TASK_ONEPARAM,  Logger, findtask.Taskid, null);
+                }
+            }
+
+        }
+
+        public async void GetFreeTimePeriodByVtrId(VTRTimePeriods vtrFreeTimePeriods, DateTime newbegin, DateTime newend, DateTime beginCheckTime, VtrUploadtask vtrtask)
+        {
+            if (beginCheckTime == DateTime.MinValue)
+            {
+                beginCheckTime = DateTime.Now;
+            }
+
+            vtrFreeTimePeriods.Periods.Clear();
+            VTRTimePeriods vtrTimePeriods = new VTRTimePeriods();
+
+            int vtrId = vtrFreeTimePeriods.VTRId;
+
+            //查询手动的任务占用的VTR时间，已经在执行的
+
+            if (vtrtask.Vtrtasktype == (int)VTRUPLOADTASKTYPE.VTR_MANUAL_UPLOAD
+                && (vtrtask.Taskstate == (int)VTRUPLOADTASKSTATE.VTR_UPLOAD_COMMIT || vtrtask.Taskstate == (int)VTRUPLOADTASKSTATE.VTR_UPLOAD_PRE_EXECUTE
+                || vtrtask.Taskstate == (int)VTRUPLOADTASKSTATE.VTR_UPLOAD_EXECUTE))
+            {
+                DateTime beginTime = vtrtask.Committime;
+                TimeSpan tsDuration = new TimeSpan();
+                if (vtrtask.Vtrtaskid > 0)//入点加长度
+                {
+                    tsDuration = new TimeSpan(0, 0, vtrtask.Trimoutctl.GetValueOrDefault()/vtrtask.Vtrtaskid.GetValueOrDefault());
+                }
+                else
+                {
+                    SB_TimeCode inSTC = new SB_TimeCode((uint)vtrtask.Triminctl);
+                    SB_TimeCode outSTC = new SB_TimeCode((uint)vtrtask.Trimoutctl);
+                    tsDuration = outSTC - inSTC;
+                }
+
+                DateTime endTime = beginTime + tsDuration;
+
+                vtrTimePeriods.Periods.Add(new TimePeriod(vtrId, beginTime, endTime));
+            }
+            
+            //查询计划任务，开始时间和结束时间，还未执行的
+            //List<TimePeriod> scheduleTPs = DBACCESS.GetTimePeriodsByScheduleVBUTasks(vtrId, exTaskId);
+            if (vtrtask.Vtrtasktype == (int)VTRUPLOADTASKTYPE.VTR_SCHEDULE_UPLOAD)
+            {
+                vtrTimePeriods.Periods.Add(new TimePeriod() { Id = vtrId, StartTime = newbegin, EndTime = newend});
+            }
+
+            DateTime thirdDay = new DateTime(beginCheckTime.Year, beginCheckTime.Month, beginCheckTime.Day, 23, 59, 59);
+            thirdDay = thirdDay.AddDays(2);
+            vtrFreeTimePeriods.Periods = GetFreeTimePeriodsByTieup(vtrId, vtrTimePeriods.Periods, beginCheckTime.AddSeconds(-3), thirdDay);
+
+            //DropDurationIn3Sec(ref vtrFreeTimePeriods.Periods);
+            for (int i = 0; i < vtrFreeTimePeriods.Periods.Count; i++)
+            {
+                if (vtrFreeTimePeriods.Periods[i].Duration.TotalSeconds <= 3)
+                {
+                    vtrFreeTimePeriods.Periods.RemoveAt(i);
+                    i--;
+                }
+            }
+        }
+
+        /// <summary>
+        /// 从占位的时间段中获取到空闲的时间段
+        /// </summary>
+        /// <param name="id"></param>
+        /// <param name="tieupTimePeriods"></param>
+        /// <param name="beginTime"></param>
+        /// <param name="endTime"></param>
+        /// <returns></returns>
+        private List<TimePeriod> GetFreeTimePeriodsByTieup(int id, List<TimePeriod> tieupTimePeriods, DateTime beginTime, DateTime endTime)
+        {
+            List<TimePeriod> freeTimePeriods = new List<TimePeriod>();
+            if (tieupTimePeriods == null || tieupTimePeriods.Count == 0)
+            {
+                freeTimePeriods.Add(new TimePeriod(id, beginTime, endTime));
+            }
+            else
+            {
+                tieupTimePeriods.Sort(TimePeriod.CompareAscByStartTime);
+
+                for (int i = 0; i < tieupTimePeriods.Count; i++)
+                {
+                    if (i == 0)
+                    {
+                        if (tieupTimePeriods[i].StartTime > beginTime)
+                        {
+                            freeTimePeriods.Add(new TimePeriod(id, beginTime, tieupTimePeriods[i].StartTime));
+                        }
+
+                        //只有一个的情况下
+                        if (i == tieupTimePeriods.Count - 1)
+                        {
+                            freeTimePeriods.Add(new TimePeriod(id, tieupTimePeriods[i].EndTime, endTime));
+                        }
+                    }
+                    else
+                    {
+                        freeTimePeriods.Add(new TimePeriod(id, tieupTimePeriods[i - 1].EndTime, tieupTimePeriods[i].StartTime));
+
+                        if (i == tieupTimePeriods.Count - 1)
+                        {
+                            if (tieupTimePeriods[i].EndTime < endTime)
+                            {
+                                freeTimePeriods.Add(new TimePeriod(id, tieupTimePeriods[i].EndTime, endTime));
+                            }
+                        }
+                    }
+                }
+            }
+
+            return freeTimePeriods;
+        }
+
+        public async Task<TaskContentResponse> AddTaskWithoutPolicy<TResult>(TResult info,string CaptureMeta, string ContentMeta, string MatiralMeta, string PlanningMeta)
+        {
+            var taskinfo = _mapper.Map<TaskInfoRequest>(info);
             if (taskinfo.TaskContent.TaskType == TaskType.TT_MANUTASK)
             {
                 var _globalinterface = ApplicationContext.Current.ServiceProvider.GetRequiredService<IIngestDeviceInterface>();
@@ -378,7 +586,7 @@ namespace IngestTaskPlugin.Managers
                         lst[0].Taskguid = taskinfo.TaskContent.TaskGUID;
 
                         //await Store.SaveChangeAsync();
-                        await Store.UpdateTaskMetaDataAsync(taskinfo.TaskContent.TaskID, MetaDataType.emCapatureMetaData, taskinfo.CaptureMeta);
+                        await Store.UpdateTaskMetaDataAsync(taskinfo.TaskContent.TaskID, MetaDataType.emCapatureMetaData, string.IsNullOrEmpty(ContentMeta) ? taskinfo.CaptureMeta : CaptureMeta);
                         return _mapper.Map<TaskContentResponse>(lst[0]);
                     }
                     else
@@ -434,7 +642,7 @@ namespace IngestTaskPlugin.Managers
                     }
                 }
 
-                if (string.IsNullOrEmpty(taskinfo.CaptureMeta))
+                if (string.IsNullOrEmpty(taskinfo.CaptureMeta) && string.IsNullOrEmpty(CaptureMeta))
                 {
                     SobeyRecException.ThrowSelfNoParam("AddTaskWithoutPolicy CaptureMeta empty", GlobalDictionary.GLOBALDICT_CODE_NO_CAPTURE_PARAM, Logger, null);
                 }

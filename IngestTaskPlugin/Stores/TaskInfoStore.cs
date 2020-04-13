@@ -36,6 +36,31 @@ namespace IngestTaskPlugin.Stores
             return await query.Invoke(Context.DbpTask).SingleOrDefaultAsync();
         }
 
+        public async Task<TResult> GetVtrUploadTaskAsync<TResult>(Func<IQueryable<VtrUploadtask>, IQueryable<TResult>> query, bool notrack = false)
+        {
+            if (query == null)
+            {
+                throw new ArgumentNullException(nameof(query));
+            }
+            if (notrack)
+            {
+                return await query.Invoke(Context.VtrUploadtask.AsNoTracking()).SingleOrDefaultAsync();
+            }
+            return await query.Invoke(Context.VtrUploadtask).SingleOrDefaultAsync();
+        }
+        
+        public async Task<TResult> GetTaskBackupAsync<TResult>(Func<IQueryable<DbpTaskBackup>, IQueryable<TResult>> query, bool notrack = false)
+        {
+            if (query == null)
+            {
+                throw new ArgumentNullException(nameof(query));
+            }
+            if (notrack)
+            {
+                return await query.Invoke(Context.DbpTaskBackup.AsNoTracking()).SingleOrDefaultAsync();
+            }
+            return await query.Invoke(Context.DbpTaskBackup).SingleOrDefaultAsync();
+        }
         public async Task<List<TResult>> GetTaskListAsync<TResult>(Func<IQueryable<DbpTask>, IQueryable<TResult>> query, bool notrack = false)
         {
             if (query == null)
