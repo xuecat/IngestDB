@@ -34,6 +34,7 @@ namespace IngestGlobalPlugin.Stores
         #endregion
 
         #region user
+        Task<TResult> GetUserSettingAsync<TResult>(Func<IQueryable<DbpUsersettings>, IQueryable<TResult>> query, bool notrack = false);
 
         Task UpdateUsersettingsAsync(DbpUsersettings usersetting);
 
@@ -48,6 +49,11 @@ namespace IngestGlobalPlugin.Stores
         #region Usertemplate
 
         Task<TResult> GetUsertemplateAsync<TResult>(Func<IQueryable<DbpUsertemplate>, IQueryable<TResult>> query, bool notrack = false);
+
+        Task<List<TResult>> GetUsertemplateLstAsync<TResult>(Func<IQueryable<DbpUsertemplate>, IQueryable<TResult>> query, bool notrack = false);
+
+        Task InsertUserTemplateAsync(int templateID, string userCode, string templateName, string templateContent);
+        Task ModifyUserTempalteContent(int templateID, string templateContent);
 
         #endregion
 

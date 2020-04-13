@@ -57,7 +57,7 @@ namespace IngestGlobalPlugin.Dto
 
     public class GetGlobalState_OUT
     {
-        public GlobalState[] arrGlobalState;
+        public List<GlobalState> arrGlobalState;
         public string strErr;
         public bool bRet;
     }
@@ -108,12 +108,22 @@ namespace IngestGlobalPlugin.Dto
         public bool bRet;
     }
 
-    public class UserTemplate
+    public class OldUserTemplate
     {
         public int nTemplateID = -1;                    //模板ID
         public string strUserCode = string.Empty;       //用户名
         public string strTemplateName = string.Empty;   //模板名
         public string strTemplateContent = string.Empty;//模板内容   
+    }
+
+    public class OldCMUserInfo
+    {
+        public string createtime;
+        public bool disabled;
+        public string email;
+        public string id;
+        public string loginname;
+        public string nickname;
     }
 
 }

@@ -123,8 +123,8 @@ namespace IngestGlobalPlugin.Controllers
             p.arrGlobalState = null;
             try
             {
-                p.arrGlobalState = await _GlobalManager.GetAllGlobalStateAsync<GlobalState[]>();
-                if (p.arrGlobalState.Length < 1)
+                p.arrGlobalState = await _GlobalManager.GetAllGlobalStateAsync<List<GlobalState>>();
+                if (p.arrGlobalState.Count < 1)
                 {
                     p.strErr = "No record in the table";
                     p.bRet = false;
@@ -256,10 +256,38 @@ namespace IngestGlobalPlugin.Controllers
             }
             return pOut;
         }
+
+        /// <summary>
+        /// 通过用户编码获取配置信息
+        /// </summary>
+        /// <param name="strUserCode">usercode</param>
+        /// <param name="strSettingtype">type</param>
+        /// <returns> extention为strSettingText </returns>
+        [HttpGet("GetUserSetting"), MapToApiVersion("1.0")]
+        [ApiExplorerSettings(GroupName = "v1")]
+        public async Task<OldResponseMessage<string>> OldGetUserSetting(string strUserCode, string strSettingtype)
+        {
+            OldResponseMessage<string> res = new OldResponseMessage<string>();
+            res.message = no_err;
+            res.extention = string.Empty;
+            try
+            {
+                res.extention = await _GlobalManager.GetUserSettingAsync(strUserCode, strSettingtype);
+                res.nCode = 1;
+            }
+            catch (Exception ex)//其他未知的异常，写异常日志
+            {
+                Logger.Error(ex.ToString());
+                res.message = ex.Message;
+                res.nCode = 0;
+            }
+            return res;
+        }
+
         #endregion
 
         #region ParamTemplate
-        
+
         [HttpGet("GetParamTemplateByID"), MapToApiVersion("1.0")]
         [ApiExplorerSettings(GroupName = "v1")]
         public async Task<GetParamTemplateByID_out> OldGetParamTemplateByID(int nCaptureParamID, int nFlag)
@@ -298,7 +326,7 @@ namespace IngestGlobalPlugin.Controllers
         /// <returns>extention 为用户模版ID</returns>
         [HttpPost("AddUserTemplate"), MapToApiVersion("1.0")]
         [ApiExplorerSettings(GroupName = "v1")]
-        public OldResponseMessage<int> OldAddUserTemplate([FromBody] UserTemplate userTemplate)
+        public async Task<OldResponseMessage<int>> OldAddUserTemplate([FromBody] OldUserTemplate userTemplate)
         {
             OldResponseMessage<int> res = new OldResponseMessage<int>();
             res.message = no_err;
@@ -325,12 +353,117 @@ namespace IngestGlobalPlugin.Controllers
             }
             try
             {
-                //res.extention = _GlobalManager.AddUserTemplateAsync(userTemplate);
+                res.extention = await _GlobalManager.UserTemplateInsertAsync(userTemplate.nTemplateID, userTemplate.strUserCode, userTemplate.strTemplateName, userTemplate.strTemplateContent);
                 res.nCode = 1;
             }
             catch (System.Exception ex)
             {
                 Logger.Error("OldAddUserTemplate : " + ex.ToString());
+                res.message = ex.Message;
+                res.nCode = 0;
+            }
+            return res;
+        }
+
+        /// <summary>
+        /// 根据模板ID修改模板内容
+        /// </summary>
+        /// <param name="nTemplateID"></param>
+        /// <param name="strTemplateContent"></param>
+        /// <returns>标准返回信息</returns>
+        [HttpPost("ModifyUserTempalteContent"), MapToApiVersion("1.0")]
+        [ApiExplorerSettings(GroupName = "v1")]
+        public async Task<OldResponseMessage> OldModifyUserTempalteContent([FromQuery] int nTemplateID, [FromBody] string strTemplateContent)
+        {
+            OldResponseMessage res = new OldResponseMessage();
+            res.message = no_err;
+            if (nTemplateID <= 0)
+            {
+                res.message = "TemplateID is smaller or equal 0.";
+                res.nCode = 0;
+            }
+            try
+            {
+                await _GlobalManager.UpdateUserTempalteContent(nTemplateID, strTemplateContent);
+                res.nCode = 1;
+            }
+            catch (System.Exception ex)
+            {
+                Logger.Error("OldModifyUserTempalteContent : " + ex.ToString());
+                res.message = ex.Message;
+                res.nCode = 0;
+            }
+            return res;
+        }
+
+        /// <summary>
+        /// 获得用户所有模板
+        /// </summary>
+        /// <param name="strUserCode"></param>
+        /// <returns>extension 为 获取到的模板数组</returns>
+        [HttpGet("GetUserAllTemplates"), MapToApiVersion("1.0")]
+        [ApiExplorerSettings(GroupName = "v1")]
+        public async Task<OldResponseMessage<List<OldUserTemplate>>> OldGetUserAllTemplates([FromQuery] string strUserCode)
+        {
+            OldResponseMessage<List<OldUserTemplate>> res = new OldResponseMessage<List<OldUserTemplate>>();
+            res.message = no_err;
+            res.extention = new List<OldUserTemplate>();
+
+            if (strUserCode == string.Empty)
+            {
+                res.message = "UserCode is null.";
+                res.nCode = 0;
+            }
+            try
+            {
+                res.extention = await _GlobalManager.GetUserAllTemplatesAsync<OldUserTemplate>(strUserCode);
+                res.nCode = 1;
+            }
+            catch (System.Exception ex)
+            {
+                Logger.Error("OldGetUserAllTemplates : " + ex.ToString());
+                res.message = ex.Message;
+                res.nCode = 0;
+            }
+            return res;
+        }
+
+        #endregion
+
+        #region CMApi
+        
+        [HttpGet("GetUserInfoByCode"), MapToApiVersion("1.0")]
+        [ApiExplorerSettings(GroupName = "v1")]
+        public OldResponseMessage<OldCMUserInfo> OldGetUserInfoByCode(string strUserCode)
+        {
+            OldResponseMessage<OldCMUserInfo> res = new OldResponseMessage<OldCMUserInfo>();
+            res.message = no_err;
+            res.extention = null;
+            try
+            {
+                string uri = string.Format("http://{0}:{1}/CMApi/api/basic/account/getuserinfobyusercode?usercode={2}", DataConfig.cmserver_ip, DataConfig.cmserver_port, strUserCode);
+                HttpClient client = new HttpClient();
+                client.DefaultRequestHeaders.SetHeaderValue();
+
+                var strReturn = client.GetAsync(uri).Result.Content.ReadAsStringAsync().Result;
+                LoggerService.Error("GetUserInfoByCode" + uri + strReturn);
+
+                var reres = JsonConvert.DeserializeObject<ResponseMessageN<CMUserInfo>>(strReturn);
+                if (reres.Code == "0")
+                {
+                    res.extention = reres.ext;
+                    res.message = "OK";
+                    res.nCode = 1;
+                }
+                else
+                {
+                    res.extention = null;
+                    res.message = "error";
+                }
+            }
+            catch (Exception ex)//其他未知的异常，写异常日志
+            {
+                Logger.Error("OldGetUserInfoByCode:" + ex.ToString());
                 res.message = ex.Message;
                 res.nCode = 0;
             }

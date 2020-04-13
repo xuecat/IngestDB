@@ -551,6 +551,19 @@ namespace IngestGlobalPlugin.Stores
         #endregion
 
         #region User
+        public async Task<TResult> GetUserSettingAsync<TResult>(Func<IQueryable<DbpUsersettings>, IQueryable<TResult>> query, bool notrack = false)
+        {
+            if (query == null)
+            {
+                throw new ArgumentNullException(nameof(query));
+            }
+            if (notrack)
+            {
+                return await query.Invoke(Context.DbpUsersetting.AsNoTracking()).FirstOrDefaultAsync();
+            }
+            return await query.Invoke(Context.DbpUsersetting).FirstOrDefaultAsync();
+        }
+
 
         public async Task UpdateUsersettingsAsync(DbpUsersettings usersetting)
         {
@@ -614,6 +627,61 @@ namespace IngestGlobalPlugin.Stores
             }
             return await query.Invoke(Context.DbpUsertemplate).FirstOrDefaultAsync();
         }
+
+        public async Task<List<TResult>> GetUsertemplateLstAsync<TResult>(Func<IQueryable<DbpUsertemplate>, IQueryable<TResult>> query, bool notrack = false)
+        {
+            if (query == null)
+            {
+                throw new ArgumentNullException(nameof(query));
+            }
+            if (notrack)
+            {
+                return await query.Invoke(Context.DbpUsertemplate.AsNoTracking()).ToListAsync();
+            }
+            return await query.Invoke(Context.DbpUsertemplate).ToListAsync();
+        }
+
+        public async Task InsertUserTemplateAsync(int templateID, string userCode, string templateName, string templateContent)
+        {
+            try
+            {
+                Context.DbpUsertemplate.Add(new DbpUsertemplate() {
+                    Templateid = templateID,
+                    Usercode = userCode,
+                    Templatename = templateName,
+                    Templatecontent = templateContent
+                });
+                await Context.SaveChangesAsync();
+            }
+            catch(Exception ex)
+            {
+                Logger.Error("InsertUserTemplateAsync : " + ex.ToString());
+                throw ex;
+            }
+
+        }
+
+        public async Task ModifyUserTempalteContent(int templateID, string templateContent)
+        {
+            try
+            {
+                var userTemplate = new DbpUsertemplate()
+                {
+                    Templateid = templateID,
+                    Templatecontent = templateContent
+                };
+                Context.Attach(userTemplate);
+                Context.Entry(userTemplate).Property(x => x.Templatecontent).IsModified = true;
+                await Context.SaveChangesAsync();
+            }
+            catch (Exception ex)
+            {
+                Logger.Error("ModifyUserTempalteContent : " + ex.ToString());
+                throw ex;
+            }
+        }
+
+        
 
         #endregion
 

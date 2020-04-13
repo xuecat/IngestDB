@@ -382,7 +382,7 @@ namespace IngestGlobalPlugin.Controllers
         /// <returns>globalstate表结果</returns>
         /// <remarks>
         /// 例子:
-        /// Get api/v2/usersetting
+        /// Post api/v2/usersetting
         /// </remarks>
         [HttpPost("usersetting")]
         [ApiExplorerSettings(GroupName = "v2")]
@@ -425,6 +425,43 @@ namespace IngestGlobalPlugin.Controllers
             return Response;
         }
 
+        /// <summary>
+        /// 通过用户编码获取配置信息
+        /// </summary>
+        /// <param name="strUserCode">usercode</param>
+        /// <param name="strSettingtype">type</param>
+        /// <returns> extention为strSettingText </returns>
+        /// <remarks>
+        /// 例子:
+        /// Get api/v2/usersetting
+        /// </remarks>
+        [HttpGet("usersetting")]
+        [ApiExplorerSettings(GroupName = "v2")]
+        public async Task<ResponseMessage<string>> GetUserSetting([FromQuery]string strUserCode, [FromQuery]string strSettingtype)
+        {
+            ResponseMessage<string> Response = new ResponseMessage<string>();
+            try
+            {
+                Response.Ext = await _GlobalManager.GetUserSettingAsync(strUserCode, strSettingtype);
+                Response.Code = ResponseCodeDefines.SuccessCode; 
+            }
+            catch (Exception e)//其他未知的异常，写异常日志
+            {
+                if (e.GetType() == typeof(SobeyRecException))//sobeyexcep会自动打印错误
+                {
+                    SobeyRecException se = e as SobeyRecException;
+                    Response.Code = se.ErrorCode.ToString();
+                    Response.Msg = se.Message;
+                }
+                else
+                {
+                    Response.Code = ResponseCodeDefines.ServiceError;
+                    Response.Msg = "error info：" + e.ToString();
+                    Logger.Error(Response.Msg);
+                }
+            }
+            return Response;
+        }
         #endregion
 
         #region ParamTemplate
@@ -458,6 +495,152 @@ namespace IngestGlobalPlugin.Controllers
                 Response.Code = ResponseCodeDefines.SuccessCode;
             }
             catch (Exception e)//其他未知的异常，写异常日志
+            {
+                if (e.GetType() == typeof(SobeyRecException))//sobeyexcep会自动打印错误
+                {
+                    SobeyRecException se = e as SobeyRecException;
+                    Response.Code = se.ErrorCode.ToString();
+                    Response.Msg = se.Message;
+                }
+                else
+                {
+                    Response.Code = ResponseCodeDefines.ServiceError;
+                    Response.Msg = "error info：" + e.ToString();
+                    Logger.Error(Response.Msg);
+                }
+            }
+            return Response;
+        }
+
+        #endregion
+
+        #region UserTemplate
+        /// <summary>
+        /// 增加一个新的用户模板
+        /// </summary>
+        /// <remarks>
+        /// 例子:
+        /// Get api/v2/usertemplate/add
+        /// </remarks>
+        /// <param name="userTemplate"></param>
+        /// <returns>extention 为用户模版ID</returns>
+        [HttpPost("usertemplate/add")]
+        [ApiExplorerSettings(GroupName = "v2")]
+        public async Task<ResponseMessage<int>> AddUserTemplate([FromBody] UserTemplate userTemplate)
+        {
+            ResponseMessage<int> Response = new ResponseMessage<int>();
+
+            if (userTemplate == null)
+            {
+                Response.Msg = "userTemplate is null.";
+                Response.Code = ResponseCodeDefines.ArgumentNullError;
+                return Response;
+            }
+            if (userTemplate.TemplateID > 0)
+            {
+                Response.Msg = "Template ID is larger than 0";
+                Response.Code = ResponseCodeDefines.ArgumentNullError;
+                return Response;
+            }
+            if (userTemplate.UserCode == string.Empty ||
+                 userTemplate.TemplateName == string.Empty)
+            {
+                Response.Msg = "UserCode or TemplateName is null.";
+                Response.Code = ResponseCodeDefines.ArgumentNullError;
+                return Response;
+            }
+            try
+            {
+                Response.Ext = await _GlobalManager.UserTemplateInsertAsync(userTemplate.TemplateID, userTemplate.UserCode, userTemplate.TemplateName, userTemplate.TemplateContent);
+                Response.Code = ResponseCodeDefines.SuccessCode;
+            }
+            catch (System.Exception e)
+            {
+                if (e.GetType() == typeof(SobeyRecException))//sobeyexcep会自动打印错误
+                {
+                    SobeyRecException se = e as SobeyRecException;
+                    Response.Code = se.ErrorCode.ToString();
+                    Response.Msg = se.Message;
+                }
+                else
+                {
+                    Response.Code = ResponseCodeDefines.ServiceError;
+                    Response.Msg = "error info：" + e.ToString();
+                    Logger.Error(Response.Msg);
+                }
+            }
+            return Response;
+        }
+
+        /// <summary>
+        /// 根据模板ID修改模板内容
+        /// </summary>
+        /// <param name="nTemplateID"></param>
+        /// <param name="strTemplateContent"></param>
+        /// <returns>标准返回信息</returns>
+        /// <remarks>
+        /// 例子:
+        /// Get api/v2/usertemplate/modify/{nTemplateID}
+        /// </remarks>
+        [HttpPost("usertemplate/modify/{nTemplateID}")]
+        [ApiExplorerSettings(GroupName = "v2")]
+        public async Task<ResponseMessage> ModifyUserTempalteContent([FromQuery] int nTemplateID, [FromBody] string strTemplateContent)
+        {
+            ResponseMessage Response = new ResponseMessage();
+            if (nTemplateID <= 0)
+            {
+                Response.Msg = "TemplateID is smaller or equal 0.";
+                Response.Code = ResponseCodeDefines.ArgumentNullError;
+            }
+            try
+            {
+                await _GlobalManager.UpdateUserTempalteContent(nTemplateID, strTemplateContent);
+                Response.Code = ResponseCodeDefines.SuccessCode;
+            }
+            catch (System.Exception e)
+            {
+                if (e.GetType() == typeof(SobeyRecException))//sobeyexcep会自动打印错误
+                {
+                    SobeyRecException se = e as SobeyRecException;
+                    Response.Code = se.ErrorCode.ToString();
+                    Response.Msg = se.Message;
+                }
+                else
+                {
+                    Response.Code = ResponseCodeDefines.ServiceError;
+                    Response.Msg = "error info：" + e.ToString();
+                    Logger.Error(Response.Msg);
+                }
+            }
+            return Response;
+        }
+
+        /// <summary>
+        /// 获得用户所有模板
+        /// </summary>
+        /// <param name="strUserCode"></param>
+        /// <returns>extension 为 获取到的模板数组</returns>
+        /// <remarks>
+        /// 例子:
+        /// Get api/v2/usertemplate/all
+        /// </remarks>
+        [HttpGet("usertemplate/all")]
+        [ApiExplorerSettings(GroupName = "v2")]
+        public async Task<ResponseMessage<List<UserTemplate>>> GetUserAllTemplates([FromQuery] string strUserCode)
+        {
+            ResponseMessage<List<UserTemplate>> Response = new ResponseMessage<List<UserTemplate>>();
+
+            if (strUserCode == string.Empty)
+            {
+                Response.Msg = "UserCode is null.";
+                Response.Code = ResponseCodeDefines.ArgumentNullError;
+            }
+            try
+            {
+                Response.Ext = await _GlobalManager.GetUserAllTemplatesAsync<UserTemplate>(strUserCode);
+                Response.Code = ResponseCodeDefines.SuccessCode;
+            }
+            catch (System.Exception e)
             {
                 if (e.GetType() == typeof(SobeyRecException))//sobeyexcep会自动打印错误
                 {

@@ -25,7 +25,7 @@ namespace IngestGlobalPlugin.Models
         public virtual DbSet<DbpUsersettings> DbpUsersetting { get; set; }
         public virtual DbSet<DbpUsertemplate> DbpUsertemplate { get; set; }
 
-    
+
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
@@ -191,8 +191,16 @@ namespace IngestGlobalPlugin.Models
                 entity.Property(e => e.Templateid).HasColumnName("TEMPLATEID").HasColumnType("int(11)");
                 entity.Property(e => e.Usercode).HasColumnName("USERCODE").HasColumnType("varchar(256)");
                 entity.Property(e => e.Templatename).HasColumnName("TEMPLATENAME").HasColumnType("varchar(256)");
-                entity.Property(e => e.Templatecontent).HasColumnName("TEMPLATECONTENT").HasColumnType("text");
+                entity.Property(e => e.Templatecontent)
+.HasColumnName("TEMPLATECONTENT").HasColumnType("text");
             });
         }
+
+        [DbFunction]
+        public static int next_val(string value)
+        {
+            throw new NotImplementedException();
+        }
+
     }
 }
