@@ -21,6 +21,7 @@ using PropertyRequest = IngestTaskPlugin.Dto.PropertyResponse;
 using TaskInfoRequest = IngestTaskPlugin.Dto.TaskInfoResponse;
 using TaskContentRequest = IngestTaskPlugin.Dto.TaskContentResponse;
 using TaskCustomMetadataRequest = IngestTaskPlugin.Dto.TaskCustomMetadataResponse;
+using AutoMapper;
 
 /// <summary>
 /// Creates a TodoItem.
@@ -56,11 +57,13 @@ namespace IngestTaskPlugin.Controllers
         private readonly ILogger Logger = LoggerManager.GetLogger("TaskInfo");
         private readonly TaskManager _taskManage;
         private readonly RestClient _restClient;
+        private readonly IMapper _mapper;
 
-        public TaskController(RestClient rsc, TaskManager task)
+        public TaskController(RestClient rsc, TaskManager task, IMapper mapper)
         {
             _taskManage = task;
             _restClient = rsc;
+            _mapper = mapper ?? throw new ArgumentNullException(nameof(mapper));
         }
 
         /// <summary>
@@ -96,7 +99,7 @@ namespace IngestTaskPlugin.Controllers
                 else
                 {
                     Response.Code = ResponseCodeDefines.ServiceError;
-                    Response.Msg = "error info：" + e.ToString();
+                    Response.Msg = "GetTaskMaterialMetaData error info：" + e.ToString();
                     Logger.Error(Response.Msg);
                 }
             }
@@ -136,7 +139,7 @@ namespace IngestTaskPlugin.Controllers
                 else
                 {
                     Response.Code = ResponseCodeDefines.ServiceError;
-                    Response.Msg = "error info：" + e.ToString();
+                    Response.Msg = "GetTaskContentMetaData error info：" + e.ToString();
                     Logger.Error(Response.Msg);
                 }
             }
@@ -176,7 +179,7 @@ namespace IngestTaskPlugin.Controllers
                 else
                 {
                     Response.Code = ResponseCodeDefines.ServiceError;
-                    Response.Msg = "error info：" + e.ToString();
+                    Response.Msg = "GetTaskPlanningMetaData error info：" + e.ToString();
                     Logger.Error(Response.Msg);
                 }
             }
@@ -220,7 +223,7 @@ namespace IngestTaskPlugin.Controllers
                 else
                 {
                     Response.Code = ResponseCodeDefines.ServiceError;
-                    Response.Msg = "error info：" + e.ToString();
+                    Response.Msg = "UpdateTaskMetaData error info：" + e.ToString();
                     Logger.Error(Response.Msg);
                 }
             }
@@ -260,7 +263,7 @@ namespace IngestTaskPlugin.Controllers
                 else
                 {
                     Response.Code = ResponseCodeDefines.ServiceError;
-                    Response.Msg = "error info：" + e.ToString();
+                    Response.Msg = "GetTaskCustomMetaData error info：" + e.ToString();
                     Logger.Error(Response.Msg);
                 }
             }
@@ -303,7 +306,7 @@ namespace IngestTaskPlugin.Controllers
                 else
                 {
                     Response.Code = ResponseCodeDefines.ServiceError;
-                    Response.Msg = "error info：" + e.ToString();
+                    Response.Msg = "UpdateTaskCustomMetaData error info：" + e.ToString();
                     Logger.Error(Response.Msg);
                 }
             }
@@ -355,7 +358,7 @@ namespace IngestTaskPlugin.Controllers
                 else
                 {
                     Response.Code = ResponseCodeDefines.ServiceError;
-                    Response.Msg = "error info：" + e.ToString();
+                    Response.Msg = "StopGroupTask error info：" + e.ToString();
                     Logger.Error(Response.Msg);
                 }
             }
@@ -407,7 +410,7 @@ namespace IngestTaskPlugin.Controllers
                 else
                 {
                     Response.Code = ResponseCodeDefines.ServiceError;
-                    Response.Msg = "error info：" + e.ToString();
+                    Response.Msg = "DeleteGroupTask error info：" + e.ToString();
                     Logger.Error(Response.Msg);
                 }
             }
@@ -472,7 +475,167 @@ namespace IngestTaskPlugin.Controllers
                 else
                 {
                     Response.Code = ResponseCodeDefines.ServiceError;
-                    Response.Msg = "error info：" + e.ToString();
+                    Response.Msg = "AddTaskWithoutPolicy error info：" + e.ToString();
+                    Logger.Error(Response.Msg);
+                }
+            }
+            return Response;
+        }
+
+        /// <summary>
+        /// 通过guid返回taskid(taskguid和素材guid一样,入库使用同一个)
+        /// </summary>
+        /// <remarks>
+        /// 例子:
+        ///
+        /// </remarks>
+        /// <param name="taskguid">guid信息</param>
+        /// <returns>任务id</returns>
+        [HttpGet("taskinfo/id")]
+        [ApiExplorerSettings(GroupName = "v2")]
+        public async Task<ResponseMessage<int>> TaskIDByTaskGUID([FromQuery, BindRequired]string taskguid)
+        {
+            var Response = new ResponseMessage<int>();
+            if (string.IsNullOrEmpty(taskguid))
+            {
+                Response.Code = ResponseCodeDefines.ModelStateInvalid;
+                Response.Msg = "请求参数不正确";
+            }
+            try
+            {
+                Response.Ext = await _taskManage.GetTaskIDByTaskGUID(taskguid);
+            }
+            catch (Exception e)
+            {
+                if (e.GetType() == typeof(SobeyRecException))//sobeyexcep会自动打印错误
+                {
+                    SobeyRecException se = e as SobeyRecException;
+                    Response.Code = se.ErrorCode.ToString();
+                    Response.Msg = se.Message;
+                }
+                else
+                {
+                    Response.Code = ResponseCodeDefines.ServiceError;
+                    Response.Msg = "TaskIDByTaskGUID error info：" + e.ToString();
+                    Logger.Error(Response.Msg);
+                }
+            }
+            return Response;
+        }
+
+        /// <summary>
+        /// 返回所有正在采集任务
+        /// </summary>
+        /// <remarks>
+        /// 例子:
+        ///
+        /// </remarks>
+        /// <returns>采集任务信息</returns>
+        [HttpGet("taskinfo/capturing/all")]
+        [ApiExplorerSettings(GroupName = "v2")]
+        public async Task<ResponseMessage<List<TaskContentResponse>>> GetAllChannelCapturingTaskInfo()
+        {
+            var Response = new ResponseMessage<List<TaskContentResponse>>();
+            
+            try
+            {
+                Response.Ext = await _taskManage.GetAllChannelCapturingTask<TaskContentResponse>();
+            }
+            catch (Exception e)
+            {
+                if (e.GetType() == typeof(SobeyRecException))//sobeyexcep会自动打印错误
+                {
+                    SobeyRecException se = e as SobeyRecException;
+                    Response.Code = se.ErrorCode.ToString();
+                    Response.Msg = se.Message;
+                }
+                else
+                {
+                    Response.Code = ResponseCodeDefines.ServiceError;
+                    Response.Msg = "GetAllChannelCapturingTaskInfo error info：" + e.ToString();
+                    Logger.Error(Response.Msg);
+                }
+            }
+            return Response;
+        }
+
+        /// <summary>
+        /// 返回通道中所有正在采集任务
+        /// </summary>
+        /// <remarks>
+        /// 例子:
+        ///
+        /// </remarks>
+        /// <param name="channelid">通道信息</param>
+        /// <returns>任务id</returns>
+        [HttpGet("taskinfo/capturing/{channelid}")]
+        [ApiExplorerSettings(GroupName = "v2")]
+        public async Task<ResponseMessage<TaskContentResponse>> GetChannelCapturingTaskInfo([FromQuery, BindRequired]int channelid)
+        {
+            var Response = new ResponseMessage<TaskContentResponse>();
+            if (channelid < 0)
+            {
+                Response.Code = ResponseCodeDefines.ModelStateInvalid;
+                Response.Msg = "请求参数不正确";
+            }
+            try
+            {
+                Response.Ext = await _taskManage.GetChannelCapturingTask<TaskContentResponse>(channelid);
+            }
+            catch (Exception e)
+            {
+                if (e.GetType() == typeof(SobeyRecException))//sobeyexcep会自动打印错误
+                {
+                    SobeyRecException se = e as SobeyRecException;
+                    Response.Code = se.ErrorCode.ToString();
+                    Response.Msg = se.Message;
+                }
+                else
+                {
+                    Response.Code = ResponseCodeDefines.ServiceError;
+                    Response.Msg = "TaskIDByTaskGUID error info：" + e.ToString();
+                    Logger.Error(Response.Msg);
+                }
+            }
+            return Response;
+        }
+
+        /// <summary>
+        /// 修改任务元数据，不包括任务metadata数据
+        /// </summary>
+        /// <remarks>
+        /// 例子:
+        ///
+        /// </remarks>
+        /// <param name="channelid">通道信息</param>
+        /// <returns>任务id</returns>
+        [HttpPut("taskinfo/content")]
+        [ApiExplorerSettings(GroupName = "v2")]
+        public async Task<ResponseMessage<TaskContentResponse>> ModifyTask([FromBody, BindRequired]TaskContentRequest req)
+        {
+            var Response = new ResponseMessage<TaskContentResponse>();
+            if (req == null)
+            {
+                Response.Code = ResponseCodeDefines.ModelStateInvalid;
+                Response.Msg = "请求参数不正确";
+            }
+
+            try
+            {
+                Response.Ext = await _taskManage.GetChannelCapturingTask<TaskContentResponse>(channelid);
+            }
+            catch (Exception e)
+            {
+                if (e.GetType() == typeof(SobeyRecException))//sobeyexcep会自动打印错误
+                {
+                    SobeyRecException se = e as SobeyRecException;
+                    Response.Code = se.ErrorCode.ToString();
+                    Response.Msg = se.Message;
+                }
+                else
+                {
+                    Response.Code = ResponseCodeDefines.ServiceError;
+                    Response.Msg = "TaskIDByTaskGUID error info：" + e.ToString();
                     Logger.Error(Response.Msg);
                 }
             }
