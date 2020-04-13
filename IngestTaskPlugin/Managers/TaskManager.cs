@@ -455,9 +455,19 @@ namespace IngestTaskPlugin.Managers
                 }
             }
 
+            List<TaskContentResponse> lsttask = null;
             //看修改的时间是否冲突,如果是周期任务，传入真实的beginTime.EndTime
             if (taskModify.TaskType != TaskType.TT_PERIODIC)
             {
+                DateTime begin = DateTimeFormat.DateTimeFromString(taskModify.Begin);
+                DateTime end = DateTimeFormat.DateTimeFromString(taskModify.End);
+                await Store.GetTaskListAsync(a => a.Where(x => ((x.Starttime >= begin && x.Starttime <= end)
+                 || (x.Endtime >= begin && x.Endtime <= end) || (x.Starttime < begin && x.Endtime > end))
+                && (x.State == (int)taskState.tsReady || x.State == (int)taskState.tsExecuting)
+                && (x.DispatchState == (int)dispatchState.dpsDispatched || x.DispatchState == (int)dispatchState.dpsNotDispatch)
+                && (taskModify.ChannelID <= 0 || (taskModify.ChannelID > 0 && x.Channelid == taskModify.ChannelID))
+                && (taskModify.Unit <= 0 || (taskModify.Unit > 0 && x.Recunitid == taskModify.Unit))
+                && x.Tasktype != (int)TaskType.TT_PERIODIC), true);
 
             }
 
