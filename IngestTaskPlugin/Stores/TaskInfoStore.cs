@@ -154,6 +154,22 @@ namespace IngestTaskPlugin.Stores
 
         }
 
+        public async Task<List<TimePeriod>> GetTimePeriodsByScheduleVBUTasks(int vtrid, int extaskid)
+        {
+            return await (from task in Context.DbpTask
+                               join vtr in Context.VtrUploadtask on task.Taskid equals vtr.Taskid into ps
+                               from p in ps.DefaultIfEmpty()
+                               where task.Taskid != extaskid && task.NewEndtime > DateTime.Now && task.State!=(int)taskState.tsDelete 
+                               && task.State != (int)taskState.tsInvaild && p!= null && p.Vtrtasktype == (int)VTRUPLOADTASKTYPE.VTR_SCHEDULE_UPLOAD 
+                               && p.Vtrid == vtrid
+                               select new TimePeriod
+                               {
+                                   Id = vtrid,
+                                   StartTime = task.NewBegintime,
+                                   EndTime = task.NewEndtime
+                               }).ToListAsync();
+        }
+
         public async Task UpdateTaskMetaDataAsync(int taskid, MetaDataType type, string metadata)
         {
             var item = await Context.DbpTaskMetadata.Where(x => x.Taskid == taskid && x.Metadatatype == (int)type).SingleAsync();

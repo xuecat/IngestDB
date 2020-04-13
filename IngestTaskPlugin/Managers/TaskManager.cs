@@ -439,11 +439,46 @@ namespace IngestTaskPlugin.Managers
                     await Store.UnLockTask(findtask.Taskid);
                     SobeyRecException.ThrowSelfOneParam("ModifyTask vtrtask empty", GlobalDictionary.GLOBALDICT_CODE_CAN_NOT_FIND_THE_TASK_ONEPARAM,  Logger, findtask.Taskid, null);
                 }
+
+                VTRTimePeriods vtrFreeTimePeriods = new VTRTimePeriods(vtrtask.Vtrid.GetValueOrDefault());
+                vtrFreeTimePeriods.Periods = new List<TimePeriod>();
+                await GetFreeTimePeriodByVtrId(vtrFreeTimePeriods, findtask.Taskid, DateTimeFormat.DateTimeFromString(taskModify.Begin), vtrtask);
+
+                TimePeriod tp = new TimePeriod(vtrtask.Vtrid.GetValueOrDefault(), DateTimeFormat.DateTimeFromString(taskModify.Begin), DateTimeFormat.DateTimeFromString(taskModify.End));
+                if (!IsTimePeriodInVTRTimePeriods(tp, vtrFreeTimePeriods))
+                {
+                    //VTRDetailInfo vtrInfo = new VTRDetailInfo();
+                    //vtrInfo = vtrOper.GetVTRDetailInfoByID(vtrTasks[0].nVtrId);
+                    await Store.UnLockTask(findtask.Taskid);
+                    //SobeyRecException.ThrowSelf(Locallanguage.LoadString(vtrInfo.szVTRDetailName + " has been used by other tasks"), 3);
+                    SobeyRecException.ThrowSelfOneParam("ModifyTask match empty", GlobalDictionary.GLOBALDICT_CODE_VTR_HAS_BEEN_USED_BY_OTHER_TASKS_ONEPARAM, Logger, vtrtask.Vtrid, null);
+                }
+            }
+
+            //看修改的时间是否冲突,如果是周期任务，传入真实的beginTime.EndTime
+            if (taskModify.TaskType != TaskType.TT_PERIODIC)
+            {
+
             }
 
         }
+        private bool IsTimePeriodInVTRTimePeriods(TimePeriod tp, VTRTimePeriods vtrFreeTimePeriods)
+        {
+            if (vtrFreeTimePeriods.Periods != null)
+            {
+                foreach (TimePeriod vftp in vtrFreeTimePeriods.Periods)
+                {
+                    if (vftp.EndTime >= tp.EndTime && vftp.StartTime <= tp.StartTime)
+                    {
+                        return true;
+                    }
+                }
+            }
 
-        public async void GetFreeTimePeriodByVtrId(VTRTimePeriods vtrFreeTimePeriods, DateTime newbegin, DateTime newend, DateTime beginCheckTime, VtrUploadtask vtrtask)
+            return false;
+        }
+
+        public async Task<VTRTimePeriods> GetFreeTimePeriodByVtrId(VTRTimePeriods vtrFreeTimePeriods, int exTaskId, DateTime beginCheckTime, VtrUploadtask vtrtask)
         {
             if (beginCheckTime == DateTime.MinValue)
             {
@@ -480,10 +515,10 @@ namespace IngestTaskPlugin.Managers
             }
             
             //查询计划任务，开始时间和结束时间，还未执行的
-            //List<TimePeriod> scheduleTPs = DBACCESS.GetTimePeriodsByScheduleVBUTasks(vtrId, exTaskId);
-            if (vtrtask.Vtrtasktype == (int)VTRUPLOADTASKTYPE.VTR_SCHEDULE_UPLOAD)
+            List<TimePeriod> scheduleTPs = await Store.GetTimePeriodsByScheduleVBUTasks(vtrId, exTaskId);
+            if (scheduleTPs != null && scheduleTPs.Count > 0)
             {
-                vtrTimePeriods.Periods.Add(new TimePeriod() { Id = vtrId, StartTime = newbegin, EndTime = newend});
+                vtrTimePeriods.Periods.AddRange(scheduleTPs);
             }
 
             DateTime thirdDay = new DateTime(beginCheckTime.Year, beginCheckTime.Month, beginCheckTime.Day, 23, 59, 59);
@@ -499,6 +534,8 @@ namespace IngestTaskPlugin.Managers
                     i--;
                 }
             }
+
+            return vtrFreeTimePeriods;
         }
 
         /// <summary>
