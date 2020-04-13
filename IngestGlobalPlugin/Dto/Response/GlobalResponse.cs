@@ -16,5 +16,12 @@ namespace IngestGlobalPlugin.Dto
         public int nTC { get; set; }
     }
 
-    
+    public class UserTemplate
+    {
+        public int TemplateID = -1;                    //模板ID
+        public string UserCode = string.Empty;       //用户名
+        public string TemplateName = string.Empty;   //模板名
+        public string TemplateContent = string.Empty;//模板内容   
+    }
+
 }

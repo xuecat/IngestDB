@@ -10,6 +10,7 @@ using IngestGlobalPlugin.Dto;
 using AutoMapper;
 using IngestGlobalPlugin.Models;
 using System.Xml;
+using IngestDBCore.Tool;
 
 namespace IngestGlobalPlugin.Managers
 {
@@ -17,14 +18,16 @@ namespace IngestGlobalPlugin.Managers
     {
         protected IGlobalStore Store { get; }
         protected IMapper _mapper { get; }
+        protected RestClient _restClient;
 
-        public GlobalManager(IGlobalStore store, IMapper mapper)
+        public GlobalManager(IGlobalStore store, IMapper mapper, RestClient rsc)
         {
             Store = store;
             _mapper = mapper ?? throw new ArgumentNullException(nameof(mapper));
+            _restClient = rsc;
         }
 
-        
+
         #region global Manager
         public async Task<string> GetValueStringAsync(string strKey)
         {
@@ -35,30 +38,30 @@ namespace IngestGlobalPlugin.Managers
         {
             await Store.UpdateGlobalValueAsync(strKey, strValue);
         }
-        
+
         #endregion
 
-        
+
 
         //用于老接口
         public async Task<bool> SetLockObject(int objectID, OTID objectTypeID, string userName, int TimeOut)
         {
             return await Store.SetLockObject(objectID, objectTypeID, userName, TimeOut);
         }
-        
+
         //用于老街口
         public async Task<bool> SetUnlockObject(int objectID, OTID objectTypeID, string userName)
         {
             return await Store.SetUnLockObject(objectID, objectTypeID, userName);
         }
-        
+
 
         #region globalstate manager
         public async Task<TResult> GetAllGlobalStateAsync<TResult>()
         {
             var globalstates = await Store.GetAllGlobalStateAsync();
             return _mapper.Map<TResult>(globalstates);
-            
+
         }
 
         public async Task UpdateGlobalStateAsync(string strLabel)
@@ -73,7 +76,7 @@ namespace IngestGlobalPlugin.Managers
             if (TimeOut < 0)
                 TimeOut *= -1;
 
-            var dbpObjState = await Store.GetObjectstateinfoAsync(a => a.Where(x => x.Objectid == objectID && x.Objecttypeid == (int)objectTypeID));
+            var dbpObjState = await Store.GetObjectstateinfoAsync(a => a.Where(x => x.Objectid == objectID && x.Objecttypeid == (int)objectTypeID), true);
             if (dbpObjState == null)
             {
                 return await Store.AddDbpObjStateAsync(objectID, objectTypeID, userName, TimeOut);
@@ -128,12 +131,13 @@ namespace IngestGlobalPlugin.Managers
         public async Task<List<ObjectContent>> GetVTRUnlockObjects()
         {
             return await Store.GetObjectstateinfoListAsync<ObjectContent>(x => x.Where(a => a.Objecttypeid == (int)OTID.OTID_VTR && string.IsNullOrEmpty(a.Locklock) && a.Begintime.AddMilliseconds(Convert.ToInt32(a.Timeout)) > DateTime.Now)
-            .Select(res => new ObjectContent {
-                 ObjectID = res.Objectid,
-                 ObjectType = (OTID)res.Objecttypeid,
-                 UserName = res.Username,
-                 BeginTime = res.Begintime,
-                 TimeOut = res.Timeout
+            .Select(res => new ObjectContent
+            {
+                ObjectID = res.Objectid,
+                ObjectType = (OTID)res.Objecttypeid,
+                UserName = res.Username,
+                BeginTime = res.Begintime,
+                TimeOut = res.Timeout
             }), true);
         }
 
@@ -158,6 +162,18 @@ namespace IngestGlobalPlugin.Managers
         #endregion
 
         #region User
+
+        public async Task<string> GetUserSettingAsync(string strUserCode, string strSettingtype)
+        {
+            string settingText = string.Empty;
+            var userSetting = await Store.GetUserSettingAsync(a => a.Where(x => x.Usercode == strUserCode && x.Settingtype == strSettingtype), true);
+            
+            if(userSetting!= null)
+            {
+                settingText = !string.IsNullOrWhiteSpace(userSetting.Settingtext) ? userSetting.Settingtext : userSetting.Settingtextlong;
+            }
+            return settingText;
+        }
 
         public async Task UpdateUserSettingAsync(string userCode, string settingType, string settingText)
         {
@@ -201,10 +217,11 @@ namespace IngestGlobalPlugin.Managers
             return strTemp;
         }
 
+        #region CaptureTemplate
         public async Task<string> GetParamTemplateByIDAsync(int nCaptureParamID, int nFlag)
         {
             string strCaptureparam = null;
-            var capturetemplate = await Store.GetCaptureparamtemplateAsync(a => a.Where(x=>x.Captureparamid == nCaptureParamID));
+            var capturetemplate = await Store.GetCaptureparamtemplateAsync(a => a.Where(x => x.Captureparamid == nCaptureParamID), true);
 
             if (capturetemplate == null || string.IsNullOrEmpty(capturetemplate.Captureparam))
             {
@@ -241,27 +258,74 @@ namespace IngestGlobalPlugin.Managers
             }
             return strCaptureparam;
         }
+        #endregion
 
         #region UserTemplate
-        public async Task<int> AddUserTemplateAsync(UserTemplate userTemplate)
+        public async Task<int> UserTemplateInsertAsync(int templateID, string userCode, string templateName, string templateContent)
         {
-            var usertemplate = await Store.GetUsertemplateAsync(a => a.Where(x => x.Usercode == userTemplate.strUserCode && x.Templatename == userTemplate.strTemplateName && x.Templateid != userTemplate.nTemplateID));
+            var usertemplate = await Store.GetUsertemplateAsync(a => a.Where(x => x.Usercode == userCode && x.Templatename == templateName && x.Templateid != templateID && x.Templateid > 0), true);
 
-            if(usertemplate != null && usertemplate.Templateid > 0)
+            if (usertemplate != null)
             {
-                SobeyRecException.ThrowSelfOneParam(userTemplate.strTemplateName, GlobalDictionary.GLOBALDICT_CODE_THE_USER_TEMPLATE_HAS_EXISTS_ONEPARAM, null, string.Format(GlobalDictionary.Instance.GetMessageByCode(GlobalDictionary.GLOBALDICT_CODE_THE_USER_TEMPLATE_HAS_EXISTS_ONEPARAM),
-                    userTemplate.strTemplateName), null);
+                SobeyRecException.ThrowSelfOneParam(templateName, GlobalDictionary.GLOBALDICT_CODE_THE_USER_TEMPLATE_HAS_EXISTS_ONEPARAM, null, string.Format(GlobalDictionary.Instance.GetMessageByCode(GlobalDictionary.GLOBALDICT_CODE_THE_USER_TEMPLATE_HAS_EXISTS_ONEPARAM),
+                    templateName), null);
                 return -1;
             }
-            
-            //if (userTemplate.nTemplateID <= 0)
-            //{
-            //    userTemplate.nTemplateID = SequenceFactory.GetSequenceGennerator().GetSequenceID("DBP_SQ_UESRTEMPLATEID");
-            //}
+
+            if (templateID <= 0)
+            {
+                templateID = IngestGlobalDBContext.next_val("DBP_SQ_UESRTEMPLATEID");
+            }
 
             //DBACCESS.AddUserTemplate(userTemplate);
+            if (!string.IsNullOrWhiteSpace(templateContent))
+            {
+                int byteLength = Encoding.UTF8.GetByteCount(templateContent);
+                templateContent = FillBlankToString(templateContent, byteLength);
+            }
+            await Store.InsertUserTemplateAsync(templateID, userCode, templateName, templateContent);
 
-            return userTemplate.nTemplateID;
+            return templateID;
+        }
+
+        public async Task UpdateUserTempalteContent(int nTemplateID, string strTemplateContent)
+        {
+            DbpUsertemplate userTemplate = await Store.GetUsertemplateAsync(a => a.Where( x=> x.Templateid == nTemplateID), true);
+            if (userTemplate !=null && userTemplate.Templateid <= 0)
+            {
+                SobeyRecException.ThrowSelfOneParam(nTemplateID.ToString(), GlobalDictionary.GLOBALDICT_CODE_CAN_NOT_FIND_THE_TEMPLATE_ID_IS_ONEPARAM,null,  string.Format(GlobalDictionary.Instance.GetMessageByCode(GlobalDictionary.GLOBALDICT_CODE_CAN_NOT_FIND_THE_TEMPLATE_ID_IS_ONEPARAM),
+                    nTemplateID),  null);
+                return;
+            }
+
+            await Store.ModifyUserTempalteContent(nTemplateID, strTemplateContent);
+        }
+
+        public async Task<List<TResult>> GetUserAllTemplatesAsync<TResult>(string strUserCode)
+        {
+            var dbpUserTempList = await Store.GetUsertemplateLstAsync(a => a.Where(x => x.Usercode == strUserCode), true);
+
+            return _mapper.Map<List<TResult>>(dbpUserTempList);
+        }
+
+
+        #endregion
+
+        #region CMapi user 
+
+        public async Task<TResponse> GetUserInfoByUserCode<TResponse>(string strUserCode)
+        {
+            string uri = string.Format("http://{0}/CMApi/api/basic/account/getuserinfobyusercode?usercode={1}", ApplicationContext.Current.CMServerUrl, strUserCode);
+
+            AutoRetry.
+
+            HttpClient client = new HttpClient();
+            client.DefaultRequestHeaders.SetHeaderValue();
+
+            var strReturn = client.GetAsync(uri).Result.Content.ReadAsStringAsync().Result;
+            LoggerService.Error("GetUserInfoByCode" + uri + strReturn);
+
+            var reres = JsonConvert.DeserializeObject<ResponseMessageN<CMUserInfo>>(strReturn);
         }
 
         #endregion
