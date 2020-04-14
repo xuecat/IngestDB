@@ -57,24 +57,24 @@ namespace IngestTaskPlugin.Controllers
         private readonly ILogger Logger = LoggerManager.GetLogger("TaskInfo");
         private readonly TaskManager _taskManage;
         private readonly RestClient _restClient;
-        private readonly IMapper _mapper;
+        //private readonly IMapper _mapper;
 
-        public TaskController(RestClient rsc, TaskManager task, IMapper mapper)
+        public TaskController(RestClient rsc, TaskManager task/*, IMapper mapper*/)
         {
             _taskManage = task;
             _restClient = rsc;
-            _mapper = mapper ?? throw new ArgumentNullException(nameof(mapper));
+            //_mapper = mapper ?? throw new ArgumentNullException(nameof(mapper));
         }
 
         /// <summary>
-        /// 使用路由 /taskmaterialmetadata/{taskid}
+        /// 使用路由 /taskinfo/materialmetadata/{taskid}
         /// </summary>
         /// <remarks>
         /// 例子:
         ///     Get api/v2/task/taskmaterialmetadata/1
         /// </remarks>
         /// <returns>素材任务元数据结构体</returns>     
-        [HttpGet("taskmaterialmetadata/{taskid}")]
+        [HttpGet("taskinfo/materialmetadata/{taskid}")]
         [ApiExplorerSettings(GroupName = "v2")]
         public async Task<ResponseMessage<TaskMaterialMetaResponse>> GetTaskMaterialMetaData([FromRoute, BindRequired]int taskid)
         {
@@ -107,14 +107,14 @@ namespace IngestTaskPlugin.Controllers
         }
 
         /// <summary>
-        /// 使用路由 /taskcontentmetadata/{taskid}
+        /// 使用路由 /taskinfo/contentmetadata/{taskid}
         /// </summary>
         /// <remarks>
         /// 例子:
         ///     Get api/v2/task/taskcontentmetadata/1
         /// </remarks>
         /// <returns>任务元数据结构体</returns>     
-        [HttpGet("taskcontentmetadata/{taskid}")]
+        [HttpGet("taskinfo/contentmetadata/{taskid}")]
         [ApiExplorerSettings(GroupName = "v2")]
         public async Task<ResponseMessage<TaskContentMetaResponse>> GetTaskContentMetaData([FromRoute, BindRequired]int taskid)
         {
@@ -147,14 +147,14 @@ namespace IngestTaskPlugin.Controllers
         }
 
         /// <summary>
-        /// 使用路由 /taskplanningmetadata/{taskid}
+        /// 使用路由 /taskinfo/planningmetadata/{taskid}
         /// </summary>
         /// <remarks>
         /// 例子:
         ///     Get api/v2/task/taskplanningmetadata/1
         /// </remarks>
         /// <returns>任务计划元数据结构体</returns>     
-        [HttpGet("taskplanningmetadata/{taskid}")]
+        [HttpGet("taskinfo/planningmetadata/{taskid}")]
         [ApiExplorerSettings(GroupName = "v2")]
         public async Task<ResponseMessage<TaskPlanningResponse>> GetTaskPlanningMetaData([FromRoute, BindRequired]int taskid)
         {
@@ -187,7 +187,7 @@ namespace IngestTaskPlugin.Controllers
         }
 
         /// <summary>
-        /// 使用路由 /taskmetadata/{taskid}
+        /// 使用路由 /taskinfo/metadata//{taskid}
         /// </summary>
         /// <remarks>
         /// 假如没有此属性会新加，有此属性会更新
@@ -198,7 +198,7 @@ namespace IngestTaskPlugin.Controllers
         /// <param name="tasktype">元数据类型</param>
         /// <param name="lst">键值对应需要更新的数据，proterty和value</param>
         /// <returns>任务计划元数据结构体</returns>     
-        [HttpPost("taskmetadata/{taskid}")]
+        [HttpPost("taskinfo/metadata/{taskid}")]
         [ApiExplorerSettings(GroupName = "v2")]
         public async Task<ResponseMessage<string>> UpdateTaskMetaData([FromRoute, BindRequired]int taskid, [FromQuery, BindRequired]int tasktype, [FromBody, BindRequired]List<PropertyResponse> lst)
         {
@@ -238,7 +238,7 @@ namespace IngestTaskPlugin.Controllers
         ///     Get api/v2/task/taskcustommetadata/1
         /// </remarks>
         /// <returns>获取任务自定义数据</returns>     
-        [HttpGet("taskcustommetadata/{taskid}")]
+        [HttpGet("taskinfo/custommetadata/{taskid}")]
         [ApiExplorerSettings(GroupName = "v2")]
         public async Task<ResponseMessage<TaskCustomMetadataResponse>> GetTaskCustomMetaData([FromRoute, BindRequired]int taskid)
         {
@@ -271,7 +271,7 @@ namespace IngestTaskPlugin.Controllers
         }
 
         /// <summary>
-        /// 使用路由 /taskcustommetadata/{taskid}
+        /// 使用路由 /taskinfo/custommetadata/{taskid}
         /// </summary>
         /// <remarks>
         /// 例子:
@@ -280,7 +280,7 @@ namespace IngestTaskPlugin.Controllers
         /// <param name="taskid">任务id</param>
         /// <param name="data">更新数据，taskid填不填看你，我不会用</param>
         /// <returns>获取任务自定义数据</returns>     
-        [HttpPost("taskcustommetadata/{taskid}")]
+        [HttpPost("taskinfo/custommetadata/{taskid}")]
         [ApiExplorerSettings(GroupName = "v2")]
         public async Task<ResponseMessage<int>> UpdateTaskCustomMetaData([FromRoute, BindRequired]int taskid, [FromBody, BindRequired]TaskCustomMetadataRequest data)
         {
@@ -447,6 +447,10 @@ namespace IngestTaskPlugin.Controllers
             {
                 Response.Ext = await _taskManage.AddTaskWithoutPolicy(task, string.Empty, string.Empty, string.Empty, string.Empty);
 
+                //添加后如果开始时间在2分钟以内，需要调度一次
+                if ((DateTimeFormat.DateTimeFromString(task.TaskContent.Begin) - DateTime.Now).TotalSeconds < 120)
+                    await _taskManage.UpdateComingTasks();
+
                 var _globalinterface = ApplicationContext.Current.ServiceProvider.GetRequiredService<IIngestGlobalInterface>();
                 if (_globalinterface != null)
                 {
@@ -570,7 +574,7 @@ namespace IngestTaskPlugin.Controllers
         /// <returns>任务id</returns>
         [HttpGet("taskinfo/capturing/{channelid}")]
         [ApiExplorerSettings(GroupName = "v2")]
-        public async Task<ResponseMessage<TaskContentResponse>> GetChannelCapturingTaskInfo([FromQuery, BindRequired]int channelid)
+        public async Task<ResponseMessage<TaskContentResponse>> GetChannelCapturingTaskInfo([FromRoute, BindRequired]int channelid)
         {
             var Response = new ResponseMessage<TaskContentResponse>();
             if (channelid < 0)
@@ -607,11 +611,12 @@ namespace IngestTaskPlugin.Controllers
         /// 例子:
         ///
         /// </remarks>
-        /// <param name="channelid">通道信息</param>
+        /// <param name="taskid">任务id，给不给值无所谓只是为了好看</param>
+        /// <param name="req">修改请求体，请填入taskid信息</param>
         /// <returns>任务id</returns>
-        [HttpPut("taskinfo/content")]
+        [HttpPut("taskinfo/content/{taskid}")]
         [ApiExplorerSettings(GroupName = "v2")]
-        public async Task<ResponseMessage<TaskContentResponse>> ModifyTask([FromBody, BindRequired]TaskContentRequest req)
+        public async Task<ResponseMessage<TaskContentResponse>> ModifyTask([FromQuery, BindRequired]int taskid, [FromBody, BindRequired]TaskContentRequest req)
         {
             var Response = new ResponseMessage<TaskContentResponse>();
             if (req == null)
@@ -622,7 +627,22 @@ namespace IngestTaskPlugin.Controllers
 
             try
             {
-                Response.Ext = await _taskManage.GetChannelCapturingTask<TaskContentResponse>(channelid);
+                Response.Ext = await _taskManage.ModifyTask<TaskContentResponse>(req, string.Empty, string.Empty, string.Empty, string.Empty);
+
+                //添加后如果开始时间在2分钟以内，需要调度一次
+                if ((DateTimeFormat.DateTimeFromString(req.Begin) - DateTime.Now).TotalSeconds < 120)
+                    await _taskManage.UpdateComingTasks();
+
+                var _globalinterface = ApplicationContext.Current.ServiceProvider.GetRequiredService<IIngestGlobalInterface>();
+                if (_globalinterface != null)
+                {
+                    GlobalInternals re = new GlobalInternals() { funtype = IngestDBCore.GlobalInternals.FunctionType.SetGlobalState, State = GlobalStateName.MODTASK };
+                    var response1 = await _globalinterface.SubmitGlobalCallBack(re);
+                    if (response1.Code != ResponseCodeDefines.SuccessCode)
+                    {
+                        Logger.Error("SetGlobalState modtask error");
+                    }
+                }
             }
             catch (Exception e)
             {

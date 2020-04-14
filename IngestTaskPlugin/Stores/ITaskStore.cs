@@ -30,6 +30,8 @@ namespace IngestTaskPlugin.Stores
         Task SaveChangeAsync();
 
         Task<List<DbpTask>> GetTaskListAsync(TaskCondition condition , bool Track, bool uselock);
+        Task UpdateTaskListAsync(List<DbpTask> lst);
+
         Task<TResult> GetTaskMetaDataAsync<TResult>(Func<IQueryable<DbpTaskMetadata>, IQueryable<TResult>> query, bool notrack = false);
         Task<TResult> GetTaskCustomMetaDataAsync<TResult>(Func<IQueryable<DbpTaskCustommetadata>, IQueryable<TResult>> query, bool notrack = false);
         Task UpdateTaskMetaDataAsync(int taskid, MetaDataType type, string metadata);
@@ -51,6 +53,8 @@ namespace IngestTaskPlugin.Stores
         Task<List<int>> GetFreeChannels(List<int> lst, DateTime begin, DateTime end);
         Task<List<int>> GetFreePerodiChannels(List<int> lst, int nTaskID, int nUnitID, int nSigID, int nChannelID, string Category, DateTime begin, DateTime end);
         Task<DbpTask> AddTaskWithPolicys(DbpTask task, bool bAddForInDB, TaskSource taskSrc, string CaptureMeta, string ContentMeta, string MatiralMeta, string PlanningMeta, int[] arrPolicys);
+        Task<DbpTask> ModifyTask(DbpTask task, bool bPerodic2Next, string CaptureMeta, string ContentMeta, string MatiralMeta, string PlanningMeta);
+
         Task LockTask(int taskid);
         Task UnLockTask(int taskid);
     }

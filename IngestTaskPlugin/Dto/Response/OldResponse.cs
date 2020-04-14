@@ -442,5 +442,26 @@ namespace IngestTaskPlugin.Dto
         VTR_SCHEDULE_UPLOAD,                //vtr计划上载，已经分配了通道
                                             //VTR_KAMATAKI_UPLOAD					//vtr做Kamataki
     }
+    public class PostModifyTaskDb_IN
+    {
+        public TaskContent taskModify;
+        public string TaskMetaData;
+        public string MaterialMetaData;
+    }
+    public class PostModifyTaskDb_OUT
+    {
+        public string errStr;
+        public bool bRet;
+    }
+    public class ModifyTask_out
+    {
+        public string errStr;
+        public bool bRet;
+    }
+    public class ModifyTask_in
+    {
+        public TaskContent taskModify;
+        public MetadataPair[] metadatas;
+    }
 }
 

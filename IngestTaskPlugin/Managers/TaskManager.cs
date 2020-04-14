@@ -369,7 +369,7 @@ namespace IngestTaskPlugin.Managers
             a.Where(b =>b.Channelid == channelid && (b.State == (int)taskState.tsExecuting || b.State == (int)taskState.tsManuexecuting)), true));
         }
 
-        public async Task<TaskContentResponse> ModifyTask<TResult>(TResult task, string ContentMeta, string MatiralMeta)
+        public async Task<TaskContentResponse> ModifyTask<TResult>(TResult task, string CaptureMeta, string ContentMeta, string MatiralMeta, string PlanningMeta)
         {
             var taskModify = _mapper.Map<TaskContentRequest>(task);
 
@@ -401,7 +401,9 @@ namespace IngestTaskPlugin.Managers
                 var _globalinterface = ApplicationContext.Current.ServiceProvider.GetRequiredService<IIngestDeviceInterface>();
                 if (_globalinterface != null)
                 {
-                    DeviceInternals re = new DeviceInternals() { funtype = IngestDBCore.DeviceInternals.FunctionType.ChannelInfoBySrc, SrcId = SignalID, Status = condition.CheckCHCurState ? 1 : 0 };
+                    DeviceInternals re = new DeviceInternals() { funtype = IngestDBCore.DeviceInternals.FunctionType.ChannelInfoBySrc,
+                        SrcId = taskModify.SignalID, Status = 1 };
+
                     var response1 = await _globalinterface.GetDeviceCallBack(re);
                     if (response1.Code != ResponseCodeDefines.SuccessCode)
                     {
@@ -455,21 +457,150 @@ namespace IngestTaskPlugin.Managers
                 }
             }
 
+            DateTime modifybegin = DateTimeFormat.DateTimeFromString(taskModify.Begin);
+            DateTime modifyend = DateTimeFormat.DateTimeFromString(taskModify.End);
+
             List<TaskContentResponse> lsttask = null;
             //看修改的时间是否冲突,如果是周期任务，传入真实的beginTime.EndTime
             if (taskModify.TaskType != TaskType.TT_PERIODIC)
             {
-                DateTime begin = DateTimeFormat.DateTimeFromString(taskModify.Begin);
-                DateTime end = DateTimeFormat.DateTimeFromString(taskModify.End);
-                await Store.GetTaskListAsync(a => a.Where(x => ((x.Starttime >= begin && x.Starttime <= end)
-                 || (x.Endtime >= begin && x.Endtime <= end) || (x.Starttime < begin && x.Endtime > end))
-                && (x.State == (int)taskState.tsReady || x.State == (int)taskState.tsExecuting)
-                && (x.DispatchState == (int)dispatchState.dpsDispatched || x.DispatchState == (int)dispatchState.dpsNotDispatch)
-                && (taskModify.ChannelID <= 0 || (taskModify.ChannelID > 0 && x.Channelid == taskModify.ChannelID))
-                && (taskModify.Unit <= 0 || (taskModify.Unit > 0 && x.Recunitid == taskModify.Unit))
-                && x.Tasktype != (int)TaskType.TT_PERIODIC), true);
+                //获取冲突任务列表
+                //if (conflictContent.Length == 1 && conflictContent[0].nTaskID == info.taskContent.nTaskID)
+                //{
+
+                //}
+                //else
+                //{
+                //    TASKOPER.UnlockTask(taskModify.nTaskID);
+                //    //SobeyRecException.ThrowSelf(Locallanguage.LoadString("Can Not Modify Time,Conflict Tasks:")
+                //    //    +GetTaskDesc(conflictContent),2);
+                //    SobeyRecException.ThrowSelf(string.Format(GlobalDictionary.Instance.GetMessageByCode(GlobalDictionary.GLOBALDICT_CODE_CAN_NOT_MODIFY_TIME_CONFLICT_TASKS),
+                //                GetTaskDesc(conflictContent)), GlobalDictionary.GLOBALDICT_CODE_CAN_NOT_MODIFY_TIME_CONFLICT_TASKS);
+                //}
+                List<int> chl = new List<int>() { taskModify.ChannelID };
+                var freelst = await Store.GetFreeChannels(chl, modifybegin, modifyend);
+                if (freelst == null || freelst.Count < 1)
+                {
+                    await Store.UnLockTask(findtask.Taskid);
+                    SobeyRecException.ThrowSelfOneParam("ModifyTask GetFreeChannels empty",
+                        GlobalDictionary.GLOBALDICT_CODE_CAN_NOT_MODIFY_TIME_CONFLICT_TASKS_ONEPARAM, Logger, taskModify.TaskID, null);
+
+                }
+            }
+            else
+            {
+                //不论是否为分出来的还是不是分出来的任务，都要进行冲突判断
+                if (findtask.OldChannelid <= 0)
+                {
+                    /*
+                     * @brief 老版本会跨天判断，并多次查询，跨天的会分俩次查询，我大胆使用新的代码
+                     */
+                    if (findtask.Starttime.Date == findtask.Endtime.Date)
+                    {
+                    }
+
+                    List<int> chl = new List<int>() { taskModify.ChannelID };
+                    
+                    DateTime dtTmpModiStart = new DateTime(findtask.Starttime.Year, findtask.Starttime.Month, findtask.Starttime.Day,
+                            modifybegin.Hour, modifybegin.Minute, modifybegin.Second);
+                    DateTime dtTmpModiEnd = new DateTime(findtask.Endtime.Year, findtask.Endtime.Month, findtask.Endtime.Day,
+                        modifyend.Hour, modifyend.Minute, modifyend.Second);
+
+                    var freelst = await Store.GetFreePerodiChannels(chl, taskModify.TaskID, taskModify.Unit, taskModify.SignalID,
+                        taskModify.ChannelID, taskModify.Classify, dtTmpModiStart, dtTmpModiEnd);
+
+                    if (freelst == null || freelst.Count < 1)
+                    {
+                        await Store.UnLockTask(findtask.Taskid);
+                        SobeyRecException.ThrowSelfOneParam("ModifyTask GetFreePerodiChannels1 empty", 
+                            GlobalDictionary.GLOBALDICT_CODE_CAN_NOT_MODIFY_TIME_CONFLICT_TASKS_ONEPARAM, Logger, taskModify.TaskID, null);
+
+                    }
+                }
+                else
+                {
+                    
+                    if (modifyend - modifybegin > new TimeSpan(0, 23, 59, 59))
+                    {
+                        await Store.UnLockTask(findtask.Taskid);
+                        SobeyRecException.ThrowSelfNoParam("ModifyTask match over 24", GlobalDictionary.GLOBALDICT_CODE_TASK_TIME_IS_OVER_24_HOURS, Logger, null);
+
+                    }
+
+                    List<int> chl = new List<int>() { taskModify.ChannelID };
+                    var freelst = await Store.GetFreePerodiChannels(chl, taskModify.TaskID, taskModify.Unit, taskModify.SignalID,
+                        taskModify.ChannelID, taskModify.Classify, modifybegin, modifyend);
+
+                    if (freelst == null || freelst.Count < 1)
+                    {
+                        await Store.UnLockTask(findtask.Taskid);
+                        SobeyRecException.ThrowSelfOneParam("ModifyTask GetFreePerodiChannels2 empty",
+                            GlobalDictionary.GLOBALDICT_CODE_CAN_NOT_MODIFY_TIME_CONFLICT_TASKS_ONEPARAM, Logger, taskModify.TaskID, null);
+
+                    }
+                }
+            }
+
+            findtask.Recunitid = taskModify.Unit;
+            findtask.Taskname = taskModify.TaskName;
+            findtask.Description = taskModify.TaskDesc;
+            findtask.Channelid = taskModify.ChannelID;
+            findtask.Signalid = taskModify.SignalID;
+
+           
+            //对于周期任务，不允许改变任务日期
+            if (findtask.Tasktype == (int)TaskType.TT_PERIODIC && findtask.OldChannelid <= 0)
+            {
+                findtask.Starttime = new DateTime(findtask.Starttime.Year, findtask.Starttime.Month, findtask.Starttime.Day,
+                    modifybegin.Hour, modifybegin.Minute, modifybegin.Second);
+                findtask.Endtime = new DateTime(findtask.Endtime.Year, findtask.Endtime.Month, findtask.Endtime.Day,
+                    modifyend.Hour, modifyend.Minute, modifyend.Second);
+            }
+            else
+            {
+                TimeSpan span = findtask.Starttime - DateTime.Now;
+                int tkState = findtask.State.GetValueOrDefault();
+                //如果任务已经或者即将开始，不允许改变开始时间
+                if ((tkState == (int)taskState.tsExecuting || tkState != (int)taskState.tsReady || tkState != (int)taskState.tsManuexecuting)
+                    && span.TotalSeconds < 30)
+                {
+                    //原有的开始时间不等于现有的开始时间，但是长度相等，表明是拖动整体移动，不能修改时间，
+                    //否则可以更改结束时间
+                    TimeSpan tmpSpan1 = findtask.Endtime - findtask.Starttime;
+                    TimeSpan tmpSpan2 = modifyend - modifybegin;
+                    if (findtask.Starttime != modifybegin && tmpSpan1 == tmpSpan2)
+                    {
+                        /*
+                         * @brief 这里会判断冲突，我去掉了，因为感觉没有必要
+                         */
+                    }
+                    else
+                        findtask.Endtime = modifyend;
+                }
+                else
+                {
+                    findtask.Starttime = modifybegin;
+                    findtask.Endtime = modifyend;
+                }
+            }
+
+            findtask.Tasktype = (int)taskModify.TaskType;
+            findtask.Backupvtrid = taskModify.BackupVTRID;
+            findtask.Backtype = (int)taskModify.CooperantType;
+            findtask.Stampimagetype = taskModify.StampImageType;
+            findtask.Tasklock = string.Empty;
+
+            try
+            {
+                return _mapper.Map<TaskContentResponse>(await Store.ModifyTask(findtask, false, CaptureMeta, ContentMeta, MatiralMeta, PlanningMeta));
+            }
+            catch (Exception e)
+            {
+                await Store.UnLockTask(findtask.Taskid);
+                SobeyRecException.ThrowSelfNoParam("ModifyTask match ModifyTask", GlobalDictionary.GLOBALDICT_CODE_SET_TASKMETADATA_FAIL, Logger, e);
 
             }
+            return null;
 
         }
         private bool IsTimePeriodInVTRTimePeriods(TimePeriod tp, VTRTimePeriods vtrFreeTimePeriods)
@@ -486,6 +617,28 @@ namespace IngestTaskPlugin.Managers
             }
 
             return false;
+        }
+
+        public async Task<int> UpdateComingTasks()
+        {
+            TaskCondition condition = new TaskCondition();
+            var lst = await Store.GetTaskListAsync(c => c.Where(f => f.State == (int)syncState.ssSync
+            && f.DispatchState == (int)dispatchState.dpsNotDispatch
+            && (f.State!= (int)taskState.tsDelete && f.State != (int)taskState.tsConflict && f.State != (int)taskState.tsInvaild)
+            && (f.Starttime > DateTime.Now.AddHours(-24) && f.Starttime < DateTime.Now.AddHours(1)) ));
+
+            
+            if (lst!= null && lst.Count > 0)
+            {
+                string log = string.Empty;
+                lst.ForEach(a => { a.SyncState = (int)syncState.ssNot; a.DispatchState = (int)dispatchState.dpsDisabled; a.Tasklock = string.Empty; log += ","+a.Taskid; });
+
+                Logger.Info("UpdateComingTasks {0} ", string.Join(",", log));
+
+                await Store.UpdateTaskListAsync(lst);
+                return lst.Count;
+            }
+            return 0;
         }
 
         public async Task<VTRTimePeriods> GetFreeTimePeriodByVtrId(VTRTimePeriods vtrFreeTimePeriods, int exTaskId, DateTime beginCheckTime, VtrUploadtask vtrtask)

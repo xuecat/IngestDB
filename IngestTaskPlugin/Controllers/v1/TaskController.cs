@@ -408,7 +408,7 @@ namespace IngestTaskPlugin.Controllers
         }
 
 
-        [HttpPost("GetAllChannelCapturingTask"), MapToApiVersion("1.0")]
+        [HttpGet("GetAllChannelCapturingTask"), MapToApiVersion("1.0")]
         [ApiExplorerSettings(GroupName = "v1")]
         public async Task<GetAllChannelCapturingTask_OUT> GetAllChannelCapturingTask()
         {
@@ -441,7 +441,7 @@ namespace IngestTaskPlugin.Controllers
 
         }
 
-        [HttpPost("GetChannelCapturingTask"), MapToApiVersion("1.0")]
+        [HttpGet("GetChannelCapturingTask"), MapToApiVersion("1.0")]
         [ApiExplorerSettings(GroupName = "v1")]
         public async Task<GetChannelCapturingTask_out> GetChannelCapturingTask(int nChannelID)
         {
@@ -471,7 +471,124 @@ namespace IngestTaskPlugin.Controllers
                 }
                 return Response;
             }
+        }
 
+        [HttpPost("GetChannelCapturingTask"), MapToApiVersion("1.0")]
+        [ApiExplorerSettings(GroupName = "v1")]
+        public async Task<PostModifyTaskDb_OUT> PostModifyTaskDb([FromBody]PostModifyTaskDb_IN pIn)
+        {
+            var Response = new PostModifyTaskDb_OUT
+            {
+                bRet = true,
+                errStr = "OK"
+            };
+
+            try
+            {
+                await _taskManage.ModifyTask<TaskContent>(pIn.taskModify, string.Empty, pIn.TaskMetaData, pIn.MaterialMetaData, string.Empty);
+                //添加后如果开始时间在2分钟以内，需要调度一次
+                if ((DateTimeFormat.DateTimeFromString(pIn.taskModify.strBegin) - DateTime.Now).TotalSeconds < 120)
+                    await _taskManage.UpdateComingTasks();
+
+                var _globalinterface = ApplicationContext.Current.ServiceProvider.GetRequiredService<IIngestGlobalInterface>();
+                if (_globalinterface != null)
+                {
+                    GlobalInternals re = new GlobalInternals() { funtype = IngestDBCore.GlobalInternals.FunctionType.SetGlobalState, State = GlobalStateName.MODTASK };
+                    var response1 = await _globalinterface.SubmitGlobalCallBack(re);
+                    if (response1.Code != ResponseCodeDefines.SuccessCode)
+                    {
+                        Logger.Error("SetGlobalState modtask error");
+                    }
+                }
+
+                return Response;
+            }
+            catch (Exception e)
+            {
+                if (e.GetType() == typeof(SobeyRecException))//sobeyexcep会自动打印错误
+                {
+                    SobeyRecException se = e as SobeyRecException;
+                    Response.errStr = se.ErrorCode.ToString();
+                }
+                else
+                {
+                    Response.errStr = "error info：" + e.ToString();
+                    Logger.Error("GetAllChannelCapturingTask" + e.ToString());
+                }
+                return Response;
+            }
+            return Response;
+        }
+
+        [HttpPost("GetChannelCapturingTask"), MapToApiVersion("1.0")]
+        [ApiExplorerSettings(GroupName = "v1")]
+        public async Task<ModifyTask_out> ModifyTask([FromBody] ModifyTask_in pIn)
+        {
+            var Response = new ModifyTask_out
+            {
+                bRet = true,
+                errStr = "OK"
+            };
+
+            try
+            {
+                string CaptureMeta = string.Empty;
+                string ContentMeta = string.Empty;
+                string MatiralMeta = string.Empty;
+                string PlanningMeta = string.Empty;
+                foreach (var item in pIn.metadatas)
+                {
+                    if (item.emtype == MetaDataType.emCapatureMetaData)
+                    {
+                        CaptureMeta = item.strMetadata;
+                    }
+                    else if (item.emtype == MetaDataType.emStoreMetaData)
+                    {
+                        MatiralMeta = item.strMetadata;
+                    }
+                    else if (item.emtype == MetaDataType.emContentMetaData)
+                    {
+                        ContentMeta = item.strMetadata;
+                    }
+                    else if (item.emtype == MetaDataType.emPlanMetaData)
+                    {
+                        PlanningMeta = item.strMetadata;
+                    }
+                }
+
+                await _taskManage.ModifyTask<TaskContent>(pIn.taskModify, CaptureMeta, ContentMeta, MatiralMeta, PlanningMeta);
+                //添加后如果开始时间在2分钟以内，需要调度一次
+                if ((DateTimeFormat.DateTimeFromString(pIn.taskModify.strBegin) - DateTime.Now).TotalSeconds < 120)
+                    await _taskManage.UpdateComingTasks();
+
+                var _globalinterface = ApplicationContext.Current.ServiceProvider.GetRequiredService<IIngestGlobalInterface>();
+                if (_globalinterface != null)
+                {
+                    GlobalInternals re = new GlobalInternals() { funtype = IngestDBCore.GlobalInternals.FunctionType.SetGlobalState, State = GlobalStateName.MODTASK };
+                    var response1 = await _globalinterface.SubmitGlobalCallBack(re);
+                    if (response1.Code != ResponseCodeDefines.SuccessCode)
+                    {
+                        Logger.Error("SetGlobalState modtask error");
+                    }
+                }
+
+                return Response;
+            }
+            catch (Exception e)
+            {
+                if (e.GetType() == typeof(SobeyRecException))//sobeyexcep会自动打印错误
+                {
+                    SobeyRecException se = e as SobeyRecException;
+                    Response.errStr = se.ErrorCode.ToString();
+                }
+                else
+                {
+                    Response.errStr = "error info：" + e.ToString();
+                    Logger.Error("GetAllChannelCapturingTask" + e.ToString());
+                }
+                return Response;
+            }
+            return Response;
         }
         ////////////////////////////
     }
