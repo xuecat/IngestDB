@@ -660,5 +660,85 @@ namespace IngestGlobalPlugin.Controllers
 
         #endregion
 
+        #region CMApi
+
+        /// <summary>
+        /// 获得userinfo通过code
+        /// </summary>
+        /// <param name="strUserCode"></param>
+        /// <returns>取到的用户信息</returns>
+        /// <remarks>
+        /// 例子:
+        /// Get api/v2/userinfo
+        /// </remarks>
+        [HttpGet("userinfo")]
+        [ApiExplorerSettings(GroupName = "v2")]
+        public async Task<ResponseMessage<CMUserInfo>> GetUserInfoByCode([FromQuery]string strUserCode)
+        {
+            ResponseMessage<CMUserInfo> Response = new ResponseMessage<CMUserInfo>();
+            try
+            {
+                Response = await _GlobalManager.GetUserInfoByUserCodeAsync<CMUserInfo>(strUserCode);
+            }
+            catch (Exception e)//其他未知的异常，写异常日志
+            {
+                if (e.GetType() == typeof(SobeyRecException))//sobeyexcep会自动打印错误
+                {
+                    SobeyRecException se = e as SobeyRecException;
+                    Response.Code = se.ErrorCode.ToString();
+                    Response.Msg = se.Message;
+                }
+                else
+                {
+                    Response.Code = ResponseCodeDefines.ServiceError;
+                    Response.Msg = "error info：" + e.ToString();
+                    Logger.Error(Response.Msg);
+                }
+            }
+            return Response;
+        }
+
+        //通过用户ID得到用户高清或标清采集参数=
+        [HttpGet("captureparamtemplate/highorstandard")]
+        [ApiExplorerSettings(GroupName = "v2")]
+        public async Task<ResponseMessage<string>> GetUserHighOrStandardParam([FromQuery]string szUserToken, [FromQuery]int nFlag)//nFlag：0为标清，1为高清
+        {
+            ResponseMessage<string> Response = new ResponseMessage<string>();
+            try
+            {
+                int nCaptureParamID = -1;
+
+                ResponseMessage<etparam> res = await _GlobalManager.GetHighOrStandardParamAsync<etparam>(szUserToken);
+                if (res.Code == ResponseCodeDefines.SuccessCode)
+                {
+                    nCaptureParamID = Convert.ToInt32(res.Ext.paramvalue);
+                    Response = await GetParamTemplateByID(nCaptureParamID, nFlag);
+                }
+                else
+                {
+                    Response.Ext = null;
+                    Response.Code = ResponseCodeDefines.ServiceError;
+                }
+            }
+            catch (System.Exception e)
+            {
+                if (e.GetType() == typeof(SobeyRecException))//sobeyexcep会自动打印错误
+                {
+                    SobeyRecException se = e as SobeyRecException;
+                    Response.Code = se.ErrorCode.ToString();
+                    Response.Msg = se.Message;
+                }
+                else
+                {
+                    Response.Code = ResponseCodeDefines.ServiceError;
+                    Response.Msg = "error info：" + e.ToString();
+                    Logger.Error(Response.Msg);
+                }
+            }
+            return Response;
+        }
+
+        #endregion
+
     }
 }
