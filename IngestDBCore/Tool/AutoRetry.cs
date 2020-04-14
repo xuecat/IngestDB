@@ -45,6 +45,41 @@ namespace IngestDBCore.Tool
             return r;
         }
 
+        public async static Task<TResponse> Run<TResponse>(Func<string,Task<TResponse>> proc,string param, int retryCount = 3, int delay = 1000)
+            where TResponse : ResponseMessage
+        {
+            TResponse r = null;
+            for (int i = 1; i <= retryCount; i++)
+            {
+                bool isOk = true;
+                try
+                {
+                    r = await proc(param);
+                    isOk = r.Code == ResponseCodeDefines.SuccessCode;
+                }
+                catch (System.Exception e)
+                {
+                    //Logger.Error("execute proc error....{0}\r\n{1}", r == null ? "" : (r.Message ?? ""), e.ToString());
+                    isOk = false;
+                    if (i == retryCount)
+                    {
+                        throw;
+                    }
+                }
+                if (!isOk)
+                {
+                    if (delay > 0)
+                    {
+                        await Task.Delay((int)delay);
+                    }
+                }
+                else
+                {
+                    break;
+                }
+            }
+            return r;
+        }
 
         public async static Task<bool> Run(Func<Task<bool>> proc, int retryCount = 5, int delay = 5000)
         {

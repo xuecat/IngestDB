@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Sobey.Ingest.CommonHelper;
+using System;
 using System.Collections.Generic;
 using System.Collections.Specialized;
 using System.IO;
@@ -133,6 +134,72 @@ namespace IngestDBCore.Tool
             return response;
         }
 
+        public async Task<TResponse> GetCmApi<TResponse>(string url, NameValueCollection queryString = null)
+        {
+            TResponse response = default(TResponse);
+            try
+            {
+                HttpClient client = _httpClient;
+                if (queryString == null)
+                {
+                    queryString = new NameValueCollection();
+                }
+                url = CreateUrl(url, queryString);
+                client.DefaultRequestHeaders.SetHeaderValue();
+                //Logger.Debug("请求：{0} {1}", "GET", url);
+                byte[] rData = await client.GetByteArrayAsync(url);
+                string rJson = Encoding.UTF8.GetString(rData);
+                //Logger.Debug("应答：\r\n{0}", rJson);
+                response = JsonHelper.ToObject<TResponse>(rJson);
+            }
+            catch (System.Exception e)
+            {
+                TResponse r = default(TResponse);
+                //Logger.Error("请求异常：\r\n{0}", e.ToString());
+                return r;
+            }
+            return response;
+        }
+
+        public async Task<TResponse> Post<TResponse>(string url, object body, Dictionary<string, string> header, string method = null, NameValueCollection queryString = null)
+        {
+            TResponse response = default(TResponse);
+            try
+            {
+                string json = JsonHelper.ToJson(body);
+                HttpClient client = _httpClient;
+                if (queryString == null)
+                {
+                    queryString = new NameValueCollection();
+                }
+
+                url = CreateUrl(url, queryString);
+                if (String.IsNullOrEmpty(method))
+                {
+                    method = "POST";
+                }
+                //Logger.Debug("请求：{0} {1}", method, url);
+                byte[] strData = Encoding.UTF8.GetBytes(json);
+                MemoryStream ms = new MemoryStream(strData);
+                StreamContent sc = new StreamContent(ms);
+                sc.Headers.ContentType = new MediaTypeWithQualityHeaderValue("application/json");
+                foreach (var item in header)
+                {
+                    sc.Headers.Add(item.Key, item.Value);
+                }
+                var res = await client.PostAsync(url, sc);
+                byte[] rData = await res.Content.ReadAsByteArrayAsync();
+                string rJson = Encoding.UTF8.GetString(rData);
+                //Logger.Debug("应答：\r\n{0}", rJson);
+                response = JsonHelper.ToObject<TResponse>(rJson);
+                return response;
+            }
+            catch (System.Exception e)
+            {
+                //Logger.Error("请求异常：\r\n{0}", e.ToString());
+                throw;
+            }
+        }
 
         public async Task<string> Post(string url, object body, string method, NameValueCollection queryString)
         {

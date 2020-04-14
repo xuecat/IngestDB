@@ -11,6 +11,7 @@ using AutoMapper;
 using IngestGlobalPlugin.Models;
 using System.Xml;
 using IngestDBCore.Tool;
+using System.Collections.Specialized;
 
 namespace IngestGlobalPlugin.Managers
 {
@@ -311,21 +312,70 @@ namespace IngestGlobalPlugin.Managers
 
         #endregion
 
-        #region CMapi user 
+        #region CMapi user
 
-        public async Task<TResponse> GetUserInfoByUserCode<TResponse>(string strUserCode)
+
+        public async Task<ResponseMessage<TResponse>> GetUserInfoByUserCodeAsync<TResponse>(string strUserCode)
         {
+            var result = await AutoRetry.Run(ExcuteUserInfo<TResponse>, strUserCode);
+            //return _mapper.Map<TResponse>(result);
+            return result;
+        }
+        
+
+        public async Task<ResponseMessage<TResult>> ExcuteUserInfo<TResult>(string strUserCode)
+        {
+            ResponseMessage<TResult> result = new ResponseMessage<TResult>();
             string uri = string.Format("http://{0}/CMApi/api/basic/account/getuserinfobyusercode?usercode={1}", ApplicationContext.Current.CMServerUrl, strUserCode);
+            
+            ResponseMessageN<OldCMUserInfo> reres = await _restClient.GetCmApi<ResponseMessageN<OldCMUserInfo>>(uri);
 
-            AutoRetry.
+            if (reres.Code == "0")
+            {
+                result.Ext = _mapper.Map<TResult>(reres.ext);
+                result.Code = ResponseCodeDefines.SuccessCode;
+            }
+            else
+            {
+                result.Ext = default(TResult);
+                result.Code = ResponseCodeDefines.PartialFailure;
+            }
 
-            HttpClient client = new HttpClient();
-            client.DefaultRequestHeaders.SetHeaderValue();
+            return result;
+        }
 
-            var strReturn = client.GetAsync(uri).Result.Content.ReadAsStringAsync().Result;
-            LoggerService.Error("GetUserInfoByCode" + uri + strReturn);
+        public async Task<ResponseMessage<TResponse>> GetHighOrStandardParamAsync<TResponse>(string szUserToken)
+        {
+            var result = await AutoRetry.Run(GetHighOrStandardParam<TResponse>, szUserToken);
+            return result;
+        }
 
-            var reres = JsonConvert.DeserializeObject<ResponseMessageN<CMUserInfo>>(strReturn);
+        public async Task<ResponseMessage<TResult>> GetHighOrStandardParam<TResult>(string szUserToken)
+        {
+            userparameter param = new userparameter();
+            param.tool = "DEFAULT";
+            param.paramname = "HIGH_RESOLUTION";
+            param.system = "INGEST";
+
+            string uri = string.Format("http://{0}/CMApi/api/basic/config/getuserparam/", ApplicationContext.Current.CMServerUrl);
+
+            ResponseMessage<TResult> result = new ResponseMessage<TResult>();
+            var dicHeader = new Dictionary<string, string>();
+            dicHeader.Add("sobeyhive-http-token", szUserToken);
+            ResponseMessageN<etparam> reres = await _restClient.Post<ResponseMessageN<etparam>>(uri, param, dicHeader);
+
+            if (reres.Code == "0")
+            {
+                result.Ext = _mapper.Map<TResult>(reres.ext);
+                result.Code = ResponseCodeDefines.SuccessCode;
+            }
+            else
+            {
+                result.Ext = default(TResult);
+                result.Code = ResponseCodeDefines.PartialFailure;
+            }
+            
+            return result;
         }
 
         #endregion

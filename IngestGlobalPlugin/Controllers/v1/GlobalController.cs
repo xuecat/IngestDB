@@ -434,24 +434,17 @@ namespace IngestGlobalPlugin.Controllers
         
         [HttpGet("GetUserInfoByCode"), MapToApiVersion("1.0")]
         [ApiExplorerSettings(GroupName = "v1")]
-        public OldResponseMessage<OldCMUserInfo> OldGetUserInfoByCode(string strUserCode)
+        public async Task<OldResponseMessage<OldCMUserInfo>> OldGetUserInfoByCode(string strUserCode)
         {
             OldResponseMessage<OldCMUserInfo> res = new OldResponseMessage<OldCMUserInfo>();
             res.message = no_err;
             res.extention = null;
             try
             {
-                string uri = string.Format("http://{0}:{1}/CMApi/api/basic/account/getuserinfobyusercode?usercode={2}", DataConfig.cmserver_ip, DataConfig.cmserver_port, strUserCode);
-                HttpClient client = new HttpClient();
-                client.DefaultRequestHeaders.SetHeaderValue();
-
-                var strReturn = client.GetAsync(uri).Result.Content.ReadAsStringAsync().Result;
-                LoggerService.Error("GetUserInfoByCode" + uri + strReturn);
-
-                var reres = JsonConvert.DeserializeObject<ResponseMessageN<CMUserInfo>>(strReturn);
-                if (reres.Code == "0")
+                ResponseMessage<OldCMUserInfo> reres = await _GlobalManager.GetUserInfoByUserCodeAsync<OldCMUserInfo>(strUserCode);
+                if (reres.Code == ResponseCodeDefines.SuccessCode)
                 {
-                    res.extention = reres.ext;
+                    res.extention = reres.Ext;
                     res.message = "OK";
                     res.nCode = 1;
                 }
@@ -468,6 +461,43 @@ namespace IngestGlobalPlugin.Controllers
                 res.nCode = 0;
             }
             return res;
+        }
+
+
+        //通过用户ID得到用户高清或标清采集参数=
+        [HttpGet("GetUserHighOrStandardParam"), MapToApiVersion("1.0")]
+        [ApiExplorerSettings(GroupName = "v1")]
+        public async Task<OldResponseMessage<string>> OldGetUserHighOrStandardParam([FromQuery]string szUserToken, [FromQuery]int nFlag)//nFlag：0为标清，1为高清
+        {
+            OldResponseMessage<string> Res = new OldResponseMessage<string>();
+            try
+            {
+                int nCaptureParamID = -1;
+                
+                ResponseMessage<etparam> res = await _GlobalManager.GetHighOrStandardParamAsync<etparam>(szUserToken);
+                if (res.Code == ResponseCodeDefines.SuccessCode)
+                {
+                    nCaptureParamID = Convert.ToInt32(res.Ext.paramvalue);
+                    GetParamTemplateByID_out ret = await OldGetParamTemplateByID(nCaptureParamID, nFlag);
+
+                    Res.extention = ret.strCaptureParam;
+                    Res.message = "OK";
+                    Res.nCode = 1;
+                }
+                else
+                {
+                    Res.extention = null;
+                    Res.message = res.Msg;
+                    Res.nCode = 0;
+                }
+            }
+            catch (System.Exception ex)
+            {
+                Res.nCode = 0;
+                Res.message = ex.Message;
+                Logger.Error("OldGetUserHighOrStandardParam : " + ex.ToString());
+            }
+            return Res;
         }
 
         #endregion

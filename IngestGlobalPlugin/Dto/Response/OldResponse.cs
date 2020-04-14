@@ -126,4 +126,38 @@ namespace IngestGlobalPlugin.Dto
         public string nickname;
     }
 
+    public class ResponseMessageN
+    {
+        public string Code { get; set; }
+        public string msg { get; set; }
+        public ResponseMessageN()
+        {
+            Code = "0";
+        }
+    }
+    public class ResponseMessageN<TEx> : ResponseMessageN
+    {
+        public TEx ext { get; set; }
+    }
+
+
+    public class etparam
+    {
+        public string paramname { get; set; }
+        public string paramvalue { get; set; }
+        public string paramvaluedef { get; set; }
+        public string paramdescription { get; set; }
+    }
+    
+    public class parameter : etparam
+    {
+        public string system { get; set; }
+        public string tool { get; set; }
+    }
+
+    public class userparameter : parameter
+    {
+        public string loginname { get; set; }
+    }
+
 }

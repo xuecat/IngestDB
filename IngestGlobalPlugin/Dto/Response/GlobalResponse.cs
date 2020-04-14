@@ -24,4 +24,14 @@ namespace IngestGlobalPlugin.Dto
         public string TemplateContent = string.Empty;//模板内容   
     }
 
+    public class CMUserInfo
+    {
+        public string CreateTime;
+        public bool Disabled;
+        public string Email;
+        public string Id;
+        public string LoginName;
+        public string NickName;
+    }
+
 }

@@ -28,6 +28,13 @@ namespace IngestGlobalPlugin
                 .ForMember(a => a.TemplateName, (map) => map.MapFrom(b => b.Templatename))
                 .ForMember(a => a.TemplateContent, (map) => map.MapFrom(b => b.Templatecontent));
 
+            CreateMap<OldCMUserInfo, CMUserInfo>()
+                .ForMember(a => a.Id, (map) => map.MapFrom(b => b.id))
+                .ForMember(a => a.CreateTime, (map) => map.MapFrom(b => b.createtime))
+                .ForMember(a => a.Disabled, (map) => map.MapFrom(b => b.disabled))
+                .ForMember(a => a.Email, (map) => map.MapFrom(b => b.email))
+                .ForMember(a => a.LoginName, (map) => map.MapFrom(b => b.loginname))
+                .ForMember(a => a.NickName, (map) => map.MapFrom(b => b.nickname));
 
             //ReverseMap
         }
