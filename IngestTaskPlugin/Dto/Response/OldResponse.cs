@@ -463,5 +463,11 @@ namespace IngestTaskPlugin.Dto
         public TaskContent taskModify;
         public MetadataPair[] metadatas;
     }
+    public class GetTaskByID_OUT
+    {
+        public TaskContent taskConten;
+        public string errStr;
+        public bool bRet;
+    }
 }
 

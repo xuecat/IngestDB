@@ -590,6 +590,37 @@ namespace IngestTaskPlugin.Controllers
             }
             return Response;
         }
+
+        [HttpGet("GetTaskByID"), MapToApiVersion("1.0")]
+        [ApiExplorerSettings(GroupName = "v1")]
+        public async Task<GetTaskByID_OUT> GetTaskByID(int nTaskID)
+        {
+            var Response = new GetTaskByID_OUT
+            {
+                bRet = true,
+                errStr = "OK",
+            };
+
+            try
+            {
+                Response.taskConten = await _taskManage.GetTaskInfoByID<TaskContent>(nTaskID);
+                return Response;
+            }
+            catch (Exception e)
+            {
+                if (e.GetType() == typeof(SobeyRecException))//sobeyexcep会自动打印错误
+                {
+                    SobeyRecException se = e as SobeyRecException;
+                    Response.errStr = se.ErrorCode.ToString();
+                }
+                else
+                {
+                    Response.errStr = "error info：" + e.ToString();
+                    Logger.Error("GetAllChannelCapturingTask" + e.ToString());
+                }
+                return Response;
+            }
+        }
         ////////////////////////////
     }
 }

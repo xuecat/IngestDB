@@ -23,12 +23,12 @@ namespace IngestGlobalPlugin.Controllers
     {
         private readonly ILogger Logger = LoggerManager.GetLogger("GlobalInfo");
         private readonly GlobalManager _GlobalManager;
-        private readonly RestClient _restClient;
+        //private readonly RestClient _restClient;
 
-        public GlobalController(RestClient rsc, GlobalManager global)
+        public GlobalController(GlobalManager global)
         {
             _GlobalManager = global;
-            _restClient = rsc;
+            //_restClient = rsc;
         }
 
         #region lock or unlockobj

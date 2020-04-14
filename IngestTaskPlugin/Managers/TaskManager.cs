@@ -231,6 +231,11 @@ namespace IngestTaskPlugin.Managers
             //return _mapper.Map<TResult>(f);
         }
 
+        public async Task<TResult> GetTaskInfoByID<TResult>(int taskid)
+        {
+            return _mapper.Map<TResult>(await Store.GetTaskAsync(a => a.Where(b => b.Taskid == taskid), true));
+        }
+
         //这个接口是为老写的
         public async Task UpdateTaskMetaDataAsync(int taskid, MetaDataType type, string metadata)
         {
