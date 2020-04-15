@@ -236,6 +236,13 @@ namespace IngestTaskPlugin.Managers
             return _mapper.Map<TResult>(await Store.GetTaskAsync(a => a.Where(b => b.Taskid == taskid), true));
         }
 
+        public async Task<int> GetTieUpTaskIDByChannelId(int channelid)
+        {
+            DateTime now = DateTime.Now;
+            return await Store.GetTaskAsync(a => a.Where(b => b.Channelid == channelid &&
+            b.Tasktype == (int)TaskType.TT_TIEUP && (b.Starttime <= now && b.Endtime >= now)).Select(f =>f.Taskid), true);
+        }
+
         //这个接口是为老写的
         public async Task UpdateTaskMetaDataAsync(int taskid, MetaDataType type, string metadata)
         {
@@ -299,6 +306,142 @@ namespace IngestTaskPlugin.Managers
         {
             var f = await Store.GetTaskCustomMetaDataAsync(a => a.Where(b => b.Taskid == taskid), true);
             return _mapper.Map<TResult>(f);
+        }
+
+        public async Task<int> StopTask(int taskid, DateTime dt)
+        {
+            return await Store.StopTask(taskid, dt);
+        }
+
+        public async Task<int> SetTaskState(int taskid, int state)
+        {
+            var taskinfo = await Store.GetTaskAsync(a => a.Where(b => b.Taskid == taskid));
+
+            if (taskinfo == null)
+            {
+                Logger.Info("SetTaskState error empty " + taskid);
+                return 0;
+            }
+
+            //如果任务是周期任务的模版，只能是准备状态，或删除状态zmj2008-9-2
+            if (taskinfo.OldChannelid <= 0 && taskinfo.Tasktype == (int)TaskType.TT_PERIODIC)
+            {
+                if (state == (int)taskState.tsComplete)
+                {
+                    SobeyRecException.ThrowSelfOneParam("ModifyTask match empty", GlobalDictionary.GLOBALDICT_CODE_TASK_IS_A_STENCIL_PLATE_TASK_OF_PERIODIC_TASKS_ONEPARAM, Logger, taskid, null);
+                }
+            }
+
+            //任务原来就是删除状态不能再修改任务状态
+            if (taskinfo.State == (int)taskState.tsDelete)
+            {
+                //row.TASKLOCK = string.Empty;
+                return taskid;
+            }
+
+            //任务原来就是完成状态不能再修改任务状态
+            if (taskinfo.State == (int)taskState.tsComplete)
+            {
+                //row.TASKLOCK = string.Empty;
+                return taskid;
+            }
+
+            if (state == (int)taskState.tsInvaild)
+            {
+                taskinfo.Endtime = DateTime.Now;
+            }
+            taskinfo.State = state;
+            //zmj 2010-11-22 不该把锁去掉，会导致再次被调用出来
+            await Store.SaveChangeAsync();
+            return taskid;
+        }
+
+        public async Task<int> TrimTaskBeginTime(int taskid, string StartTime)
+        {
+            var taskinfo = await Store.GetTaskAsync(a => a.Where(b => b.Taskid == taskid));
+
+            if (taskinfo == null)
+            {
+                Logger.Info("TrimTaskBeginTime error empty " + taskid);
+                SobeyRecException.ThrowSelfNoParam(taskid.ToString(), GlobalDictionary.GLOBALDICT_CODE_TASK_ID_DOES_NOT_EXIST,
+                    Logger, null);
+                return 0;
+            }
+
+            //对普通任务和可执行的周期任务做同样的操作，将开始时间换成当前时间zmj2008-9-1
+            if (taskinfo.Tasktype != (int)TaskType.TT_PERIODIC || (taskinfo.Tasktype == (int)TaskType.TT_PERIODIC && taskinfo.OldChannelid > 0))
+            {
+                DateTime dtNow = new DateTime();
+                if (string.IsNullOrEmpty(StartTime))
+                {
+                    dtNow = DateTime.Now;
+                }
+                else
+                {
+                    dtNow = DateTimeFormat.DateTimeFromString(StartTime);
+                }
+
+                if (taskinfo.Endtime == taskinfo.Starttime)
+                {
+                    taskinfo.Starttime = dtNow;
+                    taskinfo.NewBegintime = dtNow;
+                    taskinfo.Endtime = dtNow;
+                    taskinfo.NewEndtime = dtNow;
+                }
+                else if (taskinfo.Endtime > dtNow && taskinfo.Tasktype != (int)TaskType.TT_VTRUPLOAD)
+                {
+                    taskinfo.Starttime = dtNow;
+                    taskinfo.NewBegintime = dtNow;
+
+                    // ApplicationLog.WriteInfo(string.Format("In TrimTaskBeginTime,ENDTIME > dtNow && row.TASKTYPE != (int)TaskType.TT_VTRUPLOAD,TaskID = {0},StartTime = {1}", nTaskID, dtNow.ToString()));
+                }
+                else if (taskinfo.Tasktype == (int)TaskType.TT_VTRUPLOAD)
+                {
+                    TimeSpan ts = taskinfo.Endtime - taskinfo.Starttime;
+                    taskinfo.Starttime = dtNow;
+                    taskinfo.NewBegintime = dtNow;
+
+                    VTROper vtrOper = new VTROper();
+                    bool isNeedModifyEndTime = true;
+                    vtrOper.AdjustVtrUploadTasksByChannelId((int)row.CHANNELID, (int)row.TASKID, dtNow, ref isNeedModifyEndTime);
+
+                    if (isNeedModifyEndTime)
+                    {
+                        taskinfo.Endtime = dtNow.Add(ts);
+                        taskinfo.NewEndtime = taskinfo.Endtime;
+                    }
+
+                    // ApplicationLog.WriteInfo(string.Format("In TrimTaskBeginTime,row.TASKTYPE == (int)TaskType.TT_VTRUPLOAD,TaskID = {0},StartTime = {1}", nTaskID, dtNow.ToString()));
+                }
+                else
+                {
+                    //zmj 2011-03-22 snp4100034097
+                    if (dtNow >= taskinfo.Endtime)
+                    {
+                        TimeSpan ts = taskinfo.Endtime - taskinfo.Starttime;
+
+                        taskinfo.Starttime = dtNow;
+                        taskinfo.NewBegintime = dtNow;
+                        taskinfo.Endtime = dtNow.Add(ts);
+                        taskinfo.NewEndtime = taskinfo.Endtime;
+                    }
+
+                    //ApplicationLog.WriteInfo(string.Format("In TrimTaskBeginTime,Other,TaskID = {0},StartTime = {1},STARTTIME = {2},ENDTIME = {3}",nTaskID,dtNow.ToString(),row.STARTTIME.ToString(),row.ENDTIME.ToString()));
+                }
+
+                return taskid;
+            }
+
+        }
+
+        public async Task<List<TResult>> QueryTaskContent<TResult>(int unitid, DateTime day, TimeLineType timetype)
+        {
+            return _mapper.Map<List<TResult>>(await Store.GetTaskListWithMode(1, day, timetype));
+        }
+
+        public async Task<TaskSource> GetTaskSource(int taskid)
+        {
+            return (TaskSource)(await Store.GetTaskSourceAsync(a => a.Where(b => b.Taskid == taskid).Select(x => x.Tasksource), true));
         }
 
         public async Task<List<int>> StopGroupTaskAsync(int taskid)
