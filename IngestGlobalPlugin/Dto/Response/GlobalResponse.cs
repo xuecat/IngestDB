@@ -34,4 +34,10 @@ namespace IngestGlobalPlugin.Dto
         public string NickName;
     }
 
+    public class EUserTemplate
+    {
+        public string TemplateName { get; set; }
+        public string TemplateContent { get; set; }
+    }
+
 }
