@@ -53,7 +53,14 @@ namespace IngestGlobalPlugin.Stores
         Task<List<TResult>> GetUsertemplateLstAsync<TResult>(Func<IQueryable<DbpUsertemplate>, IQueryable<TResult>> query, bool notrack = false);
 
         Task InsertUserTemplateAsync(int templateID, string userCode, string templateName, string templateContent);
-        Task ModifyUserTempalteContent(int templateID, string templateContent);
+        Task UpdateUserTempalteAsync(int templateID, string templateContent, string newTemplateName);
+
+        Task<TResult> GetUserParamMapAsync<TResult>(Func<IQueryable<DbpUserparamMap>, IQueryable<TResult>> query, bool notrack = false);
+
+        Task DeleteUserTemplateAsync(int nTemplateID);
+
+        Task DeleteUserParamMapAsync(DbpUserparamMap userparamMap);
+        
 
         #endregion
 

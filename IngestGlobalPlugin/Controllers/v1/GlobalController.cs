@@ -396,6 +396,63 @@ namespace IngestGlobalPlugin.Controllers
             return res;
         }
 
+        //通过采集参数ID获得采集参数
+        [HttpPost("ModifyUserTemplateName"), MapToApiVersion("1.0")]
+        [ApiExplorerSettings(GroupName = "v1")]
+        public async Task<OldResponseMessage> OldModifyUserTemplateName([FromQuery] int nTemplateID, [FromBody] string strNewTemplateName)
+        {
+            OldResponseMessage res = new OldResponseMessage();
+            res.message = no_err;
+            if (nTemplateID <= 0)
+            {
+                res.message = "TemplateID is smaller or equal 0.";
+                res.nCode = 0;
+            }
+            try
+            {
+                await _GlobalManager.ModifyUserTemplateNameAsync(nTemplateID, strNewTemplateName);
+                res.nCode = 1;
+            }
+            catch (System.Exception ex)
+            {
+                Logger.Error("OldModifyUserTemplateName : " + ex.ToString());
+                res.message = ex.Message;
+                res.nCode = 0;
+            }
+            return res;
+
+        }
+        
+        [HttpDelete("DeleteUserTemplateByID"), MapToApiVersion("1.0")]
+        [ApiExplorerSettings(GroupName = "v1")]
+        public async Task<OldResponseMessage> OldDeleteUserTemplateByID([FromQuery]int nTemplateID)
+        {
+            OldResponseMessage res = new OldResponseMessage();
+            res.message = no_err;
+            try
+            {
+                if (nTemplateID <= 0)
+                {
+                    res.message = "TemplateID is smaller or equal 0.";
+                    res.nCode = 0;
+                }
+                await _GlobalManager.DeleteUserTemplateAsync(nTemplateID);
+            }
+            catch (SobeyRecException SBex) //自定义的异常，已经写了日志
+            {
+                Logger.Error("DeleteUserTemplateByID : " + SBex.ToString());
+                res.message = SBex.Message;
+                res.nCode = 0;
+            }
+            catch (Exception ex)//其他未知的异常，写异常日志
+            {
+                Logger.Error("DeleteUserTemplateByID : " + ex.ToString());
+                res.message = ex.Message;
+                res.nCode = 0;
+            }
+            return res;
+        }
+
         /// <summary>
         /// 获得用户所有模板
         /// </summary>
@@ -427,11 +484,42 @@ namespace IngestGlobalPlugin.Controllers
             }
             return res;
         }
+        
 
+        [HttpGet("DelUserParamTemplate"), MapToApiVersion("1.0")]
+        [ApiExplorerSettings(GroupName = "v1")]
+        public async Task<OldResponseMessage> OldDelUserParamTemplate([FromQuery]string szUserCode)
+        {
+            OldResponseMessage res = new OldResponseMessage();
+            res.message = no_err;
+            try
+            {
+                if (szUserCode == "" || szUserCode == null)
+                {
+                    res.message = "UserCode is Empty.";
+                    res.nCode = 0;
+                }
+                await _GlobalManager.DelUserParamTemplateAsync(szUserCode);
+            }
+            catch (SobeyRecException SBex) //自定义的异常，已经写了日志
+            {
+                Logger.Error("OldDelUserParamTemplate : " + SBex.ToString());
+                res.message = SBex.Message;
+                res.nCode = 0;
+            }
+            catch (Exception ex)//其他未知的异常，写异常日志
+            {
+                Logger.Error("OldDelUserParamTemplate : " + ex.ToString());
+                res.message = ex.Message;
+                res.nCode = 0;
+            }
+            return res;
+        }
+        
         #endregion
 
         #region CMApi
-        
+
         [HttpGet("GetUserInfoByCode"), MapToApiVersion("1.0")]
         [ApiExplorerSettings(GroupName = "v1")]
         public async Task<OldResponseMessage<OldCMUserInfo>> OldGetUserInfoByCode(string strUserCode)
