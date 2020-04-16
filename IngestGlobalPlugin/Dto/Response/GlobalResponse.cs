@@ -40,4 +40,11 @@ namespace IngestGlobalPlugin.Dto
         public string TemplateContent { get; set; }
     }
 
+    public class CapParamTemplate
+    {
+        public int ID { get; set; }
+        public string TemplateName { get; set; }//采集参数模板
+        public string ParamTemplate { get; set; }//参数模板内容采集
+    }
+
 }

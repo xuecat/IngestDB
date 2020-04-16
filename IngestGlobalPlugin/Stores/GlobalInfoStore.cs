@@ -163,7 +163,7 @@ namespace IngestGlobalPlugin.Stores
                 //加锁
                 //var deleteObj = await Context.DbpObjectstateinfo.FirstOrDefaultAsync(x => x.Username == userName && ((objectID >= 0 && x.Objectid == objectID) || objectID < 0) && ((objectTypeID >= 0 && x.Objecttypeid == (int)objectTypeID) || objectTypeID < 0));
 
-                Context.Remove(arrObjects);
+                Context.DbpObjectstateinfo.Remove(arrObjects);
                 int LineNum = await Context.SaveChangesAsync();
 
                 bool ret = false;
@@ -251,7 +251,7 @@ namespace IngestGlobalPlugin.Stores
             }
             catch (System.Exception ex)
             {
-                Logger.Error(ex.ToString());
+                Logger.Error("UpdateGlobalValueAsync : " + ex.ToString());
                 throw ex;
             }
         }
@@ -512,7 +512,7 @@ namespace IngestGlobalPlugin.Stores
                 //加锁
                 var deleteObj = await Context.DbpObjectstateinfo.FirstOrDefaultAsync(x => x.Username == userName && ((objectID >= 0 && x.Objectid == objectID) || objectID < 0) && ((objectTypeID >= 0 && x.Objecttypeid == (int)objectTypeID) || objectTypeID < 0));
 
-                Context.Remove(deleteObj);
+                Context.DbpObjectstateinfo.Remove(deleteObj);
                 int LineNum = await Context.SaveChangesAsync();
 
                 bool ret = false;
@@ -611,6 +611,111 @@ namespace IngestGlobalPlugin.Stores
             return await query.Invoke(Context.DbpCaptureparamtemplate).FirstOrDefaultAsync();
         }
 
+        public async Task<List<TResult>> GetCaptureparamtemplateListAsync<TResult>(Func<IQueryable<DbpCaptureparamtemplate>, IQueryable<TResult>> query, bool notrack = false)
+        {
+            if (query == null)
+            {
+                throw new ArgumentNullException(nameof(query));
+            }
+            if (notrack)
+            {
+                return await query.Invoke(Context.DbpCaptureparamtemplate.AsNoTracking()).ToListAsync();
+            }
+            return await query.Invoke(Context.DbpCaptureparamtemplate).ToListAsync();
+        }
+
+        public async Task<int> UpdateCaptureParamTemplateAsync(int nParamTemplateID, string strTemplateName, string strUserCaptureParam)
+        {
+            try
+            {
+                var dbpCapParam = GetCaptureparamtemplateAsync(a => a.Where(x => x.Captureparamid == nParamTemplateID), true);
+                if (dbpCapParam == null)
+                {
+                    //add
+                    nParamTemplateID = IngestGlobalDBContext.next_val("DBP_SQ_PARAMTEMPLATE");
+                    Context.DbpCaptureparamtemplate.Add(new DbpCaptureparamtemplate()
+                    {
+                        Captureparamid = nParamTemplateID,
+                        Captureparam = strUserCaptureParam,
+                        Captemplatename = strTemplateName
+                    });
+                }
+                else
+                {
+                    //update
+                    var dbpCapTemplate = new DbpCaptureparamtemplate()
+                    {
+                        Captureparamid = nParamTemplateID,
+                        Captureparam = strUserCaptureParam,
+                        Captemplatename = strTemplateName
+                    };
+                    Context.Attach(dbpCapTemplate);
+                    Context.Entry(dbpCapTemplate).Property(x => x.Captemplatename).IsModified = true;
+                    Context.Entry(dbpCapTemplate).Property(x => x.Captureparam).IsModified = true;
+                }
+                await Context.SaveChangesAsync();
+            }
+            catch (System.Exception ex)
+            {
+                Logger.Error("UpdateGlobalValueAsync : " + ex.ToString());
+                throw ex;
+            }
+            return nParamTemplateID;
+        }
+
+        public async Task DeleteCaptureParamTemplateAsync(DbpCaptureparamtemplate capTemplate)
+        {
+            try
+            {
+                if (capTemplate == null)
+                {
+                    return;
+                }
+
+                Context.DbpCaptureparamtemplate.Remove(capTemplate);
+                await Context.SaveChangesAsync();
+            }
+            catch (Exception ex)
+            {
+                Logger.Error("DeleteCaptureParamTemplateAsync : " + ex.ToString());
+                throw ex;
+            }
+        }
+
+        public async Task<DbpCaptureparamtemplate> GetUserParamForDB2Async(string strUserCode)
+        {
+            try
+            {
+                 var dbpCapture = await Context.DbpUserparamMap.Where(x=>x.Usercode == strUserCode).Join(Context.DbpCaptureparamtemplate, x => x.Captureparamid, y => y.Captureparamid, (a, b) => new DbpCaptureparamtemplate {  Captureparamid = b.Captureparamid, Captureparam = b.Captureparam, Captemplatename = b.Captemplatename }).FirstOrDefaultAsync();
+
+                return dbpCapture;
+            }
+            catch (Exception ex)
+            {
+                Logger.Error("GetUserParamForDB2Async : " + ex.ToString());
+                throw ex;
+            }
+        }
+
+
+        public async Task UpdateAllUserParamMapAsync(List<DbpUserparamMap> arUserParmMapList)
+        {
+            try
+            {
+                var dbuserMaps = await GetUserParamMapListAsync(a => a);
+                Context.DbpUserparamMap.RemoveRange(dbuserMaps);
+
+                Context.DbpUserparamMap.AddRange(arUserParmMapList);
+                await Context.SaveChangesAsync();
+            }
+            catch (Exception ex)
+            {
+                Logger.Error("UpdateAllUserParamMapAsync : " + ex.ToString());
+                throw ex;
+            }
+            
+        }
+
         #endregion
 
         #region UserTemplate
@@ -706,6 +811,19 @@ namespace IngestGlobalPlugin.Stores
             return await query.Invoke(Context.DbpUserparamMap).FirstOrDefaultAsync();
         }
 
+        public async Task<List<TResult>> GetUserParamMapListAsync<TResult>(Func<IQueryable<DbpUserparamMap>, IQueryable<TResult>> query, bool notrack = false)
+        {
+            if (query == null)
+            {
+                throw new ArgumentNullException(nameof(query));
+            }
+            if (notrack)
+            {
+                return await query.Invoke(Context.DbpUserparamMap.AsNoTracking()).ToListAsync();
+            }
+            return await query.Invoke(Context.DbpUserparamMap).ToListAsync();
+        }
+
         public async Task DeleteUserParamMapAsync(DbpUserparamMap userparamMap)
         {
             try
@@ -715,7 +833,7 @@ namespace IngestGlobalPlugin.Stores
                     return;
                 }
 
-                Context.Remove(userparamMap);
+                Context.DbpUserparamMap.Remove(userparamMap);
                 await Context.SaveChangesAsync();
             }
             catch (Exception ex)
@@ -733,7 +851,7 @@ namespace IngestGlobalPlugin.Stores
 
                 if (dbpUserTemplate != null)
                 {
-                    Context.Remove(dbpUserTemplate);
+                    Context.DbpUsertemplate.Remove(dbpUserTemplate);
                     await Context.SaveChangesAsync();
                 }
             }
@@ -744,6 +862,38 @@ namespace IngestGlobalPlugin.Stores
             }
 
         }
+
+        public async Task UpdateUserParamMapAsync(string strUserCode, int nParamTemplateID)
+        {
+            try
+            {
+                var dbpUserParamMap = new DbpUserparamMap()
+                {
+                    Usercode = strUserCode,
+                    Captureparamid = nParamTemplateID
+                };
+
+                if (!Context.DbpUserparamMap.AsNoTracking().Any(a => a.Usercode == strUserCode))
+                {
+                    //add
+                    Context.DbpUserparamMap.Add(dbpUserParamMap);
+                }
+                else
+                {
+                    //update
+                    Context.Attach(dbpUserParamMap);
+                    Context.Entry(dbpUserParamMap).Property(x => x.Captureparamid).IsModified = true;
+                }
+                await Context.SaveChangesAsync();
+            }
+            catch (System.Exception ex)
+            {
+                Logger.Error("UpdateUserParamMapAsync : " + ex.ToString());
+                throw ex;
+            }
+
+        }
+        
 
 
 
