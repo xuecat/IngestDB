@@ -110,6 +110,11 @@ namespace IngestTaskPlugin
 
             CreateMap<DbpTask, DbpTaskBackup>();
             CreateMap<DbpTask, DbpTaskBackup>().ReverseMap();
+
+            CreateMap<DbpTaskMetadata, MetadataPair>()
+                .ForMember(x => x.emtype, (y) => y.MapFrom(z => z.Metadatatype))
+                .ForMember(x => x.nTaskID, (y) => y.MapFrom(z => z.Taskid))
+                .ForMember(x => x.strMetadata, (y) => y.MapFrom(z => z.Metadatalong));
             //ReverseMap
         }
     }

@@ -36,6 +36,12 @@ namespace IngestTaskPlugin.Managers
             return _mapper.Map<TResult>(f);
         }
 
+        public async virtual Task<List<TResult>> GetTaskMetadataListAsync<TResult>(List<int> taskid)
+        {
+            var f = await Store.GetTaskMetaDataListAsync(a  => a.Where(b => taskid.Contains(b.Taskid)), true);
+            return _mapper.Map<List<TResult>>(f);
+        }
+
         public string ConverTaskMaterialMetaString(TaskMaterialMetaResponse re)
         {
             XDocument xdoc = new XDocument(

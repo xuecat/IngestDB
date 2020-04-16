@@ -535,5 +535,10 @@ namespace IngestTaskPlugin.Dto
         public string errStr;
         public bool bRet;
     }
+    public class DelTaskDb_OUT
+    {
+        public string errStr;
+        public bool bRet;
+    }
 }
 

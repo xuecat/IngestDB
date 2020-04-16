@@ -989,33 +989,40 @@ namespace IngestTaskPlugin.Controllers
 
         }
 
-        [HttpGet("PostQueryTaskMetadataGroup"), MapToApiVersion("1.0")]
+        [HttpPost("PostQueryTaskMetadataGroup"), MapToApiVersion("1.0")]
         [ApiExplorerSettings(GroupName = "v1")]
-        public async Task<QueryTaskMetadataGroup_OUT> PostQueryTaskMetadataGroup(List<int> tasklst)
+        public async Task<QueryTaskMetadataGroup_OUT> PostQueryTaskMetadataGroup(List<int> nTaskID)
         {
+            var Response = new QueryTaskMetadataGroup_OUT
+            {
+                bRet = true,
+                errStr = "OK",
+            };
             try
             {
-                if (nTaskID < 0)
+
+                if (nTaskID.Count <= 0)
                 {
-                    return false;
+                    Response.bRet = false;
+                    return Response;
                 }
-                await _taskManage.TrimTaskBeginTime(nTaskID, strStartTime);
+                 Response.metaDataPair = await _taskManage.GetTaskMetadataListAsync<MetadataPair>(nTaskID);
             }
             catch (Exception e)//其他未知的异常，写异常日志
             {
                 if (e.GetType() == typeof(SobeyRecException))//sobeyexcep会自动打印错误
                 {
                     SobeyRecException se = e as SobeyRecException;
-                    //Response.errStr = se.ErrorCode.ToString();
+                    Response.errStr = se.ErrorCode.ToString();
                 }
                 else
                 {
-                    //Response.errStr = "error info：" + e.ToString();
+                    Response.errStr = "error info：" + e.ToString();
                     Logger.Error("GetTrimTaskBeginTime" + e.ToString());
                 }
-                return false;
+                return Response;
             }
-            return true;
+            return Response;
 
         }
         ////////////////////////////
