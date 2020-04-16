@@ -22,53 +22,105 @@ namespace IngestDevicePlugin.Stores
         }
         private readonly ILogger Logger = LoggerManager.GetLogger("DeviceInfo");
         protected IngestDeviceDBContext Context { get; }
-
-        public async Task<List<TResult>> GetAllRouterInPortInfoAsync<TResult>(Func<IQueryable<DbpRcdindesc>, IQueryable<TResult>> query, bool notrack = false)
+        #region Base
+        protected TResult GetFirstOrDefault<TDbp, TResult>(DbSet<TDbp> contextSet, Func<IQueryable<TDbp>, IQueryable<TResult>> query, bool notrack = false)
+            where TDbp : class
         {
-            return await QueryModelAsync(Context.DbpRcdindesc, query, notrack);
+            if (query == null)
+            {
+                throw new ArgumentNullException(nameof(query));
+            }
+            if (notrack)
+            {
+                return query(contextSet.AsNoTracking()).FirstOrDefault();
+            }
+            return query(contextSet).FirstOrDefault();
         }
 
-        public async Task<List<TResult>> GetAllRouterOutPortInfoAsync<TResult>(Func<IQueryable<DbpRcdoutdesc>, IQueryable<TResult>> query, bool notrack = false)
+        /// <summary> 查询任意表集合返回 </summary>
+        protected async Task<List<TResult>> QueryListAsync<TDbp, TResult>(DbSet<TDbp> contextSet, Func<IQueryable<TDbp>, IQueryable<TResult>> query, bool notrack = false)
+            where TDbp : class
         {
-            return await QueryModelAsync(Context.DbpRcdoutdesc, query, notrack);
+            if (query == null)
+            {
+                throw new ArgumentNullException(nameof(query));
+            }
+            if (notrack)
+            {
+                return await query(contextSet.AsNoTracking()).ToListAsync();
+            }
+            return await query(contextSet).ToListAsync();
         }
 
-        public async Task<List<TResult>> GetAllSignalDeviceMapAsync<TResult>(Func<IQueryable<DbpSignalDeviceMap>, IQueryable<TResult>> query, bool notrack = false)
+        /// <summary> 查询任意值返回 </summary>
+        protected async Task<TResult> QueryModelAsync<TDbp, TResult>(DbSet<TDbp> contextSet, Func<IQueryable<TDbp>, Task<TResult>> query, bool notrack = false)
+             where TDbp : class
+        {
+            if (query == null)
+            {
+                throw new ArgumentNullException(nameof(query));
+            }
+            return await query(contextSet);
+        }
+        #endregion
+        public async Task<List<TResult>> GetRcdindescAsync<TResult>(Func<IQueryable<DbpRcdindesc>, IQueryable<TResult>> query, bool notrack = false)
+        {
+            return await QueryListAsync(Context.DbpRcdindesc, query, notrack);
+        }
+
+        public async Task<List<TResult>> GetRcdoutdescAsync<TResult>(Func<IQueryable<DbpRcdoutdesc>, IQueryable<TResult>> query, bool notrack = false)
+        {
+            return await QueryListAsync(Context.DbpRcdoutdesc, query, notrack);
+        }
+
+        public async Task<List<TResult>> GetSignalDeviceMapAsync<TResult>(Func<IQueryable<DbpSignalDeviceMap>, IQueryable<TResult>> query, bool notrack = false)
+        {
+            return await QueryListAsync(Context.DbpSignalDeviceMap, query, notrack);
+        }
+
+        public async Task<List<TResult>> GetSignalsrcAsync<TResult>(Func<IQueryable<DbpSignalsrc>, IQueryable<TResult>> query, bool notrack = false)
+        {
+            return await QueryListAsync(Context.DbpSignalsrc, query, notrack);
+        }
+
+        public async Task<List<TResult>> GetCapturechannelsAsync<TResult>(Func<IQueryable<DbpCapturechannels>, IQueryable<TResult>> query, bool notrack = false)
+        {
+            return await QueryListAsync(Context.DbpCapturechannels, query, notrack);
+        }
+
+        public async Task<List<TResult>> GetCapturedeviceAsync<TResult>(Func<IQueryable<DbpCapturedevice>, IQueryable<TResult>> query, bool notrack = false)
+        {
+            return await QueryListAsync(Context.DbpCapturedevice, query, notrack);
+        }
+
+        public async Task<List<TResult>> GetIpVirtualchannelAsync<TResult>(Func<IQueryable<DbpIpVirtualchannel>, IQueryable<TResult>> query, bool notrack = false)
+        {
+            return await QueryListAsync(Context.DbpIpVirtualchannel, query, notrack);
+        }
+
+        public async Task<List<TResult>> GetChannelgroupmapAsync<TResult>(Func<IQueryable<DbpChannelgroupmap>, IQueryable<TResult>> query, bool notrack = false)
+        {
+            return await QueryListAsync(Context.DbpChannelgroupmap, query, notrack);
+        }
+
+
+
+        public async Task<List<TResult>> GetSignalSrcExsAsync<TResult>(Func<IQueryable<DbpSignalsrcMasterbackup>, IQueryable<TResult>> query, bool notrack = false)
+        {
+            return await QueryListAsync(Context.DbpSignalsrcMasterbackup, query, notrack);
+        }
+        public async Task<TResult> GetSignalSrcExsAsync<TResult>(Func<IQueryable<DbpSignalsrcMasterbackup>, Task<TResult>> query, bool notrack = false)
+        {
+            return await QueryModelAsync(Context.DbpSignalsrcMasterbackup, query, notrack);
+        }
+
+
+
+        public async Task<TResult> GetSignalDeviceMapAsync<TResult>(Func<IQueryable<DbpSignalDeviceMap>, Task<TResult>> query, bool notrack = false)
         {
             return await QueryModelAsync(Context.DbpSignalDeviceMap, query, notrack);
         }
-
-        public async Task<List<TResult>> GetAllSignalSrcsAsync<TResult>(Func<IQueryable<DbpSignalsrc>, IQueryable<TResult>> query, bool notrack = false)
-        {
-            return await QueryModelAsync(Context.DbpSignalsrc, query, notrack);
-        }
-
-        public async Task<List<TResult>> GetAllCaptureChannelsAsync<TResult>(Func<IQueryable<DbpCapturechannels>, IQueryable<TResult>> query, bool notrack = false)
-        {
-            return await QueryModelAsync(Context.DbpCapturechannels, query, notrack);
-        }
-
-        public async Task<List<TResult>> GetAllCaptureDevicesAsync<TResult>(Func<IQueryable<DbpCapturedevice>, IQueryable<TResult>> query, bool notrack = false)
-        {
-            return await QueryModelAsync(Context.DbpCapturedevice, query, notrack);
-        }
-
-        public async Task<List<TResult>> GetAllVirtualChannelsAsync<TResult>(Func<IQueryable<DbpIpVirtualchannel>, IQueryable<TResult>> query, bool notrack = false)
-        {
-            return await QueryModelAsync(Context.DbpIpVirtualchannel, query, notrack);
-        }
-
-        public async Task<List<TResult>> GetAllChannelGroupMapAsync<TResult>(Func<IQueryable<DbpChannelgroupmap>, IQueryable<TResult>> query, bool notrack = false)
-        {
-            return await QueryModelAsync(Context.DbpChannelgroupmap, query, notrack);
-        }
-
-        public TResult GetSignalDeviceMap<TResult>(Func<IQueryable<DbpSignalDeviceMap>, IQueryable<TResult>> query, bool notrack = false)
-        {
-            return GetFirstOrDefault(Context.DbpSignalDeviceMap, query, notrack);
-        }
-
-        public async Task<int> SetSignalDeviceMap(DbpSignalDeviceMap model)
+        public async Task<int> SaveSignalDeviceMap(DbpSignalDeviceMap model)
         {
             var deviceMap = await Context.DbpSignalDeviceMap.FindAsync(model.Signalsrcid);
             if (deviceMap == null)
@@ -91,19 +143,63 @@ namespace IngestDevicePlugin.Stores
             }
         }
 
-        protected TResult GetFirstOrDefault<TDbp, TResult>(DbSet<TDbp> contextSet, Func<IQueryable<TDbp>, IQueryable<TResult>> query, bool notrack = false) where TDbp : class
+
+        public async Task<TResult> GetMsvchannelStateAsync<TResult>(Func<IQueryable<DbpMsvchannelState>, Task<TResult>> query, bool notrack = false)
         {
-            if (query == null)
-            {
-                throw new ArgumentNullException(nameof(query));
-            }
-            if (notrack)
-            {
-                return query(contextSet.AsNoTracking()).FirstOrDefault();
-            }
-            return query(contextSet).FirstOrDefault();
+            return await QueryModelAsync(Context.DbpMsvchannelState, query, notrack);
+        }
+
+
+        public async Task<List<TResult>> GetSignalGroupAsync<TResult>(Func<IQueryable<DbpSignalgroup>, IQueryable<TResult>> query, bool notrack = false)
+        {
+            return await QueryListAsync(Context.DbpSignalgroup, query, notrack);
+        }
+        public async Task<TResult> GetSignalGroupAsync<TResult>(Func<IQueryable<DbpSignalgroup>, Task<TResult>> query, bool notrack = false)
+        {
+            return await QueryModelAsync(Context.DbpSignalgroup, query, notrack);
         }
         
+
+        public async Task<List<TResult>> GetGPIMapInfoByGPIIDAsync<TResult>(Func<IQueryable<DbpGpiMap>, IQueryable<TResult>> query, bool notrack = false)
+        {
+            return await QueryListAsync(Context.DbpGpiMap, query, notrack);
+        }
+        public async Task<TResult> GetGPIMapInfoByGPIIDAsync<TResult>(Func<IQueryable<DbpGpiMap>, Task<TResult>> query, bool notrack = false)
+        {
+            return await QueryModelAsync(Context.DbpGpiMap, query, notrack);
+        }
+
+
+
+        public Task<List<SignalGroupState>> GetAllSignalGroupInfoAsync()
+        {
+            return Context.DbpSignalsrcgroupmap.AsNoTracking().Join(Context.DbpSignalgroup.AsNoTracking(),
+                                                     map => map.Groupid,
+                                                     group => group.Groupid,
+                                                     (map, group) => new SignalGroupState
+                                                     {
+                                                         signalsrcid = map.Signalsrcid,
+                                                         groupid = group.Groupid,
+                                                         groupname = group.Groupname,
+                                                         groupdesc = group.Groupdesc
+                                                     }).ToListAsync();
+        }
+
+        public async Task<int?> GetParamTypeByChannleIDAsync(int nChannelID)
+        {
+            return await Context.DbpRcdoutdesc.AsNoTracking().Where(rcdout => rcdout.Channelid == nChannelID)
+                                               .Join(Context.DbpVirtualmatrixportstate.AsNoTracking().Where(state => state.State == 1),
+                                                     rcdout => rcdout.Recoutidx,
+                                                     state => state.Virtualoutport,
+                                                     (state, port) => new { Virtualinport = port.Virtualoutport })
+                                               .Join(Context.DbpVirtualmatrixinport.AsNoTracking(),
+                                                     state => state.Virtualinport,
+                                                     port => port.Virtualinport,
+                                                     (state, port) => port.Signaltype)
+                                               .FirstOrDefaultAsync();
+        }
+
+        #region MyRegion
         public async Task<bool> HaveMatirxAsync()
         {
             return await Context.DbpMatrixinfo.AsNoTracking().AnyAsync(a => a.Matrixid == 2 && a.Matrixtypeid != 2);//老版本NULL MATRIX是6，现在是2，难道老版本一直返回的是有矩阵？
@@ -137,7 +233,7 @@ namespace IngestDevicePlugin.Stores
                 Logger.Error("GetSignalInfoAsync query error" + srcid.ToString());
                 return null;
             }
-            
+
             switch (query.PgmType)
             {
                 case ProgrammeType.PT_SDI:
@@ -262,7 +358,7 @@ namespace IngestDevicePlugin.Stores
                                  GroupID = p3 != null ? p3.Groupid : -1
                              }).ToListAsync();
             }
-            
+
 
             //DBP_IP_VIRTUALCHANNEL 现在应该是没有用了
             var iplst = await Context.DbpIpVirtualchannel.AsNoTracking().Select(x => new CaptureChannelInfoDto
@@ -289,7 +385,7 @@ namespace IngestDevicePlugin.Stores
             {
                 lst.AddRange(iplst);
             }
-            
+
             return lst.OrderBy(x => x.OrderCode).ToList();
         }
 
@@ -320,17 +416,8 @@ namespace IngestDevicePlugin.Stores
                 (rcin, rcout) => new { ID = rcin.Signalsrcid, Channel = rcout.Channelid })
                 .Where(x => x.Channel == channelid).Select(f => f.ID).ToListAsync();
         }
-        protected async Task<List<TResult>> QueryModelAsync<TDbp, TResult>(DbSet<TDbp> contextSet, Func<IQueryable<TDbp>, IQueryable<TResult>> query, bool notrack = false) where TDbp : class
-        {
-            if (query == null)
-            {
-                throw new ArgumentNullException(nameof(query));
-            }
-            if (notrack)
-            {
-                return await query(contextSet.AsNoTracking()).ToListAsync();
-            }
-            return await query(contextSet).ToListAsync();
-        }
+        #endregion
+
+
     }
 }

@@ -220,8 +220,5 @@ namespace IngestDevicePlugin.Controllers
             }
             return Response;
         }
-
-
-        ///////////////////
     }
 }

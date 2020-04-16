@@ -9,7 +9,23 @@ namespace IngestDevicePlugin.Dto
     }
 
     #region EnumType
-
+    /// <summary>程序类型</summary>
+    public enum ProgrammeType
+    {
+        PT_Null = -1,
+        PT_SDI,
+        PT_IPTS,
+        PT_StreamMedia
+    }
+    /// <summary>图像类型</summary>
+    public enum ImageType
+    {
+        IT_Null = -1,
+        IT_Original = 0,
+        IT_SD_4_3 = 1,
+        IT_SD_16_9 = 2,
+        IT_HD_16_9 = 4
+    }
     /// <summary> 信号来源 </summary>
     public enum emSignalSource
     {
@@ -59,6 +75,34 @@ namespace IngestDevicePlugin.Dto
 		emAllowBackUp = 1,
         /// <summary> 只允许作备份 </summary>
 		emBackupOnly = 2
+    }
+    /// <summary>设备状态</summary>
+    public enum Device_State
+    {
+        /// <summary>没有连接</summary>
+        DISCONNECTTED,
+        /// <summary>已经连接</summary>
+        CONNECTED,
+        /// <summary>正在采集</summary>
+        WORKING
+    }
+    /// <summary>MSV模式</summary>
+    public enum MSV_Mode
+    {
+        /// <summary>本地</summary>
+        LOCAL,
+        /// <summary>网络</summary>
+        NETWORK
+    }
+    /// <summary>上载模式</summary>
+    public enum Upload_Mode
+    {
+        /// <summary></summary>
+        NOUPLOAD,
+        /// <summary></summary>
+        CANUPLOAD,
+        /// <summary>上载独占</summary>
+        ONLYUPLOAD
     }
     #endregion
 
@@ -156,74 +200,68 @@ namespace IngestDevicePlugin.Dto
         /// <summary>序号</summary>
         public int nOrderCode;
     }
-    #endregion
-
-    #region ParamModel
-    /// <summary> 输入端口信息 </summary>
-    public class GetAllRouterInPortInfo_param : BaseCount_param
+    /// <summary>信号源扩展信息</summary>
+    public class SignalSrcExInfo
     {
-        public List<RoterInportDesc> inportDescs;
+        /// <summary>信号源ID</summary>
+        public int nID;
+        /// <summary>类型</summary>
+        public int nSignalSrcType;
+        /// <summary>是否是主信号源</summary>
+        public bool bIsMainSignalSrc;
+        /// <summary>主信号源ID</summary>
+        public int nMainSignalSrcId;
+        /// <summary>备信号源ID</summary>
+        public int nBackupSignalSrcId;
     }
-    //public class CaptureChannelInfo
-    //{
-    //    public int nID = 0;
-    //    public string strName = "";
-    //    public string strDesc = "";
-    //    public int nCPDeviceID = 0;
-    //    public int nChannelIndex = 0;
-    //    public int nDeviceTypeID = (int)CaptureChannelType.emMsvChannel;//当前sdi，只会为1。2表示是IPTS通道
-    //    public emBackupFlag BackState = emBackupFlag.emNoAllowBackUp;
-    //    public int nCarrierID = 0;//运营商ID
-    //    public int orderCode = -1;//序号
-    //    public int nCPSignalType = 0;//可以采集的信号源类型，0：Auto，1：SD，2：HD
-
-    //    // 分组ID
-    //    public int nGroupID = -1;    // Add by chenzhi 2103-07-04
-    //}
-
-    /// <summary>
-    /// 任务备份属性
-    /// </summary>
-	//public enum emBackupFlag
- //   {
- //       /// <summary>
- //       /// 不允许备份 = 0
- //       /// </summary>
-	//	emNoAllowBackUp = 0,
- //       /// <summary>
- //       /// 允许备份 = 1
- //       /// </summary>
-	//	emAllowBackUp = 1,
- //       /// <summary>
- //       /// 只允许作备份 = 2
- //       /// </summary>
-	//	emBackupOnly = 2
- //   }
-
-    //采集通道类型
-    //public enum CaptureChannelType
-    //{
-    //    emMsvChannel = 1,		//MSV  采集通道
-    //    emIPTSChannel,                //IPTS 虚拟的通道
-    //    emStreamChannel               //流媒体通道  
-    //}
-    public enum ProgrammeType
+    /// <summary>MSV设备状态信息</summary>
+    public class MSVChannelState
     {
-        PT_Null = -1,
-        PT_SDI,
-        PT_IPTS,
-        PT_StreamMedia
+        /// <summary>通道ID</summary>
+        public int nChannelID = 0;
+        /// <summary>设备状态</summary>
+        public Device_State emDevState = 0;
+        /// <summary>MSV模式</summary>
+        public MSV_Mode emMSVMode = 0;
+        /// <summary>vtrID</summary>
+        public int vtrID = -1;
+        /// <summary>当前用户Code</summary>
+        public string curUserCode = string.Empty;
+        /// <summary>kamataki信息</summary>
+        public string kamatakiInfo = string.Empty;
+        /// <summary>上载模式</summary>
+        public Upload_Mode uploadMode = 0;
+        /// <summary>通道索引</summary>
+        public int nChannelIndex = 0;
     }
-
-    public enum ImageType
+    /// <summary>信号源分组</summary>
+    public class AllSignalGroup
     {
-        IT_Null = -1,
-        IT_Original = 0,
-        IT_SD_4_3 = 1,
-        IT_SD_16_9 = 2,
-        IT_HD_16_9 = 4
+        public int groupid;//信号源对应的分组ID
+        public string groupname;//信号源的名称
+        public string groupdesc;//信号源的描述
     }
-
+    /// <summary>信号源分组信息</summary>
+    public class SignalGroupState
+    {
+        /// <summary>信号源ID</summary>
+        public int signalsrcid;
+        /// <summary>信号源对应的分组ID</summary>
+        public int groupid;
+        /// <summary>信号源的名称</summary>
+        public string groupname;
+        /// <summary>信号源的描述</summary>
+        public string groupdesc;
+    }
+    /// <summary>GPI的映射信息</summary>
+    public class GPIDeviceMapInfo
+    {
+        public int nGPIID = -1;//GPI编号
+        public int nGPIOutputPort = -1;//GPI输出的端口
+        public int nAVOutputPort = -1;//GPI对应的端口
+        public int nCaptureParamID = -1;//GPI对应的采集参数ID
+    }
+    /// <summary>节目信息</summary>
     public class ProgrammeInfo
     {
         public int ProgrammeId { set; get; }
@@ -239,6 +277,9 @@ namespace IngestDevicePlugin.Dto
         public int nCarrierID { set; get; }//运营商的ID
         public int nGroupID { set; get; } // Add by chenzhi 2013-07-08 分组ID
     }
+
+    #endregion
+
     public class GetChannelsByProgrammeId_out
     {
         public List<CaptureChannelInfo> channelInfos;
@@ -246,42 +287,93 @@ namespace IngestDevicePlugin.Dto
         public string errStr;
         public bool bRet;
     }
-    
+
+    #region ParamModel
+    /// <summary> 输入端口信息 </summary>
+    public class GetAllRouterInPortInfo_param : BaseVaildCount_param
+    {
+        public List<RoterInportDesc> inportDescs;
+    }
     /// <summary> 输出端口信息 </summary>
-    public class GetAllRouterOutPortInfo_param : BaseCount_param
+    public class GetAllRouterOutPortInfo_param : BaseVaildCount_param
     {
         public List<RoterOutDesc> outportDescs;
     }
     /// <summary> 信号设备信息 </summary>
-    public class GetAllSignalDeviceMap_param : BaseCount_param
+    public class GetAllSignalDeviceMap_param : BaseVaildCount_param
     {
         public List<SignalDeviceMap> arrSignalDeviceMap;
     }
     /// <summary> 信号源信息 </summary>
-    public class GetAllSignalSrcs_param : BaseCount_param
+    public class GetAllSignalSrcs_param : BaseVaildCount_param
     {
         public List<SignalSrcInfo> signalInfo;
     }
     /// <summary> 采集通道信息 </summary>
-    public class GetAllCaptureChannels_param : BaseCount_param
+    public class GetAllCaptureChannels_param : BaseVaildCount_param
     {
         public List<CaptureChannelInfo> captureChannelInfo;
     }
     /// <summary> 采集设备信息 </summary>
-    public class GetAllCaptureDevices_param : BaseCount_param
+    public class GetAllCaptureDevices_param : BaseVaildCount_param
     {
         public List<CaptureDeviceInfo> arCaptureDeviceList;
     }
+    /// <summary> 信号源扩展信息 </summary>
+    public class GetAllSignalSrcExs_param : BaseVaildCount_param
+    {
+        public List<SignalSrcExInfo> signalInfo;
+    }
 
+    /// <summary> 信号设备信息 </summary>
     public class GetSignalDeviceMapBySignalID_param : Base_param
     {
         public int nDeviceID;
         public int nDeviceOutPortIdx;
         public emSignalSource SignalSource;
     }
+    /// <summary> 高清Or标清 </summary>
+    public class GetParamTypeByChannleID_param : Base_param
+    {
+        public int nType = -1;
+    }
+    /// <summary> MSV设备状态信息 </summary>
+    public class GetMSVChannelState_param : Base_param
+    {
+        public MSVChannelState channelStata;
+    }
+    /// <summary>获得所有信号源分组</summary>
+    public class GetAllSignalGroup_OUT : BaseVaildCount_param
+    {
+        public List<AllSignalGroup> arAllSignalGroup;
+    }
+    /// <summary>获得所有信号源分组</summary>
+    public class GetAllSignalGroupState_OUT : BaseVaildCount_param
+    {
+        public List<SignalGroupState> arAllSignalGroupState;
+    }
+    /// <summary>GPI所有的映射</summary>
+    public class GetGPIMapInfoByGPIID_OUT : BaseVaildCount_param
+    {
+        public List<GPIDeviceMapInfo> arGPIDeviceMapInfo;
+    }
+    /// <summary> 获取节目信息 </summary>
+    public class GetAllProgrammeInfos_OUT : BaseValidCount_param
+    {
+        public ProgrammeInfo[] programmeInfos;
+    }
 
-    /// <summary> 基础Count模型 </summary>
-    public class BaseCount_param : Base_param
+
+
+    /// <summary> 基础ValidCount模型 </summary>
+    public class BaseValidCount_param : Base_param
+    {
+        /// <summary>数据量</summary>
+        public int nValidDataCount = 0;
+    }
+
+    /// <summary> 基础VaildCount模型（我想吐血） </summary>
+    public class BaseVaildCount_param : Base_param
     {
         /// <summary>数据量</summary>
         public int nVaildDataCount = 0;
