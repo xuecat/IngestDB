@@ -1081,9 +1081,5 @@ namespace IngestTaskPlugin.Managers
 
             return null;
         }
-
-        
-
-        ///////////////////////////////
     }
 }
