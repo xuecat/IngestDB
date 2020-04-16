@@ -469,5 +469,40 @@ namespace IngestTaskPlugin.Dto
         public string errStr;
         public bool bRet;
     }
+    public class GetTieUpTaskByChannelID_OUT
+    {
+        public int nTaskID;
+        public string errStr;
+        public bool bRet;
+    }
+    public class StopTaskFromFSW_OUT
+    {
+        public string errStr;
+        public bool bRet;
+    }
+    public class GetSetTaskState_OUT
+    {
+        public string errStr;
+        public bool bRet;
+    }
+
+    public class GetQueryTaskContent_OUT
+    {
+        public List<TaskContent> taskCon;
+        public int nVaildDataCount;
+        public string errStr;
+        public bool bRet;
+    }
+    public class GetTaskSource_OUT
+    {
+        public TaskSource Source;
+        public string errStr;
+        public bool bRet;
+    }
+    public class StopCapture_OUT
+    {
+        public string errStr;
+        public bool bRet;
+    }
 }
 

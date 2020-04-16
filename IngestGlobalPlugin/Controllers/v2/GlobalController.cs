@@ -572,11 +572,12 @@ namespace IngestGlobalPlugin.Controllers
             return Response;
         }
 
+        //通过采集参数ID获得采集参数
         /// <summary>
         /// 根据模板ID修改模板内容
         /// </summary>
         /// <param name="nTemplateID"></param>
-        /// <param name="strTemplateContent"></param>
+        /// <param name="UserTemplate"></param>
         /// <returns>标准返回信息</returns>
         /// <remarks>
         /// 例子:
@@ -584,9 +585,10 @@ namespace IngestGlobalPlugin.Controllers
         /// </remarks>
         [HttpPost("usertemplate/modify/{nTemplateID}")]
         [ApiExplorerSettings(GroupName = "v2")]
-        public async Task<ResponseMessage> ModifyUserTempalteContent([FromQuery] int nTemplateID, [FromBody] string strTemplateContent)
+        public async Task<ResponseMessage> ModifyUserTempalte([FromQuery] int nTemplateID, [FromBody]  EUserTemplate UserTemplate)
         {
             ResponseMessage Response = new ResponseMessage();
+
             if (nTemplateID <= 0)
             {
                 Response.Msg = "TemplateID is smaller or equal 0.";
@@ -594,7 +596,7 @@ namespace IngestGlobalPlugin.Controllers
             }
             try
             {
-                await _GlobalManager.UpdateUserTempalteContent(nTemplateID, strTemplateContent);
+                await _GlobalManager.ModifyUserTemplateAsync(nTemplateID,UserTemplate.TemplateName, UserTemplate.TemplateContent);
                 Response.Code = ResponseCodeDefines.SuccessCode;
             }
             catch (System.Exception e)
@@ -613,7 +615,52 @@ namespace IngestGlobalPlugin.Controllers
                 }
             }
             return Response;
+
         }
+
+        /// <summary>
+        /// 根据模板ID修改模板内容
+        /// </summary>
+        /// <param name="nTemplateID"></param>
+        /// <param name="strTemplateContent"></param>
+        /// <returns>标准返回信息</returns>
+        /// <remarks>
+        /// 例子:
+        /// Get api/v2/usertemplate/modify/{nTemplateID}
+        /// </remarks>
+        //[HttpPost("usertemplate/modify/{nTemplateID}")]
+        //[ApiExplorerSettings(GroupName = "v2")]
+        //public async Task<ResponseMessage> ModifyUserTempalteContent([FromQuery] int nTemplateID, [FromBody] string strTemplateContent)
+        //{
+        //    ResponseMessage Response = new ResponseMessage();
+        //    if (nTemplateID <= 0)
+        //    {
+        //        Response.Msg = "TemplateID is smaller or equal 0.";
+        //        Response.Code = ResponseCodeDefines.ArgumentNullError;
+        //    }
+        //    try
+        //    {
+        //        await _GlobalManager.UpdateUserTempalteContent(nTemplateID, strTemplateContent);
+        //        Response.Code = ResponseCodeDefines.SuccessCode;
+        //    }
+        //    catch (System.Exception e)
+        //    {
+        //        if (e.GetType() == typeof(SobeyRecException))//sobeyexcep会自动打印错误
+        //        {
+        //            SobeyRecException se = e as SobeyRecException;
+        //            Response.Code = se.ErrorCode.ToString();
+        //            Response.Msg = se.Message;
+        //        }
+        //        else
+        //        {
+        //            Response.Code = ResponseCodeDefines.ServiceError;
+        //            Response.Msg = "error info：" + e.ToString();
+        //            Logger.Error(Response.Msg);
+        //        }
+        //    }
+        //    return Response;
+        //}
+        
 
         /// <summary>
         /// 获得用户所有模板
@@ -657,6 +704,91 @@ namespace IngestGlobalPlugin.Controllers
             }
             return Response;
         }
+
+        /// <summary>
+        /// 通过iD删除usertemplate
+        /// </summary>
+        /// <param name="nTemplateID">模板id</param>
+        /// <returns></returns>
+        /// <remarks>
+        /// 例子:
+        /// Get api/v2/usertemplate/all
+        /// </remarks>
+        [HttpDelete("usertemplate/delete/{nTemplateID}")]
+        [ApiExplorerSettings(GroupName = "v2")]
+        public async Task<ResponseMessage> DeleteUserTemplateByID([FromQuery]int nTemplateID)
+        {
+            ResponseMessage Response = new ResponseMessage();
+
+            try
+            {
+                if (nTemplateID <= 0)
+                {
+                    Response.Msg = "TemplateID is smaller or equal 0.";
+                    Response.Code = ResponseCodeDefines.ArgumentNullError;
+                }
+                await _GlobalManager.DeleteUserTemplateAsync(nTemplateID);
+            }
+            catch (Exception e)//其他未知的异常，写异常日志
+            {
+                if (e.GetType() == typeof(SobeyRecException))//sobeyexcep会自动打印错误
+                {
+                    SobeyRecException se = e as SobeyRecException;
+                    Response.Code = se.ErrorCode.ToString();
+                    Response.Msg = se.Message;
+                }
+                else
+                {
+                    Response.Code = ResponseCodeDefines.ServiceError;
+                    Response.Msg = "error info：" + e.ToString();
+                    Logger.Error(Response.Msg);
+                }
+            }
+            return Response;
+        }
+
+        /// <summary>
+        /// 获得用户所有模板
+        /// </summary>
+        /// <param name="szUserCode"></param>
+        /// <returns>extension 为 获取到的模板数组</returns>
+        /// <remarks>
+        /// 例子:
+        /// Get api/v2/userparammap/delete
+        /// </remarks>
+        [HttpGet("userparammap/delete")]
+        [ApiExplorerSettings(GroupName = "v2")]
+        public async Task<ResponseMessage> DelUserParamTemplate([FromQuery]string szUserCode)
+        {
+            ResponseMessage Response = new ResponseMessage();
+
+            try
+            {
+                if (string.IsNullOrEmpty(szUserCode))
+                {
+                    Response.Msg = "UserCode is Empty.";
+                    Response.Code = ResponseCodeDefines.ArgumentNullError;
+                }
+                await _GlobalManager.DelUserParamTemplateAsync(szUserCode);
+            }
+            catch (Exception e)//其他未知的异常，写异常日志
+            {
+                if (e.GetType() == typeof(SobeyRecException))//sobeyexcep会自动打印错误
+                {
+                    SobeyRecException se = e as SobeyRecException;
+                    Response.Code = se.ErrorCode.ToString();
+                    Response.Msg = se.Message;
+                }
+                else
+                {
+                    Response.Code = ResponseCodeDefines.ServiceError;
+                    Response.Msg = "error info：" + e.ToString();
+                    Logger.Error(Response.Msg);
+                }
+            }
+            return Response;
+        }
+
 
         #endregion
 

@@ -513,7 +513,7 @@ namespace IngestTaskPlugin.Controllers
                 else
                 {
                     Response.errStr = "error info：" + e.ToString();
-                    Logger.Error("GetAllChannelCapturingTask" + e.ToString());
+                    Logger.Error("PostModifyTaskDb" + e.ToString());
                 }
                 return Response;
             }
@@ -584,7 +584,7 @@ namespace IngestTaskPlugin.Controllers
                 else
                 {
                     Response.errStr = "error info：" + e.ToString();
-                    Logger.Error("GetAllChannelCapturingTask" + e.ToString());
+                    Logger.Error("ModifyTask" + e.ToString());
                 }
                 return Response;
             }
@@ -616,10 +616,230 @@ namespace IngestTaskPlugin.Controllers
                 else
                 {
                     Response.errStr = "error info：" + e.ToString();
-                    Logger.Error("GetAllChannelCapturingTask" + e.ToString());
+                    Logger.Error("GetTaskByID" + e.ToString());
                 }
                 return Response;
             }
+        }
+
+        [HttpGet("GetTieUpTaskByChannelID"), MapToApiVersion("1.0")]
+        [ApiExplorerSettings(GroupName = "v1")]
+        public async Task<GetTieUpTaskByChannelID_OUT> GetTieUpTaskByChannelID(int nChannelID)
+        {
+            var Response = new GetTieUpTaskByChannelID_OUT
+            {
+                bRet = true,
+                errStr = "OK",
+            };
+
+            try
+            {
+                Response.nTaskID = await _taskManage.GetTieUpTaskIDByChannelId(nChannelID);
+                return Response;
+            }
+            catch (Exception e)
+            {
+                if (e.GetType() == typeof(SobeyRecException))//sobeyexcep会自动打印错误
+                {
+                    SobeyRecException se = e as SobeyRecException;
+                    Response.errStr = se.ErrorCode.ToString();
+                }
+                else
+                {
+                    Response.errStr = "error info：" + e.ToString();
+                    Logger.Error("GetTieUpTaskByChannelID" + e.ToString());
+                }
+                return Response;
+            }
+        }
+
+        [HttpGet("GetStopTaskFromFSW"), MapToApiVersion("1.0")]
+        [ApiExplorerSettings(GroupName = "v1")]
+        public async Task<StopTaskFromFSW_OUT> GetStopTaskFromFSW(int nTaskID)
+        {
+            var Response = new StopTaskFromFSW_OUT
+            {
+                bRet = true,
+                errStr = "OK",
+            };
+
+            try
+            {
+                await _taskManage.StopTask(nTaskID, DateTime.MinValue);
+                var _globalinterface = ApplicationContext.Current.ServiceProvider.GetRequiredService<IIngestGlobalInterface>();
+                if (_globalinterface != null)
+                {
+                    GlobalInternals re = new GlobalInternals() { funtype = IngestDBCore.GlobalInternals.FunctionType.SetGlobalState, State = GlobalStateName.MODTASK };
+                    var response1 = await _globalinterface.SubmitGlobalCallBack(re);
+                    if (response1.Code != ResponseCodeDefines.SuccessCode)
+                    {
+                        Logger.Error("SetGlobalState modtask error");
+                    }
+                }
+                return Response;
+            }
+            catch (Exception e)
+            {
+                if (e.GetType() == typeof(SobeyRecException))//sobeyexcep会自动打印错误
+                {
+                    SobeyRecException se = e as SobeyRecException;
+                    Response.errStr = se.ErrorCode.ToString();
+                }
+                else
+                {
+                    Response.errStr = "error info：" + e.ToString();
+                    Logger.Error("GetStopTaskFromFSW" + e.ToString());
+                }
+                return Response;
+            }
+        }
+
+        [HttpGet("GetStopTaskFromFSW"), MapToApiVersion("1.0")]
+        [ApiExplorerSettings(GroupName = "v1")]
+        public async Task<StopCapture_OUT> GetStopCapture(int nTaskID, string strEndTime)
+        {
+            var Response = new StopCapture_OUT
+            {
+                bRet = true,
+                errStr = "OK",
+            };
+
+            try
+            {
+                if (string.IsNullOrEmpty(strEndTime))
+                {
+                    await _taskManage.StopTask(nTaskID, DateTime.Now);
+                }
+                else
+                    await _taskManage.StopTask(nTaskID, DateTimeFormat.DateTimeFromString(strEndTime));
+
+                var _globalinterface = ApplicationContext.Current.ServiceProvider.GetRequiredService<IIngestGlobalInterface>();
+                if (_globalinterface != null)
+                {
+                    GlobalInternals re = new GlobalInternals() { funtype = IngestDBCore.GlobalInternals.FunctionType.SetGlobalState, State = GlobalStateName.MODTASK };
+                    var response1 = await _globalinterface.SubmitGlobalCallBack(re);
+                    if (response1.Code != ResponseCodeDefines.SuccessCode)
+                    {
+                        Logger.Error("SetGlobalState modtask error");
+                    }
+                }
+                return Response;
+            }
+            catch (Exception e)
+            {
+                if (e.GetType() == typeof(SobeyRecException))//sobeyexcep会自动打印错误
+                {
+                    SobeyRecException se = e as SobeyRecException;
+                    Response.errStr = se.ErrorCode.ToString();
+                }
+                else
+                {
+                    Response.errStr = "error info：" + e.ToString();
+                    Logger.Error("GetStopTaskFromFSW" + e.ToString());
+                }
+                return Response;
+            }
+        }
+
+        [HttpGet("GetSetTaskState"), MapToApiVersion("1.0")]
+        [ApiExplorerSettings(GroupName = "v1")]
+        public async Task<GetSetTaskState_OUT> GetSetTaskState(int nTaskID, int nState)
+        {
+            var Response = new GetSetTaskState_OUT
+            {
+                bRet = true,
+                errStr = "OK",
+            };
+
+            try
+            {
+                await _taskManage.SetTaskState(nTaskID, nState);
+                return Response;
+            }
+            catch (Exception e)
+            {
+                if (e.GetType() == typeof(SobeyRecException))//sobeyexcep会自动打印错误
+                {
+                    SobeyRecException se = e as SobeyRecException;
+                    Response.errStr = se.ErrorCode.ToString();
+                }
+                else
+                {
+                    Response.errStr = "error info：" + e.ToString();
+                    Logger.Error("GetStopTaskFromFSW" + e.ToString());
+                }
+                return Response;
+            }
+        }
+
+        [HttpGet("GetSetTaskState"), MapToApiVersion("1.0")]
+        [ApiExplorerSettings(GroupName = "v1")]
+        public async Task<GetQueryTaskContent_OUT> GetQueryTaskContent(int nUnitID, string strDay, int timeMode)
+        {
+            var Response = new GetQueryTaskContent_OUT
+            {
+                bRet = true,
+                errStr = "OK",
+                nVaildDataCount = 0,
+            };
+
+            try
+            {
+                Response.taskCon = await _taskManage.QueryTaskContent<TaskContent>(nUnitID, DateTimeFormat.DateTimeFromString(strDay), (TimeLineType)timeMode);
+                Response.nVaildDataCount = Response.taskCon.Count;
+                return Response;
+            }
+            catch (Exception e)
+            {
+                if (e.GetType() == typeof(SobeyRecException))//sobeyexcep会自动打印错误
+                {
+                    SobeyRecException se = e as SobeyRecException;
+                    Response.errStr = se.ErrorCode.ToString();
+                }
+                else
+                {
+                    Response.errStr = "error info：" + e.ToString();
+                    Logger.Error("GetStopTaskFromFSW" + e.ToString());
+                }
+                return Response;
+            }
+        }
+
+        [HttpGet("GetTaskSource"), MapToApiVersion("1.0")]
+        [ApiExplorerSettings(GroupName = "v1")]
+        public async Task<GetTaskSource_OUT> GetTaskSource(int nTaskID)
+        {
+            var Response = new GetTaskSource_OUT
+            {
+                bRet = true,
+                errStr = "OK",
+                Source = TaskSource.emUnknowTask,
+            };
+            try
+            {
+                if (nTaskID < 0)
+                {
+                    Response.errStr = "TaskID is invaild";
+                    Response.bRet = false;
+                }
+                Response.Source = await _taskManage.GetTaskSource(nTaskID);
+            }
+            catch (Exception e)//其他未知的异常，写异常日志
+            {
+                if (e.GetType() == typeof(SobeyRecException))//sobeyexcep会自动打印错误
+                {
+                    SobeyRecException se = e as SobeyRecException;
+                    Response.errStr = se.ErrorCode.ToString();
+                }
+                else
+                {
+                    Response.errStr = "error info：" + e.ToString();
+                    Logger.Error("GetTaskSource" + e.ToString());
+                }
+                return Response;
+            }
+            return Response;
+
         }
         ////////////////////////////
     }

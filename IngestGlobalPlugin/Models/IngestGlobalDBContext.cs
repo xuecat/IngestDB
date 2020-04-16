@@ -24,7 +24,7 @@ namespace IngestGlobalPlugin.Models
         public virtual DbSet<DbpObjectstateinfo> DbpObjectstateinfo { get; set; }
         public virtual DbSet<DbpUsersettings> DbpUsersetting { get; set; }
         public virtual DbSet<DbpUsertemplate> DbpUsertemplate { get; set; }
-
+        public virtual DbSet<DbpUserparamMap> DbpUserparamMap { get; set; }
 
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
@@ -194,6 +194,17 @@ namespace IngestGlobalPlugin.Models
                 entity.Property(e => e.Templatecontent)
 .HasColumnName("TEMPLATECONTENT").HasColumnType("text");
             });
+
+            modelBuilder.Entity<DbpUserparamMap>(entity =>
+            {
+                entity.HasKey(e => e.Usercode);
+                entity.ToTable("dbp_userparam_map");
+                entity.Property(e => e.Usercode).HasColumnName("USERCODE").HasColumnType("varchar(255)");
+                entity.Property(e => e.Captureparamid).HasColumnName("CAPTUREPARAMID").HasColumnType("int(11)");
+            });
+
+
+
         }
 
         [DbFunction]

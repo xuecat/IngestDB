@@ -616,7 +616,7 @@ namespace IngestTaskPlugin.Controllers
         /// <returns>任务id</returns>
         [HttpPut("taskinfo/content/{taskid}")]
         [ApiExplorerSettings(GroupName = "v2")]
-        public async Task<ResponseMessage<TaskContentResponse>> ModifyTask([FromQuery, BindRequired]int taskid, [FromBody, BindRequired]TaskContentRequest req)
+        public async Task<ResponseMessage<TaskContentResponse>> ModifyTask([FromRoute, BindRequired]int taskid, [FromBody, BindRequired]TaskContentRequest req)
         {
             var Response = new ResponseMessage<TaskContentResponse>();
             if (req == null)
@@ -673,7 +673,7 @@ namespace IngestTaskPlugin.Controllers
         /// <returns>任务内容信息</returns>
         [HttpGet("taskinfo/{taskid}")]
         [ApiExplorerSettings(GroupName = "v2")]
-        public async Task<ResponseMessage<TaskContentResponse>> GetTaskInfoByID([FromQuery, BindRequired]int taskid)
+        public async Task<ResponseMessage<TaskContentResponse>> GetTaskInfoByID([FromRoute, BindRequired]int taskid)
         {
             var Response = new ResponseMessage<TaskContentResponse>();
             if (taskid <= 0)
@@ -698,6 +698,338 @@ namespace IngestTaskPlugin.Controllers
                 {
                     Response.Code = ResponseCodeDefines.ServiceError;
                     Response.Msg = "TaskIDByTaskGUID error info：" + e.ToString();
+                    Logger.Error(Response.Msg);
+                }
+            }
+            return Response;
+        }
+
+        /// <summary>
+        /// 获取当前时间段此通道的占位任务id
+        /// </summary>
+        /// <remarks>
+        /// 例子:
+        ///
+        /// </remarks>
+        /// <param name="channelid">通道id，</param>
+        /// <returns>任务id</returns>
+        [HttpGet("taskinfo/tieupid/{channelid}")]
+        [ApiExplorerSettings(GroupName = "v2")]
+        public async Task<ResponseMessage<int>> TieUpTaskIDByChannelID([FromRoute, BindRequired]int channelid)
+        {
+            var Response = new ResponseMessage<int>();
+            if (channelid <= 0)
+            {
+                Response.Code = ResponseCodeDefines.ModelStateInvalid;
+                Response.Msg = "请求参数不正确";
+            }
+
+            try
+            {
+                Response.Ext = await _taskManage.GetTieUpTaskIDByChannelId(channelid);
+                if (Response.Ext <= 0)
+                {
+                    Response.Code = ResponseCodeDefines.NotFound;
+                    Response.Msg = "not found task";
+                }
+            }
+            catch (Exception e)
+            {
+                if (e.GetType() == typeof(SobeyRecException))//sobeyexcep会自动打印错误
+                {
+                    SobeyRecException se = e as SobeyRecException;
+                    Response.Code = se.ErrorCode.ToString();
+                    Response.Msg = se.Message;
+                }
+                else
+                {
+                    Response.Code = ResponseCodeDefines.ServiceError;
+                    Response.Msg = "TaskIDByTaskGUID error info：" + e.ToString();
+                    Logger.Error(Response.Msg);
+                }
+            }
+            return Response;
+        }
+
+        /// <summary>
+        /// 根据任务id停止任务
+        /// </summary>
+        /// <remarks>
+        /// 例子:
+        ///
+        /// </remarks>
+        /// <param name="taskid">任务id，</param>
+        /// <returns>任务id</returns>
+        [HttpPut("taskinfo/stop/{taskid}")]
+        [ApiExplorerSettings(GroupName = "v2")]
+        public async Task<ResponseMessage<int>> StopTask([FromRoute, BindRequired]int taskid)
+        {
+            var Response = new ResponseMessage<int>();
+            if (taskid <= 0)
+            {
+                Response.Code = ResponseCodeDefines.ModelStateInvalid;
+                Response.Msg = "请求参数不正确";
+            }
+
+            try
+            {
+                Response.Ext = await _taskManage.StopTask(taskid, DateTime.MinValue);
+                if (Response.Ext <= 0)
+                {
+                    Response.Code = ResponseCodeDefines.NotFound;
+                    Response.Msg = "not found task";
+                }
+
+                var _globalinterface = ApplicationContext.Current.ServiceProvider.GetRequiredService<IIngestGlobalInterface>();
+                if (_globalinterface != null)
+                {
+                    GlobalInternals re = new GlobalInternals() { funtype = IngestDBCore.GlobalInternals.FunctionType.SetGlobalState, State = GlobalStateName.MODTASK };
+                    var response1 = await _globalinterface.SubmitGlobalCallBack(re);
+                    if (response1.Code != ResponseCodeDefines.SuccessCode)
+                    {
+                        Logger.Error("SetGlobalState modtask error");
+                    }
+                }
+            }
+            catch (Exception e)
+            {
+                if (e.GetType() == typeof(SobeyRecException))//sobeyexcep会自动打印错误
+                {
+                    SobeyRecException se = e as SobeyRecException;
+                    Response.Code = se.ErrorCode.ToString();
+                    Response.Msg = se.Message;
+                }
+                else
+                {
+                    Response.Code = ResponseCodeDefines.ServiceError;
+                    Response.Msg = "StopTask error info：" + e.ToString();
+                    Logger.Error(Response.Msg);
+                }
+            }
+            return Response;
+        }
+
+        /// <summary>
+        /// 根据任务id,在指定的时间上停止任务
+        /// </summary>
+        /// <remarks>
+        /// 例子:
+        ///
+        /// </remarks>
+        /// <param name="taskid">任务id，</param>
+        /// <param name="endtime">指定的时间 yyyy/MM/dd HH:mm:ss yyyy-MM-dd HH:mm:ss</param>
+        /// <returns>任务id</returns>
+        [HttpPut("taskinfo/stoptime/{taskid}")]
+        [ApiExplorerSettings(GroupName = "v2")]
+        public async Task<ResponseMessage<int>> StopTask([FromRoute, BindRequired]int taskid, [FromQuery, BindRequired]string endtime)
+        {
+            var Response = new ResponseMessage<int>();
+            if (taskid <= 0)
+            {
+                Response.Code = ResponseCodeDefines.ModelStateInvalid;
+                Response.Msg = "请求参数不正确";
+            }
+
+            try
+            {
+                if (string.IsNullOrEmpty(endtime))
+                {
+                    Response.Ext = await _taskManage.StopTask(taskid, DateTime.Now);
+                }
+                else
+                    Response.Ext = await _taskManage.StopTask(taskid, DateTimeFormat.DateTimeFromString(endtime));
+
+                if (Response.Ext <= 0)
+                {
+                    Response.Code = ResponseCodeDefines.NotFound;
+                    Response.Msg = "not found task";
+                }
+
+                var _globalinterface = ApplicationContext.Current.ServiceProvider.GetRequiredService<IIngestGlobalInterface>();
+                if (_globalinterface != null)
+                {
+                    GlobalInternals re = new GlobalInternals() { funtype = IngestDBCore.GlobalInternals.FunctionType.SetGlobalState, State = GlobalStateName.MODTASK };
+                    var response1 = await _globalinterface.SubmitGlobalCallBack(re);
+                    if (response1.Code != ResponseCodeDefines.SuccessCode)
+                    {
+                        Logger.Error("SetGlobalState modtask error");
+                    }
+                }
+            }
+            catch (Exception e)
+            {
+                if (e.GetType() == typeof(SobeyRecException))//sobeyexcep会自动打印错误
+                {
+                    SobeyRecException se = e as SobeyRecException;
+                    Response.Code = se.ErrorCode.ToString();
+                    Response.Msg = se.Message;
+                }
+                else
+                {
+                    Response.Code = ResponseCodeDefines.ServiceError;
+                    Response.Msg = "StopTask error info：" + e.ToString();
+                    Logger.Error(Response.Msg);
+                }
+            }
+            return Response;
+        }
+
+        /// <summary>
+        /// 根据任务id设置任务状态
+        /// </summary>
+        /// <remarks>
+        /// 例子:
+        ///
+        /// </remarks>
+        /// <param name="taskid">任务id</param>
+        /// <param name="state">任务状态</param>
+        /// <returns>任务id</returns>
+        [HttpPut("taskinfo/state/{taskid}")]
+        [ApiExplorerSettings(GroupName = "v2")]
+        public async Task<ResponseMessage<int>> SetTaskState([FromRoute, BindRequired]int taskid, [FromQuery, BindRequired]int state)
+        {
+            var Response = new ResponseMessage<int>();
+            if (taskid <= 0)
+            {
+                Response.Code = ResponseCodeDefines.ModelStateInvalid;
+                Response.Msg = "请求参数不正确";
+            }
+
+            try
+            {
+                Response.Ext = await _taskManage.SetTaskState(taskid, state);
+                if (Response.Ext <= 0)
+                {
+                    Response.Code = ResponseCodeDefines.NotFound;
+                    Response.Msg = "not found task";
+                }
+            }
+            catch (Exception e)
+            {
+                if (e.GetType() == typeof(SobeyRecException))//sobeyexcep会自动打印错误
+                {
+                    SobeyRecException se = e as SobeyRecException;
+                    Response.Code = se.ErrorCode.ToString();
+                    Response.Msg = se.Message;
+                }
+                else
+                {
+                    Response.Code = ResponseCodeDefines.ServiceError;
+                    Response.Msg = "StopTask error info：" + e.ToString();
+                    Logger.Error(Response.Msg);
+                }
+            }
+            return Response;
+        }
+
+        /// <summary>
+        /// 查询1天的任务
+        /// </summary>
+        /// <remarks>
+        /// 例子:
+        ///
+        /// </remarks>
+        /// <param name="unitid">随便填</param>
+        /// <param name="day">查询时间</param>
+        /// <param name="timemode">查询模式0是24小时模式，1是32小时模式</param>
+        /// <returns>任务id</returns>
+        [HttpGet("taskinfo/oneday")]
+        [ApiExplorerSettings(GroupName = "v2")]
+        public async Task<ResponseMessage<List<TaskContentResponse>>> QueryTaskContent([FromQuery, BindRequired]int unitid, [FromQuery, BindRequired]string day, [FromQuery, BindRequired]int timemode)
+        {
+            var Response = new ResponseMessage<List<TaskContentResponse>>();
+
+            try
+            {
+                Response.Ext = await _taskManage.QueryTaskContent<TaskContentResponse>(unitid, DateTimeFormat.DateTimeFromString(day), (TimeLineType)timemode);
+            }
+            catch (Exception e)
+            {
+                if (e.GetType() == typeof(SobeyRecException))//sobeyexcep会自动打印错误
+                {
+                    SobeyRecException se = e as SobeyRecException;
+                    Response.Code = se.ErrorCode.ToString();
+                    Response.Msg = se.Message;
+                }
+                else
+                {
+                    Response.Code = ResponseCodeDefines.ServiceError;
+                    Response.Msg = "QueryTaskContent error info：" + e.ToString();
+                    Logger.Error(Response.Msg);
+                }
+            }
+            return Response;
+        }
+
+        /// <summary>
+        /// 获取任务来源
+        /// </summary>
+        /// <remarks>
+        /// 例子:
+        ///
+        /// </remarks>
+        /// <param name="taskid">查询任务id</param>
+        /// <returns>任务id</returns>
+        [HttpGet("taskinfo/tasksource/{taskid}")]
+        [ApiExplorerSettings(GroupName = "v2")]
+        public async Task<ResponseMessage<TaskSource>> GetTaskSourceById([FromRoute, BindRequired]int taskid)
+        {
+            var Response = new ResponseMessage<TaskSource>();
+
+            try
+            {
+                Response.Ext = await _taskManage.GetTaskSource(taskid);
+            }
+            catch (Exception e)
+            {
+                if (e.GetType() == typeof(SobeyRecException))//sobeyexcep会自动打印错误
+                {
+                    SobeyRecException se = e as SobeyRecException;
+                    Response.Code = se.ErrorCode.ToString();
+                    Response.Msg = se.Message;
+                }
+                else
+                {
+                    Response.Code = ResponseCodeDefines.ServiceError;
+                    Response.Msg = "GetTaskSource error info：" + e.ToString();
+                    Logger.Error(Response.Msg);
+                }
+            }
+            return Response;
+        }
+
+        /// <summary>
+        /// 获取任务实际开始时间
+        /// </summary>
+        /// <remarks>
+        /// 例子:
+        ///
+        /// </remarks>
+        /// <param name="taskid">查询任务id</param>
+        /// <param name="starttime">任务开始时间 yyyy/MM/dd HH:mm:ss yyyy-MM-dd HH:mm:ss</param>
+        /// <returns>任务id</returns>
+        [HttpPut("taskinfo/trimin/{taskid}")]
+        [ApiExplorerSettings(GroupName = "v2")]
+        public async Task<ResponseMessage<int>> TrimTaskBeginTime([FromRoute, BindRequired]int taskid, [FromQuery, BindRequired]string starttime)
+        {
+            var Response = new ResponseMessage<int>();
+
+            try
+            {
+                Response.Ext = await _taskManage.GetTaskSource(taskid);
+            }
+            catch (Exception e)
+            {
+                if (e.GetType() == typeof(SobeyRecException))//sobeyexcep会自动打印错误
+                {
+                    SobeyRecException se = e as SobeyRecException;
+                    Response.Code = se.ErrorCode.ToString();
+                    Response.Msg = se.Message;
+                }
+                else
+                {
+                    Response.Code = ResponseCodeDefines.ServiceError;
+                    Response.Msg = "GetTaskSource error info：" + e.ToString();
                     Logger.Error(Response.Msg);
                 }
             }

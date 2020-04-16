@@ -200,7 +200,7 @@ namespace IngestGlobalPlugin.Stores
         }
 
         #endregion
-        
+
         #region global method
         public async Task<string> GetGlobalValueStringAsync(string strKey)
         {
@@ -214,7 +214,7 @@ namespace IngestGlobalPlugin.Stores
                     strValue = dbpGlobal.GlobalValue;
                 }
             }
-            catch(Exception ex)
+            catch (Exception ex)
             {
                 throw ex;
             }
@@ -224,7 +224,7 @@ namespace IngestGlobalPlugin.Stores
 
         public async Task UpdateGlobalValueAsync(string strKey, string strValue)
         {
-            
+
             try
             {
                 if (!Context.DbpGlobal.AsNoTracking().Any(a => a.GlobalKey == strKey))
@@ -326,7 +326,7 @@ namespace IngestGlobalPlugin.Stores
                 try
                 {
                     int saveResult = await Context.SaveChangesAsync();
-                    if(saveResult != 0)
+                    if (saveResult != 0)
                     {
                         return true;
                     }
@@ -343,8 +343,8 @@ namespace IngestGlobalPlugin.Stores
                     return false;
                 }
             }
-            
-            
+
+
             var arrObjects = LockSelect(3, 500, objectID, objectTypeID, userName);//LOCKLOCK失效的时间为500毫秒
 
             if (arrObjects == null || arrObjects.Count <= 0)
@@ -373,8 +373,8 @@ namespace IngestGlobalPlugin.Stores
                 return false;
 
             }
-            
-            
+
+
 
             bool ret = false;
             DateTime AddMillSec = dtLock.AddMilliseconds(nTime);
@@ -397,18 +397,18 @@ namespace IngestGlobalPlugin.Stores
             //updateCmd.CommandText = "UPDATE DBP_OBJECTSTATEINFO SET LOCKLOCK=NULL" + SelectStatement();
             try
             {
-                if(selectResult != null)
+                if (selectResult != null)
                 {
                     selectResult.Locklock = null;
                     Context.SaveChangesAsync();
                 }
-                
+
             }
             catch (MySqlException ex)
             {
                 Logger.Error("UnLock发生异常:" + ex.Message);
                 string message = "UnLock发生异常";
-                SobeyRecException.ThrowSelfNoParam(message, GlobalDictionary.GLOBALDICT_CODE_EXECUTE_COMMAND_ERROR,Logger, ex);
+                SobeyRecException.ThrowSelfNoParam(message, GlobalDictionary.GLOBALDICT_CODE_EXECUTE_COMMAND_ERROR, Logger, ex);
             }
         }
 
@@ -430,7 +430,7 @@ namespace IngestGlobalPlugin.Stores
             {
                 Logger.Error("UpdateLock发生异常:" + ex.Message);
                 string message = strUser;
-                SobeyRecException.ThrowSelfNoParam(message,GlobalDictionary.GLOBALDICT_CODE_EXECUTE_COMMAND_ERROR,Logger, ex);
+                SobeyRecException.ThrowSelfNoParam(message, GlobalDictionary.GLOBALDICT_CODE_EXECUTE_COMMAND_ERROR, Logger, ex);
             }
         }
 
@@ -467,7 +467,7 @@ namespace IngestGlobalPlugin.Stores
             {
                 Logger.Error("LockSelect 发生异常:" + ex.Message);
                 string message = "LockSelect";
-                SobeyRecException.ThrowSelfNoParam(message,GlobalDictionary.GLOBALDICT_CODE_SELECT_COMMAND_FAILD,Logger, ex);
+                SobeyRecException.ThrowSelfNoParam(message, GlobalDictionary.GLOBALDICT_CODE_SELECT_COMMAND_FAILD, Logger, ex);
             }
             return null;
         }
@@ -489,10 +489,10 @@ namespace IngestGlobalPlugin.Stores
                     nEffectRow = Context.SaveChangesAsync().Result;
                 }
             }
-            catch(Exception ex)
+            catch (Exception ex)
             {
                 string message = strTempLock;
-                SobeyRecException.ThrowSelfNoParam(strTempLock, GlobalDictionary.GLOBALDICT_CODE_EXECUTE_COMMAND_ERROR,Logger, ex);
+                SobeyRecException.ThrowSelfNoParam(strTempLock, GlobalDictionary.GLOBALDICT_CODE_EXECUTE_COMMAND_ERROR, Logger, ex);
             }
             strLock = strTempLock;
             return nEffectRow;
@@ -569,7 +569,7 @@ namespace IngestGlobalPlugin.Stores
         {
             try
             {
-                if (!Context.DbpUsersetting.AsNoTracking().Any(x=> x.Usercode == usersetting.Usercode && x.Settingtype == usersetting.Settingtype))
+                if (!Context.DbpUsersetting.AsNoTracking().Any(x => x.Usercode == usersetting.Usercode && x.Settingtype == usersetting.Settingtype))
                 {
                     //add
                     Context.DbpUsersetting.Add(usersetting);
@@ -583,7 +583,7 @@ namespace IngestGlobalPlugin.Stores
                 }
 
                 await Context.SaveChangesAsync();
-                
+
             }
             catch (System.Exception ex)
             {
@@ -592,12 +592,12 @@ namespace IngestGlobalPlugin.Stores
                 SobeyRecException.ThrowSelfNoParam("UpdateUsersettingsAsync", GlobalDictionary.GLOBALDICT_CODE_FILL_USER_SETUSERSETTING_EXCEPTION, Logger, ex);
             }
         }
-        
+
         #endregion
 
         #region CaptureTemplate
 
-        
+
         public async Task<TResult> GetCaptureparamtemplateAsync<TResult>(Func<IQueryable<DbpCaptureparamtemplate>, IQueryable<TResult>> query, bool notrack = false)
         {
             if (query == null)
@@ -645,7 +645,8 @@ namespace IngestGlobalPlugin.Stores
         {
             try
             {
-                Context.DbpUsertemplate.Add(new DbpUsertemplate() {
+                Context.DbpUsertemplate.Add(new DbpUsertemplate()
+                {
                     Templateid = templateID,
                     Usercode = userCode,
                     Templatename = templateName,
@@ -653,7 +654,7 @@ namespace IngestGlobalPlugin.Stores
                 });
                 await Context.SaveChangesAsync();
             }
-            catch(Exception ex)
+            catch (Exception ex)
             {
                 Logger.Error("InsertUserTemplateAsync : " + ex.ToString());
                 throw ex;
@@ -661,17 +662,28 @@ namespace IngestGlobalPlugin.Stores
 
         }
 
-        public async Task ModifyUserTempalteContent(int templateID, string templateContent)
+        public async Task UpdateUserTempalteAsync(int templateID, string templateContent, string newTemplateName)
         {
             try
             {
                 var userTemplate = new DbpUsertemplate()
                 {
-                    Templateid = templateID,
-                    Templatecontent = templateContent
+                    Templateid = templateID
                 };
-                Context.Attach(userTemplate);
-                Context.Entry(userTemplate).Property(x => x.Templatecontent).IsModified = true;
+                if (!string.IsNullOrWhiteSpace(templateContent))
+                {
+                    userTemplate.Templatecontent = templateContent;
+                    Context.Attach(userTemplate);
+                    Context.Entry(userTemplate).Property(x => x.Templatecontent).IsModified = true;
+                }
+
+                if (!string.IsNullOrWhiteSpace(newTemplateName))
+                {
+                    userTemplate.Templatename = newTemplateName;
+                    Context.Attach(userTemplate);
+                    Context.Entry(userTemplate).Property(x => x.Templatename).IsModified = true;
+                }
+
                 await Context.SaveChangesAsync();
             }
             catch (Exception ex)
@@ -681,7 +693,59 @@ namespace IngestGlobalPlugin.Stores
             }
         }
 
-        
+        public async Task<TResult> GetUserParamMapAsync<TResult>(Func<IQueryable<DbpUserparamMap>, IQueryable<TResult>> query, bool notrack = false)
+        {
+            if (query == null)
+            {
+                throw new ArgumentNullException(nameof(query));
+            }
+            if (notrack)
+            {
+                return await query.Invoke(Context.DbpUserparamMap.AsNoTracking()).FirstOrDefaultAsync();
+            }
+            return await query.Invoke(Context.DbpUserparamMap).FirstOrDefaultAsync();
+        }
+
+        public async Task DeleteUserParamMapAsync(DbpUserparamMap userparamMap)
+        {
+            try
+            {
+                if (userparamMap == null)
+                {
+                    return;
+                }
+
+                Context.Remove(userparamMap);
+                await Context.SaveChangesAsync();
+            }
+            catch (Exception ex)
+            {
+                Logger.Error("DeleteUserParamMapAsync : " + ex.ToString());
+                throw ex;
+            }
+        }
+
+        public async Task DeleteUserTemplateAsync(int nTemplateID)
+        {
+            try
+            {
+                var dbpUserTemplate = await Context.DbpUsertemplate.SingleOrDefaultAsync(x => x.Templateid == nTemplateID);
+
+                if (dbpUserTemplate != null)
+                {
+                    Context.Remove(dbpUserTemplate);
+                    await Context.SaveChangesAsync();
+                }
+            }
+            catch (Exception ex)
+            {
+                Logger.Error("DeleteUserTemplateAsync : " + ex.ToString());
+                throw ex;
+            }
+
+        }
+
+
 
         #endregion
 

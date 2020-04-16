@@ -105,6 +105,8 @@ namespace IngestTaskPlugin
                 .ForMember(d => d.TaskSource, y => y.MapFrom(s => s.taskSrc));
 
 
+            CreateMap<DbpTask, DbpTaskBackup>();
+            CreateMap<DbpTask, DbpTaskBackup>().ReverseMap();
             //ReverseMap
         }
     }
