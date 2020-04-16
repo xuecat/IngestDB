@@ -504,5 +504,11 @@ namespace IngestTaskPlugin.Dto
         public string errStr;
         public bool bRet;
     }
+    public class GetTaskByIDForFSW_OUT
+    {
+        public TaskContent taskConten;
+        public string errStr;
+        public bool bRet;
+    }
 }
 

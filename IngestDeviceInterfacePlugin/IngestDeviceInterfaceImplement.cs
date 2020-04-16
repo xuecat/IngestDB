@@ -49,6 +49,11 @@ namespace IngestTaskInterfacePlugin
                              return await reqService.GetChannelUnitMapID(examineResponse.ChannelId);
                         }
 
+                    case FunctionType.BackSignalByID:
+                        {
+                            return 0;
+                        }
+
 
                     default:
                         break;

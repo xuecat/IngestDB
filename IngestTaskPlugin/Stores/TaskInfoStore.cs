@@ -61,7 +61,20 @@ namespace IngestTaskPlugin.Stores
             }
             return await query.Invoke(Context.VtrUploadtask).SingleOrDefaultAsync();
         }
-        
+
+        public async Task<List<TResult>> GetVtrUploadTaskListAsync<TResult>(Func<IQueryable<VtrUploadtask>, IQueryable<TResult>> query, bool notrack = false)
+        {
+            if (query == null)
+            {
+                throw new ArgumentNullException(nameof(query));
+            }
+            if (notrack)
+            {
+                return await query.Invoke(Context.VtrUploadtask.AsNoTracking()).ToListAsync();
+            }
+            return await query.Invoke(Context.VtrUploadtask).ToListAsync();
+        }
+
         public async Task<TResult> GetTaskBackupAsync<TResult>(Func<IQueryable<DbpTaskBackup>, IQueryable<TResult>> query, bool notrack = false)
         {
             if (query == null)
@@ -222,6 +235,7 @@ namespace IngestTaskPlugin.Stores
             }
         }
 
+
         public async Task UpdateTaskCutomMetaDataAsync(int taskid, string metadata)
         {
             var item = await Context.DbpTaskCustommetadata.Where(x => x.Taskid == taskid).SingleAsync();
@@ -255,6 +269,178 @@ namespace IngestTaskPlugin.Stores
             catch (DbUpdateException e)
             {
                 throw e;
+            }
+        }
+
+        public async Task<bool> AdjustVtrUploadTasksByChannelId(int channelId, int taskId, DateTime dtCurTaskBegin)
+        {
+            if (channelId < 0 || taskId < 0)
+            {
+                return false;
+            }
+
+            bool isNeedModifyEndTime = true;
+            var taskinfo = await GetTaskAsync(a => a.Where(b => b.Taskid == taskId), true);
+
+            DateTime beginTime = DateTime.Now;
+            DateTime endTime = DateTime.Now;
+
+            if (taskinfo != null)
+            {
+                beginTime = taskinfo.NewBegintime;
+                endTime = taskinfo.NewEndtime;
+            }
+
+            beginTime = beginTime.AddHours(-2);
+            endTime = beginTime.AddHours(50);
+
+            var tasklst = await GetTaskListAsync(a => a.Where(b => b.Channelid == channelId 
+            && (b.State != (int)taskState.tsDelete && b.State != (int)taskState.tsInvaild)
+            && (b.Starttime > beginTime && b.Starttime < endTime)));// order by CHANNELID, STARTTIME 
+
+            if (tasklst == null || tasklst.Count <= 0)
+            {
+                return false;
+            }
+            bool isBegin = false;
+            int cout = tasklst.Count;
+            for (int i = 0; i < cout; i++)
+            {
+                var row = tasklst.ElementAt(i);
+
+                Logger.Info("AdjustVtrUploadTasksByChannelId normal item {0} {1} {2} {3}", row.Taskid, row.Tasktype, row.Starttime, row.Endtime);
+
+                if (!isBegin)
+                {
+                    if (row.Taskid == taskId)
+                    {
+                        isBegin = true;
+                        //往回退一个
+                        i--;
+                    }
+
+                    continue;
+                }
+
+                DbpTask preRow = null;
+                DbpTask nextRow = null;
+                if (i -1 >= 0)
+                {
+                    preRow = tasklst.ElementAt(i -1);
+                }
+                if (i+1< cout)
+                {
+                    nextRow = tasklst.ElementAt(i+1);
+                }
+
+                TimeSpan tsDuration = row.NewEndtime - row.NewBegintime;
+                DateTime dtNewTaskBeginTime = dtCurTaskBegin;//zmj 2010-07-12外部已经对该时间进行修改
+                DateTime dtNewTaskEndTime = dtNewTaskBeginTime.Add(tsDuration);
+                bool isNeedJudgeNextTask = false;//标识是否与下一个任务进行判断
+
+                if (row.Taskid == taskId)
+                {
+                    isNeedJudgeNextTask = true;
+                }
+                else
+                {
+                    if (preRow != null)
+                    {
+                        //判断当前的任务，如果不移的话，会不会与上一个任务冲突
+                        //如果不冲突，那么就可以不用移动，提前结束循环
+                        if (row.NewBegintime >= preRow.NewEndtime.AddSeconds(3))
+                        {
+                            break;
+                        }
+                        else
+                        {
+                            dtNewTaskBeginTime = preRow.NewEndtime.AddSeconds(3);
+                            dtNewTaskEndTime = dtNewTaskBeginTime.Add(tsDuration);
+
+                            isNeedJudgeNextTask = true;
+                        }
+                    }
+                }
+
+                if (isNeedJudgeNextTask)
+                {
+                    if (nextRow != null)
+                    {
+                        if (nextRow.Tasktype != (int)TaskType.TT_VTRUPLOAD)
+                        {
+                            if (dtNewTaskEndTime.AddSeconds(3) > nextRow.NewBegintime)
+                            {
+                                Logger.Info(string.Format("In AdjustVtrUploadTasksByChannelId,TaskId = {0},meet a schedule task.", taskId));
+                                //设置该任务在VTR_UploadTask表中为失败状态
+                                //置该任务为失败
+                                row.State = (int)taskState.tsDelete;
+
+                                await SetVTRUploadTaskState((int)row.Taskid, VTRUPLOADTASKSTATE.VTR_UPLOAD_FAIL, "VTRBATCHUPLOAD_ERROR_SCHEDULETASKCOLLIDE", false);
+
+                                if (taskId == (int)row.Taskid)
+                                {
+                                    isNeedModifyEndTime = false;
+                                }
+                                break;
+                            }
+                        }
+                    }
+                }
+
+                Logger.Info(string.Format("In AdjustVtrUploadTasksByChannelId,TaskId = {0},preStartTime = {1},preEndTime = {2}"
+                    , row.Taskid, row.Starttime, row.Endtime));
+
+                row.NewBegintime = dtNewTaskBeginTime;
+                row.Starttime = dtNewTaskBeginTime;
+
+                row.NewEndtime = dtNewTaskEndTime;
+                row.Endtime = dtNewTaskEndTime;
+
+                Logger.Info(string.Format("In AdjustVtrUploadTasksByChannelId,TaskId = {0},nowStartTime = {1},nowEndTime = {2}"
+                    , row.Taskid, row.Starttime, row.Endtime));
+            }
+            try
+            {
+                await Context.SaveChangesAsync();
+            }
+
+            catch (DbUpdateException e)
+            {
+                throw e;
+            }
+            return isNeedModifyEndTime;
+        }
+
+        public async Task SetVTRUploadTaskState(int TaskId, VTRUPLOADTASKSTATE vtrTaskState, string errorContent, bool savechange)
+        {
+            var tasklst = await GetVtrUploadTaskAsync(b => b.Where(a => a.Taskid == TaskId));
+
+            if (tasklst != null)
+            {
+                if (tasklst.Taskstate == (int)VTRUPLOADTASKSTATE.VTR_UPLOAD_COMPLETE
+                    && vtrTaskState == VTRUPLOADTASKSTATE.VTR_UPLOAD_COMMIT)//已入库素材重新上载是，改变GUID以保证再次入库时不会覆盖前面的素材
+                {
+                    tasklst.Taskguid = Guid.NewGuid().ToString();
+                }
+                //else
+
+                tasklst.Taskstate = (int)vtrTaskState;
+                if (vtrTaskState == VTRUPLOADTASKSTATE.VTR_UPLOAD_FAIL)
+                {
+                    tasklst.Usertoken = errorContent;
+                }
+            }
+
+            if (savechange)
+            {
+                try
+                {
+                    await Context.SaveChangesAsync();
+                }
+                catch (DbUpdateException e)
+                {
+                    throw e;
+                }
             }
         }
 

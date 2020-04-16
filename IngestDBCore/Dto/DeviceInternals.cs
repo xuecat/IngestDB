@@ -12,7 +12,8 @@ namespace IngestDBCore
             ChannelInfoBySrc,
             SingnalInfoByChannel,
             AllChannelUnitMap,
-            ChannelUnitMap
+            ChannelUnitMap,
+            BackSignalByID
         }
 
         public FunctionType funtype { get; set; }

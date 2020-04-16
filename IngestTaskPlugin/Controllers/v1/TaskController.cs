@@ -603,7 +603,7 @@ namespace IngestTaskPlugin.Controllers
 
             try
             {
-                Response.taskConten = await _taskManage.GetTaskInfoByID<TaskContent>(nTaskID);
+                Response.taskConten = await _taskManage.GetTaskInfoByID<TaskContent>(nTaskID, 0);
                 return Response;
             }
             catch (Exception e)
@@ -617,6 +617,37 @@ namespace IngestTaskPlugin.Controllers
                 {
                     Response.errStr = "error info：" + e.ToString();
                     Logger.Error("GetTaskByID" + e.ToString());
+                }
+                return Response;
+            }
+        }
+
+        [HttpGet("GetTaskByIDForFSW"), MapToApiVersion("1.0")]
+        [ApiExplorerSettings(GroupName = "v1")]
+        public async Task<GetTaskByIDForFSW_OUT> GetTaskByIDForFSW(int nTaskID)
+        {
+            var Response = new GetTaskByIDForFSW_OUT
+            {
+                bRet = true,
+                errStr = "OK",
+            };
+
+            try
+            {
+                Response.taskConten = await _taskManage.GetTaskInfoByID<TaskContent>(nTaskID, 1);
+                return Response;
+            }
+            catch (Exception e)
+            {
+                if (e.GetType() == typeof(SobeyRecException))//sobeyexcep会自动打印错误
+                {
+                    SobeyRecException se = e as SobeyRecException;
+                    Response.errStr = se.ErrorCode.ToString();
+                }
+                else
+                {
+                    Response.errStr = "error info：" + e.ToString();
+                    Logger.Error("GetTaskByIDForFSW" + e.ToString());
                 }
                 return Response;
             }
@@ -839,6 +870,36 @@ namespace IngestTaskPlugin.Controllers
                 return Response;
             }
             return Response;
+
+        }
+
+        [HttpGet("GetTrimTaskBeginTime"), MapToApiVersion("1.0")]
+        [ApiExplorerSettings(GroupName = "v1")]
+        public async Task<bool> GetTrimTaskBeginTime(int nTaskID, string strStartTime)
+        {
+            try
+            {
+                if (nTaskID < 0)
+                {
+                    return false;
+                }
+                await _taskManage.TrimTaskBeginTime(nTaskID, strStartTime);
+            }
+            catch (Exception e)//其他未知的异常，写异常日志
+            {
+                if (e.GetType() == typeof(SobeyRecException))//sobeyexcep会自动打印错误
+                {
+                    SobeyRecException se = e as SobeyRecException;
+                    //Response.errStr = se.ErrorCode.ToString();
+                }
+                else
+                {
+                    //Response.errStr = "error info：" + e.ToString();
+                    Logger.Error("GetTrimTaskBeginTime" + e.ToString());
+                }
+                return false;
+            }
+            return true;
 
         }
         ////////////////////////////
