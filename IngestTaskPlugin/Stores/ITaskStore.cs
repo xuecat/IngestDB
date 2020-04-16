@@ -54,6 +54,7 @@ namespace IngestTaskPlugin.Stores
         //Task DeleteVtrUploadTaskListAsync(List<int> lsttaskid, DbpTask task, bool savechange = true);
         Task DeleteVtrUploadTaskAsync(int taskid, DbpTask task, bool savechange = true);
         Task<int> StopTask(int taskid, DateTime dt);
+        Task<int> DeleteTask(int taskid);
         Task<int> StopCapturingChannelAsync(int Channel);
         Task<List<int>> StopCapturingListChannelAsync(List<int> lstChaneel);
         Task<int> DeleteCapturingChannelAsync(int Channel);

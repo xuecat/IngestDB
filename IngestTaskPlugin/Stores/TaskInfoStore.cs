@@ -634,6 +634,94 @@ namespace IngestTaskPlugin.Stores
             }
         }
 
+        public async Task<int> DeleteTask(int taskid)
+        {
+            var taskinfo = await GetTaskAsync(a => a.Where(b => b.Taskid == taskid));
+            if (taskinfo == null)
+            {
+                Logger.Info("DeleteTask error empty " + taskid);
+                SobeyRecException.ThrowSelfNoParam(taskid.ToString(), GlobalDictionary.GLOBALDICT_CODE_TASK_ID_DOES_NOT_EXIST,
+                    Logger, null);
+                return 0;
+            }
+
+            if (taskinfo.State == (int)taskState.tsComplete)
+            {
+               await UnLockTask(taskid);
+                SobeyRecException.ThrowSelfNoParam(taskid.ToString(), GlobalDictionary.GLOBALDICT_CODE_CAN_NOT_DELETE_THE_COMPLETE_TASK,
+                    Logger, null);
+                return 0;
+            }
+
+            bool isNeedDelFromDB = false;
+            taskinfo.OpType = (int)opType.otDel;
+            if (taskinfo.DispatchState == (int)dispatchState.dpsNotDispatch ||
+                taskinfo.DispatchState == (int)dispatchState.dpsRedispatch ||
+                taskinfo.DispatchState == (int)dispatchState.dpsDispatchFailed ||
+                (taskinfo.DispatchState == (int)dispatchState.dpsDispatched && taskinfo.SyncState == (int)syncState.ssNot))
+            {
+                //对未分发任务的处理
+                //	info.emDispatchState = dispatchState.dpsInvalid;
+                taskinfo.DispatchState = (int)dispatchState.dpsDispatched;
+                taskinfo.SyncState = (int)syncState.ssSync;
+                taskinfo.State = (int)taskState.tsDelete;
+                isNeedDelFromDB = true;
+            }
+            else
+            {
+                taskinfo.SyncState = (int)syncState.ssNot;
+                // Add by chenzhi 2013-08-08
+                // TODO: 这种状态下的任务，修改任务结束时间为当前时间
+                //string strlog = "strEnd = GlobalFun.DateTimeToString(DateTime.Now) = dpsDispatched nTaskID = ";
+                //strlog += info.taskContent.nTaskID.ToString();
+                Logger.Info("strEnd = GlobalFun.DateTimeToString(DateTime.Now) = dpsDispatched nTaskID = ");
+                //Sobey.Ingest.Log.LoggerService.Info(strlog);
+                //taskinfo.taskContent.strEnd = GlobalFun.DateTimeToString(DateTime.Now);
+                taskinfo.Endtime = DateTime.Now;
+            }
+
+            //unlock
+            taskinfo.Tasklock = string.Empty;
+            //Tie Up 直接删除
+            if (taskinfo.Tasktype == (int)TaskType.TT_TIEUP)
+            {
+                taskinfo.SyncState = (int)syncState.ssSync;
+                taskinfo.State = (int)taskState.tsDelete;
+                isNeedDelFromDB = true;
+            }
+
+            //zmj 2010-12-06 修改个别任务由于开始时间接收得比较晚，造成状态有问题
+            if (taskinfo.State == (int)taskState.tsExecuting
+                //此状态，任务已经开始执行了，但是由于消息队列原因，导致接收的时间比较晚，状态还没有变成正在执行状态
+                //这个时间，也需要将任务的结束时间改变，保证正常结束
+                || (taskinfo.DispatchState == (int)dispatchState.dpsDispatched && taskinfo.SyncState == (int)syncState.ssSync))
+            {
+                taskinfo.Endtime = DateTime.Now;
+                //删除的任务肯定是手动停止的，需要设置标记，强制停止流媒体任务
+                taskinfo.Recunitid = taskinfo.Recunitid | 0x8000;
+            }
+
+
+            if (taskinfo.Tasktype == (int)TaskType.TT_VTRUPLOAD)
+            {
+                await DeleteVtrUploadTaskAsync(taskinfo.Taskid, taskinfo, true);
+            }
+            else
+            {
+                if (isNeedDelFromDB)
+                {
+                    Context.DbpTask.Remove(taskinfo);
+                    Context.DbpTaskMetadata.Remove(new DbpTaskMetadata() { Taskid = taskinfo.Taskid });
+                }
+                else
+                {
+                    Logger.Info("Before TASKOPER.ModifyTask");
+                    await ModifyTask(taskinfo, true, string.Empty, string.Empty, string.Empty, string.Empty);
+                }
+            }
+            return taskid;
+        }
+
         public async Task<int> StopTask(int taskid, DateTime dt)
         {
             var taskinfo = await GetTaskAsync(a => a.Where(b => b.Taskid == taskid));

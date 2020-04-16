@@ -1025,6 +1025,78 @@ namespace IngestTaskPlugin.Controllers
             return Response;
 
         }
+
+        [HttpGet("GetDelTaskDb"), MapToApiVersion("1.0")]
+        [ApiExplorerSettings(GroupName = "v1")]
+        public async Task<DelTaskDb_OUT> GetDelTaskDb(int nTaskID)
+        {
+            var Response = new DelTaskDb_OUT
+            {
+                bRet = true,
+                errStr = "OK",
+            };
+            try
+            {
+                if (nTaskID <= 0)
+                {
+                    Response.bRet = false;
+                    return Response;
+                }
+                await _taskManage.DeleteTask(nTaskID);
+            }
+            catch (Exception e)//其他未知的异常，写异常日志
+            {
+                if (e.GetType() == typeof(SobeyRecException))//sobeyexcep会自动打印错误
+                {
+                    SobeyRecException se = e as SobeyRecException;
+                    Response.errStr = se.ErrorCode.ToString();
+                }
+                else
+                {
+                    Response.errStr = "error info：" + e.ToString();
+                    Logger.Error("GetTrimTaskBeginTime" + e.ToString());
+                }
+                return Response;
+            }
+            return Response;
+
+        }
+
+        [HttpGet("GetDelTaskDb"), MapToApiVersion("1.0")]
+        [ApiExplorerSettings(GroupName = "v1")]
+        public async Task<SetTaskClassify_OUT> SetTaskClassify([FromQuery]int nTaskID, [FromBody]string strClassify)
+        {
+            var Response = new SetTaskClassify_OUT
+            {
+                bRet = true,
+                errStr = "OK",
+            };
+            try
+            {
+                if (nTaskID <= 0)
+                {
+                    Response.bRet = false;
+                    return Response;
+                }
+                await _taskManage.SetTaskClassify(nTaskID, strClassify);
+            }
+            catch (Exception e)//其他未知的异常，写异常日志
+            {
+                if (e.GetType() == typeof(SobeyRecException))//sobeyexcep会自动打印错误
+                {
+                    SobeyRecException se = e as SobeyRecException;
+                    Response.errStr = se.ErrorCode.ToString();
+                }
+                else
+                {
+                    Response.errStr = "error info：" + e.ToString();
+                    Logger.Error("GetTrimTaskBeginTime" + e.ToString());
+                }
+                return Response;
+            }
+            return Response;
+
+        }
         ////////////////////////////
     }
 }

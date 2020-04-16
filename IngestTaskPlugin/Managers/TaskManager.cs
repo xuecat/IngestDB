@@ -328,6 +328,20 @@ namespace IngestTaskPlugin.Managers
             return await Store.StopTask(taskid, dt);
         }
 
+        public async Task<int> DeleteTask(int taskid)
+        {
+            Logger.Info("DeleteTask " + taskid);
+            return await Store.DeleteTask(taskid);
+        }
+
+        public async Task<int> SetTaskClassify(int taskid, string classify)
+        {
+            var taskinf = await Store.GetTaskAsync(a => a.Where(b => b.Taskid == taskid));
+            taskinf.Category = classify;
+            await Store.SaveChangeAsync();
+            return taskid;
+        }
+
         public async Task<int> SetTaskState(int taskid, int state)
         {
             var taskinfo = await Store.GetTaskAsync(a => a.Where(b => b.Taskid == taskid));

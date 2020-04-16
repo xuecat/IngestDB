@@ -1111,6 +1111,119 @@ namespace IngestTaskPlugin.Controllers
             }
             return Response;
         }
+
+        /// <summary>
+        /// 删除任务
+        /// </summary>
+        /// <remarks>
+        /// 例子:
+        ///
+        /// </remarks>
+        /// <param name="taskid">任务id</param>
+        /// <returns>任务id</returns>
+        [HttpDelete("taskinfo/delete/{taskid}")]
+        [ApiExplorerSettings(GroupName = "v2")]
+        public async Task<ResponseMessage<int>> DeleteTask([FromRoute, BindRequired]int taskid)
+        {
+            var Response = new ResponseMessage<int>();
+
+            try
+            {
+                Response.Ext = await _taskManage.DeleteTask(taskid);
+            }
+            catch (Exception e)
+            {
+                if (e.GetType() == typeof(SobeyRecException))//sobeyexcep会自动打印错误
+                {
+                    SobeyRecException se = e as SobeyRecException;
+                    Response.Code = se.ErrorCode.ToString();
+                    Response.Msg = se.Message;
+                }
+                else
+                {
+                    Response.Code = ResponseCodeDefines.ServiceError;
+                    Response.Msg = "DeleteTask error info：" + e.ToString();
+                    Logger.Error(Response.Msg);
+                }
+            }
+            return Response;
+        }
+
+        /// <summary>
+        /// 设置任务周期信息
+        /// </summary>
+        /// <remarks>
+        /// 例子:
+        ///
+        /// </remarks>
+        /// <param name="taskid">任务id</param>
+        /// <param name="classify">周期信息</param>
+        /// <returns>任务id</returns>
+        [HttpPut("taskinfo/classify/{taskid}")]
+        [ApiExplorerSettings(GroupName = "v2")]
+        public async Task<ResponseMessage<int>> SetTaskInfoClassify([FromRoute, BindRequired]int taskid, [FromQuery, BindRequired]string classify)
+        {
+            var Response = new ResponseMessage<int>();
+
+            try
+            {
+                Response.Ext = await _taskManage.SetTaskClassify(taskid, classify);
+            }
+            catch (Exception e)
+            {
+                if (e.GetType() == typeof(SobeyRecException))//sobeyexcep会自动打印错误
+                {
+                    SobeyRecException se = e as SobeyRecException;
+                    Response.Code = se.ErrorCode.ToString();
+                    Response.Msg = se.Message;
+                }
+                else
+                {
+                    Response.Code = ResponseCodeDefines.ServiceError;
+                    Response.Msg = "SetTaskInfoClassify error info：" + e.ToString();
+                    Logger.Error(Response.Msg);
+                }
+            }
+            return Response;
+        }
+
+        /// <summary>
+        /// //"Set all period task which were dispatched in time to the next excuting time")]
+        /// </summary>
+        /// <remarks>
+        /// 例子:
+        ///
+        /// </remarks>
+        /// <param name="taskid">任务id</param>
+        /// <param name="classify">周期信息</param>
+        /// <returns>任务id</returns>
+        [HttpPost("taskinfo/nexttimeperiod")]
+        [ApiExplorerSettings(GroupName = "v2")]
+        public async Task<ResponseMessage<int>> SetPeriodTaskToNextTime()
+        {
+            var Response = new ResponseMessage<int>();
+
+            try
+            {
+                Response.Ext = await _taskManage.SetTaskClassify(taskid, classify);
+            }
+            catch (Exception e)
+            {
+                if (e.GetType() == typeof(SobeyRecException))//sobeyexcep会自动打印错误
+                {
+                    SobeyRecException se = e as SobeyRecException;
+                    Response.Code = se.ErrorCode.ToString();
+                    Response.Msg = se.Message;
+                }
+                else
+                {
+                    Response.Code = ResponseCodeDefines.ServiceError;
+                    Response.Msg = "SetTaskInfoClassify error info：" + e.ToString();
+                    Logger.Error(Response.Msg);
+                }
+            }
+            return Response;
+        }
         //////////////////////////
     }
 }

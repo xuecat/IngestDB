@@ -540,5 +540,10 @@ namespace IngestTaskPlugin.Dto
         public string errStr;
         public bool bRet;
     }
+    public class SetTaskClassify_OUT
+    {
+        public string errStr;
+        public bool bRet;
+    }
 }
 
