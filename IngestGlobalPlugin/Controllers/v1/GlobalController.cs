@@ -298,7 +298,8 @@ namespace IngestGlobalPlugin.Controllers
             try
             {
                 //读取采集参数模板
-                string temp = await _GlobalManager.GetParamTemplateByIDAsync(nCaptureParamID, nFlag);
+                string temp = await _GlobalManager.GetCapParamTemplateByIDAsync(nCaptureParamID);
+                temp = _GlobalManager.DealCaptureParam(temp, nFlag);
                 if (string.IsNullOrEmpty(temp))
                 {
                     p.errStr = "There's no CaptureParam!";

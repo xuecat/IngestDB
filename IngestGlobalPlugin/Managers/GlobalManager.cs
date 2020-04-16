@@ -171,8 +171,8 @@ namespace IngestGlobalPlugin.Managers
         {
             string settingText = string.Empty;
             var userSetting = await Store.GetUserSettingAsync(a => a.Where(x => x.Usercode == strUserCode && x.Settingtype == strSettingtype), true);
-            
-            if(userSetting!= null)
+
+            if (userSetting != null)
             {
                 settingText = !string.IsNullOrWhiteSpace(userSetting.Settingtext) ? userSetting.Settingtext : userSetting.Settingtextlong;
             }
@@ -222,9 +222,8 @@ namespace IngestGlobalPlugin.Managers
         }
 
         #region CaptureTemplate
-        public async Task<string> GetParamTemplateByIDAsync(int nCaptureParamID, int nFlag)
+        public async Task<string> GetCapParamTemplateByIDAsync(int nCaptureParamID)
         {
-            string strCaptureparam = null;
             var capturetemplate = await Store.GetCaptureparamtemplateAsync(a => a.Where(x => x.Captureparamid == nCaptureParamID), true);
 
             if (capturetemplate == null || string.IsNullOrEmpty(capturetemplate.Captureparam))
@@ -232,8 +231,14 @@ namespace IngestGlobalPlugin.Managers
                 return string.Empty;
             }
 
+            return capturetemplate.Captureparam;
+        }
+
+        public string DealCaptureParam(string captureparam, int nFlag)
+        {
+            string strCaptureparam = null;
             //在模板头尾加上根节点以便于xml解析
-            string temp = capturetemplate.Captureparam;
+            string temp = captureparam;
             temp = "<root>" + temp + "</root>";
             XmlDocument xml = new XmlDocument();
             xml.LoadXml(temp);
@@ -262,6 +267,119 @@ namespace IngestGlobalPlugin.Managers
             }
             return strCaptureparam;
         }
+
+
+        public async Task<int> ModifyCaptureParamTemplateAsync(int nParamTemplateID, string strTemplateName, string strUserCaptureParam)
+        {
+            if(string.IsNullOrEmpty(strTemplateName) || string.IsNullOrEmpty(strUserCaptureParam))
+            {
+                return -1;
+            }
+
+            return await Store.UpdateCaptureParamTemplateAsync(nParamTemplateID, strTemplateName, strUserCaptureParam);
+        }
+
+        public async Task DelCaptureParamTemplateAsync(int nParamTemplateID)
+        {
+            var dbpCapTemplate = await Store.GetCaptureparamtemplateAsync(a => a.Where(x => x.Captureparamid == nParamTemplateID));
+            
+            if (dbpCapTemplate == null)
+            {
+                SobeyRecException.ThrowSelfNoParam(nParamTemplateID.ToString(), GlobalDictionary.GLOBALDICT_CODE_USER_PARAM_ID_DOES_NOT_EXIST, Logger, null);
+                return;
+            }
+
+            await Store.DeleteCaptureParamTemplateAsync(dbpCapTemplate);
+        }
+
+        //可能有问题
+        public async Task<List<TResult>> GetAllCatureParamTemplateAsync<TResult>()
+        {
+            var result = await Store.GetCaptureparamtemplateListAsync(a => a, true);
+
+            return _mapper.Map<List<TResult>>(result);
+        }
+
+        public async Task<List<TResult>> GetAllCatureParamTemplateAsync<TResult>(int nFlag)
+        {
+            var result = await Store.GetCaptureparamtemplateListAsync(a => a, true);
+            foreach (var item in result)
+            {
+                string strUserCaptureParam = item.Captureparam;
+                int pos = strUserCaptureParam.IndexOf("</CAPTUREPARAM>");
+                if (nFlag == 1)
+                {
+                    strUserCaptureParam = strUserCaptureParam.Substring(0, pos + 15);
+                }
+                else
+                {
+                    int nLen = strUserCaptureParam.Length - pos - 15;
+                    if (nLen <= 0)
+                    {
+                        strUserCaptureParam = "";
+                    }
+                    else
+                        strUserCaptureParam = strUserCaptureParam.Substring(pos + 15, nLen);
+                }
+                item.Captureparam = strUserCaptureParam;
+            }
+            return _mapper.Map<List<TResult>>(result);
+        }
+
+        public async Task<string> GetCapParamTemplateByUserCodeAsync(string UserCode)
+        {
+            var dbpUserParamMap = await Store.GetUserParamMapAsync(a => a.Where(x => x.Usercode == UserCode), true);
+            if(dbpUserParamMap == null)
+            {
+                return string.Empty; 
+            }
+
+            var dbpCapParamTemplate = await Store.GetCaptureparamtemplateAsync(a => a.Where(x => x.Captureparamid == dbpUserParamMap.Captureparamid), true);
+
+            if(dbpCapParamTemplate == null)
+            {
+                SobeyRecException.ThrowSelfNoParam(UserCode, GlobalDictionary.GLOBALDICT_CODE_USER_PARAM_ID_DOES_NOT_EXIST, Logger, null);
+            }
+
+            return dbpCapParamTemplate.Captureparam;
+        }
+
+        public async Task<CapParamTemplate> GetCapParamTemplateByUserCodeDB2Async(string strUserCode)
+        {
+            
+            var result = await Store.GetUserParamForDB2Async(strUserCode);
+            return _mapper.Map<CapParamTemplate>(result);
+        }
+
+        public async Task<CapParamTemplate> GetCapParamTemplateByUserV2(string strUserCode)
+        {
+            var dbpUserParamMap = await Store.GetUserParamMapAsync(a => a.Where(x => x.Usercode == strUserCode), true);
+            if(dbpUserParamMap == null)
+            {
+                SobeyRecException.ThrowSelfNoParam(strUserCode, GlobalDictionary.GLOBALDICT_CODE_USER_PARAM_DOES_NOT_EXIST, Logger, null);
+            }
+
+            var dbpCapParamTemplate = await Store.GetCaptureparamtemplateAsync(a => a.Where(x => x.Captureparamid == dbpUserParamMap.Captureparamid), true);
+
+            if (dbpCapParamTemplate == null)
+            {
+                SobeyRecException.ThrowSelfNoParam(strUserCode, GlobalDictionary.GLOBALDICT_CODE_USER_PARAM_ID_DOES_NOT_EXIST, Logger, null);
+            }
+            return _mapper.Map<CapParamTemplate>(dbpCapParamTemplate);
+        }
+
+        public async Task<List<UserParmMap>> GetAllUserParamMap()
+        {
+            var userParamMap = await Store.GetUserParamMapListAsync(a => a, true);
+            return _mapper.Map<List<UserParmMap>>(userParamMap);
+        }
+
+        public async Task ModifyAllUserParamMapAsync(List<UserParmMap> arUserParmMapList)
+        {
+            var dbpUserMaps = _mapper.Map<List<DbpUserparamMap>>(arUserParmMapList);
+            await Store.UpdateAllUserParamMapAsync(dbpUserMaps);
+        }
+
         #endregion
 
         #region UserTemplate
@@ -311,18 +429,18 @@ namespace IngestGlobalPlugin.Managers
                     return;
                 }
             }
-            
+
             await Store.UpdateUserTempalteAsync(nTemplateID, strTemplateContent, strNewTemplateName);
 
         }
 
         public async Task UpdateUserTempalteContent(int nTemplateID, string strTemplateContent)
         {
-            DbpUsertemplate userTemplate = await Store.GetUsertemplateAsync(a => a.Where( x=> x.Templateid == nTemplateID), true);
+            DbpUsertemplate userTemplate = await Store.GetUsertemplateAsync(a => a.Where(x => x.Templateid == nTemplateID), true);
             if (userTemplate == null || userTemplate.Templateid <= 0)
             {
-                SobeyRecException.ThrowSelfOneParam(nTemplateID.ToString(), GlobalDictionary.GLOBALDICT_CODE_CAN_NOT_FIND_THE_TEMPLATE_ID_IS_ONEPARAM,null,  string.Format(GlobalDictionary.Instance.GetMessageByCode(GlobalDictionary.GLOBALDICT_CODE_CAN_NOT_FIND_THE_TEMPLATE_ID_IS_ONEPARAM),
-                    nTemplateID),  null);
+                SobeyRecException.ThrowSelfOneParam(nTemplateID.ToString(), GlobalDictionary.GLOBALDICT_CODE_CAN_NOT_FIND_THE_TEMPLATE_ID_IS_ONEPARAM, null, string.Format(GlobalDictionary.Instance.GetMessageByCode(GlobalDictionary.GLOBALDICT_CODE_CAN_NOT_FIND_THE_TEMPLATE_ID_IS_ONEPARAM),
+                    nTemplateID), null);
                 return;
             }
 
@@ -333,15 +451,15 @@ namespace IngestGlobalPlugin.Managers
         {
             DbpUsertemplate userTemplate = await Store.GetUsertemplateAsync(a => a.Where(x => x.Templateid == nTemplateID), true);
 
-            if (userTemplate == null ||  userTemplate.Templateid <= 0)
+            if (userTemplate == null || userTemplate.Templateid <= 0)
             {
                 //SobeyRecException.ThrowSelf(string.Format("Can not find the template.ID = {0}",templateID),10013004);
-                SobeyRecException.ThrowSelfOneParam("get user template by id is null", GlobalDictionary.GLOBALDICT_CODE_CAN_NOT_FIND_THE_TEMPLATE_ID_IS_ONEPARAM,Logger,nTemplateID,null);
+                SobeyRecException.ThrowSelfOneParam("get user template by id is null", GlobalDictionary.GLOBALDICT_CODE_CAN_NOT_FIND_THE_TEMPLATE_ID_IS_ONEPARAM, Logger, nTemplateID, null);
                 return;
             }
 
             userTemplate = await Store.GetUsertemplateAsync(a => a.Where(x => x.Usercode == userTemplate.Usercode && x.Templatename == strNewTemplateName && x.Templateid != nTemplateID), true);
-            if(userTemplate != null && userTemplate.Templateid > 0)
+            if (userTemplate != null && userTemplate.Templateid > 0)
             {
                 SobeyRecException.ThrowSelfOneParam("user template name is exist", GlobalDictionary.GLOBALDICT_CODE_THE_USER_TEMPLATE_HAS_EXISTS_ONEPARAM, Logger, nTemplateID, null);
                 return;
@@ -366,7 +484,7 @@ namespace IngestGlobalPlugin.Managers
         {
             var dbpParamMap = await Store.GetUserParamMapAsync(a => a.Where(x => x.Usercode == szUserCode));
 
-            if(dbpParamMap == null)
+            if (dbpParamMap == null)
             {
                 SobeyRecException.ThrowSelfNoParam(szUserCode, GlobalDictionary.GLOBALDICT_CODE_USER_ID_DOES_NOT_EXIST, Logger, null);
                 return;
@@ -377,10 +495,35 @@ namespace IngestGlobalPlugin.Managers
 
         public async Task ModUserParamTemplateAsync(string strUserCode, int nParamTemplateID)
         {
-
+            await Store.UpdateUserParamMapAsync(strUserCode, nParamTemplateID);
 
         }
 
+        public async Task<int> GetUserCaptureParamIdAsync(string strUserCode)
+        {
+            var dbpParamMap = await Store.GetUserParamMapAsync(a => a.Where(x => x.Usercode == strUserCode), true);
+
+            if (dbpParamMap == null)
+            {
+                SobeyRecException.ThrowSelfNoParam(strUserCode, GlobalDictionary.GLOBALDICT_CODE_USER_PARAM_ID_DOES_NOT_EXIST, Logger, null);
+            }
+
+            return dbpParamMap.Captureparamid == null ? -1 : (int)dbpParamMap.Captureparamid;
+        }
+
+        public async Task<List<TResult>> GetUserTemplateAsync<TResult>(string userCode, string templateName)
+        {
+            var dbpUserTempLst = await Store.GetUsertemplateLstAsync(a => a.Where(x => x.Usercode == userCode && x.Templatename == templateName), true);
+
+            return _mapper.Map<List<TResult>>(dbpUserTempLst);
+        }
+
+        public async Task<TResult> GetUserTemplateByIDAsync<TResult>(int templateID)
+        {
+            var dbpUserTemp = await Store.GetUsertemplateAsync(a => a.Where(x => x.Templateid == templateID));
+            return _mapper.Map<TResult>(dbpUserTemp);
+        }
+        
         #endregion
 
         #region CMapi user
@@ -392,13 +535,13 @@ namespace IngestGlobalPlugin.Managers
             //return _mapper.Map<TResponse>(result);
             return result;
         }
-        
+
 
         public async Task<ResponseMessage<TResult>> ExcuteUserInfo<TResult>(string strUserCode)
         {
             ResponseMessage<TResult> result = new ResponseMessage<TResult>();
             string uri = string.Format("http://{0}/CMApi/api/basic/account/getuserinfobyusercode?usercode={1}", ApplicationContext.Current.CMServerUrl, strUserCode);
-            
+
             ResponseMessageN<OldCMUserInfo> reres = await _restClient.GetCmApi<ResponseMessageN<OldCMUserInfo>>(uri);
 
             if (reres.Code == "0")
@@ -420,7 +563,7 @@ namespace IngestGlobalPlugin.Managers
             var result = await AutoRetry.Run(GetHighOrStandardParam<TResponse>, szUserToken);
             return result;
         }
-        
+
         public async Task<ResponseMessage<TResult>> GetHighOrStandardParam<TResult>(string szUserToken)
         {
             userparameter param = new userparameter();
@@ -445,11 +588,11 @@ namespace IngestGlobalPlugin.Managers
                 result.Ext = default(TResult);
                 result.Code = ResponseCodeDefines.PartialFailure;
             }
-            
+
             return result;
         }
 
-        
+
 
         #endregion
 
