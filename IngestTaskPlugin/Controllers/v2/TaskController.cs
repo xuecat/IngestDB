@@ -515,7 +515,13 @@ namespace IngestTaskPlugin.Controllers
             }
             try
             {
-                Response.Ext = await _taskManage.AddTaskWithPolicy(task, string.Empty, string.Empty, string.Empty, string.Empty);
+                Response.Ext = await _taskManage.AddTaskWithPolicy(task, false, string.Empty, string.Empty, string.Empty, string.Empty);
+
+                if (task.BackUpTask)
+                {
+                    task.TaskContent = Response.Ext;
+                    await _taskManage.AddTaskWithPolicy(task, true, string.Empty, string.Empty, string.Empty, string.Empty);
+                }
 
                 //添加后如果开始时间在2分钟以内，需要调度一次
                 if ((DateTimeFormat.DateTimeFromString(task.TaskContent.Begin) - DateTime.Now).TotalSeconds < 120)
@@ -531,7 +537,6 @@ namespace IngestTaskPlugin.Controllers
                         Logger.Error("SetGlobalState modtask error");
                     }
                 }
-
                 //SetGTMTaskInfo
                 //添加后如果开始时间在2分钟以内，需要调度一次
                 //这玩意我完全不知道有啥，放弃，后面改

@@ -33,6 +33,7 @@ namespace IngestTaskPlugin.Stores
         Task UpdateTaskListAsync(List<DbpTask> lst);
 
         Task<TResult> GetTaskMetaDataAsync<TResult>(Func<IQueryable<DbpTaskMetadata>, IQueryable<TResult>> query, bool notrack = false);
+        Task<List<TResult>> GetTaskMetaDataListAsync<TResult>(Func<IQueryable<DbpTaskMetadata>, IQueryable<TResult>> query, bool notrack = false);
         Task<TResult> GetTaskCustomMetaDataAsync<TResult>(Func<IQueryable<DbpTaskCustommetadata>, IQueryable<TResult>> query, bool notrack = false);
         Task UpdateTaskMetaDataAsync(int taskid, MetaDataType type, string metadata);
         Task UpdateTaskCutomMetaDataAsync(int taskid, string metadata);

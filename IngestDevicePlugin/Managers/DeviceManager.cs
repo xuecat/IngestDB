@@ -290,6 +290,11 @@ namespace IngestTaskPlugin.Managers
         {
             return _mapper.Map<RecUnitMap>(await Store.GetChannelUnitMap(channel));
         }
+
+        public async Task<ProgrammeInfoResponse> GetBackProgramInfoBySrgid(int srgid)
+        {
+            return await Store.GetSignalInfoAsync(await Store.GetBackUpSignalInfoByID(srgid));
+        }
         #endregion
     }
 }

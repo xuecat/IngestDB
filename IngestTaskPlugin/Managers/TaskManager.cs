@@ -906,19 +906,10 @@ namespace IngestTaskPlugin.Managers
             return freeTimePeriods;
         }
 
-        /// <summary>
-        /// 在任务元数据中，设置任务已有备份任务标志
-        /// </summary>
-        /// <param name="nTaskId">主任务ID</param>
-        /// <param name="nBackupTaskId">备份任务ID</param>
-        /// <remarks>
-        /// Add by chenzhi 2013-07-22
-        /// </remarks>
-        public async Task<int> SetTaskHavingBackupTask(int nTaskId, int nBackupTaskId)
+        public TaskContent ConvertTaskResponse(TaskContentResponse task)
         {
-
+            return _mapper.Map<TaskContent>(task);
         }
-
 
         public async Task<TaskContentResponse> AddTaskWithPolicy<TResult>(TResult info, bool backup, string CaptureMeta, string ContentMeta, string MatiralMeta, string PlanningMeta)
         {
@@ -929,12 +920,6 @@ namespace IngestTaskPlugin.Managers
             TaskSource ts = TaskSource.emUnknowTask;
             if (backup)
             {
-                if (taskinfo.TaskContent.GroupColor > 0)
-                {
-                    var root = XDocument.Parse(ContentMeta);
-                    root.Descendants().Where(e => e.Name == "GroupColor" || e.Name == "GroupID" || e.Name == "GroupItem" || e.Name == "").Remove();
-                    ContentMeta = root.ToString();
-                }
 
                 if (_globalinterface != null)
                 {
@@ -946,18 +931,74 @@ namespace IngestTaskPlugin.Managers
                         Logger.Error("AddTaskWithoutPolicy ChannelInfoBySrc error");
                         return null;
                     }
-                    var fr = response1 as ResponseMessage<int>;
+                    var fr = response1 as ResponseMessage<ProgrammeInfoInterface>;
 
-                    if (fr.Ext > 0)
+                    if (fr.Ext != null)
                     {
                         // 将信号源ID修改为备份信号源的ID
-                        taskinfo.TaskContent.SignalID = fr.Ext;
-                        
+                        taskinfo.TaskContent.SignalID = fr.Ext.ProgrammeId;
+                        switch (fr.Ext.PgmType)
+                        {
+                            case ProgrammeTypeInterface.PT_Null:
+                                ts = TaskSource.emUnknowTask;
+                                break;
+                            case ProgrammeTypeInterface.PT_SDI:
+                                ts = TaskSource.emMSVUploadTask;
+                                break;
+                            case ProgrammeTypeInterface.PT_IPTS:
+                                ts = TaskSource.emIPTSUploadTask;
+                                break;
+                            case ProgrammeTypeInterface.PT_StreamMedia:
+                                ts = TaskSource.emStreamMediaUploadTask;
+                                break;
+                            default:
+                                ts = TaskSource.emUnknowTask;
+                                break;
+                        }
+
                     }
+                }
+                taskinfo.TaskSource = ts;
+                taskinfo.TaskContent.TaskName = "BK_" + taskinfo.TaskContent.TaskName;
+                taskinfo.TaskContent.TaskGUID = Guid.NewGuid().ToString("N");
+
+                MatiralMeta = ConverTaskMaterialMetaString(taskinfo.MaterialMeta);
+                if (!string.IsNullOrEmpty(MatiralMeta))
+                {
+                    var mroot = XDocument.Parse(MatiralMeta);
+                    var f = mroot.Element("MATERIAL")?.Element("TITLE");
+                    if (f != null)
+                    {
+                        f.Value = taskinfo.TaskContent.TaskName;
+                    }
+                    f = mroot.Element("MATERIAL")?.Element("MATERIALID");
+                    if (f != null)
+                    {
+                        f.Value = taskinfo.TaskContent.TaskGUID;
+                    }
+                    MatiralMeta = mroot.ToString();
+                }
+
+                ContentMeta = ConverTaskContentMetaString(taskinfo.ContentMeta);
+                if (!string.IsNullOrEmpty(ContentMeta))
+                {
+                    var mroot = XDocument.Parse(ContentMeta);
+                    var f = mroot.Element("TaskContentMetaData")?.Element("BACKUP");
+                    if (f != null)
+                    {
+                        f.Value = taskinfo.TaskContent.SignalID.ToString();
+                    }
+                    else
+                        mroot.Element("TaskContentMetaData").Add(new XElement("BACKUP", taskinfo.TaskContent.SignalID));
+
+                    if (taskinfo.TaskContent.GroupColor > 0)
+                    {
+                        mroot.Descendants().Where(e => e.Name == "GroupColor" || e.Name == "GroupID" || e.Name == "GroupItem" || e.Name == "").Remove();
+                    }
+                    ContentMeta = mroot.ToString();
                 }
                 
             }
-
 
             if (taskinfo.TaskContent.TaskType == TaskType.TT_MANUTASK)
             {

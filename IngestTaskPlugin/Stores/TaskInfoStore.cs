@@ -126,6 +126,19 @@ namespace IngestTaskPlugin.Stores
             return await query.Invoke(Context.DbpTaskMetadata).SingleOrDefaultAsync();
         }
 
+        public async Task<List<TResult>> GetTaskMetaDataListAsync<TResult>(Func<IQueryable<DbpTaskMetadata>, IQueryable<TResult>> query, bool notrack = false)
+        {
+            if (query == null)
+            {
+                throw new ArgumentNullException(nameof(query));
+            }
+            if (notrack)
+            {
+                return await query.Invoke(Context.DbpTaskMetadata.AsNoTracking()).ToListAsync();
+            }
+            return await query.Invoke(Context.DbpTaskMetadata).ToListAsync();
+        }
+
         public async Task<TResult> GetTaskCustomMetaDataAsync<TResult>(Func<IQueryable<DbpTaskCustommetadata>, IQueryable<TResult>> query, bool notrack = false)
         {
             if (query == null)

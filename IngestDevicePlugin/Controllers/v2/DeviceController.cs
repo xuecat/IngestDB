@@ -220,5 +220,40 @@ namespace IngestDevicePlugin.Controllers
             }
             return Response;
         }
+
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <remarks>
+        /// </remarks>
+        /// GetAllChannelUnitMap
+        [HttpGet("signalinfo/backsignal/{mastersignalid}")]
+        [IngestAuthentication]//device有点特殊，做了监听端口的所以不能全类检验
+        [ApiExplorerSettings(GroupName = "v2")]
+        public async Task<ResponseMessage<ProgrammeInfoResponse>> GetBackProgramInfoBySrgid(int mastersignalid)
+        {
+            var Response = new ResponseMessage<ProgrammeInfoResponse>();
+
+            try
+            {
+                Response.Ext = await _deviceManage.GetBackProgramInfoBySrgid(mastersignalid);
+            }
+            catch (Exception e)
+            {
+                if (e.GetType() == typeof(SobeyRecException))//sobeyexcep会自动打印错误
+                {
+                    SobeyRecException se = e as SobeyRecException;
+                    Response.Code = se.ErrorCode.ToString();
+                    Response.Msg = se.Message;
+                }
+                else
+                {
+                    Response.Code = ResponseCodeDefines.ServiceError;
+                    Response.Msg = "GetBackProgramInfoBySrgid error info：" + e.ToString();
+                    Logger.Error(Response.Msg);
+                }
+            }
+            return Response;
+        }
     }
 }

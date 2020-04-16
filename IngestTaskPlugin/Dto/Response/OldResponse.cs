@@ -510,5 +510,30 @@ namespace IngestTaskPlugin.Dto
         public string errStr;
         public bool bRet;
     }
+
+    public class AddTaskSvrPolicysAndBackupFlag_OUT
+    {
+
+        public int newTaskId;
+        public int backupTaskId;
+        public TaskContent taskBack;
+        public string errStr;
+        public bool bRet;
+    }
+    public class AddTaskSvrPolicysAndBackupFlag_IN
+    {
+        public TaskContent taskAdd;
+        public TaskSource taskSrc;
+        public List<MetadataPair> metadatas;
+        public List<int> nPolicys;
+        public bool isCreateBackupTask;
+    }
+
+    public class QueryTaskMetadataGroup_OUT
+    {
+        public List<MetadataPair> metaDataPair;
+        public string errStr;
+        public bool bRet;
+    }
 }
 

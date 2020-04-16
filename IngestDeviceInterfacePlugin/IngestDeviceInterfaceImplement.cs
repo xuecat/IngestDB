@@ -51,7 +51,14 @@ namespace IngestTaskInterfacePlugin
 
                     case FunctionType.BackSignalByID:
                         {
-                            return 0;
+                            var f = await reqService.GetBackProgramInfoBySrgid(examineResponse.SrcId);
+                            var ret = new ResponseMessage<ProgrammeInfoInterface>()
+                            {
+                                Code = f.Code,
+                                Msg = f.Msg,
+                                Ext = _mapper.Map<ProgrammeInfoInterface>(f.Ext),
+                            };
+                            return ret;
                         }
 
 

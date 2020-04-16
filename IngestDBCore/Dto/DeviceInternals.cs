@@ -71,5 +71,56 @@ namespace IngestDBCore
         // 分组ID
         public int GroupID { get; set; }    // Add by chenzhi 2103-07-04
     }
+    public enum ProgrammeTypeInterface
+    {
+        PT_Null = -1,
+        PT_SDI,
+        PT_IPTS,
+        PT_StreamMedia
+    }
+    /// <summary>图像类型</summary>
+    public enum ImageTypeInterface
+    {
+        IT_Null = -1,
+        IT_Original = 0,
+        IT_SD_4_3 = 1,
+        IT_SD_16_9 = 2,
+        IT_HD_16_9 = 4
+    }
+    /// <summary> 信号来源 </summary>
+    public enum emSignalSourceInterface
+    {
+        /// <summary>卫星</summary>
+        emSatlitlleSource = 0,
+        /// <summary>总控矩阵</summary>
+        emCtrlMatrixSource = 1,
+        /// <summary>视频服务器</summary>
+        emVideoServerSource = 2,
+        /// <summary>VTR</summary>
+        emVtrSource = 3,
+        /// <summary>MSV</summary>
+        emMSVSource = 4,
+        /// <summary>蓝光</summary>
+        emXDCAM = 5,
+        /// <summary>IPTS流</summary>
+        emIPTS = 6,
+        /// <summary>流媒体</summary>
+        emStreamMedia = 7
+    }
+    public class ProgrammeInfoInterface
+    {
+        public int ProgrammeId { set; get; }
+        public string ProgrammeName { set; get; }
+        public string ProgrammeDesc { set; get; }
+
+        //高标清
+        public int TypeId { set; get; }
+        public ProgrammeTypeInterface PgmType { set; get; }
+        public ImageTypeInterface ImageType { set; get; }
+        public emSignalSourceInterface SignalSourceType { set; get; }
+        public int PureAudio { set; get; }
+        public int CarrierID { set; get; }//运营商的ID
+        public int GroupID { set; get; } // Add by chenzhi 2013-07-08 分组ID
+    }
 
 }

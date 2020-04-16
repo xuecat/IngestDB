@@ -104,6 +104,9 @@ namespace IngestTaskPlugin
                 .ForMember(d => d.TaskContent, y => y.MapFrom(s => s.taskAdd))
                 .ForMember(d => d.TaskSource, y => y.MapFrom(s => s.taskSrc));
 
+            CreateMap<AddTaskSvrPolicysAndBackupFlag_IN, TaskInfoResponse>()
+               .ForMember(d => d.TaskContent, y => y.MapFrom(s => s.taskAdd))
+               .ForMember(d => d.TaskSource, y => y.MapFrom(s => s.taskSrc));
 
             CreateMap<DbpTask, DbpTaskBackup>();
             CreateMap<DbpTask, DbpTaskBackup>().ReverseMap();
