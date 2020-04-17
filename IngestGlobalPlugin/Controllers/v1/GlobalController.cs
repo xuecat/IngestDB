@@ -20,14 +20,13 @@ namespace IngestGlobalPlugin.Controllers
 
 
         }
-
         
-
+        #region lock obj
         [HttpPost("PostLockObject"), MapToApiVersion("1.0")]
         [ApiExplorerSettings(GroupName = "v1")]
-        public async Task<OldPostParam_Out> OldPostLockObject([FromBody] PostLockObject_param_in pIn)
+        public async Task<PostParam_Out> OldPostLockObject([FromBody] PostLockObject_param_in pIn)
         {
-            OldPostParam_Out pOut = new OldPostParam_Out();
+            PostParam_Out pOut = new PostParam_Out();
             
             try
             {
@@ -49,7 +48,7 @@ namespace IngestGlobalPlugin.Controllers
                     SobeyRecException.ThrowSelfNoParam(pIn.TimeOut.ToString(), GlobalDictionary.GLOBALDICT_CODE_LOCK_OBJECT_TIMEOUT_IS_WRONG, Logger, null);
                 }
 
-                pOut.bRet = await _GlobalManager.SetLockObject(pIn.ObjectID, pIn.ObjectTypeID, pIn.userName, pIn.TimeOut);
+                pOut.bRet = await _GlobalManager.SetLockObjectAsync(pIn.ObjectID, pIn.ObjectTypeID, pIn.userName, pIn.TimeOut);
                 
             }
             catch (Exception ex)
@@ -73,10 +72,10 @@ namespace IngestGlobalPlugin.Controllers
         /// <returns>锁对象结果</returns>
         [HttpPost("PostUnlockObject"), MapToApiVersion("1.0")]
         [ApiExplorerSettings(GroupName = "v1")]
-        public async Task<OldPostParam_Out> OldPostUnlockObject([FromBody] PostLockObject_param_in pIn)
+        public async Task<PostParam_Out> OldPostUnlockObject([FromBody] PostLockObject_param_in pIn)
         {
 
-            OldPostParam_Out pOut = new OldPostParam_Out();
+            PostParam_Out pOut = new PostParam_Out();
             pOut.errStr = no_err;
             pOut.bRet = true;
 
@@ -96,7 +95,7 @@ namespace IngestGlobalPlugin.Controllers
                     //ApplicationLog.WriteInfo("userName is null!");
                 }
 
-                pOut.bRet = await _GlobalManager.SetUnlockObject(pIn.ObjectID, pIn.ObjectTypeID, pIn.userName);
+                pOut.bRet = await _GlobalManager.SetUnlockObjectAsync(pIn.ObjectID, pIn.ObjectTypeID, pIn.userName);
             }
             catch (Exception ex)
             {
@@ -109,9 +108,11 @@ namespace IngestGlobalPlugin.Controllers
             return pOut;
         }
 
+        #endregion
+
         #region GlobalState Controller
         /// <summary>
-        /// 获取globalstate表结果
+        /// 获取所有globalstate表结果
         /// </summary>
         /// <returns>globalstate表结果</returns>
         [HttpGet("GetGlobalState"), MapToApiVersion("1.0")]
@@ -123,7 +124,7 @@ namespace IngestGlobalPlugin.Controllers
             p.arrGlobalState = null;
             try
             {
-                p.arrGlobalState = await _GlobalManager.GetAllGlobalStateAsync<List<GlobalState>>();
+                p.arrGlobalState = await _GlobalManager.GetAllGlobalStateAsync<GlobalState>();
                 if (p.arrGlobalState.Count < 1)
                 {
                     p.strErr = "No record in the table";
@@ -150,11 +151,9 @@ namespace IngestGlobalPlugin.Controllers
         [ApiExplorerSettings(GroupName = "v1")]
         public async Task<string> OldGetValueString(string strKey)
         {
-            //LoggerService.WriteCallLog("GetValueString", true);
             try
             {
                 string str = await _GlobalManager.GetValueStringAsync(strKey);
-                //LoggerService.WriteCallLog("GetValueString", false);
                 return str;
             }
             catch (System.Exception ex)
@@ -182,13 +181,14 @@ namespace IngestGlobalPlugin.Controllers
             }
             catch (Exception ex)
             {
-                Logger.Error(ex.ToString());
+                Logger.Error("OldSetValue:" + ex.ToString());
                 res.nCode = 0;
                 res.message = ex.Message;
             }
             return res;
 
         }
+
 
         [HttpGet("GetDefaultSTC"), MapToApiVersion("1.0")]
         [ApiExplorerSettings(GroupName = "v1")]
@@ -214,31 +214,55 @@ namespace IngestGlobalPlugin.Controllers
             }
             catch (Exception ex)
             {
-                Logger.Error(ex.ToString());
+                Logger.Error("OldGetDefaultSTC : " + ex.ToString());
                 p.errStr = ex.Message;
                 p.bRet = false;
             }
             return p;
         }
+
+        [HttpGet("GetDefaultSTCExt"), MapToApiVersion("1.0")]
+        [ApiExplorerSettings(GroupName = "v1")]
+        public async Task<GetDefaultSTC_param> OldGetDefaultSTCExt(int tcMode)
+        {
+
+            GetDefaultSTC_param p = new GetDefaultSTC_param();
+            p.errStr = no_err;
+            p.tcType = (int)0;
+            p.nTC = 0;
+            try
+            {
+                p = await _GlobalManager.GetDefaultSTCAsync<GetDefaultSTC_param>((TC_MODE)tcMode);
+                p.bRet = true;
+            }
+            catch (Exception ex)
+            {
+                Logger.Error("OldGetDefaultSTCExt : " + ex.ToString());
+                p.errStr = ex.Message;
+                p.bRet = false;
+            }
+            return p;
+        }
+
         #endregion
 
         #region User
         [HttpPost("Post_SetUserSetting"), MapToApiVersion("1.0")]
         [ApiExplorerSettings(GroupName = "v1")]
-        public async Task<OldPostParam_Out> OldPost_SetUserSetting(SetUserSetting_IN pIn)
+        public async Task<PostParam_Out> OldPost_SetUserSetting(SetUserSetting_IN pIn)
         {
-            OldPostParam_Out pOut = new OldPostParam_Out();
+            PostParam_Out pOut = new PostParam_Out();
             pOut.errStr = no_err;
             try
             {
-                if (string.IsNullOrWhiteSpace(pIn.strUserCode)) // pIn.strUserCode == null || pIn.strUserCode == "" || pIn.strUserCode == string.Empty)
+                if (string.IsNullOrWhiteSpace(pIn.strUserCode))
                 {
                     pOut.errStr = "The usercode is null.";
                     pOut.bRet = false;
                     return pOut;
                 }
 
-                if (string.IsNullOrWhiteSpace(pIn.strSettingtype))// == null || pIn.strSettingtype == "" || pIn.strSettingtype == string.Empty)
+                if (string.IsNullOrWhiteSpace(pIn.strSettingtype))
                 {
                     pOut.errStr = "The setting type is null.";
                     pOut.bRet = false;
@@ -251,7 +275,7 @@ namespace IngestGlobalPlugin.Controllers
             catch (Exception ex)//其他未知的异常，写异常日志
             {
                 pOut.errStr = ex.Message;
-                Logger.Error("Post_SetUserSetting : " + ex.ToString());
+                Logger.Error("OldPost_SetUserSetting : " + ex.ToString());
                 pOut.bRet = false;
             }
             return pOut;
@@ -327,7 +351,7 @@ namespace IngestGlobalPlugin.Controllers
         /// <returns>extention 为用户模版ID</returns>
         [HttpPost("AddUserTemplate"), MapToApiVersion("1.0")]
         [ApiExplorerSettings(GroupName = "v1")]
-        public async Task<OldResponseMessage<int>> OldAddUserTemplate([FromBody] OldUserTemplate userTemplate)
+        public async Task<OldResponseMessage<int>> OldAddUserTemplate([FromBody] UserTemplate userTemplate)
         {
             OldResponseMessage<int> res = new OldResponseMessage<int>();
             res.message = no_err;
@@ -461,11 +485,11 @@ namespace IngestGlobalPlugin.Controllers
         /// <returns>extension 为 获取到的模板数组</returns>
         [HttpGet("GetUserAllTemplates"), MapToApiVersion("1.0")]
         [ApiExplorerSettings(GroupName = "v1")]
-        public async Task<OldResponseMessage<List<OldUserTemplate>>> OldGetUserAllTemplates([FromQuery] string strUserCode)
+        public async Task<OldResponseMessage<List<UserTemplate>>> OldGetUserAllTemplates([FromQuery] string strUserCode)
         {
-            OldResponseMessage<List<OldUserTemplate>> res = new OldResponseMessage<List<OldUserTemplate>>();
+            OldResponseMessage<List<UserTemplate>> res = new OldResponseMessage<List<UserTemplate>>();
             res.message = no_err;
-            res.extention = new List<OldUserTemplate>();
+            res.extention = new List<UserTemplate>();
 
             if (strUserCode == string.Empty)
             {
@@ -474,7 +498,7 @@ namespace IngestGlobalPlugin.Controllers
             }
             try
             {
-                res.extention = await _GlobalManager.GetUserAllTemplatesAsync<OldUserTemplate>(strUserCode);
+                res.extention = await _GlobalManager.GetUserAllTemplatesAsync<UserTemplate>(strUserCode);
                 res.nCode = 1;
             }
             catch (System.Exception ex)
@@ -523,14 +547,14 @@ namespace IngestGlobalPlugin.Controllers
 
         [HttpGet("GetUserInfoByCode"), MapToApiVersion("1.0")]
         [ApiExplorerSettings(GroupName = "v1")]
-        public async Task<OldResponseMessage<OldCMUserInfo>> OldGetUserInfoByCode(string strUserCode)
+        public async Task<OldResponseMessage<CMUserInfo>> OldGetUserInfoByCode(string strUserCode)
         {
-            OldResponseMessage<OldCMUserInfo> res = new OldResponseMessage<OldCMUserInfo>();
+            OldResponseMessage<CMUserInfo> res = new OldResponseMessage<CMUserInfo>();
             res.message = no_err;
             res.extention = null;
             try
             {
-                ResponseMessage<OldCMUserInfo> reres = await _GlobalManager.GetUserInfoByUserCodeAsync<OldCMUserInfo>(strUserCode);
+                ResponseMessage<CMUserInfo> reres = await _GlobalManager.GetUserInfoByUserCodeAsync<CMUserInfo>(strUserCode);
                 if (reres.Code == ResponseCodeDefines.SuccessCode)
                 {
                     res.extention = reres.Ext;

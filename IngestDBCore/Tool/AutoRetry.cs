@@ -189,6 +189,36 @@ namespace IngestDBCore.Tool
         }
 
 
+        public static async Task<TResult> RunSync<TParam,TResult>(Func<TParam, Task<TResult>> proc, TParam param, int retryCount = 3, int delay = 1000)
+        {
+            TResult r = default(TResult);
+            for (int i = 0; i < retryCount; i++)
+            {
+                try
+                {
+                    r = await proc(param);
+                }
+                catch (System.Exception e)
+                {
+                    if (i == retryCount)
+                    {
+                        throw e;
+                    }
+                }
+                if (r == null)
+                {
+                    if (delay > 0)
+                    {
+                        await Task.Delay((int)delay);
+                    }
+                }
+                else
+                {
+                    break;
+                }
+            }
+            return r;
+        }
 
 
     }
