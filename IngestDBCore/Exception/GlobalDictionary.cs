@@ -1761,6 +1761,11 @@ namespace IngestDBCore
         public const int GLOBALDICT_CODE_CANNOTMODIFYTASK_WHERE_FILING = 18272;
         public const int GLOBALDICT_CODE_PROGRAM_NAME_REPEATED = 18273;
         public const int GLOBALDICT_CODE_FILL_GETTASKMETADATA_EXCEPTION = 18274;
+
+        /// <summary>
+        /// 根据主键未查询到数据
+        /// </summary>
+        public const int GLOBALDICT_CODE_DATA_NOTFOUND_BYKEY = 18275;
         #endregion
 
         #endregion
