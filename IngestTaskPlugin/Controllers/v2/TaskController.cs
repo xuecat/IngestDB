@@ -610,7 +610,7 @@ namespace IngestTaskPlugin.Controllers
         ///
         /// </remarks>
         /// <returns>采集任务信息</returns>
-        [HttpGet("taskinfo/capturing/all")]
+        [HttpGet("capturing/all")]
         [ApiExplorerSettings(GroupName = "v2")]
         public async Task<ResponseMessage<List<TaskContentResponse>>> GetAllChannelCapturingTaskInfo()
         {
@@ -647,7 +647,7 @@ namespace IngestTaskPlugin.Controllers
         /// </remarks>
         /// <param name="channelid">通道信息</param>
         /// <returns>任务id</returns>
-        [HttpGet("taskinfo/capturing/{channelid}")]
+        [HttpGet("capturing/{channelid}")]
         [ApiExplorerSettings(GroupName = "v2")]
         public async Task<ResponseMessage<TaskContentResponse>> GetChannelCapturingTaskInfo([FromRoute, BindRequired]int channelid)
         {
@@ -789,7 +789,7 @@ namespace IngestTaskPlugin.Controllers
         /// </remarks>
         /// <param name="channelid">通道id，</param>
         /// <returns>任务id</returns>
-        [HttpGet("taskinfo/tieupid/{channelid}")]
+        [HttpGet("tieupid/{channelid}")]
         [ApiExplorerSettings(GroupName = "v2")]
         public async Task<ResponseMessage<int>> TieUpTaskIDByChannelID([FromRoute, BindRequired]int channelid)
         {
@@ -1009,7 +1009,7 @@ namespace IngestTaskPlugin.Controllers
         /// <param name="day">查询时间</param>
         /// <param name="timemode">查询模式0是24小时模式，1是32小时模式</param>
         /// <returns>任务id</returns>
-        [HttpGet("taskinfo/oneday")]
+        [HttpGet("onedaytask")]
         [ApiExplorerSettings(GroupName = "v2")]
         public async Task<ResponseMessage<List<TaskContentResponse>>> QueryTaskContent([FromQuery, BindRequired]int unitid, [FromQuery, BindRequired]string day, [FromQuery, BindRequired]int timemode)
         {
@@ -1194,18 +1194,16 @@ namespace IngestTaskPlugin.Controllers
         /// 例子:
         ///
         /// </remarks>
-        /// <param name="taskid">任务id</param>
-        /// <param name="classify">周期信息</param>
-        /// <returns>任务id</returns>
-        [HttpPost("taskinfo/nexttimeperiod")]
+        /// <returns></returns>
+        [HttpPost("nexttimeperiod")]
         [ApiExplorerSettings(GroupName = "v2")]
-        public async Task<ResponseMessage<int>> SetPeriodTaskToNextTime()
+        public async Task<ResponseMessage<bool>> SetPeriodTaskInfoToNextTime()
         {
-            var Response = new ResponseMessage<int>();
+            var Response = new ResponseMessage<bool>();
 
             try
             {
-                Response.Ext = await _taskManage.SetTaskClassify(taskid, classify);
+                Response.Ext = await _taskManage.SetPeriodTaskToNextTime();
             }
             catch (Exception e)
             {
@@ -1218,12 +1216,163 @@ namespace IngestTaskPlugin.Controllers
                 else
                 {
                     Response.Code = ResponseCodeDefines.ServiceError;
-                    Response.Msg = "SetTaskInfoClassify error info：" + e.ToString();
+                    Response.Msg = "SetPeriodTaskToNextTime error info：" + e.ToString();
                     Logger.Error(Response.Msg);
                 }
             }
             return Response;
         }
+
+        /// <summary>
+        /// 获取需要同步的任务(短时间
+        /// </summary>
+        /// <remarks>
+        /// 例子:
+        ///
+        /// </remarks>
+        /// <returns></returns>
+        [HttpGet("needsync")]
+        [ApiExplorerSettings(GroupName = "v2")]
+        public async Task<ResponseMessage<List<TaskContentResponse>>> GetNeedSyncTasks()
+        {
+            var Response = new ResponseMessage<List<TaskContentResponse>>();
+
+            try
+            {
+                Response.Ext = await _taskManage.GetNeedSynTasksNew<TaskContentResponse>();
+            }
+            catch (Exception e)
+            {
+                if (e.GetType() == typeof(SobeyRecException))//sobeyexcep会自动打印错误
+                {
+                    SobeyRecException se = e as SobeyRecException;
+                    Response.Code = se.ErrorCode.ToString();
+                    Response.Msg = se.Message;
+                }
+                else
+                {
+                    Response.Code = ResponseCodeDefines.ServiceError;
+                    Response.Msg = "SetPeriodTaskToNextTime error info：" + e.ToString();
+                    Logger.Error(Response.Msg);
+                }
+            }
+            return Response;
+        }
+
+        /// <summary>
+        /// 完成同步任务并置相应状态(-1表示不修改该状态)，解锁
+        /// </summary>
+        /// <remarks>
+        /// 例子:
+        ///
+        /// </remarks>
+        /// <returns></returns>
+        [HttpGet("completesyn")]
+        [ApiExplorerSettings(GroupName = "v2")]
+        public async Task<ResponseMessage> CompleteSynTasks([FromBody, BindRequired]CompleteSyncTaskRequest req)
+        {
+            var Response = new ResponseMessage();
+
+            try
+            {
+                await _taskManage.CompleteSynTasks(req);
+            }
+            catch (Exception e)
+            {
+                if (e.GetType() == typeof(SobeyRecException))//sobeyexcep会自动打印错误
+                {
+                    SobeyRecException se = e as SobeyRecException;
+                    Response.Code = se.ErrorCode.ToString();
+                    Response.Msg = se.Message;
+                }
+                else
+                {
+                    Response.Code = ResponseCodeDefines.ServiceError;
+                    Response.Msg = "CompleteSynTasks error info：" + e.ToString();
+                    Logger.Error(Response.Msg);
+                }
+            }
+            return Response;
+        }
+
+        /// <summary>
+        /// 分裂素材用
+        /// </summary>
+        /// <remarks>
+        /// 例子:
+        ///
+        /// </remarks>
+        /// <returns></returns>
+        [HttpPost("splittaskwithclip/{taskid}")]
+        [ApiExplorerSettings(GroupName = "v2")]
+        public async Task<ResponseMessage<string>> SplitClip(
+            [FromRoute, BindRequired]int taskid,
+            [FromQuery, BindRequired]long oldlen,
+            [FromQuery, BindRequired]int oldclipnum,
+            [FromQuery, BindRequired]string newname,
+            [FromQuery, BindRequired]string newguid,
+            [FromQuery, BindRequired]int index)
+        {
+            var Response = new ResponseMessage<string>();
+
+            try
+            {
+                Response.Ext = await _taskManage.Update24HoursTask(taskid, oldlen, oldclipnum, newname, newguid, index);
+            }
+            catch (Exception e)
+            {
+                if (e.GetType() == typeof(SobeyRecException))//sobeyexcep会自动打印错误
+                {
+                    SobeyRecException se = e as SobeyRecException;
+                    Response.Code = se.ErrorCode.ToString();
+                    Response.Msg = se.Message;
+                }
+                else
+                {
+                    Response.Code = ResponseCodeDefines.ServiceError;
+                    Response.Msg = "CompleteSynTasks error info：" + e.ToString();
+                    Logger.Error(Response.Msg);
+                }
+            }
+            return Response;
+        }
+
+        /// <summary>
+        /// 查询需要重调度的任务,执行完后，需要对该任务进行解锁
+        /// </summary>
+        /// <remarks>
+        /// 例子:
+        ///
+        /// </remarks>
+        /// <returns></returns>
+        [HttpGet("needrescheduletasks")]
+        [ApiExplorerSettings(GroupName = "v2")]
+        public async Task<ResponseMessage<List<TaskContentResponse>>> NeedRescheduleTasks()
+        {
+            var Response = new ResponseMessage<List<TaskContentResponse>>();
+
+            try
+            {
+                Response.Ext = await _taskManage.GetScheduleFailedTasks<TaskContentResponse>();
+            }
+            catch (Exception e)
+            {
+                if (e.GetType() == typeof(SobeyRecException))//sobeyexcep会自动打印错误
+                {
+                    SobeyRecException se = e as SobeyRecException;
+                    Response.Code = se.ErrorCode.ToString();
+                    Response.Msg = se.Message;
+                }
+                else
+                {
+                    Response.Code = ResponseCodeDefines.ServiceError;
+                    Response.Msg = "NeedRescheduleTasks error info：" + e.ToString();
+                    Logger.Error(Response.Msg);
+                }
+            }
+            return Response;
+        }
+
         //////////////////////////
     }
 }

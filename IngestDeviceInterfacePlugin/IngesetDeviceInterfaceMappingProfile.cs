@@ -13,9 +13,9 @@ namespace IngestDeviceInterfacePlugin
         public IngesetDeviceInterfaceMappingProfile()
         {
             
-            CreateMap<CaptureChannelInfoResponse, CaptureChannelInfoInterface>();
+            //CreateMap<CaptureChannelInfoResponse, CaptureChannelInfoInterface>();
             CreateMap<CaptureChannelInfoResponse, CaptureChannelInfoInterface>().ReverseMap();
-            CreateMap<RecUnitMap, RecUnitMapInterface>();
+            //CreateMap<RecUnitMap, RecUnitMapInterface>();
             CreateMap<RecUnitMap, RecUnitMapInterface>().ReverseMap();
             CreateMap<ProgrammeInfoInterface, ProgrammeInfoResponse>();
             CreateMap<ProgrammeInfoResponse, ProgrammeInfoInterface>();

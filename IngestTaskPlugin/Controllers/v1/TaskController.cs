@@ -1062,7 +1062,7 @@ namespace IngestTaskPlugin.Controllers
 
         }
 
-        [HttpGet("GetDelTaskDb"), MapToApiVersion("1.0")]
+        [HttpPost("SetTaskClassify"), MapToApiVersion("1.0")]
         [ApiExplorerSettings(GroupName = "v1")]
         public async Task<SetTaskClassify_OUT> SetTaskClassify([FromQuery]int nTaskID, [FromBody]string strClassify)
         {
@@ -1091,6 +1091,191 @@ namespace IngestTaskPlugin.Controllers
                 {
                     Response.errStr = "error info：" + e.ToString();
                     Logger.Error("GetTrimTaskBeginTime" + e.ToString());
+                }
+                return Response;
+            }
+            return Response;
+
+        }
+
+        [HttpGet("GetUnlockAllTasks"), MapToApiVersion("1.0")]
+        [ApiExplorerSettings(GroupName = "v1")]
+        public async Task<bool> GetUnlockAllTasks()
+        {
+            var Response = false;
+            
+            try
+            {
+                return await _taskManage.UnlockAllTasks();
+            }
+            catch (Exception e)//其他未知的异常，写异常日志
+            {
+                if (e.GetType() == typeof(SobeyRecException))//sobeyexcep会自动打印错误
+                {
+                    SobeyRecException se = e as SobeyRecException;
+                    //Response.errStr = se.ErrorCode.ToString();
+                }
+                else
+                {
+                    //Response.errStr = "error info：" + e.ToString();
+                    Logger.Error("GetTrimTaskBeginTime" + e.ToString());
+                }
+                return Response;
+            }
+            return Response;
+
+        }
+
+        [HttpPost("SetPeriodTaskToNextTime"), MapToApiVersion("1.0")]
+        [ApiExplorerSettings(GroupName = "v1")]
+        public async Task<bool> SetPeriodTaskToNextTime()
+        {
+            var Response = false;
+            try
+            {
+                return await _taskManage.SetPeriodTaskToNextTime();
+            }
+            catch (Exception e)//其他未知的异常，写异常日志
+            {
+                if (e.GetType() == typeof(SobeyRecException))//sobeyexcep会自动打印错误
+                {
+                    SobeyRecException se = e as SobeyRecException;
+                    //Response.errStr = se.ErrorCode.ToString();
+                }
+                else
+                {
+                    //Response.errStr = "error info：" + e.ToString();
+                    Logger.Error("GetTrimTaskBeginTime" + e.ToString());
+                }
+                return Response;
+            }
+            return Response;
+
+        }
+
+        [HttpGet("GetNeedSynTasks2"), MapToApiVersion("1.0")]
+        [ApiExplorerSettings(GroupName = "v1")]
+        public async Task<GetNeedSynTasks2_OUT> GetNeedSynTasks2()
+        {
+            var Response = new GetNeedSynTasks2_OUT
+            {
+                bRet = true,
+                errStr = "OK",
+            };
+
+            try
+            {
+                Response.synTasks = await _taskManage.GetNeedSynTasksNew<TaskFullInfo>();
+                Response.nValidDataCount = Response.synTasks.Count;
+            }
+            catch (Exception e)//其他未知的异常，写异常日志
+            {
+                if (e.GetType() == typeof(SobeyRecException))//sobeyexcep会自动打印错误
+                {
+                    SobeyRecException se = e as SobeyRecException;
+                    //Response.errStr = se.ErrorCode.ToString();
+                }
+                else
+                {
+                    //Response.errStr = "error info：" + e.ToString();
+                    Logger.Error("GetTrimTaskBeginTime" + e.ToString());
+                }
+                return Response;
+            }
+            return Response;
+
+        }
+
+        [HttpGet("PostCompleteSynTasks"), MapToApiVersion("1.0")]
+        [ApiExplorerSettings(GroupName = "v1")]
+        public async Task PostCompleteSynTasks([FromBody]CompleteSynTasks_IN pIn)
+        {
+            //var Response = new GetNeedSynTasks2_OUT
+            //{
+            //    bRet = true,
+            //    errStr = "OK",
+            //};
+
+            try
+            {
+                await _taskManage.CompleteSynTasks(pIn);
+                //Response.nValidDataCount = Response.synTasks.Count;
+            }
+            catch (Exception e)//其他未知的异常，写异常日志
+            {
+                if (e.GetType() == typeof(SobeyRecException))//sobeyexcep会自动打印错误
+                {
+                    SobeyRecException se = e as SobeyRecException;
+                    //Response.errStr = se.ErrorCode.ToString();
+                }
+                else
+                {
+                    //Response.errStr = "error info：" + e.ToString();
+                    Logger.Error("GetTrimTaskBeginTime" + e.ToString());
+                }
+                //return Response;
+            }
+            //return Response;
+
+        }
+
+        [HttpPost("Update24HoursTask"), MapToApiVersion("1.0")]
+        [ApiExplorerSettings(GroupName = "v1")]
+        public async Task<string> Update24HoursTask([FromQuery]int ntaskid, [FromQuery]long oldlen, [FromQuery]int oldclipnum, [FromQuery]string newname, [FromQuery]string newguid, [FromQuery]int index)
+        {
+            //var Response = new GetNeedSynTasks2_OUT
+            //{
+            //    bRet = true,
+            //    errStr = "OK",
+            //};
+            try
+            {
+                return await _taskManage.Update24HoursTask(ntaskid, oldlen, oldclipnum, newname, newguid, index);
+            }
+            catch (Exception e)//其他未知的异常，写异常日志
+            {
+                if (e.GetType() == typeof(SobeyRecException))//sobeyexcep会自动打印错误
+                {
+                    SobeyRecException se = e as SobeyRecException;
+                    //Response.errStr = se.ErrorCode.ToString();
+                }
+                else
+                {
+                    //Response.errStr = "error info：" + e.ToString();
+                    Logger.Error("GetTrimTaskBeginTime" + e.ToString());
+                }
+                //return Response;
+            }
+            return "error";
+
+        }
+
+        [HttpGet("GetNeedRescheduleTasks"), MapToApiVersion("1.0")]
+        [ApiExplorerSettings(GroupName = "v1")]
+        public async Task<GetNeedRescheduleTasks_OUT> GetNeedRescheduleTasks()
+        {
+            var Response = new GetNeedRescheduleTasks_OUT
+            {
+                bRet = true,
+                errStr = "OK",
+            };
+
+            try
+            {
+                Response.rescheduleTasks = await _taskManage.GetScheduleFailedTasks<TaskFullInfo>();
+                Response.nValidDataCount = Response.rescheduleTasks.Count;
+            }
+            catch (Exception e)//其他未知的异常，写异常日志
+            {
+                if (e.GetType() == typeof(SobeyRecException))//sobeyexcep会自动打印错误
+                {
+                    SobeyRecException se = e as SobeyRecException;
+                    //Response.errStr = se.ErrorCode.ToString();
+                }
+                else
+                {
+                    //Response.errStr = "error info：" + e.ToString();
+                    Logger.Error("GetNeedRescheduleTasks" + e.ToString());
                 }
                 return Response;
             }

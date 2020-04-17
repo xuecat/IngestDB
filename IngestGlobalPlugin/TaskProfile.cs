@@ -1,4 +1,5 @@
 ﻿using AutoMapper;
+using IngestDBCore.Tool;
 using IngestGlobalPlugin.Dto;
 using IngestGlobalPlugin.Models;
 using System;
@@ -7,10 +8,27 @@ using System.Text;
 
 namespace IngestGlobalPlugin
 {
+    public class DateTimeTypeConverter : ITypeConverter<string, DateTime>
+    {
+        public DateTime Convert(string source, DateTime destination, ResolutionContext context)
+        {
+            return DateTimeFormat.DateTimeFromString(source);
+        }
+    }
+
+    public class DateTimeStringTypeConverter : ITypeConverter<DateTime, string>
+    {
+        public string Convert(DateTime source, string destination, ResolutionContext context)
+        {
+            return DateTimeFormat.DateTimeToString(source);
+        }
+    }
     public class TaskProfile : Profile
     {
         public TaskProfile()
         {
+            CreateMap<string, DateTime>().ConvertUsing(new DateTimeTypeConverter());
+            CreateMap<DateTime, string>().ConvertUsing(new DateTimeStringTypeConverter());
 
             CreateMap<DbpGlobalState, GlobalState>()
                 .ForMember(a => a.strLabel, (map) => map.MapFrom(b => b.Label))

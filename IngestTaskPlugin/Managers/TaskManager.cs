@@ -251,6 +251,15 @@ namespace IngestTaskPlugin.Managers
             return _mapper.Map<TResult>(item);
         }
 
+        public async Task<List<TResult>> GetScheduleFailedTasks<TResult>()
+        {
+            return _mapper.Map<List<TResult>>(await Store.GetTaskListAsync(a => a.Where(b =>
+                        (b.DispatchState == (int)dispatchState.dpsDispatchFailed || b.DispatchState == (int)dispatchState.dpsRedispatch)
+                        && b.State != (int)taskState.tsDelete
+                        && (b.Endtime > DateTime.Now && b.Endtime < DateTime.Now.AddDays(1))
+                        && (b.Tasktype != (int)TaskType.TT_OPENEND && b.Tasktype != (int)TaskType.TT_OPENENDEX)), true));
+        }
+
         public async Task<int> GetTieUpTaskIDByChannelId(int channelid)
         {
             DateTime now = DateTime.Now;
@@ -311,6 +320,94 @@ namespace IngestTaskPlugin.Managers
             //return _mapper.Map<TResult>(f);
         }
 
+        public async Task<string> Update24HoursTask(int ntaskid, long oldlen, int oldclipnum, string newname, string newguid, int index)
+        {
+            Logger.Info(string.Format("Update24HoursTask {0} {1} {2} {3}", ntaskid, newname, oldlen, newguid));
+
+            var taskinfo = await Store.GetTaskAsync(a => a.Where(b => b.Taskid == ntaskid));
+
+            if (taskinfo == null)
+            {
+                Logger.Error("Update24HoursTask no find" + ntaskid);
+                SobeyRecException.ThrowSelfNoParam("", GlobalDictionary.GLOBALDICT_CODE_TASK_ID_DOES_NOT_EXIST, Logger, null);
+            }
+
+            DbpTaskMetadata splitmeta = null;
+            DbpTaskMetadata materilmeta = null;
+
+            var taskmeta = await Store.GetTaskMetaDataListAsync(a => a.Where(b => b.Taskid == ntaskid 
+            && (b.Metadatatype == (int)MetaDataType.emSplitData || b.Metadatatype == (int)MetaDataType.emStoreMetaData)));
+
+            foreach (var item in taskmeta)
+            {
+                if (item.Metadatatype == (int)MetaDataType.emSplitData)
+                {
+                    splitmeta = item;
+                }
+                else
+                    materilmeta = item;
+            }
+
+            if (splitmeta == null)
+            {
+                splitmeta = new DbpTaskMetadata() { Taskid = ntaskid, Metadatatype = (int)MetaDataType.emSplitData, Metadatalong = "<SplitMetaData></SplitMetaData>" };
+            }
+
+            var root = XDocument.Parse(splitmeta.Metadatalong);
+            var taskcontentnode = root.Element("SplitMetaData");
+
+            var splits = taskcontentnode.Element("SplitClips");
+            if (splits == null)
+            {
+                splits = new XElement("SplitClips");
+                taskcontentnode.Add(splits);
+            }
+
+            var splititem = new XElement("SplitItem");
+            splititem.Add(new XElement("SplitGuid", newguid), new XElement("SplitClipNum", oldclipnum), new XElement("SplitLen", oldlen));
+            splits.Add(splititem);
+
+            var mlguid = taskcontentnode.Element("MLTOTASKGUID");
+            if (mlguid == null)
+            {
+                taskcontentnode.Add(new XElement("MLTOTASKGUID", newguid));
+            }
+            else
+                mlguid.Value = newguid;
+
+            if (index == 1)
+            {
+                var orgtitle = taskcontentnode.Element("ORGTITLE");
+                if (orgtitle == null)
+                {
+                    taskcontentnode.Add(new XElement("ORGTITLE", taskinfo.Taskname));
+                }
+                else
+                    orgtitle.Value = taskinfo.Taskname;
+            }
+
+            if (materilmeta != null)
+            {
+                var mroot = XDocument.Parse(materilmeta.Metadatalong);
+                var title = mroot?.Element("MATERIAL")?.Element("TITLE");
+                if (title == null)
+                {
+                    mroot.Element("MATERIAL").Add(new XElement("TITLE", newname));
+                }
+                else
+                    title.Value = newname;
+
+                materilmeta.Metadatalong = mroot.ToString();
+            }
+           
+            taskinfo.Taskname = newname;
+            taskinfo.Taskguid = newguid;
+            
+            splitmeta.Metadatalong = root.ToString();
+
+            await Store.SaveChangeAsync();
+            return newguid;
+        }
 
         public async Task UpdateCustomMetadataAsync(int taskid, string metadata)
         {
@@ -467,6 +564,141 @@ namespace IngestTaskPlugin.Managers
         public async Task<TaskSource> GetTaskSource(int taskid)
         {
             return (TaskSource)(await Store.GetTaskSourceAsync(a => a.Where(b => b.Taskid == taskid).Select(x => x.Tasksource), true));
+        }
+
+        public async Task<List<TResult>> GetNeedSynTasksNew<TResult>()
+        {
+            var lstfinishtask = await Store.GetNeedFinishTasks();
+            var lstunsyntask = await Store.GetNeedUnSynTasks();
+
+            Logger.Info("GetNeedFinishTasks {0} ", string.Join(",", lstfinishtask.Select(x=>x.Taskid).ToList()));
+            Logger.Info("GetNeedUnSynTasks {0} ", string.Join(",", lstunsyntask.Select(x => x.Taskid).ToList()));
+
+            List<DbpTask> lstunsync = new List<DbpTask>();
+            List<DbpTask> lstModify = new List<DbpTask>();
+            //周期任务快要开始的时候，就把周期任务复制一条出来，任务类型是当天的任务，有效期只有一天,OldChannelID用来记载关联的原周期任务
+            //然后把原来的周期任务的时间变为下一次执行的日期      
+            foreach (var item in lstunsyntask)
+            {
+                if ((
+                        (item.Tasktype == (int)TaskType.TT_NORMAL && item.Backtype == (int)CooperantType.emPureTask)
+                        || item.Tasktype == (int)TaskType.TT_LOOP
+                    )
+                    && item.OpType != (int)opType.otDel)
+                {
+                    //如果今天日期已经超过当前任务的结束日期，把任务状态设置成taskState.tsInvaild
+                    if (DateTime.Now > item.NewEndtime)
+                    {
+                        item.SyncState = (int)syncState.ssSync;//过期的任务置为已同步状态。
+                        item.Tasklock = string.Empty;//解锁
+
+                        lstModify.Add(item);
+                        //zmj2009-01-09过期任务置无效后，就不应该被返回到任务总控那边进行操作
+                        continue;
+                    }
+                }
+                lstunsync.Add(item);
+            }
+
+            await Store.UpdateTaskListAsync(lstModify);
+
+            lstunsync.AddRange(lstfinishtask);
+            
+            return _mapper.Map<List<TResult>>(lstunsync);
+
+        }
+
+        public async Task CompleteSynTasks<T>(T reqq)
+        {
+            CompleteSyncTaskRequest req = _mapper.Map<CompleteSyncTaskRequest>(reqq);
+
+            var taskinfo = await Store.GetTaskAsync(a => a.Where(b => b.Taskid == req.TaskID));
+
+            if (taskinfo == null)
+            {
+                Logger.Error("CompleteSynTasks no find" + req.TaskID);
+                SobeyRecException.ThrowSelfNoParam("",GlobalDictionary.GLOBALDICT_CODE_TASK_ID_DOES_NOT_EXIST, Logger, null);
+            }
+
+            if (req.DispatchState >= 0)
+            {
+                taskinfo.DispatchState = req.DispatchState;
+                if (!req.IsFinish && req.DispatchState == (int)dispatchState.dpsRedispatch)
+                {
+                    uint uUnit = (uint)taskinfo.Recunitid;
+                    uUnit |= 0x80010000;
+                    taskinfo.Recunitid = (int)uUnit;
+                }
+            }
+
+            if (req.TaskState >= 0)
+            {
+                //任务原来就是完成状态只能修改为删除状态
+                if (taskinfo.State == (int)taskState.tsComplete)
+                {
+                    if (req.TaskState == (int)taskState.tsDelete)
+                    {
+                        taskinfo.State = (int)taskState.tsDelete;
+                    }
+                }
+                else
+                {
+                    //任务原来就是删除状态不能再修改任务状态
+                    if (taskinfo.State != (int)taskState.tsDelete)
+                        taskinfo.State = req.TaskState;
+                }
+            }
+
+            if (req.SynState >= 0)
+                taskinfo.SyncState = req.SynState;
+            //解锁
+            taskinfo.Tasklock = string.Empty;
+
+            if (taskinfo.Tasktype != (int)TaskType.TT_PERIODIC)
+            {
+                taskinfo.Category = "A";
+                taskinfo.NewBegintime = taskinfo.Starttime;
+                taskinfo.NewEndtime = taskinfo.Endtime;
+            }
+            else
+            {
+                //DateTime NewBeginTime = taskinfo.NewBegintime;
+                //DateTime NewEndTime = taskinfo.NewEndtime;
+                //DateTime oldStart = taskinfo.Starttime;
+                //DateTime oldEnd = taskinfo.Endtime;
+                //DateTime modiStart = GlobalFun.DateTimeFromString(taskInfo.taskContent.strBegin);
+                //DateTime modiEnd = GlobalFun.DateTimeFromString(taskInfo.taskContent.strEnd);
+
+                //DateTime nowAllStart = new DateTime(oldStart.Year, oldStart.Month, oldStart.Day, modiStart.Hour, modiStart.Minute, modiStart.Second);
+                //DateTime nowAllEnd = new DateTime(oldEnd.Year, oldEnd.Month, oldEnd.Day, modiEnd.Hour, modiEnd.Minute, modiEnd.Second);
+                
+                //bool bIsValid = true;
+                //System.Text.StringBuilder traceSB = new System.Text.StringBuilder();
+                //if (nowAllStart > nowAllEnd) //已经无效了!
+                //{
+                //    bIsValid = false;
+                //}
+
+                //if (NewBeginTime.Date > nowAllEnd.Date)
+                //{
+                //    bIsValid = false;
+                //}
+
+                //if (bIsValid)
+                //{
+                //    taskInfo.strNewBeginTime = GlobalFun.DateTimeToString(NewBeginTime);
+                //    taskInfo.strNewEndTime = GlobalFun.DateTimeToString(NewEndTime);
+                //    taskInfo.taskContent.strBegin = GlobalFun.DateTimeToString(NewBeginTime);
+                //    taskInfo.taskContent.strEnd = GlobalFun.DateTimeToString(new DateTime(oldEnd.Year, oldEnd.Month, oldEnd.Day, NewEndTime.Hour, NewEndTime.Minute, NewEndTime.Second));
+                //}
+                //else //无效,可以删除了
+                //{
+                //    taskInfo.taskContent.strBegin = GlobalFun.DateTimeToString(nowAllStart);
+                //    taskInfo.taskContent.strEnd = GlobalFun.DateTimeToString(nowAllEnd);
+                //    taskInfo.taskContent.emState = (int)taskState.tsDelete;
+                //}
+            }
+            await Store.SaveChangeAsync();
         }
 
         public async Task<List<int>> StopGroupTaskAsync(int taskid)
@@ -790,6 +1022,38 @@ namespace IngestTaskPlugin.Managers
             }
 
             return false;
+        }
+
+        public async Task<bool> UnlockAllTasks()
+        {
+            await Store.UnLockAllTask();
+            return await SetPeriodTaskToNextTime();
+        }
+
+        public async Task<bool> SetPeriodTaskToNextTime()
+        {
+            var lsttask = await Store.GetTaskListAsync(a => a.Where(b => b.Tasktype == (int)TaskType.TT_PERIODIC && b.OldChannelid == 0
+            && (b.State<4 || b.State>4)
+            && b.NewBegintime<= DateTime.Now
+            && b.Starttime < b.Endtime));
+
+            if (lsttask == null || lsttask.Count <= 0)
+            {
+                return false;
+            }
+
+            foreach (var item in lsttask)
+            {
+                DateTime dtNewStart = new DateTime();
+                DateTime dtNewEnd = new DateTime();
+                Store.GetPerodicTaskNextExectueTime(item.NewBegintime, item.NewEndtime, item.Category, ref dtNewStart, ref dtNewEnd);
+
+                item.NewBegintime = dtNewStart;
+                item.NewEndtime = dtNewEnd;
+            }
+
+            await Store.UpdateTaskListAsync(lsttask);
+            return true;
         }
 
         public async Task<int> UpdateComingTasks()

@@ -545,5 +545,28 @@ namespace IngestTaskPlugin.Dto
         public string errStr;
         public bool bRet;
     }
+    public class GetNeedSynTasks2_OUT
+    {
+        public List<TaskFullInfo> synTasks;
+        public int nValidDataCount;
+        public string errStr;
+        public bool bRet;
+    }
+    public class CompleteSynTasks_IN
+    {
+        public bool bIsFinish;
+        public bool bPerodic2Next;
+        public int nTaskID;
+        public int nTaskState;
+        public int nDispatchState;
+        public int nSynState;
+    }
+    public class GetNeedRescheduleTasks_OUT
+    {
+        public List<TaskFullInfo> rescheduleTasks;
+        public int nValidDataCount;
+        public string errStr;
+        public bool bRet;
+    }
 }
 
