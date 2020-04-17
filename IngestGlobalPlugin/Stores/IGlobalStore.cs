@@ -43,6 +43,15 @@ namespace IngestGlobalPlugin.Stores
         #region Capturetemplate
 
         Task<TResult> GetCaptureparamtemplateAsync<TResult>(Func<IQueryable<DbpCaptureparamtemplate>, IQueryable<TResult>> query, bool notrack = false);
+        Task<List<TResult>> GetCaptureparamtemplateListAsync<TResult>(Func<IQueryable<DbpCaptureparamtemplate>, IQueryable<TResult>> query, bool notrack = false);
+
+        Task<int> UpdateCaptureParamTemplateAsync(int nParamTemplateID, string strTemplateName, string strUserCaptureParam);
+
+        Task DeleteCaptureParamTemplateAsync(DbpCaptureparamtemplate userTemplate);
+
+        Task<DbpCaptureparamtemplate> GetUserParamForDB2Async(string strUserCode);
+
+        Task UpdateAllUserParamMapAsync(List<DbpUserparamMap> arUserParmMapList);
 
         #endregion
 
@@ -56,12 +65,15 @@ namespace IngestGlobalPlugin.Stores
         Task UpdateUserTempalteAsync(int templateID, string templateContent, string newTemplateName);
 
         Task<TResult> GetUserParamMapAsync<TResult>(Func<IQueryable<DbpUserparamMap>, IQueryable<TResult>> query, bool notrack = false);
+        Task<List<TResult>> GetUserParamMapListAsync<TResult>(Func<IQueryable<DbpUserparamMap>, IQueryable<TResult>> query, bool notrack = false);
 
         Task DeleteUserTemplateAsync(int nTemplateID);
 
         Task DeleteUserParamMapAsync(DbpUserparamMap userparamMap);
-        
 
+        Task UpdateUserParamMapAsync(string strUserCode, int nParamTemplateID);
+        
+        
         #endregion
 
     }

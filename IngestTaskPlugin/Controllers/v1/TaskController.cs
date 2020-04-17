@@ -341,7 +341,93 @@ namespace IngestTaskPlugin.Controllers
                         PlanningMeta = item.strMetadata;
                     }
                 }
-                Response.newTaskId = (await _taskManage.AddTaskWithoutPolicy<AddTaskSvr_IN>(pIn, CaptureMeta, ContentMeta, MatiralMeta, PlanningMeta)).TaskID;
+                var f = await _taskManage.AddTaskWithoutPolicy<AddTaskSvr_IN>(pIn, CaptureMeta, ContentMeta, MatiralMeta, PlanningMeta);
+               
+                Response.newTaskId = f.TaskID;
+                //添加后如果开始时间在2分钟以内，需要调度一次
+                if ((DateTimeFormat.DateTimeFromString(pIn.taskAdd.strBegin) - DateTime.Now).TotalSeconds < 120)
+                    await _taskManage.UpdateComingTasks();
+
+                var _globalinterface = ApplicationContext.Current.ServiceProvider.GetRequiredService<IIngestGlobalInterface>();
+                if (_globalinterface != null)
+                {
+                    GlobalInternals re = new GlobalInternals() { funtype = IngestDBCore.GlobalInternals.FunctionType.SetGlobalState, State = GlobalStateName.ADDTASK };
+                    var response1 = await _globalinterface.SubmitGlobalCallBack(re);
+                    if (response1.Code != ResponseCodeDefines.SuccessCode)
+                    {
+                        Logger.Error("SetGlobalState modtask error");
+                    }
+                }
+
+                return Response;
+            }
+            catch (Exception e)
+            {
+                Response.bRet = false;
+                if (e.GetType() == typeof(SobeyRecException))//sobeyexcep会自动打印错误
+                {
+                    SobeyRecException se = e as SobeyRecException;
+                    Response.errStr = se.ErrorCode.ToString();
+                }
+                else
+                {
+                    Response.errStr = "PostAddTaskSvr error info：" + e.ToString();
+                    Logger.Error(Response.errStr);
+                }
+                return Response;
+            }
+
+        }
+
+        [HttpPost("PostAddTaskSvrPolicysAndBackupFlag"), MapToApiVersion("1.0")]
+        [ApiExplorerSettings(GroupName = "v1")]
+        public async Task<AddTaskSvrPolicysAndBackupFlag_OUT> PostAddTaskSvrPolicysAndBackupFlag([FromBody] AddTaskSvrPolicysAndBackupFlag_IN pIn)
+        {
+            var Response = new AddTaskSvrPolicysAndBackupFlag_OUT
+            {
+                bRet = true,
+                errStr = "OK"
+            };
+
+            try
+            {
+                string CaptureMeta = string.Empty;
+                string ContentMeta = string.Empty;
+                string MatiralMeta = string.Empty;
+                string PlanningMeta = string.Empty;
+                foreach (var item in pIn.metadatas)
+                {
+                    if (item.emtype == MetaDataType.emCapatureMetaData)
+                    {
+                        CaptureMeta = item.strMetadata;
+                    }
+                    else if (item.emtype == MetaDataType.emStoreMetaData)
+                    {
+                        MatiralMeta = item.strMetadata;
+                    }
+                    else if (item.emtype == MetaDataType.emContentMetaData)
+                    {
+                        ContentMeta = item.strMetadata;
+                    }
+                    else if (item.emtype == MetaDataType.emPlanMetaData)
+                    {
+                        PlanningMeta = item.strMetadata;
+                    }
+                }
+                var f = await _taskManage.AddTaskWithPolicy<AddTaskSvrPolicysAndBackupFlag_IN>(pIn, false,CaptureMeta, ContentMeta, MatiralMeta, PlanningMeta);
+                Response.taskBack = _taskManage.ConvertTaskResponse(f);
+                Response.newTaskId = Response.taskBack.nTaskID;
+
+                if (pIn.isCreateBackupTask)
+                {
+                    pIn.taskAdd.nTaskID = Response.newTaskId;
+                    Response.backupTaskId = (await _taskManage.AddTaskWithPolicy<AddTaskSvrPolicysAndBackupFlag_IN>(pIn, true, CaptureMeta, ContentMeta, MatiralMeta, PlanningMeta)).TaskID;
+
+                }
+
+                //添加后如果开始时间在2分钟以内，需要调度一次
+                if ((DateTimeFormat.DateTimeFromString(pIn.taskAdd.strBegin) - DateTime.Now).TotalSeconds < 120)
+                    await _taskManage.UpdateComingTasks();
 
                 var _globalinterface = ApplicationContext.Current.ServiceProvider.GetRequiredService<IIngestGlobalInterface>();
                 if (_globalinterface != null)
@@ -603,7 +689,7 @@ namespace IngestTaskPlugin.Controllers
 
             try
             {
-                Response.taskConten = await _taskManage.GetTaskInfoByID<TaskContent>(nTaskID);
+                Response.taskConten = await _taskManage.GetTaskInfoByID<TaskContent>(nTaskID, 0);
                 return Response;
             }
             catch (Exception e)
@@ -617,6 +703,37 @@ namespace IngestTaskPlugin.Controllers
                 {
                     Response.errStr = "error info：" + e.ToString();
                     Logger.Error("GetTaskByID" + e.ToString());
+                }
+                return Response;
+            }
+        }
+
+        [HttpGet("GetTaskByIDForFSW"), MapToApiVersion("1.0")]
+        [ApiExplorerSettings(GroupName = "v1")]
+        public async Task<GetTaskByIDForFSW_OUT> GetTaskByIDForFSW(int nTaskID)
+        {
+            var Response = new GetTaskByIDForFSW_OUT
+            {
+                bRet = true,
+                errStr = "OK",
+            };
+
+            try
+            {
+                Response.taskConten = await _taskManage.GetTaskInfoByID<TaskContent>(nTaskID, 1);
+                return Response;
+            }
+            catch (Exception e)
+            {
+                if (e.GetType() == typeof(SobeyRecException))//sobeyexcep会自动打印错误
+                {
+                    SobeyRecException se = e as SobeyRecException;
+                    Response.errStr = se.ErrorCode.ToString();
+                }
+                else
+                {
+                    Response.errStr = "error info：" + e.ToString();
+                    Logger.Error("GetTaskByIDForFSW" + e.ToString());
                 }
                 return Response;
             }
@@ -835,6 +952,145 @@ namespace IngestTaskPlugin.Controllers
                 {
                     Response.errStr = "error info：" + e.ToString();
                     Logger.Error("GetTaskSource" + e.ToString());
+                }
+                return Response;
+            }
+            return Response;
+
+        }
+
+        [HttpGet("GetTrimTaskBeginTime"), MapToApiVersion("1.0")]
+        [ApiExplorerSettings(GroupName = "v1")]
+        public async Task<bool> GetTrimTaskBeginTime(int nTaskID, string strStartTime)
+        {
+            try
+            {
+                if (nTaskID < 0)
+                {
+                    return false;
+                }
+                await _taskManage.TrimTaskBeginTime(nTaskID, strStartTime);
+            }
+            catch (Exception e)//其他未知的异常，写异常日志
+            {
+                if (e.GetType() == typeof(SobeyRecException))//sobeyexcep会自动打印错误
+                {
+                    SobeyRecException se = e as SobeyRecException;
+                    //Response.errStr = se.ErrorCode.ToString();
+                }
+                else
+                {
+                    //Response.errStr = "error info：" + e.ToString();
+                    Logger.Error("GetTrimTaskBeginTime" + e.ToString());
+                }
+                return false;
+            }
+            return true;
+
+        }
+
+        [HttpPost("PostQueryTaskMetadataGroup"), MapToApiVersion("1.0")]
+        [ApiExplorerSettings(GroupName = "v1")]
+        public async Task<QueryTaskMetadataGroup_OUT> PostQueryTaskMetadataGroup(List<int> nTaskID)
+        {
+            var Response = new QueryTaskMetadataGroup_OUT
+            {
+                bRet = true,
+                errStr = "OK",
+            };
+            try
+            {
+
+                if (nTaskID.Count <= 0)
+                {
+                    Response.bRet = false;
+                    return Response;
+                }
+                 Response.metaDataPair = await _taskManage.GetTaskMetadataListAsync<MetadataPair>(nTaskID);
+            }
+            catch (Exception e)//其他未知的异常，写异常日志
+            {
+                if (e.GetType() == typeof(SobeyRecException))//sobeyexcep会自动打印错误
+                {
+                    SobeyRecException se = e as SobeyRecException;
+                    Response.errStr = se.ErrorCode.ToString();
+                }
+                else
+                {
+                    Response.errStr = "error info：" + e.ToString();
+                    Logger.Error("GetTrimTaskBeginTime" + e.ToString());
+                }
+                return Response;
+            }
+            return Response;
+
+        }
+
+        [HttpGet("GetDelTaskDb"), MapToApiVersion("1.0")]
+        [ApiExplorerSettings(GroupName = "v1")]
+        public async Task<DelTaskDb_OUT> GetDelTaskDb(int nTaskID)
+        {
+            var Response = new DelTaskDb_OUT
+            {
+                bRet = true,
+                errStr = "OK",
+            };
+            try
+            {
+                if (nTaskID <= 0)
+                {
+                    Response.bRet = false;
+                    return Response;
+                }
+                await _taskManage.DeleteTask(nTaskID);
+            }
+            catch (Exception e)//其他未知的异常，写异常日志
+            {
+                if (e.GetType() == typeof(SobeyRecException))//sobeyexcep会自动打印错误
+                {
+                    SobeyRecException se = e as SobeyRecException;
+                    Response.errStr = se.ErrorCode.ToString();
+                }
+                else
+                {
+                    Response.errStr = "error info：" + e.ToString();
+                    Logger.Error("GetTrimTaskBeginTime" + e.ToString());
+                }
+                return Response;
+            }
+            return Response;
+
+        }
+
+        [HttpGet("GetDelTaskDb"), MapToApiVersion("1.0")]
+        [ApiExplorerSettings(GroupName = "v1")]
+        public async Task<SetTaskClassify_OUT> SetTaskClassify([FromQuery]int nTaskID, [FromBody]string strClassify)
+        {
+            var Response = new SetTaskClassify_OUT
+            {
+                bRet = true,
+                errStr = "OK",
+            };
+            try
+            {
+                if (nTaskID <= 0)
+                {
+                    Response.bRet = false;
+                    return Response;
+                }
+                await _taskManage.SetTaskClassify(nTaskID, strClassify);
+            }
+            catch (Exception e)//其他未知的异常，写异常日志
+            {
+                if (e.GetType() == typeof(SobeyRecException))//sobeyexcep会自动打印错误
+                {
+                    SobeyRecException se = e as SobeyRecException;
+                    Response.errStr = se.ErrorCode.ToString();
+                }
+                else
+                {
+                    Response.errStr = "error info：" + e.ToString();
+                    Logger.Error("GetTrimTaskBeginTime" + e.ToString());
                 }
                 return Response;
             }

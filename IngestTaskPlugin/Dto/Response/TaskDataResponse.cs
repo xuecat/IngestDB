@@ -30,6 +30,7 @@ namespace IngestTaskPlugin.Dto
 
     public class TaskInfoResponse
     {
+        public bool BackUpTask { get; set; }
         public TaskSource TaskSource { get; set; }
         public TaskContentResponse TaskContent { get; set; }
         public TaskMaterialMetaResponse MaterialMeta { get; set; }

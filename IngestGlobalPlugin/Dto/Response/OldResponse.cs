@@ -160,4 +160,17 @@ namespace IngestGlobalPlugin.Dto
         public string loginname { get; set; }
     }
 
+    public class OldCapParamTemplate
+    {
+        public int nID = 0;     //采集参数模板ID
+        public string strTemplateName = "";//采集参数模板
+        public string strParamTemplate = string.Empty;//参数模板内容采集
+    }
+
+    public class UserParmMap
+    {
+        public int nCapatureParamID = 0;
+        public string szClassCode = "";
+    }
+
 }

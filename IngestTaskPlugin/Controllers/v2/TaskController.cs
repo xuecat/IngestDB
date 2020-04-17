@@ -487,6 +487,81 @@ namespace IngestTaskPlugin.Controllers
         }
 
         /// <summary>
+        /// 添加任务附加策略和备份信息
+        /// </summary>
+        /// <remarks>
+        /// 例子:
+        ///
+        ///     POST /Todo
+        ///     {
+        ///        "id": 1,
+        ///        "name": "Item1",
+        ///        "isComplete": true
+        ///     }
+        ///
+        /// </remarks>
+        /// <param name="task">添加任务数据</param>
+        /// <returns>基本任务信息附带任务id</returns>
+        [HttpPost("withpolicytask")]
+        [ApiExplorerSettings(GroupName = "v2")]
+        public async Task<ResponseMessage<TaskContentResponse>> AddTaskWithPolicy([FromBody, BindRequired]TaskInfoRequest task)
+        {
+            //处理任务名中含有分号的时候，元数据xml不对劲，导致任务总控无法调度，同时含有单斜线的时候，mysql会自动消化掉一个斜线
+            var Response = new ResponseMessage<TaskContentResponse>();
+            if (task == null)
+            {
+                Response.Code = ResponseCodeDefines.ModelStateInvalid;
+                Response.Msg = "请求参数不正确";
+            }
+            try
+            {
+                Response.Ext = await _taskManage.AddTaskWithPolicy(task, false, string.Empty, string.Empty, string.Empty, string.Empty);
+
+                if (task.BackUpTask)
+                {
+                    task.TaskContent = Response.Ext;
+                    await _taskManage.AddTaskWithPolicy(task, true, string.Empty, string.Empty, string.Empty, string.Empty);
+                }
+
+                //添加后如果开始时间在2分钟以内，需要调度一次
+                if ((DateTimeFormat.DateTimeFromString(task.TaskContent.Begin) - DateTime.Now).TotalSeconds < 120)
+                    await _taskManage.UpdateComingTasks();
+
+                var _globalinterface = ApplicationContext.Current.ServiceProvider.GetRequiredService<IIngestGlobalInterface>();
+                if (_globalinterface != null)
+                {
+                    GlobalInternals re = new GlobalInternals() { funtype = IngestDBCore.GlobalInternals.FunctionType.SetGlobalState, State = GlobalStateName.ADDTASK };
+                    var response1 = await _globalinterface.SubmitGlobalCallBack(re);
+                    if (response1.Code != ResponseCodeDefines.SuccessCode)
+                    {
+                        Logger.Error("SetGlobalState modtask error");
+                    }
+                }
+                //SetGTMTaskInfo
+                //添加后如果开始时间在2分钟以内，需要调度一次
+                //这玩意我完全不知道有啥，放弃，后面改
+                //if ((GlobalFun.DateTimeFromString(pIn.taskAdd.strBegin) - DateTime.Now).TotalSeconds < 120)
+                //    TASKSERVICE.UpdateComingTasks();
+            }
+            catch (Exception e)
+            {
+                if (e.GetType() == typeof(SobeyRecException))//sobeyexcep会自动打印错误
+                {
+                    SobeyRecException se = e as SobeyRecException;
+                    Response.Code = se.ErrorCode.ToString();
+                    Response.Msg = se.Message;
+                }
+                else
+                {
+                    Response.Code = ResponseCodeDefines.ServiceError;
+                    Response.Msg = "AddTaskWithoutPolicy error info：" + e.ToString();
+                    Logger.Error(Response.Msg);
+                }
+            }
+            return Response;
+        }
+
+        /// <summary>
         /// 通过guid返回taskid(taskguid和素材guid一样,入库使用同一个)
         /// </summary>
         /// <remarks>
@@ -670,10 +745,11 @@ namespace IngestTaskPlugin.Controllers
         ///
         /// </remarks>
         /// <param name="taskid">任务id，</param>
+        /// <param name="changestate">fsw和web用，传1；显示任务状态时会由服务自动修改状态，1 未分发和采集中被删除任务，会变成为删除状态  0 不做服务器更新</param>
         /// <returns>任务内容信息</returns>
         [HttpGet("taskinfo/{taskid}")]
         [ApiExplorerSettings(GroupName = "v2")]
-        public async Task<ResponseMessage<TaskContentResponse>> GetTaskInfoByID([FromRoute, BindRequired]int taskid)
+        public async Task<ResponseMessage<TaskContentResponse>> GetTaskInfoByID([FromRoute, BindRequired]int taskid, [FromQuery, BindRequired]int changestate)
         {
             var Response = new ResponseMessage<TaskContentResponse>();
             if (taskid <= 0)
@@ -684,7 +760,7 @@ namespace IngestTaskPlugin.Controllers
 
             try
             {
-                Response.Ext = await _taskManage.GetTaskInfoByID<TaskContentResponse>(taskid);
+                Response.Ext = await _taskManage.GetTaskInfoByID<TaskContentResponse>(taskid, changestate);
             }
             catch (Exception e)
             {
@@ -1016,7 +1092,7 @@ namespace IngestTaskPlugin.Controllers
 
             try
             {
-                Response.Ext = await _taskManage.GetTaskSource(taskid);
+                Response.Ext = await _taskManage.TrimTaskBeginTime(taskid, starttime);
             }
             catch (Exception e)
             {
@@ -1029,7 +1105,120 @@ namespace IngestTaskPlugin.Controllers
                 else
                 {
                     Response.Code = ResponseCodeDefines.ServiceError;
-                    Response.Msg = "GetTaskSource error info：" + e.ToString();
+                    Response.Msg = "TrimTaskBeginTime error info：" + e.ToString();
+                    Logger.Error(Response.Msg);
+                }
+            }
+            return Response;
+        }
+
+        /// <summary>
+        /// 删除任务
+        /// </summary>
+        /// <remarks>
+        /// 例子:
+        ///
+        /// </remarks>
+        /// <param name="taskid">任务id</param>
+        /// <returns>任务id</returns>
+        [HttpDelete("taskinfo/delete/{taskid}")]
+        [ApiExplorerSettings(GroupName = "v2")]
+        public async Task<ResponseMessage<int>> DeleteTask([FromRoute, BindRequired]int taskid)
+        {
+            var Response = new ResponseMessage<int>();
+
+            try
+            {
+                Response.Ext = await _taskManage.DeleteTask(taskid);
+            }
+            catch (Exception e)
+            {
+                if (e.GetType() == typeof(SobeyRecException))//sobeyexcep会自动打印错误
+                {
+                    SobeyRecException se = e as SobeyRecException;
+                    Response.Code = se.ErrorCode.ToString();
+                    Response.Msg = se.Message;
+                }
+                else
+                {
+                    Response.Code = ResponseCodeDefines.ServiceError;
+                    Response.Msg = "DeleteTask error info：" + e.ToString();
+                    Logger.Error(Response.Msg);
+                }
+            }
+            return Response;
+        }
+
+        /// <summary>
+        /// 设置任务周期信息
+        /// </summary>
+        /// <remarks>
+        /// 例子:
+        ///
+        /// </remarks>
+        /// <param name="taskid">任务id</param>
+        /// <param name="classify">周期信息</param>
+        /// <returns>任务id</returns>
+        [HttpPut("taskinfo/classify/{taskid}")]
+        [ApiExplorerSettings(GroupName = "v2")]
+        public async Task<ResponseMessage<int>> SetTaskInfoClassify([FromRoute, BindRequired]int taskid, [FromQuery, BindRequired]string classify)
+        {
+            var Response = new ResponseMessage<int>();
+
+            try
+            {
+                Response.Ext = await _taskManage.SetTaskClassify(taskid, classify);
+            }
+            catch (Exception e)
+            {
+                if (e.GetType() == typeof(SobeyRecException))//sobeyexcep会自动打印错误
+                {
+                    SobeyRecException se = e as SobeyRecException;
+                    Response.Code = se.ErrorCode.ToString();
+                    Response.Msg = se.Message;
+                }
+                else
+                {
+                    Response.Code = ResponseCodeDefines.ServiceError;
+                    Response.Msg = "SetTaskInfoClassify error info：" + e.ToString();
+                    Logger.Error(Response.Msg);
+                }
+            }
+            return Response;
+        }
+
+        /// <summary>
+        /// //"Set all period task which were dispatched in time to the next excuting time")]
+        /// </summary>
+        /// <remarks>
+        /// 例子:
+        ///
+        /// </remarks>
+        /// <param name="taskid">任务id</param>
+        /// <param name="classify">周期信息</param>
+        /// <returns>任务id</returns>
+        [HttpPost("taskinfo/nexttimeperiod")]
+        [ApiExplorerSettings(GroupName = "v2")]
+        public async Task<ResponseMessage<int>> SetPeriodTaskToNextTime()
+        {
+            var Response = new ResponseMessage<int>();
+
+            try
+            {
+                Response.Ext = await _taskManage.SetTaskClassify(taskid, classify);
+            }
+            catch (Exception e)
+            {
+                if (e.GetType() == typeof(SobeyRecException))//sobeyexcep会自动打印错误
+                {
+                    SobeyRecException se = e as SobeyRecException;
+                    Response.Code = se.ErrorCode.ToString();
+                    Response.Msg = se.Message;
+                }
+                else
+                {
+                    Response.Code = ResponseCodeDefines.ServiceError;
+                    Response.Msg = "SetTaskInfoClassify error info：" + e.ToString();
                     Logger.Error(Response.Msg);
                 }
             }
