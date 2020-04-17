@@ -23,6 +23,7 @@ namespace IngestGlobalPlugin.Stores
         }
 
         #region Objectstateinfo
+        //get objinfo
         public async Task<TResult> GetObjectstateinfoAsync<TResult>(Func<IQueryable<DbpObjectstateinfo>, IQueryable<TResult>> query, bool notrack = false)
         {
             if (query == null)
@@ -36,6 +37,7 @@ namespace IngestGlobalPlugin.Stores
             return await query.Invoke(Context.DbpObjectstateinfo).FirstOrDefaultAsync();
         }
 
+        //get objinfo list
         public async Task<List<TResult>> GetObjectstateinfoListAsync<TResult>(Func<IQueryable<DbpObjectstateinfo>, IQueryable<TResult>> query, bool notrack = false)
         {
             if (query == null)
@@ -49,6 +51,7 @@ namespace IngestGlobalPlugin.Stores
             return await query.Invoke(Context.DbpObjectstateinfo).ToListAsync();
         }
 
+        //add objectstate
         public async Task<bool> AddDbpObjStateAsync(int objectID, OTID objectTypeID, string userName, int TimeOut)
         {
             bool result = false;
@@ -95,6 +98,27 @@ namespace IngestGlobalPlugin.Stores
             return objectstateinfo;
         }
 
+        //get and update objinfo
+        public async Task<DbpObjectstateinfo> UpdateObjectInfoLockAsync(PostLockObject_param_in param_In)
+        {
+            DbpObjectstateinfo objectstateinfo = null;
+            try
+            {
+                objectstateinfo = await GetObjectstateinfoAsync(a => a.Where(x => ((param_In.ObjectID >= 0 && x.Objectid == param_In.ObjectID) || param_In.ObjectID < 0) && (((int)param_In.ObjectTypeID >= 0 && x.Objecttypeid == (int)param_In.ObjectTypeID) || (int)param_In.ObjectTypeID < 0) && ((!string.IsNullOrEmpty(param_In.userName) && x.Username == param_In.userName) || string.IsNullOrEmpty(param_In.userName)) && (string.IsNullOrEmpty(x.Locklock) || x.Begintime < DateTime.Now.AddMilliseconds(param_In.TimeOut * (-1)))), true);
+
+                if (objectstateinfo != null)
+                {
+                    objectstateinfo.Locklock = Guid.NewGuid().ToString();
+                    await Context.SaveChangesAsync();
+                }
+            }
+            catch (Exception ex)
+            {
+                SobeyRecException.ThrowSelfNoParam(param_In.ObjectID.ToString(), GlobalDictionary.GLOBALDICT_CODE_EXECUTE_COMMAND_ERROR, Logger, ex);
+            }
+            return objectstateinfo;
+        }
+
         public async Task<bool> UnLockRowsAsync(DbpObjectstateinfo objectstateinfo, int TimeOut)
         {
             bool result = false;
@@ -120,22 +144,18 @@ namespace IngestGlobalPlugin.Stores
                 }
 
                 DateTime AddMillSec = dtLock.AddMilliseconds(nTime);
-
                 DateTime dtNow = DateTime.Now;
-
-                var selectResult = await Context.DbpObjectstateinfo.SingleOrDefaultAsync(x => x.Objectid == objectstateinfo.Objectid && x.Objecttypeid == objectstateinfo.Objecttypeid && x.Username == objectstateinfo.Username);
+                var selectResult = await GetObjectstateinfoAsync(a => a.Where(x => x.Objectid == objectstateinfo.Objectid && x.Objecttypeid == objectstateinfo.Objecttypeid && x.Username == objectstateinfo.Username));
 
                 if (AddMillSec < dtNow) //锁超时
                 {
                     result = true;
-                    //UpdateLock(userName, dtNow, Convert.ToInt32(TimeOut), objectID, objectTypeID);
                     if (selectResult != null)
                     {
                         selectResult.Begintime = dtNow;
                         selectResult.Timeout = Convert.ToInt32(TimeOut);
                     }
                 }
-                //UnLock(objectID, objectTypeID, userName);
                 if (selectResult != null)
                 {
                     selectResult.Locklock = null;
@@ -151,6 +171,7 @@ namespace IngestGlobalPlugin.Stores
             }
         }
 
+        //remove or update lock
         public async Task<bool> UnLockObjectAsync(DbpObjectstateinfo arrObjects)
         {
             try
@@ -161,7 +182,7 @@ namespace IngestGlobalPlugin.Stores
                     return false;
                 }
                 //加锁
-                //var deleteObj = await Context.DbpObjectstateinfo.FirstOrDefaultAsync(x => x.Username == userName && ((objectID >= 0 && x.Objectid == objectID) || objectID < 0) && ((objectTypeID >= 0 && x.Objecttypeid == (int)objectTypeID) || objectTypeID < 0));
+                var deleteObj = await GetObjectstateinfoAsync(a => a.Where(x => x.Username == arrObjects.Username && ((arrObjects.Objectid >= 0 && x.Objectid == arrObjects.Objectid) || arrObjects.Objectid < 0) && ((arrObjects.Objecttypeid >= 0 && x.Objecttypeid == (int)arrObjects.Objecttypeid) || arrObjects.Objecttypeid < 0)));
 
                 Context.DbpObjectstateinfo.Remove(arrObjects);
                 int LineNum = await Context.SaveChangesAsync();
@@ -179,8 +200,7 @@ namespace IngestGlobalPlugin.Stores
                     arrObjects.Locklock = null;
                     await Context.SaveChangesAsync();
                 }
-                //解锁
-                //UnLock(objectID, objectTypeID, userName);
+
                 return ret;
             }
             catch (MySqlException ex)
@@ -202,6 +222,20 @@ namespace IngestGlobalPlugin.Stores
         #endregion
 
         #region global method
+        //excute global
+        public async Task<TResult> GetGlobalAsync<TResult>(Func<IQueryable<DbpGlobal>, IQueryable<TResult>> query, bool notrack = false)
+        {
+            if (query == null)
+            {
+                throw new ArgumentNullException(nameof(query));
+            }
+            if (notrack)
+            {
+                return await query.Invoke(Context.DbpGlobal.AsNoTracking()).FirstOrDefaultAsync();
+            }
+            return await query.Invoke(Context.DbpGlobal).FirstOrDefaultAsync();
+        }
+
         public async Task<string> GetGlobalValueStringAsync(string strKey)
         {
             string strValue = string.Empty;
@@ -222,28 +256,25 @@ namespace IngestGlobalPlugin.Stores
             return strValue;
         }
 
+        //add or update
         public async Task UpdateGlobalValueAsync(string strKey, string strValue)
         {
 
             try
             {
+                var state = new DbpGlobal()
+                {
+                    GlobalKey = strKey,
+                    GlobalValue = strValue
+                };
                 if (!Context.DbpGlobal.AsNoTracking().Any(a => a.GlobalKey == strKey))
                 {
                     //add
-                    Context.DbpGlobal.Add(new DbpGlobal()
-                    {
-                        GlobalKey = strKey,
-                        GlobalValue = strValue
-                    });
+                    Context.DbpGlobal.Add(state);
                 }
                 else
                 {
                     //update
-                    var state = new DbpGlobal()
-                    {
-                        GlobalKey = strKey,
-                        GlobalValue = strValue
-                    };
                     Context.Attach(state);
                     Context.Entry(state).Property(x => x.GlobalValue).IsModified = true;
                 }
@@ -258,6 +289,33 @@ namespace IngestGlobalPlugin.Stores
         #endregion
 
         #region Globalstate Method
+        //excute global state
+        public async Task<TResult> GetGlobalStateAsync<TResult>(Func<IQueryable<DbpGlobalState>, IQueryable<TResult>> query, bool notrack = false)
+        {
+            if (query == null)
+            {
+                throw new ArgumentNullException(nameof(query));
+            }
+            if (notrack)
+            {
+                return await query.Invoke(Context.DbpGlobalState.AsNoTracking()).FirstOrDefaultAsync();
+            }
+            return await query.Invoke(Context.DbpGlobalState).FirstOrDefaultAsync();
+        }
+
+        public async Task<List<TResult>> GetGlobalStateListAsync<TResult>(Func<IQueryable<DbpGlobalState>, IQueryable<TResult>> query, bool notrack = false)
+        {
+            if (query == null)
+            {
+                throw new ArgumentNullException(nameof(query));
+            }
+            if (notrack)
+            {
+                return await query.Invoke(Context.DbpGlobalState.AsNoTracking()).ToListAsync();
+            }
+            return await query.Invoke(Context.DbpGlobalState).ToListAsync();
+        }
+
         public async Task<List<DbpGlobalState>> GetAllGlobalStateAsync()
         {
             try
@@ -271,25 +329,22 @@ namespace IngestGlobalPlugin.Stores
             }
         }
 
+        //add or update
         public async Task UpdateGlobalStateAsync(string strLabel)
         {
+            var state = new DbpGlobalState()
+            {
+                Label = strLabel,
+                Lasttime = DateTime.Now  //.ToString("yyyy-MM-dd HH:mm:ss")
+            };
             if (!Context.DbpGlobalState.AsNoTracking().Any(a => a.Label == strLabel))
             {
                 //add
-                Context.DbpGlobalState.Add(new DbpGlobalState()
-                {
-                    Label = strLabel,
-                    Lasttime = DateTime.Now  //.ToString("yyyy-MM-dd HH:mm:ss")
-                });
+                Context.DbpGlobalState.Add(state);
             }
             else
             {
                 //update
-                var state = new DbpGlobalState()
-                {
-                    Label = strLabel,
-                    Lasttime = DateTime.Now  //.ToString("yyyy-MM-dd HH:mm:ss")
-                };
                 Context.Attach(state);
                 Context.Entry(state).Property(x => x.Lasttime).IsModified = true;
             }
@@ -564,7 +619,7 @@ namespace IngestGlobalPlugin.Stores
             return await query.Invoke(Context.DbpUsersetting).FirstOrDefaultAsync();
         }
 
-
+        //add or update
         public async Task UpdateUsersettingsAsync(DbpUsersettings usersetting)
         {
             try
@@ -628,6 +683,9 @@ namespace IngestGlobalPlugin.Stores
         {
             try
             {
+
+                await Context.DbpGlobal.FromSql("").FirstOrDefaultAsync();
+
                 var dbpCapParam = GetCaptureparamtemplateAsync(a => a.Where(x => x.Captureparamid == nParamTemplateID), true);
                 if (dbpCapParam == null)
                 {
@@ -847,7 +905,7 @@ namespace IngestGlobalPlugin.Stores
         {
             try
             {
-                var dbpUserTemplate = await Context.DbpUsertemplate.SingleOrDefaultAsync(x => x.Templateid == nTemplateID);
+                var dbpUserTemplate = await GetUsertemplateAsync(a => a.Where(x => x.Templateid == nTemplateID));
 
                 if (dbpUserTemplate != null)
                 {

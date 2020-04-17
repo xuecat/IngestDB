@@ -39,6 +39,7 @@ namespace IngestDevicePlugin.Models
         public virtual DbSet<DbpSignalsrcMasterbackup> DbpSignalsrcMasterbackup { get; set; }
         public virtual DbSet<DbpSignalType> DbpSignalType { get; set; }
         public virtual DbSet<DbpSigRecTypeMap> DbpSigRecTypeMap { get; set; }
+        public virtual DbSet<DbpStreammedia> DbpStreammedia { get; set; }        
         public virtual DbSet<DbpVirtualmatrixinport> DbpVirtualmatrixinport { get; set; }
         public virtual DbSet<DbpVirtualmatrixportstate> DbpVirtualmatrixportstate { get; set; }
         public virtual DbSet<DbpXdcamDevice> DbpXdcamDevice { get; set; }
@@ -765,6 +766,57 @@ namespace IngestDevicePlugin.Models
                 entity.Property(e => e.Devicetypeid)
                     .HasColumnName("DEVICETYPEID")
                     .HasColumnType("int(11)");
+            });
+
+            modelBuilder.Entity<DbpStreammedia>(entity =>
+            {
+                entity.HasKey(e => e.Streammediaid);
+
+                entity.ToTable("dbp_streammedia");
+
+                entity.Property(e => e.Streammediaid)
+                    .HasColumnName("STREAMMEDIAID")
+                    .HasColumnType("int(11)");
+
+                entity.Property(e => e.Carrierid)
+                    .HasColumnName("CARRIERID")
+                    .HasColumnType("int(11)")
+                    .HasDefaultValueSql("'0'");
+
+                entity.Property(e => e.Extendparams)
+                    .HasColumnName("EXTENDPARAMS")
+                    .HasColumnType("varchar(2048)")
+                    .HasDefaultValueSql("''");
+
+                entity.Property(e => e.Imagetype)
+                    .HasColumnName("IMAGETYPE")
+                    .HasColumnType("int(11)");
+
+                entity.Property(e => e.Pureaudio)
+                    .HasColumnName("PUREAUDIO")
+                    .HasColumnType("int(11)")
+                    .HasDefaultValueSql("'0'");
+
+                entity.Property(e => e.Streammediadesc)
+                    .HasColumnName("STREAMMEDIADESC")
+                    .HasColumnType("varchar(1024)");
+
+                entity.Property(e => e.Streammedianame)
+                    .HasColumnName("STREAMMEDIANAME")
+                    .HasColumnType("varchar(128)");
+
+                entity.Property(e => e.Streammediatype)
+                    .HasColumnName("STREAMMEDIATYPE")
+                    .HasColumnType("int(11)");
+
+                entity.Property(e => e.Streammediaurl)
+                    .HasColumnName("STREAMMEDIAURL")
+                    .HasColumnType("varchar(2048)");
+
+                entity.Property(e => e.Urltype)
+                    .HasColumnName("URLTYPE")
+                    .HasColumnType("varchar(128)")
+                    .HasDefaultValueSql("''");
             });
 
             modelBuilder.Entity<DbpVirtualmatrixinport>(entity =>

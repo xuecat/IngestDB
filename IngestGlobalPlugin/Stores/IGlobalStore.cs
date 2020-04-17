@@ -15,11 +15,14 @@ namespace IngestGlobalPlugin.Stores
         //Task<GetGlobalState_OUT> GetAllGlobalState();
 
         #region global
-        Task<string> GetGlobalValueStringAsync(string strKey);
+        Task<TResult> GetGlobalAsync<TResult>(Func<IQueryable<DbpGlobal>, IQueryable<TResult>> query, bool notrack = false);
+        //Task<string> GetGlobalValueStringAsync(string strKey);
         Task UpdateGlobalValueAsync(string strKey, string strValue);
         #endregion
 
         #region globalstate interface
+        Task<TResult> GetGlobalStateAsync<TResult>(Func<IQueryable<DbpGlobalState>, IQueryable<TResult>> query, bool notrack = false);
+        Task<List<TResult>> GetGlobalStateListAsync<TResult>(Func<IQueryable<DbpGlobalState>, IQueryable<TResult>> query, bool notrack = false);
         Task<List<DbpGlobalState>> GetAllGlobalStateAsync();
         Task UpdateGlobalStateAsync(string strLabel);
         #endregion
@@ -29,11 +32,13 @@ namespace IngestGlobalPlugin.Stores
         Task<List<TResult>> GetObjectstateinfoListAsync<TResult>(Func<IQueryable<DbpObjectstateinfo>, IQueryable<TResult>> query, bool notrack = false);
         Task<bool> AddDbpObjStateAsync(int objectID, OTID objectTypeID, string userName, int TimeOut);
         Task<DbpObjectstateinfo> LockRowsByConditionAsync(int objectID, OTID objectTypeID, string userName, int TimeOut = 500);
+        Task<DbpObjectstateinfo> UpdateObjectInfoLockAsync(PostLockObject_param_in param_In);
         Task<bool> UnLockRowsAsync(DbpObjectstateinfo objectstateinfo, int TimeOut);
         Task<bool> UnLockObjectAsync(DbpObjectstateinfo arrObjects);
         #endregion
 
         #region user
+
         Task<TResult> GetUserSettingAsync<TResult>(Func<IQueryable<DbpUsersettings>, IQueryable<TResult>> query, bool notrack = false);
 
         Task UpdateUsersettingsAsync(DbpUsersettings usersetting);

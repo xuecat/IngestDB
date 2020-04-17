@@ -33,14 +33,43 @@ namespace IngestGlobalPlugin.Managers
 
 
         #region global Manager
+        //get global value by key
         public async Task<string> GetValueStringAsync(string strKey)
         {
-            return await Store.GetGlobalValueStringAsync(strKey);
+            var global = await Store.GetGlobalAsync(a => a.Where(x => x.GlobalKey == strKey), true);
+
+            return global != null ? global.GlobalValue : string.Empty;
+
         }
 
+        //add or update global value
         public async Task UpdateGlobalValueAsync(string strKey, string strValue)
         {
             await Store.UpdateGlobalValueAsync(strKey, strValue);
+        }
+
+        public async Task<TResult> GetDefaultSTCAsync<TResult>(TC_MODE tcMode)
+        {
+            GlobalTcResponse global = new GlobalTcResponse();
+            String strKey = String.Empty;
+            if (tcMode == TC_MODE.emForLine)
+                strKey = "DEFAULT_STC_LINE";
+            else
+                strKey = "DEFAULT_STC_OTHER";
+            
+            try
+            {
+                string tcType = await GetValueStringAsync(strKey);
+                global.TcType = (TC_TYPE)Convert.ToInt32(tcType);
+                global.TC = Convert.ToInt32(await GetValueStringAsync("PRESET_STC"));
+            }
+            catch (Exception ex)
+            {
+                Logger.Error(ex.ToString());
+                SobeyRecException.ThrowSelfNoParam(tcMode.ToString(), GlobalDictionary.GLOBALDICT_CODE_IN_GETDEFAULTSTC_READ_DATA_FAILED, Logger, ex);
+                return default(TResult);
+            }
+            return _mapper.Map<TResult>(global);
         }
 
         #endregion
@@ -61,13 +90,14 @@ namespace IngestGlobalPlugin.Managers
 
 
         #region globalstate manager
-        public async Task<TResult> GetAllGlobalStateAsync<TResult>()
+        //get all global state
+        public async Task<List<TResult>> GetAllGlobalStateAsync<TResult>()
         {
-            var globalstates = await Store.GetAllGlobalStateAsync();
-            return _mapper.Map<TResult>(globalstates);
-
+            var globalstates = await Store.GetGlobalStateListAsync(a => a, true);
+            return _mapper.Map<List<TResult>>(globalstates);
         }
 
+        //add or update
         public async Task UpdateGlobalStateAsync(string strLabel)
         {
             await Store.UpdateGlobalStateAsync(strLabel);
@@ -75,6 +105,7 @@ namespace IngestGlobalPlugin.Managers
         #endregion
 
         #region Lock Objects Manager
+        //lock obj
         public async Task<bool> SetLockObjectAsync(int objectID, OTID objectTypeID, string userName, int TimeOut)
         {
             if (TimeOut < 0)
@@ -87,17 +118,13 @@ namespace IngestGlobalPlugin.Managers
             }
 
             //设置locklock字段
-            DbpObjectstateinfo objectstateinfo = null;
-            for (int i = 0; i < 3 && objectstateinfo == null; i++)
-            {
-                if (i > 0)
-                {
-                    System.Threading.Thread.Sleep(100);
-                }
-
-                objectstateinfo = await Store.LockRowsByConditionAsync(objectID, objectTypeID, userName);
-            }
-
+            PostLockObject_param_in pTemp = new PostLockObject_param_in() {
+                 ObjectID =  objectID,
+                 ObjectTypeID = objectTypeID,
+                 userName = userName,
+                 TimeOut = 500
+            };
+            DbpObjectstateinfo objectstateinfo = await AutoRetry.RunSync(Store.UpdateObjectInfoLockAsync, pTemp, 3, 100);
             if (objectstateinfo == null)
             {
                 return false;
@@ -105,34 +132,31 @@ namespace IngestGlobalPlugin.Managers
 
             //修改加锁信息，清空locklock
             return await Store.UnLockRowsAsync(objectstateinfo, TimeOut);
-            //return await Store.SetLockObject(objectID, objectTypeID, userName, TimeOut);
+
         }
 
+        //un lock obj
         public async Task<bool> SetUnlockObjectAsync(int objectID, OTID objectTypeID, string userName)
         {
             //设置locklock字段
-            DbpObjectstateinfo objectstateinfo = null;
-            for (int i = 0; i < 3 && objectstateinfo == null; i++)
+            PostLockObject_param_in pTemp = new PostLockObject_param_in()
             {
-                if (i > 0)
-                {
-                    System.Threading.Thread.Sleep(100);
-                }
-
-                objectstateinfo = await Store.LockRowsByConditionAsync(objectID, objectTypeID, userName);
-            }
-
+                ObjectID = objectID,
+                ObjectTypeID = objectTypeID,
+                userName = userName,
+                TimeOut = 500
+            };
+            DbpObjectstateinfo objectstateinfo = await AutoRetry.RunSync(Store.UpdateObjectInfoLockAsync, pTemp, 3, 100);
             if (objectstateinfo == null)
             {
                 return false;
             }
 
             return await Store.UnLockObjectAsync(objectstateinfo);
-            //return await Store.SetUnLockObject(objectID, objectTypeID, userName);
         }
 
         //GetAllUnlockObjects
-        public async Task<List<ObjectContent>> GetVTRUnlockObjects()
+        public async Task<List<ObjectContent>> GetVTRUnlockObjectsAsync()
         {
             return await Store.GetObjectstateinfoListAsync<ObjectContent>(x => x.Where(a => a.Objecttypeid == (int)OTID.OTID_VTR && string.IsNullOrEmpty(a.Locklock) && a.Begintime.AddMilliseconds(Convert.ToInt32(a.Timeout)) > DateTime.Now)
             .Select(res => new ObjectContent
@@ -145,7 +169,7 @@ namespace IngestGlobalPlugin.Managers
             }), true);
         }
 
-        //
+        //check channel is lock?
         public async Task<bool> IsChannelLock(int nChannel)
         {
             bool ret = false;
@@ -166,7 +190,7 @@ namespace IngestGlobalPlugin.Managers
         #endregion
 
         #region User
-
+        //get user setting
         public async Task<string> GetUserSettingAsync(string strUserCode, string strSettingtype)
         {
             string settingText = string.Empty;
@@ -179,6 +203,7 @@ namespace IngestGlobalPlugin.Managers
             return settingText;
         }
 
+        //add or update
         public async Task UpdateUserSettingAsync(string userCode, string settingType, string settingText)
         {
             if (userCode == string.Empty || settingType == string.Empty)
@@ -222,10 +247,11 @@ namespace IngestGlobalPlugin.Managers
         }
 
         #region CaptureTemplate
+        //get Captureparam
         public async Task<string> GetCapParamTemplateByIDAsync(int nCaptureParamID)
         {
             var capturetemplate = await Store.GetCaptureparamtemplateAsync(a => a.Where(x => x.Captureparamid == nCaptureParamID), true);
-
+            
             if (capturetemplate == null || string.IsNullOrEmpty(capturetemplate.Captureparam))
             {
                 return string.Empty;
@@ -233,7 +259,7 @@ namespace IngestGlobalPlugin.Managers
 
             return capturetemplate.Captureparam;
         }
-
+        //deal captureparam xml
         public string DealCaptureParam(string captureparam, int nFlag)
         {
             string strCaptureparam = null;
@@ -410,6 +436,7 @@ namespace IngestGlobalPlugin.Managers
             return templateID;
         }
 
+        //modify
         public async Task ModifyUserTemplateAsync(int nTemplateID, string strTemplateContent, string strNewTemplateName)
         {
             DbpUsertemplate userTemplate = await Store.GetUsertemplateAsync(a => a.Where(x => x.Templateid == nTemplateID), true);
@@ -542,7 +569,7 @@ namespace IngestGlobalPlugin.Managers
             ResponseMessage<TResult> result = new ResponseMessage<TResult>();
             string uri = string.Format("http://{0}/CMApi/api/basic/account/getuserinfobyusercode?usercode={1}", ApplicationContext.Current.CMServerUrl, strUserCode);
 
-            ResponseMessageN<OldCMUserInfo> reres = await _restClient.GetCmApi<ResponseMessageN<OldCMUserInfo>>(uri);
+            ResponseMessageN<CMUserInfo> reres = await _restClient.GetCmApi<ResponseMessageN<CMUserInfo>>(uri);
 
             if (reres.Code == "0")
             {
