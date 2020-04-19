@@ -72,5 +72,7 @@ namespace IngestTaskPlugin.Stores
         Task UnLockTask(int taskid);
 
         bool GetPerodicTaskNextExectueTime(DateTime tmBegin, DateTime tmEnd, string strPerodicDesc, ref DateTime tmExecuteBegin, ref DateTime tmExecuteEnd);
+        List<DateTime> GetDateTimeFromString(string str);
+        bool IsInvalidPerodicTask(string strClassify, DateTime begin);
     }
 }

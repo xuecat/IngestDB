@@ -23,27 +23,10 @@ using TaskContentRequest = IngestTaskPlugin.Dto.TaskContentResponse;
 using TaskCustomMetadataRequest = IngestTaskPlugin.Dto.TaskCustomMetadataResponse;
 using AutoMapper;
 
-/// <summary>
-/// Creates a TodoItem.
-/// </summary>
-/// <remarks>
-/// 例子:
+/// 
+///关于taskfullinfo的返回，我这里不标准，需要看看
 ///
-///     POST /Todo
-///     {
-///        "id": 1,
-///        "name": "Item1",
-///        "isComplete": true
-///     }
 ///
-/// </remarks>
-/// <param name="item"></param>
-/// <returns>A newly created TodoItem</returns>
-/// <response code="201">Returns the newly created item</response>
-/// <response code="400">If the item is null</response>            
-//[HttpPost]
-//[ProducesResponseType(StatusCodes.Status201Created)]
-//[ProducesResponseType(StatusCodes.Status400BadRequest)]
 
 namespace IngestTaskPlugin.Controllers
 {
@@ -1266,6 +1249,7 @@ namespace IngestTaskPlugin.Controllers
         /// 例子:
         ///
         /// </remarks>
+        /// <param name="req">请求结构体</param>
         /// <returns></returns>
         [HttpGet("completesyn")]
         [ApiExplorerSettings(GroupName = "v2")]
@@ -1302,6 +1286,12 @@ namespace IngestTaskPlugin.Controllers
         /// 例子:
         ///
         /// </remarks>
+        /// <param name="taskid">任务id</param>
+        /// <param name="oldlen">任务id</param>
+        /// <param name="oldclipnum">任务id</param>
+        /// <param name="newname">任务id</param>
+        /// <param name="newguid">任务id</param>
+        /// <param name="index">任务id</param>
         /// <returns></returns>
         [HttpPost("splittaskwithclip/{taskid}")]
         [ApiExplorerSettings(GroupName = "v2")]
@@ -1367,6 +1357,233 @@ namespace IngestTaskPlugin.Controllers
                 {
                     Response.Code = ResponseCodeDefines.ServiceError;
                     Response.Msg = "NeedRescheduleTasks error info：" + e.ToString();
+                    Logger.Error(Response.Msg);
+                }
+            }
+            return Response;
+        }
+
+        /// <summary>
+        /// 完成重调度，解锁"
+        /// </summary>
+        /// <remarks>
+        /// 例子:
+        ///
+        /// </remarks>
+        /// <param name="req">请求体</param>
+        /// <returns></returns>
+        [HttpGet("completereschedule")]
+        [ApiExplorerSettings(GroupName = "v2")]
+        public async Task<ResponseMessage<bool>> CompleteRescheduleTasks([FromBody, BindRequired]TaskContentRequest req)
+        {
+            var Response = new ResponseMessage<bool>();
+
+            try
+            {
+                Response.Ext = await _taskManage.CompleteRescheduleTasks<TaskContentRequest>(req);
+            }
+            catch (Exception e)
+            {
+                if (e.GetType() == typeof(SobeyRecException))//sobeyexcep会自动打印错误
+                {
+                    SobeyRecException se = e as SobeyRecException;
+                    Response.Code = se.ErrorCode.ToString();
+                    Response.Msg = se.Message;
+                }
+                else
+                {
+                    Response.Code = ResponseCodeDefines.ServiceError;
+                    Response.Msg = "CompleteRescheduleTasks error info：" + e.ToString();
+                    Logger.Error(Response.Msg);
+                }
+            }
+            return Response;
+        }
+
+        /// <summary>
+        /// 修改CooperTask
+        /// </summary>
+        /// <remarks>
+        /// 例子:
+        ///
+        /// </remarks>
+        /// <param name="taskid">任务id</param>
+        /// <param name="cooptype">要设置的类型</param>
+        /// <returns></returns>
+        [HttpPut("taskinfo/coopertype/{taskid}")]
+        [ApiExplorerSettings(GroupName = "v2")]
+        public async Task<ResponseMessage<bool>> ModifyCooperTask([FromRoute, BindRequired]int taskid, [FromQuery, BindRequired]int cooptype)
+        {
+            var Response = new ResponseMessage<bool>();
+
+            try
+            {
+                Response.Ext = await _taskManage.SetTaskCooperType(taskid, (CooperantType)cooptype);
+            }
+            catch (Exception e)
+            {
+                if (e.GetType() == typeof(SobeyRecException))//sobeyexcep会自动打印错误
+                {
+                    SobeyRecException se = e as SobeyRecException;
+                    Response.Code = se.ErrorCode.ToString();
+                    Response.Msg = se.Message;
+                }
+                else
+                {
+                    Response.Code = ResponseCodeDefines.ServiceError;
+                    Response.Msg = "ModifyCooperTask error info：" + e.ToString();
+                    Logger.Error(Response.Msg);
+                }
+            }
+            return Response;
+        }
+
+        public RescheduleTasks_OUT GetRescheduleTasks()
+        {
+            RescheduleTasks_OUT p = new RescheduleTasks_OUT();
+            p.taskInfoRescheduled = null;//初始化
+            p.nValidDataCount = 0;
+            p.errStr = no_err;
+            try
+            {
+
+                TASKSERVICE.RescheduleTasks(out p.taskInfoRescheduled);
+
+                if (p.taskInfoRescheduled == null)
+                {
+                    p.taskInfoRescheduled = new TaskInfoRescheduled[1];
+
+                    p.nValidDataCount = 0;
+                }
+                else
+                {
+                    p.nValidDataCount = p.taskInfoRescheduled.Length;
+                }
+
+                BackupTaskAndMaterial();
+                p.bRet = true;
+            }
+
+            catch (Exception ex)//其他未知的异常，写异常日志
+            {
+                LoggerService.Error(ex.ToString());
+                p.errStr = ex.Message;
+                p.bRet = false;
+            }
+            return p;
+        }
+
+        /// <summary>
+        /// 获取warringinfos
+        /// </summary>
+        /// <remarks>
+        /// 例子:
+        ///
+        /// </remarks>
+        /// <param name="channelid">通道id</param>
+        /// <param name="channelAlive"></param>
+        /// <returns></returns>
+        [HttpGet("warninginfos")]
+        [ApiExplorerSettings(GroupName = "v2")]
+        public async Task<ResponseMessage<List<WarningInfoResponse>>> WarningInfos([FromQuery, BindRequired]int channelid, [FromQuery, BindRequired]int channelAlive)
+        {
+            var Response = new ResponseMessage<List<WarningInfoResponse>>();
+
+            try
+            {
+                if (channelAlive == 1)
+                    Response.Ext = await _taskManage.GetAutoManuConflict<WarningInfoResponse>(channel);
+                else
+                    Response.Ext = await _taskManage.GetBadChannelTask<WarningInfoResponse>(channel);
+            }
+            catch (Exception e)
+            {
+                if (e.GetType() == typeof(SobeyRecException))//sobeyexcep会自动打印错误
+                {
+                    SobeyRecException se = e as SobeyRecException;
+                    Response.Code = se.ErrorCode.ToString();
+                    Response.Msg = se.Message;
+                }
+                else
+                {
+                    Response.Code = ResponseCodeDefines.ServiceError;
+                    Response.Msg = "WarningInfos error info：" + e.ToString();
+                    Logger.Error(Response.Msg);
+                }
+            }
+            return Response;
+        }
+
+        /// <summary>
+        /// 查询正在采集任务的低质量素材文件名
+        /// </summary>
+        /// <remarks>
+        /// 例子:
+        ///
+        /// </remarks>
+        /// <param name="channelid">通道id</param>
+        /// <returns>素材路径名</returns>
+        [HttpGet("channelcapturinglowmaterial")]
+        [ApiExplorerSettings(GroupName = "v2")]
+        public async Task<ResponseMessage<string>> ChannelCapturingLowMaterial([FromQuery, BindRequired]int channelid)
+        {
+            var Response = new ResponseMessage<string>();
+
+            try
+            {
+                Response.Ext = await _taskManage.GetChannelCapturingLowMaterial(channelid);
+            }
+            catch (Exception e)
+            {
+                if (e.GetType() == typeof(SobeyRecException))//sobeyexcep会自动打印错误
+                {
+                    SobeyRecException se = e as SobeyRecException;
+                    Response.Code = se.ErrorCode.ToString();
+                    Response.Msg = se.Message;
+                }
+                else
+                {
+                    Response.Code = ResponseCodeDefines.ServiceError;
+                    Response.Msg = "ChannelCapturingLowMaterial error info：" + e.ToString();
+                    Logger.Error(Response.Msg);
+                }
+            }
+            return Response;
+        }
+
+        /// <summary>
+        /// 任务分段
+        /// </summary>
+        /// <remarks>
+        /// 例子:
+        ///
+        /// </remarks>
+        /// <param name="taskid">老任务id</param>
+        /// <param name="newguid">新id</param>
+        /// <param name="newname">新名字</param>
+        /// <returns>素材路径名</returns>
+        [HttpPost("splittask")]
+        [ApiExplorerSettings(GroupName = "v2")]
+        public async Task<ResponseMessage<TaskContentResponse>> SplitTaskInfo([FromRoute, BindRequired]int taskid, [FromQuery, BindRequired]string newguid, [FromQuery, BindRequired]string newname)
+        {
+            var Response = new ResponseMessage<TaskContentResponse>();
+
+            try
+            {
+                Response.Ext = await _taskManage.SplitTask(taskid, newguid, newname);
+            }
+            catch (Exception e)
+            {
+                if (e.GetType() == typeof(SobeyRecException))//sobeyexcep会自动打印错误
+                {
+                    SobeyRecException se = e as SobeyRecException;
+                    Response.Code = se.ErrorCode.ToString();
+                    Response.Msg = se.Message;
+                }
+                else
+                {
+                    Response.Code = ResponseCodeDefines.ServiceError;
+                    Response.Msg = "ChannelCapturingLowMaterial error info：" + e.ToString();
                     Logger.Error(Response.Msg);
                 }
             }

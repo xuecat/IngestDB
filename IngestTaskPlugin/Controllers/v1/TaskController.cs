@@ -1186,7 +1186,7 @@ namespace IngestTaskPlugin.Controllers
 
         }
 
-        [HttpGet("PostCompleteSynTasks"), MapToApiVersion("1.0")]
+        [HttpPost("PostCompleteSynTasks"), MapToApiVersion("1.0")]
         [ApiExplorerSettings(GroupName = "v1")]
         public async Task PostCompleteSynTasks([FromBody]CompleteSynTasks_IN pIn)
         {
@@ -1276,6 +1276,209 @@ namespace IngestTaskPlugin.Controllers
                 {
                     //Response.errStr = "error info：" + e.ToString();
                     Logger.Error("GetNeedRescheduleTasks" + e.ToString());
+                }
+                return Response;
+            }
+            return Response;
+
+        }
+
+        [HttpPost("PostCompleteRescheduleTasks"), MapToApiVersion("1.0")]
+        [ApiExplorerSettings(GroupName = "v1")]
+        public async Task<bool> PostCompleteRescheduleTasks([FromBody]TaskFullInfo rescheduleTask)
+        {
+            var Response = false;
+
+            try
+            {
+                return await _taskManage.CompleteRescheduleTasks<TaskContent>(rescheduleTask.taskContent);
+            }
+            catch (Exception e)//其他未知的异常，写异常日志
+            {
+                if (e.GetType() == typeof(SobeyRecException))//sobeyexcep会自动打印错误
+                {
+                    SobeyRecException se = e as SobeyRecException;
+                    //Response.errStr = se.ErrorCode.ToString();
+                }
+                else
+                {
+                    //Response.errStr = "error info：" + e.ToString();
+                    Logger.Error("PostCompleteRescheduleTasks" + e.ToString());
+                }
+                return Response;
+            }
+            return Response;
+
+        }
+
+        [HttpGet("GetLockTaskByID"), MapToApiVersion("1.0")]
+        [ApiExplorerSettings(GroupName = "v1")]
+        public async Task<bool> GetLockTaskByID([FromQuery]int taskID)
+        {
+            var Response = false;
+
+            try
+            {
+                return await _taskManage.LockTask(taskID);
+            }
+            catch (Exception e)//其他未知的异常，写异常日志
+            {
+                if (e.GetType() == typeof(SobeyRecException))//sobeyexcep会自动打印错误
+                {
+                    SobeyRecException se = e as SobeyRecException;
+                    //Response.errStr = se.ErrorCode.ToString();
+                }
+                else
+                {
+                    //Response.errStr = "error info：" + e.ToString();
+                    Logger.Error("GetLockTaskByID" + e.ToString());
+                }
+                return Response;
+            }
+            return Response;
+
+        }
+
+        [HttpGet("GetModifyCooperTask"), MapToApiVersion("1.0")]
+        [ApiExplorerSettings(GroupName = "v1")]
+        public async Task<bool> GetModifyCooperTask([FromQuery]int nTaskID, [FromQuery]int emCoopType)
+        {
+            var Response = false;
+
+            try
+            {
+                var back = await _taskManage.SetTaskCooperType(nTaskID, (CooperantType)emCoopType);
+                var _globalinterface = ApplicationContext.Current.ServiceProvider.GetRequiredService<IIngestGlobalInterface>();
+                if (_globalinterface != null)
+                {
+                    GlobalInternals re = new GlobalInternals() { funtype = IngestDBCore.GlobalInternals.FunctionType.SetGlobalState, State = GlobalStateName.MODTASK };
+                    var response1 = await _globalinterface.SubmitGlobalCallBack(re);
+                    if (response1.Code != ResponseCodeDefines.SuccessCode)
+                    {
+                        Logger.Error("SetGlobalState modtask error");
+                    }
+                }
+                return back;
+            }
+            catch (Exception e)//其他未知的异常，写异常日志
+            {
+                if (e.GetType() == typeof(SobeyRecException))//sobeyexcep会自动打印错误
+                {
+                    SobeyRecException se = e as SobeyRecException;
+                    //Response.errStr = se.ErrorCode.ToString();
+                }
+                else
+                {
+                    //Response.errStr = "error info：" + e.ToString();
+                    Logger.Error("GetLockTaskByID" + e.ToString());
+                }
+                return Response;
+            }
+            return Response;
+
+        }
+
+        [HttpGet("GetModifyCooperTask"), MapToApiVersion("1.0")]
+        [ApiExplorerSettings(GroupName = "v1")]
+        public async Task<GetWarningInfos_OUT> GetWarningInfos([FromQuery]int nChannel, [FromQuery]int bChannelAlive)
+        {
+            var Response = new GetWarningInfos_OUT()
+            {
+                bRet = true
+            };
+
+            try
+            {
+                if (bChannelAlive == 1)
+                    Response.arrErrInfo = await _taskManage.GetAutoManuConflict<WarningInfo>(nChannel);
+                else
+                    Response.arrErrInfo = await _taskManage.GetBadChannelTask<WarningInfo>(nChannel);
+                return Response;
+            }
+            catch (Exception e)//其他未知的异常，写异常日志
+            {
+                if (e.GetType() == typeof(SobeyRecException))//sobeyexcep会自动打印错误
+                {
+                    SobeyRecException se = e as SobeyRecException;
+                    //Response.errStr = se.ErrorCode.ToString();
+                    Response.bRet = false;
+                }
+                else
+                {
+                    Response.bRet = false;
+                    //Response.errStr = "error info：" + e.ToString();
+                    Logger.Error("GetLockTaskByID" + e.ToString());
+                }
+                return Response;
+            }
+            return Response;
+
+        }
+
+        [HttpGet("GetChannelCapturingLowMaterial"), MapToApiVersion("1.0")]
+        [ApiExplorerSettings(GroupName = "v1")]
+        public async Task<GetChannelCapturingLowMaterial_OUT> GetChannelCapturingLowMaterial([FromQuery]int channelID)
+        {
+            var Response = new GetChannelCapturingLowMaterial_OUT()
+            {
+                errStr = "OK",
+                bRet = true
+            };
+
+            try
+            {
+                Response.strLowFileName = await _taskManage.GetChannelCapturingLowMaterial(channelID);
+                return Response;
+            }
+            catch (Exception e)//其他未知的异常，写异常日志
+            {
+                if (e.GetType() == typeof(SobeyRecException))//sobeyexcep会自动打印错误
+                {
+                    SobeyRecException se = e as SobeyRecException;
+                    //Response.errStr = se.ErrorCode.ToString();
+                    Response.bRet = false;
+                }
+                else
+                {
+                    Response.bRet = false;
+                    //Response.errStr = "error info：" + e.ToString();
+                    Logger.Error("GetChannelCapturingLowMaterial" + e.ToString());
+                }
+                return Response;
+            }
+            return Response;
+
+        }
+
+        [HttpPost("SplitTask"), MapToApiVersion("1.0")]
+        [ApiExplorerSettings(GroupName = "v1")]
+        public async Task<SplitTask_OUT> SplitTask([FromBody]SplitTask_IN pIn)
+        {
+            var Response = new SplitTask_OUT()
+            {
+                errStr = "OK",
+                bRet = true
+            };
+
+            try
+            {
+                var rep = await _taskManage.SplitTask(pIn.nTaskID, pIn.strNewGUID, pIn.strNewName);
+                Response.nNewTaskID = rep.TaskID;
+                return Response;
+            }
+            catch (Exception e)//其他未知的异常，写异常日志
+            {
+                if (e.GetType() == typeof(SobeyRecException))//sobeyexcep会自动打印错误
+                {
+                    SobeyRecException se = e as SobeyRecException;
+                    Response.errStr = se.ErrorCode.ToString();
+                    Response.bRet = false;
+                }
+                else
+                {
+                    Response.bRet = false;
+                    Response.errStr = "error info：" + e.ToString();
+                    Logger.Error("SplitTask" + e.ToString());
                 }
                 return Response;
             }

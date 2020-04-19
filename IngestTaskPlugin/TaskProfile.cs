@@ -117,6 +117,8 @@ namespace IngestTaskPlugin
                 .ForMember(x => x.StampTitleIndex, (y) => y.MapFrom(z => z.nStampTitleIndex))
                 .ForMember(x => x.StampImageType, (y) => y.MapFrom(z => z.nStampImageType))
                 .ForMember(x => x.GroupColor, (y) => y.MapFrom(z => z.nSGroupColor));
+
+           
             CreateMap<AddTaskSvr_IN, TaskInfoResponse>() 
                 .ForMember(d => d.TaskContent, y => y.MapFrom(s => s.taskAdd))
                 .ForMember(d => d.TaskSource, y => y.MapFrom(s => s.taskSrc));
@@ -148,6 +150,12 @@ namespace IngestTaskPlugin
                 .ForMember(x => x.TaskState, (y) => y.MapFrom(z => z.nTaskState))
                 .ForMember(x => x.DispatchState, (y) => y.MapFrom(z => z.nDispatchState))
                 .ForMember(x => x.SynState, (y) => y.MapFrom(z => z.nSynState)).ReverseMap();
+
+            CreateMap<WarningInfo, WarningInfoResponse>()
+                .ForMember(x => x.RelatedID, (y) => y.MapFrom(z => z.nRelatedID))
+                .ForMember(x => x.TaskID, (y) => y.MapFrom(z => z.nTaskID))
+                .ForMember(x => x.WarningLevel, (y) => y.MapFrom(z => z.nWarningLevel))
+                .ForMember(x => x.WarningMessage, (y) => y.MapFrom(z => z.strWarningMessage)).ReverseMap();
             //ReverseMap
         }
     }

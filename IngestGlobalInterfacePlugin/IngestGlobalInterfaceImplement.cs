@@ -15,7 +15,29 @@ namespace IngestGlobalInterfacePlugin
     {
         public async Task<ResponseMessage> GetGlobalCallBack(GlobalInternals examineResponse)
         {
-            throw new NotImplementedException();
+            using (var scope = ApplicationContext.Current.ServiceProvider.GetRequiredService<IServiceScopeFactory>().CreateScope())
+            {
+                var reqService = scope.ServiceProvider.GetRequiredService<GlobalController>();
+
+                switch (examineResponse.funtype)
+                {
+                    case FunctionType.UserParamTemplateByID:
+                        return await reqService.GetParamTemplateStringByID(examineResponse.TemplateID);
+                    case FunctionType.MaterialInfo:
+                        {
+                            //MaterialInfoInterface
+                        }
+                        break;
+                    default:
+                        break;
+                }
+                //var response = await scope.ServiceProvider.GetRequiredService<GlobalController>()
+                //    .SubmitGlobalCallback();
+
+                //return Mapper.Map<ResponseMessage>(response);
+            }
+
+            return null;
         }
 
         public async Task<ResponseMessage> SubmitGlobalCallBack(GlobalInternals examineResponse)
@@ -28,6 +50,7 @@ namespace IngestGlobalInterfacePlugin
                 {
                     case FunctionType.SetGlobalState:
                         return await reqService.SetGlobalState(examineResponse.State);
+                    
                     default:
                         break;
                 }

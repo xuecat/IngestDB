@@ -1,4 +1,5 @@
-﻿using Sobey.Ingest.CommonHelper;
+﻿using IngestDBCore.Dto;
+using Sobey.Ingest.CommonHelper;
 using System;
 using System.Collections.Generic;
 using System.Collections.Specialized;
@@ -24,8 +25,35 @@ namespace IngestDBCore.Tool
             _httpClient.DefaultRequestHeaders.ConnectionClose = false;
             _httpClient.Timeout = TimeSpan.FromSeconds(15);
             _httpClient.DefaultRequestHeaders.Accept.Add(new MediaTypeWithQualityHeaderValue("application/json"));
+            _httpClient.DefaultRequestHeaders.Add("sobeyhive-http-system", "INGESTSERVER");
+            _httpClient.DefaultRequestHeaders.Add("sobeyhive-http-site", "S1");
+            _httpClient.DefaultRequestHeaders.Add("sobeyhive-http-tool", "INGESTSERVER");
         }
 
+        public void UseCodeHeader(string usercode)
+        {
+            if (_httpClient.DefaultRequestHeaders.Contains("sobeyhive-http-token"))
+            {
+                _httpClient.DefaultRequestHeaders.Remove("sobeyhive-http-token");
+            }
+
+            _httpClient.DefaultRequestHeaders.Add("sobeyhive-http-secret", RSAHelper.RSAstr());
+            _httpClient.DefaultRequestHeaders.Add("current-user-code", usercode);
+        }
+
+        public void UseTokenHeader(string usertoken)
+        {
+            if (_httpClient.DefaultRequestHeaders.Contains("sobeyhive-http-secret"))
+            {
+                _httpClient.DefaultRequestHeaders.Remove("sobeyhive-http-secret");
+            }
+            if (_httpClient.DefaultRequestHeaders.Contains("current-user-code"))
+            {
+                _httpClient.DefaultRequestHeaders.Remove("current-user-code");
+            }
+            
+            _httpClient.DefaultRequestHeaders.Add("sobeyhive-http-token", usertoken);
+        }
 
         public async Task<TResponse> Post<TResponse>(string url, object body, string method = "POST", NameValueCollection queryString = null, int timeout = 60)
             where TResponse : class, new()
@@ -236,8 +264,7 @@ namespace IngestDBCore.Tool
                 throw;
             }
         }
-
-
+        
         public async Task<TResult> PostWithToken<TResult>(string url, object body, string token, string userId = null, string method = "Post")
         {
             //Stopwatch sw = new Stopwatch();
@@ -292,9 +319,7 @@ namespace IngestDBCore.Tool
                 throw;
             }
         }
-
-
-
+        
         public async Task<TResult> SubmitForm<TResult>(string url, Dictionary<string, string> formData, string method = "Post")
         {
             HttpMethod hm = new HttpMethod(method);
@@ -347,6 +372,60 @@ namespace IngestDBCore.Tool
 
         }
 
+        #region cmapi接口统一管理，方便后面修改
+        public async Task<int> GetUserParamTemplateID(bool usetokencode, string userTokenOrCode)
+        {
+            if (usetokencode)
+                UseTokenHeader(userTokenOrCode);
+            else
+                UseCodeHeader(userTokenOrCode);
 
+            var back = await AutoRetry.Run<ResponseMessage<CmParam>>(() =>
+                {
+                    DefaultParameter param = new DefaultParameter()
+                    {
+                        tool = "DEFAULT",
+                        paramname = "HIGH_RESOLUTION",
+                        system = "INGEST"
+                    };
+                return Post<ResponseMessage<CmParam>>(
+                    string.Format("{0}/CMApi/api/basic/config/getuserparam", ApplicationContext.Current.CMServerUrl),
+                    JsonHelper.ToJson(param));
+
+                });
+
+            if (back != null)
+            {
+                return int.Parse(back.Ext.paramvalue);
+            }
+            return 0;
+        }
+
+        public async Task<string> GetUserPath(bool usetokencode, string userTokenOrCode, string storagetype, string storagemark)
+        {
+            if (usetokencode)
+                UseTokenHeader(userTokenOrCode);
+            else
+                UseCodeHeader(userTokenOrCode);
+
+            var back = await AutoRetry.Run<ResponseMessage<ExtParam>>(() =>
+            {
+                NameValueCollection v = new NameValueCollection();
+                v.Add("storagetype", storagetype);
+                v.Add("storagemark", storagemark);
+
+                return Get<ResponseMessage<ExtParam>>(
+                    string.Format("{0}/CMApi/api/basic/user/getcurrentusercanwritepathbycondition",ApplicationContext.Current.CMServerUrl),
+                    v);
+
+            });
+
+            if (back != null)
+            {
+                return back.Ext.path;
+            }
+            return string.Empty;
+        }
+        #endregion
     }
 }

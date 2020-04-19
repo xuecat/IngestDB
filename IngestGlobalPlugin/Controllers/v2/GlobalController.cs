@@ -5,6 +5,7 @@ using IngestGlobalPlugin.Dto;
 using IngestGlobalPlugin.Managers;
 using IngestGlobalPlugin.Models;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Mvc.ModelBinding;
 using Sobey.Core.Log;
 using System;
 using System.Collections.Generic;
@@ -549,6 +550,50 @@ namespace IngestGlobalPlugin.Controllers
             return Response;
         }
 
+        /// <summary>
+        /// captureparamtemplatestring
+        /// </summary>
+        /// <param name="CaptureParamID">capid</param>
+        /// <returns>globalstate表结果</returns>
+        /// <remarks>
+        /// 例子:
+        /// Get api/v2/captureparamtemplate/{nCaptureParamID}
+        /// </remarks>
+        [HttpGet("captureparamtemplatestring/{CaptureParamID}")]
+        [ApiExplorerSettings(GroupName = "v2")]
+        public async Task<ResponseMessage<string>> GetParamTemplateStringByID([FromRoute, BindRequired]int CaptureParamID)
+        {
+            ResponseMessage<string> Response = new ResponseMessage<string>();
+            try
+            {
+                //读取采集参数模板
+                string temp = await _GlobalManager.GetCapParamTemplateByIDAsync(CaptureParamID);
+                if (string.IsNullOrEmpty(temp))
+                {
+                    Response.Msg = "There's no CaptureParam!";
+                    Response.Code = ResponseCodeDefines.PartialFailure;
+                    return Response;
+                }
+                Response.Ext = temp;
+                Response.Code = ResponseCodeDefines.SuccessCode;
+            }
+            catch (Exception e)//其他未知的异常，写异常日志
+            {
+                if (e.GetType() == typeof(SobeyRecException))//sobeyexcep会自动打印错误
+                {
+                    SobeyRecException se = e as SobeyRecException;
+                    Response.Code = se.ErrorCode.ToString();
+                    Response.Msg = se.Message;
+                }
+                else
+                {
+                    Response.Code = ResponseCodeDefines.ServiceError;
+                    Response.Msg = "error info：" + e.ToString();
+                    Logger.Error("GetParamTemplateStringByID : " + Response.Msg);
+                }
+            }
+            return Response;
+        }
         #endregion
 
         #region UserTemplate

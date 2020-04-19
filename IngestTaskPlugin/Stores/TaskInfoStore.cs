@@ -2337,7 +2337,7 @@ namespace IngestTaskPlugin.Stores
             return false;
         }
 
-        private bool IsInvalidPerodicTask(string strClassify, DateTime begin)
+        public bool IsInvalidPerodicTask(string strClassify, DateTime begin)
         {
             int nStart = 0;
             int nPos = strClassify.IndexOf('[', nStart);
@@ -2400,7 +2400,7 @@ namespace IngestTaskPlugin.Stores
             }
             return list;
         }
-        private List<DateTime> GetDateTimeFromString(string str)
+        public List<DateTime> GetDateTimeFromString(string str)
         {
             List<DateTime> DatetimeArray = new List<DateTime>();
             int nLPos = 0;
@@ -2429,7 +2429,14 @@ namespace IngestTaskPlugin.Stores
 
         public async Task LockTask(int taskid)
         {
-            
+            DbpTask obj = new DbpTask()
+            {
+                Taskid = taskid,
+                Tasklock = Guid.NewGuid().ToString(),
+            };
+            Context.Attach(obj);
+            Context.Entry(obj).Property("Tasklock").IsModified = true;
+            await Context.SaveChangesAsync();
             //Context.Entry(await Context.DbpTask.FirstOrDefaultAsync(x => x.Taskid == taskid)).CurrentValues.SetValues();
             //(await Context.SaveChangesAsync()) > 0;
         }
