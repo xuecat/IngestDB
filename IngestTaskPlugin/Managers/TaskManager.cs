@@ -1781,11 +1781,9 @@ namespace IngestTaskPlugin.Managers
                             }
                             catch (System.FormatException ex)
                             {
-                                //ApplicationLog.WriteInfo(string.Format("ModifyPeriodTask:FormatException:{0}", ex.Message));
                             }
                             catch (System.Exception ex)
                             {
-                                //ApplicationLog.WriteInfo(string.Format("ModifyPeriodTask:Exception:{0}", ex.Message));
                             }
                         }
 

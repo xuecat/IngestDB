@@ -1492,9 +1492,9 @@ namespace IngestTaskPlugin.Controllers
             try
             {
                 if (channelAlive == 1)
-                    Response.Ext = await _taskManage.GetAutoManuConflict<WarningInfoResponse>(channel);
+                    Response.Ext = await _taskManage.GetAutoManuConflict<WarningInfoResponse>(channelid);
                 else
-                    Response.Ext = await _taskManage.GetBadChannelTask<WarningInfoResponse>(channel);
+                    Response.Ext = await _taskManage.GetBadChannelTask<WarningInfoResponse>(channelid);
             }
             catch (Exception e)
             {
@@ -1562,7 +1562,7 @@ namespace IngestTaskPlugin.Controllers
         /// <param name="newguid">新id</param>
         /// <param name="newname">新名字</param>
         /// <returns>素材路径名</returns>
-        [HttpPost("splittask")]
+        [HttpPost("splittask/{taskid}")]
         [ApiExplorerSettings(GroupName = "v2")]
         public async Task<ResponseMessage<TaskContentResponse>> SplitTaskInfo([FromRoute, BindRequired]int taskid, [FromQuery, BindRequired]string newguid, [FromQuery, BindRequired]string newname)
         {
