@@ -703,5 +703,15 @@ namespace IngestTaskPlugin.Dto
         public string errStr;
         public bool bRet;
     }
+    public class OldResponseMessage
+    {
+        public int nCode { get; set; }
+        public string message { get; set; }
+        public OldResponseMessage()
+        {
+            nCode = 1;          //1代表成功，0代表失败
+            message = "OK";
+        }
+    }
 }
 

@@ -667,6 +667,27 @@ namespace IngestTaskPlugin.Stores
             }
         }
 
+        public async Task<int> DeleteTaskDB(int taskid, bool change)
+        {
+            Context.DbpTask.Remove(new DbpTask() { Taskid = taskid});
+            Context.DbpTaskMetadata.Remove(new DbpTaskMetadata() { Taskid = taskid});
+
+            if (change)
+            {
+                try
+                {
+                    await Context.SaveChangesAsync();
+                }
+                catch (Exception e)
+                {
+
+                    throw e;
+                }
+            }
+
+            return taskid;
+        }
+
         public async Task<int> DeleteTask(int taskid)
         {
             var taskinfo = await GetTaskAsync(a => a.Where(b => b.Taskid == taskid));

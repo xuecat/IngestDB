@@ -520,12 +520,47 @@ namespace IngestTaskPlugin.Managers
             ///////return
         }
 
+        public async Task<List<TResult>> GetKamakatiFailTasks<TResult>()
+        {
+            var lst = await Store.GetTaskListAsync(a => a.Where(b => b.Backtype >= 65535 || b.Backtype == (int)CooperantType.emKamataki), true);
+            List<DbpTask> lsttask = new List<DbpTask>();
+
+            foreach (var item in lst)
+            {
+                int backtyp = item.Backtype.GetValueOrDefault() >> 16;
+                if (backtyp > 0 && backtyp< 3)
+                {
+                    if (item.Backtype == (int)CooperantType.emKamataki)
+                    {
+                        lsttask.Add(item);
+                    }
+                }
+            }
+
+            return _mapper.Map<List<TResult>>(lsttask);
+
+        }
+
+        public async Task SetTaskBmp(int taskid, string bmppath)
+        {
+            if (string.IsNullOrEmpty(bmppath))
+            {
+                return;
+            }
+
+            var findtask = await Store.GetTaskAsync(a => a.Where(b => b.Taskid == taskid));
+            findtask.Description = bmppath;
+
+            await Store.SaveChangeAsync();
+        }
+
         //这个接口是为老写的
         public async Task UpdateTaskMetaDataAsync(int taskid, MetaDataType type, string metadata)
         {
             await Store.UpdateTaskMetaDataAsync(taskid, type, metadata);
         }
 
+        
 
         public async virtual Task<string> UpdateMetadataPropertyAsync(int taskid, int type, List<PropertyResponse> lst)
         {
@@ -1976,9 +2011,36 @@ namespace IngestTaskPlugin.Managers
             return default(TResult);
         }
 
-        public async Task WriteVtrUpLoadTask<TResult>(TResult taskinfo)
+        public async Task WriteVTRUploadTaskDB<TResult>(TResult taskAdd)
         {
-            
+            TaskContentRequest taskinfo = _mapper.Map<TaskContentRequest>(taskAdd);
+
+            var _globalinterface = ApplicationContext.Current.ServiceProvider.GetRequiredService<IIngestDeviceInterface>();
+            if (_globalinterface != null)
+            {
+                DeviceInternals re = new DeviceInternals() { funtype = IngestDBCore.DeviceInternals.FunctionType.ChannelUnitMap, ChannelId = taskinfo.ChannelID };
+                var response1 = await _globalinterface.GetDeviceCallBack(re);
+                if (response1.Code != ResponseCodeDefines.SuccessCode)
+                {
+                    Logger.Error("WriteVTRUploadTaskDB ChannelInfoBySrc error");
+                    return;
+                }
+                var fr = response1 as ResponseMessage<int>;
+
+                taskinfo.Unit = fr.Ext;
+
+                await Store.DeleteTaskDB(taskinfo.TaskID, false);
+
+                await Store.AddTaskWithPolicys(_mapper.Map<TaskContentRequest, DbpTask>(taskinfo, opt =>
+                opt.AfterMap((src, des) =>
+                {
+                    des.State = (int)taskState.tsReady;
+                    des.SyncState = (int)syncState.ssSync;
+                    des.DispatchState = (int)dispatchState.dpsDispatched;
+                })
+                ), false, TaskSource.emMSVUploadTask, string.Empty, string.Empty, string.Empty, string.Empty, null);
+            }
+
         }
 
         private bool IsTimePeriodInVTRTimePeriods(TimePeriod tp, VTRTimePeriods vtrFreeTimePeriods)
@@ -2399,6 +2461,50 @@ namespace IngestTaskPlugin.Managers
         public TaskContent ConvertTaskResponse(TaskContentResponse task)
         {
             return _mapper.Map<TaskContent>(task);
+        }
+
+        public async Task<TaskContentResponse> AutoAddTaskByOldTask(int oldtask, DateTime starttime)
+        {
+            var findtask = await Store.GetTaskAsync(a => a.Where(b => b.Taskid == oldtask));
+            var newtaskinfo = Store.DeepClone(findtask);
+
+            if (findtask != null)
+            {
+                if (findtask.Tasktype == (int)TaskType.TT_MANUTASK
+                || findtask.Tasktype == (int)TaskType.TT_OPENEND)
+                {
+                    //yangchuang20111017原来直接不支持手动任务，如果是手动任务，这里可以重新创建一个OpenEnd类型的任务
+                    newtaskinfo.Tasktype = (int)TaskType.TT_OPENEND;
+                }
+                else if (findtask.Endtime <= starttime.AddSeconds(5))
+                {
+                    // Delete by chenzhi 2013-08-01
+                    // TODO: 这种情况是系统正常的处理过程，不应该作为错误处理
+
+                    // 作为成功操作返回出去
+                    return null;
+                    // ----------------- The End 2013-08-01 -----------------
+                }
+            }
+
+            if (findtask.Backtype == (int)CooperantType.emVTRBackup)
+            {
+                findtask.Backtype = (int)CooperantType.emVTRBackupFinish;
+            }
+            else if (findtask.Backtype == (int)CooperantType.emKamataki)
+            {
+                //Kamataki任务改成普通任务
+                newtaskinfo.Backtype = (int)CooperantType.emPureTask;
+            }
+
+            // Add by chenzhi 2013-07-23
+            // TODO: 如果原任务是一个周期任务的子任务，则需要在这改为普通任务
+
+            if (oldTaskFullInfo.taskContent.emTaskType == (int)TaskType.TT_PERIODIC)
+            {
+                // 改为普通任务
+                newTaskFullInfo.taskContent.emTaskType = (int)TaskType.TT_NORMAL;
+            }
         }
 
         public async Task<TaskContentResponse> AddTaskWithPolicy<TResult>(TResult info, bool backup, string CaptureMeta, string ContentMeta, string MatiralMeta, string PlanningMeta)

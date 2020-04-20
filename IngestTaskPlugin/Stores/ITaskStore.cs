@@ -58,6 +58,7 @@ namespace IngestTaskPlugin.Stores
         Task DeleteVtrUploadTaskAsync(int taskid, DbpTask task, bool savechange = true);
         Task<int> StopTask(int taskid, DateTime dt);
         Task<int> DeleteTask(int taskid);
+        Task<int> DeleteTaskDB(int taskid, bool change);
         Task<int> StopCapturingChannelAsync(int Channel);
         Task<List<int>> StopCapturingListChannelAsync(List<int> lstChaneel);
         Task<int> DeleteCapturingChannelAsync(int Channel);
@@ -70,7 +71,7 @@ namespace IngestTaskPlugin.Stores
         Task UnLockAllTask();
         Task LockTask(int taskid);
         Task UnLockTask(int taskid);
-
+        DbpTask DeepClone(DbpTask obj);
         bool GetPerodicTaskNextExectueTime(DateTime tmBegin, DateTime tmEnd, string strPerodicDesc, ref DateTime tmExecuteBegin, ref DateTime tmExecuteEnd);
         List<DateTime> GetDateTimeFromString(string str);
         bool IsInvalidPerodicTask(string strClassify, DateTime begin);

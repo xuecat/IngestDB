@@ -28,7 +28,7 @@ using AutoMapper;
 ///MADEBYINGEST没更新完
 ///老接口的post和get前缀
 ///manager有个addtaskwithpolicy
-///AddTaskWithPolicy 有个GetTaskSourceBySignalId
+///AddTaskWithPolicy 有个GetTaskSourceBySignalId 还有addtask有些地方 是直接加数据库
 ///
 
 namespace IngestTaskPlugin.Controllers
@@ -1622,7 +1622,7 @@ namespace IngestTaskPlugin.Controllers
                 else
                 {
                     Response.Code = ResponseCodeDefines.ServiceError;
-                    Response.Msg = $"SetTaskInfoClassify error info：{e}";
+                    Response.Msg = $"SetTaskInfoClassify error info：{e.Message}";
                     Logger.Error(Response.Msg);
                 }
             }
@@ -1662,7 +1662,7 @@ namespace IngestTaskPlugin.Controllers
                 else
                 {
                     Response.Code = ResponseCodeDefines.ServiceError;
-                    Response.Msg = $"CreateNewTaskFromPeriodicTask error info：{e}";
+                    Response.Msg = $"CreateNewTaskFromPeriodicTask error info：{e.Message}";
                     Logger.Error(Response.Msg);
                 }
             }
@@ -1709,7 +1709,7 @@ namespace IngestTaskPlugin.Controllers
                 else
                 {
                     Response.Code = ResponseCodeDefines.ServiceError;
-                    Response.Msg = $"StartTieUpTask error info：{e}";
+                    Response.Msg = $"StartTieUpTask error info：{e.Message}";
                     Logger.Error(Response.Msg);
                 }
             }
@@ -1746,7 +1746,7 @@ namespace IngestTaskPlugin.Controllers
                 else
                 {
                     Response.Code = ResponseCodeDefines.ServiceError;
-                    Response.Msg = $"ChooseUseableChannelID error info：{e}";
+                    Response.Msg = $"ChooseUseableChannelID error info：{e.Message}";
                     Logger.Error(Response.Msg);
                 }
             }
@@ -1793,7 +1793,7 @@ namespace IngestTaskPlugin.Controllers
                 else
                 {
                     Response.Code = ResponseCodeDefines.ServiceError;
-                    Response.Msg = $"ModifyTaskInfoNmae error info：{e}";
+                    Response.Msg = $"ModifyTaskInfoNmae error info：{e.Message}";
                     Logger.Error(Response.Msg);
                 }
             }
@@ -1844,7 +1844,7 @@ namespace IngestTaskPlugin.Controllers
                 else
                 {
                     Response.Code = ResponseCodeDefines.ServiceError;
-                    Response.Msg = $"ModifyTaskInfoNmae error info：{e}";
+                    Response.Msg = $"ModifyTaskInfoNmae error info：{e.Message}";
                     Logger.Error(Response.Msg);
                 }
             }
@@ -1919,13 +1919,120 @@ namespace IngestTaskPlugin.Controllers
                 else
                 {
                     Response.Code = ResponseCodeDefines.ServiceError;
-                    Response.Msg = $"IsTaskVTRCollide error info：{e}";
+                    Response.Msg = $"IsTaskVTRCollide error info：{e.Message}";
                     Logger.Error(Response.Msg);
                 }
             }
             return Response;
         }
 
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <remarks>
+        /// 
+        /// </remarks>
+        /// <param name="req">请求体</param>
+        /// <param name="taskname">任务名字</param>
+        /// <returns>分裂后的任务</returns>
+        [HttpPost("writevtruploadtask")]
+        [ApiExplorerSettings(GroupName = "v2")]
+        public async Task<ResponseMessage> WriteVTRUploadTask([FromBody, BindRequired]TaskContentRequest req)
+        {
+            var Response = new ResponseMessage();
+
+            try
+            {
+               await _taskManage.WriteVTRUploadTaskDB<TaskContentRequest>(req);
+            }
+            catch (Exception e)
+            {
+                if (e is SobeyRecException se)//sobeyexcep会自动打印错误
+                {
+                    Response.Code = se.ErrorCode.ToString();
+                    Response.Msg = se.Message;
+                }
+                else
+                {
+                    Response.Code = ResponseCodeDefines.ServiceError;
+                    Response.Msg = $"WriteVTRUploadTask error info：{e.Message}";
+                    Logger.Error(Response.Msg);
+                }
+            }
+            return Response;
+        }
+
+        /// <summary>
+        /// 获得失败的KAMATAKI任务
+        /// </summary>
+        /// <remarks>
+        /// 
+        /// </remarks>
+        /// <returns>extention为TaskContent数组</returns>
+        [HttpGet("kamakatitasks")]
+        [ApiExplorerSettings(GroupName = "v2")]
+        public async Task<ResponseMessage<List<TaskContentResponse>>> GetAllKamakatiFailTasks()
+        {
+            var Response = new ResponseMessage<List<TaskContentResponse>>();
+
+            try
+            {
+                Response.Ext = await _taskManage.GetKamakatiFailTasks<TaskContentResponse>();
+            }
+            catch (Exception e)
+            {
+                if (e is SobeyRecException se)//sobeyexcep会自动打印错误
+                {
+                    Response.Code = se.ErrorCode.ToString();
+                    Response.Msg = se.Message;
+                }
+                else
+                {
+                    Response.Code = ResponseCodeDefines.ServiceError;
+                    Response.Msg = $"GetAllKamakatiFailTasks error info：{e.Message}";
+                    Logger.Error(Response.Msg);
+                }
+            }
+            return Response;
+        }
+
+        /// <summary>
+        /// 修改任务的缩略图
+        /// </summary>
+        /// <remarks>
+        /// 
+        /// </remarks>
+        /// <param name="taskid">任务id</param>
+        /// <param name="bmppath">图片路径</param>
+        /// <returns></returns>
+        [HttpPost("taskinfo/stampbmp/{taskid}")]
+        [ApiExplorerSettings(GroupName = "v2")]
+        public async Task<ResponseMessage> SetTaskInfoStampBmp([FromRoute, BindRequired]int taskid, [FromBody, BindRequired]string bmppath)
+        {
+            var Response = new ResponseMessage();
+
+            try
+            {
+                bmppath = bmppath.Replace("\\", "\\\\");
+                bmppath = bmppath.Replace("'", "''");
+                await _taskManage.SetTaskBmp(taskid, bmppath);
+            }
+            catch (Exception e)
+            {
+                if (e is SobeyRecException se)//sobeyexcep会自动打印错误
+                {
+                    Response.Code = se.ErrorCode.ToString();
+                    Response.Msg = se.Message;
+                }
+                else
+                {
+                    Response.Code = ResponseCodeDefines.ServiceError;
+                    Response.Msg = $"SetTaskStampBmp error info：{e.Message}";
+                    Logger.Error(Response.Msg);
+                }
+            }
+            return Response;
+        }
 
         //////////////////////////
     }

@@ -1817,6 +1817,101 @@ namespace IngestTaskPlugin.Controllers
             return Response;
 
         }
+
+        [HttpPost("WriteVTRUploadTaskDB"), MapToApiVersion("1.0")]
+        [ApiExplorerSettings(GroupName = "v1")]
+        public async Task<OldResponseMessage> WriteVTRUploadTaskDB([FromBody] TaskContent taskAdd)
+        {
+            var Response = new OldResponseMessage();
+
+            try
+            {
+                await _taskManage.WriteVTRUploadTaskDB<TaskContent>(taskAdd);
+                return Response;
+            }
+            catch (Exception e)//其他未知的异常，写异常日志
+            {
+                if (e.GetType() == typeof(SobeyRecException))//sobeyexcep会自动打印错误
+                {
+                    SobeyRecException se = e as SobeyRecException;
+                    Response.nCode = se.ErrorCode;
+                    //Response.message = false;
+                }
+                else
+                {
+                    Response.nCode = 500;
+                    //Response.errStr = "error info：" + e.ToString();
+                    Logger.Error("ModifyTaskName" + e.ToString());
+                }
+                return Response;
+            }
+            return Response;
+
+        }
+
+        [HttpPost("GetKamakatiFailTasks"), MapToApiVersion("1.0")]
+        [ApiExplorerSettings(GroupName = "v1")]
+        public async Task<List<TaskContent>> GetKamakatiFailTasks()
+        {
+            var Response = new List<TaskContent>();
+
+            try
+            {
+                Response = await _taskManage.GetKamakatiFailTasks<TaskContent>();
+                return Response;
+            }
+            catch (Exception e)//其他未知的异常，写异常日志
+            {
+                if (e.GetType() == typeof(SobeyRecException))//sobeyexcep会自动打印错误
+                {
+                    SobeyRecException se = e as SobeyRecException;
+                    //Response.nCode = se.ErrorCode;
+                    //Response.message = false;
+                }
+                else
+                {
+                    //Response.nCode = 500;
+                    //Response.errStr = "error info：" + e.ToString();
+                    Logger.Error("GetKamakatiFailTasks" + e.ToString());
+                }
+                return Response;
+            }
+            return Response;
+
+        }
+
+        [HttpPost("SetTaskStampBmp"), MapToApiVersion("1.0")]
+        [ApiExplorerSettings(GroupName = "v1")]
+        public async Task<OldResponseMessage> SetTaskStampBmp([FromQuery] int nTaskID, [FromBody] string strBmp)
+        {
+            var Response = new OldResponseMessage() { nCode = 1, message = "OK"};
+
+            try
+            {
+                strBmp = strBmp.Replace("\\", "\\\\");
+                strBmp = strBmp.Replace("'", "''");
+                await _taskManage.SetTaskBmp(nTaskID, strBmp);
+                return Response;
+            }
+            catch (Exception e)//其他未知的异常，写异常日志
+            {
+                if (e.GetType() == typeof(SobeyRecException))//sobeyexcep会自动打印错误
+                {
+                    SobeyRecException se = e as SobeyRecException;
+                   Response.nCode = se.ErrorCode;
+                    //Response.message = false;
+                }
+                else
+                {
+                    Response.nCode = 500;
+                    //Response.errStr = "error info：" + e.ToString();
+                    Logger.Error("SetTaskStampBmp" + e.ToString());
+                }
+                return Response;
+            }
+            return Response;
+
+        }
         ////////////////////////////
     }
 }
