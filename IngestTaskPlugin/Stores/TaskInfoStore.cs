@@ -9,6 +9,9 @@ using IngestTaskPlugin.Dto;
 using IngestTaskPlugin.Models;
 using Microsoft.EntityFrameworkCore;
 using Sobey.Core.Log;
+using CooperantType = IngestTaskPlugin.Dto.CooperantType;
+using taskState = IngestTaskPlugin.Dto.taskState;
+using TaskType = IngestTaskPlugin.Dto.TaskType;
 
 namespace IngestTaskPlugin.Stores
 {

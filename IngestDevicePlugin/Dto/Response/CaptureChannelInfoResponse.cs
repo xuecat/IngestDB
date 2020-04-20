@@ -1,6 +1,8 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Text;
+using IngestDevicePlugin.Dto.Enum;
+using IngestDevicePlugin.Dto.Response;
 
 namespace IngestDevicePlugin.Dto
 {

@@ -1591,5 +1591,39 @@ namespace IngestTaskPlugin.Controllers
         }
 
         //////////////////////////
+
+        /// <summary>
+        /// 获取当前任务
+        /// </summary>
+        /// <remarks>
+        /// Decivce通讯接口
+        /// </remarks>
+        /// <returns>当前任务</returns>
+        [HttpPost("taskinfo/CurrentTasks")]
+        [ApiExplorerSettings(GroupName = "v2")]
+        public async Task<ResponseMessage<List<TaskContent>>> GetCurrentTasks()
+        {
+            var Response = new ResponseMessage<List<TaskContent>>();
+
+            try
+            {
+                Response.Ext = await _taskManage.GetCurrentTasksAsync<TaskContent>();
+            }
+            catch (Exception e)
+            {
+                if (e is SobeyRecException se)//sobeyexcep会自动打印错误
+                {
+                    Response.Code = se.ErrorCode.ToString();
+                    Response.Msg = se.Message;
+                }
+                else
+                {
+                    Response.Code = ResponseCodeDefines.ServiceError;
+                    Response.Msg = $"SetTaskInfoClassify error info：{e}";
+                    Logger.Error(Response.Msg);
+                }
+            }
+            return Response;
+        }
     }
 }

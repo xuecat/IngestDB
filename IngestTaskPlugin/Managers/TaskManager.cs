@@ -10,12 +10,15 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using System.Xml.Linq;
+using TaskType = IngestTaskPlugin.Dto.TaskType;
+using taskState = IngestTaskPlugin.Dto.taskState;
 using IngestDBCore.Interface;
 using Microsoft.Extensions.DependencyInjection;
 using IngestTaskPlugin.Models;
 using TaskInfoRequest = IngestTaskPlugin.Dto.TaskInfoResponse;
 using TaskContentRequest = IngestTaskPlugin.Dto.TaskContentResponse;
 using TaskInfoRescheduledRequest = IngestTaskPlugin.Dto.Response.TaskInfoRescheduledResponse;
+using CooperantType = IngestTaskPlugin.Dto.CooperantType;
 
 namespace IngestTaskPlugin.Managers
 {
@@ -33,7 +36,7 @@ namespace IngestTaskPlugin.Managers
         protected IMapper _mapper { get; }
         private readonly ILogger Logger = LoggerManager.GetLogger("TaskInfo");
 
-        public async virtual Task<TResult> GetTaskMetadataAsync<TResult>( int taskid, int ntype)
+        public async virtual Task<TResult> GetTaskMetadataAsync<TResult>(int taskid, int ntype)
         {
             var f = await Store.GetTaskMetaDataAsync(a => a.Where(b => b.Taskid == taskid && b.Metadatatype == ntype), true);
             return _mapper.Map<TResult>(f);
@@ -41,7 +44,7 @@ namespace IngestTaskPlugin.Managers
 
         public async virtual Task<List<TResult>> GetTaskMetadataListAsync<TResult>(List<int> taskid)
         {
-            var f = await Store.GetTaskMetaDataListAsync(a  => a.Where(b => taskid.Contains(b.Taskid)), true);
+            var f = await Store.GetTaskMetaDataListAsync(a => a.Where(b => taskid.Contains(b.Taskid)), true);
             return _mapper.Map<List<TResult>>(f);
         }
 
@@ -65,7 +68,7 @@ namespace IngestTaskPlugin.Managers
         }
         public string ConverTaskContentMetaString(TaskContentMetaResponse re)
         {
-           var par = new XElement("PARAMS");
+            var par = new XElement("PARAMS");
             foreach (var item in re.PeriodParam.Params)
             {
                 par.Add(new XElement("DAY", item));
@@ -85,7 +88,7 @@ namespace IngestTaskPlugin.Managers
                  new XElement("TCMODE", re.TcMode),
                  new XElement("ClipSum", re.ClipSum),
                  new XElement("TransState", re.TransState),
-                 new XElement("PERIODPARAM", 
+                 new XElement("PERIODPARAM",
                     new XElement("BEGINDATE", re.PeriodParam.BeginDate),
                     new XElement("ENDDATE", re.PeriodParam.EndDate),
                     new XElement("APPDATE", re.PeriodParam.AppDate),
@@ -125,7 +128,7 @@ namespace IngestTaskPlugin.Managers
         {
             var f = await Store.GetTaskMetaDataAsync(a => a
             .Where(b => b.Taskid == taskid && b.Metadatatype == (int)MetaDataType.emStoreMetaData)
-            .Select(x=>x.Metadatalong), true);
+            .Select(x => x.Metadatalong), true);
 
             try
             {
@@ -267,7 +270,7 @@ namespace IngestTaskPlugin.Managers
         {
             DateTime now = DateTime.Now;
             return await Store.GetTaskAsync(a => a.Where(b => b.Channelid == channelid &&
-            b.Tasktype == (int)TaskType.TT_TIEUP && (b.Starttime <= now && b.Endtime >= now)).Select(f =>f.Taskid), true);
+            b.Tasktype == (int)TaskType.TT_TIEUP && (b.Starttime <= now && b.Endtime >= now)).Select(f => f.Taskid), true);
         }
 
         public async Task<List<T>> GetAutoManuConflict<T>(int channel)
@@ -537,13 +540,17 @@ namespace IngestTaskPlugin.Managers
                 switch (type)
                 {
                     case (int)MetaDataType.emStoreMetaData:
-                        { material = root.Element("MATERIAL"); } break;
+                        { material = root.Element("MATERIAL"); }
+                        break;
                     case (int)MetaDataType.emContentMetaData:
-                        { material = root.Element("TaskContentMetaData"); } break;
+                        { material = root.Element("TaskContentMetaData"); }
+                        break;
                     case (int)MetaDataType.emPlanMetaData:
-                        { material = root.Element("Planning"); } break;
+                        { material = root.Element("Planning"); }
+                        break;
                     case (int)MetaDataType.emSplitData:
-                        { material = root.Element("SplitMetaData"); } break;
+                        { material = root.Element("SplitMetaData"); }
+                        break;
                     default:
                         break;
                 }
@@ -1228,7 +1235,7 @@ namespace IngestTaskPlugin.Managers
                     TimeSpan ts = taskinfo.Endtime - taskinfo.Starttime;
                     taskinfo.Starttime = dtNow;
                     taskinfo.NewBegintime = dtNow;
-                    
+
                     if (await Store.AdjustVtrUploadTasksByChannelId(taskinfo.Channelid.GetValueOrDefault(), taskinfo.Taskid, dtNow))
                     {
                         taskinfo.Endtime = dtNow.Add(ts);
@@ -1405,7 +1412,7 @@ namespace IngestTaskPlugin.Managers
 
         public async Task<List<int>> StopGroupTaskAsync(int taskid)
         {
-            var f = await Store.GetTaskMetaDataAsync(a => a.Where(b => b.Taskid == taskid && b.Metadatatype ==(int)MetaDataType.emContentMetaData));
+            var f = await Store.GetTaskMetaDataAsync(a => a.Where(b => b.Taskid == taskid && b.Metadatatype == (int)MetaDataType.emContentMetaData));
 
             try
             {
@@ -1466,14 +1473,14 @@ namespace IngestTaskPlugin.Managers
 
         public async Task<List<TResult>> GetAllChannelCapturingTask<TResult>()
         {
-            return _mapper.Map<List<TResult>>(await Store.GetTaskListAsync(a => a.Where( b => b.State == (int)taskState.tsExecuting || b.State == (int)taskState.tsManuexecuting), true));
-            
+            return _mapper.Map<List<TResult>>(await Store.GetTaskListAsync(a => a.Where(b => b.State == (int)taskState.tsExecuting || b.State == (int)taskState.tsManuexecuting), true));
+
         }
 
         public async Task<TResult> GetChannelCapturingTask<TResult>(int channelid)
         {
-            return _mapper.Map<TResult>(await Store.GetTaskAsync(a => 
-            a.Where(b =>b.Channelid == channelid && (b.State == (int)taskState.tsExecuting || b.State == (int)taskState.tsManuexecuting)), true));
+            return _mapper.Map<TResult>(await Store.GetTaskAsync(a =>
+            a.Where(b => b.Channelid == channelid && (b.State == (int)taskState.tsExecuting || b.State == (int)taskState.tsManuexecuting)), true));
         }
 
         public async Task<TaskContentResponse> ModifyTask<TResult>(TResult task, string CaptureMeta, string ContentMeta, string MatiralMeta, string PlanningMeta)
@@ -1508,8 +1515,12 @@ namespace IngestTaskPlugin.Managers
                 var _globalinterface = ApplicationContext.Current.ServiceProvider.GetRequiredService<IIngestDeviceInterface>();
                 if (_globalinterface != null)
                 {
-                    DeviceInternals re = new DeviceInternals() { funtype = IngestDBCore.DeviceInternals.FunctionType.ChannelInfoBySrc,
-                        SrcId = taskModify.SignalID, Status = 1 };
+                    DeviceInternals re = new DeviceInternals()
+                    {
+                        funtype = IngestDBCore.DeviceInternals.FunctionType.ChannelInfoBySrc,
+                        SrcId = taskModify.SignalID,
+                        Status = 1
+                    };
 
                     var response1 = await _globalinterface.GetDeviceCallBack(re);
                     if (response1.Code != ResponseCodeDefines.SuccessCode)
@@ -1546,7 +1557,7 @@ namespace IngestTaskPlugin.Managers
                 if (vtrtask == null)
                 {
                     await Store.UnLockTask(findtask.Taskid);
-                    SobeyRecException.ThrowSelfOneParam("ModifyTask vtrtask empty", GlobalDictionary.GLOBALDICT_CODE_CAN_NOT_FIND_THE_TASK_ONEPARAM,  Logger, findtask.Taskid, null);
+                    SobeyRecException.ThrowSelfOneParam("ModifyTask vtrtask empty", GlobalDictionary.GLOBALDICT_CODE_CAN_NOT_FIND_THE_TASK_ONEPARAM, Logger, findtask.Taskid, null);
                 }
 
                 VTRTimePeriods vtrFreeTimePeriods = new VTRTimePeriods(vtrtask.Vtrid.GetValueOrDefault());
@@ -1607,7 +1618,7 @@ namespace IngestTaskPlugin.Managers
                     }
 
                     List<int> chl = new List<int>() { taskModify.ChannelID };
-                    
+
                     DateTime dtTmpModiStart = new DateTime(findtask.Starttime.Year, findtask.Starttime.Month, findtask.Starttime.Day,
                             modifybegin.Hour, modifybegin.Minute, modifybegin.Second);
                     DateTime dtTmpModiEnd = new DateTime(findtask.Endtime.Year, findtask.Endtime.Month, findtask.Endtime.Day,
@@ -1619,14 +1630,14 @@ namespace IngestTaskPlugin.Managers
                     if (freelst == null || freelst.Count < 1)
                     {
                         await Store.UnLockTask(findtask.Taskid);
-                        SobeyRecException.ThrowSelfOneParam("ModifyTask GetFreePerodiChannels1 empty", 
+                        SobeyRecException.ThrowSelfOneParam("ModifyTask GetFreePerodiChannels1 empty",
                             GlobalDictionary.GLOBALDICT_CODE_CAN_NOT_MODIFY_TIME_CONFLICT_TASKS_ONEPARAM, Logger, taskModify.TaskID, null);
 
                     }
                 }
                 else
                 {
-                    
+
                     if (modifyend - modifybegin > new TimeSpan(0, 23, 59, 59))
                     {
                         await Store.UnLockTask(findtask.Taskid);
@@ -1654,7 +1665,7 @@ namespace IngestTaskPlugin.Managers
             findtask.Channelid = taskModify.ChannelID;
             findtask.Signalid = taskModify.SignalID;
 
-           
+
             //对于周期任务，不允许改变任务日期
             if (findtask.Tasktype == (int)TaskType.TT_PERIODIC && findtask.OldChannelid <= 0)
             {
@@ -1902,14 +1913,14 @@ namespace IngestTaskPlugin.Managers
             TaskCondition condition = new TaskCondition();
             var lst = await Store.GetTaskListAsync(c => c.Where(f => f.State == (int)syncState.ssSync
             && f.DispatchState == (int)dispatchState.dpsNotDispatch
-            && (f.State!= (int)taskState.tsDelete && f.State != (int)taskState.tsConflict && f.State != (int)taskState.tsInvaild)
-            && (f.Starttime > DateTime.Now.AddHours(-24) && f.Starttime < DateTime.Now.AddHours(1)) ));
+            && (f.State != (int)taskState.tsDelete && f.State != (int)taskState.tsConflict && f.State != (int)taskState.tsInvaild)
+            && (f.Starttime > DateTime.Now.AddHours(-24) && f.Starttime < DateTime.Now.AddHours(1))));
 
-            
-            if (lst!= null && lst.Count > 0)
+
+            if (lst != null && lst.Count > 0)
             {
                 string log = string.Empty;
-                lst.ForEach(a => { a.SyncState = (int)syncState.ssNot; a.DispatchState = (int)dispatchState.dpsDisabled; a.Tasklock = string.Empty; log += ","+a.Taskid; });
+                lst.ForEach(a => { a.SyncState = (int)syncState.ssNot; a.DispatchState = (int)dispatchState.dpsDisabled; a.Tasklock = string.Empty; log += "," + a.Taskid; });
 
                 Logger.Info("UpdateComingTasks {0} ", string.Join(",", log));
 
@@ -1941,7 +1952,7 @@ namespace IngestTaskPlugin.Managers
                 TimeSpan tsDuration = new TimeSpan();
                 if (vtrtask.Vtrtaskid > 0)//入点加长度
                 {
-                    tsDuration = new TimeSpan(0, 0, vtrtask.Trimoutctl.GetValueOrDefault()/vtrtask.Vtrtaskid.GetValueOrDefault());
+                    tsDuration = new TimeSpan(0, 0, vtrtask.Trimoutctl.GetValueOrDefault() / vtrtask.Vtrtaskid.GetValueOrDefault());
                 }
                 else
                 {
@@ -1954,7 +1965,7 @@ namespace IngestTaskPlugin.Managers
 
                 vtrTimePeriods.Periods.Add(new TimePeriod(vtrId, beginTime, endTime));
             }
-            
+
             //查询计划任务，开始时间和结束时间，还未执行的
             List<TimePeriod> scheduleTPs = await Store.GetTimePeriodsByScheduleVBUTasks(vtrId, exTaskId);
             if (scheduleTPs != null && scheduleTPs.Count > 0)
@@ -2049,7 +2060,7 @@ namespace IngestTaskPlugin.Managers
                 if (_globalinterface != null)
                 {
                     // 获得备份信号源信息
-                    DeviceInternals re = new DeviceInternals() { funtype = IngestDBCore.DeviceInternals.FunctionType.BackSignalByID, SrcId = taskinfo.TaskContent.SignalID};
+                    DeviceInternals re = new DeviceInternals() { funtype = IngestDBCore.DeviceInternals.FunctionType.BackSignalByID, SrcId = taskinfo.TaskContent.SignalID };
                     var response1 = await _globalinterface.GetDeviceCallBack(re);
                     if (response1.Code != ResponseCodeDefines.SuccessCode)
                     {
@@ -2122,7 +2133,7 @@ namespace IngestTaskPlugin.Managers
                     }
                     ContentMeta = mroot.ToString();
                 }
-                
+
             }
 
             if (taskinfo.TaskContent.TaskType == TaskType.TT_MANUTASK)
@@ -2298,7 +2309,7 @@ namespace IngestTaskPlugin.Managers
             return null;
         }
 
-        public async Task<TaskContentResponse> AddTaskWithoutPolicy<TResult>(TResult info,string CaptureMeta, string ContentMeta, string MatiralMeta, string PlanningMeta)
+        public async Task<TaskContentResponse> AddTaskWithoutPolicy<TResult>(TResult info, string CaptureMeta, string ContentMeta, string MatiralMeta, string PlanningMeta)
         {
             var taskinfo = _mapper.Map<TaskInfoRequest>(info);
             if (taskinfo.TaskContent.TaskType == TaskType.TT_MANUTASK)
@@ -2316,12 +2327,13 @@ namespace IngestTaskPlugin.Managers
                     var fr = response1 as ResponseMessage<int>;
                     taskinfo.TaskContent.Unit = fr.Ext;
 
-                    var lst = await Store.GetTaskListAsync(new TaskCondition() {
+                    var lst = await Store.GetTaskListAsync(new TaskCondition()
+                    {
                         StateIncludeLst = new List<int>() { ((int)taskState.tsReady), },
                         MaxBeginTime = DateTime.Now,
                         MinEndTime = DateTime.Now,
                         ChannelID = taskinfo.TaskContent.ChannelID,
-                        TaskTypeIncludeLst = new List<int>() { ((int)TaskType.TT_TIEUP)}
+                        TaskTypeIncludeLst = new List<int>() { ((int)TaskType.TT_TIEUP) }
                     }, true, false);
                     if (lst != null && lst.Count > 0)
                     {
@@ -2346,10 +2358,10 @@ namespace IngestTaskPlugin.Managers
                             dest.Tasklock = string.Empty;
                             dest.Taskid = -1;
                         })), true, TaskSource.emMSVUploadTask,
-                        string.IsNullOrEmpty(ContentMeta) ? taskinfo.CaptureMeta:CaptureMeta, 
-                        string.IsNullOrEmpty(ContentMeta)?ConverTaskContentMetaString(taskinfo.ContentMeta): ContentMeta,
-                        string.IsNullOrEmpty(MatiralMeta)?ConverTaskMaterialMetaString(taskinfo.MaterialMeta): MatiralMeta,
-                        string.IsNullOrEmpty(PlanningMeta)?ConverTaskPlanningMetaString(taskinfo.PlanningMeta):PlanningMeta,
+                        string.IsNullOrEmpty(ContentMeta) ? taskinfo.CaptureMeta : CaptureMeta,
+                        string.IsNullOrEmpty(ContentMeta) ? ConverTaskContentMetaString(taskinfo.ContentMeta) : ContentMeta,
+                        string.IsNullOrEmpty(MatiralMeta) ? ConverTaskMaterialMetaString(taskinfo.MaterialMeta) : MatiralMeta,
+                        string.IsNullOrEmpty(PlanningMeta) ? ConverTaskPlanningMetaString(taskinfo.PlanningMeta) : PlanningMeta,
                         null);
                     }
                 }
@@ -2404,7 +2416,7 @@ namespace IngestTaskPlugin.Managers
                 int nSelCH = -1;
                 if (taskinfo.TaskContent.TaskType != TaskType.TT_PERIODIC)
                 {
-                    
+
                     nSelCH = await CHSelectForNormalTask(taskinfo.TaskContent, condition);
                 }
                 else
@@ -2433,21 +2445,22 @@ namespace IngestTaskPlugin.Managers
                     var _globalinterface = ApplicationContext.Current.ServiceProvider.GetRequiredService<IIngestDeviceInterface>();
                     if (_globalinterface != null)
                     {
-                        DeviceInternals re = new DeviceInternals() { funtype = IngestDBCore.DeviceInternals.FunctionType.SingnalInfoByChannel, ChannelId= taskinfo.TaskContent.ChannelID};
+                        DeviceInternals re = new DeviceInternals() { funtype = IngestDBCore.DeviceInternals.FunctionType.SingnalInfoByChannel, ChannelId = taskinfo.TaskContent.ChannelID };
                         var response1 = await _globalinterface.GetDeviceCallBack(re);
                         if (response1.Code != ResponseCodeDefines.SuccessCode)
                         {
                             Logger.Error("AddTaskWithoutPolicy ChannelInfoBySrc error");
                             return null;
                         }
-                        var fr= response1 as ResponseMessage<int>;
+                        var fr = response1 as ResponseMessage<int>;
                         taskinfo.TaskContent.SignalID = fr.Ext;
                     }
-                        
+
                 }
 
                 var back = await Store.AddTaskWithPolicys(_mapper.Map<TaskContentResponse, DbpTask>(taskinfo.TaskContent, opt =>
-                opt.AfterMap((src, dest) => {
+                opt.AfterMap((src, dest) =>
+                {
                     dest.OpType = (int)opType.otAdd;
                     dest.DispatchState = (int)dispatchState.dpsNotDispatch;
                     dest.State = (int)taskState.tsReady;
@@ -2599,7 +2612,7 @@ namespace IngestTaskPlugin.Managers
             var _globalinterface = ApplicationContext.Current.ServiceProvider.GetRequiredService<IIngestDeviceInterface>();
             if (_globalinterface != null)
             {
-                DeviceInternals re = new DeviceInternals() { funtype = IngestDBCore.DeviceInternals.FunctionType.ChannelInfoBySrc, SrcId = SignalID, Status = condition.CheckCHCurState?1:0};
+                DeviceInternals re = new DeviceInternals() { funtype = IngestDBCore.DeviceInternals.FunctionType.ChannelInfoBySrc, SrcId = SignalID, Status = condition.CheckCHCurState ? 1 : 0 };
                 var response1 = await _globalinterface.GetDeviceCallBack(re);
                 if (response1.Code != ResponseCodeDefines.SuccessCode)
                 {
@@ -2615,11 +2628,38 @@ namespace IngestTaskPlugin.Managers
                     fresponse.Ext.RemoveAll(x => ChID != x.ID && (x.BackState == BackupFlagInterface.emAllowBackUp && ChID != -1));
 
                     /// 如果存在onlybackup属性的通道，优先考虑
-                    return fresponse.Ext.OrderByDescending(x => x.BackState).Select(y =>y.ID).ToList();/// 如果存在onlybackup属性的通道，优先考虑
+                    return fresponse.Ext.OrderByDescending(x => x.BackState).Select(y => y.ID).ToList();/// 如果存在onlybackup属性的通道，优先考虑
                 }
             }
 
             return null;
         }
+
+
+        public async Task<List<TaskContent>> GetWillBeginAndCapturingTasksAsync()
+        {
+            List<TaskContent> capturingTasks = await GetAllChannelCapturingTask<TaskContent>();//获得所有通道正在采集的任务.
+            List<TaskContent> willBeginTasks = await GetWillBeginTasksInLast2Hours<TaskContent>();
+            capturingTasks.AddRange(willBeginTasks);
+            return capturingTasks;
+        }
+
+        private async Task<List<TSource>> GetWillBeginTasksInLast2Hours<TSource>()
+        {
+            var tasks = await Store.GetTaskListAsync(a => a.Where(x => x.State == (int)taskState.tsReady && x.NewBegintime > DateTime.Now && x.NewBegintime < DateTime.Now.AddHours(2))
+                                                           .GroupBy(x => x.Channelid), true);
+            if (tasks.Count > 0)
+            {
+                return _mapper.Map<List<TSource>>(tasks.Select(a => a.MaxItem(x => x.Starttime)));
+            }
+            return new List<TSource>();
+        }
+
+        public async Task<List<TSource>> GetCurrentTasksAsync<TSource>()
+        {
+            return _mapper.Map<List<TSource>>(await Store.GetTaskListAsync(
+                a => a.Where(x => x.State == (int)taskState.tsReady && x.NewBegintime < DateTime.MaxValue && x.NewEndtime > DateTime.Now), true));
+        }
+
     }
 }

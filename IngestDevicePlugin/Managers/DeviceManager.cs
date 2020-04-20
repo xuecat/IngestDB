@@ -4,14 +4,20 @@ using System.Linq;
 using System.Threading.Tasks;
 using AutoMapper;
 using IngestDBCore;
+using IngestDBCore.Interface;
 using IngestDevicePlugin.Dto;
+using IngestDevicePlugin.Dto.Enum;
+using IngestDevicePlugin.Dto.Response;
+using IngestDevicePlugin.Extend;
 using IngestDevicePlugin.Models;
 using IngestDevicePlugin.Stores;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.DependencyInjection;
 using Remotion.Linq.Parsing;
 using Sobey.Core.Log;
+using taskState = IngestDevicePlugin.Dto.Enum.taskState;
 
-namespace IngestTaskPlugin.Managers
+namespace IngestDevicePlugin.Managers
 {
     public class DeviceManager
     {
@@ -36,33 +42,34 @@ namespace IngestTaskPlugin.Managers
         /// <summary>可更新 MSV模式 集合</summary>
         private readonly int[] UpdateMSV_Mode = { (int)MSV_Mode.LOCAL, (int)MSV_Mode.NETWORK };
 
-        /// <summary>根据 ProgrammeType 获取 SignalSource</summary>
-        private async Task UpdateSignalSourceForProgramme(List<ProgrammeInfo> infos)
+        /// <summary>获取信号源</summary>
+        private async Task MapSignalSourceForProgramme(List<ProgrammeInfo> infos)
         {
             foreach (var info in infos)
             {
-                switch (info.emPgmType)
-                {
-                    case ProgrammeType.PT_SDI:
-                        var inport = await Store.GetRcdindescAsync(async a => await a.FirstOrDefaultAsync(x => x.Signalsrcid == info.ProgrammeId), true);
-                        if (inport != null)
-                        {
-                            info.emSignalSourceType = (emSignalSource)inport.Signalsource;
-                        }
-                        break;
-
-                    case ProgrammeType.PT_IPTS:
-                        info.emSignalSourceType = emSignalSource.emIPTS;
-                        break;
-
-                    case ProgrammeType.PT_StreamMedia:
-                        info.emSignalSourceType = emSignalSource.emStreamMedia;
-                        break;
-
-                    default:
-                        break;
-                }
+                MapSignalSourceForProgramme(info);
             }
+        }
+        /// <summary>获取信号源</summary>
+        private async Task MapSignalSourceForProgramme(ProgrammeInfo info)
+        {
+            switch (info.emPgmType)
+            {
+                case ProgrammeType.PT_SDI:
+                    var inport = await Store.GetRcdindescAsync(async a => await a.FirstOrDefaultAsync(x => x.Signalsrcid == info.ProgrammeId), true);
+                    if (inport != null)
+                    {
+                        info.emSignalSourceType = (emSignalSource)inport.Signalsource;
+                    }
+                    return;
+                case ProgrammeType.PT_IPTS:
+                    info.emSignalSourceType = emSignalSource.emIPTS;
+                    return;
+                case ProgrammeType.PT_StreamMedia:
+                    info.emSignalSourceType = emSignalSource.emStreamMedia;
+                    return;
+            }
+
         }
 
         #endregion Private
@@ -88,9 +95,7 @@ namespace IngestTaskPlugin.Managers
         /// <summary> 获取所有信号源 </summary>
         public virtual async Task<List<SignalSrcInfo>> GetAllSignalSrcsAsync()
         {
-            //获取输入端口信号源的id
-            var allRcdindesc = await Store.GetRcdindescAsync(a => a.Select(x => x.Signalsrcid), true);
-            return _mapper.Map<List<SignalSrcInfo>>(await Store.GetSignalsrcAsync(a => a.Where(x => allRcdindesc.Contains(x.Signalsrcid)), true));
+            return _mapper.Map<List<SignalSrcInfo>>(await Store.GetAllSignalsrcForRcdinAsync(true));
         }
 
         /// <summary> 获取所有信号源的扩展信息 </summary>
@@ -234,7 +239,7 @@ namespace IngestTaskPlugin.Managers
         /// <param name="nDeviceOutPortIdx">设备输出端口索引</param>
         /// <param name="SignalSource">信号源</param>
         /// <returns></returns>
-        public virtual async Task SaveSignalDeviceMapAsync(int nSignalID, int nDeviceID, int nDeviceOutPortIdx, emSignalSource SignalSource)
+        public virtual async Task<bool> SaveSignalDeviceMapAsync(int nSignalID, int nDeviceID, int nDeviceOutPortIdx, emSignalSource SignalSource)
         {
             await Store.SaveSignalDeviceMapAsync(new IngestDevicePlugin.Models.DbpSignalDeviceMap
             {
@@ -243,13 +248,21 @@ namespace IngestTaskPlugin.Managers
                 Deviceid = nDeviceID,
                 Deviceoutportidx = nDeviceOutPortIdx
             });
+            return true;
         }
 
-        /// <summary> 根据 信号ID 获取高清还是标清 nType:0标清,1高清 </summary>
-        public virtual async Task<int> GetParamTypeByChannleIDAsync(int nSignalID)
+        /// <summary> 根据 通道ID 获取高清还是标清 nType:0标清,1高清 </summary>
+        public virtual async Task<int> GetParamTypeByChannleIDAsync(int nChannelID)
         {
-            var nType = await Store.GetParamTypeByChannleIDAsync(nSignalID);
+            var nType = await Store.GetParamTypeByChannleIDAsync(nChannelID);
             return nType ?? -1;
+        }
+
+        /// <summary>根据信号源获取是高清还是标清</summary>
+        public virtual async Task<int> GetParamTypeBySignalIDAsync(int nSignalID)
+        {
+            var id = await Store.GetParamTypeBySignalIDAsync(nSignalID);
+            return id ?? -1;
         }
 
         /// <summary> 根据 通道ID 获取MSV设备状态信息 </summary>
@@ -277,16 +290,15 @@ namespace IngestTaskPlugin.Managers
         }
 
         /// <summary> 通过 GPIID 找出该GPI所有的映射 </summary>
-        public virtual async Task<List<GPIDeviceMapInfo>> GetGPIMapInfoByGPIIDAsync(int nGPIID)
+        public virtual async Task<List<TResult>> GetGPIMapInfoByGPIIDAsync<TResult>(int nGPIID)
         {
-            return _mapper.Map<List<GPIDeviceMapInfo>>(await Store.GetGPIMapInfoByGPIIDAsync(a => a.Where(x => x.Gpiid == nGPIID).OrderBy(x => x.Gpioutputport), true));
+            return _mapper.Map<List<TResult>>(await Store.GetGPIMapInfoByGPIIDAsync(a => a.Where(x => x.Gpiid == nGPIID).OrderBy(x => x.Gpioutputport), true));
         }
 
         /// <summary> 获取所有节目 </summary>
         public virtual async Task<List<ProgrammeInfo>> GetAllProgrammeInfosAsync()
         {
-            var signalsrcids = await Store.GetRcdindescAsync(a => a.Select(x => x.Signalsrcid), true);
-            var programmeInfos = _mapper.Map<List<ProgrammeInfo>>(await Store.GetSignalsrcAsync(a => a.Where(x => signalsrcids.Contains(x.Signalsrcid)), true));
+            var programmeInfos = _mapper.Map<List<ProgrammeInfo>>(await Store.GetAllSignalsrcForRcdinAsync(true));
 
             var inportDescInfos = await Store.GetRcdindescAsync(a => a, true);
             foreach (var info in programmeInfos)
@@ -324,20 +336,21 @@ namespace IngestTaskPlugin.Managers
             {
                 var signalIds = await Store.GetSignalIdsByChannelIdForNotMatrix(channelId);
                 var programmeInfoList = _mapper.Map<List<ProgrammeInfo>>(await Store.GetSignalsrcAsync(a => a.Where(x => signalIds.Contains(x.Signalsrcid)), true));
-                await UpdateSignalSourceForProgramme(programmeInfoList);
+                await MapSignalSourceForProgramme(programmeInfoList);
                 return programmeInfoList;
             }
+            else
             {
                 int signalId = 0;
                 if (channelInfo.nDeviceTypeID == (int)CaptureChannelType.emMsvChannel)
                 {
-                    signalId = await GetChannelSignalSrc(channelInfo.nID);
+                    signalId = await GetChannelSignalSrcAsync(channelInfo.nID);
                 }
                 return GetProgrammeInfoListMatrix(channelInfo, signalId, await GetAllProgrammeInfosAsync());
             }
         }
 
-        /// <summary>获取筛选条件</summary>
+        /// <summary>获取筛选结果</summary>
         private List<ProgrammeInfo> GetProgrammeInfoListMatrix(CaptureChannelInfo channelInfo, int signalId, IEnumerable<ProgrammeInfo> programmeInfos)
         {
             switch (channelInfo.nCPSignalType)
@@ -391,7 +404,7 @@ namespace IngestTaskPlugin.Managers
 
         /// <summary>根据 通道Id 获取 信号id</summary>
         /// <param name="channelid">通道Id</param>
-        public virtual async Task<int> GetChannelSignalSrc(int channelid)
+        public virtual async Task<int> GetChannelSignalSrcAsync(int channelid)
         {
             if (!await HaveMatrixAsync())
             {
@@ -419,21 +432,283 @@ namespace IngestTaskPlugin.Managers
                                                                     .FirstOrDefaultAsync(), true);
         }
 
+        public virtual async Task<int> GetBestChannelIdBySignalIDAsync(int signalID, string userCode)
+        {
+            var signalsrcs = await Store.GetAllSignalsrcForRcdinAsync(true);
+            if (signalsrcs == null && signalsrcs.Count <= 0)
+            {
+                return 0;
+            }
+            DateTime dtNow = DateTime.Now;
+            var _globalinterface = ApplicationContext.Current.ServiceProvider.GetRequiredService<IIngestTaskInterface>();
+            if (_globalinterface != null)
+            {
+                var channelIds = await GetUserHiddenChannels(userCode);     //获得该用户的隐藏通道
+                List<MSVChannelState> arrMsvChannelState =
+                    _mapper.Map<List<MSVChannelState>>(
+                        await Store.GetMsvchannelStateAsync(a => a, true)); //获得所有通道的状态，查看是否在做KAMATAKI任务
+                //获得所有采集通道
+                List<CaptureChannelInfo> captureChannels = await GetAllCaptureChannelsAsync();
+                //获得将要和正在执行的任务
+                TaskInternals reWillBeginAndCapturingTasks = new TaskInternals() { funtype = IngestDBCore.TaskInternals.FunctionType.WillBeginAndCapturingTasks };
+                var willResponse = await _globalinterface.GetTaskCallBack(reWillBeginAndCapturingTasks);
+                var taskContents = (willResponse as IngestDBCore.ResponseMessage<List<TaskContentInterface>>)?.Ext;
+
+                //获得当前任务
+                TaskInternals reCurrentTasks = new TaskInternals() { funtype = IngestDBCore.TaskInternals.FunctionType.CurrentTasks };
+                var currentResponse = await _globalinterface.GetTaskCallBack(reCurrentTasks);
+                var currentTasks = (currentResponse as IngestDBCore.ResponseMessage<List<TaskContentInterface>>)?.Ext;
+                var curIds = currentTasks?.Select(a => a.nChannelID).ToList();
+                //获得当前通道与信号源的映射
+                var channel2SignalSrcMaps = await Store.GetAllChannel2SignalSrcMapAsync();//获得当前通道与信号源的映射
+
+                var captureChannelInfos = captureChannels.Where(a => channelIds.Contains(a.nID) &&
+                                                                     arrMsvChannelState.Any(s => s.nChannelID == a.nID &&
+                                                                                                 s.emMSVMode == MSV_Mode.NETWORK &&
+                                                                                                 s.emDevState != Device_State.DISCONNECTTED &&
+                                                                                                 string.IsNullOrEmpty(s.kamatakiInfo)) &&
+                                                                                                 curIds.Contains(a.nID))
+                                                         .Select(a => new ChannelScore { Id = a.nID }).ToList();
+                if (captureChannelInfos.Count > 0)
+                    return 0;
+                foreach (var channel in captureChannelInfos)
+                {
+                    var bIsExist = false;
+                    var task = taskContents?.FirstOrDefault(t => t != null && t.nChannelID == channel.Id);
+                    if (task != null)
+                    {
+                        bIsExist = true;
+                        double totalSeconds = (task.strBegin.ToDateTime() - dtNow).TotalSeconds;
+                        if (totalSeconds <= 10)//最近10s钟要运行的任务，那么将分值设置为负值
+                        {
+                            channel.Score = -1;
+                        }
+                        if (totalSeconds > 2 * 60 * 60)//2个小时
+                        {
+                            totalSeconds = 2 * 60 * 60;
+                        }
+                        channel.Score = totalSeconds / 12;
+                    }
+                    if (!bIsExist)//没有查到，估计是2个小时外的
+                    {
+                        channel.Score = 600;
+                    }
+                    bIsExist = false;
+                }
+            }
+
+        }
+
+        //获得通道的最后被分配的时间
+        private DateTime GetChannelLastOperTime(int channelID, out string lastUserCode)
+        {
+            DateTime lastOperTime = DateTime.MinValue;
+            //lastUserCode = string.Empty;
+
+            //DevicesSet.DBP_CHANNEL_DISTRIBUTIONIFNORow row = ds4ChannelDistributionInfo.DBP_CHANNEL_DISTRIBUTIONIFNO.FindByCHANNELID((decimal)channelID);
+
+            //if (row != null)
+            //{
+            //    lastOperTime = row.IsLASTOPERTIMENull() ? DateTime.MinValue : row.LASTOPERTIME;
+            //    lastUserCode = row.IsLASTUSERCODENull() ? string.Empty : row.LASTUSERCODE;
+            //}
+
+            return lastOperTime;
+        }
+
+        private async Task<List<int>> GetUserHiddenChannels(string userCode)
+        {
+            try
+            {
+                var userSetting = await Store.GetUserSettingAsync(a => a.SingleOrDefaultAsync(x => x.Usercode == userCode && x.Settingtype == "USER_HIDDEN_CHANNELS"), true);
+                string settingText = "";
+                if (userSetting != null)
+                {
+                    settingText = !string.IsNullOrWhiteSpace(userSetting.Settingtext) ? userSetting.Settingtext : userSetting.Settingtextlong;
+                }
+                var userHiddenChannels = settingText.Split('|');
+                return userHiddenChannels.Where(a => !string.IsNullOrWhiteSpace(a)).Select(a => a.ToInt32()).ToList();
+            }
+            catch (Exception ex)
+            {
+                SobeyRecException.ThrowSelfNoParam(nameof(GetUserHiddenChannels), GlobalDictionary.GLOBALDICT_CODE_FILL_USER_GETUSERSETTING_EXCEPTION, Logger, ex);
+                throw ex;
+            }
+        }
+
+        public virtual async Task<int> GetBestPreviewChnForSignalAsync(int nSignalID)
+        {
+            var signalSrcInfos = _mapper.Map<List<SignalSrcInfo>>(await Store.GetAllSignalsrcForRcdinAsync(true));
+
+            if (signalSrcInfos == null || signalSrcInfos.Count <= 0)
+            {
+                return 0;
+            }
+
+            var captureChannels = await GetChannelsByProgrammeIdAsync<CaptureChannelInfo>(nSignalID);//获得所有采集通道
+            //获得所有通道的状态，查看是否在做KAMATAKI任务
+            var arrMsvChannelState = await GetAllChannelStateAsync();
+            var channel2SignalSrcMaps = await Store.GetAllChannel2SignalSrcMapAsync();//获得当前通道与信号源的映射
+
+            var ids = captureChannels.Select(a => a.nID).ToList();
+            var map = channel2SignalSrcMaps.FirstOrDefault(a => ids.Contains(a.nChannelID) &&
+                                                      a.nSignalSrcID == nSignalID &&
+                                                      a.state == Channel2SignalSrc_State.emConnection);
+            if (map != null)
+            {
+                return map.nChannelID;
+            }
+
+            var _globalinterface = ApplicationContext.Current.ServiceProvider.GetRequiredService<IIngestTaskInterface>();
+            if (_globalinterface != null)
+            {
+                TaskInternals re = new TaskInternals() { funtype = IngestDBCore.TaskInternals.FunctionType.WillBeginAndCapturingTasks };
+                var taskResponse = await _globalinterface.GetTaskCallBack(re);
+                var taskContents = (taskResponse as IngestDBCore.ResponseMessage<List<TaskContentInterface>>).Ext;
+
+                var tempList = captureChannels.Where(a => a.nDeviceTypeID == (int)CaptureChannelType.emMsvChannel &&
+                                              IsDeviceOk(a.nID, arrMsvChannelState) &&
+                                            taskContents.Any(x => x.emState == IngestDBCore.taskState.tsExecuting && x.nChannelID == a.nID))
+                               .Select(a => new ChannelScore { Id = a.nID }).ToList();
+
+                if (tempList.Count <= 0)
+                    return 0;
+                foreach (var item in tempList)
+                {
+                    var bIsExist = false;
+                    var tasks = taskContents.Where(t => t != null && t.nChannelID == item.Id && t.nSignalID != nSignalID).ToList();
+                    if (tasks != null && tasks.Count > 0)
+                    {
+                        tasks.ForEach(t =>
+                        {
+                            item.Score = (t.strBegin.ToDateTime() - DateTime.Now).TotalSeconds;
+                        });
+                    }
+                    else
+                    {
+                        item.Score = -1;
+                    }
+                }
+                var resList = tempList.OrderByDescending(a => a.Score).ToList();
+                //返回得分最低的
+                if (resList != null && resList.Count > 0)
+                {
+                    return resList[0].Id;
+                }
+            }
+            return 0;
+        }
+
+        private bool IsDeviceOk(int channelId, List<MSVChannelState> arrMsvChannelState)
+        {
+            if (arrMsvChannelState == null || arrMsvChannelState.Count <= 0)
+            {
+                return false;
+            }
+
+            return arrMsvChannelState.Any(s => s.nChannelID == channelId && s.emMSVMode == MSV_Mode.NETWORK && s.emDevState != Device_State.DISCONNECTTED);
+        }
+
+        private bool IsHaveCapturingTask(int channelId, List<TaskContent> capturingTasks)
+        {
+            if (capturingTasks != null)
+            {
+                foreach (TaskContent task in capturingTasks)
+                {
+                    if (task.nChannelID == channelId
+                        && task.emState == taskState.tsExecuting)
+                    {
+                        return true;
+                    }
+                }
+            }
+
+            return false;
+        }
+
+        public async Task<List<TResult>> GetAllGPIInfoAsync<TResult>()
+        {
+            return _mapper.Map<List<TResult>>(await Store.GetGPIInfoAsync(a => a, true));
+        }
+
+
+        public async Task<int> GetSignalCaptureTemplateAsync(int nSignalID)
+        {
+            return (await Store.GetProgramparamMapAsync(a => a.Where(x => x.Programid == nSignalID).Select(x => x.Paramid).SingleOrDefaultAsync(), true)).ToInt32();
+        }
+
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <remarks>旧名称GetChannelsByProgrammeId</remarks>
+        /// <param name="programmeId"></param>
+        /// <returns></returns>
+        public async Task<List<TResult>> GetChannelsByProgrammeIdAsync<TResult>(int programmeId)
+        {
+            var programme = _mapper.Map<ProgrammeInfo>(await Store.GetSignalsrcAsync(a => a.SingleOrDefaultAsync(x => programmeId == x.Signalsrcid), true));
+            var channelInfos = await GetAllCaptureChannelsAsync();
+
+            // TODO: 获取所对应的分组ID
+            int nGroupId = await Store.GetSignalsrcgroupmapAsync(async a => await a.Where(x => x.Signalsrcid == programmeId)
+                                                                                   .Select(x => x.Groupid)
+                                                                                   .FirstOrDefaultAsync(), true);
+
+            Func<CaptureChannelInfo, bool> groupWhere = a => true;
+            if (nGroupId != -1)
+            {
+                // 有分组，则排除分组不同的通道，只保留同组的通道和无分组信息的通道
+                groupWhere = a => a.nGroupID != -1 && a.nGroupID != nGroupId;
+            }
+            Func<CaptureChannelInfo, bool> emWhere;
+            //判断是否是无矩阵
+            bool isHaveMatrix = await HaveMatrixAsync();
+            List<int> channelIds = await Store.GetChannelIdsBySignalIdForNotMatrix(programmeId);
+            switch (programme.emPgmType)//类型匹配
+            {
+                case ProgrammeType.PT_SDI:
+                    emWhere = a => (a.nDeviceTypeID == (int)CaptureChannelType.emMsvChannel) && (isHaveMatrix || channelIds.Contains(a.nID));
+                    break;
+                case ProgrammeType.PT_IPTS:
+                    emWhere = a => a.nDeviceTypeID == (int)CaptureChannelType.emIPTSChannel;
+                    break;
+                case ProgrammeType.PT_StreamMedia:
+                    emWhere = a => a.nDeviceTypeID == (int)CaptureChannelType.emIPTSChannel;
+                    break;
+                default:
+                    emWhere = a => false;
+                    break;
+            }
+            Func<CaptureChannelInfo, bool> typeIdwhere;
+            switch (programme.TypeId)
+            {
+                case 0:
+                    typeIdwhere = a => a.nCPSignalType != 2;
+                    break;
+                case 1:
+                    typeIdwhere = a => a.nCPSignalType != 1;
+                    break;
+                default:
+                    typeIdwhere = a => true;
+                    break;
+            }
+            return _mapper.Map<List<TResult>>(channelInfos.Where(groupWhere).Where(emWhere).Where(typeIdwhere).ToList());
+        }
 
         public virtual async Task<bool> HaveMatrixAsync()
         {
             return await Store.HaveMatirxAsync();
         }
 
+
         #region Update
 
         /// <summary>保存 OR 更新 通道扩展信息</summary>
-        public virtual async Task<bool> SaveChnExtenddataAsync(UpdateChnExtData_IN pIn)
+        public virtual async Task<bool> SaveChnExtenddataAsync(int nChnID, int type, string data)
         {
-            if (pIn.strData == null)
-                pIn.strData = "";
-            pIn.strData = pIn.strData.Replace("\\", "\\\\");
-            return await Store.SaveChannelExtenddataAsync(pIn) > 0;
+            if (data == null)
+                data = "";
+            data = data.Replace("\\", "\\\\");
+            return await Store.SaveChannelExtenddataAsync(nChnID, type, data) > 0;
         }
 
         /// <summary>更改MSV设备状态信息</summary>
@@ -441,7 +716,7 @@ namespace IngestTaskPlugin.Managers
         /// <param name="nDevState">设备状态</param>
         /// <param name="nMSVMode">MSV模式</param>
         /// <returns></returns>
-        public virtual async Task UpdateMSVChannelStateAsync(int nID, int nDevState, int nMSVMode)
+        public virtual async Task<bool> UpdateMSVChannelStateAsync(int nID, int nDevState, int nMSVMode)
         {
             var state = await Store.GetMsvchannelStateAsync(async a => await a.FirstAsync(x => x.Channelid == nID));
             if (state != null)
@@ -454,12 +729,16 @@ namespace IngestTaskPlugin.Managers
                 {
                     state.Msvmode = nMSVMode;
                 }
-                await Store.UpdateMSVChannelStateAsync(state);
+                return await Store.UpdateMSVChannelStateAsync(state) > 0;
             }
             SobeyRecException.ThrowSelfNoParam(nameof(UpdateMSVChannelStateAsync), GlobalDictionary.GLOBALDICT_CODE_DATA_NOTFOUND_BYKEY, Logger, null);
+            return false;
         }
 
-
+        public virtual async Task<bool> ModifySourceVTRIDAndUserCodeAsync(int nSourceVTRID, string userCode, params int[] nID)
+        {
+            return (await Store.ModifySourceVTRIDAndUserCodeAsync(nSourceVTRID, userCode, nID)) > 0;
+        }
 
         /// <summary>更新所有的IP收录的设备</summary>
         public virtual async Task<bool> UpdateAllTSDeviceInfosAsync(TSDeviceInfo[] tsDeviceInfos)
@@ -497,26 +776,6 @@ namespace IngestTaskPlugin.Managers
             return await Store.GetSignalInfoAsync(programeid);
         }
 
-        //public async Task<int> GetChannelSignalSrc(int channelid)
-        //{
-        //    //判断是否是无矩阵
-        //    bool isHaveMatrix = await HaveMatrixAsync();
-        //    if (!isHaveMatrix)
-        //    {
-        //        var item = await Store.GetCaptureChannelByIDAsync(channelid);
-        //        if (item != null && item.DeviceTypeID == (int)CaptureChannelType.emMsvChannel)
-        //        {
-        //            return (await Store.GetSignalIdsByChannelIdForNotMatrix(channelid)).ElementAt(0);
-        //        }
-        //    }
-        //    else
-        //        return await Store.GetMatrixChannelBySignalAsync(channelid);
-
-        //    Logger.Error("GetChannelSignalSrc error getno");
-        //    return 0;
-        //}
-
-        //Todo :待确认
         public async virtual Task<List<TResult>> GetChannelsByProgrammeIdAsync<TResult>(int programmid, int state)
         {
             //判断是否是无矩阵

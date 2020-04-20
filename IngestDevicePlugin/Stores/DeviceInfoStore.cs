@@ -10,6 +10,8 @@ using Microsoft.EntityFrameworkCore;
 using ProgrammeInfoDto = IngestDevicePlugin.Dto.ProgrammeInfoResponse;
 using CaptureChannelInfoDto = IngestDevicePlugin.Dto.CaptureChannelInfoResponse;
 using IngestDBCore;
+using IngestDevicePlugin.Dto.Enum;
+using IngestDevicePlugin.Dto.Response;
 using Sobey.Core.Log;
 
 namespace IngestDevicePlugin.Stores
@@ -23,22 +25,8 @@ namespace IngestDevicePlugin.Stores
         private readonly ILogger Logger = LoggerManager.GetLogger("DeviceInfo");
         protected IngestDeviceDBContext Context { get; }
         #region Base
-        protected TResult GetFirstOrDefault<TDbp, TResult>(DbSet<TDbp> contextSet, Func<IQueryable<TDbp>, IQueryable<TResult>> query, bool notrack = false)
-            where TDbp : class
-        {
-            if (query == null)
-            {
-                throw new ArgumentNullException(nameof(query));
-            }
-            if (notrack)
-            {
-                return query(contextSet.AsNoTracking()).FirstOrDefault();
-            }
-            return query(contextSet).FirstOrDefault();
-        }
-
         /// <summary> 查询任意表集合返回 </summary>
-        protected async Task<List<TResult>> QueryListAsync<TDbp, TResult>(DbSet<TDbp> contextSet, Func<IQueryable<TDbp>, IQueryable<TResult>> query, bool notrack = false)
+        protected virtual async Task<List<TResult>> QueryListAsync<TDbp, TResult>(DbSet<TDbp> contextSet, Func<IQueryable<TDbp>, IQueryable<TResult>> query, bool notrack = false)
             where TDbp : class
         {
             if (query == null)
@@ -53,7 +41,7 @@ namespace IngestDevicePlugin.Stores
         }
 
         /// <summary> 查询任意值返回 </summary>
-        protected async Task<TResult> QueryModelAsync<TDbp, TResult>(DbSet<TDbp> contextSet, Func<IQueryable<TDbp>, Task<TResult>> query, bool notrack = false)
+        protected virtual async Task<TResult> QueryModelAsync<TDbp, TResult>(DbSet<TDbp> contextSet, Func<IQueryable<TDbp>, Task<TResult>> query, bool notrack = false)
              where TDbp : class
         {
             if (query == null)
@@ -194,47 +182,74 @@ namespace IngestDevicePlugin.Stores
             //              select src.Signalsrcid).SingleOrDefaultAsync();
         }
 
-        //public async Task<CaptureChannelInfoDto> GetCaptureChannelByIDAsync(int channelid)
-        //{
-        //    var lst = await (from channel in Context.DbpCapturechannels
-        //                     join device in Context.DbpCapturedevice on channel.Cpdeviceid equals device.Cpdeviceid into ps1
-        //                     join grp in Context.DbpChannelgroupmap on channel.Cpdeviceid equals grp.Channelid into ps3
-        //                     from p1 in ps1.DefaultIfEmpty()
-        //                     from p3 in ps3.DefaultIfEmpty()
-        //                     where channel.Channelid == channelid
-        //                     select new CaptureChannelInfoDto
-        //                     {
-        //                         ID = channel.Channelid,
-        //                         Name = channel.Channelname,
-        //                         Desc = channel.Channeldesc,
-        //                         CPDeviceID = channel.Cpdeviceid,
-        //                         ChannelIndex = channel.Channelindex ?? 0,
-        //                         DeviceTypeID = (int)CaptureChannelType.emMsvChannel,
-        //                         BackState = (emBackupFlag)channel.Backupflag,
-        //                         CPSignalType = channel.Cpsignaltype ?? 0,
-        //                         OrderCode = p1 != null ? p1.Ordercode.GetValueOrDefault() : -1,
-        //                         GroupID = p3 != null ? p3.Groupid : -1
-        //                     }).SingleOrDefaultAsync();
+        // TODO:待验证对象转换
+        public async Task<List<Channel2SignalSrcMap>> GetAllChannel2SignalSrcMapAsync()
+        {
+            return await Context.DbpRcdoutdesc.Join(Context.DbpVirtualmatrixportstate.Where(matrix => matrix.State == 1),
+                                                     rcdout => rcdout.Recoutidx,
+                                                     matrix => matrix.Virtualoutport,
+                                                     (rcdout, matrix) => new
+                                                     {
+                                                         matrix.Virtualoutport,
+                                                         rcdout.Channelid,
+                                                         matrix.State,
+                                                         matrix.Lastoprtime
+                                                     })
+                                               .Join(Context.DbpRcdindesc,
+                                                     join => join.Virtualoutport,
+                                                     rcdin => rcdin.Recinidx,
+                                                     (join, rcdin) => new Channel2SignalSrcMap
+                                                     {
+                                                         nSignalSrcID = rcdin.Signalsrcid,
+                                                         nChannelID = join.Channelid,
+                                                         state = (Channel2SignalSrc_State)join.State,
+                                                         lastOperTime = join.Lastoprtime
 
-        //    if (lst == null)
-        //    {
-        //        lst = await Context.DbpIpVirtualchannel.AsNoTracking().Where(x => x.Channelid == channelid).Select(x => new CaptureChannelInfoDto
-        //        {
-        //            ID = x.Channelid,
-        //            Name = x.Channelname,
-        //            Desc = x.Ipaddress,
-        //            CPDeviceID = x.Deviceid,
-        //            ChannelIndex = x.Ctrlport ?? 0,
-        //            DeviceTypeID = x.Channeltype ?? (int)CaptureChannelType.emMsvChannel,
-        //            BackState = (emBackupFlag)x.Backuptype.GetValueOrDefault(),
-        //            CarrierID = x.Carrierid ?? 0,
-        //            OrderCode = x.Deviceindex ?? -1,
-        //            CPSignalType = x.Cpsignaltype ?? 0
-        //        }).SingleOrDefaultAsync();
-        //    }
+                                                     })
+                                               .ToListAsync();
+        }
 
-        //    return lst;
-        //}
+        public async Task<CaptureChannelInfoDto> GetCaptureChannelByIDAsync(int channelid)
+        {
+            var lst = await (from channel in Context.DbpCapturechannels
+                             join device in Context.DbpCapturedevice on channel.Cpdeviceid equals device.Cpdeviceid into ps1
+                             join grp in Context.DbpChannelgroupmap on channel.Cpdeviceid equals grp.Channelid into ps3
+                             from p1 in ps1.DefaultIfEmpty()
+                             from p3 in ps3.DefaultIfEmpty()
+                             where channel.Channelid == channelid
+                             select new CaptureChannelInfoDto
+                             {
+                                 ID = channel.Channelid,
+                                 Name = channel.Channelname,
+                                 Desc = channel.Channeldesc,
+                                 CPDeviceID = channel.Cpdeviceid,
+                                 ChannelIndex = channel.Channelindex ?? 0,
+                                 DeviceTypeID = (int)CaptureChannelType.emMsvChannel,
+                                 BackState = (emBackupFlag)channel.Backupflag,
+                                 CPSignalType = channel.Cpsignaltype ?? 0,
+                                 OrderCode = p1 != null ? p1.Ordercode.GetValueOrDefault() : -1,
+                                 GroupID = p3 != null ? p3.Groupid : -1
+                             }).SingleOrDefaultAsync();
+
+            if (lst == null)
+            {
+                lst = await Context.DbpIpVirtualchannel.AsNoTracking().Where(x => x.Channelid == channelid).Select(x => new CaptureChannelInfoDto
+                {
+                    ID = x.Channelid,
+                    Name = x.Channelname,
+                    Desc = x.Ipaddress,
+                    CPDeviceID = x.Deviceid,
+                    ChannelIndex = x.Ctrlport ?? 0,
+                    DeviceTypeID = x.Channeltype ?? (int)CaptureChannelType.emMsvChannel,
+                    BackState = (emBackupFlag)x.Backuptype.GetValueOrDefault(),
+                    CarrierID = x.Carrierid ?? 0,
+                    OrderCode = x.Deviceindex ?? -1,
+                    CPSignalType = x.Cpsignaltype ?? 0
+                }).SingleOrDefaultAsync();
+            }
+
+            return lst;
+        }
 
         //老接口GetAllCaptureChannels
 
@@ -331,16 +346,6 @@ namespace IngestDevicePlugin.Stores
             return await Context.DbpChannelRecmap.Where(x => x.Channelid == channel).SingleAsync();
         }
 
-        public async Task<List<int>> GetChannelIdsBySignalIdForNotMatrix(int signalid)
-        {
-            return await Context.DbpRcdindesc.Join(Context.DbpRcdoutdesc,
-                rcin => rcin.Recinidx,
-                rcout => rcout.Recoutidx,
-                (rcin, rcout) => new { ID = rcin.Signalsrcid, Channel = rcout.Channelid })
-                .Where(x => x.ID == signalid).Select(f => f.Channel).ToListAsync();
-
-        }
-
         #endregion
 
         public async Task<List<TResult>> GetRcdindescAsync<TResult>(Func<IQueryable<DbpRcdindesc>, IQueryable<TResult>> query, bool notrack = false)
@@ -352,6 +357,16 @@ namespace IngestDevicePlugin.Stores
             return await QueryModelAsync(Context.DbpRcdindesc, query, notrack);
         }
 
+
+        public async Task<List<TResult>> GetProgramparamMapAsync<TResult>(Func<IQueryable<DbpProgramparamMap>, IQueryable<TResult>> query, bool notrack = false)
+        {
+            return await QueryListAsync(Context.DbpProgramparamMap, query, notrack);
+        }
+
+        public async Task<TResult> GetProgramparamMapAsync<TResult>(Func<IQueryable<DbpProgramparamMap>, Task<TResult>> query, bool notrack = false)
+        {
+            return await QueryModelAsync(Context.DbpProgramparamMap, query, notrack);
+        }
 
 
         public async Task<List<TResult>> GetRcdoutdescAsync<TResult>(Func<IQueryable<DbpRcdoutdesc>, IQueryable<TResult>> query, bool notrack = false)
@@ -374,11 +389,26 @@ namespace IngestDevicePlugin.Stores
             return await QueryListAsync(Context.DbpSignalDeviceMap, query, notrack);
         }
 
+
         public async Task<List<TResult>> GetSignalsrcAsync<TResult>(Func<IQueryable<DbpSignalsrc>, IQueryable<TResult>> query, bool notrack = false)
         {
             return await QueryListAsync(Context.DbpSignalsrc, query, notrack);
         }
+        public async Task<TResult> GetSignalsrcAsync<TResult>(Func<IQueryable<DbpSignalsrc>, Task<TResult>> query, bool notrack = false)
+        {
+            return await QueryModelAsync(Context.DbpSignalsrc, query, notrack);
+        }
 
+
+        public async Task<List<DbpSignalsrc>> GetAllSignalsrcForRcdinAsync(bool notrack = false)
+        {
+            return await QueryListAsync(Context.DbpSignalsrc,
+                                        a => a.Join(Context.DbpRcdindesc.Select(rcdin => rcdin.Signalsrcid),
+                                                    src => src.Signalsrcid,
+                                                    rcdin => rcdin,
+                                                    (src, rcdin) => src),
+                                        notrack);
+        }
 
         public async Task<List<TResult>> GetCapturechannelsAsync<TResult>(Func<IQueryable<DbpCapturechannels>, IQueryable<TResult>> query, bool notrack = false)
         {
@@ -421,6 +451,15 @@ namespace IngestDevicePlugin.Stores
         {
             return await QueryListAsync(Context.DbpChannelgroupmap, query, notrack);
         }
+
+        public async Task<List<int>> GetChannelIdsBySignalIdForNotMatrix(int signalid)
+        {
+            return await Context.DbpRcdindesc.Where(x => x.Signalsrcid == signalid).Join(Context.DbpRcdoutdesc,
+                rcin => rcin.Recinidx,
+                rcout => rcout.Recoutidx,
+                (rcin, rcout) => rcout.Channelid).ToListAsync();
+        }
+
         public async Task<List<int>> GetSignalIdsByChannelIdForNotMatrix(int channelid)
         {
             return await Context.DbpRcdoutdesc.Where(x => x.Channelid == channelid)
@@ -431,21 +470,21 @@ namespace IngestDevicePlugin.Stores
                                               .ToListAsync();
         }
 
-        public async Task<int> SaveChannelExtenddataAsync(UpdateChnExtData_IN model)
+        public async Task<int> SaveChannelExtenddataAsync(int nChnID,int type, string data)
         {
-            var deviceMap = await Context.DbpChnExtenddata.FirstOrDefaultAsync(a => a.Channaelid == model.nChnID && a.Datatype == model.type);
+            var deviceMap = await Context.DbpChnExtenddata.FirstOrDefaultAsync(a => a.Channaelid == nChnID && a.Datatype == type);
             if (deviceMap == null)
             {
                 await Context.DbpChnExtenddata.AddAsync(new DbpChnExtenddata
                 {
-                    Channaelid = model.nChnID,
-                    Datatype = model.type,
-                    Extenddata = model.strData
+                    Channaelid = nChnID,
+                    Datatype = type,
+                    Extenddata = data
                 });
             }
             else
             {
-                deviceMap.Extenddata = model.strData;
+                deviceMap.Extenddata = data;
             }
             return await Context.SaveChangesAsync();
         }
@@ -469,7 +508,7 @@ namespace IngestDevicePlugin.Stores
         {
             return await QueryModelAsync(Context.DbpSignalsrcgroupmap, query, notrack);
         }
-        
+
 
         public async Task<TResult> GetSignalDeviceMapAsync<TResult>(Func<IQueryable<DbpSignalDeviceMap>, Task<TResult>> query, bool notrack = false)
         {
@@ -522,6 +561,19 @@ namespace IngestDevicePlugin.Stores
             return await QueryModelAsync(Context.DbpGpiMap, query, notrack);
         }
 
+
+
+        public async Task<List<TResult>> GetGPIInfoAsync<TResult>(Func<IQueryable<DbpGpiInfo>, IQueryable<TResult>> query, bool notrack = false)
+        {
+            return await QueryListAsync(Context.DbpGpiInfo, query, notrack);
+        }
+        public async Task<TResult> GetGPIInfoAsync<TResult>(Func<IQueryable<DbpGpiInfo>, Task<TResult>> query, bool notrack = false)
+        {
+            return await QueryModelAsync(Context.DbpGpiInfo, query, notrack);
+        }
+
+
+
         public async Task<List<TResult>> GetIpDeviceAsync<TResult>(Func<IQueryable<DbpIpDevice>, IQueryable<TResult>> query, bool notrack = false)
         {
             return await QueryListAsync(Context.DbpIpDevice, query, notrack);
@@ -567,6 +619,7 @@ namespace IngestDevicePlugin.Stores
                                                      }).ToListAsync();
         }
 
+
         public async Task<int?> GetParamTypeByChannleIDAsync(int nChannelID)
         {
             return await Context.DbpRcdoutdesc.AsNoTracking().Where(rcdout => rcdout.Channelid == nChannelID)
@@ -578,13 +631,40 @@ namespace IngestDevicePlugin.Stores
                                                      state => state,
                                                      port => port.Virtualinport,
                                                      (state, port) => port.Signaltype)
-                                               .FirstOrDefaultAsync();
+                                               .SingleOrDefaultAsync();
+        }
+
+        public async Task<int?> GetParamTypeBySignalIDAsync(int nSignalID)
+        {
+            return await Context.DbpRcdindesc.AsNoTracking().Where(rcdin => rcdin.Signalsrcid == nSignalID)
+                                                             .Join(Context.DbpVirtualmatrixinport.AsNoTracking(),
+                                                                   rcdin => rcdin.Recinidx,
+                                                                   inport => inport.Virtualinport,
+                                                                   (rcdin, inport) => inport.Signaltype)
+                                                             .SingleOrDefaultAsync();
         }
 
         public async Task<int> UpdateMSVChannelStateAsync(DbpMsvchannelState model)
         {
             Context.DbpMsvchannelState.Update(model);
             return await Context.SaveChangesAsync();
+        }
+
+        public async Task<int> ModifySourceVTRIDAndUserCodeAsync(int nSourceVTRID, string userCode, params int[] nID)
+        {
+            var updateList = Context.DbpMsvchannelState.Where(a => nID.Contains(a.Channelid)).ToList();
+            updateList.ForEach(a => { a.Sourcevtrid = nSourceVTRID; a.Curusercode = userCode; });
+            return await Context.SaveChangesAsync();
+        }
+
+        public Task<List<TResult>> GetUserSettingAsync<TResult>(Func<IQueryable<DbpUsersettings>, IQueryable<TResult>> query, bool notrack = false)
+        {
+            throw new NotImplementedException();
+        }
+
+        public Task<TResult> GetUserSettingAsync<TResult>(Func<IQueryable<DbpUsersettings>, Task<TResult>> query, bool notrack = false)
+        {
+            throw new NotImplementedException();
         }
     }
 }
