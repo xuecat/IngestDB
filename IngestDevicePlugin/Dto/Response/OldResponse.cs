@@ -1,155 +1,14 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
+using IngestDevicePlugin.Dto.Enum;
+using IngestDevicePlugin.Dto.Response;
 
 namespace IngestDevicePlugin.Dto
 {
     public class OldResponse
     {
     }
-
-    #region EnumType
-
-    /// <summary>程序类型</summary>
-    public enum ProgrammeType
-    {
-        PT_Null = -1,
-        PT_SDI,
-        PT_IPTS,
-        PT_StreamMedia
-    }
-
-    /// <summary>图像类型</summary>
-    public enum ImageType
-    {
-        IT_Null = -1,
-        IT_Original = 0,
-        IT_SD_4_3 = 1,
-        IT_SD_16_9 = 2,
-        IT_HD_16_9 = 4
-    }
-
-    /// <summary> 信号来源 </summary>
-    public enum emSignalSource
-    {
-        /// <summary>卫星</summary>
-        emSatlitlleSource = 0,
-
-        /// <summary>总控矩阵</summary>
-        emCtrlMatrixSource = 1,
-
-        /// <summary>视频服务器</summary>
-        emVideoServerSource = 2,
-
-        /// <summary>VTR</summary>
-        emVtrSource = 3,
-
-        /// <summary>MSV</summary>
-        emMSVSource = 4,
-
-        /// <summary>蓝光</summary>
-        emXDCAM = 5,
-
-        /// <summary>IPTS流</summary>
-        emIPTS = 6,
-
-        /// <summary>流媒体</summary>
-        emStreamMedia = 7
-    }
-
-    /// <summary> 设备类型 </summary>
-    public enum emDeviceType
-    {
-        /// <summary>MSV</summary>
-        emDeviceMSV = 0,
-
-        /// <summary>VTR</summary>
-        emDeviceVTR = 1,
-
-        /// <summary>蓝光</summary>
-        emDeviceXDCAM = 2
-    }
-
-    /// <summary> 采集通道类型 </summary>
-    public enum CaptureChannelType
-    {
-        /// <summary> MSV 采集通道 </summary>
-        emMsvChannel = 1,
-
-        /// <summary> IPTS 虚拟的通道 </summary>
-        emIPTSChannel,
-
-        /// <summary> 流媒体通道 </summary>
-        emStreamChannel
-    }
-
-    /// <summary>通道状态</summary>
-    public enum Channel_State
-    {
-        CS_Null = 0,
-        CS_Idle,
-        CS_Ready,
-        CS_Capturing,
-        CS_Error,
-    }
-
-    /// <summary>通道类型</summary>
-    public enum Channel_Type
-    {
-        CT_SDI = 0,
-        CT_TS,
-        CT_Stream,
-    }
-
-    /// <summary> 任务备份属性 </summary>
-    public enum emBackupFlag
-    {
-        /// <summary> 不允许备份 </summary>
-		emNoAllowBackUp = 0,
-
-        /// <summary> 允许备份 </summary>
-		emAllowBackUp = 1,
-
-        /// <summary> 只允许作备份 </summary>
-		emBackupOnly = 2
-    }
-
-    /// <summary>设备状态</summary>
-    public enum Device_State
-    {
-        /// <summary>没有连接</summary>
-        DISCONNECTTED,
-
-        /// <summary>已经连接</summary>
-        CONNECTED,
-
-        /// <summary>正在采集</summary>
-        WORKING
-    }
-
-    /// <summary>MSV模式</summary>
-    public enum MSV_Mode
-    {
-        /// <summary>本地</summary>
-        LOCAL,
-
-        /// <summary>网络</summary>
-        NETWORK
-    }
-
-    /// <summary>上载模式</summary>
-    public enum Upload_Mode
-    {
-        /// <summary></summary>
-        NOUPLOAD,
-
-        /// <summary></summary>
-        CANUPLOAD,
-
-        /// <summary>上载独占</summary>
-        ONLYUPLOAD
-    }
-
-    #endregion EnumType
-
+    
     #region DescModel
 
     /// <summary>输入端口详情</summary>
@@ -450,6 +309,71 @@ namespace IngestDevicePlugin.Dto
         public int DeviceId { set; get; }
         public List<TSPgmInfo> PgmInfos { set; get; }
     }
+    /// <summary>任务信息</summary>
+    public class TaskContent
+    {
+        public int nTaskID = 0;
+        public string strTaskName = string.Empty;
+        public string strTaskDesc = string.Empty;
+        public string strClassify = string.Empty;
+        public int nChannelID = 0;
+        public int nUnit = 0;
+        public string strUserCode = string.Empty;
+        public int nSignalID = 0;
+        public string strBegin = DateTime.MinValue.ToString("yyyy-MM-dd HH:mm:ss");
+        public string strEnd = DateTime.MinValue.ToString("yyyy-MM-dd HH:mm:ss");
+        public TaskType emTaskType = TaskType.TT_NORMAL;
+        public CooperantType emCooperantType = CooperantType.emPureTask;
+        public taskState emState;
+        public string strStampImage = string.Empty;
+        public string strTaskGUID = string.Empty;
+        public int nBackupVTRID = 0;
+        public TaskPriority emPriority = TaskPriority.TP_Normal;
+        public int nStampTitleIndex = 0;
+        public int nStampImageType = 0;
+        public int nSGroupColor = 0;
+    }
+    /// <summary>GPI设备信息</summary>
+    public class GPIDeviceInfo
+    {
+        /// <summary>GPI编号</summary>
+        public int nGPIID = -1;
+        /// <summary>GPI名字</summary>
+        public string strGPIName = string.Empty;
+        /// <summary>GPI位于哪个Com端口上</summary>
+        public int nComPort = -1;
+        /// <summary>GPI总的出口数</summary>
+        public int nOutputPortCount = -1;
+        /// <summary>GPI的描述</summary>
+        public string strDescription = string.Empty;
+    }
+    //zmj2009-10-22
+    //增加通道与信号源对应的结构
+    public class Channel2SignalSrcMap
+    {
+        public int nChannelID = -1;                                                     //通道ID
+        public int nSignalSrcID = -1;                                                   //信号源ID
+        public Channel2SignalSrc_State state = Channel2SignalSrc_State.emNotConnection; //通道到信号源的连接状态
+        public DateTime lastOperTime = DateTime.MinValue;                               //上一次连接时的时间
+    }
+
+    public class ChannelScore
+    {
+        public ChannelScore()
+        {
+            Id = 0;
+            Score = 0;
+        }
+
+        public ChannelScore(int id)
+        {
+            Id = id;
+            Score = 0;
+        }
+
+        public int Id = 0;  //通道ID
+        public double Score = 0;    //分数
+    }
     #endregion DescModel
 
     public class GetChannelsByProgrammeId_out : Base_param
@@ -458,7 +382,7 @@ namespace IngestDevicePlugin.Dto
         public int validCount;
     }
 
-    #region ParamModel
+    #region OOU-IN-Model
 
     /// <summary> 输入端口信息 </summary>
     public class GetAllRouterInPortInfo_param : BaseVaildCount_param
@@ -584,10 +508,30 @@ namespace IngestDevicePlugin.Dto
     /// <summary> 保存通道扩展信息返回 </summary>
     public class UpdateChnExtData_OUT : Base_param { }
 
+    /// <summary>根据信号源,用户名,自动匹配最优通道</summary>
+    public class GetBestChannelIDBySignalID_out : Base_param
+    {
+        public int nChannelID;
+    }
+    /// <summary>为信号源选择一个合适的预监通道</summary>
+    public class GetBestPreviewChannelForSignal_out : Base_param
+    {
+        public int nChnID;
+    }
+    /// <summary>更改ModifySourceVTRIDAndUserCode</summary>
+    public class ModifySourceVTRIDAndUserCode_out : Base_param { }
+
     /// <summary>更新所有的IP收录的设备</summary>
     public class UpdateAllTSDeviceInfos_IN
     {
         public TSDeviceInfo[] deviceInfos;
+    }
+
+    public class ModifySourceVTR_in
+    {
+        public int[] nIDArray;
+        public int nSourceVTRID;
+        public string userCode;
     }
 
     /// <summary> 保存通道扩展信息 </summary>
@@ -623,4 +567,23 @@ namespace IngestDevicePlugin.Dto
     }
 
     #endregion ParamModel
+}
+namespace IngestDevicePlugin.Dto.Response
+{
+    public class ResponseMessage
+    {
+        public int nCode { get; set; }
+        public string message { get; set; }
+        public ResponseMessage()
+        {
+            nCode = 1;          //1代表成功，0代表失败
+            message = "OK";
+        }
+    }
+    public class ResponseMessage<T> : IngestDevicePlugin.Dto.Response.ResponseMessage
+    {
+        public ResponseMessage() : base() { }
+
+        public T extention;
+    }
 }

@@ -6,6 +6,8 @@ using System.Collections.Generic;
 using System.IO;
 using System.Text;
 using System.Xml;
+using IngestDevicePlugin.Dto.Enum;
+using IngestDevicePlugin.Dto.Response;
 
 namespace IngestDevicePlugin
 {
@@ -207,6 +209,18 @@ namespace IngestDevicePlugin
                 .ForMember(a => a.groupid, (map) => map.MapFrom(b => b.Groupid))
                 .ForMember(a => a.groupname, (map) => map.MapFrom(b => b.Groupname))
                 .ForMember(a => a.groupdesc, (map) => map.MapFrom(b => b.Groupdesc));
+            #endregion
+
+            #region DbpGpiMap To GPIDeviceMapInfo
+            //V2
+
+            //V1
+            CreateMap<DbpGpiInfo, GPIDeviceInfo>()
+                .ForMember(a => a.nGPIID, (map) => map.MapFrom(b => b.Gpiid))
+                .ForMember(a => a.strGPIName, (map) => map.MapFrom(b => b.Gpiname))
+                .ForMember(a => a.nComPort, (map) => map.MapFrom(b => b.Comport))
+                .ForMember(a => a.nOutputPortCount, (map) => map.MapFrom(b => b.Outputportcount))
+                .ForMember(a => a.strDescription, (map) => map.MapFrom(b => b.Description));
             #endregion
 
             #region DbpGpiMap To GPIDeviceMapInfo

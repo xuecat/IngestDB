@@ -15,8 +15,9 @@ namespace IngestDevicePlugin.Stores
         #region MyRegion
         //IQueryable<TaskInfo> SimpleQuery { get; }
         Task<ProgrammeInfoDto> GetSignalInfoAsync(int srcid);
-        //Task<CaptureChannelInfoDto> GetCaptureChannelByIDAsync(int channelid);
+        Task<CaptureChannelInfoDto> GetCaptureChannelByIDAsync(int channelid);
         Task<List<CaptureChannelInfoDto>> GetAllCaptureChannelsAsync(int status);
+        /// <summary> 通过 信号Id 获取 通道id（非矩阵） </summary>
         Task<List<int>> GetChannelIdsBySignalIdForNotMatrix(int signalid);
         /// <summary> 通过 通道id 获取 信号Id（非矩阵） </summary>
         Task<List<int>> GetSignalIdsByChannelIdForNotMatrix(int channelid);
@@ -32,9 +33,18 @@ namespace IngestDevicePlugin.Stores
 
         /// <summary> 获取输出端口与信号源 </summary>
         Task<List<TResult>> GetRcdoutdescAsync<TResult>(Func<IQueryable<DbpRcdoutdesc>, IQueryable<TResult>> query, bool notrack = false);
+
+
         /// <summary> 获取信号源 </summary>
         Task<List<TResult>> GetSignalsrcAsync<TResult>(Func<IQueryable<DbpSignalsrc>, IQueryable<TResult>> query, bool notrack = false);
-        
+        /// <summary> 获取信号源 </summary>
+        Task<TResult> GetSignalsrcAsync<TResult>(Func<IQueryable<DbpSignalsrc>, Task<TResult>> query, bool notrack = false);
+
+
+
+        /// <summary>获取所有输入宽口信号源</summary>
+        Task<List<DbpSignalsrc>> GetAllSignalsrcForRcdinAsync(bool notrack = false);
+
 
         /// <summary> 获取所有采集通道 </summary>
         Task<List<TResult>> GetCapturechannelsAsync<TResult>(Func<IQueryable<DbpCapturechannels>, IQueryable<TResult>> query, bool notrack = false);
@@ -63,13 +73,19 @@ namespace IngestDevicePlugin.Stores
 
 
         /// <summary> 更新或新增通道的扩展数据 </summary>
-        Task<int> SaveChannelExtenddataAsync(UpdateChnExtData_IN model);
-
+        Task<int> SaveChannelExtenddataAsync(int nChnID, int type, string data);
 
         /// <summary> 查询信号源的扩展信息 </summary>
         Task<List<TResult>> GetSignalSrcExsAsync<TResult>(Func<IQueryable<DbpSignalsrcMasterbackup>, IQueryable<TResult>> query, bool notrack = false);
         /// <summary> 查询信号源的扩展信息 </summary>
         Task<TResult> GetSignalSrcExsAsync<TResult>(Func<IQueryable<DbpSignalsrcMasterbackup>, Task<TResult>> query, bool notrack = false);
+
+
+
+        /// <summary> 查询信号源的扩展信息 </summary>
+        Task<List<TResult>> GetProgramparamMapAsync<TResult>(Func<IQueryable<DbpProgramparamMap>, IQueryable<TResult>> query, bool notrack = false);
+        /// <summary> 查询信号源的扩展信息 </summary>
+        Task<TResult> GetProgramparamMapAsync<TResult>(Func<IQueryable<DbpProgramparamMap>, Task<TResult>> query, bool notrack = false);
 
 
         /// <summary>SignalDeviceMap 查询信号分组映射信息 </summary>
@@ -111,7 +127,13 @@ namespace IngestDevicePlugin.Stores
         /// <summary>查询GPI的映射信息</summary>
         Task<TResult> GetGPIMapInfoByGPIIDAsync<TResult>(Func<IQueryable<DbpGpiMap>, Task<TResult>> query, bool notrack = false);
 
-        
+
+        /// <summary>查询GPI信息</summary>
+        Task<List<TResult>> GetGPIInfoAsync<TResult>(Func<IQueryable<DbpGpiInfo>, IQueryable<TResult>> query, bool notrack = false);
+        /// <summary>查询GPI信息</summary>
+        Task<TResult> GetGPIInfoAsync<TResult>(Func<IQueryable<DbpGpiInfo>, Task<TResult>> query, bool notrack = false);
+
+
         /// <summary>查询设备信息</summary>
         Task<List<TResult>> GetIpDeviceAsync<TResult>(Func<IQueryable<DbpIpDevice>, IQueryable<TResult>> query, bool notrack = false);
         /// <summary>查询设备信息</summary>
@@ -132,9 +154,22 @@ namespace IngestDevicePlugin.Stores
 
         /// <summary>根据通道Id获取参数类型</summary>
         Task<int?> GetParamTypeByChannleIDAsync(int nChannelID);
+        /// <summary>根据信号源获取是高清还是标清</summary>
+        Task<int?> GetParamTypeBySignalIDAsync(int nSignalID);
+
 
         /// <summary> 获取所有信号源分组信息 </summary>
         Task<List<SignalGroupState>> GetAllSignalGroupInfoAsync();
+
+        /// <summary> </summary>
+        Task<List<Channel2SignalSrcMap>> GetAllChannel2SignalSrcMapAsync();
+
+        
+        Task<List<TResult>> GetUserSettingAsync<TResult>(Func<IQueryable<DbpUsersettings>, IQueryable<TResult>> query, bool notrack = false);
+        Task<TResult> GetUserSettingAsync<TResult>(Func<IQueryable<DbpUsersettings>, Task<TResult>> query, bool notrack = false);
+
+
+        Task<int> ModifySourceVTRIDAndUserCodeAsync(int nSourceVTRID, string userCode, params int[] nID);
 
         Task<int> UpdateMSVChannelStateAsync(DbpMsvchannelState model);
 

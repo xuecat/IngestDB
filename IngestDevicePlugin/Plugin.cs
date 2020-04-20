@@ -2,11 +2,11 @@
 using IngestDBCore.Plugin;
 using IngestDevicePlugin.Models;
 using IngestDevicePlugin.Stores;
-using IngestTaskPlugin.Managers;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
 using System;
 using System.Threading.Tasks;
+using IngestDevicePlugin.Managers;
 
 namespace IngestDevicePlugin
 {

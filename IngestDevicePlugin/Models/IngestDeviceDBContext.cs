@@ -5,7 +5,7 @@ using System.Text;
 
 namespace IngestDevicePlugin.Models
 {
-    
+
     public partial class IngestDeviceDBContext : DbContext
     {
         public IngestDeviceDBContext(DbContextOptions<IngestDeviceDBContext> options)
@@ -18,7 +18,7 @@ namespace IngestDevicePlugin.Models
         public virtual DbSet<DbpChannelgroupmap> DbpChannelgroupmap { get; set; }
         public virtual DbSet<DbpChannelRecmap> DbpChannelRecmap { get; set; }
         public virtual DbSet<DbpChnExtenddata> DbpChnExtenddata { get; set; }
-        
+
         public virtual DbSet<DbpGpiInfo> DbpGpiInfo { get; set; }
         public virtual DbSet<DbpGpiMap> DbpGpiMap { get; set; }
         public virtual DbSet<DbpIpDatachannelinfo> DbpIpDatachannelinfo { get; set; }
@@ -28,6 +28,7 @@ namespace IngestDevicePlugin.Models
         public virtual DbSet<DbpMatrixinfo> DbpMatrixinfo { get; set; }
         public virtual DbSet<DbpMatrixrout> DbpMatrixrout { get; set; }
         public virtual DbSet<DbpMatrixtypeinfo> DbpMatrixtypeinfo { get; set; }
+        public virtual DbSet<DbpProgramparamMap> DbpProgramparamMap { get; set; }
         public virtual DbSet<DbpRcdindesc> DbpRcdindesc { get; set; }
         public virtual DbSet<DbpRcdoutdesc> DbpRcdoutdesc { get; set; }
         public virtual DbSet<DbpSignalDeviceMap> DbpSignalDeviceMap { get; set; }
@@ -39,7 +40,8 @@ namespace IngestDevicePlugin.Models
         public virtual DbSet<DbpSignalsrcMasterbackup> DbpSignalsrcMasterbackup { get; set; }
         public virtual DbSet<DbpSignalType> DbpSignalType { get; set; }
         public virtual DbSet<DbpSigRecTypeMap> DbpSigRecTypeMap { get; set; }
-        public virtual DbSet<DbpStreammedia> DbpStreammedia { get; set; }        
+        public virtual DbSet<DbpStreammedia> DbpStreammedia { get; set; }
+        public virtual DbSet<DbpUsersettings> DbpUsersetting { get; set; }
         public virtual DbSet<DbpVirtualmatrixinport> DbpVirtualmatrixinport { get; set; }
         public virtual DbSet<DbpVirtualmatrixportstate> DbpVirtualmatrixportstate { get; set; }
         public virtual DbSet<DbpXdcamDevice> DbpXdcamDevice { get; set; }
@@ -47,7 +49,7 @@ namespace IngestDevicePlugin.Models
         public virtual DbSet<DbpXdcamDiscMaterial> DbpXdcamDiscMaterial { get; set; }
         public virtual DbSet<DbpXdcamDiskinfo> DbpXdcamDiskinfo { get; set; }
         public virtual DbSet<DbpXdcamMaterialDevMap> DbpXdcamMaterialDevMap { get; set; }
-        
+
         public virtual DbSet<VtrDetailinfo> VtrDetailinfo { get; set; }
         public virtual DbSet<VtrDownloadMateriallist> VtrDownloadMateriallist { get; set; }
         public virtual DbSet<DbpMsvchannelState> DbpMsvchannelState { get; set; }
@@ -132,7 +134,7 @@ namespace IngestDevicePlugin.Models
                     .HasDefaultValueSql("'0'");
             });
 
-            
+
             modelBuilder.Entity<DbpChannelgroupmap>(entity =>
             {
                 entity.HasKey(e => e.Channelid);
@@ -508,6 +510,21 @@ namespace IngestDevicePlugin.Models
                     .HasColumnType("varchar(256)");
             });
 
+            modelBuilder.Entity<DbpProgramparamMap>(entity =>
+            {
+                entity.HasKey(e => e.Programid);
+
+                entity.ToTable("dbp_programparam_map");
+
+                entity.Property(e => e.Programid)
+                    .HasColumnName("PROGRAMID")
+                    .HasColumnType("int(11)");
+
+                entity.Property(e => e.Paramid)
+                    .HasColumnName("PARAMID")
+                    .HasColumnType("int(11)");
+            });
+
             modelBuilder.Entity<DbpRcdindesc>(entity =>
             {
                 entity.HasKey(e => new { e.Signalsrcid, e.Recinidx, e.Rcdeviceid });
@@ -817,6 +834,16 @@ namespace IngestDevicePlugin.Models
                     .HasColumnName("URLTYPE")
                     .HasColumnType("varchar(128)")
                     .HasDefaultValueSql("''");
+            });
+
+            modelBuilder.Entity<DbpUsersettings>(entity =>
+            {
+                entity.HasKey(e => new { e.Usercode, e.Settingtype });
+                entity.ToTable("dbp_usersettings");
+                entity.Property(e => e.Usercode).HasColumnName("USERCODE").HasColumnType("varchar(255)");
+                entity.Property(e => e.Settingtype).HasColumnName("SETTINGTYPE").HasColumnType("varchar(128)");
+                entity.Property(e => e.Settingtext).HasColumnName("SETTINGTEXT").HasColumnType("varchar(4000)");
+                entity.Property(e => e.Settingtextlong).HasColumnName("SETTINGTEXTLONG").HasColumnType("text");
             });
 
             modelBuilder.Entity<DbpVirtualmatrixinport>(entity =>
@@ -1296,7 +1323,7 @@ namespace IngestDevicePlugin.Models
                     .HasColumnType("int(11)");
             });
 
-            
+
 
             modelBuilder.Entity<VtrTypeinfo>(entity =>
             {
@@ -1323,7 +1350,7 @@ namespace IngestDevicePlugin.Models
                     .HasColumnType("varchar(128)");
             });
 
-            
+
         }
     }
 }

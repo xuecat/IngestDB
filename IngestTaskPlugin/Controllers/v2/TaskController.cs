@@ -1202,10 +1202,9 @@ namespace IngestTaskPlugin.Controllers
         public async Task<ResponseMessage<int>> SetPeriodTaskToNextTime()
         {
             var Response = new ResponseMessage<int>();
-
             try
             {
-                Response.Ext = await _taskManage.SetTaskClassify(taskid, classify);
+                //Response.Ext = await _taskManage.SetTaskClassify(taskid, classify);
             }
             catch (Exception e)
             {
@@ -1224,6 +1223,73 @@ namespace IngestTaskPlugin.Controllers
             }
             return Response;
         }
-        //////////////////////////
+
+        /// <summary>
+        /// 获得将要和正在执行的任务
+        /// </summary>
+        /// <remarks>
+        /// Decivce通讯接口
+        /// </remarks>
+        /// <returns>将要和正在执行的任务</returns>
+        [HttpPost("taskinfo/willbeginandcapturing")]
+        [ApiExplorerSettings(GroupName = "v2")]
+        public async Task<ResponseMessage<List<TaskContent>>> GetWillBeginAndCapturingTasks()
+        {
+            var Response = new ResponseMessage<List<TaskContent>>();
+
+            try
+            {
+                Response.Ext = await _taskManage.GetWillBeginAndCapturingTasksAsync();
+            }
+            catch (Exception e)
+            {
+                if (e is SobeyRecException se)//sobeyexcep会自动打印错误
+                {
+                    Response.Code = se.ErrorCode.ToString();
+                    Response.Msg = se.Message;
+                }
+                else
+                {
+                    Response.Code = ResponseCodeDefines.ServiceError;
+                    Response.Msg = "SetTaskInfoClassify error info：" + e.ToString();
+                    Logger.Error(Response.Msg);
+                }
+            }
+            return Response;
+        }
+
+        /// <summary>
+        /// 获取当前任务
+        /// </summary>
+        /// <remarks>
+        /// Decivce通讯接口
+        /// </remarks>
+        /// <returns>当前任务</returns>
+        [HttpPost("taskinfo/CurrentTasks")]
+        [ApiExplorerSettings(GroupName = "v2")]
+        public async Task<ResponseMessage<List<TaskContent>>> GetCurrentTasks()
+        {
+            var Response = new ResponseMessage<List<TaskContent>>();
+
+            try
+            {
+                Response.Ext = await _taskManage.GetCurrentTasksAsync<TaskContent>();
+            }
+            catch (Exception e)
+            {
+                if (e is SobeyRecException se)//sobeyexcep会自动打印错误
+                {
+                    Response.Code = se.ErrorCode.ToString();
+                    Response.Msg = se.Message;
+                }
+                else
+                {
+                    Response.Code = ResponseCodeDefines.ServiceError;
+                    Response.Msg = $"SetTaskInfoClassify error info：{e}";
+                    Logger.Error(Response.Msg);
+                }
+            }
+            return Response;
+        }
     }
 }

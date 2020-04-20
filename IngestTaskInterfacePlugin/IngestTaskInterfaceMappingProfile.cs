@@ -1,4 +1,6 @@
 ﻿using AutoMapper;
+using IngestDBCore;
+using IngestTaskPlugin.Dto;
 using System;
 using System.Collections.Generic;
 using System.Text;
@@ -10,9 +12,8 @@ namespace IngestTaskInterfacePlugin
     {
         public IngestTaskInterfaceMappingProfile()
         {
-           
-
-            
+            CreateMap<TaskContent, TaskContentInterface>();
+            CreateMap<TaskContent, TaskContentInterface>().ReverseMap();
         }
     }
 }

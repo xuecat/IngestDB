@@ -3,6 +3,8 @@ using System.Threading.Tasks;
 using IngestDBCore;
 using IngestDBCore.Basic;
 using IngestDevicePlugin.Dto;
+using IngestDevicePlugin.Dto.Enum;
+using IngestDevicePlugin.Dto.Response;
 using Microsoft.AspNetCore.Mvc;
 
 namespace IngestDevicePlugin.Controllers
@@ -15,7 +17,7 @@ namespace IngestDevicePlugin.Controllers
 
         #region GetController
 
-        /// <summary> 获取输入端口与信号源的映射 </summary>
+        /// <summary> 获取输入端口与信号源 </summary>
         [HttpGet("GetAllRouterInPortInfo"), MapToApiVersion("1.0")]
         [IngestAuthentication]//device有点特殊，做了监听端口的所以不能全类检验
         [ApiExplorerSettings(GroupName = "v1")]
@@ -247,7 +249,7 @@ namespace IngestDevicePlugin.Controllers
         {
             async Task Action(GetGPIMapInfoByGPIID_OUT response)
             {
-                response.arGPIDeviceMapInfo = await _deviceManage.GetGPIMapInfoByGPIIDAsync(nGPIID);
+                response.arGPIDeviceMapInfo = await _deviceManage.GetGPIMapInfoByGPIIDAsync<GPIDeviceMapInfo>(nGPIID);
                 response.nVaildDataCount = response.arGPIDeviceMapInfo.Count;
             }
 
@@ -364,7 +366,7 @@ namespace IngestDevicePlugin.Controllers
         }
 
 
-        /// <summary>获取该信号源的备份信号源ID</summary>
+        /// <summary>根据信号源获取是高清还是标清</summary>
         [HttpGet("GetParamTypeBySignalID"), MapToApiVersion("1.0")]
         [IngestAuthentication]
         [ApiExplorerSettings(GroupName = "v1")]
@@ -372,7 +374,7 @@ namespace IngestDevicePlugin.Controllers
         {
             async Task Action(GetParamTypeBySignalID_OUT response)
             {
-                response.nType = await _deviceManage.GetParamTypeByChannleIDAsync(nSignalID);
+                response.nType = await _deviceManage.GetParamTypeBySignalIDAsync(nSignalID);
                 if (response.nType == -1)
                 {
                     response.bRet = false;
@@ -382,52 +384,167 @@ namespace IngestDevicePlugin.Controllers
             return await TryInvoke((Func<GetParamTypeBySignalID_OUT, Task>)Action);
         }
 
-        //根据节目ID获取相应的通道，有矩阵模式和无矩阵模式的区别
-        [HttpGet("GetChannelsByProgrammeId"), MapToApiVersion("1.0")]
+        /// <summary>根据节目ID获取相应的通道，有矩阵模式和无矩阵模式的区别</summary>
+        [HttpGet("api/device/GetChannelsByProgrammeId"), MapToApiVersion("1.0")]
         [IngestAuthentication]
         [ApiExplorerSettings(GroupName = "v1")]
         public async Task<GetChannelsByProgrammeId_out> GetChannelsByProgrammeId(int programmeId)
         {
             async Task Action(GetChannelsByProgrammeId_out response)
             {
-                response.channelInfos = await _deviceManage.GetChannelsByProgrammeIdAsync<CaptureChannelInfo>(programmeId, 0);
+                response.channelInfos = await _deviceManage.GetChannelsByProgrammeIdAsync<CaptureChannelInfo>(programmeId);
                 response.validCount = response.channelInfos.Count;
             }
             return await TryInvoke((Func<GetChannelsByProgrammeId_out, Task>)Action);
         }
 
-        //[HttpGet("GetChannelsByProgrammeId"), MapToApiVersion("1.0")]
-        //[IngestAuthentication]//device有点特殊，做了监听端口的所以不能全类检验
-        //[ApiExplorerSettings(GroupName = "v1")]
-        //public async Task<GetChannelsByProgrammeId_out> GetChannelsByProgrammeId(int programeid)
-        //{
-        //    var Response = new GetChannelsByProgrammeId_out()
-        //    {
-        //        bRet = true,
-        //        errStr = "OK",
-        //    };
+        /// <summary>根据信号源,用户名,自动匹配最优通道</summary>
+        [HttpGet("device/GetBestChannelIDBySignalID"), MapToApiVersion("1.0")]
+        [IngestAuthentication]
+        [ApiExplorerSettings(GroupName = "v1")]
+        public async Task<GetBestChannelIDBySignalID_out> GetBestChannelIDBySignalID(int nSignalID, string strUserCode)
+        {
+            GetBestChannelIDBySignalID_out p = new GetBestChannelIDBySignalID_out();
+            //lock (bestChannelLock)//设置锁,保证一次只有一个进行任务的分配
+            //{
+            //    p.nChannelID = -1;
+            //    try
+            //    {
+            //        p.errStr = no_err;
+            //        if (nSignalID <= 0)
+            //        {
+            //            p.errStr = "Signal ID less than 0.";
+            //            p.bRet = false;
+            //        }
 
-        //    try
-        //    {
-        //        Response.channelInfos = await _deviceManage.GetChannelsByProgrammeIdAsync<CaptureChannelInfo>(programeid, 0);
-        //    }
-        //    catch (Exception e)
-        //    {
-        //        if (e.GetType() == typeof(SobeyRecException))//sobeyexcep会自动打印错误
-        //        {
-        //            SobeyRecException se = e as SobeyRecException;
-        //            Response.bRet = false;
-        //            Response.errStr = se.Message;
-        //        }
-        //        else
-        //        {
-        //            Response.bRet = false;
-        //            Response.errStr = "error info：" + e.ToString();
-        //            Logger.Error(Response.errStr);
-        //        }
-        //    }
-        //    return Response;
-        //}
+            //        if (strUserCode == "" || strUserCode == string.Empty)
+            //        {
+            //            p.errStr = "UserCode is null";
+            //            p.bRet = false;
+            //        }
+            //        p.nChannelID = DEVICEACCESS.GetBestChannelIDBySignalID(nSignalID, strUserCode);
+
+            //        p.bRet = true;
+            //    }
+            //    catch (Exception ex)//其他未知的异常，写异常日志
+            //    {
+            //        LoggerService.Error("Interface:GetBestChannelIDBySignalID-> error occur:" + ex.Message);
+            //        p.errStr = ex.Message;
+            //        p.bRet = false;
+            //    }
+            //}
+            return p;
+        }
+
+        //为信号源选择一个合适的预监通道
+        [HttpGet("GetBestPreviewChannelForSignal"), MapToApiVersion("1.0")]
+        [IngestAuthentication]
+        [ApiExplorerSettings(GroupName = "v1")]
+        public async Task<GetBestPreviewChannelForSignal_out> GetBestPreviewChannelForSignal(int nSignalID)
+        {
+            GetBestChannelIDBySignalID_out p = new GetBestChannelIDBySignalID_out();
+            async Task Action(GetBestPreviewChannelForSignal_out response)
+            {
+                if (nSignalID <= 0)
+                {
+                    p.errStr = "Signal ID less than 0.";
+                    p.bRet = false;
+                }
+                else
+                {
+                    response.nChnID = await _deviceManage.GetBestPreviewChnForSignalAsync(nSignalID);
+                }
+            }
+            return await TryInvoke((Func<GetBestPreviewChannelForSignal_out, Task>)Action);
+        }
+
+
+        /// <summary>获取所有GPI设备</summary>
+        [HttpGet("/api/device/GetAllGPIDevices"), MapToApiVersion("1.0")]
+        [IngestAuthentication]
+        [ApiExplorerSettings(GroupName = "v1")]
+        public async Task<IngestDevicePlugin.Dto.Response.ResponseMessage<GPIDeviceInfo[]>> GetAllGPIDevices()
+        {
+            IngestDevicePlugin.Dto.Response.ResponseMessage<GPIDeviceInfo[]> p = new IngestDevicePlugin.Dto.Response.ResponseMessage<GPIDeviceInfo[]>();
+            try
+            {
+                p.extention = (await _deviceManage.GetAllGPIInfoAsync<GPIDeviceInfo>()).ToArray();
+            }
+            catch (Exception ex)
+            {
+                if (ex.GetType() == typeof(SobeyRecException))//sobeyexcep会自动打印错误
+                {
+                    SobeyRecException se = ex as SobeyRecException;
+                    p.nCode = 0;
+                    p.message = se.Message;
+                }
+                else
+                {
+                    p.nCode = 0;
+                    p.message = $"error info:{ex.ToString()}";
+                    Logger.Error(p.message);
+                }
+            }
+            return p;
+        }
+
+        /// <summary>根据GPID获取GPI映射信息</summary>
+        [HttpGet("/api/device/GetGPIMapInfoByGPIID"), MapToApiVersion("1.0")]
+        [IngestAuthentication]
+        [ApiExplorerSettings(GroupName = "v1")]
+        public async Task<Dto.Response.ResponseMessage<GPIDeviceMapInfo[]>> GetGPIMapInfoByGPIID2(int nGPIID)
+        {
+            Dto.Response.ResponseMessage<GPIDeviceMapInfo[]> p = new Dto.Response.ResponseMessage<GPIDeviceMapInfo[]>();
+            try
+            {
+                p.extention = (await _deviceManage.GetGPIMapInfoByGPIIDAsync<GPIDeviceMapInfo>(nGPIID)).ToArray();
+            }
+            catch (Exception ex)
+            {
+                if (ex.GetType() == typeof(SobeyRecException))//sobeyexcep会自动打印错误
+                {
+                    SobeyRecException se = ex as SobeyRecException;
+                    p.nCode = 0;
+                    p.message = se.Message;
+                }
+                else
+                {
+                    p.nCode = 0;
+                    p.message = $"error info:{ex.ToString()}";
+                    Logger.Error(p.message);
+                }
+            }
+            return p;
+        }
+
+        /// <summary>根据信号源获取绑定的采集参数</summary>
+        [HttpGet("api/device/GetCaptureTemplateIDBySignalID"), MapToApiVersion("1.0")]
+        [IngestAuthentication]
+        [ApiExplorerSettings(GroupName = "v1")]
+        public async Task<Dto.Response.ResponseMessage<int>> GetCaptureTemplateIDBySignalID(int nSignalID)
+        {
+            Dto.Response.ResponseMessage<int> p = new Dto.Response.ResponseMessage<int>();
+            try
+            {
+                p.extention = await _deviceManage.GetSignalCaptureTemplateAsync(nSignalID);
+            }
+            catch (Exception ex)
+            {
+                if (ex.GetType() == typeof(SobeyRecException))//sobeyexcep会自动打印错误
+                {
+                    SobeyRecException se = ex as SobeyRecException;
+                    p.nCode = 0;
+                    p.message = se.Message;
+                }
+                else
+                {
+                    p.nCode = 0;
+                    p.message = $"error info:{ex.ToString()}";
+                    Logger.Error(p.message);
+                }
+            }
+            return p;
+        }
 
         #endregion GetController
 
@@ -459,40 +576,77 @@ namespace IngestDevicePlugin.Controllers
         {
             async Task Action(UpdateChnExtData_OUT response)
             {
-                response.bRet = await _deviceManage.SaveChnExtenddataAsync(pIn);
+                response.bRet = await _deviceManage.SaveChnExtenddataAsync(pIn.nChnID, pIn.type, pIn.strData);
             }
 
             return await TryInvoke((Func<UpdateChnExtData_OUT, Task>)Action);
         }
 
+
+        /// <summary>更改ModifySourceVTRIDAndUserCode</summary>
+        [HttpGet("ModifySourceVTRIDAndUserCode"), MapToApiVersion("1.0")]
+        [IngestAuthentication]
+        [ApiExplorerSettings(GroupName = "v1")]
+        public async Task<ModifySourceVTRIDAndUserCode_out> ModifySourceVTRIDAndUserCode(int nID, int nSourceVTRID, string userCode)
+        {
+            async Task Action(ModifySourceVTRIDAndUserCode_out response)
+            {
+                await _deviceManage.ModifySourceVTRIDAndUserCodeAsync(nSourceVTRID, userCode, nID);
+            }
+            return await TryInvoke((Func<ModifySourceVTRIDAndUserCode_out, Task>)Action);
+        }
+
+        //更改ModifySourceVTRIDAndUserCodeByChannelIDArray"
+        [HttpGet("ModifySourceVTRIDAndUserCodeByChannelIDArray"), MapToApiVersion("1.0")]
+        [IngestAuthentication]
+        [ApiExplorerSettings(GroupName = "v1")]
+        public async Task<ModifySourceVTRIDAndUserCode_out> ModifySourceVTRIDAndUserCodeByChannelIDArray(ModifySourceVTR_in pIn)
+        {
+            async Task Action(ModifySourceVTRIDAndUserCode_out response)
+            {
+                if (pIn.nIDArray != null)
+                {
+                    pIn.nIDArray = new int[0];
+                    if (pIn.nIDArray.Length <= 0)
+                    {
+                        response.errStr = "no channelid";
+                        response.bRet = false;
+                    }
+                    else
+                    {
+                        await _deviceManage.ModifySourceVTRIDAndUserCodeAsync(pIn.nSourceVTRID, pIn.userCode, pIn.nIDArray);
+                    }
+                }
+            }
+            return await TryInvoke((Func<ModifySourceVTRIDAndUserCode_out, Task>)Action);
+        }
         #endregion UpdateController
 
         /// <summary> Try执行 </summary>
         /// <typeparam name="T">返回类型</typeparam>
         /// <param name="action">执行内容</param>
-        private async Task<T> TryInvoke<T>(Func<T, Task> action) where T : Base_param
+        private async Task<T> TryInvoke<T>(Func<T, Task> action) where T : Base_param, new()
         {
-            T Response = default;
+            T response = new T();
             try
             {
-                await action(Response);
+                await action(response);
             }
             catch (Exception e)
             {
-                if (e.GetType() == typeof(SobeyRecException))//sobeyexcep会自动打印错误
+                if (e is SobeyRecException se)//sobeyexcep会自动打印错误
                 {
-                    SobeyRecException se = e as SobeyRecException;
-                    Response.bRet = false;
-                    Response.errStr = se.Message;
+                    response.bRet = false;
+                    response.errStr = se.Message;
                 }
                 else
                 {
-                    Response.bRet = false;
-                    Response.errStr = $"error info:{e.ToString()}";
-                    Logger.Error(Response.errStr);
+                    response.bRet = false;
+                    response.errStr = $"error info:{e}";
+                    Logger.Error(response.errStr);
                 }
             }
-            return Response;
+            return response;
         }
     }
 }
