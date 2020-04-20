@@ -191,10 +191,10 @@ namespace IngestGlobalPlugin.Managers
 
         #region User
         //get user setting
-        public async Task<string> GetUserSettingAsync(string strUserCode, string strSettingtype)
+        public async Task<string> GetUserSettingAsync(string UserCode, string Settingtype)
         {
             string settingText = string.Empty;
-            var userSetting = await Store.GetUserSettingAsync(a => a.Where(x => x.Usercode == strUserCode && x.Settingtype == strSettingtype), true);
+            var userSetting = await Store.GetUserSettingAsync(a => a.Where(x => x.Usercode == UserCode && x.Settingtype == Settingtype), true);
 
             if (userSetting != null)
             {
@@ -437,27 +437,27 @@ namespace IngestGlobalPlugin.Managers
         }
 
         //modify
-        public async Task ModifyUserTemplateAsync(int nTemplateID, string strTemplateContent, string strNewTemplateName)
+        public async Task ModifyUserTemplateAsync(int TemplateID, string TemplateContent, string NewTemplateName)
         {
-            DbpUsertemplate userTemplate = await Store.GetUsertemplateAsync(a => a.Where(x => x.Templateid == nTemplateID), true);
+            DbpUsertemplate userTemplate = await Store.GetUsertemplateAsync(a => a.Where(x => x.Templateid == TemplateID), true);
 
             if (userTemplate == null || userTemplate.Templateid <= 0)
             {
-                SobeyRecException.ThrowSelfOneParam("get user template by id is null", GlobalDictionary.GLOBALDICT_CODE_CAN_NOT_FIND_THE_TEMPLATE_ID_IS_ONEPARAM, Logger, nTemplateID, null);
+                SobeyRecException.ThrowSelfOneParam("get user template by id is null", GlobalDictionary.GLOBALDICT_CODE_CAN_NOT_FIND_THE_TEMPLATE_ID_IS_ONEPARAM, Logger, TemplateID, null);
                 return;
             }
 
-            if (!string.IsNullOrWhiteSpace(strNewTemplateName))
+            if (!string.IsNullOrWhiteSpace(NewTemplateName))
             {
-                userTemplate = await Store.GetUsertemplateAsync(a => a.Where(x => x.Usercode == userTemplate.Usercode && x.Templatename == strNewTemplateName && x.Templateid != nTemplateID), true);
+                userTemplate = await Store.GetUsertemplateAsync(a => a.Where(x => x.Usercode == userTemplate.Usercode && x.Templatename == NewTemplateName && x.Templateid != TemplateID), true);
                 if (userTemplate != null && userTemplate.Templateid > 0)
                 {
-                    SobeyRecException.ThrowSelfOneParam("user template name is exist", GlobalDictionary.GLOBALDICT_CODE_THE_USER_TEMPLATE_HAS_EXISTS_ONEPARAM, Logger, nTemplateID, null);
+                    SobeyRecException.ThrowSelfOneParam("user template name is exist", GlobalDictionary.GLOBALDICT_CODE_THE_USER_TEMPLATE_HAS_EXISTS_ONEPARAM, Logger, TemplateID, null);
                     return;
                 }
             }
 
-            await Store.UpdateUserTempalteAsync(nTemplateID, strTemplateContent, strNewTemplateName);
+            await Store.UpdateUserTempalteAsync(TemplateID, TemplateContent, NewTemplateName);
 
         }
 
@@ -495,25 +495,28 @@ namespace IngestGlobalPlugin.Managers
 
         }
 
-        public async Task<List<TResult>> GetUserAllTemplatesAsync<TResult>(string strUserCode)
+        //get all user template by usercode
+        public async Task<List<TResult>> GetUserAllTemplatesAsync<TResult>(string UserCode)
         {
-            var dbpUserTempList = await Store.GetUsertemplateLstAsync(a => a.Where(x => x.Usercode == strUserCode), true);
+            var dbpUserTempList = await Store.GetUsertemplateLstAsync(a => a.Where(x => x.Usercode == UserCode), true);
 
             return _mapper.Map<List<TResult>>(dbpUserTempList);
         }
 
-        public async Task DeleteUserTemplateAsync(int nTemplateID)
+        //delete by templateId
+        public async Task DeleteUserTemplateAsync(int TemplateID)
         {
-            await Store.DeleteUserTemplateAsync(nTemplateID);
+            await Store.DeleteUserTemplateAsync(TemplateID);
         }
 
-        public async Task DelUserParamTemplateAsync(string szUserCode)
+        //delete user param map
+        public async Task DelUserParamTemplateAsync(string UserCode)
         {
-            var dbpParamMap = await Store.GetUserParamMapAsync(a => a.Where(x => x.Usercode == szUserCode));
+            var dbpParamMap = await Store.GetUserParamMapAsync(a => a.Where(x => x.Usercode == UserCode));
 
             if (dbpParamMap == null)
             {
-                SobeyRecException.ThrowSelfNoParam(szUserCode, GlobalDictionary.GLOBALDICT_CODE_USER_ID_DOES_NOT_EXIST, Logger, null);
+                SobeyRecException.ThrowSelfNoParam(UserCode, GlobalDictionary.GLOBALDICT_CODE_USER_ID_DOES_NOT_EXIST, Logger, null);
                 return;
             }
 
@@ -555,72 +558,32 @@ namespace IngestGlobalPlugin.Managers
 
         #region CMapi user
 
-
-        public async Task<ResponseMessage<TResponse>> GetUserInfoByUserCodeAsync<TResponse>(string strUserCode)
+        /// <summary>
+        /// 调用cmapi获取userInfo
+        /// </summary>
+        /// <typeparam name="TResponse"></typeparam>
+        /// <param name="userCode"></param>
+        /// <returns></returns>
+        public async Task<ResponseMessage<TResponse>> GetUserInfoByUserCodeAsync<TResponse>(string userCode)
         {
-            var result = await AutoRetry.Run(ExcuteUserInfo<TResponse>, strUserCode);
-            //return _mapper.Map<TResponse>(result);
-            return result;
+            var userInfo = await _restClient.GetUserInfo(false,"admin", userCode);
+
+            return _mapper.Map<ResponseMessage<TResponse>>(userInfo);
+        }
+        
+
+        /// <summary>
+        /// 调用cmapi获取paramvalue
+        /// </summary>
+        /// <param name="useTokenCode"></param>
+        /// <param name="userCode"></param>
+        /// <returns></returns>
+        public async Task<int> GetUserParamTemplateIDAsync(bool useTokenCode, string userCode)
+        {
+            return await _restClient.GetUserParamTemplateID(useTokenCode, userCode);
         }
 
-
-        public async Task<ResponseMessage<TResult>> ExcuteUserInfo<TResult>(string strUserCode)
-        {
-            ResponseMessage<TResult> result = new ResponseMessage<TResult>();
-            string uri = string.Format("http://{0}/CMApi/api/basic/account/getuserinfobyusercode?usercode={1}", ApplicationContext.Current.CMServerUrl, strUserCode);
-
-            ResponseMessageN<CMUserInfo> reres = await _restClient.GetCmApi<ResponseMessageN<CMUserInfo>>(uri);
-
-            if (reres.Code == "0")
-            {
-                result.Ext = _mapper.Map<TResult>(reres.ext);
-                result.Code = ResponseCodeDefines.SuccessCode;
-            }
-            else
-            {
-                result.Ext = default(TResult);
-                result.Code = ResponseCodeDefines.PartialFailure;
-            }
-
-            return result;
-        }
-
-        public async Task<ResponseMessage<TResponse>> GetHighOrStandardParamAsync<TResponse>(string szUserToken)
-        {
-            var result = await AutoRetry.Run(GetHighOrStandardParam<TResponse>, szUserToken);
-            return result;
-        }
-
-        public async Task<ResponseMessage<TResult>> GetHighOrStandardParam<TResult>(string szUserToken)
-        {
-            userparameter param = new userparameter();
-            param.tool = "DEFAULT";
-            param.paramname = "HIGH_RESOLUTION";
-            param.system = "INGEST";
-
-            string uri = string.Format("http://{0}/CMApi/api/basic/config/getuserparam/", ApplicationContext.Current.CMServerUrl);
-
-            ResponseMessage<TResult> result = new ResponseMessage<TResult>();
-            var dicHeader = new Dictionary<string, string>();
-            dicHeader.Add("sobeyhive-http-token", szUserToken);
-            ResponseMessageN<etparam> reres = await _restClient.Post<ResponseMessageN<etparam>>(uri, param, dicHeader);
-
-            if (reres.Code == "0")
-            {
-                result.Ext = _mapper.Map<TResult>(reres.ext);
-                result.Code = ResponseCodeDefines.SuccessCode;
-            }
-            else
-            {
-                result.Ext = default(TResult);
-                result.Code = ResponseCodeDefines.PartialFailure;
-            }
-
-            return result;
-        }
-
-
-
+        
         #endregion
 
         #endregion
