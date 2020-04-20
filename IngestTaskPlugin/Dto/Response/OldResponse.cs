@@ -629,5 +629,79 @@ namespace IngestTaskPlugin.Dto
         public string errStr;
         public bool bRet;
     }
+    public class CreateNewTaskFromPeriodicTask_OUT
+    {
+        public TaskFullInfo newTask;
+        public string errStr;
+        public bool bRet;
+    }
+    public class StartTieUpTask_out
+    {
+        public string errStr;
+        public bool bRet;
+    }
+    public class AddTaskExDb_in
+    {
+        public TaskContent taskAdd;
+        public string strCaptureMetaData;
+        public string strContentMetaData;
+    }
+
+    public class AddTaskExDb_out
+    {
+        public int taskID;
+        public string errStr;
+        public bool bRet;
+    }
+
+    public class ChooseUseableChannel_in
+    {
+        public List<int> channelIds;
+        public string strBein;
+        public string strEnd;
+    }
+
+    public class ChooseUseableChannel_out
+    {
+        public int channelId;
+        public string errStr;
+        public bool bRet;
+    }
+    public class ModifyPeriodTask_out
+    {
+        public int newTaskId;
+        public string errStr;
+        public bool bRet;
+    }
+    public class ModifyTaskName_out
+    {
+        public string errStr;
+        public bool bRet;
+    }
+    /// <summary>
+    /// VTR备份冲突结果
+	/// </summary>
+	public enum VTRCollideResult
+    {
+        /// <summary>
+        /// 判断VTR冲突失败 = -1
+        /// </summary>
+		emVTRNotDefine = -1,
+        /// <summary>
+        /// 没有VTR冲突 = 0
+        /// </summary>
+		emNotVTRCollide = 0,
+        /// <summary>
+        /// 有VTR冲突 = 1
+        /// </summary>
+		emHaveVTRCollide = 1
+    }
+    public class IsVTRCollide_out
+    {
+        public VTRCollideResult emResult;
+        public TaskContent CollideTaskContent;
+        public string errStr;
+        public bool bRet;
+    }
 }
 

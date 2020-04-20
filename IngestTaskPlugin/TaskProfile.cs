@@ -118,7 +118,15 @@ namespace IngestTaskPlugin
                 .ForMember(x => x.StampImageType, (y) => y.MapFrom(z => z.nStampImageType))
                 .ForMember(x => x.GroupColor, (y) => y.MapFrom(z => z.nSGroupColor));
 
-           
+            CreateMap<AddTaskExDb_in, TaskInfoResponse>()
+                .ForMember(d => d.TaskContent, y => y.MapFrom(s => s.taskAdd))
+                .AfterMap((a, b) =>
+                {
+                    b.TaskSource = TaskSource.emMSVUploadTask;
+                    b.BackUpTask = false;
+                });
+
+
             CreateMap<AddTaskSvr_IN, TaskInfoResponse>() 
                 .ForMember(d => d.TaskContent, y => y.MapFrom(s => s.taskAdd))
                 .ForMember(d => d.TaskSource, y => y.MapFrom(s => s.taskSrc));

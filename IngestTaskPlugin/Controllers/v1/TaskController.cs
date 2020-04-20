@@ -308,6 +308,61 @@ namespace IngestTaskPlugin.Controllers
 
         [HttpPost("PostAddTaskSvr"), MapToApiVersion("1.0")]
         [ApiExplorerSettings(GroupName = "v1")]
+        public async Task<AddTaskExDb_out> PostAddTaskSvr([FromBody] AddTaskExDb_in pIn)
+        {
+            var Response = new AddTaskExDb_out
+            {
+                bRet = true,
+                errStr = "OK"
+            };
+
+            try
+            {
+                string CaptureMeta = pIn.strCaptureMetaData;
+                string ContentMeta = pIn.strContentMetaData;
+                string MatiralMeta = string.Empty;
+                string PlanningMeta = string.Empty;
+                
+                var f = await _taskManage.AddTaskWithoutPolicy<AddTaskExDb_in>(pIn, CaptureMeta, ContentMeta, MatiralMeta, PlanningMeta);
+
+                Response.taskID = f.TaskID;
+                //添加后如果开始时间在2分钟以内，需要调度一次
+                if ((DateTimeFormat.DateTimeFromString(pIn.taskAdd.strBegin) - DateTime.Now).TotalSeconds < 120)
+                    await _taskManage.UpdateComingTasks();
+
+                var _globalinterface = ApplicationContext.Current.ServiceProvider.GetRequiredService<IIngestGlobalInterface>();
+                if (_globalinterface != null)
+                {
+                    GlobalInternals re = new GlobalInternals() { funtype = IngestDBCore.GlobalInternals.FunctionType.SetGlobalState, State = GlobalStateName.ADDTASK };
+                    var response1 = await _globalinterface.SubmitGlobalCallBack(re);
+                    if (response1.Code != ResponseCodeDefines.SuccessCode)
+                    {
+                        Logger.Error("SetGlobalState modtask error");
+                    }
+                }
+
+                return Response;
+            }
+            catch (Exception e)
+            {
+                Response.bRet = false;
+                if (e.GetType() == typeof(SobeyRecException))//sobeyexcep会自动打印错误
+                {
+                    SobeyRecException se = e as SobeyRecException;
+                    Response.errStr = se.ErrorCode.ToString();
+                }
+                else
+                {
+                    Response.errStr = "PostAddTaskSvr error info：" + e.ToString();
+                    Logger.Error(Response.errStr);
+                }
+                return Response;
+            }
+
+        }
+
+        [HttpPost("PostAddTaskSvr"), MapToApiVersion("1.0")]
+        [ApiExplorerSettings(GroupName = "v1")]
         public async Task<AddTaskSvr_OUT> PostAddTaskSvr([FromBody] AddTaskSvr_IN pIn)
         {
             var Response = new AddTaskSvr_OUT
@@ -1479,6 +1534,283 @@ namespace IngestTaskPlugin.Controllers
                     Response.bRet = false;
                     Response.errStr = "error info：" + e.ToString();
                     Logger.Error("SplitTask" + e.ToString());
+                }
+                return Response;
+            }
+            return Response;
+
+        }
+        
+        [HttpGet("CreateNewTaskFromPeriodicTask"), MapToApiVersion("1.0")]
+        [ApiExplorerSettings(GroupName = "v1")]
+        public async Task<CreateNewTaskFromPeriodicTask_OUT> CreateNewTaskFromPeriodicTask([FromQuery]int periodicTaskId)
+        {
+            var Response = new CreateNewTaskFromPeriodicTask_OUT()
+            {
+                errStr = "OK",
+                bRet = true
+            };
+
+            try
+            {
+                Response.newTask = await _taskManage.CreateNewTaskFromPeriodicTask<TaskFullInfo>(periodicTaskId);
+
+                var custom = await _taskManage.GetCustomMetadataAsync<TaskCustomMetadataResponse>(periodicTaskId);
+                await _taskManage.UpdateCustomMetadataAsync(Response.newTask.taskContent.nTaskID, custom.Metadata);
+                return Response;
+            }
+            catch (Exception e)//其他未知的异常，写异常日志
+            {
+                if (e.GetType() == typeof(SobeyRecException))//sobeyexcep会自动打印错误
+                {
+                    SobeyRecException se = e as SobeyRecException;
+                    Response.errStr = se.ErrorCode.ToString();
+                    Response.bRet = false;
+                }
+                else
+                {
+                    Response.bRet = false;
+                    Response.errStr = "error info：" + e.ToString();
+                    Logger.Error("CreateNewTaskFromPeriodicTask" + e.ToString());
+                }
+                return Response;
+            }
+            return Response;
+
+        }
+
+        [HttpGet("GetStartTieUpTask"), MapToApiVersion("1.0")]
+        [ApiExplorerSettings(GroupName = "v1")]
+        public async Task<StartTieUpTask_out> GetStartTieUpTask([FromQuery]int iTaskID)
+        {
+            var Response = new StartTieUpTask_out()
+            {
+                errStr = "OK",
+                bRet = true
+            };
+
+            try
+            {
+                Response.bRet = await _taskManage.StartTieupTask(iTaskID);
+
+                var _globalinterface = ApplicationContext.Current.ServiceProvider.GetRequiredService<IIngestGlobalInterface>();
+                if (_globalinterface != null)
+                {
+                    GlobalInternals re = new GlobalInternals() { funtype = IngestDBCore.GlobalInternals.FunctionType.SetGlobalState, State = GlobalStateName.MODTASK };
+                    var response1 = await _globalinterface.SubmitGlobalCallBack(re);
+                    if (response1.Code != ResponseCodeDefines.SuccessCode)
+                    {
+                        Logger.Error("SetGlobalState modtask error");
+                    }
+                }
+                return Response;
+            }
+            catch (Exception e)//其他未知的异常，写异常日志
+            {
+                if (e.GetType() == typeof(SobeyRecException))//sobeyexcep会自动打印错误
+                {
+                    SobeyRecException se = e as SobeyRecException;
+                    Response.errStr = se.ErrorCode.ToString();
+                    Response.bRet = false;
+                }
+                else
+                {
+                    Response.bRet = false;
+                    Response.errStr = "error info：" + e.ToString();
+                    Logger.Error("GetStartTieUpTask" + e.ToString());
+                }
+                return Response;
+            }
+            return Response;
+
+        }
+
+        [HttpGet("ChooseUseableChannel"), MapToApiVersion("1.0")]
+        [ApiExplorerSettings(GroupName = "v1")]
+        public async Task<ChooseUseableChannel_out> ChooseUseableChannel([FromBody]ChooseUseableChannel_in pIn)
+        {
+            var Response = new ChooseUseableChannel_out()
+            {
+                errStr = "OK",
+                bRet = true
+            };
+
+            try
+            {
+                Response.channelId = await _taskManage.ChooseUsealbeChannel(pIn.channelIds, DateTimeFormat.DateTimeFromString(pIn.strBein), DateTimeFormat.DateTimeFromString(pIn.strEnd));
+                return Response;
+            }
+            catch (Exception e)//其他未知的异常，写异常日志
+            {
+                if (e.GetType() == typeof(SobeyRecException))//sobeyexcep会自动打印错误
+                {
+                    SobeyRecException se = e as SobeyRecException;
+                    Response.errStr = se.ErrorCode.ToString();
+                    Response.bRet = false;
+                }
+                else
+                {
+                    Response.bRet = false;
+                    Response.errStr = "error info：" + e.ToString();
+                    Logger.Error("GetStartTieUpTask" + e.ToString());
+                }
+                return Response;
+            }
+            return Response;
+
+        }
+
+        [HttpPost("ModifyTaskName"), MapToApiVersion("1.0")]
+        [ApiExplorerSettings(GroupName = "v1")]
+        public async Task<ModifyTaskName_out> ModifyTaskName([FromQuery]int nTaskID, [FromQuery]string strNewName)
+        {
+            var Response = new ModifyTaskName_out()
+            {
+                errStr = "OK",
+                bRet = true
+            };
+
+            try
+            {
+                await _taskManage.ModifyTaskName(nTaskID, strNewName);
+                return Response;
+            }
+            catch (Exception e)//其他未知的异常，写异常日志
+            {
+                if (e.GetType() == typeof(SobeyRecException))//sobeyexcep会自动打印错误
+                {
+                    SobeyRecException se = e as SobeyRecException;
+                    Response.errStr = se.ErrorCode.ToString();
+                    Response.bRet = false;
+                }
+                else
+                {
+                    Response.bRet = false;
+                    Response.errStr = "error info：" + e.ToString();
+                    Logger.Error("ModifyTaskName" + e.ToString());
+                }
+                return Response;
+            }
+            return Response;
+
+        }
+
+        [HttpPost("ModifyPeriodTask"), MapToApiVersion("1.0")]
+        [ApiExplorerSettings(GroupName = "v1")]
+        public async Task<ModifyPeriodTask_out> ModifyPeriodTask([FromQuery]int isall, [FromBody]TaskContent req)
+        {
+            var Response = new ModifyPeriodTask_out()
+            {
+                errStr = "OK",
+                bRet = true
+            };
+
+            try
+            {
+                Response.newTaskId = await _taskManage.ModifyPeriodTask<TaskContent>(req, isall == 1 ? true : false);
+
+                //添加后如果开始时间在2分钟以内，需要调度一次
+                if ((DateTimeFormat.DateTimeFromString(req.strBegin) - DateTime.Now).TotalSeconds < 120)
+                    await _taskManage.UpdateComingTasks();
+
+                var _globalinterface = ApplicationContext.Current.ServiceProvider.GetRequiredService<IIngestGlobalInterface>();
+                if (_globalinterface != null)
+                {
+                    GlobalInternals re = new GlobalInternals() { funtype = IngestDBCore.GlobalInternals.FunctionType.SetGlobalState, State = GlobalStateName.MODTASK };
+                    var response1 = await _globalinterface.SubmitGlobalCallBack(re);
+                    if (response1.Code != ResponseCodeDefines.SuccessCode)
+                    {
+                        Logger.Error("SetGlobalState modtask error");
+                    }
+                }
+                return Response;
+            }
+            catch (Exception e)//其他未知的异常，写异常日志
+            {
+                if (e.GetType() == typeof(SobeyRecException))//sobeyexcep会自动打印错误
+                {
+                    SobeyRecException se = e as SobeyRecException;
+                    Response.errStr = se.ErrorCode.ToString();
+                    Response.bRet = false;
+                }
+                else
+                {
+                    Response.bRet = false;
+                    Response.errStr = "error info：" + e.ToString();
+                    Logger.Error("ModifyTaskName" + e.ToString());
+                }
+                return Response;
+            }
+            return Response;
+
+        }
+
+        [HttpGet("IsVTRCollide"), MapToApiVersion("1.0")]
+        [ApiExplorerSettings(GroupName = "v1")]
+        public async Task<IsVTRCollide_out> IsVTRCollide(
+            [FromQuery]int VTR_ID, 
+            [FromQuery]string strBeginTime, 
+            [FromQuery]string strEndTime, 
+            [FromQuery] int TaskID)
+        {
+            var Response = new IsVTRCollide_out()
+            {
+                errStr = "OK",
+                bRet = true
+            };
+
+            try
+            {
+                if (string.IsNullOrEmpty(strBeginTime))
+                {
+                    Response.bRet = false;
+                    Response.errStr = $"检测VTR是否冲突过程中，任务开始时间不合法";
+                    return Response;
+                }
+                if (string.IsNullOrEmpty(strEndTime))
+                {
+                    Response.bRet = false;
+                    Response.errStr = $"检测VTR是否冲突过程中，任务结束时间不合法";
+                    return Response;
+                }
+
+                if (VTR_ID <= 0)
+                {
+                    Response.bRet = false;
+                    Response.errStr = $"检测VTR是否冲突过程中，VTR的ID不合法";
+                    return Response;
+                }
+                if (TaskID < -1)
+                {
+                    Response.bRet = false;
+                    Response.errStr = $"检测VTR是否冲突过程中，任务的ID不合法";
+                    return Response;
+                }
+
+                Response.emResult = VTRCollideResult.emVTRNotDefine;
+                Response.CollideTaskContent= await _taskManage.IsVTRCollide<TaskContent>(VTR_ID, strBeginTime, strEndTime, TaskID);
+                if (Response.CollideTaskContent != null)
+                {
+                    Response.emResult = VTRCollideResult.emHaveVTRCollide;
+                }
+                else
+                    Response.emResult = VTRCollideResult.emNotVTRCollide;
+
+                return Response;
+            }
+            catch (Exception e)//其他未知的异常，写异常日志
+            {
+                if (e.GetType() == typeof(SobeyRecException))//sobeyexcep会自动打印错误
+                {
+                    SobeyRecException se = e as SobeyRecException;
+                    Response.errStr = se.ErrorCode.ToString();
+                    Response.bRet = false;
+                }
+                else
+                {
+                    Response.bRet = false;
+                    Response.errStr = "error info：" + e.ToString();
+                    Logger.Error("ModifyTaskName" + e.ToString());
                 }
                 return Response;
             }
