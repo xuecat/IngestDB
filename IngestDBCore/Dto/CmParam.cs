@@ -25,6 +25,16 @@ namespace IngestDBCore.Dto
 
     }
 
+    public class CMUserInfo
+    {
+        public string createtime;
+        public bool disabled;
+        public string email;
+        public string id;
+        public string loginname;
+        public string nickname;
+    }
+
     public class ExtParam
     {
         public string accessPWD { get; set; }

@@ -1,4 +1,5 @@
 ﻿using AutoMapper;
+using IngestDBCore.Dto;
 using IngestDBCore.Tool;
 using IngestGlobalPlugin.Dto;
 using IngestGlobalPlugin.Models;

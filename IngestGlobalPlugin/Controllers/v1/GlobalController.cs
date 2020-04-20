@@ -1,4 +1,5 @@
 ﻿using IngestDBCore;
+using IngestDBCore.Dto;
 using IngestGlobalPlugin.Dto;
 using Microsoft.AspNetCore.Mvc;
 using System;
@@ -586,11 +587,10 @@ namespace IngestGlobalPlugin.Controllers
             try
             {
                 int nCaptureParamID = -1;
-                
-                ResponseMessage<etparam> res = await _GlobalManager.GetHighOrStandardParamAsync<etparam>(szUserToken);
-                if (res.Code == ResponseCodeDefines.SuccessCode)
+
+                nCaptureParamID = await _GlobalManager.GetUserParamTemplateIDAsync(true, szUserToken);
+                if (nCaptureParamID != -1)
                 {
-                    nCaptureParamID = Convert.ToInt32(res.Ext.paramvalue);
                     GetParamTemplateByID_out ret = await OldGetParamTemplateByID(nCaptureParamID, nFlag);
 
                     Res.extention = ret.strCaptureParam;
@@ -600,7 +600,6 @@ namespace IngestGlobalPlugin.Controllers
                 else
                 {
                     Res.extention = null;
-                    Res.message = res.Msg;
                     Res.nCode = 0;
                 }
             }

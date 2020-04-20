@@ -426,6 +426,30 @@ namespace IngestDBCore.Tool
             }
             return string.Empty;
         }
+
+        public async Task<CMUserInfo> GetUserInfo(bool usetokencode, string userTokenOrCode, string userCode)
+        {
+            if (usetokencode)
+                UseTokenHeader(userTokenOrCode);
+            else
+                UseCodeHeader(userTokenOrCode);
+
+            var back = await AutoRetry.Run<ResponseMessage<CMUserInfo>>(() =>
+            {
+                NameValueCollection v = new NameValueCollection();
+                v.Add("usercode", userCode);
+
+                return Get<ResponseMessage<CMUserInfo>>(
+                    string.Format("{0}/CMApi/api/basic/account/getuserinfobyusercode", ApplicationContext.Current.CMServerUrl),
+                    v);
+            });
+
+            if (back != null)
+            {
+                return back.Ext;
+            }
+            return null;
+        }
         #endregion
     }
 }

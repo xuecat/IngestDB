@@ -901,11 +901,11 @@ namespace IngestGlobalPlugin.Stores
             }
         }
 
-        public async Task DeleteUserTemplateAsync(int nTemplateID)
+        public async Task DeleteUserTemplateAsync(int TemplateID)
         {
             try
             {
-                var dbpUserTemplate = await GetUsertemplateAsync(a => a.Where(x => x.Templateid == nTemplateID));
+                var dbpUserTemplate = await GetUsertemplateAsync(a => a.Where(x => x.Templateid == TemplateID));
 
                 if (dbpUserTemplate != null)
                 {
