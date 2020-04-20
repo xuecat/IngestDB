@@ -103,6 +103,7 @@ namespace IngestTaskPlugin.Stores
             return await query.Invoke(Context.DbpTask).ToListAsync();
         }
 
+
         public async Task UpdateTaskListAsync(List<DbpTask> lst)
         {
             Context.DbpTask.UpdateRange(lst);
@@ -224,6 +225,35 @@ namespace IngestTaskPlugin.Stores
                                    StartTime = task.NewBegintime,
                                    EndTime = task.NewEndtime
                                }).ToListAsync();
+        }
+
+        public async Task<List<DbpTask>> GetNeedFinishTasks()
+        {
+            var date = DateTime.Now.AddSeconds(600);
+
+            return await Context.DbpTask.AsNoTracking().Where(a => string.IsNullOrEmpty(a.Tasklock) 
+            && ((a.NewEndtime < date
+                && ((a.DispatchState == (int)dispatchState.dpsDispatched && a.SyncState == (int)syncState.ssSync && a.State == (int)taskState.tsExecuting && (a.Tasktype != (int)TaskType.TT_MANUTASK && a.Tasktype != (int)TaskType.TT_TIEUP && a.Tasktype != (int)TaskType.TT_PERIODIC))
+                     || (a.Backtype ==(int)CooperantType.emKamataki && a.SyncState==(int)syncState.ssSync)
+                     || (a.Backtype == (int)CooperantType.emVTRBackup &&a.SyncState==(int)syncState.ssSync && (a.Tasktype != (int)TaskType.TT_PERIODIC || (a.Tasktype == (int)TaskType.TT_PERIODIC && a.OldChannelid >0)))
+                   )
+                && a.State != (int)taskState.tsDelete
+                && a.Starttime != a.Endtime)
+               || (a.State== (int)taskState.tsExecuting && a.Tasktype ==(int)TaskType.TT_OPENEND && a.Starttime.AddSeconds(86400)> date))
+                ).ToListAsync();
+        }
+
+        public async Task<List<DbpTask>> GetNeedUnSynTasks()
+        {
+            var date = DateTime.Now.AddSeconds(600);
+
+            return await Context.DbpTask.AsNoTracking().Where(x => string.IsNullOrEmpty(x.Tasklock)
+                && x.DispatchState == (int)dispatchState.dpsDispatched
+                && x.SyncState == (int)syncState.ssNot
+                && x.Tasktype != (int)TaskType.TT_VTRUPLOAD
+                && x.State != (int)taskState.tsDelete
+                && ((x.State != (int)taskState.tsExecuting &&x.State!= (int)taskState.tsManuexecuting) || x.Backtype != (int)CooperantType.emKamataki)
+                && (x.NewBegintime > date.AddDays(-1) && x.NewBegintime < date)).ToListAsync();
         }
 
         public async Task UpdateTaskMetaDataAsync(int taskid, MetaDataType type, string metadata)
@@ -1876,7 +1906,7 @@ namespace IngestTaskPlugin.Stores
             return true;
         }
 
-        private bool GetPerodicTaskNextExectueTime(DateTime tmBegin, DateTime tmEnd, string strPerodicDesc, ref DateTime tmExecuteBegin, ref DateTime tmExecuteEnd)
+        public bool GetPerodicTaskNextExectueTime(DateTime tmBegin, DateTime tmEnd, string strPerodicDesc, ref DateTime tmExecuteBegin, ref DateTime tmExecuteEnd)
         {
 
             DateTime dtNow = DateTime.Now;
@@ -2310,7 +2340,7 @@ namespace IngestTaskPlugin.Stores
             return false;
         }
 
-        private bool IsInvalidPerodicTask(string strClassify, DateTime begin)
+        public bool IsInvalidPerodicTask(string strClassify, DateTime begin)
         {
             int nStart = 0;
             int nPos = strClassify.IndexOf('[', nStart);
@@ -2373,7 +2403,7 @@ namespace IngestTaskPlugin.Stores
             }
             return list;
         }
-        private List<DateTime> GetDateTimeFromString(string str)
+        public List<DateTime> GetDateTimeFromString(string str)
         {
             List<DateTime> DatetimeArray = new List<DateTime>();
             int nLPos = 0;
@@ -2402,7 +2432,21 @@ namespace IngestTaskPlugin.Stores
 
         public async Task LockTask(int taskid)
         {
-            
+            DbpTask obj = new DbpTask()
+            {
+                Taskid = taskid,
+                Tasklock = Guid.NewGuid().ToString(),
+            };
+            Context.Attach(obj);
+            Context.Entry(obj).Property("Tasklock").IsModified = true;
+            await Context.SaveChangesAsync();
+            //Context.Entry(await Context.DbpTask.FirstOrDefaultAsync(x => x.Taskid == taskid)).CurrentValues.SetValues();
+            //(await Context.SaveChangesAsync()) > 0;
+        }
+
+        public async Task UnLockAllTask()
+        {
+
             //Context.Entry(await Context.DbpTask.FirstOrDefaultAsync(x => x.Taskid == taskid)).CurrentValues.SetValues();
             //(await Context.SaveChangesAsync()) > 0;
         }

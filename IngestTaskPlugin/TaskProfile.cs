@@ -8,12 +8,29 @@ using System.Text;
 
 namespace IngestTaskPlugin
 {
-   
+    public class DateTimeTypeConverter : ITypeConverter<string, DateTime>
+    {
+        public DateTime Convert(string source, DateTime destination, ResolutionContext context)
+        {
+            return DateTimeFormat.DateTimeFromString(source);
+        }
+    }
+
+    public class DateTimeStringTypeConverter : ITypeConverter<DateTime, string>
+    {
+        public string Convert(DateTime source, string destination, ResolutionContext context)
+        {
+            return DateTimeFormat.DateTimeToString(source);
+        }
+    }
     public class TaskProfile : Profile
     {
         
         public TaskProfile()
         {
+            CreateMap<string, DateTime>().ConvertUsing(new DateTimeTypeConverter());
+            CreateMap<DateTime, string>().ConvertUsing(new DateTimeStringTypeConverter());
+
             CreateMap<TaskMetadataResponse, DbpTaskMetadata>()
                 .ForMember(a => a.Metadatalong, (map) => map.MapFrom(b => b.Metadata));
 
@@ -37,8 +54,8 @@ namespace IngestTaskPlugin
                 .ForMember(a => a.Recunitid, (map) => map.MapFrom(b => b.Unit))
                 .ForMember(a => a.Category, (map) => map.MapFrom(b => b.Classify))
                 .ForMember(a => a.Description, (map) => map.MapFrom(b => b.TaskDesc))
-                .ForMember(a => a.Starttime, (map) => map.MapFrom(b => DateTimeFormat.DateTimeFromString(b.Begin)))
-                .ForMember(a => a.Endtime, (map) => map.MapFrom(b => DateTimeFormat.DateTimeFromString(b.End)))
+                .ForMember(a => a.Starttime, (map) => map.MapFrom(b => b.Begin))
+                .ForMember(a => a.Endtime, (map) => map.MapFrom(b => b.End))
                 .ForMember(a => a.Sgroupcolor, (map) => map.MapFrom(b => b.GroupColor))
                 .ForMember(a => a.Stampimagetype, (map) => map.MapFrom(b => b.StampImageType))
                 .ForMember(a => a.Taskpriority, (map) => map.MapFrom(b => b.Priority))
@@ -48,8 +65,8 @@ namespace IngestTaskPlugin
                 .ForMember(a => a.Unit, (map) => map.MapFrom(b => b.Recunitid))
                 .ForMember(a => a.Classify, (map) => map.MapFrom(b => b.Category))
                 .ForMember(a => a.TaskDesc, (map) => map.MapFrom(b => b.Description))
-                .ForMember(a => a.Begin, (map) => map.MapFrom(b => DateTimeFormat.DateTimeToString(b.Starttime)))
-                .ForMember(a => a.End, (map) => map.MapFrom(b => DateTimeFormat.DateTimeToString(b.Endtime)))
+                .ForMember(a => a.Begin, (map) => map.MapFrom(b => b.Starttime))
+                .ForMember(a => a.End, (map) => map.MapFrom(b => b.Endtime))
                 .ForMember(a => a.GroupColor, (map) => map.MapFrom(b => b.Sgroupcolor))
                 .ForMember(a => a.StampImageType, (map) => map.MapFrom(b => b.Stampimagetype))
                 .ForMember(a => a.Priority, (map) => map.MapFrom(b => b.Taskpriority))
@@ -64,8 +81,8 @@ namespace IngestTaskPlugin
                 .ForMember(a => a.nUnit, (y) => y.MapFrom(b => b.Recunitid))
                 .ForMember(a => a.strUserCode, (y) => y.MapFrom(b => b.Usercode))
                 .ForMember(a => a.nSignalID, (y) => y.MapFrom(b => b.Signalid))
-                .ForMember(a => a.strBegin, (y) => y.MapFrom(b => DateTimeFormat.DateTimeToString(b.Starttime)))
-                .ForMember(a => a.strEnd, (y) => y.MapFrom(b => DateTimeFormat.DateTimeToString(b.Endtime)))
+                .ForMember(a => a.strBegin, (y) => y.MapFrom(b => b.Starttime))
+                .ForMember(a => a.strEnd, (y) => y.MapFrom(b => b.Endtime))
 
                 .ForMember(a => a.emTaskType, (y) => y.MapFrom(b => b.Tasktype))
                 .ForMember(a => a.emCooperantType, (y) => y.MapFrom(b => b.Backtype))
@@ -100,6 +117,8 @@ namespace IngestTaskPlugin
                 .ForMember(x => x.StampTitleIndex, (y) => y.MapFrom(z => z.nStampTitleIndex))
                 .ForMember(x => x.StampImageType, (y) => y.MapFrom(z => z.nStampImageType))
                 .ForMember(x => x.GroupColor, (y) => y.MapFrom(z => z.nSGroupColor));
+
+           
             CreateMap<AddTaskSvr_IN, TaskInfoResponse>() 
                 .ForMember(d => d.TaskContent, y => y.MapFrom(s => s.taskAdd))
                 .ForMember(d => d.TaskSource, y => y.MapFrom(s => s.taskSrc));
@@ -107,14 +126,36 @@ namespace IngestTaskPlugin
             CreateMap<AddTaskSvrPolicysAndBackupFlag_IN, TaskInfoResponse>()
                .ForMember(d => d.TaskContent, y => y.MapFrom(s => s.taskAdd))
                .ForMember(d => d.TaskSource, y => y.MapFrom(s => s.taskSrc));
-
-            CreateMap<DbpTask, DbpTaskBackup>();
+            
             CreateMap<DbpTask, DbpTaskBackup>().ReverseMap();
 
+            CreateMap<DbpTask, TaskFullInfo>()
+                .ForMember(d => d.taskContent, y => y.MapFrom(s => s))
+                .ForPath(d => d.nOldChannelID, y => y.MapFrom(s => s.OldChannelid))
+                .ForPath(d => d.emDispatchState, y => y.MapFrom(s => s.DispatchState))
+                .ForPath(d => d.emSyncState, y => y.MapFrom(s => s.SyncState))
+                .ForPath(d => d.emOpType, y => y.MapFrom(s => s.OpType))
+                .ForPath(d => d.strNewBeginTime, y => y.MapFrom(s => s.NewBegintime))
+                .ForPath(d => d.strNewEndTime, y => y.MapFrom(s => s.NewEndtime))
+                .ForPath(d => d.strTaskLock, y => y.MapFrom(s => s.Tasklock));
             CreateMap<DbpTaskMetadata, MetadataPair>()
                 .ForMember(x => x.emtype, (y) => y.MapFrom(z => z.Metadatatype))
                 .ForMember(x => x.nTaskID, (y) => y.MapFrom(z => z.Taskid))
                 .ForMember(x => x.strMetadata, (y) => y.MapFrom(z => z.Metadatalong));
+
+            CreateMap<CompleteSynTasks_IN, CompleteSyncTaskRequest>()
+                .ForMember(x => x.IsFinish, (y) => y.MapFrom(z => z.bIsFinish))
+                .ForMember(x => x.Perodic2Next, (y) => y.MapFrom(z => z.bPerodic2Next))
+                .ForMember(x => x.TaskID, (y) => y.MapFrom(z => z.nTaskID))
+                .ForMember(x => x.TaskState, (y) => y.MapFrom(z => z.nTaskState))
+                .ForMember(x => x.DispatchState, (y) => y.MapFrom(z => z.nDispatchState))
+                .ForMember(x => x.SynState, (y) => y.MapFrom(z => z.nSynState)).ReverseMap();
+
+            CreateMap<WarningInfo, WarningInfoResponse>()
+                .ForMember(x => x.RelatedID, (y) => y.MapFrom(z => z.nRelatedID))
+                .ForMember(x => x.TaskID, (y) => y.MapFrom(z => z.nTaskID))
+                .ForMember(x => x.WarningLevel, (y) => y.MapFrom(z => z.nWarningLevel))
+                .ForMember(x => x.WarningMessage, (y) => y.MapFrom(z => z.strWarningMessage)).ReverseMap();
             //ReverseMap
         }
     }

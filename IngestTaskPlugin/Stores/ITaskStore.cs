@@ -45,6 +45,9 @@ namespace IngestTaskPlugin.Stores
         Task<TResult> GetTaskBackupAsync<TResult>(Func<IQueryable<DbpTaskBackup>, IQueryable<TResult>> query, bool notrack = false);
         Task<List<TimePeriod>> GetTimePeriodsByScheduleVBUTasks(int vtrid, int extaskid);
         Task<List<DbpTask>> GetTaskListWithMode(int cut, DateTime day, TimeLineType timetype);
+
+        Task<List<DbpTask>> GetNeedFinishTasks();
+        Task<List<DbpTask>> GetNeedUnSynTasks();
         //Task<List<DbpTask>> GetCapturingTaskListAsync(List<int> lstchannel);
 
         Task SetVTRUploadTaskState(int TaskId, VTRUPLOADTASKSTATE vtrTaskState, string errorContent, bool savechange);
@@ -64,7 +67,12 @@ namespace IngestTaskPlugin.Stores
         Task<DbpTask> AddTaskWithPolicys(DbpTask task, bool bAddForInDB, TaskSource taskSrc, string CaptureMeta, string ContentMeta, string MatiralMeta, string PlanningMeta, int[] arrPolicys);
         Task<DbpTask> ModifyTask(DbpTask task, bool bPerodic2Next, string CaptureMeta, string ContentMeta, string MatiralMeta, string PlanningMeta);
 
+        Task UnLockAllTask();
         Task LockTask(int taskid);
         Task UnLockTask(int taskid);
+
+        bool GetPerodicTaskNextExectueTime(DateTime tmBegin, DateTime tmEnd, string strPerodicDesc, ref DateTime tmExecuteBegin, ref DateTime tmExecuteEnd);
+        List<DateTime> GetDateTimeFromString(string str);
+        bool IsInvalidPerodicTask(string strClassify, DateTime begin);
     }
 }

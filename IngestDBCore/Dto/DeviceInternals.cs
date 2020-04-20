@@ -9,11 +9,16 @@ namespace IngestDBCore
     {
         public enum FunctionType
         {
+            /// //////////////get信息//////
             ChannelInfoBySrc,
             SingnalInfoByChannel,
             AllChannelUnitMap,
             ChannelUnitMap,
-            BackSignalByID
+            BackSignalByID,
+            SignalCaptureID,
+            AllChannelState,
+            ChannelExtendData
+           /////////////////////////////set信息//
         }
 
         public FunctionType funtype { get; set; }
@@ -121,6 +126,70 @@ namespace IngestDBCore
         public int PureAudio { set; get; }
         public int CarrierID { set; get; }//运营商的ID
         public int GroupID { set; get; } // Add by chenzhi 2013-07-08 分组ID
+    }
+
+    /// <summary>设备状态</summary>
+    public enum Device_StateInterface
+    {
+        /// <summary>没有连接</summary>
+        DISCONNECTTED,
+
+        /// <summary>已经连接</summary>
+        CONNECTED,
+
+        /// <summary>正在采集</summary>
+        WORKING
+    }
+
+    /// <summary>MSV模式</summary>
+    public enum MSV_ModeInterface
+    {
+        /// <summary>本地</summary>
+        LOCAL,
+
+        /// <summary>网络</summary>
+        NETWORK
+    }
+
+    /// <summary>上载模式</summary>
+    public enum Upload_ModeInterface
+    {
+        /// <summary></summary>
+        NOUPLOAD,
+
+        /// <summary></summary>
+        CANUPLOAD,
+
+        /// <summary>上载独占</summary>
+        ONLYUPLOAD
+    }
+
+
+    public class MSVChannelStateInterface
+    {
+        /// <summary>通道ID</summary>
+        public int ChannelID { get; set; }
+
+        /// <summary>设备状态</summary>
+        public Device_StateInterface DevState { get; set; }
+
+        /// <summary>MSV模式</summary>
+        public MSV_ModeInterface MSVMode { get; set; }
+
+        /// <summary>vtrID</summary>
+        public int VtrID { get; set; } = -1;
+
+        /// <summary>当前用户Code</summary>
+        public string UserCode { get; set; }
+
+        /// <summary>kamataki信息</summary>
+        public string KamatakiInfo { get; set; }
+
+        /// <summary>上载模式</summary>
+        public Upload_ModeInterface UploadMode { get; set; }
+
+        /// <summary>通道索引</summary>
+        public int ChannelIndex { get; set; }
     }
 
 }

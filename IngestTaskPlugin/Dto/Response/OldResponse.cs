@@ -461,7 +461,7 @@ namespace IngestTaskPlugin.Dto
     public class ModifyTask_in
     {
         public TaskContent taskModify;
-        public MetadataPair[] metadatas;
+        public List<MetadataPair> metadatas;
     }
     public class GetTaskByID_OUT
     {
@@ -542,6 +542,90 @@ namespace IngestTaskPlugin.Dto
     }
     public class SetTaskClassify_OUT
     {
+        public string errStr;
+        public bool bRet;
+    }
+    public class GetNeedSynTasks2_OUT
+    {
+        public List<TaskFullInfo> synTasks;
+        public int nValidDataCount;
+        public string errStr;
+        public bool bRet;
+    }
+    public class CompleteSynTasks_IN
+    {
+        public bool bIsFinish;
+        public bool bPerodic2Next;
+        public int nTaskID;
+        public int nTaskState;
+        public int nDispatchState;
+        public int nSynState;
+    }
+    public class GetNeedRescheduleTasks_OUT
+    {
+        public List<TaskFullInfo> rescheduleTasks;
+        public int nValidDataCount;
+        public string errStr;
+        public bool bRet;
+    }
+    public class etparam
+    {
+        public string paramname { get; set; }
+        public string paramvalue { get; set; }
+        public string paramvaluedef { get; set; }
+        public string paramdescription { get; set; }
+    }
+    public class parameter : etparam
+    {
+        public string system { get; set; }
+        public string tool { get; set; }
+        //public string key { get; set; }
+        //public bool autocreate { get; set; }
+        //public string defaults { get; set; }
+        //public string note { get; set; }
+        //用户参数
+
+
+    }
+    public class WarningInfo
+    {
+        public int nTaskID = 0;
+        public int nRelatedID = 0;
+        public int nWarningLevel = 0;
+        public string strWarningMessage = string.Empty;
+    }
+
+    public class TaskErrorInfo
+    {
+        public string strErrInfoID = string.Empty;
+        public int nTaskID = 0;
+        public int nErrorCode = 0;
+        public int nErrorLevel = 0;
+        public int nErrorType = 0;
+        public string strErrorTime = string.Empty;
+        public string strErrDesc = string.Empty;
+        public string strErrModule = string.Empty;
+    }
+    public class GetWarningInfos_OUT
+    {
+        public List<WarningInfo> arrErrInfo;
+        public bool bRet;
+    }
+    public class GetChannelCapturingLowMaterial_OUT
+    {
+        public string strLowFileName;
+        public string errStr;
+        public bool bRet;
+    }
+    public class SplitTask_IN
+    {
+        public int nTaskID;
+        public string strNewGUID;
+        public string strNewName;
+    }
+    public class SplitTask_OUT
+    {
+        public int nNewTaskID;
         public string errStr;
         public bool bRet;
     }

@@ -42,7 +42,7 @@ namespace IngestGlobalPlugin.Dto
     /// <summary>
     /// 很多重复的类字段一样，进行整合：PostLockObject_param_out,SetUserSetting_OUT
     /// </summary>
-    public class OldPostParam_Out
+    public class PostParam_Out
     {
         public string errStr;
         public bool bRet;
@@ -108,7 +108,7 @@ namespace IngestGlobalPlugin.Dto
         public bool bRet;
     }
 
-    public class OldUserTemplate
+    public class UserTemplate
     {
         public int nTemplateID = -1;                    //模板ID
         public string strUserCode = string.Empty;       //用户名
@@ -116,7 +116,7 @@ namespace IngestGlobalPlugin.Dto
         public string strTemplateContent = string.Empty;//模板内容   
     }
 
-    public class OldCMUserInfo
+    public class CMUserInfo
     {
         public string createtime;
         public bool disabled;

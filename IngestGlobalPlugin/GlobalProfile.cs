@@ -1,4 +1,5 @@
 ﻿using AutoMapper;
+using IngestDBCore.Tool;
 using IngestGlobalPlugin.Dto;
 using IngestGlobalPlugin.Models;
 using System;
@@ -7,28 +8,53 @@ using System.Text;
 
 namespace IngestGlobalPlugin
 {
+    public class DateTimeTypeConverter : ITypeConverter<string, DateTime>
+    {
+        public DateTime Convert(string source, DateTime destination, ResolutionContext context)
+        {
+            return DateTimeFormat.DateTimeFromString(source);
+        }
+    }
+
+    public class DateTimeStringTypeConverter : ITypeConverter<DateTime, string>
+    {
+        public string Convert(DateTime source, string destination, ResolutionContext context)
+        {
+            return DateTimeFormat.DateTimeToString(source);
+        }
+    }
     public class TaskProfile : Profile
     {
         public TaskProfile()
         {
+            CreateMap<string, DateTime>().ConvertUsing(new DateTimeTypeConverter());
+            CreateMap<DateTime, string>().ConvertUsing(new DateTimeStringTypeConverter());
+
+            CreateMap<GlobalTcResponse, GetDefaultSTC_param>()
+                .ForMember( a=> a.tcType, (map) => map.MapFrom(b => b.TcType))
+                .ForMember(a => a.nTC, (map) => map.MapFrom(b => b.TC));
 
             CreateMap<DbpGlobalState, GlobalState>()
                 .ForMember(a => a.strLabel, (map) => map.MapFrom(b => b.Label))
                 .ForMember(a => a.dtLastTime, (map) => map.MapFrom(b => b.Lasttime));
 
-            CreateMap<DbpUsertemplate, OldUserTemplate>()
+            CreateMap<DbpGlobalState, DtoGlobalState>()
+                .ForMember(a => a.Label, (map) => map.MapFrom(b => b.Label))
+                .ForMember(a => a.LastTime, (map) => map.MapFrom(b => b.Lasttime));
+
+            CreateMap<DbpUsertemplate, UserTemplate>()
                 .ForMember(a => a.nTemplateID, (map) => map.MapFrom(b => b.Templateid))
                 .ForMember(a => a.strUserCode, (map) => map.MapFrom(b => b.Usercode))
                 .ForMember(a => a.strTemplateName, (map) => map.MapFrom(b => b.Templatename))
                 .ForMember(a => a.strTemplateContent, (map) => map.MapFrom(b => b.Templatecontent));
 
-            CreateMap<DbpUsertemplate, UserTemplate>()
+            CreateMap<DbpUsertemplate, DtoUserTemplate>()
                 .ForMember(a => a.TemplateID, (map) => map.MapFrom(b => b.Templateid))
                 .ForMember(a => a.UserCode, (map) => map.MapFrom(b => b.Usercode))
                 .ForMember(a => a.TemplateName, (map) => map.MapFrom(b => b.Templatename))
                 .ForMember(a => a.TemplateContent, (map) => map.MapFrom(b => b.Templatecontent));
 
-            CreateMap<OldCMUserInfo, CMUserInfo>()
+            CreateMap<CMUserInfo, DtoCMUserInfo>()
                 .ForMember(a => a.Id, (map) => map.MapFrom(b => b.id))
                 .ForMember(a => a.CreateTime, (map) => map.MapFrom(b => b.createtime))
                 .ForMember(a => a.Disabled, (map) => map.MapFrom(b => b.disabled))

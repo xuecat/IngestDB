@@ -61,6 +61,22 @@ namespace IngestTaskInterfacePlugin
                             return ret;
                         }
 
+                    case FunctionType.SignalCaptureID:
+                        {
+
+                        } break;
+
+                    case FunctionType.AllChannelState:
+                        {
+                            //MSVChannelStateInterface
+                        }break;
+                    case FunctionType.ChannelExtendData:
+                        {
+                            //string
+                        }
+
+                        break;
+
 
                     default:
                         break;
