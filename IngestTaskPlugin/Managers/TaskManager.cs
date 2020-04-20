@@ -18,6 +18,7 @@ using IngestTaskPlugin.Models;
 using TaskInfoRequest = IngestTaskPlugin.Dto.TaskInfoResponse;
 using TaskContentRequest = IngestTaskPlugin.Dto.TaskContentResponse;
 using TaskInfoRescheduledRequest = IngestTaskPlugin.Dto.Response.TaskInfoRescheduledResponse;
+using CooperantType = IngestTaskPlugin.Dto.CooperantType;
 
 namespace IngestTaskPlugin.Managers
 {
