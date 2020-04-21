@@ -24,6 +24,7 @@ namespace IngestDevicePlugin.Stores
         Task<List<DbpChannelRecmap>> GetAllChannelUnitMap();
         Task<DbpChannelRecmap> GetChannelUnitMap(int channel);
         Task<int> GetMatrixChannelBySignalAsync(int channelid);
+        Task<int> GetBackUpSignalInfoByID(int srgid);
         #endregion
 
         /// <summary> 获取输入端口与信号源 </summary>

@@ -117,6 +117,12 @@ namespace IngestDevicePlugin.Managers
             return allSignalSrcExs;
         }
 
+        public async Task<ProgrammeInfoResponse> GetBackProgramInfoBySrgid(int srgid)
+        {
+            return await Store.GetSignalInfoAsync(await Store.GetBackUpSignalInfoByID(srgid));
+        }
+
+
         /// <summary> 获取所有采集通道 </summary>
         public virtual async Task<List<CaptureChannelInfo>> GetAllCaptureChannelsAsync()
         {
@@ -628,7 +634,7 @@ namespace IngestDevicePlugin.Managers
 
                 var tempList = captureChannels.Where(a => a.nDeviceTypeID == (int)CaptureChannelType.emMsvChannel &&
                                               IsDeviceOk(a.nID, arrMsvChannelState) &&
-                                            taskContents.Any(x => x.emState == IngestDBCore.taskState.tsExecuting && x.nChannelID == a.nID))
+                                            taskContents.Any(x => x.emState == taskStateInterface.tsExecuting && x.nChannelID == a.nID))
                                .Select(a => new ChannelScore { Id = a.nID }).ToList();
 
                 if (tempList.Count <= 0)

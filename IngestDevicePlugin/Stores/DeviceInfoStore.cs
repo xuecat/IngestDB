@@ -90,6 +90,12 @@ namespace IngestDevicePlugin.Stores
             await Context.DbpIpDatachannelinfo.AddRangeAsync(addList);
             return await Context.SaveChangesAsync();
         }
+        public async Task<int> GetBackUpSignalInfoByID(int srgid)
+        {
+            return await Context.DbpSignalsrcMasterbackup.AsNoTracking()
+                .Where(a => a.Mastersignalsrcid == srgid)
+                .Select(b => b.Signalsrcid).SingleOrDefaultAsync();
+        }
 
         public async Task<int> SaveIpDeviceAsync(IEnumerable<DbpIpDevice> models)
         {
@@ -107,12 +113,7 @@ namespace IngestDevicePlugin.Stores
             return await Context.DbpMatrixinfo.AsNoTracking().AnyAsync(a => a.Matrixid == 2 && a.Matrixtypeid != 2);//老版本NULL MATRIX是6，现在是2，难道老版本一直返回的是有矩阵？
         }
 
-        public async Task<int> GetBackUpSignalInfoByID(int srgid)
-        {
-            return await Context.DbpSignalsrcMasterbackup.AsNoTracking()
-                .Where(a => a.Mastersignalsrcid == srgid)
-                .Select(b => b.Signalsrcid).SingleOrDefaultAsync();
-        }
+       
 
         //老版本 GetProgrammeInfoById
         public async Task<ProgrammeInfoDto> GetSignalInfoAsync(int srcid)

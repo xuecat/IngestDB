@@ -1176,11 +1176,29 @@ namespace IngestDevicePlugin.Controllers
         [ApiExplorerSettings(GroupName = "v2")]
         public async Task<ResponseMessage<ProgrammeInfoResponse>> GetBackProgramInfoBySrgid(int mastersignalid)
         {
-            async Task Action(ResponseMessage<ProgrammeInfoResponse> response)
+            var Response = new ResponseMessage<ProgrammeInfoResponse>();
+
+            try
             {
-                response.Ext = await _deviceManage.GetBackProgramInfoBySrgidAsync(mastersignalid);
+                Response.Ext = await _deviceManage.GetBackProgramInfoBySrgid(mastersignalid);
             }
-            return await TryInvoke((Func<ResponseMessage<ProgrammeInfoResponse>, Task>)Action);
+            catch (Exception e)
+            {
+                if (e.GetType() == typeof(SobeyRecException))//sobeyexcep会自动打印错误
+                {
+                    SobeyRecException se = e as SobeyRecException;
+                    Response.Code = se.ErrorCode.ToString();
+                    Response.Msg = se.Message;
+                }
+                else
+                {
+                    Response.Code = ResponseCodeDefines.ServiceError;
+                    Response.Msg = "GetBackProgramInfoBySrgid error info：" + e.ToString();
+                    Logger.Error(Response.Msg);
+                }
+            }
+            return Response;
+
         }
 
 
