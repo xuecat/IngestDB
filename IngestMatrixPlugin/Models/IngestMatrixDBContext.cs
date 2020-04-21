@@ -13,10 +13,15 @@ namespace IngestMatrixPlugin.Models
         public IngestMatrixDBContext(DbContextOptions<IngestMatrixDBContext> options) : base(options) { }
 
         public virtual DbSet<DbpLevelrelation> DbpLevelrelation { get; set; }
+        public virtual DbSet<DbpMapinport> DbpMapinport { get; set; }
+        public virtual DbSet<DbpMapoutport> DbpMapoutport { get; set; }
         public virtual DbSet<DbpMatrixinfo> DbpMatrixinfo { get; set; }
         public virtual DbSet<DbpMatrixrout> DbpMatrixrout { get; set; }
-        public virtual DbSet<DbpMapoutport> DbpMapoutport { get; set; }
+        public virtual DbSet<DbpMatrixtypeinfo> DbpMatrixtypeinfo { get; set; }
+        public virtual DbSet<DbpRcdindesc> DbpRcdindesc { get; set; }
+        public virtual DbSet<DbpRcdoutdesc> DbpRcdoutdesc { get; set; }
         public virtual DbSet<DbpVirtualmatrixportstate> DbpVirtualmatrixportstate { get; set; }
+
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
@@ -40,6 +45,25 @@ namespace IngestMatrixPlugin.Models
 
                 entity.Property(e => e.Parentoutport)
                     .HasColumnName("PARENTOUTPORT")
+                    .HasColumnType("int(11)");
+            });
+
+            modelBuilder.Entity<DbpMapinport>(entity =>
+            {
+                entity.HasKey(e => e.Virtualinport);
+
+                entity.ToTable("dbp_mapinport");
+
+                entity.Property(e => e.Virtualinport)
+                    .HasColumnName("VIRTUALINPORT")
+                    .HasColumnType("int(11)");
+
+                entity.Property(e => e.Inport)
+                    .HasColumnName("INPORT")
+                    .HasColumnType("int(11)");
+
+                entity.Property(e => e.Matrixid)
+                    .HasColumnName("MATRIXID")
                     .HasColumnType("int(11)");
             });
 
@@ -141,6 +165,69 @@ namespace IngestMatrixPlugin.Models
 
                 entity.Property(e => e.Virtualinport)
                     .HasColumnName("VIRTUALINPORT")
+                    .HasColumnType("int(11)");
+            });
+
+            modelBuilder.Entity<DbpMatrixtypeinfo>(entity =>
+            {
+                entity.HasKey(e => e.Matrixtypeid);
+
+                entity.ToTable("dbp_matrixtypeinfo");
+
+                entity.Property(e => e.Matrixtypeid)
+                    .HasColumnName("MATRIXTYPEID")
+                    .HasColumnType("int(11)");
+
+                entity.Property(e => e.Matrixtypename)
+                    .IsRequired()
+                    .HasColumnName("MATRIXTYPENAME")
+                    .HasColumnType("varchar(256)");
+            });
+
+            modelBuilder.Entity<DbpRcdindesc>(entity =>
+            {
+                entity.HasKey(e => new { e.Signalsrcid, e.Recinidx, e.Rcdeviceid });
+
+                entity.ToTable("dbp_rcdindesc");
+
+                entity.Property(e => e.Signalsrcid)
+                    .HasColumnName("SIGNALSRCID")
+                    .HasColumnType("int(11)");
+
+                entity.Property(e => e.Recinidx)
+                    .HasColumnName("RECINIDX")
+                    .HasColumnType("int(11)");
+
+                entity.Property(e => e.Rcdeviceid)
+                    .HasColumnName("RCDEVICEID")
+                    .HasColumnType("int(11)");
+
+                entity.Property(e => e.Signalsource)
+                    .HasColumnName("SIGNALSOURCE")
+                    .HasColumnType("int(11)")
+                    .HasDefaultValueSql("'0'");
+            });
+
+            modelBuilder.Entity<DbpRcdoutdesc>(entity =>
+            {
+                entity.HasKey(e => new { e.Recoutidx, e.Rcdeviceid });
+
+                entity.ToTable("dbp_rcdoutdesc");
+
+                entity.Property(e => e.Recoutidx)
+                    .HasColumnName("RECOUTIDX")
+                    .HasColumnType("int(11)");
+
+                entity.Property(e => e.Rcdeviceid)
+                    .HasColumnName("RCDEVICEID")
+                    .HasColumnType("int(11)");
+
+                entity.Property(e => e.Channelid)
+                    .HasColumnName("CHANNELID")
+                    .HasColumnType("int(11)");
+
+                entity.Property(e => e.Devicetype)
+                    .HasColumnName("DEVICETYPE")
                     .HasColumnType("int(11)");
             });
 

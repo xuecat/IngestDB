@@ -18,11 +18,11 @@ namespace IngestMatrixPlugin.Controllers
         public static Mutex m_Matrixmt = new Mutex();
         //private readonly RestClient _restClient;
 
+
         public MatrixController(MatrixManager task)
         {
             _matrixManage = task;
         }
-
 
 
         /// <summary>
