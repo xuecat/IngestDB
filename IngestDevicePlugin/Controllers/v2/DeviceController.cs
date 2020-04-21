@@ -349,9 +349,9 @@ namespace IngestDevicePlugin.Controllers
             }
             return response;
         }
-        #endregion
+        //#endregion
 
-        #region Device
+        //#region Device
 
         /// <summary>获得所有的IP收录的设备</summary>
         /// <remarks>原方法 GetAllTSDeviceInfos</remarks>

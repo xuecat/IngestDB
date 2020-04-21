@@ -728,7 +728,7 @@ namespace IngestTaskPlugin.Managers
             {
                 var response1 = await _deviceinterface.GetDeviceCallBack(new DeviceInternals()
                 {
-                    funtype = IngestDBCore.DeviceInternals.FunctionType.SignalCaptureID,
+                    funtype = IngestDBCore.DeviceInternals.FunctionType.CaptureTemplateIDBySignal,
                     SrcId = SignalId,
                     Status = 1
                 });
