@@ -713,5 +713,30 @@ namespace IngestTaskPlugin.Dto
             message = "OK";
         }
     }
+    public class OldResponseMessage<T> : OldResponseMessage
+    {
+        public T extention;
+    }
+    public class AddReScheduleTaskSvr_in
+    {
+        public TaskContent taskAdd;
+        public TaskSource taskSrc;
+        public List<MetadataPair> metadatas;
+        public int oldTaskId;
+    }
+    public class TaskInfoRescheduled
+    {
+        public int nTaskID = 0;
+        public string strTaskName = string.Empty;
+        public int nPreviousChannelID;//先前分配的通道ID
+        public int nCurrentChannelID;// 现在获得的通道ID
+    }
+    public class RescheduleTasks_OUT
+    {
+        public List<TaskInfoRescheduled> taskInfoRescheduled;
+        public int nValidDataCount;
+        public string errStr;
+        public bool bRet;
+    }
 }
 

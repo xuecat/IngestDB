@@ -11,15 +11,16 @@ namespace IngestDBCore
         {
             /// //////////////get信息//////
             ChannelInfoBySrc,
-            SingnalInfoByChannel,
+            SingnalIDByChannel,
             AllChannelUnitMap,
             ChannelUnitMap,
             BackSignalByID,
             SignalInfoByID,
             SignalCaptureID,
             AllChannelState,
-            ChannelExtendData
-           /////////////////////////////set信息//
+            ChannelExtendData,
+            AllCaptureChannels
+            /////////////////////////////set信息//
         }
 
         public FunctionType funtype { get; set; }

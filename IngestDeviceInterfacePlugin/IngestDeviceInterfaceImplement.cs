@@ -39,7 +39,7 @@ namespace IngestTaskInterfacePlugin
                             return ret;
                         } break;
 
-                    case FunctionType.SingnalInfoByChannel:
+                    case FunctionType.SingnalIDByChannel:
                         {
                             return await reqService.GetChannelSignalSrc(examineResponse.ChannelId);
                         }
@@ -77,6 +77,10 @@ namespace IngestTaskInterfacePlugin
 
                         break;
                     case FunctionType.SignalInfoByID:
+                        {
+
+                        } break;
+                    case FunctionType.AllCaptureChannels:
                         {
 
                         } break;

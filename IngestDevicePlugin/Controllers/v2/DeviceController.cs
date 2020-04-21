@@ -667,23 +667,23 @@ namespace IngestDevicePlugin.Controllers
             return await TryInvoke((Func<ResponseMessage<int>, Task>)Action);
         }
 
-        ///// <summary>
-        ///// 
-        ///// </summary>
-        ///// <remarks>
-        ///// </remarks>
-        ///// GetAllChannelUnitMap
-        //[HttpGet("signalinfo/backsignal/{mastersignalid}")]
-        //[IngestAuthentication]//device有点特殊，做了监听端口的所以不能全类检验
-        //[ApiExplorerSettings(GroupName = "v2")]
-        //public async Task<ResponseMessage<ProgrammeInfoResponse>> GetBackProgramInfoBySrgid(int mastersignalid)
-        //{
-        //    async Task Action(ResponseMessage<ProgrammeInfoResponse> response)
-        //    {
-        //        response.Ext = await _deviceManage.GetBackProgramInfoBySrgidAsync(mastersignalid);
-        //    }
-        //    return await TryInvoke((Func<ResponseMessage<ProgrammeInfoResponse>, Task>)Action);
-        //}
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <remarks>
+        /// </remarks>
+        /// GetAllChannelUnitMap
+        [HttpGet("signalinfo/backsignal/{mastersignalid}")]
+        [IngestAuthentication]//device有点特殊，做了监听端口的所以不能全类检验
+        [ApiExplorerSettings(GroupName = "v2")]
+        public async Task<ResponseMessage<ProgrammeInfoResponse>> GetBackProgramInfoBySrgid(int mastersignalid)
+        {
+            async Task Action(ResponseMessage<ProgrammeInfoResponse> response)
+            {
+                response.Ext = await _deviceManage.GetBackProgramInfoBySrgidAsync(mastersignalid);
+            }
+            return await TryInvoke((Func<ResponseMessage<ProgrammeInfoResponse>, Task>)Action);
+        }
 
 
         /// <summary> Try执行 </summary>

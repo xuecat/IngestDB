@@ -776,6 +776,36 @@ namespace IngestTaskPlugin.Stores
             return taskid;
         }
 
+        public int StopTaskNoChange(DbpTask taskinfo, DateTime dt)
+        {
+            Logger.Info("StopTaskNoChange " + taskinfo.Taskid);
+
+            if (dt == DateTime.MinValue)//自动停
+            {
+                taskinfo.Endtime = DateTime.Now;
+                taskinfo.NewEndtime = taskinfo.Endtime;
+                taskinfo.Recunitid = taskinfo.Recunitid | 0x8000;
+                if (taskinfo.Tasktype == (int)TaskType.TT_MANUTASK
+                        || taskinfo.Tasktype == (int)TaskType.TT_OPENEND
+                        || taskinfo.Tasktype == (int)TaskType.TT_TIEUP)
+                {
+                    taskinfo.Tasktype = (int)TaskType.TT_NORMAL;
+                }
+            }
+            else
+            {
+                if (taskinfo.OldChannelid <= 0 && taskinfo.Tasktype == (int)TaskType.TT_PERIODIC)
+                {
+                    SobeyRecException.ThrowSelfOneParam("StopTask match periodic", GlobalDictionary.GLOBALDICT_CODE_IN_STOPCAPTURE_TASK_IS_A_STENCIL_PLATE_TASK_ONEPARAM, Logger, taskinfo.Taskid, null);
+                }
+
+                taskinfo.Endtime = dt;
+                taskinfo.NewEndtime = taskinfo.Endtime;
+                taskinfo.State = (int)taskState.tsComplete;
+            }
+            return taskinfo.Taskid;
+        }
+
         public async Task<int> StopTask(int taskid, DateTime dt)
         {
             var taskinfo = await GetTaskAsync(a => a.Where(b => b.Taskid == taskid));
@@ -1178,16 +1208,21 @@ namespace IngestTaskPlugin.Stores
             return lstnreture;
         }
 
+       
+
         public async Task<List<int>> GetFreeChannels(List<int> lst, DateTime begin, DateTime end, bool choosefilter = false)
         {
-            var lsttask = await Context.DbpTask.AsNoTracking().Where(x => x.Endtime > DateTime.Now
-            && ((x.Starttime >= begin && x.Starttime < end) 
-            || (x.Endtime > begin && x.Endtime <= end))
-            && (x.State != (int)taskState.tsConflict && x.State != (int)taskState.tsDelete && x.State != (int)taskState.tsInvaild)
-            && x.DispatchState != (int)dispatchState.dpsInvalid
-            && x.OpType != (int)opType.otDel
-            && (x.Tasktype != (int)TaskType.TT_PERIODIC && x.Tasktype != (int)TaskType.TT_OPENEND && x.Tasktype != (int)TaskType.TT_OPENENDEX))
-            .ToListAsync();
+            /*
+             * @brief 老代码有个endtime > datetime.now, 我不明白为啥，应该没有道理的，我这里先屏蔽了看看
+             */
+            var lsttask = await Context.DbpTask.AsNoTracking().Where(x =>
+                                                                        ((x.Starttime >= begin && x.Starttime < end)
+                                                                        || (x.Endtime > begin && x.Endtime <= end) || (x.Starttime < begin && x.Endtime > end))
+                                                                        && (x.State != (int)taskState.tsConflict && x.State != (int)taskState.tsDelete && x.State != (int)taskState.tsInvaild)
+                                                                        && x.DispatchState != (int)dispatchState.dpsInvalid
+                                                                        && x.OpType != (int)opType.otDel
+                                                                        && (x.Tasktype != (int)TaskType.TT_PERIODIC && x.Tasktype != (int)TaskType.TT_OPENEND && x.Tasktype != (int)TaskType.TT_OPENENDEX))
+                                                                        .ToListAsync();
 
             List<DbpTask> lstfiltertask = new List<DbpTask>();
             /*

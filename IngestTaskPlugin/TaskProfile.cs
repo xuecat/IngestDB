@@ -126,8 +126,23 @@ namespace IngestTaskPlugin
                     b.BackUpTask = false;
                 });
 
+            CreateMap<DbpTask, TaskInfoRescheduled>()
+                .ForMember(d => d.nTaskID, y => y.MapFrom(s => s.Taskid))
+                .ForMember(d => d.strTaskName, y => y.MapFrom(s => s.Taskname))
+                .ForMember(d => d.nPreviousChannelID, y => y.MapFrom(s => s.OldChannelid))
+                .ForMember(d => d.nCurrentChannelID, y => y.MapFrom(s => s.Channelid));
+
+            CreateMap<DbpTask, RescheduledTaskInfo>()
+                .ForMember(d => d.TaskID, y => y.MapFrom(s => s.Taskid))
+                .ForMember(d => d.TaskName, y => y.MapFrom(s => s.Taskname))
+                .ForMember(d => d.PreviousChannelID, y => y.MapFrom(s => s.OldChannelid))
+                .ForMember(d => d.CurrentChannelID, y => y.MapFrom(s => s.Channelid));
 
             CreateMap<AddTaskSvr_IN, TaskInfoResponse>() 
+                .ForMember(d => d.TaskContent, y => y.MapFrom(s => s.taskAdd))
+                .ForMember(d => d.TaskSource, y => y.MapFrom(s => s.taskSrc));
+
+            CreateMap<AddReScheduleTaskSvr_in, TaskInfoResponse>()
                 .ForMember(d => d.TaskContent, y => y.MapFrom(s => s.taskAdd))
                 .ForMember(d => d.TaskSource, y => y.MapFrom(s => s.taskSrc));
 

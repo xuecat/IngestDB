@@ -1228,11 +1228,11 @@ namespace IngestTaskPlugin.Controllers
                 if (e.GetType() == typeof(SobeyRecException))//sobeyexcep会自动打印错误
                 {
                     SobeyRecException se = e as SobeyRecException;
-                    //Response.errStr = se.ErrorCode.ToString();
+                    Response.errStr = se.ErrorCode.ToString();
                 }
                 else
                 {
-                    //Response.errStr = "error info：" + e.ToString();
+                    Response.errStr = "error info：" + e.ToString();
                     Logger.Error("GetTrimTaskBeginTime" + e.ToString());
                 }
                 return Response;
@@ -1426,6 +1426,43 @@ namespace IngestTaskPlugin.Controllers
                 {
                     //Response.errStr = "error info：" + e.ToString();
                     Logger.Error("GetLockTaskByID" + e.ToString());
+                }
+                return Response;
+            }
+            return Response;
+
+        }
+
+        [HttpGet("GetRescheduleTasks"), MapToApiVersion("1.0")]
+        [ApiExplorerSettings(GroupName = "v1")]
+        public async Task<RescheduleTasks_OUT> GetRescheduleTasks()
+        {
+            var Response = new RescheduleTasks_OUT()
+            {
+                errStr = "OK",
+                bRet = true
+            };
+
+            try
+            {
+                Response.taskInfoRescheduled = await _taskManage.RescheduleTasks<TaskInfoRescheduled>();
+                Response.nValidDataCount = Response.taskInfoRescheduled.Count;
+
+                return Response;
+            }
+            catch (Exception e)//其他未知的异常，写异常日志
+            {
+                if (e.GetType() == typeof(SobeyRecException))//sobeyexcep会自动打印错误
+                {
+                    SobeyRecException se = e as SobeyRecException;
+                    Response.errStr = se.ErrorCode.ToString();
+                    Response.bRet = false;
+                }
+                else
+                {
+                    Response.bRet = false;
+                    Response.errStr = "error info：" + e.ToString();
+                    Logger.Error("GetRescheduleTasks" + e.ToString());
                 }
                 return Response;
             }
@@ -1904,6 +1941,121 @@ namespace IngestTaskPlugin.Controllers
                 else
                 {
                     Response.nCode = 500;
+                    //Response.errStr = "error info：" + e.ToString();
+                    Logger.Error("SetTaskStampBmp" + e.ToString());
+                }
+                return Response;
+            }
+            return Response;
+
+        }
+
+        [HttpPost("AutoAddTaskByOldTask"), MapToApiVersion("1.0")]
+        [ApiExplorerSettings(GroupName = "v1")]
+        public async Task<int> AutoAddTaskByOldTask([FromQuery]int nOldTaskID, [FromQuery]string strStartTime)
+        {
+            var Response = 0;
+
+            try
+            {
+                var task = await _taskManage.AutoAddTaskByOldTask(nOldTaskID, DateTimeFormat.DateTimeFromString(strStartTime));
+
+                var _globalinterface = ApplicationContext.Current.ServiceProvider.GetRequiredService<IIngestGlobalInterface>();
+                if (_globalinterface != null)
+                {
+                    GlobalInternals re = new GlobalInternals() { funtype = IngestDBCore.GlobalInternals.FunctionType.SetGlobalState, State = GlobalStateName.ADDTASK };
+                    var response1 = await _globalinterface.SubmitGlobalCallBack(re);
+                    if (response1.Code != ResponseCodeDefines.SuccessCode)
+                    {
+                        Logger.Error("SetGlobalState modtask error");
+                    }
+                }
+                return task.TaskID;
+            }
+            catch (Exception e)//其他未知的异常，写异常日志
+            {
+                if (e.GetType() == typeof(SobeyRecException))//sobeyexcep会自动打印错误
+                {
+                    SobeyRecException se = e as SobeyRecException;
+                    //Response.nCode = se.ErrorCode;
+                    //Response.message = false;
+                }
+                else
+                {
+                    //Response.nCode = 500;
+                    //Response.errStr = "error info：" + e.ToString();
+                    Logger.Error("SetTaskStampBmp" + e.ToString());
+                }
+                return Response;
+            }
+            return Response;
+
+        }
+
+        [HttpPost("AddReScheduleTaskSvr"), MapToApiVersion("1.0")]
+        [ApiExplorerSettings(GroupName = "v1")]
+        public async Task<OldResponseMessage<int>> AddReScheduleTaskSvr([FromBody] AddReScheduleTaskSvr_in pIn)
+        {
+            var Response = new OldResponseMessage<int>();
+
+            try
+            {
+                string CaptureMeta = string.Empty;
+                string ContentMeta = string.Empty;
+                string MatiralMeta = string.Empty;
+                string PlanningMeta = string.Empty;
+                foreach (var item in pIn.metadatas)
+                {
+                    if (item.emtype == MetaDataType.emCapatureMetaData)
+                    {
+                        CaptureMeta = item.strMetadata;
+                    }
+                    else if (item.emtype == MetaDataType.emStoreMetaData)
+                    {
+                        MatiralMeta = item.strMetadata;
+                    }
+                    else if (item.emtype == MetaDataType.emContentMetaData)
+                    {
+                        ContentMeta = item.strMetadata;
+                    }
+                    else if (item.emtype == MetaDataType.emPlanMetaData)
+                    {
+                        PlanningMeta = item.strMetadata;
+                    }
+                }
+                /*
+                 * @brief 老代码会通过老任务查询一遍policy，再保存入库，由于现在入库策略就一种，所以去掉那部分逻辑
+                 */
+                var f = await _taskManage.AddTaskWithPolicy<AddReScheduleTaskSvr_in>(pIn, true, CaptureMeta, ContentMeta, MatiralMeta, PlanningMeta);
+
+                //添加后如果开始时间在2分钟以内，需要调度一次
+                if ((DateTimeFormat.DateTimeFromString(pIn.taskAdd.strBegin) - DateTime.Now).TotalSeconds < 120)
+                    await _taskManage.UpdateComingTasks();
+
+                var _globalinterface = ApplicationContext.Current.ServiceProvider.GetRequiredService<IIngestGlobalInterface>();
+                if (_globalinterface != null)
+                {
+                    GlobalInternals re = new GlobalInternals() { funtype = IngestDBCore.GlobalInternals.FunctionType.SetGlobalState, State = GlobalStateName.ADDTASK };
+                    var response1 = await _globalinterface.SubmitGlobalCallBack(re);
+                    if (response1.Code != ResponseCodeDefines.SuccessCode)
+                    {
+                        Logger.Error("SetGlobalState modtask error");
+                    }
+                }
+                Response.extention = f.TaskID;
+                return Response;
+            }
+            catch (Exception e)//其他未知的异常，写异常日志
+            {
+                if (e.GetType() == typeof(SobeyRecException))//sobeyexcep会自动打印错误
+                {
+                    SobeyRecException se = e as SobeyRecException;
+                    //Response.nCode = se.ErrorCode;
+                    //Response.message = false;
+                }
+                else
+                {
+                    //Response.nCode = 500;
                     //Response.errStr = "error info：" + e.ToString();
                     Logger.Error("SetTaskStampBmp" + e.ToString());
                 }

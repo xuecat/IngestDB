@@ -29,6 +29,7 @@ using AutoMapper;
 ///老接口的post和get前缀
 ///manager有个addtaskwithpolicy
 ///AddTaskWithPolicy 有个GetTaskSourceBySignalId 还有addtask有些地方 是直接加数据库
+///代码美观对齐
 ///
 
 namespace IngestTaskPlugin.Controllers
@@ -1441,39 +1442,40 @@ namespace IngestTaskPlugin.Controllers
             return Response;
         }
 
-        public RescheduleTasks_OUT GetRescheduleTasks()
+        /// <summary>
+        /// 重新调度任务, 所有失败的任务
+        /// </summary>
+        /// <remarks>
+        /// 例子:
+        ///
+        /// </remarks>
+        /// <returns>所有重新调度的任务列表</returns>
+        [HttpGet("rescheduletask")]
+        [ApiExplorerSettings(GroupName = "v2")]
+        public async Task<ResponseMessage<List<RescheduledTaskInfo>>> RescheduleTasks()
         {
-            RescheduleTasks_OUT p = new RescheduleTasks_OUT();
-            p.taskInfoRescheduled = null;//初始化
-            p.nValidDataCount = 0;
-            p.errStr = no_err;
+            var Response = new ResponseMessage<List<RescheduledTaskInfo>>();
+
             try
             {
-
-                TASKSERVICE.RescheduleTasks(out p.taskInfoRescheduled);
-
-                if (p.taskInfoRescheduled == null)
+                Response.Ext = await _taskManage.RescheduleTasks<RescheduledTaskInfo>();
+            }
+            catch (Exception e)
+            {
+                if (e.GetType() == typeof(SobeyRecException))//sobeyexcep会自动打印错误
                 {
-                    p.taskInfoRescheduled = new TaskInfoRescheduled[1];
-
-                    p.nValidDataCount = 0;
+                    SobeyRecException se = e as SobeyRecException;
+                    Response.Code = se.ErrorCode.ToString();
+                    Response.Msg = se.Message;
                 }
                 else
                 {
-                    p.nValidDataCount = p.taskInfoRescheduled.Length;
+                    Response.Code = ResponseCodeDefines.ServiceError;
+                    Response.Msg = "RescheduleTasks error info：" + e.ToString();
+                    Logger.Error(Response.Msg);
                 }
-
-                BackupTaskAndMaterial();
-                p.bRet = true;
             }
-
-            catch (Exception ex)//其他未知的异常，写异常日志
-            {
-                LoggerService.Error(ex.ToString());
-                p.errStr = ex.Message;
-                p.bRet = false;
-            }
-            return p;
+            return Response;
         }
 
         /// <summary>
@@ -2034,6 +2036,92 @@ namespace IngestTaskPlugin.Controllers
             return Response;
         }
 
+        /// <summary>
+        /// 根据老的任务，自动增加一个接口
+        /// </summary>
+        /// <remarks>
+        /// 
+        /// </remarks>
+        /// <param name="oldtaskid">任务id</param>
+        /// <param name="starttime">老任务结束时间</param>
+        /// <returns></returns>
+        [HttpPost("withoutpolicytask/addbyoldtask/{oldtaskid}")]
+        [ApiExplorerSettings(GroupName = "v2")]
+        public async Task<ResponseMessage<TaskContentResponse>> AddTaskByOld([FromRoute, BindRequired]int oldtaskid, [FromQuery, BindRequired]string starttime)
+        {
+            var Response = new ResponseMessage<TaskContentResponse>();
+
+            try
+            {
+                Response.Ext = await _taskManage.AutoAddTaskByOldTask(oldtaskid, DateTimeFormat.DateTimeFromString(starttime));
+
+                var _globalinterface = ApplicationContext.Current.ServiceProvider.GetRequiredService<IIngestGlobalInterface>();
+                if (_globalinterface != null)
+                {
+                    GlobalInternals re = new GlobalInternals() { funtype = IngestDBCore.GlobalInternals.FunctionType.SetGlobalState, State = GlobalStateName.ADDTASK };
+                    var response1 = await _globalinterface.SubmitGlobalCallBack(re);
+                    if (response1.Code != ResponseCodeDefines.SuccessCode)
+                    {
+                        Logger.Error("SetGlobalState modtask error");
+                    }
+                }
+            }
+            catch (Exception e)
+            {
+                if (e is SobeyRecException se)//sobeyexcep会自动打印错误
+                {
+                    Response.Code = se.ErrorCode.ToString();
+                    Response.Msg = se.Message;
+                }
+                else
+                {
+                    Response.Code = ResponseCodeDefines.ServiceError;
+                    Response.Msg = $"AddTaskByOld error info：{e.Message}";
+                    Logger.Error(Response.Msg);
+                }
+            }
+            return Response;
+        }
+
+
+        
+        //[HttpPost("withoutpolicytask/addrescheduletask/{oldtaskid}")]
+        //[ApiExplorerSettings(GroupName = "v2")]
+        //public async Task<ResponseMessage<TaskContentResponse>> AddReScheduleTask([FromRoute, BindRequired]int oldtaskid, [FromQuery, BindRequired]string starttime)
+        //{
+        //    var Response = new ResponseMessage<TaskContentResponse>();
+
+        //    try
+        //    {
+        //        Response.Ext = await _taskManage.AutoAddTaskByOldTask(oldtaskid, DateTimeFormat.DateTimeFromString(starttime));
+
+        //        var _globalinterface = ApplicationContext.Current.ServiceProvider.GetRequiredService<IIngestGlobalInterface>();
+        //        if (_globalinterface != null)
+        //        {
+        //            GlobalInternals re = new GlobalInternals() { funtype = IngestDBCore.GlobalInternals.FunctionType.SetGlobalState, State = GlobalStateName.ADDTASK };
+        //            var response1 = await _globalinterface.SubmitGlobalCallBack(re);
+        //            if (response1.Code != ResponseCodeDefines.SuccessCode)
+        //            {
+        //                Logger.Error("SetGlobalState modtask error");
+        //            }
+        //        }
+        //    }
+        //    catch (Exception e)
+        //    {
+        //        if (e is SobeyRecException se)//sobeyexcep会自动打印错误
+        //        {
+        //            Response.Code = se.ErrorCode.ToString();
+        //            Response.Msg = se.Message;
+        //        }
+        //        else
+        //        {
+        //            Response.Code = ResponseCodeDefines.ServiceError;
+        //            Response.Msg = $"AddTaskByOld error info：{e.Message}";
+        //            Logger.Error(Response.Msg);
+        //        }
+        //    }
+        //    return Response;
+        //}
         //////////////////////////
     }
 }
