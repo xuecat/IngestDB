@@ -23,13 +23,27 @@ namespace IngestDevicePlugin.Controllers
         [ApiExplorerSettings(GroupName = "v1")]
         public async Task<GetAllRouterInPortInfo_param> GetAllRouterInPortInfo()
         {
-            async Task Action(GetAllRouterInPortInfo_param response)
+            GetAllRouterInPortInfo_param response = new GetAllRouterInPortInfo_param();
+            try
             {
                 response.inportDescs = await _deviceManage.GetAllRouterInPortAsync<RoterInportDesc>();
                 response.nVaildDataCount = response.inportDescs.Count;
             }
-
-            return await TryInvoke((Func<GetAllRouterInPortInfo_param, Task>)Action);
+            catch (Exception e)
+            {
+                if (e is SobeyRecException se)//sobeyexcep会自动打印错误
+                {
+                    response.bRet = false;
+                    response.errStr = se.Message;
+                }
+                else
+                {
+                    response.bRet = false;
+                    response.errStr = $"{System.Reflection.MethodBase.GetCurrentMethod().DeclaringType.FullName}：error info:{e}";
+                    Logger.Error(response.errStr);
+                }
+            }
+            return response;
         }
 
         /// <summary> 获取输出端口与信号源的映射 </summary>
@@ -38,13 +52,27 @@ namespace IngestDevicePlugin.Controllers
         [ApiExplorerSettings(GroupName = "v1")]
         public async Task<GetAllRouterOutPortInfo_param> GetAllRouterOutPortInfo()
         {
-            async Task Action(GetAllRouterOutPortInfo_param response)
+            GetAllRouterOutPortInfo_param response = new GetAllRouterOutPortInfo_param();
+            try
             {
                 response.outportDescs = await _deviceManage.GetAllRouterOutPortAsync<RoterOutDesc>();
                 response.nVaildDataCount = response.outportDescs.Count;
             }
-
-            return await TryInvoke((Func<GetAllRouterOutPortInfo_param, Task>)Action);
+            catch (Exception e)
+            {
+                if (e is SobeyRecException se)//sobeyexcep会自动打印错误
+                {
+                    response.bRet = false;
+                    response.errStr = se.Message;
+                }
+                else
+                {
+                    response.bRet = false;
+                    response.errStr = $"{System.Reflection.MethodBase.GetCurrentMethod().DeclaringType.FullName}：error info:{e}";
+                    Logger.Error(response.errStr);
+                }
+            }
+            return response;
         }
 
         /// <summary> 获取所有信号源和采集设备的对应 </summary>
@@ -53,13 +81,27 @@ namespace IngestDevicePlugin.Controllers
         [ApiExplorerSettings(GroupName = "v1")]
         public async Task<GetAllSignalDeviceMap_param> GetAllSignalDeviceMap()
         {
-            async Task Action(GetAllSignalDeviceMap_param response)
+            GetAllSignalDeviceMap_param response = new GetAllSignalDeviceMap_param();
+            try
             {
                 response.arrSignalDeviceMap = await _deviceManage.GetAllSignalDeviceMapAsync<SignalDeviceMap>();
                 response.nVaildDataCount = response.arrSignalDeviceMap.Count;
             }
-
-            return await TryInvoke((Func<GetAllSignalDeviceMap_param, Task>)Action);
+            catch (Exception e)
+            {
+                if (e is SobeyRecException se)//sobeyexcep会自动打印错误
+                {
+                    response.bRet = false;
+                    response.errStr = se.Message;
+                }
+                else
+                {
+                    response.bRet = false;
+                    response.errStr = $"{System.Reflection.MethodBase.GetCurrentMethod().DeclaringType.FullName}：error info:{e}";
+                    Logger.Error(response.errStr);
+                }
+            }
+            return response;
         }
 
         /// <summary> 获取所有信号源 </summary>
@@ -68,13 +110,27 @@ namespace IngestDevicePlugin.Controllers
         [ApiExplorerSettings(GroupName = "v1")]
         public async Task<GetAllSignalSrcs_param> GetAllSignalSrcs()
         {
-            async Task Action(GetAllSignalSrcs_param response)
+            GetAllSignalSrcs_param response = new GetAllSignalSrcs_param();
+            try
             {
                 response.signalInfo = await _deviceManage.GetAllSignalSrcsAsync();
                 response.nVaildDataCount = response.signalInfo.Count;
             }
-
-            return await TryInvoke((Func<GetAllSignalSrcs_param, Task>)Action);
+            catch (Exception e)
+            {
+                if (e is SobeyRecException se)//sobeyexcep会自动打印错误
+                {
+                    response.bRet = false;
+                    response.errStr = se.Message;
+                }
+                else
+                {
+                    response.bRet = false;
+                    response.errStr = $"{System.Reflection.MethodBase.GetCurrentMethod().DeclaringType.FullName}：error info:{e}";
+                    Logger.Error(response.errStr);
+                }
+            }
+            return response;
         }
 
         /// <summary> 获取所有采集通道 </summary>
@@ -83,13 +139,27 @@ namespace IngestDevicePlugin.Controllers
         [ApiExplorerSettings(GroupName = "v1")]
         public async Task<GetAllCaptureChannels_param> GetAllCaptureChannels()
         {
-            async Task Action(GetAllCaptureChannels_param response)
+            GetAllCaptureChannels_param response = new GetAllCaptureChannels_param();
+            try
             {
                 response.captureChannelInfo = await _deviceManage.GetAllCaptureChannelsAsync();
                 response.nVaildDataCount = response.captureChannelInfo.Count;
             }
-
-            return await TryInvoke((Func<GetAllCaptureChannels_param, Task>)Action);
+            catch (Exception e)
+            {
+                if (e is SobeyRecException se)//sobeyexcep会自动打印错误
+                {
+                    response.bRet = false;
+                    response.errStr = se.Message;
+                }
+                else
+                {
+                    response.bRet = false;
+                    response.errStr = $"{System.Reflection.MethodBase.GetCurrentMethod().DeclaringType.FullName}：error info:{e}";
+                    Logger.Error(response.errStr);
+                }
+            }
+            return response;
         }
 
         /// <summary> 获取所有的采集设备信息 </summary>
@@ -98,13 +168,27 @@ namespace IngestDevicePlugin.Controllers
         [ApiExplorerSettings(GroupName = "v1")]
         public async Task<GetAllCaptureDevices_param> GetAllCaptureDevices()
         {
-            async Task Action(GetAllCaptureDevices_param response)
+            GetAllCaptureDevices_param response = new GetAllCaptureDevices_param();
+            try
             {
                 response.arCaptureDeviceList = await _deviceManage.GetAllCaptureDevicesAsync<CaptureDeviceInfo>();
                 response.nVaildDataCount = response.arCaptureDeviceList.Count;
             }
-
-            return await TryInvoke((Func<GetAllCaptureDevices_param, Task>)Action);
+            catch (Exception e)
+            {
+                if (e is SobeyRecException se)//sobeyexcep会自动打印错误
+                {
+                    response.bRet = false;
+                    response.errStr = se.Message;
+                }
+                else
+                {
+                    response.bRet = false;
+                    response.errStr = $"{System.Reflection.MethodBase.GetCurrentMethod().DeclaringType.FullName}：error info:{e}";
+                    Logger.Error(response.errStr);
+                }
+            }
+            return response;
         }
 
         /// <summary> 获取指定信号源和采集设备的对应 </summary>
@@ -113,7 +197,8 @@ namespace IngestDevicePlugin.Controllers
         [ApiExplorerSettings(GroupName = "v1")]
         public async Task<GetSignalDeviceMapBySignalID_param> GetSignalDeviceMapBySignalID(int nSignalID)
         {
-            async Task Action(GetSignalDeviceMapBySignalID_param response)
+            GetSignalDeviceMapBySignalID_param response = new GetSignalDeviceMapBySignalID_param();
+            try
             {
                 var res = await _deviceManage.GetSignalDeviceMapBySignalID(nSignalID);
                 if (res != null)
@@ -123,8 +208,21 @@ namespace IngestDevicePlugin.Controllers
                     response.SignalSource = res.SignalSource;
                 }
             }
-
-            return await TryInvoke((Func<GetSignalDeviceMapBySignalID_param, Task>)Action);
+            catch (Exception e)
+            {
+                if (e is SobeyRecException se)//sobeyexcep会自动打印错误
+                {
+                    response.bRet = false;
+                    response.errStr = se.Message;
+                }
+                else
+                {
+                    response.bRet = false;
+                    response.errStr = $"{System.Reflection.MethodBase.GetCurrentMethod().DeclaringType.FullName}：error info:{e}";
+                    Logger.Error(response.errStr);
+                }
+            }
+            return response;
         }
 
         /// <summary> 设置信号源和采集设备的对应 </summary>
@@ -137,13 +235,26 @@ namespace IngestDevicePlugin.Controllers
         [ApiExplorerSettings(GroupName = "v1")]
         public async Task<string> GetSetSignalDeviceMap(int nSignalID, int nDeviceID, int nDeviceOutPortIdx, emSignalSource SignalSource)
         {
-            async Task Action(Base_param response)
+            Base_param response = new Base_param();
+            try
             {
                 await _deviceManage.SaveSignalDeviceMapAsync(nSignalID, nDeviceID, nDeviceOutPortIdx, SignalSource);
             }
-
-            var r = await TryInvoke((Func<Base_param, Task>)Action);
-            return r.errStr;
+            catch (Exception e)
+            {
+                if (e is SobeyRecException se)//sobeyexcep会自动打印错误
+                {
+                    response.bRet = false;
+                    response.errStr = se.Message;
+                }
+                else
+                {
+                    response.bRet = false;
+                    response.errStr = $"{System.Reflection.MethodBase.GetCurrentMethod().DeclaringType.FullName}：error info:{e}";
+                    Logger.Error(response.errStr);
+                }
+            }
+            return response.errStr;
         }
 
         /// <summary> 查询所有信号源的扩展信息 </summary>
@@ -152,13 +263,27 @@ namespace IngestDevicePlugin.Controllers
         [ApiExplorerSettings(GroupName = "v1")]
         public async Task<GetAllSignalSrcExs_param> GetAllSignalSrcExs()
         {
-            async Task Action(GetAllSignalSrcExs_param response)
+            GetAllSignalSrcExs_param response = new GetAllSignalSrcExs_param();
+            try
             {
                 response.signalInfo = await _deviceManage.GetAllSignalSrcExsAsync();
                 response.nVaildDataCount = response.signalInfo.Count;
             }
-
-            return await TryInvoke((Func<GetAllSignalSrcExs_param, Task>)Action);
+            catch (Exception e)
+            {
+                if (e is SobeyRecException se)//sobeyexcep会自动打印错误
+                {
+                    response.bRet = false;
+                    response.errStr = se.Message;
+                }
+                else
+                {
+                    response.bRet = false;
+                    response.errStr = $"{System.Reflection.MethodBase.GetCurrentMethod().DeclaringType.FullName}：error info:{e}";
+                    Logger.Error(response.errStr);
+                }
+            }
+            return response;
         }
 
         /// <summary> 根据 信号源Id 查询信号源是否是备份信号源 </summary>
@@ -167,15 +292,29 @@ namespace IngestDevicePlugin.Controllers
         [ApiExplorerSettings(GroupName = "v1")]
         public async Task<string> GetIsBackupSignalSrcByID(int nSignalSrcId)
         {
-            async Task Action(GetAllSignalSrcExs_param response)
+            GetAllSignalSrcExs_param response = new GetAllSignalSrcExs_param();
+            try
             {
                 if (!await _deviceManage.IsBackupSignalSrcByIdAsync(nSignalSrcId))
                 {
                     response.errStr = null;
                 }
             }
-
-            return (await TryInvoke((Func<GetAllSignalSrcExs_param, Task>)Action)).errStr;
+            catch (Exception e)
+            {
+                if (e is SobeyRecException se)//sobeyexcep会自动打印错误
+                {
+                    response.bRet = false;
+                    response.errStr = se.Message;
+                }
+                else
+                {
+                    response.bRet = false;
+                    response.errStr = $"{System.Reflection.MethodBase.GetCurrentMethod().DeclaringType.FullName}：error info:{e}";
+                    Logger.Error(response.errStr);
+                }
+            }
+            return response.errStr;
         }
 
         /// <summary> 根据 通道Id 获取高清还是标清 nType:0标清,1高清 </summary>
@@ -184,7 +323,8 @@ namespace IngestDevicePlugin.Controllers
         [ApiExplorerSettings(GroupName = "v1")]
         public async Task<GetParamTypeByChannleID_param> GetParamTypeByChannleID(int nChannelID)
         {
-            async Task Action(GetParamTypeByChannleID_param response)
+            GetParamTypeByChannleID_param response = new GetParamTypeByChannleID_param();
+            try
             {
                 response.nType = await _deviceManage.GetParamTypeByChannleIDAsync(nChannelID);
                 if (response.nType == -1)
@@ -193,8 +333,21 @@ namespace IngestDevicePlugin.Controllers
                     response.bRet = false;
                 }
             }
-
-            return await TryInvoke((Func<GetParamTypeByChannleID_param, Task>)Action);
+            catch (Exception e)
+            {
+                if (e is SobeyRecException se)//sobeyexcep会自动打印错误
+                {
+                    response.bRet = false;
+                    response.errStr = se.Message;
+                }
+                else
+                {
+                    response.bRet = false;
+                    response.errStr = $"{System.Reflection.MethodBase.GetCurrentMethod().DeclaringType.FullName}：error info:{e}";
+                    Logger.Error(response.errStr);
+                }
+            }
+            return response;
         }
 
         /// <summary> 根据 通道Id 获取MSV设备状态信息 </summary>
@@ -203,12 +356,26 @@ namespace IngestDevicePlugin.Controllers
         [ApiExplorerSettings(GroupName = "v1")]
         public async Task<GetMSVChannelState_param> GetMSVChannelState(int nID)
         {
-            async Task Action(GetMSVChannelState_param response)
+            GetMSVChannelState_param response = new GetMSVChannelState_param();
+            try
             {
                 response.channelStata = await _deviceManage.GetMsvChannelStateAsync(nID);
             }
-
-            return await TryInvoke((Func<GetMSVChannelState_param, Task>)Action);
+            catch (Exception e)
+            {
+                if (e is SobeyRecException se)//sobeyexcep会自动打印错误
+                {
+                    response.bRet = false;
+                    response.errStr = se.Message;
+                }
+                else
+                {
+                    response.bRet = false;
+                    response.errStr = $"{System.Reflection.MethodBase.GetCurrentMethod().DeclaringType.FullName}：error info:{e}";
+                    Logger.Error(response.errStr);
+                }
+            }
+            return response;
         }
 
         /// <summary> 获得所有信号源分组 </summary>
@@ -217,13 +384,27 @@ namespace IngestDevicePlugin.Controllers
         [ApiExplorerSettings(GroupName = "v1")]
         public async Task<GetAllSignalGroup_OUT> GetAllSignalGroup()
         {
-            async Task Action(GetAllSignalGroup_OUT response)
+            GetAllSignalGroup_OUT response = new GetAllSignalGroup_OUT();
+            try
             {
                 response.arAllSignalGroup = await _deviceManage.GetAllSignalGroupAsync();
                 response.nVaildDataCount = response.arAllSignalGroup.Count;
             }
-
-            return await TryInvoke((Func<GetAllSignalGroup_OUT, Task>)Action);
+            catch (Exception e)
+            {
+                if (e is SobeyRecException se)//sobeyexcep会自动打印错误
+                {
+                    response.bRet = false;
+                    response.errStr = se.Message;
+                }
+                else
+                {
+                    response.bRet = false;
+                    response.errStr = $"{System.Reflection.MethodBase.GetCurrentMethod().DeclaringType.FullName}：error info:{e}";
+                    Logger.Error(response.errStr);
+                }
+            }
+            return response;
         }
 
         /// <summary> 获取所有信号源分组信息 </summary>
@@ -232,13 +413,27 @@ namespace IngestDevicePlugin.Controllers
         [ApiExplorerSettings(GroupName = "v1")]
         public async Task<GetAllSignalGroupState_OUT> GetAllSignalGroupInfo()
         {
-            async Task Action(GetAllSignalGroupState_OUT response)
+            GetAllSignalGroupState_OUT response = new GetAllSignalGroupState_OUT();
+            try
             {
                 response.arAllSignalGroupState = await _deviceManage.GetAllSignalGroupInfoAsync();
                 response.nVaildDataCount = response.arAllSignalGroupState.Count;
             }
-
-            return await TryInvoke((Func<GetAllSignalGroupState_OUT, Task>)Action);
+            catch (Exception e)
+            {
+                if (e is SobeyRecException se)//sobeyexcep会自动打印错误
+                {
+                    response.bRet = false;
+                    response.errStr = se.Message;
+                }
+                else
+                {
+                    response.bRet = false;
+                    response.errStr = $"{System.Reflection.MethodBase.GetCurrentMethod().DeclaringType.FullName}：error info:{e}";
+                    Logger.Error(response.errStr);
+                }
+            }
+            return response;
         }
 
         /// <summary> 通过 GPIID 找出该GPI所有的映射 </summary>
@@ -247,13 +442,27 @@ namespace IngestDevicePlugin.Controllers
         [ApiExplorerSettings(GroupName = "v1")]
         public async Task<GetGPIMapInfoByGPIID_OUT> GetGPIMapInfoByGPIID(int nGPIID)
         {
-            async Task Action(GetGPIMapInfoByGPIID_OUT response)
+            GetGPIMapInfoByGPIID_OUT response = new GetGPIMapInfoByGPIID_OUT();
+            try
             {
                 response.arGPIDeviceMapInfo = await _deviceManage.GetGPIMapInfoByGPIIDAsync<GPIDeviceMapInfo>(nGPIID);
                 response.nVaildDataCount = response.arGPIDeviceMapInfo.Count;
             }
-
-            return await TryInvoke((Func<GetGPIMapInfoByGPIID_OUT, Task>)Action);
+            catch (Exception e)
+            {
+                if (e is SobeyRecException se)//sobeyexcep会自动打印错误
+                {
+                    response.bRet = false;
+                    response.errStr = se.Message;
+                }
+                else
+                {
+                    response.bRet = false;
+                    response.errStr = $"{System.Reflection.MethodBase.GetCurrentMethod().DeclaringType.FullName}：error info:{e}";
+                    Logger.Error(response.errStr);
+                }
+            }
+            return response;
         }
 
         /// <summary> 获取所有节目 </summary>
@@ -262,13 +471,27 @@ namespace IngestDevicePlugin.Controllers
         [ApiExplorerSettings(GroupName = "v1")]
         public async Task<GetAllProgrammeInfos_OUT> GetAllProgrammeInfos()
         {
-            async Task Action(GetAllProgrammeInfos_OUT response)
+            GetAllProgrammeInfos_OUT response = new GetAllProgrammeInfos_OUT();
+            try
             {
                 response.programmeInfos = await _deviceManage.GetAllProgrammeInfosAsync();
                 response.nValidDataCount = response.programmeInfos.Count;
             }
-
-            return await TryInvoke((Func<GetAllProgrammeInfos_OUT, Task>)Action);
+            catch (Exception e)
+            {
+                if (e is SobeyRecException se)//sobeyexcep会自动打印错误
+                {
+                    response.bRet = false;
+                    response.errStr = se.Message;
+                }
+                else
+                {
+                    response.bRet = false;
+                    response.errStr = $"{System.Reflection.MethodBase.GetCurrentMethod().DeclaringType.FullName}：error info:{e}";
+                    Logger.Error(response.errStr);
+                }
+            }
+            return response;
         }
 
         /// <summary> 获得所有通道的状态 </summary>
@@ -277,13 +500,27 @@ namespace IngestDevicePlugin.Controllers
         [ApiExplorerSettings(GroupName = "v1")]
         public async Task<GetAllChannelState_OUT> GetAllChannelState()
         {
-            async Task Action(GetAllChannelState_OUT response)
+            GetAllChannelState_OUT response = new GetAllChannelState_OUT();
+            try
             {
                 response.arMSVChannelState = await _deviceManage.GetAllChannelStateAsync();
                 response.nVaildDataCount = response.arMSVChannelState.Count;
             }
-
-            return await TryInvoke((Func<GetAllChannelState_OUT, Task>)Action);
+            catch (Exception e)
+            {
+                if (e is SobeyRecException se)//sobeyexcep会自动打印错误
+                {
+                    response.bRet = false;
+                    response.errStr = se.Message;
+                }
+                else
+                {
+                    response.bRet = false;
+                    response.errStr = $"{System.Reflection.MethodBase.GetCurrentMethod().DeclaringType.FullName}：error info:{e}";
+                    Logger.Error(response.errStr);
+                }
+            }
+            return response;
         }
 
         //根据通道获取相应的节目，有矩阵模式和无矩阵模式的区别"
@@ -292,7 +529,8 @@ namespace IngestDevicePlugin.Controllers
         [ApiExplorerSettings(GroupName = "v1")]
         public async Task<GetProgrammeInfosByChannelId_OUT> GetProgrammeInfosByChannelId(int channelId)
         {
-            async Task Action(GetProgrammeInfosByChannelId_OUT response)
+            GetProgrammeInfosByChannelId_OUT response = new GetProgrammeInfosByChannelId_OUT();
+            try
             {
                 if (channelId <= 0)
                 {
@@ -302,8 +540,21 @@ namespace IngestDevicePlugin.Controllers
                 response.programmeInfos = await _deviceManage.GetProgrammeInfosByChannelIdAsync(channelId);
                 response.validCount = response.programmeInfos.Count;
             }
-
-            return await TryInvoke((Func<GetProgrammeInfosByChannelId_OUT, Task>)Action);
+            catch (Exception e)
+            {
+                if (e is SobeyRecException se)//sobeyexcep会自动打印错误
+                {
+                    response.bRet = false;
+                    response.errStr = se.Message;
+                }
+                else
+                {
+                    response.bRet = false;
+                    response.errStr = $"{System.Reflection.MethodBase.GetCurrentMethod().DeclaringType.FullName}：error info:{e}";
+                    Logger.Error(response.errStr);
+                }
+            }
+            return response;
         }
 
         //通过 通道ID获取采集通道
@@ -312,12 +563,26 @@ namespace IngestDevicePlugin.Controllers
         [ApiExplorerSettings(GroupName = "v1")]
         public async Task<GetCaptureChannelByID_OUT> GetCaptureChannelByID(int nChannelID)
         {
-            async Task Action(GetCaptureChannelByID_OUT response)
+            GetCaptureChannelByID_OUT response = new GetCaptureChannelByID_OUT();
+            try
             {
                 response.captureChannelInfo = await _deviceManage.GetCaptureChannelByIDAsync(nChannelID);
             }
-
-            return await TryInvoke((Func<GetCaptureChannelByID_OUT, Task>)Action);
+            catch (Exception e)
+            {
+                if (e is SobeyRecException se)//sobeyexcep会自动打印错误
+                {
+                    response.bRet = false;
+                    response.errStr = se.Message;
+                }
+                else
+                {
+                    response.bRet = false;
+                    response.errStr = $"{System.Reflection.MethodBase.GetCurrentMethod().DeclaringType.FullName}：error info:{e}";
+                    Logger.Error(response.errStr);
+                }
+            }
+            return response;
         }
 
         /// <summary>更改MSV设备状态信息</summary>
@@ -329,11 +594,26 @@ namespace IngestDevicePlugin.Controllers
         [ApiExplorerSettings(GroupName = "v1")]
         public async Task<bool> GetModifyDevState(int nID, int nDevState, int nMSVMode)
         {
-            async Task Action(Base_param response)
+            GetAllTSDeviceInfos_OUT response = new GetAllTSDeviceInfos_OUT();
+            try
             {
                 await _deviceManage.UpdateMSVChannelStateAsync(nID, nDevState, nMSVMode);
             }
-            return (await TryInvoke((Func<Base_param, Task>)Action)).bRet;
+            catch (Exception e)
+            {
+                if (e is SobeyRecException se)//sobeyexcep会自动打印错误
+                {
+                    response.bRet = false;
+                    response.errStr = se.Message;
+                }
+                else
+                {
+                    response.bRet = false;
+                    response.errStr = $"{System.Reflection.MethodBase.GetCurrentMethod().DeclaringType.FullName}：error info:{e}";
+                    Logger.Error(response.errStr);
+                }
+            }
+            return response.bRet;
         }
 
 
@@ -343,12 +623,27 @@ namespace IngestDevicePlugin.Controllers
         [ApiExplorerSettings(GroupName = "v1")]
         public async Task<GetAllTSDeviceInfos_OUT> GetAllTSDeviceInfos()
         {
-            async Task Action(GetAllTSDeviceInfos_OUT response)
+            GetAllTSDeviceInfos_OUT response = new GetAllTSDeviceInfos_OUT();
+            try
             {
                 response.deviceInfos = await _deviceManage.GetAllTSDeviceInfosAsync();
                 response.nValidCount = response.deviceInfos.Count;
             }
-            return await TryInvoke((Func<GetAllTSDeviceInfos_OUT, Task>)Action);
+            catch (Exception e)
+            {
+                if (e is SobeyRecException se)//sobeyexcep会自动打印错误
+                {
+                    response.bRet = false;
+                    response.errStr = se.Message;
+                }
+                else
+                {
+                    response.bRet = false;
+                    response.errStr = $"{System.Reflection.MethodBase.GetCurrentMethod().DeclaringType.FullName}：error info:{e}";
+                    Logger.Error(response.errStr);
+                }
+            }
+            return response;
         }
 
         /// <summary>获取该信号源的备份信号源ID</summary>
@@ -357,12 +652,27 @@ namespace IngestDevicePlugin.Controllers
         [ApiExplorerSettings(GroupName = "v1")]
         public async Task<GetBackupSignalSrcInfo_OUT> GetBackupSignalSrcInfo(int nSignalSrcId)
         {
-            async Task Action(GetBackupSignalSrcInfo_OUT response)
+            GetBackupSignalSrcInfo_OUT response = new GetBackupSignalSrcInfo_OUT();
+            try
             {
                 response.nBackupSignalSrcId = await _deviceManage.GetBackupSignalSrcIdByIdAsync(nSignalSrcId);
                 response.bIsHavingBackupSglSrc = response.nBackupSignalSrcId > 0;
             }
-            return await TryInvoke((Func<GetBackupSignalSrcInfo_OUT, Task>)Action);
+            catch (Exception e)
+            {
+                if (e is SobeyRecException se)//sobeyexcep会自动打印错误
+                {
+                    response.bRet = false;
+                    response.errStr = se.Message;
+                }
+                else
+                {
+                    response.bRet = false;
+                    response.errStr = $"{System.Reflection.MethodBase.GetCurrentMethod().DeclaringType.FullName}：error info:{e}";
+                    Logger.Error(response.errStr);
+                }
+            }
+            return response;
         }
 
 
@@ -372,7 +682,8 @@ namespace IngestDevicePlugin.Controllers
         [ApiExplorerSettings(GroupName = "v1")]
         public async Task<GetParamTypeBySignalID_OUT> GetParamTypeBySignalID(int nSignalID)//nType:0标清,1高清
         {
-            async Task Action(GetParamTypeBySignalID_OUT response)
+            GetParamTypeBySignalID_OUT response = new GetParamTypeBySignalID_OUT();
+            try
             {
                 response.nType = await _deviceManage.GetParamTypeBySignalIDAsync(nSignalID);
                 if (response.nType == -1)
@@ -381,7 +692,21 @@ namespace IngestDevicePlugin.Controllers
                     response.errStr = "No Such Value!";
                 }
             }
-            return await TryInvoke((Func<GetParamTypeBySignalID_OUT, Task>)Action);
+            catch (Exception e)
+            {
+                if (e is SobeyRecException se)//sobeyexcep会自动打印错误
+                {
+                    response.bRet = false;
+                    response.errStr = se.Message;
+                }
+                else
+                {
+                    response.bRet = false;
+                    response.errStr = $"{System.Reflection.MethodBase.GetCurrentMethod().DeclaringType.FullName}：error info:{e}";
+                    Logger.Error(response.errStr);
+                }
+            }
+            return response;
         }
 
         /// <summary>根据节目ID获取相应的通道，有矩阵模式和无矩阵模式的区别</summary>
@@ -390,12 +715,27 @@ namespace IngestDevicePlugin.Controllers
         [ApiExplorerSettings(GroupName = "v1")]
         public async Task<GetChannelsByProgrammeId_out> GetChannelsByProgrammeId(int programmeId)
         {
-            async Task Action(GetChannelsByProgrammeId_out response)
+            GetChannelsByProgrammeId_out response = new GetChannelsByProgrammeId_out();
+            try
             {
                 response.channelInfos = await _deviceManage.GetChannelsByProgrammeIdAsync<CaptureChannelInfo>(programmeId);
                 response.validCount = response.channelInfos.Count;
             }
-            return await TryInvoke((Func<GetChannelsByProgrammeId_out, Task>)Action);
+            catch (Exception e)
+            {
+                if (e is SobeyRecException se)//sobeyexcep会自动打印错误
+                {
+                    response.bRet = false;
+                    response.errStr = se.Message;
+                }
+                else
+                {
+                    response.bRet = false;
+                    response.errStr = $"{System.Reflection.MethodBase.GetCurrentMethod().DeclaringType.FullName}：error info:{e}";
+                    Logger.Error(response.errStr);
+                }
+            }
+            return response;
         }
 
         /// <summary>根据信号源,用户名,自动匹配最优通道</summary>
@@ -404,11 +744,26 @@ namespace IngestDevicePlugin.Controllers
         [ApiExplorerSettings(GroupName = "v1")]
         public async Task<GetBestChannelIDBySignalID_out> GetBestChannelIDBySignalID(int nSignalID, string strUserCode)
         {
-            async Task Action(GetBestChannelIDBySignalID_out response)
+            GetBestChannelIDBySignalID_out response = new GetBestChannelIDBySignalID_out();
+            try
             {
                 response.nChannelID = await _deviceManage.GetBestChannelIdBySignalIDAsync(nSignalID, strUserCode);
             }
-            return await TryInvoke((Func<GetBestChannelIDBySignalID_out, Task>)Action);
+            catch (Exception e)
+            {
+                if (e is SobeyRecException se)//sobeyexcep会自动打印错误
+                {
+                    response.bRet = false;
+                    response.errStr = se.Message;
+                }
+                else
+                {
+                    response.bRet = false;
+                    response.errStr = $"{System.Reflection.MethodBase.GetCurrentMethod().DeclaringType.FullName}：error info:{e}";
+                    Logger.Error(response.errStr);
+                }
+            }
+            return response;
         }
 
         //为信号源选择一个合适的预监通道
@@ -417,20 +772,34 @@ namespace IngestDevicePlugin.Controllers
         [ApiExplorerSettings(GroupName = "v1")]
         public async Task<GetBestPreviewChannelForSignal_out> GetBestPreviewChannelForSignal(int nSignalID)
         {
-            GetBestChannelIDBySignalID_out p = new GetBestChannelIDBySignalID_out();
-            async Task Action(GetBestPreviewChannelForSignal_out response)
+            GetBestPreviewChannelForSignal_out response = new GetBestPreviewChannelForSignal_out();
+            try
             {
                 if (nSignalID <= 0)
                 {
-                    p.errStr = "Signal ID less than 0.";
-                    p.bRet = false;
+                    response.errStr = "Signal ID less than 0.";
+                    response.bRet = false;
                 }
                 else
                 {
                     response.nChnID = await _deviceManage.GetBestPreviewChnForSignalAsync(nSignalID);
                 }
             }
-            return await TryInvoke((Func<GetBestPreviewChannelForSignal_out, Task>)Action);
+            catch (Exception e)
+            {
+                if (e is SobeyRecException se)//sobeyexcep会自动打印错误
+                {
+                    response.bRet = false;
+                    response.errStr = se.Message;
+                }
+                else
+                {
+                    response.bRet = false;
+                    response.errStr = $"{System.Reflection.MethodBase.GetCurrentMethod().DeclaringType.FullName}：error info:{e}";
+                    Logger.Error(response.errStr);
+                }
+            }
+            return response;
         }
 
 
@@ -549,12 +918,26 @@ namespace IngestDevicePlugin.Controllers
         [ApiExplorerSettings(GroupName = "v1")]
         public async Task<UpdateChnExtData_OUT> PostUpdateChnExtData([FromBody]UpdateChnExtData_IN pIn)
         {
-            async Task Action(UpdateChnExtData_OUT response)
+            UpdateChnExtData_OUT response = new UpdateChnExtData_OUT();
+            try
             {
                 response.bRet = await _deviceManage.SaveChnExtenddataAsync(pIn.nChnID, pIn.type, pIn.strData);
             }
-
-            return await TryInvoke((Func<UpdateChnExtData_OUT, Task>)Action);
+            catch (Exception e)
+            {
+                if (e is SobeyRecException se)//sobeyexcep会自动打印错误
+                {
+                    response.bRet = false;
+                    response.errStr = se.Message;
+                }
+                else
+                {
+                    response.bRet = false;
+                    response.errStr = $"{System.Reflection.MethodBase.GetCurrentMethod().DeclaringType.FullName}：error info:{e}";
+                    Logger.Error(response.errStr);
+                }
+            }
+            return response;
         }
 
 
@@ -564,11 +947,26 @@ namespace IngestDevicePlugin.Controllers
         [ApiExplorerSettings(GroupName = "v1")]
         public async Task<ModifySourceVTRIDAndUserCode_out> ModifySourceVTRIDAndUserCode(int nID, int nSourceVTRID, string userCode)
         {
-            async Task Action(ModifySourceVTRIDAndUserCode_out response)
+            ModifySourceVTRIDAndUserCode_out response = new ModifySourceVTRIDAndUserCode_out();
+            try
             {
                 await _deviceManage.ModifySourceVTRIDAndUserCodeAsync(nSourceVTRID, userCode, nID);
             }
-            return await TryInvoke((Func<ModifySourceVTRIDAndUserCode_out, Task>)Action);
+            catch (Exception e)
+            {
+                if (e is SobeyRecException se)//sobeyexcep会自动打印错误
+                {
+                    response.bRet = false;
+                    response.errStr = se.Message;
+                }
+                else
+                {
+                    response.bRet = false;
+                    response.errStr = $"{System.Reflection.MethodBase.GetCurrentMethod().DeclaringType.FullName}：error info:{e}";
+                    Logger.Error(response.errStr);
+                }
+            }
+            return response;
         }
 
         //更改ModifySourceVTRIDAndUserCodeByChannelIDArray"
@@ -577,7 +975,8 @@ namespace IngestDevicePlugin.Controllers
         [ApiExplorerSettings(GroupName = "v1")]
         public async Task<ModifySourceVTRIDAndUserCode_out> ModifySourceVTRIDAndUserCodeByChannelIDArray(ModifySourceVTR_in pIn)
         {
-            async Task Action(ModifySourceVTRIDAndUserCode_out response)
+            ModifySourceVTRIDAndUserCode_out response = new ModifySourceVTRIDAndUserCode_out();
+            try
             {
                 if (pIn.nIDArray != null)
                 {
@@ -593,7 +992,21 @@ namespace IngestDevicePlugin.Controllers
                     }
                 }
             }
-            return await TryInvoke((Func<ModifySourceVTRIDAndUserCode_out, Task>)Action);
+            catch (Exception e)
+            {
+                if (e is SobeyRecException se)//sobeyexcep会自动打印错误
+                {
+                    response.bRet = false;
+                    response.errStr = se.Message;
+                }
+                else
+                {
+                    response.bRet = false;
+                    response.errStr = $"{System.Reflection.MethodBase.GetCurrentMethod().DeclaringType.FullName}：error info:{e}";
+                    Logger.Error(response.errStr);
+                }
+            }
+            return response;
         }
         #endregion UpdateController
 
