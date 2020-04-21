@@ -46,19 +46,40 @@ namespace IngestMatrixPlugin.Stores
         }
 
         #region DbpLevelrelation
-        public Task<List<TResult>> QueryLevelrelation<TResult>(Func<IQueryable<DbpLevelrelation>, IQueryable<TResult>> query, bool notrack = false)
+        public async Task<List<TResult>> QueryLevelrelation<TResult>(Func<IQueryable<DbpLevelrelation>, IQueryable<TResult>> query, bool notrack = false)
         {
             return await QueryList(query, notrack);
         }
-
-        public Task<TResult> QueryLevelrelation<TResult>(Func<IQueryable<DbpLevelrelation>, Task<TResult>> query, bool notrack = false)
+        public async Task<TResult> QueryLevelrelation<TResult>(Func<IQueryable<DbpLevelrelation>, Task<TResult>> query, bool notrack = false)
         {
             return await QueryModel(query, notrack);
         }
         #endregion
 
+        #region DbpMapinport
+        public async Task<List<TResult>> QueryMapinport<TResult>(Func<IQueryable<DbpMapinport>, IQueryable<TResult>> query, bool notrack = false)
+        {
+            return await QueryList(query, notrack);
+        }
+        public async Task<TResult> QueryMapinport<TResult>(Func<IQueryable<DbpMapinport>, Task<TResult>> query, bool notrack = false)
+        {
+            return await QueryModel(query, notrack);
+        }
+        public bool GetVirtualMapInPort(long lMatrixID, long lRealInPort, ref long lVirtualInPort)
+        {
+            var inport = Context.DbpMapinport.SingleOrDefault(a => a.Matrixid == lMatrixID && a.Inport == lRealInPort);
+            if (inport == null)
+            {
+                lVirtualInPort = -1;
+                return false;
+            }
+            lVirtualInPort = inport.Virtualinport;
+            return true;
+        }
+        #endregion
+
         #region DbpMapoutport
-        public async Task<List<TResult>> QueryMapoutportList<TResult>(Func<IQueryable<DbpMapoutport>, IQueryable<TResult>> query, bool notrack = false)
+        public async Task<List<TResult>> QueryMapoutport<TResult>(Func<IQueryable<DbpMapoutport>, IQueryable<TResult>> query, bool notrack = false)
         {
             return await QueryList(query, notrack);
         }
@@ -75,14 +96,14 @@ namespace IngestMatrixPlugin.Stores
                 lMatrixID = -1;
                 return false;
             }
-            lOutPort = Convert.ToInt64(outport.Outport);
-            lMatrixID = Convert.ToInt64(outport.Matrixid);
+            lOutPort = outport.Outport;
+            lMatrixID = outport.Matrixid;
             return true;
         }
         #endregion
 
         #region DbpMatrixrout
-        public async Task<List<TResult>> QueryMatrixroutList<TResult>(Func<IQueryable<DbpMatrixrout>, IQueryable<TResult>> query, bool notrack = false)
+        public async Task<List<TResult>> QueryMatrixrout<TResult>(Func<IQueryable<DbpMatrixrout>, IQueryable<TResult>> query, bool notrack = false)
         {
             return await QueryList(query, notrack);
         }
@@ -94,6 +115,23 @@ namespace IngestMatrixPlugin.Stores
         {
             var deleteList = await query(Context.DbpMatrixrout).ToListAsync();
             Context.DbpMatrixrout.RemoveRange(deleteList);
+            return await Context.SaveChangesAsync();
+        }
+        public async Task<int> AddOrUpdateMatrixrout(IEnumerable<DbpMatrixrout> saveList)
+        {
+            List<DbpMatrixrout> addList = new List<DbpMatrixrout>();
+            foreach (var matrixRout in saveList)
+            {
+                var matrix = await Context.DbpMatrixrout.FirstOrDefaultAsync(a => a.Matrixid == matrixRout.Matrixid && a.Virtualoutport == matrixRout.Virtualoutport);
+                if (matrix != null)
+                    matrix = matrixRout;
+                else
+                    addList.Add(matrixRout);
+            }
+            if (addList.Count > 0)
+            {
+                await Context.DbpMatrixrout.AddRangeAsync(addList);
+            }
             return await Context.SaveChangesAsync();
         }
         public async Task<int> AddRangeMatrixrout(List<DbpMatrixrout> dbps)
@@ -113,7 +151,40 @@ namespace IngestMatrixPlugin.Stores
         {
             return await QueryList(query, notrack);
         }
-        public async Task<TResult> QueryMatrixinfo<TResult>(Func<IQueryable<DbpMatrixrout>, Task<TResult>> query, bool notrack = false)
+        public async Task<TResult> QueryMatrixinfo<TResult>(Func<IQueryable<DbpMatrixinfo>, Task<TResult>> query, bool notrack = false)
+        {
+            return await QueryModel(query, notrack);
+        }
+        #endregion
+
+        #region DbpMatrixtypeinfo
+        public async Task<List<TResult>> QueryMatrixtypeinfo<TResult>(Func<IQueryable<DbpMatrixtypeinfo>, IQueryable<TResult>> query, bool notrack = false)
+        {
+            return await QueryList(query, notrack);
+        }
+        public async Task<TResult> QueryMatrixtypeinfo<TResult>(Func<IQueryable<DbpMatrixtypeinfo>, Task<TResult>> query, bool notrack = false)
+        {
+            return await QueryModel(query, notrack);
+        }
+        #endregion
+
+        #region DbpRcdindesc
+        public async Task<List<TResult>> QueryRcdindesc<TResult>(Func<IQueryable<DbpRcdindesc>, IQueryable<TResult>> query, bool notrack = false)
+        {
+            return await QueryList(query, notrack);
+        }
+        public async Task<TResult> QueryRcdindesc<TResult>(Func<IQueryable<DbpRcdindesc>, Task<TResult>> query, bool notrack = false)
+        {
+            return await QueryModel(query, notrack);
+        }
+        #endregion
+
+        #region DbpRcdoutdesc
+        public async Task<List<TResult>> QueryRcdoutdesc<TResult>(Func<IQueryable<DbpRcdoutdesc>, IQueryable<TResult>> query, bool notrack = false)
+        {
+            return await QueryList(query, notrack);
+        }
+        public async Task<TResult> QueryRcdoutdesc<TResult>(Func<IQueryable<DbpRcdoutdesc>, Task<TResult>> query, bool notrack = false)
         {
             return await QueryModel(query, notrack);
         }
@@ -140,7 +211,7 @@ namespace IngestMatrixPlugin.Stores
         }
         #endregion
 
-        public async Task<bool> UpdatePortInfo(int lInPort, int lOutPort, int bState)
+        public async Task<bool> UpdatePortInfo(long lInPort, long lOutPort, int bState)
         {
             var matrixId = await Context.DbpMatrixinfo.Where(a => a.Matrixtypeid == 1).Select(a => a.Matrixid).SingleAsync();
             var hasData = await Context.DbpVirtualmatrixportstate.Where(a => a.Virtualinport == lInPort && a.Virtualoutport == lOutPort).ToListAsync();
@@ -153,8 +224,8 @@ namespace IngestMatrixPlugin.Stores
             {
                 var addData = new DbpVirtualmatrixportstate
                 {
-                    Virtualinport = lInPort,
-                    Virtualoutport = lOutPort,
+                    Virtualinport = (int)lInPort,
+                    Virtualoutport = (int)lOutPort,
                     State = bState,
                     Matrixid = matrixId,
                     Lastoprtime = DateTime.Now
@@ -162,5 +233,7 @@ namespace IngestMatrixPlugin.Stores
             }
             return true;
         }
+
+
     }
 }

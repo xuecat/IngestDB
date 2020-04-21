@@ -9,7 +9,6 @@
   <ItemGroup>
     <Folder Include="Dto\Enums\" />
     <Folder Include="Dto\Request\" />
-    <Folder Include="Extend\" />
   </ItemGroup>
 
   <ItemGroup>

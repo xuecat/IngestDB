@@ -16,25 +16,36 @@ namespace IngestMatrixPlugin.Stores
         Task<TResult> QueryLevelrelation<TResult>(Func<IQueryable<DbpLevelrelation>, Task<TResult>> query, bool notrack = false);
         #endregion
 
+        #region DbpMapinport
+        /// <summary>查询矩阵的输入端口</summary>
+        Task<List<TResult>> QueryMapinport<TResult>(Func<IQueryable<DbpMapinport>, IQueryable<TResult>> query, bool notrack = false);
+        /// <summary>查询矩阵的输入端口</summary>
+        Task<TResult> QueryMapinport<TResult>(Func<IQueryable<DbpMapinport>, Task<TResult>> query, bool notrack = false);
+        /// <summary>查询真实矩阵的输入端口</summary>
+        bool GetVirtualMapInPort(long lMatrixID, long lRealInPort, ref long lVirtualInPort);
+        #endregion
+
         #region DbpMapoutport
         /// <summary>查询矩阵的输出端口</summary>
-        Task<List<TResult>> QueryMapoutportList<TResult>(Func<IQueryable<DbpMapoutport>, IQueryable<TResult>> query, bool notrack = false);
+        Task<List<TResult>> QueryMapoutport<TResult>(Func<IQueryable<DbpMapoutport>, IQueryable<TResult>> query, bool notrack = false);
         /// <summary>查询矩阵的输出端口</summary>
         Task<TResult> QueryMapoutport<TResult>(Func<IQueryable<DbpMapoutport>, Task<TResult>> query, bool notrack = false);
         /// <summary>查询真实矩阵的输出端口</summary>
         bool GetRealMatrixOutPort(long lVirtualOutPort, ref long lOutPort, ref long lMatrixID);
         #endregion
 
-        #region DbpMatrixinfo
-        /// <summary>查询矩阵rout</summary>
-        Task<List<TResult>> QueryMatrixroutList<TResult>(Func<IQueryable<DbpMatrixrout>, IQueryable<TResult>> query, bool notrack = false);
-        /// <summary>查询矩阵rout</summary>
+        #region DbpMatrixrout
+        /// <summary>查询矩阵路由</summary>
+        Task<List<TResult>> QueryMatrixrout<TResult>(Func<IQueryable<DbpMatrixrout>, IQueryable<TResult>> query, bool notrack = false);
+        /// <summary>查询矩阵路由</summary>
         Task<TResult> QueryMatrixrout<TResult>(Func<IQueryable<DbpMatrixrout>, Task<TResult>> query, bool notrack = false);
-        /// <summary>删除矩阵rout</summary>
+        /// <summary>删除矩阵路由</summary>
         Task<int> DeleteMatrixrout(Func<IQueryable<DbpMatrixrout>, IQueryable<DbpMatrixrout>> query);
-        /// <summary>添加矩阵rout</summary>
+        /// <summary>添加或更新矩阵路由</summary>
+        Task<int> AddOrUpdateMatrixrout(IEnumerable<DbpMatrixrout> saveList);
+        /// <summary>添加矩阵路由</summary>
         Task<int> AddRangeMatrixrout(List<DbpMatrixrout> dbps);
-        /// <summary>添加矩阵rout</summary>
+        /// <summary>添加矩阵路由</summary>
         Task<int> AddMatrixrout(DbpMatrixrout dbps);
         #endregion
 
@@ -42,7 +53,28 @@ namespace IngestMatrixPlugin.Stores
         /// <summary>查询矩阵信息</summary>
         Task<List<TResult>> QueryMatrixinfo<TResult>(Func<IQueryable<DbpMatrixinfo>, IQueryable<TResult>> query, bool notrack = false);
         /// <summary>查询矩阵信息</summary>
-        Task<TResult> QueryMatrixinfo<TResult>(Func<IQueryable<DbpMatrixrout>, Task<TResult>> query, bool notrack = false);
+        Task<TResult> QueryMatrixinfo<TResult>(Func<IQueryable<DbpMatrixinfo>, Task<TResult>> query, bool notrack = false);
+        #endregion
+
+        #region DbpMatrixtypeinfo
+        /// <summary>查询矩阵信息</summary>
+        Task<List<TResult>> QueryMatrixtypeinfo<TResult>(Func<IQueryable<DbpMatrixtypeinfo>, IQueryable<TResult>> query, bool notrack = false);
+        /// <summary>查询矩阵信息</summary>
+        Task<TResult> QueryMatrixtypeinfo<TResult>(Func<IQueryable<DbpMatrixtypeinfo>, Task<TResult>> query, bool notrack = false);
+        #endregion
+
+        #region DbpRcdindesc
+        /// <summary>查询矩阵信息</summary>
+        Task<List<TResult>> QueryRcdindesc<TResult>(Func<IQueryable<DbpRcdindesc>, IQueryable<TResult>> query, bool notrack = false);
+        /// <summary>查询矩阵信息</summary>
+        Task<TResult> QueryRcdindesc<TResult>(Func<IQueryable<DbpRcdindesc>, Task<TResult>> query, bool notrack = false);
+        #endregion
+
+        #region DbpRcdoutdesc
+        /// <summary>查询矩阵信息</summary>
+        Task<List<TResult>> QueryRcdoutdesc<TResult>(Func<IQueryable<DbpRcdoutdesc>, IQueryable<TResult>> query, bool notrack = false);
+        /// <summary>查询矩阵信息</summary>
+        Task<TResult> QueryRcdoutdesc<TResult>(Func<IQueryable<DbpRcdoutdesc>, Task<TResult>> query, bool notrack = false);
         #endregion
 
         #region DbpVirtualmatrixportstate
@@ -55,11 +87,8 @@ namespace IngestMatrixPlugin.Stores
         /// <summary>添加矩阵rout</summary>
         Task<int> AddVirtualmatrixportstate(DbpVirtualmatrixportstate dbps);
         #endregion
-                
-        /// <summary>更新端口信息</summary>
-        Task<bool> UpdatePortInfo(int lInPort, int lOutPort, int bState);
 
-
-
+        /// <summary>更新端口信息 ture:1, false:0</summary>
+        Task<bool> UpdatePortInfo(long lInPort, long lOutPort, int bState);
     }
 }
