@@ -76,7 +76,10 @@ namespace IngestTaskInterfacePlugin
                         }
 
                         break;
+                    case FunctionType.SignalInfoByID:
+                        {
 
+                        } break;
 
                     default:
                         break;

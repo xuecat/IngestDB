@@ -40,35 +40,35 @@ namespace IngestGlobalPlugin.Controllers
         /// 例子:
         /// Post api/v2/objectinfo/lock
         /// </remarks>
-        /// <param name="pIn">锁对象参数</param>
+        /// <param name="objectParamIn">锁对象参数</param>
         /// <returns>锁对象结果</returns>
         [HttpPost("objectinfo/lock")]
         [ApiExplorerSettings(GroupName = "v2")]
-        public async Task<ResponseMessage> PostLockObject([FromBody] PostLockObject_param_in pIn)
+        public async Task<ResponseMessage> PostLockObject([FromBody] PostLockObject_param_in objectParamIn)
         {
             ResponseMessage Response = new ResponseMessage();
 
             try
             {
-                if (pIn.ObjectID < 0)
+                if (objectParamIn.ObjectID < 0)
                 {
                     Logger.Error("PostLockObject : ObjectID < 0 ,参数传递错误");
-                    SobeyRecException.ThrowSelfNoParam(pIn.ObjectID.ToString(), GlobalDictionary.GLOBALDICT_CODE_LOCK_OBJECTID_WRONG, Logger, null);
+                    SobeyRecException.ThrowSelfNoParam(objectParamIn.ObjectID.ToString(), GlobalDictionary.GLOBALDICT_CODE_LOCK_OBJECTID_WRONG, Logger, null);
                 }
-                if (pIn.ObjectTypeID < OTID.OTID_VTR || pIn.ObjectTypeID > OTID.OTID_OTHER)
+                if (objectParamIn.ObjectTypeID < OTID.OTID_VTR || objectParamIn.ObjectTypeID > OTID.OTID_OTHER)
                 {
-                    SobeyRecException.ThrowSelfNoParam(pIn.ObjectTypeID.ToString(), GlobalDictionary.GLOBALDICT_CODE_LOCK_OBJECT_TPYEID_IS_NOT_EXIST, Logger, null);
+                    SobeyRecException.ThrowSelfNoParam(objectParamIn.ObjectTypeID.ToString(), GlobalDictionary.GLOBALDICT_CODE_LOCK_OBJECT_TPYEID_IS_NOT_EXIST, Logger, null);
                 }
-                if (string.IsNullOrEmpty(pIn.userName))
+                if (string.IsNullOrEmpty(objectParamIn.userName))
                 {
-                    pIn.userName = "NullUserName";
+                    objectParamIn.userName = "NullUserName";
                 }
-                if (pIn.TimeOut < 0)
+                if (objectParamIn.TimeOut < 0)
                 {
-                    SobeyRecException.ThrowSelfNoParam(pIn.TimeOut.ToString(), GlobalDictionary.GLOBALDICT_CODE_LOCK_OBJECT_TIMEOUT_IS_WRONG, Logger, null);
+                    SobeyRecException.ThrowSelfNoParam(objectParamIn.TimeOut.ToString(), GlobalDictionary.GLOBALDICT_CODE_LOCK_OBJECT_TIMEOUT_IS_WRONG, Logger, null);
                 }
 
-                bool ret = await _GlobalManager.SetLockObjectAsync(pIn.ObjectID, pIn.ObjectTypeID, pIn.userName, pIn.TimeOut);
+                bool ret = await _GlobalManager.SetLockObjectAsync(objectParamIn.ObjectID, objectParamIn.ObjectTypeID, objectParamIn.userName, objectParamIn.TimeOut);
 
                 Response.Code = ret ? ResponseCodeDefines.SuccessCode : ResponseCodeDefines.PartialFailure;
             }
@@ -99,31 +99,31 @@ namespace IngestGlobalPlugin.Controllers
         /// 例子:
         /// Post api/v1/objectinfo/unlock
         /// </remarks>
-        /// <param name="pIn">锁对象参数</param>
+        /// <param name="objectParamIn">锁对象参数</param>
         /// <returns>锁对象结果</returns>
         [HttpPost("objectinfo/unlock")]
         [ApiExplorerSettings(GroupName = "v2")]
-        public async Task<ResponseMessage> PostUnlockObject([FromBody] PostLockObject_param_in pIn)
+        public async Task<ResponseMessage> PostUnlockObject([FromBody] PostLockObject_param_in objectParamIn)
         {
 
             ResponseMessage Response = new ResponseMessage();
 
             try
             {
-                if (pIn.ObjectID < -1)
+                if (objectParamIn.ObjectID < -1)
                 {
-                    SobeyRecException.ThrowSelfNoParam(pIn.ObjectID.ToString(),  GlobalDictionary.GLOBALDICT_CODE_UNLOCK_OBJECTID_IS_WRONG, Logger, null);
+                    SobeyRecException.ThrowSelfNoParam(objectParamIn.ObjectID.ToString(),  GlobalDictionary.GLOBALDICT_CODE_UNLOCK_OBJECTID_IS_WRONG, Logger, null);
                 }
-                if (pIn.ObjectTypeID < OTID.OTID_ALL || pIn.ObjectTypeID > OTID.OTID_OTHER)
+                if (objectParamIn.ObjectTypeID < OTID.OTID_ALL || objectParamIn.ObjectTypeID > OTID.OTID_OTHER)
                 {
-                    SobeyRecException.ThrowSelfNoParam(pIn.ObjectID.ToString(), GlobalDictionary.GLOBALDICT_CODE_UNLOCK_OBJECT_TYPEID_IS_NOT_EXIST, Logger, null);
+                    SobeyRecException.ThrowSelfNoParam(objectParamIn.ObjectID.ToString(), GlobalDictionary.GLOBALDICT_CODE_UNLOCK_OBJECT_TYPEID_IS_NOT_EXIST, Logger, null);
                 }
-                if (pIn.userName == "" || pIn.userName == String.Empty)
+                if (objectParamIn.userName == "" || objectParamIn.userName == String.Empty)
                 {
-                    pIn.userName = "NullUserName";
+                    objectParamIn.userName = "NullUserName";
                 }
 
-                bool bRet = await _GlobalManager.SetUnlockObjectAsync(pIn.ObjectID, pIn.ObjectTypeID, pIn.userName);
+                bool bRet = await _GlobalManager.SetUnlockObjectAsync(objectParamIn.ObjectID, objectParamIn.ObjectTypeID, objectParamIn.userName);
 
                 Response.Code = bRet ? ResponseCodeDefines.SuccessCode : ResponseCodeDefines.PartialFailure;
             }
@@ -155,14 +155,14 @@ namespace IngestGlobalPlugin.Controllers
         /// 例子:
         /// Get api/v2/globalvalue
         /// </remarks>
-        /// <param name="strKey">键值</param>
+        /// <param name="key">键值</param>
         /// <returns>获取key对应的字段</returns>
         [HttpGet("globalvalue")]
         [ApiExplorerSettings(GroupName = "v2")]
-        public async Task<ResponseMessage<string>> GetValueString([FromQuery]string strKey)
+        public async Task<ResponseMessage<string>> GetValueString([FromQuery]string key)
         {
             var Response = new ResponseMessage<string>();
-            if (string.IsNullOrEmpty(strKey))
+            if (string.IsNullOrEmpty(key))
             {
                 Response.Code = ResponseCodeDefines.ArgumentNullError;
                 Response.Msg = "请求参数不正确";
@@ -170,7 +170,7 @@ namespace IngestGlobalPlugin.Controllers
             }
             try
             {
-                Response.Ext = await _GlobalManager.GetValueStringAsync(strKey);
+                Response.Ext = await _GlobalManager.GetValueStringAsync(key);
             }
             catch (Exception e)
             {
@@ -190,7 +190,7 @@ namespace IngestGlobalPlugin.Controllers
 
             return Response;
         }
-        
+
         /// <summary>
         /// 设置DbpGlobal中globalkey，globalvalue
         /// </summary>
@@ -198,19 +198,19 @@ namespace IngestGlobalPlugin.Controllers
         /// 例子:
         /// Post api/v2/globalvalue
         /// </remarks>
-        /// <param name="strKey">global键</param>
-        /// <param name="strValue">global值</param>
+        /// <param name="key">global键</param>
+        /// <param name="value">global值</param>
         /// <returns></returns>
         [HttpPost("globalvalue")]
         [ApiExplorerSettings(GroupName = "v2")]
-        public async Task<ResponseMessage> SetGlobalValue([FromQuery]string strKey, [FromQuery]string strValue)
+        public async Task<ResponseMessage> SetGlobalValue([FromQuery]string key, [FromQuery]string value)
         {
             ResponseMessage Response = new ResponseMessage();
             try
             {
-                if (strValue == null)
-                    strValue = "";
-                await _GlobalManager.UpdateGlobalValueAsync(strKey, strValue);
+                if (key == null)
+                    value = "";
+                await _GlobalManager.UpdateGlobalValueAsync(key, value);
                 Response.Code = ResponseCodeDefines.SuccessCode;
             }
             catch (Exception e)
@@ -238,18 +238,18 @@ namespace IngestGlobalPlugin.Controllers
         /// 例子:
         /// Get api/v2/defaultstc/{tcMode}
         /// </remarks>
-        /// <param name="tcMode">键值</param>
+        /// <param name="mode">键值</param>
         /// <returns></returns>
-        [HttpGet("defaultstc/{tcMode}")]
+        [HttpGet("defaultstc/{mode}")]
         [ApiExplorerSettings(GroupName = "v2")]
-        public async Task<ResponseMessage<GlobalTcResponse>> GetDefaultSTC(int tcMode)
+        public async Task<ResponseMessage<GlobalTcResponse>> GetDefaultSTC([FromRoute]int mode)
         {
             ResponseMessage<GlobalTcResponse> Response = new ResponseMessage<GlobalTcResponse>();
 
             try
             {
                 string strKey = string.Empty;
-                if ((TC_MODE)tcMode == TC_MODE.emForLine)
+                if ((TC_MODE)mode == TC_MODE.emForLine)
                     strKey = "DEFAULT_STC_LINE";
                 else
                     strKey = "DEFAULT_STC_OTHER";
@@ -285,19 +285,19 @@ namespace IngestGlobalPlugin.Controllers
         /// </summary>
         /// <remarks>
         /// 例子:
-        /// Get api/v2/defaultstcext/{tcMode}
+        /// Get api/v2/defaultstcext/{mode}
         /// </remarks>
-        /// <param name="tcMode">键值</param>
+        /// <param name="mode">键值</param>
         /// <returns></returns>
-        [HttpGet("defaultstcext/{tcMode}")]
+        [HttpGet("defaultstcext/{mode}")]
         [ApiExplorerSettings(GroupName = "v2")]
-        public async Task<ResponseMessage<GlobalTcResponse>> GetDefaultSTCExt(int tcMode)
+        public async Task<ResponseMessage<GlobalTcResponse>> GetDefaultSTCExt([FromRoute]int mode)
         {
             ResponseMessage<GlobalTcResponse> Response = new ResponseMessage<GlobalTcResponse>();
 
             try
             {
-                Response.Ext = await _GlobalManager.GetDefaultSTCAsync<GlobalTcResponse>((TC_MODE)tcMode);
+                Response.Ext = await _GlobalManager.GetDefaultSTCAsync<GlobalTcResponse>((TC_MODE)mode);
                 Response.Code = ResponseCodeDefines.SuccessCode;
             }
             catch (Exception e)
@@ -329,14 +329,14 @@ namespace IngestGlobalPlugin.Controllers
         /// 例子:
         /// Post api/v2/globalstate
         /// </remarks>
-        /// <param name="strLabel">GlobalStateName枚举</param>
+        /// <param name="label">GlobalStateName枚举</param>
         /// <returns></returns>
         [HttpPost("globalstate")]
         [ApiExplorerSettings(GroupName = "v2")]
-        public async Task<ResponseMessage> SetGlobalState([FromQuery]string strLabel)
+        public async Task<ResponseMessage> SetGlobalState([FromQuery]string label)
         {
             var Response = new ResponseMessage();
-            if (string.IsNullOrEmpty(strLabel))
+            if (string.IsNullOrEmpty(label))
             {
                 Response.Code = ResponseCodeDefines.ArgumentNullError;
                 Response.Msg = "请求参数不正确";
@@ -344,7 +344,7 @@ namespace IngestGlobalPlugin.Controllers
             }
             try
             {
-                await _GlobalManager.UpdateGlobalStateAsync(strLabel);
+                await _GlobalManager.UpdateGlobalStateAsync(label);
             }
             catch (Exception e)
             {
@@ -423,25 +423,25 @@ namespace IngestGlobalPlugin.Controllers
         /// </remarks>
         [HttpPost("usersetting")]
         [ApiExplorerSettings(GroupName = "v2")]
-        public async Task<ResponseMessage> Post_SetUserSetting([FromBody]DtoSetUserSetting_IN pIn)
+        public async Task<ResponseMessage> Post_SetUserSetting([FromBody]DtoSetUserSetting_IN userSettingIn)
         {
             ResponseMessage Response = new ResponseMessage();
             try
             {
-                if (string.IsNullOrWhiteSpace(pIn.UserCode)) 
+                if (string.IsNullOrWhiteSpace(userSettingIn.UserCode)) 
                 {
                     Response.Msg = "The usercode is null.";
                     Response.Code = ResponseCodeDefines.ArgumentNullError;
                     return Response;
                 }
-                if (string.IsNullOrWhiteSpace(pIn.Settingtype))
+                if (string.IsNullOrWhiteSpace(userSettingIn.Settingtype))
                 {
                     Response.Msg = "The setting type is null.";
                     Response.Code = ResponseCodeDefines.ArgumentNullError;
                     return Response;
                 }
 
-                await _GlobalManager.UpdateUserSettingAsync(pIn.UserCode, pIn.Settingtype, pIn.SettingText);
+                await _GlobalManager.UpdateUserSettingAsync(userSettingIn.UserCode, userSettingIn.Settingtype, userSettingIn.SettingText);
                 Response.Code = ResponseCodeDefines.SuccessCode;
             }
             catch (Exception e)//其他未知的异常，写异常日志
@@ -465,8 +465,8 @@ namespace IngestGlobalPlugin.Controllers
         /// <summary>
         /// 通过用户编码获取配置信息
         /// </summary>
-        /// <param name="strUserCode">usercode</param>
-        /// <param name="strSettingtype">type</param>
+        /// <param name="userCode">usercode</param>
+        /// <param name="settingtype">type</param>
         /// <returns> extention为strSettingText </returns>
         /// <remarks>
         /// 例子:
@@ -474,12 +474,12 @@ namespace IngestGlobalPlugin.Controllers
         /// </remarks>
         [HttpGet("usersetting")]
         [ApiExplorerSettings(GroupName = "v2")]
-        public async Task<ResponseMessage<string>> GetUserSetting([FromQuery]string strUserCode, [FromQuery]string strSettingtype)
+        public async Task<ResponseMessage<string>> GetUserSetting([FromQuery]string userCode, [FromQuery]string settingtype)
         {
             ResponseMessage<string> Response = new ResponseMessage<string>();
             try
             {
-                Response.Ext = await _GlobalManager.GetUserSettingAsync(strUserCode, strSettingtype);
+                Response.Ext = await _GlobalManager.GetUserSettingAsync(userCode, settingtype);
                 Response.Code = ResponseCodeDefines.SuccessCode; 
             }
             catch (Exception e)//其他未知的异常，写异常日志
@@ -506,23 +506,23 @@ namespace IngestGlobalPlugin.Controllers
         /// <summary>
         /// 获取captureparamtemplate指定captureid和nflag的值，返回param
         /// </summary>
-        /// <param name="nCaptureParamID">capid</param>
-        /// <param name="nFlag">类型</param>
+        /// <param name="captureParamID">capid</param>
+        /// <param name="flag">类型</param>
         /// <returns>globalstate表结果</returns>
         /// <remarks>
         /// 例子:
         /// Get api/v2/captureparamtemplate/{nCaptureParamID}
         /// </remarks>
-        [HttpGet("captureparamtemplate/{nCaptureParamID}")]
+        [HttpGet("captureparamtemplate/{captureParamID}")]
         [ApiExplorerSettings(GroupName = "v2")]
-        public async Task<ResponseMessage<string>> GetParamTemplateByID(int nCaptureParamID, [FromQuery]int nFlag)
+        public async Task<ResponseMessage<string>> GetParamTemplateByID([FromRoute]int captureParamID, [FromQuery]int flag)
         {
             ResponseMessage<string> Response = new ResponseMessage<string>();
             try
             {
                 //读取采集参数模板
-                string temp = await _GlobalManager.GetCapParamTemplateByIDAsync(nCaptureParamID);
-                temp = _GlobalManager.DealCaptureParam(temp, nFlag);
+                string temp = await _GlobalManager.GetCapParamTemplateByIDAsync(captureParamID);
+                temp = _GlobalManager.DealCaptureParam(temp, flag);
                 if (string.IsNullOrEmpty(temp))
                 {
                     Response.Msg = "There's no CaptureParam!";
@@ -658,27 +658,27 @@ namespace IngestGlobalPlugin.Controllers
         /// <summary>
         /// 根据模板ID修改模板内容
         /// </summary>
-        /// <param name="nTemplateID"></param>
+        /// <param name="templateID"></param>
         /// <param name="UserTemplate"></param>
         /// <returns>标准返回信息</returns>
         /// <remarks>
         /// 例子:
         /// Put api/v2/usertemplate/modify/{nTemplateID}
         /// </remarks>
-        [HttpPut("usertemplate/modify/{nTemplateID}")]
+        [HttpPut("usertemplate/modify/{templateID}")]
         [ApiExplorerSettings(GroupName = "v2")]
-        public async Task<ResponseMessage> ModifyUserTempalte([FromQuery] int nTemplateID, [FromBody]  EUserTemplate UserTemplate)
+        public async Task<ResponseMessage> ModifyUserTempalte([FromRoute] int templateID, [FromBody]  EditUserTemplate UserTemplate)
         {
             ResponseMessage Response = new ResponseMessage();
 
-            if (nTemplateID <= 0)
+            if (templateID <= 0)
             {
                 Response.Msg = "TemplateID is smaller or equal 0.";
                 Response.Code = ResponseCodeDefines.ArgumentNullError;
             }
             try
             {
-                await _GlobalManager.ModifyUserTemplateAsync(nTemplateID,UserTemplate.TemplateName, UserTemplate.TemplateContent);
+                await _GlobalManager.ModifyUserTemplateAsync(templateID, UserTemplate.TemplateName, UserTemplate.TemplateContent);
                 Response.Code = ResponseCodeDefines.SuccessCode;
             }
             catch (System.Exception e)
@@ -699,12 +699,12 @@ namespace IngestGlobalPlugin.Controllers
             return Response;
 
         }
-        
+
 
         /// <summary>
         /// 获得用户所有模板
         /// </summary>
-        /// <param name="strUserCode"></param>
+        /// <param name="userCode"></param>
         /// <returns>extension 为 获取到的模板数组</returns>
         /// <remarks>
         /// 例子:
@@ -712,18 +712,18 @@ namespace IngestGlobalPlugin.Controllers
         /// </remarks>
         [HttpGet("usertemplate/all")]
         [ApiExplorerSettings(GroupName = "v2")]
-        public async Task<ResponseMessage<List<DtoUserTemplate>>> GetUserAllTemplatesByUserCode([FromQuery] string strUserCode)
+        public async Task<ResponseMessage<List<DtoUserTemplate>>> GetUserAllTemplatesByUserCode([FromQuery] string userCode)
         {
             ResponseMessage<List<DtoUserTemplate>> Response = new ResponseMessage<List<DtoUserTemplate>>();
 
-            if (strUserCode == string.Empty)
+            if (userCode == string.Empty)
             {
                 Response.Msg = "UserCode is null.";
                 Response.Code = ResponseCodeDefines.ArgumentNullError;
             }
             try
             {
-                Response.Ext = await _GlobalManager.GetUserAllTemplatesAsync<DtoUserTemplate>(strUserCode);
+                Response.Ext = await _GlobalManager.GetUserAllTemplatesAsync<DtoUserTemplate>(userCode);
                 Response.Code = ResponseCodeDefines.SuccessCode;
             }
             catch (System.Exception e)
@@ -747,26 +747,26 @@ namespace IngestGlobalPlugin.Controllers
         /// <summary>
         /// 通过iD删除usertemplate
         /// </summary>
-        /// <param name="nTemplateID">模板id</param>
+        /// <param name="templateID">模板id</param>
         /// <returns></returns>
         /// <remarks>
         /// 例子:
-        /// Delete api/v2/usertemplate/delete/{nTemplateID}
+        /// Delete api/v2/usertemplate/delete/{templateID}
         /// </remarks>
-        [HttpDelete("usertemplate/delete/{nTemplateID}")]
+        [HttpDelete("usertemplate/delete/{templateID}")]
         [ApiExplorerSettings(GroupName = "v2")]
-        public async Task<ResponseMessage> DeleteUserTemplateByID([FromQuery]int nTemplateID)
+        public async Task<ResponseMessage> DeleteUserTemplateByID([FromRoute]int templateID)
         {
             ResponseMessage Response = new ResponseMessage();
 
             try
             {
-                if (nTemplateID <= 0)
+                if (templateID <= 0)
                 {
                     Response.Msg = "TemplateID is smaller or equal 0.";
                     Response.Code = ResponseCodeDefines.ArgumentNullError;
                 }
-                await _GlobalManager.DeleteUserTemplateAsync(nTemplateID);
+                await _GlobalManager.DeleteUserTemplateAsync(templateID);
             }
             catch (Exception e)//其他未知的异常，写异常日志
             {
@@ -789,7 +789,7 @@ namespace IngestGlobalPlugin.Controllers
         /// <summary>
         /// 获得用户所有模板
         /// </summary>
-        /// <param name="UserCode"></param>
+        /// <param name="userCode"></param>
         /// <returns></returns>
         /// <remarks>
         /// 例子:
@@ -797,19 +797,19 @@ namespace IngestGlobalPlugin.Controllers
         /// </remarks>
         [HttpDelete("userparammap/delete")]
         [ApiExplorerSettings(GroupName = "v2")]
-        public async Task<ResponseMessage> DeleteUserParamTemplateByUserCode([FromQuery]string UserCode)
+        public async Task<ResponseMessage> DeleteUserParamTemplateByUserCode([FromQuery]string userCode)
         {
             ResponseMessage Response = new ResponseMessage();
 
             try
             {
-                if (string.IsNullOrEmpty(UserCode))
+                if (string.IsNullOrEmpty(userCode))
                 {
                     Response.Msg = "UserCode is Empty.";
                     Response.Code = ResponseCodeDefines.ArgumentNullError;
                     return Response;
                 }
-                await _GlobalManager.DelUserParamTemplateAsync(UserCode);
+                await _GlobalManager.DelUserParamTemplateAsync(userCode);
             }
             catch (Exception e)//其他未知的异常，写异常日志
             {
@@ -837,7 +837,7 @@ namespace IngestGlobalPlugin.Controllers
         /// <summary>
         /// 获得userinfo通过code
         /// </summary>
-        /// <param name="strUserCode"></param>
+        /// <param name="userCode"></param>
         /// <returns>取到的用户信息</returns>
         /// <remarks>
         /// 例子:
@@ -845,12 +845,12 @@ namespace IngestGlobalPlugin.Controllers
         /// </remarks>
         [HttpGet("userinfo")]
         [ApiExplorerSettings(GroupName = "v2")]
-        public async Task<ResponseMessage<DtoCMUserInfo>> GetUserInfoByCode([FromQuery]string strUserCode)
+        public async Task<ResponseMessage<DtoCMUserInfo>> GetUserInfoByCode([FromQuery]string userCode)
         {
             ResponseMessage<DtoCMUserInfo> Response = new ResponseMessage<DtoCMUserInfo>();
             try
             {
-                Response = await _GlobalManager.GetUserInfoByUserCodeAsync<DtoCMUserInfo>(strUserCode);
+                Response = await _GlobalManager.GetUserInfoByUserCodeAsync<DtoCMUserInfo>(userCode);
             }
             catch (Exception e)//其他未知的异常，写异常日志
             {
@@ -873,27 +873,26 @@ namespace IngestGlobalPlugin.Controllers
         /// <summary>
         /// 通过用户ID得到用户高清或标清采集参数=
         /// </summary>
-        /// <param name="szUserToken"></param>
-        /// <param name="nFlag"></param>
-        /// <returns>取到的用户信息</returns>
+        /// <param name="userToken"></param>
+        /// <param name="flag"></param>
+        /// <returns>取采集参数</returns>
         /// <remarks>
         /// 例子:
         /// Get api/v2/captureparamtemplate/highorstandard
         /// </remarks>
         [HttpGet("captureparamtemplate/highorstandard")]
         [ApiExplorerSettings(GroupName = "v2")]
-        public async Task<ResponseMessage<string>> GetUserHighOrStandardParam([FromQuery]string szUserToken, [FromQuery]int nFlag)//nFlag：0为标清，1为高清
+        public async Task<ResponseMessage<string>> GetUserHighOrStandardCapParam([FromQuery]string userToken, [FromQuery]int flag)//nFlag：0为标清，1为高清
         {
             ResponseMessage<string> Response = new ResponseMessage<string>();
             try
             {
                 int nCaptureParamID = -1;
 
-                ResponseMessage<etparam> res = await _GlobalManager.GetHighOrStandardParamAsync<etparam>(szUserToken);
-                if (res.Code == ResponseCodeDefines.SuccessCode)
+                nCaptureParamID = await _GlobalManager.GetUserParamTemplateIDAsync(true, userToken);
+                if(nCaptureParamID != -1)
                 {
-                    nCaptureParamID = Convert.ToInt32(res.Ext.paramvalue);
-                    Response = await GetParamTemplateByID(nCaptureParamID, nFlag);
+                    Response = await GetParamTemplateByID(nCaptureParamID, flag);
                 }
                 else
                 {

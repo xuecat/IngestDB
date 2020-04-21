@@ -23,7 +23,7 @@ namespace IngestDBCore
         public string Ext2 { get; set; }
     }
     /// <summary>任务类型</summary>
-    public enum TaskType
+    public enum TaskTypeInterface
     {
         /// <summary>普通任务</summary>
 		TT_NORMAL = 0,
@@ -43,7 +43,7 @@ namespace IngestDBCore
         TT_OPENENDEX = 7
     }
     /// <summary>任务附加类型</summary>
-    public enum CooperantType
+    public enum CooperantTypeInterface
     {
         /// <summary>一般任务</summary>
 		emPureTask = 0,
@@ -61,7 +61,7 @@ namespace IngestDBCore
 		emVTRBackupFailed = 6
     }
     /// <summary>任务附加类型</summary>
-    public enum taskState
+    public enum taskStateInterface
     {
         /// <summary>就绪</summary>
         tsReady = 0,
@@ -83,7 +83,7 @@ namespace IngestDBCore
 		tsDisabled
     }
     /// <summary>任务优先级</summary>
-    public enum TaskPriority
+    public enum TaskPriorityInterface
     {
         /// <summary>最低优先级</summary>
         TP_Lowest,
@@ -108,13 +108,13 @@ namespace IngestDBCore
         public int nSignalID = 0;
         public string strBegin = DateTime.MinValue.ToString("yyyy-MM-dd HH:mm:ss");
         public string strEnd = DateTime.MinValue.ToString("yyyy-MM-dd HH:mm:ss");
-        public TaskType emTaskType = TaskType.TT_NORMAL;
-        public CooperantType emCooperantType = CooperantType.emPureTask;
-        public taskState emState;
+        public TaskTypeInterface emTaskType = TaskTypeInterface.TT_NORMAL;
+        public CooperantTypeInterface emCooperantType = CooperantTypeInterface.emPureTask;
+        public taskStateInterface emState;
         public string strStampImage = string.Empty;
         public string strTaskGUID = string.Empty;
         public int nBackupVTRID = 0;
-        public TaskPriority emPriority = TaskPriority.TP_Normal;
+        public TaskPriorityInterface emPriority = TaskPriorityInterface.TP_Normal;
         public int nStampTitleIndex = 0;
         public int nStampImageType = 0;
         public int nSGroupColor = 0;

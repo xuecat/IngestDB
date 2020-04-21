@@ -25,7 +25,10 @@ using AutoMapper;
 
 /// 
 ///关于taskfullinfo的返回，我这里不标准，需要看看
-///
+///MADEBYINGEST没更新完
+///老接口的post和get前缀
+///manager有个addtaskwithpolicy
+///AddTaskWithPolicy 有个GetTaskSourceBySignalId 还有addtask有些地方 是直接加数据库
 ///
 
 namespace IngestTaskPlugin.Controllers
@@ -1492,9 +1495,9 @@ namespace IngestTaskPlugin.Controllers
             try
             {
                 if (channelAlive == 1)
-                    Response.Ext = await _taskManage.GetAutoManuConflict<WarningInfoResponse>(channel);
+                    Response.Ext = await _taskManage.GetAutoManuConflict<WarningInfoResponse>(channelid);
                 else
-                    Response.Ext = await _taskManage.GetBadChannelTask<WarningInfoResponse>(channel);
+                    Response.Ext = await _taskManage.GetBadChannelTask<WarningInfoResponse>(channelid);
             }
             catch (Exception e)
             {
@@ -1562,7 +1565,7 @@ namespace IngestTaskPlugin.Controllers
         /// <param name="newguid">新id</param>
         /// <param name="newname">新名字</param>
         /// <returns>素材路径名</returns>
-        [HttpPost("splittask")]
+        [HttpPost("splittask/{taskid}")]
         [ApiExplorerSettings(GroupName = "v2")]
         public async Task<ResponseMessage<TaskContentResponse>> SplitTaskInfo([FromRoute, BindRequired]int taskid, [FromQuery, BindRequired]string newguid, [FromQuery, BindRequired]string newname)
         {
@@ -1590,7 +1593,7 @@ namespace IngestTaskPlugin.Controllers
             return Response;
         }
 
-        //////////////////////////
+        
 
         /// <summary>
         /// 获取当前任务
@@ -1619,11 +1622,418 @@ namespace IngestTaskPlugin.Controllers
                 else
                 {
                     Response.Code = ResponseCodeDefines.ServiceError;
-                    Response.Msg = $"SetTaskInfoClassify error info：{e}";
+                    Response.Msg = $"SetTaskInfoClassify error info：{e.Message}";
                     Logger.Error(Response.Msg);
                 }
             }
             return Response;
         }
+
+
+        /// <summary>
+        /// 分裂周期任务
+        /// </summary>
+        /// <remarks>
+        /// Decivce通讯接口
+        /// </remarks>
+        /// <param name="taskid">周期任务id</param>
+        /// <returns>分裂后的任务</returns>
+        [HttpPost("createperiodictask/{taskid}")]
+        [ApiExplorerSettings(GroupName = "v2")]
+        public async Task<ResponseMessage<TaskContentResponse>> CreatePeriodicTask([FromRoute, BindRequired]int taskid)
+        {
+            var Response = new ResponseMessage<TaskContentResponse>();
+
+            try
+            {
+                Response.Ext = await _taskManage.CreateNewTaskFromPeriodicTask<TaskContentResponse>(taskid);
+
+                var custom = await _taskManage.GetCustomMetadataAsync<TaskCustomMetadataResponse>(taskid);
+                await _taskManage.UpdateCustomMetadataAsync(Response.Ext.TaskID, custom.Metadata);
+                //await _taskManage.
+            }
+            catch (Exception e)
+            {
+                if (e is SobeyRecException se)//sobeyexcep会自动打印错误
+                {
+                    Response.Code = se.ErrorCode.ToString();
+                    Response.Msg = se.Message;
+                }
+                else
+                {
+                    Response.Code = ResponseCodeDefines.ServiceError;
+                    Response.Msg = $"CreateNewTaskFromPeriodicTask error info：{e.Message}";
+                    Logger.Error(Response.Msg);
+                }
+            }
+            return Response;
+        }
+
+        /// <summary>
+        /// 根据传入的任务ID(占位任务ID),修改任务类型,开始占位任务的执行
+        /// </summary>
+        /// <remarks>
+        /// 
+        /// </remarks>
+        /// <param name="taskid">占位任务id</param>
+        /// <returns>分裂后的任务</returns>
+        [HttpPost("starttieuptask/{taskid}")]
+        [ApiExplorerSettings(GroupName = "v2")]
+        public async Task<ResponseMessage<bool>> StartTieUpTask([FromRoute, BindRequired]int taskid)
+        {
+            var Response = new ResponseMessage<bool>();
+
+            try
+            {
+                Response.Ext = await _taskManage.StartTieupTask(taskid);
+
+                var _globalinterface = ApplicationContext.Current.ServiceProvider.GetRequiredService<IIngestGlobalInterface>();
+                if (_globalinterface != null)
+                {
+                    GlobalInternals re = new GlobalInternals() { funtype = IngestDBCore.GlobalInternals.FunctionType.SetGlobalState, State = GlobalStateName.MODTASK };
+                    var response1 = await _globalinterface.SubmitGlobalCallBack(re);
+                    if (response1.Code != ResponseCodeDefines.SuccessCode)
+                    {
+                        Logger.Error("SetGlobalState modtask error");
+                    }
+                }
+                //await _taskManage.
+            }
+            catch (Exception e)
+            {
+                if (e is SobeyRecException se)//sobeyexcep会自动打印错误
+                {
+                    Response.Code = se.ErrorCode.ToString();
+                    Response.Msg = se.Message;
+                }
+                else
+                {
+                    Response.Code = ResponseCodeDefines.ServiceError;
+                    Response.Msg = $"StartTieUpTask error info：{e.Message}";
+                    Logger.Error(Response.Msg);
+                }
+            }
+            return Response;
+        }
+
+        /// <summary>
+        /// 从传入的通道列表中选出可用的通道
+        /// </summary>
+        /// <remarks>
+        /// 
+        /// </remarks>
+        /// <param name="lstchannelid">占位任务id</param>
+        /// <param name="begin">开始时间</param>
+        /// <param name="end">结束时间</param>
+        /// <returns>分裂后的任务</returns>
+        [HttpPost("chooseuseablechannel")]
+        [ApiExplorerSettings(GroupName = "v2")]
+        public async Task<ResponseMessage<int>> ChooseUseableChannelID([FromQuery, BindRequired]List<int> lstchannelid, [FromQuery, BindRequired]string begin, [FromQuery, BindRequired]string end)
+        {
+            var Response = new ResponseMessage<int>();
+
+            try
+            {
+                Response.Ext = await _taskManage.ChooseUsealbeChannel(lstchannelid, DateTimeFormat.DateTimeFromString(begin), DateTimeFormat.DateTimeFromString(end));
+            }
+            catch (Exception e)
+            {
+                if (e is SobeyRecException se)//sobeyexcep会自动打印错误
+                {
+                    Response.Code = se.ErrorCode.ToString();
+                    Response.Msg = se.Message;
+                }
+                else
+                {
+                    Response.Code = ResponseCodeDefines.ServiceError;
+                    Response.Msg = $"ChooseUseableChannelID error info：{e.Message}";
+                    Logger.Error(Response.Msg);
+                }
+            }
+            return Response;
+        }
+
+        /// <summary>
+        /// 修改任务名
+        /// </summary>
+        /// <remarks>
+        /// 
+        /// </remarks>
+        /// <param name="taskid">任务id</param>
+        /// <param name="taskname">任务名字</param>
+        /// <returns>分裂后的任务</returns>
+        [HttpPut("taskinfo/name/{taskid}")]
+        [ApiExplorerSettings(GroupName = "v2")]
+        public async Task<ResponseMessage> ModifyTaskInfoName([FromRoute, BindRequired]int taskid, [FromQuery, BindRequired]string taskname)
+        {
+            var Response = new ResponseMessage();
+
+            try
+            {
+                await _taskManage.ModifyTaskName(taskid, taskname);
+
+                var _globalinterface = ApplicationContext.Current.ServiceProvider.GetRequiredService<IIngestGlobalInterface>();
+                if (_globalinterface != null)
+                {
+                    GlobalInternals re = new GlobalInternals() { funtype = IngestDBCore.GlobalInternals.FunctionType.SetGlobalState, State = GlobalStateName.MODTASK };
+                    var response1 = await _globalinterface.SubmitGlobalCallBack(re);
+                    if (response1.Code != ResponseCodeDefines.SuccessCode)
+                    {
+                        Logger.Error("SetGlobalState modtask error");
+                    }
+                }
+            }
+            catch (Exception e)
+            {
+                if (e is SobeyRecException se)//sobeyexcep会自动打印错误
+                {
+                    Response.Code = se.ErrorCode.ToString();
+                    Response.Msg = se.Message;
+                }
+                else
+                {
+                    Response.Code = ResponseCodeDefines.ServiceError;
+                    Response.Msg = $"ModifyTaskInfoNmae error info：{e.Message}";
+                    Logger.Error(Response.Msg);
+                }
+            }
+            return Response;
+        }
+
+        /// <summary>
+        /// 修改周期任务
+        /// </summary>
+        /// <remarks>
+        /// 
+        /// </remarks>
+        /// <param name="isall">是否全部修改</param>
+        /// <param name="taskname">任务名字</param>
+        /// <returns>分裂后的任务</returns>
+        [HttpPost("taskinfo/name/{taskid}")]
+        [ApiExplorerSettings(GroupName = "v2")]
+        public async Task<ResponseMessage<int>> ModifyPeriodTaskInfo([FromQuery, BindRequired]int isall, [FromBody, BindRequired]TaskContentRequest req)
+        {
+            var Response = new ResponseMessage<int>();
+
+            try
+            {
+                Response.Ext = await _taskManage.ModifyPeriodTask<TaskContentRequest>(req, isall == 1?true:false);
+
+                //添加后如果开始时间在2分钟以内，需要调度一次
+                if ((DateTimeFormat.DateTimeFromString(req.Begin) - DateTime.Now).TotalSeconds < 120)
+                    await _taskManage.UpdateComingTasks();
+
+                var _globalinterface = ApplicationContext.Current.ServiceProvider.GetRequiredService<IIngestGlobalInterface>();
+                if (_globalinterface != null)
+                {
+                    GlobalInternals re = new GlobalInternals() { funtype = IngestDBCore.GlobalInternals.FunctionType.SetGlobalState, State = GlobalStateName.MODTASK };
+                    var response1 = await _globalinterface.SubmitGlobalCallBack(re);
+                    if (response1.Code != ResponseCodeDefines.SuccessCode)
+                    {
+                        Logger.Error("SetGlobalState modtask error");
+                    }
+                }
+            }
+            catch (Exception e)
+            {
+                if (e is SobeyRecException se)//sobeyexcep会自动打印错误
+                {
+                    Response.Code = se.ErrorCode.ToString();
+                    Response.Msg = se.Message;
+                }
+                else
+                {
+                    Response.Code = ResponseCodeDefines.ServiceError;
+                    Response.Msg = $"ModifyTaskInfoNmae error info：{e.Message}";
+                    Logger.Error(Response.Msg);
+                }
+            }
+            return Response;
+        }
+
+        /// <summary>
+        /// 检测VTR是否冲突
+        /// </summary>
+        /// <remarks>
+        /// 
+        /// </remarks>
+        /// <param name="taskid"></param>
+        /// <param name="begintime"></param>
+        /// <param name="endtime"></param>
+        /// <param name="vtrid"></param>
+        /// <returns>分裂后的任务</returns>
+        [HttpGet("IsVTRCollide/{taskid}")]
+        [ApiExplorerSettings(GroupName = "v2")]
+        public async Task<ResponseMessage<IsVtrCollide>> IsTaskVTRCollide(
+            [FromRoute, BindRequired]int taskid,
+            [FromQuery, BindRequired]string begintime,
+            [FromQuery, BindRequired]string endtime,
+            [FromQuery, BindRequired]int vtrid)
+        {
+            var Response = new ResponseMessage<IsVtrCollide>();
+
+            try
+            {
+                if (string.IsNullOrEmpty(begintime))
+                {
+                    Response.Code = ResponseCodeDefines.ArgumentNullError;
+                    Response.Msg = $"检测VTR是否冲突过程中，任务开始时间不合法";
+                    return Response;
+                }
+                if (string.IsNullOrEmpty(endtime))
+                {
+                    Response.Code = ResponseCodeDefines.ArgumentNullError;
+                    Response.Msg = $"检测VTR是否冲突过程中，任务结束时间不合法";
+                    return Response;
+                }
+
+                if (vtrid <= 0)
+                {
+                    Response.Code = ResponseCodeDefines.ArgumentNullError;
+                    Response.Msg = $"检测VTR是否冲突过程中，VTR的ID不合法";
+                    return Response;
+                }
+                if (taskid < -1)
+                {
+                    Response.Code = ResponseCodeDefines.ArgumentNullError;
+                    Response.Msg = $"检测VTR是否冲突过程中，任务的ID不合法";
+                    return Response;
+                }
+
+                Response.Ext.Result = VTRCollideResult.emVTRNotDefine;
+                Response.Ext.CollideTaskContent = await _taskManage.IsVTRCollide<TaskContentResponse>(vtrid, begintime, endtime, taskid);
+                if (Response.Ext.CollideTaskContent != null)
+                {
+                    Response.Ext.Result = VTRCollideResult.emHaveVTRCollide;
+                }
+                else
+                    Response.Ext.Result = VTRCollideResult.emNotVTRCollide;
+            }
+            catch (Exception e)
+            {
+                if (e is SobeyRecException se)//sobeyexcep会自动打印错误
+                {
+                    Response.Code = se.ErrorCode.ToString();
+                    Response.Msg = se.Message;
+                }
+                else
+                {
+                    Response.Code = ResponseCodeDefines.ServiceError;
+                    Response.Msg = $"IsTaskVTRCollide error info：{e.Message}";
+                    Logger.Error(Response.Msg);
+                }
+            }
+            return Response;
+        }
+
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <remarks>
+        /// 
+        /// </remarks>
+        /// <param name="req">请求体</param>
+        /// <param name="taskname">任务名字</param>
+        /// <returns>分裂后的任务</returns>
+        [HttpPost("writevtruploadtask")]
+        [ApiExplorerSettings(GroupName = "v2")]
+        public async Task<ResponseMessage> WriteVTRUploadTask([FromBody, BindRequired]TaskContentRequest req)
+        {
+            var Response = new ResponseMessage();
+
+            try
+            {
+               await _taskManage.WriteVTRUploadTaskDB<TaskContentRequest>(req);
+            }
+            catch (Exception e)
+            {
+                if (e is SobeyRecException se)//sobeyexcep会自动打印错误
+                {
+                    Response.Code = se.ErrorCode.ToString();
+                    Response.Msg = se.Message;
+                }
+                else
+                {
+                    Response.Code = ResponseCodeDefines.ServiceError;
+                    Response.Msg = $"WriteVTRUploadTask error info：{e.Message}";
+                    Logger.Error(Response.Msg);
+                }
+            }
+            return Response;
+        }
+
+        /// <summary>
+        /// 获得失败的KAMATAKI任务
+        /// </summary>
+        /// <remarks>
+        /// 
+        /// </remarks>
+        /// <returns>extention为TaskContent数组</returns>
+        [HttpGet("kamakatitasks")]
+        [ApiExplorerSettings(GroupName = "v2")]
+        public async Task<ResponseMessage<List<TaskContentResponse>>> GetAllKamakatiFailTasks()
+        {
+            var Response = new ResponseMessage<List<TaskContentResponse>>();
+
+            try
+            {
+                Response.Ext = await _taskManage.GetKamakatiFailTasks<TaskContentResponse>();
+            }
+            catch (Exception e)
+            {
+                if (e is SobeyRecException se)//sobeyexcep会自动打印错误
+                {
+                    Response.Code = se.ErrorCode.ToString();
+                    Response.Msg = se.Message;
+                }
+                else
+                {
+                    Response.Code = ResponseCodeDefines.ServiceError;
+                    Response.Msg = $"GetAllKamakatiFailTasks error info：{e.Message}";
+                    Logger.Error(Response.Msg);
+                }
+            }
+            return Response;
+        }
+
+        /// <summary>
+        /// 修改任务的缩略图
+        /// </summary>
+        /// <remarks>
+        /// 
+        /// </remarks>
+        /// <param name="taskid">任务id</param>
+        /// <param name="bmppath">图片路径</param>
+        /// <returns></returns>
+        [HttpPost("taskinfo/stampbmp/{taskid}")]
+        [ApiExplorerSettings(GroupName = "v2")]
+        public async Task<ResponseMessage> SetTaskInfoStampBmp([FromRoute, BindRequired]int taskid, [FromBody, BindRequired]string bmppath)
+        {
+            var Response = new ResponseMessage();
+
+            try
+            {
+                bmppath = bmppath.Replace("\\", "\\\\");
+                bmppath = bmppath.Replace("'", "''");
+                await _taskManage.SetTaskBmp(taskid, bmppath);
+            }
+            catch (Exception e)
+            {
+                if (e is SobeyRecException se)//sobeyexcep会自动打印错误
+                {
+                    Response.Code = se.ErrorCode.ToString();
+                    Response.Msg = se.Message;
+                }
+                else
+                {
+                    Response.Code = ResponseCodeDefines.ServiceError;
+                    Response.Msg = $"SetTaskStampBmp error info：{e.Message}";
+                    Logger.Error(Response.Msg);
+                }
+            }
+            return Response;
+        }
+
+        //////////////////////////
     }
 }

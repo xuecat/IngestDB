@@ -667,6 +667,27 @@ namespace IngestTaskPlugin.Stores
             }
         }
 
+        public async Task<int> DeleteTaskDB(int taskid, bool change)
+        {
+            Context.DbpTask.Remove(new DbpTask() { Taskid = taskid});
+            Context.DbpTaskMetadata.Remove(new DbpTaskMetadata() { Taskid = taskid});
+
+            if (change)
+            {
+                try
+                {
+                    await Context.SaveChangesAsync();
+                }
+                catch (Exception e)
+                {
+
+                    throw e;
+                }
+            }
+
+            return taskid;
+        }
+
         public async Task<int> DeleteTask(int taskid)
         {
             var taskinfo = await GetTaskAsync(a => a.Where(b => b.Taskid == taskid));
@@ -1157,16 +1178,97 @@ namespace IngestTaskPlugin.Stores
             return lstnreture;
         }
 
-        public async Task<List<int>> GetFreeChannels(List<int> lst, DateTime begin, DateTime end)
+        public async Task<List<int>> GetFreeChannels(List<int> lst, DateTime begin, DateTime end, bool choosefilter = false)
         {
-            var lstchn = await Context.DbpTask.AsNoTracking().Where(x => x.Endtime > DateTime.Now
+            var lsttask = await Context.DbpTask.AsNoTracking().Where(x => x.Endtime > DateTime.Now
             && ((x.Starttime >= begin && x.Starttime < end) 
             || (x.Endtime > begin && x.Endtime <= end))
             && (x.State != (int)taskState.tsConflict && x.State != (int)taskState.tsDelete && x.State != (int)taskState.tsInvaild)
             && x.DispatchState != (int)dispatchState.dpsInvalid
             && x.OpType != (int)opType.otDel
             && (x.Tasktype != (int)TaskType.TT_PERIODIC && x.Tasktype != (int)TaskType.TT_OPENEND && x.Tasktype != (int)TaskType.TT_OPENENDEX))
-            .Select(y => y.Channelid).ToListAsync();
+            .ToListAsync();
+
+            List<DbpTask> lstfiltertask = new List<DbpTask>();
+            /*
+             * @brief 这是ChooseUseableChannels里面的，加了层过滤，估计以后要用到
+             */
+            if (choosefilter)
+            {
+                foreach (var item in lsttask)
+                {
+                    bool isNeedRemove = false;
+
+                    // 手动任务在执行，那么也不能调度过去
+                    //yangchuang20130122手动任务在执行,手动任务如果不是执行状态，那么肯定是出问题了，
+                    //OpenEnd/OpenEndEx有可能刚添加进去还没有执行，这个时候也不能占用通道
+                    if ((item.State == (int)taskState.tsManuexecuting || item.State == (int)taskState.tsExecuting)
+                            && (item.Tasktype == (int)TaskType.TT_OPENEND || item.Tasktype == (int)TaskType.TT_OPENENDEX // Add by chenzhi 2012-07-25
+                            || item.Tasktype == (int)TaskType.TT_MANUTASK))
+                    {
+                        // ApplicationLog.WriteInfo("There is a executing manutask or openend task");
+                        isNeedRemove = true;
+                    }
+                    else if ((item.Tasktype == (int)TaskType.TT_OPENEND || item.Tasktype == (int)TaskType.TT_OPENENDEX)
+                        && item.State == (int)taskState.tsReady)
+                    {
+                        //在一定时间内认为这个这个任务即将被开始，要是都过了一段时间了，那这个任务就不用管了
+                        DateTime dtNeedJudgeBegin = item.Starttime;
+                        if (dtNeedJudgeBegin.AddSeconds(10) > DateTime.Now)
+                        {
+                            isNeedRemove = true;
+                        }
+                    }
+                    else if (item.Tasktype == (int)TaskType.TT_PERIODIC || item.State == (int)taskState.tsExecuting)
+                    {
+                        //ApplicationLog.WriteInfo(String.Format("Begin to Judge taks start:{0}, end:{1}", needJudgeTask.strBegin, needJudgeTask.strEnd));
+                        DateTime dtNeedJudgeBegin = item.Starttime;//.AddSeconds(-1);
+                        DateTime dtNeedJudgeEnd = item.Endtime;//.AddSeconds(1);
+
+                        //ApplicationLog.WriteInfo(String.Format("After change time, begin:{0}, end:{1}", GlobalFun.DateTimeToString(dtNeedJudgeBegin), GlobalFun.DateTimeToString(dtNeedJudgeEnd)));
+
+                        //zmj2009-07-28增加一个对正在执行的KAMATAKI任务的判断,由于KAMATAKI任务的特殊性,属于普通任务,时间又跟手动任务一样
+                        if (item.Tasktype != (int)TaskType.TT_PERIODIC)
+                        {
+                            //if (dtNeedJudgeBegin.AddSeconds(1) == dtNeedJudgeEnd.AddSeconds(-1))//判断开始时间和结束时间是否一致,如果一致,说明是一个不定长的任务
+                            if (dtNeedJudgeBegin == dtNeedJudgeEnd)
+                            {
+                                //不能肯定KAMATAKI任务是在什么时候结束的,但是一个任务最长的时间就是24小时
+                                dtNeedJudgeEnd = dtNeedJudgeBegin.AddDays(1);
+                            }
+                            else if (dtNeedJudgeEnd < DateTime.Now)//流媒体任务如果结束时间都已经过了，但是还是采集状态的，当成openend任务处理，不能占用
+                            {
+                                TaskSource srcType = TaskSource.emUnknowTask;
+
+                                await GetTaskSourceAsync(a => a.Where(b => b.Taskid == item.Taskid) , true);
+                                if (TaskSource.emStreamMediaUploadTask == srcType)
+                                {
+                                    dtNeedJudgeEnd = DateTime.Now.AddSeconds(5);//每次都加5秒作为估计要结束的时间，这样在重调度判断时间冲突的时候错开当前通道
+                                }
+                            }
+                        }
+
+                        //yangchuang20111010这个地方怎么能直接递减啦！！！！！！！！
+                        //dtBegin = dtBegin.AddSeconds(-1);
+                        //dtEnd = dtEnd.AddSeconds(1);
+                                                  /////////////////////////////////////////////////////////////////
+
+                        //zmj2008-10-21解决没有考虑到相等时间的冲突
+                        if (IsConflict(dtNeedJudgeBegin, dtNeedJudgeEnd, begin, end))
+                        {
+                            isNeedRemove = true;
+                        }
+                    }
+
+                    if (!isNeedRemove)
+                    {
+                        lstfiltertask.Add(item);
+                    }
+                }
+                lsttask = lstfiltertask;
+            }
+
+            var lstchn = lsttask.Select(x =>x.Channelid);
 
             Logger.Info("GetFreeChannels normal " + string.Join(",", lstchn));
 
@@ -1252,6 +1354,25 @@ namespace IngestTaskPlugin.Stores
             
             lst.RemoveAll(z => lstchn.Contains(z));
             return lst;
+        }
+
+        private bool IsConflict(DateTime dtNeedJudgeBegin, DateTime dtNeedJudgeEnd, DateTime dtBegin, DateTime dtEnd)
+        {
+            //if ((dtNeedJudgeEnd >= dtBegin && dtNeedJudgeEnd <= dtEnd)
+            //    || (dtNeedJudgeBegin <= dtBegin && dtNeedJudgeEnd >= dtEnd)
+            //    || (dtNeedJudgeBegin >= dtBegin && dtNeedJudgeEnd <= dtEnd)
+            //    || (dtNeedJudgeBegin >= dtBegin && dtNeedJudgeBegin <= dtEnd))
+            //{
+            //    return true;
+            //}
+            if ((dtNeedJudgeEnd > dtBegin && dtNeedJudgeEnd <= dtEnd)
+                || (dtNeedJudgeBegin <= dtBegin && dtNeedJudgeEnd >= dtEnd)
+                || (dtNeedJudgeBegin >= dtBegin && dtNeedJudgeEnd <= dtEnd)
+                || (dtNeedJudgeBegin >= dtBegin && dtNeedJudgeBegin < dtEnd))
+            {
+                return true;
+            }
+            return false;
         }
 
         public async Task<List<DbpTask>> GetTaskListWithMode(int cut, DateTime day, TimeLineType timetype)
@@ -1870,6 +1991,17 @@ namespace IngestTaskPlugin.Stores
                 throw e;
             }
             return null;
+        }
+
+        public async Task SetTaskClassify(int taskid, string taskclassify, bool change)
+        {
+            var task = await GetTaskAsync(a => a.Where(b => b.Taskid == taskid));
+            task.Category = taskclassify;
+
+            if (change)
+            {
+                await Context.SaveChangesAsync();
+            }
         }
         private bool SetPerodicTask2NextExectueTime(DateTime tmBegin, DateTime tmEnd, string strPerodicDesc, ref DateTime tmExecuteBegin, ref DateTime tmExecuteEnd)
         {

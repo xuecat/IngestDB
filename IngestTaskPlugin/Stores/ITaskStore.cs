@@ -49,7 +49,7 @@ namespace IngestTaskPlugin.Stores
         Task<List<DbpTask>> GetNeedFinishTasks();
         Task<List<DbpTask>> GetNeedUnSynTasks();
         //Task<List<DbpTask>> GetCapturingTaskListAsync(List<int> lstchannel);
-
+        Task SetTaskClassify(int taskid, string taskclassify, bool change);
         Task SetVTRUploadTaskState(int TaskId, VTRUPLOADTASKSTATE vtrTaskState, string errorContent, bool savechange);
         Task<bool> AdjustVtrUploadTasksByChannelId(int channelId, int taskId, DateTime dtCurTaskBegin);
         Task UpdateVtrUploadTaskListStateAsync(List<int> lsttaskid, VTRUPLOADTASKSTATE vtrstate, string errinfo, bool savechange = true);
@@ -58,11 +58,12 @@ namespace IngestTaskPlugin.Stores
         Task DeleteVtrUploadTaskAsync(int taskid, DbpTask task, bool savechange = true);
         Task<int> StopTask(int taskid, DateTime dt);
         Task<int> DeleteTask(int taskid);
+        Task<int> DeleteTaskDB(int taskid, bool change);
         Task<int> StopCapturingChannelAsync(int Channel);
         Task<List<int>> StopCapturingListChannelAsync(List<int> lstChaneel);
         Task<int> DeleteCapturingChannelAsync(int Channel);
         Task<List<int>> DeleteCapturingListChannelAsync(List<int> lstChaneel);
-        Task<List<int>> GetFreeChannels(List<int> lst, DateTime begin, DateTime end);
+        Task<List<int>> GetFreeChannels(List<int> lst, DateTime begin, DateTime end, bool choosefilter = false);
         Task<List<int>> GetFreePerodiChannels(List<int> lst, int nTaskID, int nUnitID, int nSigID, int nChannelID, string Category, DateTime begin, DateTime end);
         Task<DbpTask> AddTaskWithPolicys(DbpTask task, bool bAddForInDB, TaskSource taskSrc, string CaptureMeta, string ContentMeta, string MatiralMeta, string PlanningMeta, int[] arrPolicys);
         Task<DbpTask> ModifyTask(DbpTask task, bool bPerodic2Next, string CaptureMeta, string ContentMeta, string MatiralMeta, string PlanningMeta);
@@ -70,7 +71,7 @@ namespace IngestTaskPlugin.Stores
         Task UnLockAllTask();
         Task LockTask(int taskid);
         Task UnLockTask(int taskid);
-
+        DbpTask DeepClone(DbpTask obj);
         bool GetPerodicTaskNextExectueTime(DateTime tmBegin, DateTime tmEnd, string strPerodicDesc, ref DateTime tmExecuteBegin, ref DateTime tmExecuteEnd);
         List<DateTime> GetDateTimeFromString(string str);
         bool IsInvalidPerodicTask(string strClassify, DateTime begin);
