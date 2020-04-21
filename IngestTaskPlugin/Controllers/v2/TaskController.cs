@@ -602,7 +602,7 @@ namespace IngestTaskPlugin.Controllers
         public async Task<ResponseMessage<List<TaskContentResponse>>> GetAllChannelCapturingTaskInfo()
         {
             var Response = new ResponseMessage<List<TaskContentResponse>>();
-            
+
             try
             {
                 Response.Ext = await _taskManage.GetAllChannelCapturingTask<TaskContentResponse>();
@@ -1595,7 +1595,7 @@ namespace IngestTaskPlugin.Controllers
             return Response;
         }
 
-        
+
 
         /// <summary>
         /// 获取当前任务
@@ -1819,7 +1819,7 @@ namespace IngestTaskPlugin.Controllers
 
             try
             {
-                Response.Ext = await _taskManage.ModifyPeriodTask<TaskContentRequest>(req, isall == 1?true:false);
+                Response.Ext = await _taskManage.ModifyPeriodTask<TaskContentRequest>(req, isall == 1 ? true : false);
 
                 //添加后如果开始时间在2分钟以内，需要调度一次
                 if ((DateTimeFormat.DateTimeFromString(req.Begin) - DateTime.Now).TotalSeconds < 120)
@@ -1945,7 +1945,7 @@ namespace IngestTaskPlugin.Controllers
 
             try
             {
-               await _taskManage.WriteVTRUploadTaskDB<TaskContentRequest>(req);
+                await _taskManage.WriteVTRUploadTaskDB<TaskContentRequest>(req);
             }
             catch (Exception e)
             {
@@ -2083,8 +2083,31 @@ namespace IngestTaskPlugin.Controllers
             return Response;
         }
 
+        public async Task<ResponseMessage<List<TaskContent>>> GetWillBeginAndCapturingTasks()
+        {
+            var Response = new ResponseMessage<List<TaskContent>>();
+            try
+            {
+                Response.Ext = await _taskManage.GetWillBeginAndCapturingTasksAsync();
+            }
+            catch (Exception e)
+            {
+                if (e is SobeyRecException se)//sobeyexcep会自动打印错误
+                {
+                    Response.Code = se.ErrorCode.ToString();
+                    Response.Msg = se.Message;
+                }
+                else
+                {
+                    Response.Code = ResponseCodeDefines.ServiceError;
+                    Response.Msg = $"GetWillBeginAndCapturingTasks error info：{e.Message}";
+                    Logger.Error(Response.Msg);
+                }
+            }
+            return Response;
+        }
 
-        
+
         //[HttpPost("withoutpolicytask/addrescheduletask/{oldtaskid}")]
         //[ApiExplorerSettings(GroupName = "v2")]
         //public async Task<ResponseMessage<TaskContentResponse>> AddReScheduleTask([FromRoute, BindRequired]int oldtaskid, [FromQuery, BindRequired]string starttime)

@@ -45,31 +45,23 @@ namespace IngestDevicePlugin.Managers
         /// <summary>获取信号源</summary>
         private async Task MapSignalSourceForProgramme(List<ProgrammeInfo> infos)
         {
-            foreach (var info in infos)
+            var sdiList = infos.Where(a => a.emPgmType == ProgrammeType.PT_SDI).ToList();
+            var sdiIds = sdiList.Select(a => a.ProgrammeId);
+            var inports = await Store.GetRcdindescAsync(a => a.Where(x => sdiIds.Contains(x.Signalsrcid)), true);
+            foreach (var info in sdiList)
             {
-                MapSignalSourceForProgramme(info);
+                info.emSignalSourceType = (emSignalSource)inports.First(a => a.Signalsrcid == info.ProgrammeId).Signalsource;
             }
-        }
-        /// <summary>获取信号源</summary>
-        private async Task MapSignalSourceForProgramme(ProgrammeInfo info)
-        {
-            switch (info.emPgmType)
+            var iptsList = infos.Where(a => a.emPgmType == ProgrammeType.PT_IPTS).ToList();
+            foreach (var info in iptsList)
             {
-                case ProgrammeType.PT_SDI:
-                    var inport = await Store.GetRcdindescAsync(async a => await a.FirstOrDefaultAsync(x => x.Signalsrcid == info.ProgrammeId), true);
-                    if (inport != null)
-                    {
-                        info.emSignalSourceType = (emSignalSource)inport.Signalsource;
-                    }
-                    return;
-                case ProgrammeType.PT_IPTS:
-                    info.emSignalSourceType = emSignalSource.emIPTS;
-                    return;
-                case ProgrammeType.PT_StreamMedia:
-                    info.emSignalSourceType = emSignalSource.emStreamMedia;
-                    return;
+                info.emSignalSourceType = emSignalSource.emIPTS;
             }
-
+            var streamList = infos.Where(a => a.emPgmType == ProgrammeType.PT_StreamMedia).ToList();
+            foreach (var info in streamList)
+            {
+                info.emSignalSourceType = emSignalSource.emStreamMedia;
+            }
         }
 
         #endregion Private

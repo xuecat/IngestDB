@@ -5,32 +5,33 @@ using System.Net.Http;
 using System.Text;
 using System.Threading.Tasks;
 using AutoMapper;
+using IngestDBCore;
+using IngestDBCore.Tool;
 using IngestMatrixPlugin.Dto.Response;
 using IngestMatrixPlugin.Dto.Vo;
 using IngestMatrixPlugin.Stores;
 using Microsoft.EntityFrameworkCore;
 using Newtonsoft.Json;
 using Sobey.Core.Log;
+using ResponseMessage = IngestMatrixPlugin.Dto.Response.ResponseMessage;
 
 namespace IngestMatrixPlugin.Managers
 {
     public class MatrixManager
     {
-        public MatrixManager(IMatrixStore store, IMapper mapper)
+        public MatrixManager(IMatrixStore store, IMapper mapper, RestClient client)
         {
+            _restClient = client;
             Store = store;
             _mapper = mapper ?? throw new ArgumentNullException(nameof(mapper));
         }
 
         private readonly ILogger Logger = LoggerManager.GetLogger("MatrixStoreManager");
 
-        List<MatrixRoutInfo> routListComPare = new List<MatrixRoutInfo>();
-        List<MatrixRoutInfo> m_ListReleasedRout = new List<MatrixRoutInfo>();
-        List<MatrixVirtualPortInfo> m_ListReleasedVirtualPort = new List<MatrixVirtualPortInfo>();
+        private RestClient _restClient { get; }
 
         /// <summary> 设备（仓储） </summary>
         protected IMatrixStore Store { get; }
-
         /// <summary> 数据映射器 </summary>
         protected IMapper _mapper { get; }
 
@@ -46,7 +47,6 @@ namespace IngestMatrixPlugin.Managers
             var infoList = _mapper.Map<List<MatrixVirtualPortInfo>>(await Store.QueryVirtualmatrixportstate(a => a.Where(x => x.Virtualinport == lInPort && x.Virtualoutport == lOutPort && x.State == 1)));
             if (infoList.Count > 0)
             {
-                m_ListReleasedVirtualPort.AddRange(infoList);
                 foreach (var info in infoList)
                 {
                     await ReleaseWhenSwitch(info.lVirtualInPort, lOutPort, releasedRoutList);
@@ -126,7 +126,7 @@ namespace IngestMatrixPlugin.Managers
                 //把切换的日志全部打出来
                 Logger.Info(JsonConvert.SerializeObject(param));
 
-                ResponseMessage msg = MatrixSwitch(param);
+                ResponseMessage msg = await MatrixSwitch(param);
 
                 Logger.Info($"matrix service return is :{msg.nCode}");
                 Logger.Info($"matrix service return is :{msg.message}");
@@ -175,7 +175,6 @@ namespace IngestMatrixPlugin.Managers
         {
             var matrixroutList = _mapper.Map<List<MatrixRoutInfo>>(await Store.QueryMatrixrout(a => a, true));
             matrixroutList.ForEach(a => a.lState = default);
-            routListComPare = matrixroutList;
 
             var matrixList = _mapper.Map<List<MatrixRoutInfo>>(await Store.QueryMatrixrout(a => a, true));
             matrixRouts.AddRange(matrixList);
@@ -190,7 +189,6 @@ namespace IngestMatrixPlugin.Managers
         public async Task<bool> RecoverReleasedRoutAndPort(List<MatrixVirtualPortInfo> matrixVirtuals, List<MatrixRoutInfo> matrixRouts)
         {
             if (matrixVirtuals.Count == 0 || matrixRouts.Count == 0)
-            //if (m_ListReleasedVirtualPort.Count == 0 || m_ListReleasedRout.Count == 0)
             {
                 return true;
             }
@@ -333,34 +331,12 @@ namespace IngestMatrixPlugin.Managers
         /// 调用矩阵硬件接口，执行切换操作
         /// </summary>
         /// <returns>标准调用提示信息</returns>
-        public ResponseMessage MatrixSwitch(MatrixParam param)
+        public async Task<ResponseMessage> MatrixSwitch(MatrixParam param)
         {
-            //try
-            //{
-            Logger.Info("~~~~~~~~~~~~~~开始调用郭文的接口~~~~~~~~~");
-            string ip = DataConfig.IngestMatrixServerIP;
-            string port = DataConfig.IngestMatrixServerPort;
-
-            string uri = string.Format("http://{0}:{1}/api/G2MatrixWebCtrl/MatrixSwitch", ip, port);
+            string uri = $"{ApplicationContext.Current.CMServerUrl}/api/G2MatrixWebCtrl/MatrixSwitch";
             Logger.Info("matrix service url is:" + uri);
 
-            StringContent content = new StringContent(JsonConvert.SerializeObject(param));
-            content.Headers.ContentType.MediaType = "application/json";
-
-            HttpClient client = new HttpClient();
-            string objstr = client.PostAsync(uri, content).Result.Content.ReadAsStringAsync().Result;
-
-            ResponseMessage msg = JsonConvert.DeserializeObject<ResponseMessage>(objstr);
-            return msg;
-            //}
-            //catch (Exception ex)
-            //{
-            //    Logger.Error($"调用过问的矩阵切换接口发生异常： {ex.ToString()}" + );
-            //    ResponseMessage msg = new ResponseMessage();
-            //    msg.nCode = 0;
-            //    msg.message = ex.ToString();
-            //    return msg;
-            //}
+            return await _restClient.Post<ResponseMessage>(uri, param);
         }
     }
 }
