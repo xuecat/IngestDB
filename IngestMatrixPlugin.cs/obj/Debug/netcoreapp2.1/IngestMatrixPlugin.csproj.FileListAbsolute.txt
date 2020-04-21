@@ -1,3 +1,0 @@
-E:\SobeyProject\Ingest\IngestMatrixPlugin.cs\obj\Debug\netcoreapp2.1\IngestMatrixPlugin.csprojAssemblyReference.cache
-E:\SobeyProject\Ingest\IngestMatrixPlugin.cs\obj\Debug\netcoreapp2.1\IngestMatrixPlugin.AssemblyInfoInputs.cache
-E:\SobeyProject\Ingest\IngestMatrixPlugin.cs\obj\Debug\netcoreapp2.1\IngestMatrixPlugin.AssemblyInfo.cs

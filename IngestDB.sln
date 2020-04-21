@@ -31,7 +31,7 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "IngestGlobalPlugin", "Inges
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "IngestGlobalInterfacePlugin", "IngestGlobalInterfacePlugin\IngestGlobalInterfacePlugin.csproj", "{7E71E1D6-1C0C-4C0D-8145-96A0C329571A}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "IngestMatrixPlugin", "IngestMatrixPlugin.cs\IngestMatrixPlugin.csproj", "{D437C821-59BF-475D-86AB-A0B869FFEEEB}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "IngestMatrixPlugin", "IngestMatrixPlugin\IngestMatrixPlugin.csproj", "{D437C821-59BF-475D-86AB-A0B869FFEEEB}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
