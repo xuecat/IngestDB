@@ -48,6 +48,10 @@ namespace IngestDevicePlugin.Stores
             {
                 throw new ArgumentNullException(nameof(query));
             }
+            if (notrack)
+            {
+                return await query(contextSet.AsNoTracking());
+            }
             return await query(contextSet);
         }
         #endregion

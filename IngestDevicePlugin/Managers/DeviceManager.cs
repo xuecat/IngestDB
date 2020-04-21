@@ -494,16 +494,44 @@ namespace IngestDevicePlugin.Managers
                         channel.Score = 600;
                     }
                     bIsExist = false;
-                }
-            }
+                    var srcMaps = channel2SignalSrcMaps.FirstOrDefault(a => channel.Score >= 0 && a.nChannelID == channel.Id);
+                    if (srcMaps != null)
+                    {
+                        bIsExist = true;//连接上通过的
+                        string lastUserCode = string.Empty;
+                        TimeSpan tsLong = dtNow - GetChannelLastOperTime(srcMaps.nChannelID, out lastUserCode);
+                        double totalSeconds = (double)tsLong.TotalSeconds;
+                        //如果是刚刚用户分配到的，这项得分也是满分
+                        if (string.Compare(userCode, lastUserCode, true) == 0)
+                        {
+                            totalSeconds = 600;
+                        }
 
+                        if (totalSeconds > 600)
+                        {
+                            totalSeconds = 600;
+                        }
+                        channel.Score += ((double)totalSeconds) / 2;
+                    }
+
+                    if (channel.Score >= 0 && !bIsExist)//没有连接的，人为加上100分
+                    {
+                        channel.Score += 100;
+                    }
+                }
+
+                captureChannelInfos = captureChannelInfos.OrderByDescending(a => a.Score).ToList();
+
+                return captureChannelInfos.Where(a => a.Score >= 0).Select(a => a.Id).ToList()?[0] ?? 0;
+            }
+            return 0;
         }
 
-        //获得通道的最后被分配的时间
+        //TODO:未找到此表 获得通道的最后被分配的时间
         private DateTime GetChannelLastOperTime(int channelID, out string lastUserCode)
         {
             DateTime lastOperTime = DateTime.MinValue;
-            //lastUserCode = string.Empty;
+            lastUserCode = string.Empty;
 
             //DevicesSet.DBP_CHANNEL_DISTRIBUTIONIFNORow row = ds4ChannelDistributionInfo.DBP_CHANNEL_DISTRIBUTIONIFNO.FindByCHANNELID((decimal)channelID);
 
@@ -512,10 +540,42 @@ namespace IngestDevicePlugin.Managers
             //    lastOperTime = row.IsLASTOPERTIMENull() ? DateTime.MinValue : row.LASTOPERTIME;
             //    lastUserCode = row.IsLASTUSERCODENull() ? string.Empty : row.LASTUSERCODE;
             //}
-
+            lastUserCode = string.Empty;
             return lastOperTime;
         }
 
+        //TODO:未找到此表 设置通道的最后被分配的时间
+        private bool SetChannelLastOperTime(int channelID, DateTime lastOperTime, string userCode)
+        {
+            if (channelID <= 0)
+            {
+                return false;
+            }
+
+            //if (ds4ChannelDistributionInfo == null)
+            //{
+            //    ds4ChannelDistributionInfo = new DevicesSet();
+            //}
+
+            //DevicesSet.DBP_CHANNEL_DISTRIBUTIONIFNORow row = ds4ChannelDistributionInfo.DBP_CHANNEL_DISTRIBUTIONIFNO.FindByCHANNELID((decimal)channelID);
+
+            //if (row != null)
+            //{
+            //    row.LASTOPERTIME = lastOperTime;
+            //    row.LASTUSERCODE = userCode;
+            //}
+            //else
+            //{
+            //    DevicesSet.DBP_CHANNEL_DISTRIBUTIONIFNORow newRow = ds4ChannelDistributionInfo.DBP_CHANNEL_DISTRIBUTIONIFNO.NewDBP_CHANNEL_DISTRIBUTIONIFNORow();
+            //    newRow.CHANNELID = (decimal)channelID;
+            //    newRow.LASTOPERTIME = lastOperTime;
+            //    newRow.LASTUSERCODE = userCode;
+
+            //    ds4ChannelDistributionInfo.DBP_CHANNEL_DISTRIBUTIONIFNO.Rows.Add(newRow);
+            //}
+
+            return true;
+        }
         private async Task<List<int>> GetUserHiddenChannels(string userCode)
         {
             try

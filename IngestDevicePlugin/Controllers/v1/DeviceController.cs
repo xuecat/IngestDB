@@ -404,36 +404,11 @@ namespace IngestDevicePlugin.Controllers
         [ApiExplorerSettings(GroupName = "v1")]
         public async Task<GetBestChannelIDBySignalID_out> GetBestChannelIDBySignalID(int nSignalID, string strUserCode)
         {
-            GetBestChannelIDBySignalID_out p = new GetBestChannelIDBySignalID_out();
-            //lock (bestChannelLock)//设置锁,保证一次只有一个进行任务的分配
-            //{
-            //    p.nChannelID = -1;
-            //    try
-            //    {
-            //        p.errStr = no_err;
-            //        if (nSignalID <= 0)
-            //        {
-            //            p.errStr = "Signal ID less than 0.";
-            //            p.bRet = false;
-            //        }
-
-            //        if (strUserCode == "" || strUserCode == string.Empty)
-            //        {
-            //            p.errStr = "UserCode is null";
-            //            p.bRet = false;
-            //        }
-            //        p.nChannelID = DEVICEACCESS.GetBestChannelIDBySignalID(nSignalID, strUserCode);
-
-            //        p.bRet = true;
-            //    }
-            //    catch (Exception ex)//其他未知的异常，写异常日志
-            //    {
-            //        LoggerService.Error("Interface:GetBestChannelIDBySignalID-> error occur:" + ex.Message);
-            //        p.errStr = ex.Message;
-            //        p.bRet = false;
-            //    }
-            //}
-            return p;
+            async Task Action(GetBestChannelIDBySignalID_out response)
+            {
+                response.nChannelID = await _deviceManage.GetBestChannelIdBySignalIDAsync(nSignalID, strUserCode);
+            }
+            return await TryInvoke((Func<GetBestChannelIDBySignalID_out, Task>)Action);
         }
 
         //为信号源选择一个合适的预监通道
