@@ -306,9 +306,9 @@ namespace IngestTaskPlugin.Controllers
 
         }
 
-        [HttpPost("PostAddTaskSvr"), MapToApiVersion("1.0")]
+        [HttpPost("AddTaskExDb"), MapToApiVersion("1.0")]
         [ApiExplorerSettings(GroupName = "v1")]
-        public async Task<AddTaskExDb_out> PostAddTaskSvr([FromBody] AddTaskExDb_in pIn)
+        public async Task<AddTaskExDb_out> AddTaskExDb([FromBody] AddTaskExDb_in pIn)
         {
             var Response = new AddTaskExDb_out
             {
@@ -944,7 +944,7 @@ namespace IngestTaskPlugin.Controllers
             }
         }
 
-        [HttpGet("GetSetTaskState"), MapToApiVersion("1.0")]
+        [HttpGet("GetQueryTaskContent"), MapToApiVersion("1.0")]
         [ApiExplorerSettings(GroupName = "v1")]
         public async Task<GetQueryTaskContent_OUT> GetQueryTaskContent(int nUnitID, string strDay, int timeMode)
         {
@@ -1470,7 +1470,7 @@ namespace IngestTaskPlugin.Controllers
 
         }
 
-        [HttpGet("GetModifyCooperTask"), MapToApiVersion("1.0")]
+        [HttpGet("GetWarningInfos"), MapToApiVersion("1.0")]
         [ApiExplorerSettings(GroupName = "v1")]
         public async Task<GetWarningInfos_OUT> GetWarningInfos([FromQuery]int nChannel, [FromQuery]int bChannelAlive)
         {
