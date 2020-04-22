@@ -18,20 +18,20 @@ namespace IngestGlobalPlugin.Dto
 
     public class DtoUserTemplate
     {
-        public int TemplateID = -1;                    //模板ID
-        public string UserCode = string.Empty;       //用户名
-        public string TemplateName = string.Empty;   //模板名
-        public string TemplateContent = string.Empty;//模板内容   
+        public int TemplateID { get; set; }//= -1;                    //模板ID
+        public string UserCode { get; set; }//= string.Empty;       //用户名
+        public string TemplateName { get; set; }//= string.Empty;   //模板名
+        public string TemplateContent { get; set; }//= string.Empty;//模板内容   
     }
 
     public class DtoCMUserInfo
     {
-        public string CreateTime;
-        public bool Disabled;
-        public string Email;
-        public string Id;
-        public string LoginName;
-        public string NickName;
+        public string CreateTime { get; set; }
+        public bool Disabled { get; set; }
+        public string Email { get; set; }
+        public string Id { get; set; }
+        public string LoginName { set; get; }
+        public string NickName { get; set; }
     }
 
     public class EditUserTemplate
@@ -49,15 +49,23 @@ namespace IngestGlobalPlugin.Dto
 
     public class DtoGlobalState
     {
-        public string Label = string.Empty;
-        public string LastTime = DateTime.MinValue.ToString("yyyy-MM-dd HH:mm:ss");
+        public string Label { get; set; }// = string.Empty;
+        public string LastTime  { get; set; }//DateTime.MinValue.ToString("yyyy-MM-dd HH:mm:ss");
     }
 
     public class DtoSetUserSetting_IN
     {
-        public string UserCode;
-        public string Settingtype;
-        public string SettingText;
+        public string UserCode { get; set; }
+        public string Settingtype { get; set; }
+        public string SettingText { get; set; }
+    }
+
+    public class DtoLockObjectParamIn
+    {
+        public int ObjectID { get; set; }
+        public OTID ObjectTypeID { get; set; }
+        public string UserName { get; set; }
+        public int TimeOut { get; set; }
     }
 
 }
