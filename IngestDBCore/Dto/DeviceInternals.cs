@@ -16,7 +16,7 @@ namespace IngestDBCore
             ChannelUnitMap,
             BackSignalByID,
             SignalInfoByID,
-            SignalCaptureID,
+            CaptureTemplateIDBySignal,
             AllChannelState,
             ChannelExtendData,
             AllCaptureChannels

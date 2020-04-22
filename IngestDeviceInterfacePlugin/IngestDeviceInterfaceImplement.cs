@@ -61,13 +61,14 @@ namespace IngestTaskInterfacePlugin
                             return ret;
                         }
 
-                    case FunctionType.SignalCaptureID:
+                    case FunctionType.CaptureTemplateIDBySignal:
                         {
-
-                        } break;
+                            return await reqService.CaptureTemplateId(examineResponse.SrcId);
+                        } 
 
                     case FunctionType.AllChannelState:
                         {
+                            //return _mapper.Map<List<MSVChannelStateInterface>>(reqService.AllChannelState());
                             //MSVChannelStateInterface
                         }break;
                     case FunctionType.ChannelExtendData:
