@@ -614,7 +614,7 @@ namespace IngestTaskPlugin.Controllers
             }
         }
 
-        [HttpPost("GetChannelCapturingTask"), MapToApiVersion("1.0")]
+        [HttpPost("PostModifyTaskDb"), MapToApiVersion("1.0")]
         [ApiExplorerSettings(GroupName = "v1")]
         public async Task<PostModifyTaskDb_OUT> PostModifyTaskDb([FromBody]PostModifyTaskDb_IN pIn)
         {
@@ -661,7 +661,7 @@ namespace IngestTaskPlugin.Controllers
             return Response;
         }
 
-        [HttpPost("GetChannelCapturingTask"), MapToApiVersion("1.0")]
+        [HttpPost("ModifyTask"), MapToApiVersion("1.0")]
         [ApiExplorerSettings(GroupName = "v1")]
         public async Task<ModifyTask_out> ModifyTask([FromBody] ModifyTask_in pIn)
         {
@@ -866,7 +866,7 @@ namespace IngestTaskPlugin.Controllers
             }
         }
 
-        [HttpGet("GetStopTaskFromFSW"), MapToApiVersion("1.0")]
+        [HttpGet("GetStopCapture"), MapToApiVersion("1.0")]
         [ApiExplorerSettings(GroupName = "v1")]
         public async Task<StopCapture_OUT> GetStopCapture(int nTaskID, string strEndTime)
         {
