@@ -24,9 +24,8 @@ using TaskCustomMetadataRequest = IngestTaskPlugin.Dto.TaskCustomMetadataRespons
 using AutoMapper;
 
 /// 
-///关于taskfullinfo的返回，我这里不标准，需要看看
 ///MADEBYINGEST没更新完
-///老接口的post和get前缀
+///
 ///manager有个addtaskwithpolicy
 ///AddTaskWithPolicy 有个GetTaskSourceBySignalId 还有addtask有些地方 是直接加数据库
 ///代码美观对齐

@@ -584,7 +584,7 @@ namespace IngestTaskPlugin.Controllers
 
         [HttpGet("GetChannelCapturingTask"), MapToApiVersion("1.0")]
         [ApiExplorerSettings(GroupName = "v1")]
-        public async Task<GetChannelCapturingTask_out> GetChannelCapturingTask(int nChannelID)
+        public async Task<GetChannelCapturingTask_out> GetChannelCapturingTask([FromQuery]int nChannelID)
         {
             var Response = new GetChannelCapturingTask_out
             {
@@ -734,7 +734,7 @@ namespace IngestTaskPlugin.Controllers
 
         [HttpGet("GetTaskByID"), MapToApiVersion("1.0")]
         [ApiExplorerSettings(GroupName = "v1")]
-        public async Task<GetTaskByID_OUT> GetTaskByID(int nTaskID)
+        public async Task<GetTaskByID_OUT> GetTaskByID([FromQuery]int nTaskID)
         {
             var Response = new GetTaskByID_OUT
             {
@@ -765,7 +765,7 @@ namespace IngestTaskPlugin.Controllers
 
         [HttpGet("GetTaskByIDForFSW"), MapToApiVersion("1.0")]
         [ApiExplorerSettings(GroupName = "v1")]
-        public async Task<GetTaskByIDForFSW_OUT> GetTaskByIDForFSW(int nTaskID)
+        public async Task<GetTaskByIDForFSW_OUT> GetTaskByIDForFSW([FromQuery]int nTaskID)
         {
             var Response = new GetTaskByIDForFSW_OUT
             {
@@ -796,7 +796,7 @@ namespace IngestTaskPlugin.Controllers
 
         [HttpGet("GetTieUpTaskByChannelID"), MapToApiVersion("1.0")]
         [ApiExplorerSettings(GroupName = "v1")]
-        public async Task<GetTieUpTaskByChannelID_OUT> GetTieUpTaskByChannelID(int nChannelID)
+        public async Task<GetTieUpTaskByChannelID_OUT> GetTieUpTaskByChannelID([FromQuery]int nChannelID)
         {
             var Response = new GetTieUpTaskByChannelID_OUT
             {
@@ -827,7 +827,7 @@ namespace IngestTaskPlugin.Controllers
 
         [HttpGet("GetStopTaskFromFSW"), MapToApiVersion("1.0")]
         [ApiExplorerSettings(GroupName = "v1")]
-        public async Task<StopTaskFromFSW_OUT> GetStopTaskFromFSW(int nTaskID)
+        public async Task<StopTaskFromFSW_OUT> GetStopTaskFromFSW([FromQuery]int nTaskID)
         {
             var Response = new StopTaskFromFSW_OUT
             {
@@ -868,7 +868,7 @@ namespace IngestTaskPlugin.Controllers
 
         [HttpGet("GetStopCapture"), MapToApiVersion("1.0")]
         [ApiExplorerSettings(GroupName = "v1")]
-        public async Task<StopCapture_OUT> GetStopCapture(int nTaskID, string strEndTime)
+        public async Task<StopCapture_OUT> GetStopCapture([FromQuery]int nTaskID, [FromQuery]string strEndTime)
         {
             var Response = new StopCapture_OUT
             {
@@ -915,7 +915,7 @@ namespace IngestTaskPlugin.Controllers
 
         [HttpGet("GetSetTaskState"), MapToApiVersion("1.0")]
         [ApiExplorerSettings(GroupName = "v1")]
-        public async Task<GetSetTaskState_OUT> GetSetTaskState(int nTaskID, int nState)
+        public async Task<GetSetTaskState_OUT> GetSetTaskState([FromQuery]int nTaskID, [FromQuery]int nState)
         {
             var Response = new GetSetTaskState_OUT
             {
@@ -979,7 +979,7 @@ namespace IngestTaskPlugin.Controllers
 
         [HttpGet("GetTaskSource"), MapToApiVersion("1.0")]
         [ApiExplorerSettings(GroupName = "v1")]
-        public async Task<GetTaskSource_OUT> GetTaskSource(int nTaskID)
+        public async Task<GetTaskSource_OUT> GetTaskSource([FromQuery]int nTaskID)
         {
             var Response = new GetTaskSource_OUT
             {
@@ -1016,7 +1016,7 @@ namespace IngestTaskPlugin.Controllers
 
         [HttpGet("GetTrimTaskBeginTime"), MapToApiVersion("1.0")]
         [ApiExplorerSettings(GroupName = "v1")]
-        public async Task<bool> GetTrimTaskBeginTime(int nTaskID, string strStartTime)
+        public async Task<bool> GetTrimTaskBeginTime([FromQuery]int nTaskID, [FromQuery]string strStartTime)
         {
             try
             {
@@ -1046,7 +1046,7 @@ namespace IngestTaskPlugin.Controllers
 
         [HttpPost("PostQueryTaskMetadataGroup"), MapToApiVersion("1.0")]
         [ApiExplorerSettings(GroupName = "v1")]
-        public async Task<QueryTaskMetadataGroup_OUT> PostQueryTaskMetadataGroup(List<int> nTaskID)
+        public async Task<QueryTaskMetadataGroup_OUT> PostQueryTaskMetadataGroup([FromQuery]List<int> nTaskID)
         {
             var Response = new QueryTaskMetadataGroup_OUT
             {
@@ -1083,7 +1083,7 @@ namespace IngestTaskPlugin.Controllers
 
         [HttpGet("GetDelTaskDb"), MapToApiVersion("1.0")]
         [ApiExplorerSettings(GroupName = "v1")]
-        public async Task<DelTaskDb_OUT> GetDelTaskDb(int nTaskID)
+        public async Task<DelTaskDb_OUT> GetDelTaskDb([FromQuery]int nTaskID)
         {
             var Response = new DelTaskDb_OUT
             {
@@ -1734,7 +1734,7 @@ namespace IngestTaskPlugin.Controllers
 
         [HttpPost("ModifyPeriodTask"), MapToApiVersion("1.0")]
         [ApiExplorerSettings(GroupName = "v1")]
-        public async Task<ModifyPeriodTask_out> ModifyPeriodTask([FromQuery]int isall, [FromBody]TaskContent req)
+        public async Task<ModifyPeriodTask_out> ModifyPeriodTask([FromQuery]int IsAll, [FromBody]TaskContent taskModify)
         {
             var Response = new ModifyPeriodTask_out()
             {
@@ -1744,10 +1744,10 @@ namespace IngestTaskPlugin.Controllers
 
             try
             {
-                Response.newTaskId = await _taskManage.ModifyPeriodTask<TaskContent>(req, isall == 1 ? true : false);
+                Response.newTaskId = await _taskManage.ModifyPeriodTask<TaskContent>(taskModify, IsAll == 1 ? true : false);
 
                 //添加后如果开始时间在2分钟以内，需要调度一次
-                if ((DateTimeFormat.DateTimeFromString(req.strBegin) - DateTime.Now).TotalSeconds < 120)
+                if ((DateTimeFormat.DateTimeFromString(taskModify.strBegin) - DateTime.Now).TotalSeconds < 120)
                     await _taskManage.UpdateComingTasks();
 
                 var _globalinterface = ApplicationContext.Current.ServiceProvider.GetRequiredService<IIngestGlobalInterface>();
@@ -1950,7 +1950,7 @@ namespace IngestTaskPlugin.Controllers
 
         }
 
-        [HttpPost("AutoAddTaskByOldTask"), MapToApiVersion("1.0")]
+        [HttpGet("AutoAddTaskByOldTask"), MapToApiVersion("1.0")]
         [ApiExplorerSettings(GroupName = "v1")]
         public async Task<int> AutoAddTaskByOldTask([FromQuery]int nOldTaskID, [FromQuery]string strStartTime)
         {
