@@ -226,6 +226,36 @@ namespace IngestDevicePlugin.Controllers
             return response;
         }
 
+        /// <summary> 更新通道的扩展数据 </summary>
+        /// <remarks>原方法 PostUpdateChnExtData</remarks>
+        /// <returns>是否成功</returns>
+        [HttpGet("channel/extenddata/{channleid}")]
+        [IngestAuthentication]
+        [ApiExplorerSettings(GroupName = "v2")]
+        public async Task<ResponseMessage<string>> GetChannelExtendData([FromRoute, BindRequired]int channleid, [FromQuery, BindRequired]int type)
+        {
+            ResponseMessage<string> response = new ResponseMessage<string>();
+            try
+            {
+                response.Ext = await _deviceManage.GetChannelExtendData(channleid, type);
+            }
+            catch (Exception e)
+            {
+                if (e is SobeyRecException se)//sobeyexcep会自动打印错误
+                {
+                    response.Code = se.ErrorCode.ToString();
+                    response.Msg = se.Message;
+                }
+                else
+                {
+                    response.Code = ResponseCodeDefines.ServiceError;
+                    response.Msg = $"{System.Reflection.MethodBase.GetCurrentMethod().DeclaringType.FullName}：error info:{e}";
+                    Logger.Error(response.Msg);
+                }
+            }
+            return response;
+        }
+
         /// <summary>根据 信号源Id,用户Code 自动匹配最优通道</summary>
         /// <remarks>原方法 GetBestChannelIDBySignalID</remarks>
         /// <param name="nSignalID">信号源Id</param>
@@ -351,7 +381,7 @@ namespace IngestDevicePlugin.Controllers
         }
         //#endregion
 
-        //#region Device
+        //#region Device 
 
         /// <summary>获得所有的IP收录的设备</summary>
         /// <remarks>原方法 GetAllTSDeviceInfos</remarks>
@@ -665,6 +695,79 @@ namespace IngestDevicePlugin.Controllers
             }
             return response;
         }
+
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <remarks>
+        /// </remarks>
+        /// GetAllChannelUnitMap
+        [HttpGet("signalinfo/backsignal/{mastersignalid}")]
+        [IngestAuthentication]//device有点特殊，做了监听端口的所以不能全类检验
+        [ApiExplorerSettings(GroupName = "v2")]
+        public async Task<ResponseMessage<ProgrammeInfoResponse>> GetBackProgramInfoBySrgid(int mastersignalid)
+        {
+            var Response = new ResponseMessage<ProgrammeInfoResponse>();
+
+            try
+            {
+                Response.Ext = await _deviceManage.GetBackProgramInfoBySrgid(mastersignalid);
+            }
+            catch (Exception e)
+            {
+                if (e.GetType() == typeof(SobeyRecException))//sobeyexcep会自动打印错误
+                {
+                    SobeyRecException se = e as SobeyRecException;
+                    Response.Code = se.ErrorCode.ToString();
+                    Response.Msg = se.Message;
+                }
+                else
+                {
+                    Response.Code = ResponseCodeDefines.ServiceError;
+                    Response.Msg = "GetBackProgramInfoBySrgid error info：" + e.ToString();
+                    Logger.Error(Response.Msg);
+                }
+            }
+            return Response;
+
+        }
+
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <remarks>
+        /// </remarks>
+        /// GetAllChannelUnitMap
+        [HttpGet("signalinfo/signal/{signalid}")]
+        [IngestAuthentication]//device有点特殊，做了监听端口的所以不能全类检验
+        [ApiExplorerSettings(GroupName = "v2")]
+        public async Task<ResponseMessage<ProgrammeInfoResponse>> GetProgramInfoBySrgid(int signalid)
+        {
+            var Response = new ResponseMessage<ProgrammeInfoResponse>();
+
+            try
+            {
+                Response.Ext = await _deviceManage.GetProgrammeInfoByIdAsync(signalid);
+            }
+            catch (Exception e)
+            {
+                if (e.GetType() == typeof(SobeyRecException))//sobeyexcep会自动打印错误
+                {
+                    SobeyRecException se = e as SobeyRecException;
+                    Response.Code = se.ErrorCode.ToString();
+                    Response.Msg = se.Message;
+                }
+                else
+                {
+                    Response.Code = ResponseCodeDefines.ServiceError;
+                    Response.Msg = "GetProgramInfoBySrgid error info：" + e.ToString();
+                    Logger.Error(Response.Msg);
+                }
+            }
+            return Response;
+
+        }
+
 
         #endregion
 
@@ -1009,20 +1112,7 @@ namespace IngestDevicePlugin.Controllers
         }
         #endregion
 
-        #region MyRegion
-
-
-
-        #endregion
-
-
-
-
-
-
-
-
-
+        
 
 
         /// <summary>
@@ -1165,43 +1255,7 @@ namespace IngestDevicePlugin.Controllers
             return response;
         }
 
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <remarks>
-        /// </remarks>
-        /// GetAllChannelUnitMap
-        [HttpGet("signalinfo/backsignal/{mastersignalid}")]
-        [IngestAuthentication]//device有点特殊，做了监听端口的所以不能全类检验
-        [ApiExplorerSettings(GroupName = "v2")]
-        public async Task<ResponseMessage<ProgrammeInfoResponse>> GetBackProgramInfoBySrgid(int mastersignalid)
-        {
-            var Response = new ResponseMessage<ProgrammeInfoResponse>();
-
-            try
-            {
-                Response.Ext = await _deviceManage.GetBackProgramInfoBySrgid(mastersignalid);
-            }
-            catch (Exception e)
-            {
-                if (e.GetType() == typeof(SobeyRecException))//sobeyexcep会自动打印错误
-                {
-                    SobeyRecException se = e as SobeyRecException;
-                    Response.Code = se.ErrorCode.ToString();
-                    Response.Msg = se.Message;
-                }
-                else
-                {
-                    Response.Code = ResponseCodeDefines.ServiceError;
-                    Response.Msg = "GetBackProgramInfoBySrgid error info：" + e.ToString();
-                    Logger.Error(Response.Msg);
-                }
-            }
-            return Response;
-
-        }
-
-
+        
         /// <summary> Try执行 </summary>
         /// <typeparam name="T">返回类型</typeparam>
         /// <param name="action">执行内容</param>

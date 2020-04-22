@@ -112,8 +112,7 @@ namespace IngestDevicePlugin.Stores
         {
             return await Context.DbpMatrixinfo.AsNoTracking().AnyAsync(a => a.Matrixid == 2 && a.Matrixtypeid != 2);//老版本NULL MATRIX是6，现在是2，难道老版本一直返回的是有矩阵？
         }
-
-       
+        
 
         //老版本 GetProgrammeInfoById
         public async Task<ProgrammeInfoDto> GetSignalInfoAsync(int srcid)
@@ -473,6 +472,11 @@ namespace IngestDevicePlugin.Stores
                                                     rcin => rcin.Recinidx,
                                                     (rcout, rcin) => rcin.Signalsrcid)
                                               .ToListAsync();
+        }
+
+        public async Task<TResult> GetChannelExtendDataAsync<TResult>(Func<IQueryable<DbpChnExtenddata>, Task<TResult>> query, bool notrack = false)
+        {
+            return await QueryModelAsync(Context.DbpChnExtenddata, query, notrack);
         }
 
         public async Task<int> SaveChannelExtenddataAsync(int nChnID,int type, string data)

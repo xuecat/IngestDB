@@ -386,7 +386,8 @@ namespace IngestTaskPlugin.Managers
                 var response1 = await _deviceinterface.GetDeviceCallBack(new DeviceInternals()
                 {
                     funtype = IngestDBCore.DeviceInternals.FunctionType.ChannelExtendData,
-                    ChannelId = channelid
+                    ChannelId = channelid,
+                    Status = (int)CHN_EXT_DATATYPE.CHN_EXT_PreviewVideo
                 });
 
                 if (response1.Code != ResponseCodeDefines.SuccessCode)
@@ -451,7 +452,8 @@ namespace IngestTaskPlugin.Managers
             var _globalinterface = ApplicationContext.Current.ServiceProvider.GetRequiredService<IIngestDeviceInterface>();
             if (_globalinterface != null)
             {
-                var response1 = await _globalinterface.GetDeviceCallBack(new DeviceInternals() { funtype = IngestDBCore.DeviceInternals.FunctionType.AllCaptureChannels });
+                var response1 = await _globalinterface.GetDeviceCallBack(new DeviceInternals() {
+                    funtype = IngestDBCore.DeviceInternals.FunctionType.AllCaptureChannels });
                 if (response1.Code != ResponseCodeDefines.SuccessCode)
                 {
                     Logger.Error("TryDispatchTask AllCaptureChannels error");
@@ -2804,9 +2806,10 @@ namespace IngestTaskPlugin.Managers
             {
                 if (_globalinterface != null)
                 {
-                    // 获得备份信号源信息
-                    DeviceInternals re = new DeviceInternals() { funtype = IngestDBCore.DeviceInternals.FunctionType.SignalInfoByID, SrcId = taskinfo.TaskContent.SignalID };
-                    var response1 = await _globalinterface.GetDeviceCallBack(re);
+                    var response1 = await _globalinterface.GetDeviceCallBack(new DeviceInternals() {
+                        funtype = IngestDBCore.DeviceInternals.FunctionType.SignalInfoByID, SrcId = taskinfo.TaskContent.SignalID
+                    });
+
                     if (response1.Code != ResponseCodeDefines.SuccessCode)
                     {
                         Logger.Error("AddTaskWithPolicy SignalInfoByID error");

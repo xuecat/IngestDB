@@ -769,6 +769,13 @@ namespace IngestDevicePlugin.Managers
             return await Store.SaveChannelExtenddataAsync(nChnID, type, data) > 0;
         }
 
+        public virtual async Task<string> GetChannelExtendData(int channelid, int type)
+        {
+            return await Store.GetChannelExtendDataAsync(a => a.Where(b => b.Channaelid == channelid && b.Datatype == type)
+                                                                .Select(c => c.Extenddata)
+                                                                .FirstOrDefaultAsync(), true);
+        }
+
         /// <summary>更改MSV设备状态信息</summary>
         /// <param name="nID">通道Id</param>
         /// <param name="nDevState">设备状态</param>

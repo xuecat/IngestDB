@@ -29,14 +29,8 @@ namespace IngestTaskInterfacePlugin
                 {
                     case FunctionType.ChannelInfoBySrc:
                         {
-                            var f = await reqService.ChannelsByProgrammeId(examineResponse.SrcId, examineResponse.Status);
-                            var ret = new ResponseMessage<List<CaptureChannelInfoInterface>>()
-                            {
-                                Code = f.Code,
-                                Msg = f.Msg,
-                                Ext = _mapper.Map<List<CaptureChannelInfoInterface>>(f.Ext),
-                            };
-                            return ret;
+                            return _mapper.Map< ResponseMessage < List < CaptureChannelInfoInterface >>>(
+                                await reqService.ChannelsByProgrammeId(examineResponse.SrcId, examineResponse.Status));
                         } break;
 
                     case FunctionType.SingnalIDByChannel:
@@ -51,14 +45,9 @@ namespace IngestTaskInterfacePlugin
 
                     case FunctionType.BackSignalByID:
                         {
-                            var f = await reqService.GetBackProgramInfoBySrgid(examineResponse.SrcId);
-                            var ret = new ResponseMessage<ProgrammeInfoInterface>()
-                            {
-                                Code = f.Code,
-                                Msg = f.Msg,
-                                Ext = _mapper.Map<ProgrammeInfoInterface>(f.Ext),
-                            };
-                            return ret;
+                            return _mapper.Map<ResponseMessage<ProgrammeInfoInterface>>(
+                                await reqService.GetBackProgramInfoBySrgid(examineResponse.SrcId)
+                                );
                         }
 
                     case FunctionType.CaptureTemplateIDBySignal:
@@ -73,17 +62,21 @@ namespace IngestTaskInterfacePlugin
                         }break;
                     case FunctionType.ChannelExtendData:
                         {
-                            //string
+                            return await reqService.GetChannelExtendData(examineResponse.ChannelId, examineResponse.Status);
                         }
 
                         break;
                     case FunctionType.SignalInfoByID:
                         {
-
+                            return _mapper.Map<ResponseMessage<ProgrammeInfoInterface>>(
+                                await reqService.GetProgramInfoBySrgid(examineResponse.SrcId)
+                                );
                         } break;
                     case FunctionType.AllCaptureChannels:
                         {
-
+                            return _mapper.Map<ResponseMessage<List<CaptureChannelInfoInterface>>>(
+                                await reqService.GetAllCaptureChannels()
+                                );
                         } break;
 
                     default:

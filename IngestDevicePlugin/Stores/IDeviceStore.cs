@@ -73,6 +73,7 @@ namespace IngestDevicePlugin.Stores
         Task<List<TResult>> GetChannelgroupmapAsync<TResult>(Func<IQueryable<DbpChannelgroupmap>, IQueryable<TResult>> query, bool notrack = false);
 
 
+        Task<TResult> GetChannelExtendDataAsync<TResult>(Func<IQueryable<DbpChnExtenddata>, Task<TResult>> query, bool notrack = false);
         /// <summary> 更新或新增通道的扩展数据 </summary>
         Task<int> SaveChannelExtenddataAsync(int nChnID, int type, string data);
 

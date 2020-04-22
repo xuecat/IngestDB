@@ -1857,9 +1857,9 @@ namespace IngestTaskPlugin.Controllers
 
         [HttpPost("WriteVTRUploadTaskDB"), MapToApiVersion("1.0")]
         [ApiExplorerSettings(GroupName = "v1")]
-        public async Task<OldResponseMessage> WriteVTRUploadTaskDB([FromBody] TaskContent taskAdd)
+        public async Task<TaskOldResponseMessage> WriteVTRUploadTaskDB([FromBody] TaskContent taskAdd)
         {
-            var Response = new OldResponseMessage();
+            var Response = new TaskOldResponseMessage();
 
             try
             {
@@ -1919,9 +1919,9 @@ namespace IngestTaskPlugin.Controllers
 
         [HttpPost("SetTaskStampBmp"), MapToApiVersion("1.0")]
         [ApiExplorerSettings(GroupName = "v1")]
-        public async Task<OldResponseMessage> SetTaskStampBmp([FromQuery] int nTaskID, [FromBody] string strBmp)
+        public async Task<TaskOldResponseMessage> SetTaskStampBmp([FromQuery] int nTaskID, [FromBody] string strBmp)
         {
-            var Response = new OldResponseMessage() { nCode = 1, message = "OK"};
+            var Response = new TaskOldResponseMessage() { nCode = 1, message = "OK"};
 
             try
             {
@@ -1994,9 +1994,9 @@ namespace IngestTaskPlugin.Controllers
 
         [HttpPost("AddReScheduleTaskSvr"), MapToApiVersion("1.0")]
         [ApiExplorerSettings(GroupName = "v1")]
-        public async Task<OldResponseMessage<int>> AddReScheduleTaskSvr([FromBody] AddReScheduleTaskSvr_in pIn)
+        public async Task<TaskOldResponseMessage<int>> AddReScheduleTaskSvr([FromBody] AddReScheduleTaskSvr_in pIn)
         {
-            var Response = new OldResponseMessage<int>();
+            var Response = new TaskOldResponseMessage<int>();
 
             try
             {

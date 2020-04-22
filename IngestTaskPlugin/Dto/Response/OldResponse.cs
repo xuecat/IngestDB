@@ -703,17 +703,17 @@ namespace IngestTaskPlugin.Dto
         public string errStr;
         public bool bRet;
     }
-    public class OldResponseMessage
+    public class TaskOldResponseMessage
     {
         public int nCode { get; set; }
         public string message { get; set; }
-        public OldResponseMessage()
+        public TaskOldResponseMessage()
         {
             nCode = 1;          //1代表成功，0代表失败
             message = "OK";
         }
     }
-    public class OldResponseMessage<T> : OldResponseMessage
+    public class TaskOldResponseMessage<T> : TaskOldResponseMessage
     {
         public T extention;
     }
@@ -737,6 +737,14 @@ namespace IngestTaskPlugin.Dto
         public int nValidDataCount;
         public string errStr;
         public bool bRet;
+    }
+
+    //通道扩展数据类型
+    public enum CHN_EXT_DATATYPE
+    {
+        CHN_EXT_Normal = 0,
+        CHN_EXT_MLforTVB,
+        CHN_EXT_PreviewVideo,   //当前正在采集的最后以后分段的低质量文件名
     }
 }
 
