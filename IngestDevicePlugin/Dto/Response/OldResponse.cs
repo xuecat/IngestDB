@@ -273,12 +273,19 @@ namespace IngestDevicePlugin.Dto
     /// <summary>设备信息</summary>
     public class TSDeviceInfo
     {
+        /// <summary>设备ID</summary>
         public int DeviceId { set; get; }
+        /// <summary>设备名称</summary>
         public string DeviceName { set; get; }
+        /// <summary>设备描述</summary>
         public string DeviceDesc { set; get; }
+        /// <summary>IP地址</summary>
         public string IPAddress { set; get; }
+        /// <summary>端口</summary>
         public int Port { set; get; }
+        /// <summary>虚拟通道集合</summary>
         public List<TSVirtualChannelInfo> ChannelInfos { set; get; }
+        /// <summary>数据通道集合</summary>
         public List<TSDataChannelInfo> DataChannelInfos { set; get; }
     }
     /// <summary>TS虚拟通道信息</summary>
@@ -568,7 +575,7 @@ namespace IngestDevicePlugin.Dto
 
     #endregion ParamModel
 }
-namespace IngestDevicePlugin.Dto.Response
+namespace IngestDevicePlugin.Dto.Old.Response
 {
     public class ResponseMessage
     {
@@ -580,7 +587,7 @@ namespace IngestDevicePlugin.Dto.Response
             message = "OK";
         }
     }
-    public class ResponseMessage<T> : IngestDevicePlugin.Dto.Response.ResponseMessage
+    public class ResponseMessage<T> : ResponseMessage
     {
         public ResponseMessage() : base() { }
 

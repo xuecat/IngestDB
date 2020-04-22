@@ -7,6 +7,8 @@ using System.Text;
 using System.Threading.Tasks;
 using ProgrammeInfoDto = IngestDevicePlugin.Dto.ProgrammeInfoResponse;
 using CaptureChannelInfoDto = IngestDevicePlugin.Dto.CaptureChannelInfoResponse;
+using IngestDevicePlugin.Dto.Response;
+
 namespace IngestDevicePlugin.Stores
 {
 
@@ -161,7 +163,7 @@ namespace IngestDevicePlugin.Stores
 
 
         /// <summary> 获取所有信号源分组信息 </summary>
-        Task<List<SignalGroupState>> GetAllSignalGroupInfoAsync();
+        Task<List<SignalGroupStateResponse>> GetAllSignalGroupInfoAsync();
 
         /// <summary> </summary>
         Task<List<Channel2SignalSrcMap>> GetAllChannel2SignalSrcMapAsync();

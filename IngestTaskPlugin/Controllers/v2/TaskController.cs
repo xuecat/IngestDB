@@ -2083,6 +2083,12 @@ namespace IngestTaskPlugin.Controllers
             return Response;
         }
 
+        /// <summary>
+        /// Device调用接口，获取将要和正在执行的任务
+        /// </summary>
+        /// <returns>将要和正在执行的任务</returns>
+        [HttpGet("taskinfo/willbeginandcapturing")]
+        [ApiExplorerSettings(GroupName = "v2")]
         public async Task<ResponseMessage<List<TaskContent>>> GetWillBeginAndCapturingTasks()
         {
             var Response = new ResponseMessage<List<TaskContent>>();

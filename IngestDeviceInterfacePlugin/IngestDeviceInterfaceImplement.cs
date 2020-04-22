@@ -57,9 +57,11 @@ namespace IngestTaskInterfacePlugin
 
                     case FunctionType.AllChannelState:
                         {
-                            //return _mapper.Map<List<MSVChannelStateInterface>>(reqService.AllChannelState());
-                            //MSVChannelStateInterface
-                        }break;
+                            return _mapper.Map<ResponseMessage<List<MSVChannelStateInterface>>>(
+                                await reqService.GetAllChannelState()
+                                );
+                        }
+                        break;
                     case FunctionType.ChannelExtendData:
                         {
                             return await reqService.GetChannelExtendData(examineResponse.ChannelId, examineResponse.Status);

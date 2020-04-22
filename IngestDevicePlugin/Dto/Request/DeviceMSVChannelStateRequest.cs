@@ -8,8 +8,9 @@ namespace IngestDevicePlugin.Dto.Request
 {
     public class DeviceMSVChannelStateRequest
     {
-        public int nID;
-        public int nDevState;
-        public int nMSVMode;
+        /// <summary>设备状态</summary>
+        public int DevState;
+        /// <summary>MSV模式</summary>
+        public int MSVMode;
     }
 }
