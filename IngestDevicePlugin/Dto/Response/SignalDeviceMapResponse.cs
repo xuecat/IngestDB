@@ -11,15 +11,19 @@ namespace IngestDevicePlugin.Dto.Response
     public class SignalDeviceMapResponse
     {
         /// <summary>信号源ID</summary>
-        public int SignalID;
+        /// <example>1</example>
+        public int SignalID { get; set; }
 
         /// <summary>设备ID</summary>
-        public int DeviceID;
+        /// <example>1</example>
+        public int DeviceID { get; set; }
 
         /// <summary>信号设备输出通道索引</summary>
-        public int OutPortIdx;
+        /// <example>1</example>
+        public int OutPortIdx { get; set; }
 
         /// <summary>信号来源</summary>
-        public emSignalSource SignalSource;
+        /// <example>0</example>
+        public emSignalSource SignalSource { get; set; }
     }
 }

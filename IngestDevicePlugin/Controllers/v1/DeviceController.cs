@@ -969,7 +969,7 @@ namespace IngestDevicePlugin.Controllers
         }
 
         //更改ModifySourceVTRIDAndUserCodeByChannelIDArray"
-        [HttpGet("ModifySourceVTRIDAndUserCodeByChannelIDArray"), MapToApiVersion("1.0")]
+        [HttpPost("ModifySourceVTRIDAndUserCodeByChannelIDArray"), MapToApiVersion("1.0")]
         [IngestAuthentication]
         [ApiExplorerSettings(GroupName = "v1")]
         public async Task<ModifySourceVTRIDAndUserCode_out> ModifySourceVTRIDAndUserCodeByChannelIDArray(ModifySourceVTR_in pIn)

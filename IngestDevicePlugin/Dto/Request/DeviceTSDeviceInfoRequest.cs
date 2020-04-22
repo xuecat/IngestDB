@@ -8,6 +8,7 @@ namespace IngestDevicePlugin.Dto.Request
 {
     public class DeviceTSDeviceInfoRequest
     {
-        public List<TSDeviceInfo> deviceInfos;
+        /// <summary>TS设备信息集</summary>
+        public List<TSDeviceInfo> deviceInfos { get; set; }
     }
 }

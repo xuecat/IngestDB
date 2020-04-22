@@ -76,8 +76,9 @@ namespace IngestDevicePlugin.Controllers
         }
 
         /// <summary>通过 通道ID 获取采集通道</summary>
+        /// <completionlist cref=""/>
         /// <remarks>原方法 GetCaptureChannelByID</remarks>
-        /// <param name="channelId">通道ID</param>
+        /// <param name="channelId" value="888"></param>
         /// <returns>采集通道</returns>
         [HttpGet("capturechannel/{channelId}")]
         [IngestAuthentication]
@@ -140,6 +141,7 @@ namespace IngestDevicePlugin.Controllers
         /// <remarks>原方法 GetCaptureTemplateIDBySignalID</remarks>
         /// <param name="signalID">信号ID</param>
         /// <returns>采集参数</returns>
+        /// <example>1111</example>
         [HttpGet("capturetemplate/id/{signalID}")]
         [IngestAuthentication]
         [ApiExplorerSettings(GroupName = "v2")]
@@ -171,8 +173,9 @@ namespace IngestDevicePlugin.Controllers
         #region Channel
         /// <summary>根据 信号源Id 为信号源选择一个合适的预监通道</summary>
         /// <remarks>原方法 GetBestPreviewChannelForSignal</remarks>
-        /// <param name="signalID">信号ID</param>
+        /// <param name="signalID" Defualt="999">信号ID</param>
         /// <returns>预监通道Id</returns>
+
         [HttpGet("bestpreviewchannel/id/{signalID}")]
         [IngestAuthentication]
         [ApiExplorerSettings(GroupName = "v2")]
@@ -555,7 +558,7 @@ namespace IngestDevicePlugin.Controllers
             ResponseMessage<bool> response = new ResponseMessage<bool>();
             try
             {
-                response.Ext = await _deviceManage.ModifySourceVTRIDAndUserCodeAsync(request.nSourceVTRID, request.userCode, request.nIDArray);
+                response.Ext = await _deviceManage.ModifySourceVTRIDAndUserCodeAsync(request.SourceVTRID, request.UserCode, request.IDArray);
             }
             catch (Exception e)
             {
@@ -905,7 +908,7 @@ namespace IngestDevicePlugin.Controllers
             }
             return response;
         }
-
+                
         /// <summary> 设置信号源和采集设备的对应 </summary>
         /// <remarks>原方法 GetSignalDeviceMapBySignalID</remarks>
         /// <param name="data">保存的对象</param>
