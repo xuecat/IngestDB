@@ -4,7 +4,6 @@ using IngestDBCore;
 using IngestDBCore.Basic;
 using IngestDevicePlugin.Dto;
 using IngestDevicePlugin.Dto.Enum;
-using IngestDevicePlugin.Dto.Response;
 using Microsoft.AspNetCore.Mvc;
 
 namespace IngestDevicePlugin.Controllers
@@ -113,7 +112,7 @@ namespace IngestDevicePlugin.Controllers
             GetAllSignalSrcs_param response = new GetAllSignalSrcs_param();
             try
             {
-                response.signalInfo = await _deviceManage.GetAllSignalSrcsAsync();
+                response.signalInfo = await _deviceManage.GetAllSignalSrcsAsync<SignalSrcInfo>();
                 response.nVaildDataCount = response.signalInfo.Count;
             }
             catch (Exception e)
@@ -142,7 +141,7 @@ namespace IngestDevicePlugin.Controllers
             GetAllCaptureChannels_param response = new GetAllCaptureChannels_param();
             try
             {
-                response.captureChannelInfo = await _deviceManage.GetAllCaptureChannelsAsync();
+                response.captureChannelInfo = await _deviceManage.GetAllCaptureChannelsAsync<CaptureChannelInfo>();
                 response.nVaildDataCount = response.captureChannelInfo.Count;
             }
             catch (Exception e)
@@ -200,7 +199,7 @@ namespace IngestDevicePlugin.Controllers
             GetSignalDeviceMapBySignalID_param response = new GetSignalDeviceMapBySignalID_param();
             try
             {
-                var res = await _deviceManage.GetSignalDeviceMapBySignalID(nSignalID);
+                var res = await _deviceManage.GetSignalDeviceMapBySignalID<SignalDeviceMap>(nSignalID);
                 if (res != null)
                 {
                     response.nDeviceID = res.nDeviceID;
@@ -266,7 +265,7 @@ namespace IngestDevicePlugin.Controllers
             GetAllSignalSrcExs_param response = new GetAllSignalSrcExs_param();
             try
             {
-                response.signalInfo = await _deviceManage.GetAllSignalSrcExsAsync();
+                response.signalInfo = await _deviceManage.GetAllSignalSrcExsAsync<SignalSrcExInfo>();
                 response.nVaildDataCount = response.signalInfo.Count;
             }
             catch (Exception e)
@@ -359,7 +358,7 @@ namespace IngestDevicePlugin.Controllers
             GetMSVChannelState_param response = new GetMSVChannelState_param();
             try
             {
-                response.channelStata = await _deviceManage.GetMsvChannelStateAsync(nID);
+                response.channelStata = await _deviceManage.GetMsvChannelStateAsync<MSVChannelState>(nID);
             }
             catch (Exception e)
             {
@@ -387,7 +386,7 @@ namespace IngestDevicePlugin.Controllers
             GetAllSignalGroup_OUT response = new GetAllSignalGroup_OUT();
             try
             {
-                response.arAllSignalGroup = await _deviceManage.GetAllSignalGroupAsync();
+                response.arAllSignalGroup = await _deviceManage.GetAllSignalGroupAsync<AllSignalGroup>();
                 response.nVaildDataCount = response.arAllSignalGroup.Count;
             }
             catch (Exception e)
@@ -416,7 +415,7 @@ namespace IngestDevicePlugin.Controllers
             GetAllSignalGroupState_OUT response = new GetAllSignalGroupState_OUT();
             try
             {
-                response.arAllSignalGroupState = await _deviceManage.GetAllSignalGroupInfoAsync();
+                response.arAllSignalGroupState = await _deviceManage.GetAllSignalGroupInfoAsync<SignalGroupState>();
                 response.nVaildDataCount = response.arAllSignalGroupState.Count;
             }
             catch (Exception e)
@@ -503,7 +502,7 @@ namespace IngestDevicePlugin.Controllers
             GetAllChannelState_OUT response = new GetAllChannelState_OUT();
             try
             {
-                response.arMSVChannelState = await _deviceManage.GetAllChannelStateAsync();
+                response.arMSVChannelState = await _deviceManage.GetAllChannelStateAsync<MSVChannelState>();
                 response.nVaildDataCount = response.arMSVChannelState.Count;
             }
             catch (Exception e)
@@ -566,7 +565,7 @@ namespace IngestDevicePlugin.Controllers
             GetCaptureChannelByID_OUT response = new GetCaptureChannelByID_OUT();
             try
             {
-                response.captureChannelInfo = await _deviceManage.GetCaptureChannelByIDAsync(nChannelID);
+                response.captureChannelInfo = await _deviceManage.GetCaptureChannelByIDAsync<CaptureChannelInfo>(nChannelID);
             }
             catch (Exception e)
             {
@@ -807,9 +806,9 @@ namespace IngestDevicePlugin.Controllers
         [HttpGet("/api/device/GetAllGPIDevices"), MapToApiVersion("1.0")]
         [IngestAuthentication]
         [ApiExplorerSettings(GroupName = "v1")]
-        public async Task<IngestDevicePlugin.Dto.Response.ResponseMessage<GPIDeviceInfo[]>> GetAllGPIDevices()
+        public async Task<Dto.Old.Response.ResponseMessage<GPIDeviceInfo[]>> GetAllGPIDevices()
         {
-            IngestDevicePlugin.Dto.Response.ResponseMessage<GPIDeviceInfo[]> p = new IngestDevicePlugin.Dto.Response.ResponseMessage<GPIDeviceInfo[]>();
+            Dto.Old.Response.ResponseMessage<GPIDeviceInfo[]> p = new Dto.Old.Response.ResponseMessage<GPIDeviceInfo[]>();
             try
             {
                 p.extention = (await _deviceManage.GetAllGPIInfoAsync<GPIDeviceInfo>()).ToArray();
@@ -836,9 +835,9 @@ namespace IngestDevicePlugin.Controllers
         [HttpGet("/api/device/GetGPIMapInfoByGPIID"), MapToApiVersion("1.0")]
         [IngestAuthentication]
         [ApiExplorerSettings(GroupName = "v1")]
-        public async Task<Dto.Response.ResponseMessage<GPIDeviceMapInfo[]>> GetGPIMapInfoByGPIID2(int nGPIID)
+        public async Task<Dto.Old.Response.ResponseMessage<GPIDeviceMapInfo[]>> GetGPIMapInfoByGPIID2(int nGPIID)
         {
-            Dto.Response.ResponseMessage<GPIDeviceMapInfo[]> p = new Dto.Response.ResponseMessage<GPIDeviceMapInfo[]>();
+            Dto.Old.Response.ResponseMessage<GPIDeviceMapInfo[]> p = new Dto.Old.Response.ResponseMessage<GPIDeviceMapInfo[]>();
             try
             {
                 p.extention = (await _deviceManage.GetGPIMapInfoByGPIIDAsync<GPIDeviceMapInfo>(nGPIID)).ToArray();
@@ -865,9 +864,9 @@ namespace IngestDevicePlugin.Controllers
         [HttpGet("api/device/GetCaptureTemplateIDBySignalID"), MapToApiVersion("1.0")]
         [IngestAuthentication]
         [ApiExplorerSettings(GroupName = "v1")]
-        public async Task<Dto.Response.ResponseMessage<int>> GetCaptureTemplateIDBySignalID(int nSignalID)
+        public async Task<IngestDevicePlugin.Dto.Old.Response.ResponseMessage<int>> GetCaptureTemplateIDBySignalID(int nSignalID)
         {
-            Dto.Response.ResponseMessage<int> p = new Dto.Response.ResponseMessage<int>();
+            IngestDevicePlugin.Dto.Old.Response.ResponseMessage<int> p = new IngestDevicePlugin.Dto.Old.Response.ResponseMessage<int>();
             try
             {
                 p.extention = await _deviceManage.GetSignalCaptureTemplateAsync(nSignalID);
@@ -1010,31 +1009,5 @@ namespace IngestDevicePlugin.Controllers
         }
         #endregion UpdateController
 
-        /// <summary> Try执行 </summary>
-        /// <typeparam name="T">返回类型</typeparam>
-        /// <param name="action">执行内容</param>
-        private async Task<T> TryInvoke<T>(Func<T, Task> action) where T : Base_param, new()
-        {
-            T response = new T();
-            try
-            {
-                await action(response);
-            }
-            catch (Exception e)
-            {
-                if (e is SobeyRecException se)//sobeyexcep会自动打印错误
-                {
-                    response.bRet = false;
-                    response.errStr = se.Message;
-                }
-                else
-                {
-                    response.bRet = false;
-                    response.errStr = $"error info:{e}";
-                    Logger.Error(response.errStr);
-                }
-            }
-            return response;
-        }
     }
 }
