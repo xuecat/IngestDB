@@ -32,17 +32,7 @@ namespace IngestDevicePlugin.Controllers
         {
             _deviceManage = task;
         }
-        /// <summary>
-        /// 监听接口 /get/
-        /// </summary>
-        /// <returns></returns>
-        [HttpGet("get")]
-        [ApiExplorerSettings(GroupName = "v2")]
-        public string Get()
-        {
-
-            return "DBPlatform Service is already startup at " + DateTime.Now.ToString();
-        }
+        
 
         #region Capture
         /// <summary>获取所有采集通道</summary>

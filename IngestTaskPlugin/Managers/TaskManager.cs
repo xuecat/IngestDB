@@ -3028,6 +3028,11 @@ namespace IngestTaskPlugin.Managers
         public async Task<TaskContentResponse> AddTaskWithoutPolicy<TResult>(TResult info, string CaptureMeta, string ContentMeta, string MatiralMeta, string PlanningMeta)
         {
             var taskinfo = _mapper.Map<TaskInfoRequest>(info);
+            if (default(TResult).GetType() == typeof(AddTaskExDb_in))
+            {
+                taskinfo.TaskSource = TaskSource.emMSVUploadTask;
+            }
+
             if (taskinfo.TaskContent.TaskType == TaskType.TT_MANUTASK)
             {
                 var _globalinterface = ApplicationContext.Current.ServiceProvider.GetRequiredService<IIngestDeviceInterface>();
