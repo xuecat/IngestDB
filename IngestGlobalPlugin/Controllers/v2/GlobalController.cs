@@ -44,7 +44,7 @@ namespace IngestGlobalPlugin.Controllers
         /// <returns>锁对象结果</returns>
         [HttpPost("objectinfo/lock")]
         [ApiExplorerSettings(GroupName = "v2")]
-        public async Task<ResponseMessage> PostLockObject([FromBody] PostLockObject_param_in objectParamIn)
+        public async Task<ResponseMessage> PostLockObject([FromBody] DtoLockObjectParamIn objectParamIn)
         {
             ResponseMessage Response = new ResponseMessage();
 
@@ -59,16 +59,16 @@ namespace IngestGlobalPlugin.Controllers
                 {
                     SobeyRecException.ThrowSelfNoParam(objectParamIn.ObjectTypeID.ToString(), GlobalDictionary.GLOBALDICT_CODE_LOCK_OBJECT_TPYEID_IS_NOT_EXIST, Logger, null);
                 }
-                if (string.IsNullOrEmpty(objectParamIn.userName))
+                if (string.IsNullOrEmpty(objectParamIn.UserName))
                 {
-                    objectParamIn.userName = "NullUserName";
+                    objectParamIn.UserName = "NullUserName";
                 }
                 if (objectParamIn.TimeOut < 0)
                 {
                     SobeyRecException.ThrowSelfNoParam(objectParamIn.TimeOut.ToString(), GlobalDictionary.GLOBALDICT_CODE_LOCK_OBJECT_TIMEOUT_IS_WRONG, Logger, null);
                 }
 
-                bool ret = await _GlobalManager.SetLockObjectAsync(objectParamIn.ObjectID, objectParamIn.ObjectTypeID, objectParamIn.userName, objectParamIn.TimeOut);
+                bool ret = await _GlobalManager.SetLockObjectAsync(objectParamIn.ObjectID, objectParamIn.ObjectTypeID, objectParamIn.UserName, objectParamIn.TimeOut);
 
                 Response.Code = ret ? ResponseCodeDefines.SuccessCode : ResponseCodeDefines.PartialFailure;
             }
@@ -103,7 +103,7 @@ namespace IngestGlobalPlugin.Controllers
         /// <returns>锁对象结果</returns>
         [HttpPost("objectinfo/unlock")]
         [ApiExplorerSettings(GroupName = "v2")]
-        public async Task<ResponseMessage> PostUnlockObject([FromBody] PostLockObject_param_in objectParamIn)
+        public async Task<ResponseMessage> PostUnlockObject([FromBody] DtoLockObjectParamIn objectParamIn)
         {
 
             ResponseMessage Response = new ResponseMessage();
@@ -118,12 +118,12 @@ namespace IngestGlobalPlugin.Controllers
                 {
                     SobeyRecException.ThrowSelfNoParam(objectParamIn.ObjectID.ToString(), GlobalDictionary.GLOBALDICT_CODE_UNLOCK_OBJECT_TYPEID_IS_NOT_EXIST, Logger, null);
                 }
-                if (objectParamIn.userName == "" || objectParamIn.userName == String.Empty)
+                if (objectParamIn.UserName == "" || objectParamIn.UserName == String.Empty)
                 {
-                    objectParamIn.userName = "NullUserName";
+                    objectParamIn.UserName = "NullUserName";
                 }
 
-                bool bRet = await _GlobalManager.SetUnlockObjectAsync(objectParamIn.ObjectID, objectParamIn.ObjectTypeID, objectParamIn.userName);
+                bool bRet = await _GlobalManager.SetUnlockObjectAsync(objectParamIn.ObjectID, objectParamIn.ObjectTypeID, objectParamIn.UserName);
 
                 Response.Code = bRet ? ResponseCodeDefines.SuccessCode : ResponseCodeDefines.PartialFailure;
             }

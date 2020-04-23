@@ -150,7 +150,7 @@ namespace IngestGlobalPlugin.Controllers
         /// <returns>获取global value</returns>
         [HttpGet("GetValueString"), MapToApiVersion("1.0")]
         [ApiExplorerSettings(GroupName = "v1")]
-        public async Task<string> OldGetValueString(string strKey)
+        public async Task<string> OldGetValueString([FromQuery]string strKey)
         {
             try
             {
@@ -193,7 +193,7 @@ namespace IngestGlobalPlugin.Controllers
 
         [HttpGet("GetDefaultSTC"), MapToApiVersion("1.0")]
         [ApiExplorerSettings(GroupName = "v1")]
-        public async Task<GetDefaultSTC_param> OldGetDefaultSTC(int tcMode)
+        public async Task<GetDefaultSTC_param> OldGetDefaultSTC([FromQuery]int tcMode)
         {
 
             GetDefaultSTC_param p = new GetDefaultSTC_param();
@@ -224,7 +224,7 @@ namespace IngestGlobalPlugin.Controllers
 
         [HttpGet("GetDefaultSTCExt"), MapToApiVersion("1.0")]
         [ApiExplorerSettings(GroupName = "v1")]
-        public async Task<GetDefaultSTC_param> OldGetDefaultSTCExt(int tcMode)
+        public async Task<GetDefaultSTC_param> OldGetDefaultSTCExt([FromQuery]int tcMode)
         {
 
             GetDefaultSTC_param p = new GetDefaultSTC_param();
@@ -250,7 +250,7 @@ namespace IngestGlobalPlugin.Controllers
         #region User
         [HttpPost("Post_SetUserSetting"), MapToApiVersion("1.0")]
         [ApiExplorerSettings(GroupName = "v1")]
-        public async Task<PostParam_Out> OldPost_SetUserSetting(SetUserSetting_IN pIn)
+        public async Task<PostParam_Out> OldPost_SetUserSetting([FromBody]SetUserSetting_IN pIn)
         {
             PostParam_Out pOut = new PostParam_Out();
             pOut.errStr = no_err;
@@ -290,7 +290,7 @@ namespace IngestGlobalPlugin.Controllers
         /// <returns> extention为strSettingText </returns>
         [HttpGet("GetUserSetting"), MapToApiVersion("1.0")]
         [ApiExplorerSettings(GroupName = "v1")]
-        public async Task<OldResponseMessage<string>> OldGetUserSetting(string strUserCode, string strSettingtype)
+        public async Task<OldResponseMessage<string>> OldGetUserSetting([FromQuery]string strUserCode, [FromQuery]string strSettingtype)
         {
             OldResponseMessage<string> res = new OldResponseMessage<string>();
             res.message = no_err;
@@ -315,7 +315,7 @@ namespace IngestGlobalPlugin.Controllers
 
         [HttpGet("GetParamTemplateByID"), MapToApiVersion("1.0")]
         [ApiExplorerSettings(GroupName = "v1")]
-        public async Task<GetParamTemplateByID_out> OldGetParamTemplateByID(int nCaptureParamID, int nFlag)
+        public async Task<GetParamTemplateByID_out> OldGetParamTemplateByID([FromQuery]int nCaptureParamID, [FromQuery]int nFlag)
         {
             GetParamTemplateByID_out p = new GetParamTemplateByID_out();
             p.errStr = no_err;
@@ -548,7 +548,7 @@ namespace IngestGlobalPlugin.Controllers
 
         [HttpGet("GetUserInfoByCode"), MapToApiVersion("1.0")]
         [ApiExplorerSettings(GroupName = "v1")]
-        public async Task<OldResponseMessage<CMUserInfo>> OldGetUserInfoByCode(string strUserCode)
+        public async Task<OldResponseMessage<CMUserInfo>> OldGetUserInfoByCode([FromQuery]string strUserCode)
         {
             OldResponseMessage<CMUserInfo> res = new OldResponseMessage<CMUserInfo>();
             res.message = no_err;
