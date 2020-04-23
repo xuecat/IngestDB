@@ -6,6 +6,7 @@ app/npm-debug.log
 IngestDB/obj
 IngestDB/packages
 *.cache
+*.user
 bin/
 IngestDB/bin/
 IngestDB/obj/
@@ -52,4 +53,5 @@ IngestGlobalInterfacePlugin/obj/
 IngestGlobalPlugin/bin/
 
 IngestGlobalPlugin/obj/
+IngestTaskPlugin/Properties/
 IngestGlobalInterfacePlugin/bin/
