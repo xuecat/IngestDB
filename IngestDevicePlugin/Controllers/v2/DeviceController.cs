@@ -902,7 +902,7 @@ namespace IngestDevicePlugin.Controllers.v2
         /// <remarks>原方法 GetSignalDeviceMapBySignalID</remarks>
         /// <param name="data">保存的对象</param>
         /// <returns>是否成功</returns>
-        [HttpPost("getsetsignaldevicemap")]
+        [HttpPost("signaldevicemap")]
         [IngestAuthentication]
         [ApiExplorerSettings(GroupName = "v2")]
         public async Task<ResponseMessage<bool>> UpdateSignalDeviceMap([FromBody, BindRequired]SignalDeviceRequest data)
