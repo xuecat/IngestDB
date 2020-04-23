@@ -10,16 +10,12 @@ using IngestDBCore.Basic;
 using IngestDBCore.Plugin;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
-using Microsoft.AspNetCore.HttpsPolicy;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.ApplicationParts;
-using Microsoft.AspNetCore.Mvc.Versioning;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
-using Microsoft.Extensions.Logging;
-using Microsoft.Extensions.Options;
 using Microsoft.OpenApi.Models;
-using Newtonsoft.Json.Converters;
+using Swashbuckle.AspNetCore.SwaggerGen;
 
 namespace IngestDB
 {
@@ -97,6 +93,7 @@ namespace IngestDB
                 //o.ApiVersionSelector = new CurrentImplementationApiVersionSelector(o);
             });
 
+
             var basePath = AppContext.BaseDirectory;
             var xmlPath1 = Path.Combine(basePath, "Plugin", "IngestGlobalPlugin.xml");
             var xmlPath2 = Path.Combine(basePath, "Plugin", "IngestDevicePlugin.xml");
@@ -105,18 +102,9 @@ namespace IngestDB
             if (File.Exists(xmlPath1) && File.Exists(xmlPath2) && File.Exists(xmlPath3))
             {
                 applicationContext.UseSwagger = true;
+
                 services.AddSwaggerGen(c =>
                 {
-                    c.SwaggerDoc("v2", new OpenApiInfo
-                    {
-                        Version = "v2",
-                        Title = "> 收录新版本网关接口文档",
-                        Description = "**Ingest Web API**(接口设计原则: `Post`->新加和修改，`Post`->新加；`Put`->修改)",
-                        Contact = new OpenApiContact { Name = "XueCat", Email = "", Url = new Uri("http://xuecat.com") },
-                        License = new OpenApiLicense { Name = "Sobey", Url = new Uri("http://www.sobey.com") }
-                        //TermsOfService = new Uri("None"),
-                    });
-
                     c.SwaggerDoc("v1", new OpenApiInfo
                     {
                         Version = "v1",
@@ -126,7 +114,16 @@ namespace IngestDB
                         License = new OpenApiLicense { Name = "Sobey", Url = new Uri("http://www.sobey.com") }
                         //TermsOfService = new Uri("None"),
                     });
-                    //Set the comments path for the swagger json and ui.
+
+                    c.SwaggerDoc("v2", new OpenApiInfo
+                    {
+                        Version = "v2",
+                        Title = "> 收录新版本网关接口文档",
+                        Description = "**Ingest Web API**(接口设计原则: `Post`->新加和修改，`Post`->新加；`Put`->修改)",
+                        Contact = new OpenApiContact { Name = "XueCat", Email = "", Url = new Uri("http://xuecat.com") },
+                        License = new OpenApiLicense { Name = "Sobey", Url = new Uri("http://www.sobey.com") }
+                        //TermsOfService = new Uri("None"),
+                    });
 
                     c.OrderActionsBy((apiDesc) => $"{apiDesc.ActionDescriptor.RouteValues["controller"]}_{apiDesc.HttpMethod}");
 
@@ -138,6 +135,29 @@ namespace IngestDB
                     //c.DescribeAllEnumsAsStrings();
                     c.OperationFilter<HttpHeaderOperation>(); // 添加httpHeader参数
                     c.OperationFilter<DefaultValueOperation>(); // 添加defaultValue参数
+
+                    //c.OperationFilter<RemoveVersionFromParameter>();
+                    c.DocumentFilter<ReplaceVersionWithExactValueInPath>();
+
+                    c.DocInclusionPredicate((version, desc) =>
+                    {
+
+                        if (!desc.TryGetMethodInfo(out System.Reflection.MethodInfo methodInfo)) return false;
+                        var versions = methodInfo.DeclaringType
+                            .GetCustomAttributes(true)
+                            .OfType<ApiVersionAttribute>()
+                            .SelectMany(attr => attr.Versions);
+
+
+                        var maps = methodInfo
+                            .GetCustomAttributes(true)
+                            .OfType<MapToApiVersionAttribute>()
+                            .SelectMany(attr => attr.Versions)
+                            .ToArray();
+
+                        return versions.Any(v => $"v{v.MajorVersion.ToString()}" == version)
+                               && (!maps.Any() || maps.Any(v => $"v{v.MajorVersion.ToString()}" == version));
+                    });
                 });
             }
 
