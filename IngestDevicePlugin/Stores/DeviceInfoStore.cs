@@ -477,14 +477,14 @@ namespace IngestDevicePlugin.Stores
             return await QueryModelAsync(Context.DbpChnExtenddata, query, notrack);
         }
 
-        public async Task<int> SaveChannelExtenddataAsync(int nChnID,int type, string data)
+        public async Task<int> SaveChannelExtenddataAsync(int channelId, int type, string data)
         {
-            var deviceMap = await Context.DbpChnExtenddata.FirstOrDefaultAsync(a => a.Channaelid == nChnID && a.Datatype == type);
+            var deviceMap = await Context.DbpChnExtenddata.FirstOrDefaultAsync(a => a.Channaelid == channelId && a.Datatype == type);
             if (deviceMap == null)
             {
                 await Context.DbpChnExtenddata.AddAsync(new DbpChnExtenddata
                 {
-                    Channaelid = nChnID,
+                    Channaelid = channelId,
                     Datatype = type,
                     Extenddata = data
                 });
@@ -627,9 +627,9 @@ namespace IngestDevicePlugin.Stores
         }
 
 
-        public async Task<int?> GetParamTypeByChannelIDAsync(int nChannelID)
+        public async Task<int?> GetParamTypeByChannelIDAsync(int channelID)
         {
-            return await Context.DbpRcdoutdesc.AsNoTracking().Where(rcdout => rcdout.Channelid == nChannelID)
+            return await Context.DbpRcdoutdesc.AsNoTracking().Where(rcdout => rcdout.Channelid == channelID)
                                                .Join(Context.DbpVirtualmatrixportstate.AsNoTracking().Where(state => state.State == 1),
                                                      rcdout => rcdout.Recoutidx,
                                                      state => state.Virtualoutport,
@@ -641,9 +641,9 @@ namespace IngestDevicePlugin.Stores
                                                .SingleOrDefaultAsync();
         }
 
-        public async Task<int?> GetParamTypeBySignalIDAsync(int nSignalID)
+        public async Task<int?> GetParamTypeBySignalIDAsync(int signalID)
         {
-            return await Context.DbpRcdindesc.AsNoTracking().Where(rcdin => rcdin.Signalsrcid == nSignalID)
+            return await Context.DbpRcdindesc.AsNoTracking().Where(rcdin => rcdin.Signalsrcid == signalID)
                                                              .Join(Context.DbpVirtualmatrixinport.AsNoTracking(),
                                                                    rcdin => rcdin.Recinidx,
                                                                    inport => inport.Virtualinport,
@@ -658,10 +658,10 @@ namespace IngestDevicePlugin.Stores
             return await Context.SaveChangesAsync();
         }
 
-        public async Task<int> ModifySourceVTRIDAndUserCodeAsync(int nSourceVTRID, string userCode, params int[] nID)
+        public async Task<int> ModifySourceVTRIDAndUserCodeAsync(int sourceVTRID, string userCode, params int[] ids)
         {
-            var updateList = Context.DbpMsvchannelState.Where(a => nID.Contains(a.Channelid)).ToList();
-            updateList.ForEach(a => { a.Sourcevtrid = nSourceVTRID; a.Curusercode = userCode; });
+            var updateList = Context.DbpMsvchannelState.Where(a => ids.Contains(a.Channelid)).ToList();
+            updateList.ForEach(a => { a.Sourcevtrid = sourceVTRID; a.Curusercode = userCode; });
             return await Context.SaveChangesAsync();
         }
 
