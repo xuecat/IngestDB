@@ -12,6 +12,8 @@ using System.Collections.Generic;
 using System.Text;
 using System.Threading.Tasks;
 
+using EditUserTemplateRequest = IngestGlobalPlugin.Dto.EditUserTemplate;
+
 namespace IngestGlobalPlugin.Controllers.v2
 {
 
@@ -37,7 +39,7 @@ namespace IngestGlobalPlugin.Controllers.v2
         /// </summary>
         /// <remarks>
         /// 例子:
-        /// Post api/v2/objectinfo/lock
+        /// Post api/v2/global/objectinfo/lock
         /// </remarks>
         /// <param name="objectParamIn">锁对象参数</param>
         /// <returns>锁对象结果</returns>
@@ -96,7 +98,7 @@ namespace IngestGlobalPlugin.Controllers.v2
         /// </summary>
         /// <remarks>
         /// 例子:
-        /// Post api/v1/objectinfo/unlock
+        /// Post api/v1/global/objectinfo/unlock
         /// </remarks>
         /// <param name="objectParamIn">锁对象参数</param>
         /// <returns>锁对象结果</returns>
@@ -152,13 +154,13 @@ namespace IngestGlobalPlugin.Controllers.v2
         /// </summary>
         /// <remarks>
         /// 例子:
-        /// Get api/v2/globalvalue
+        /// Get api/v2/global/globalvalue
         /// </remarks>
         /// <param name="key">键值</param>
         /// <returns>获取key对应的字段</returns>
         [HttpGet("globalvalue")]
         [ApiExplorerSettings(GroupName = "v2")]
-        public async Task<ResponseMessage<string>> GetValueString([FromQuery]string key)
+        public async Task<ResponseMessage<string>> GetValueString([FromQuery, DefaultValue("DEFAULT_CATALOG")]string key)
         {
             var Response = new ResponseMessage<string>();
             if (string.IsNullOrEmpty(key))
@@ -195,14 +197,14 @@ namespace IngestGlobalPlugin.Controllers.v2
         /// </summary>
         /// <remarks>
         /// 例子:
-        /// Post api/v2/globalvalue
+        /// Post api/v2/global/globalvalue
         /// </remarks>
         /// <param name="key">global键</param>
         /// <param name="value">global值</param>
         /// <returns></returns>
         [HttpPost("globalvalue")]
         [ApiExplorerSettings(GroupName = "v2")]
-        public async Task<ResponseMessage> SetGlobalValue([FromQuery]string key, [FromQuery]string value)
+        public async Task<ResponseMessage> SetGlobalValue([FromQuery, DefaultValue("DEFAULT_CATALOG")]string key, [FromQuery, DefaultValue("\\Public Material")]string value)
         {
             ResponseMessage Response = new ResponseMessage();
             try
@@ -235,13 +237,13 @@ namespace IngestGlobalPlugin.Controllers.v2
         /// </summary>
         /// <remarks>
         /// 例子:
-        /// Get api/v2/defaultstc/{tcMode}
+        /// Get api/v2/global/defaultstc/{tcMode}
         /// </remarks>
         /// <param name="mode">键值</param>
         /// <returns></returns>
         [HttpGet("defaultstc/{mode}")]
         [ApiExplorerSettings(GroupName = "v2")]
-        public async Task<ResponseMessage<GlobalTcResponse>> GetDefaultSTC([FromRoute]int mode)
+        public async Task<ResponseMessage<GlobalTcResponse>> GetDefaultSTC([FromRoute, DefaultValue(0)]int mode)
         {
             ResponseMessage<GlobalTcResponse> Response = new ResponseMessage<GlobalTcResponse>();
 
@@ -284,13 +286,13 @@ namespace IngestGlobalPlugin.Controllers.v2
         /// </summary>
         /// <remarks>
         /// 例子:
-        /// Get api/v2/defaultstcext/{mode}
+        /// Get api/v2/global/defaultstcext/{mode}
         /// </remarks>
-        /// <param name="mode">键值</param>
+        /// <param name="mode">0=emForLine,1=emForOther</param>
         /// <returns></returns>
         [HttpGet("defaultstcext/{mode}")]
         [ApiExplorerSettings(GroupName = "v2")]
-        public async Task<ResponseMessage<GlobalTcResponse>> GetDefaultSTCExt([FromRoute]int mode)
+        public async Task<ResponseMessage<GlobalTcResponse>> GetDefaultSTCExt([FromRoute, DefaultValue(0)]int mode)
         {
             ResponseMessage<GlobalTcResponse> Response = new ResponseMessage<GlobalTcResponse>();
 
@@ -326,13 +328,13 @@ namespace IngestGlobalPlugin.Controllers.v2
         /// </summary>
         /// <remarks>
         /// 例子:
-        /// Post api/v2/globalstate
+        /// Post api/v2/global/globalstate
         /// </remarks>
         /// <param name="label">GlobalStateName枚举</param>
         /// <returns></returns>
         [HttpPost("globalstate")]
         [ApiExplorerSettings(GroupName = "v2")]
-        public async Task<ResponseMessage> SetGlobalState([FromQuery]string label)
+        public async Task<ResponseMessage> SetGlobalState([FromQuery,DefaultValue("TASK_ADD")]string label)
         {
             var Response = new ResponseMessage();
             if (string.IsNullOrEmpty(label))
@@ -371,7 +373,7 @@ namespace IngestGlobalPlugin.Controllers.v2
         /// <returns>globalstate表结果</returns>
         /// <remarks>
         /// 例子:
-        /// Get api/v2/globalstate/all
+        /// Get api/v2/global/globalstate/all
         /// </remarks>
         [HttpGet("globalstate/all")]
         [ApiExplorerSettings(GroupName = "v2")]
@@ -413,12 +415,11 @@ namespace IngestGlobalPlugin.Controllers.v2
 
         #region User
         /// <summary>
-        /// 获取globalstate表结果
+        /// 修改usersetting
         /// </summary>
-        /// <returns>globalstate表结果</returns>
         /// <remarks>
         /// 例子:
-        /// Post api/v2/usersetting
+        /// Post api/v2/global/usersetting
         /// </remarks>
         [HttpPost("usersetting")]
         [ApiExplorerSettings(GroupName = "v2")]
@@ -469,11 +470,11 @@ namespace IngestGlobalPlugin.Controllers.v2
         /// <returns> extention为strSettingText </returns>
         /// <remarks>
         /// 例子:
-        /// Get api/v2/usersetting
+        /// Get api/v2/global/usersetting
         /// </remarks>
         [HttpGet("usersetting")]
         [ApiExplorerSettings(GroupName = "v2")]
-        public async Task<ResponseMessage<string>> GetUserSetting([FromQuery]string userCode, [FromQuery]string settingtype)
+        public async Task<ResponseMessage<string>> GetUserSetting([FromQuery, DefaultValue("06c70a52172d4393beb1bb6743ca6944")]string userCode, [FromQuery, DefaultValue("UserMoudleData")]string settingtype)
         {
             ResponseMessage<string> Response = new ResponseMessage<string>();
             try
@@ -505,16 +506,16 @@ namespace IngestGlobalPlugin.Controllers.v2
         /// <summary>
         /// 获取captureparamtemplate指定captureid和nflag的值，返回param
         /// </summary>
-        /// <param name="captureParamID">capid</param>
-        /// <param name="flag">类型</param>
-        /// <returns>globalstate表结果</returns>
+        /// <param name="captureParamID">模板id</param>
+        /// <param name="flag">hd=0，sd=1,uhd=2标识</param>
+        /// <returns>Captureparam结果</returns>
         /// <remarks>
         /// 例子:
-        /// Get api/v2/captureparamtemplate/{nCaptureParamID}
+        /// Get api/v2/global/captureparamtemplate/{nCaptureParamID}
         /// </remarks>
         [HttpGet("captureparamtemplate/{captureParamID}")]
         [ApiExplorerSettings(GroupName = "v2")]
-        public async Task<ResponseMessage<string>> GetParamTemplateByID([FromRoute]int captureParamID, [FromQuery]int flag)
+        public async Task<ResponseMessage<string>> GetParamTemplateByID([FromRoute, DefaultValue(1)]int captureParamID, [FromQuery, DefaultValue(0)]int flag)
         {
             ResponseMessage<string> Response = new ResponseMessage<string>();
             try
@@ -550,17 +551,17 @@ namespace IngestGlobalPlugin.Controllers.v2
         }
 
         /// <summary>
-        /// captureparamtemplatestring
+        /// 获取captureparamtemplate指定captureid的值，返回param
         /// </summary>
-        /// <param name="CaptureParamID">capid</param>
-        /// <returns>globalstate表结果</returns>
+        /// <param name="CaptureParamID">模板id</param>
+        /// <returns>Captureparam结果</returns>
         /// <remarks>
         /// 例子:
-        /// Get api/v2/captureparamtemplate/{nCaptureParamID}
+        /// Get api/v2/global/captureparamtemplate/{nCaptureParamID}
         /// </remarks>
         [HttpGet("captureparamtemplatestring/{CaptureParamID}")]
         [ApiExplorerSettings(GroupName = "v2")]
-        public async Task<ResponseMessage<string>> GetParamTemplateStringByID([FromRoute, BindRequired]int CaptureParamID)
+        public async Task<ResponseMessage<string>> GetParamTemplateStringByID([FromRoute, BindRequired, DefaultValue(1)]int CaptureParamID)
         {
             ResponseMessage<string> Response = new ResponseMessage<string>();
             try
@@ -601,9 +602,9 @@ namespace IngestGlobalPlugin.Controllers.v2
         /// </summary>
         /// <remarks>
         /// 例子:
-        /// Post api/v2/usertemplate/add
+        /// Post api/v2/global/usertemplate/add
         /// </remarks>
-        /// <param name="userTemplate"></param>
+        /// <param name="userTemplate">用户模板信息</param>
         /// <returns>extention 为用户模版ID</returns>
         [HttpPost("usertemplate/add")]
         [ApiExplorerSettings(GroupName = "v2")]
@@ -652,21 +653,20 @@ namespace IngestGlobalPlugin.Controllers.v2
             }
             return Response;
         }
-
-        //通过采集参数ID获得采集参数
+        
         /// <summary>
         /// 根据模板ID修改模板内容
         /// </summary>
-        /// <param name="templateID"></param>
-        /// <param name="UserTemplate"></param>
+        /// <param name="templateID">模板id</param>
+        /// <param name="UserTemplate">修改的用户模板信息</param>
         /// <returns>标准返回信息</returns>
         /// <remarks>
         /// 例子:
-        /// Put api/v2/usertemplate/modify/{nTemplateID}
+        /// Put api/v2/global/usertemplate/modify/{nTemplateID}
         /// </remarks>
         [HttpPut("usertemplate/modify/{templateID}")]
         [ApiExplorerSettings(GroupName = "v2")]
-        public async Task<ResponseMessage> ModifyUserTempalte([FromRoute] int templateID, [FromBody]  EditUserTemplate UserTemplate)
+        public async Task<ResponseMessage> ModifyUserTempalte([FromRoute, DefaultValue(2)] int templateID, [FromBody]  EditUserTemplateRequest UserTemplate)
         {
             ResponseMessage Response = new ResponseMessage();
 
@@ -699,19 +699,16 @@ namespace IngestGlobalPlugin.Controllers.v2
 
         }
 
-
-        /// <summary>
-        /// 获得用户所有模板
-        /// </summary>
-        /// <param name="userCode"></param>
-        /// <returns>extension 为 获取到的模板数组</returns>
+        
         /// <remarks>
         /// 例子:
-        /// Get api/v2/usertemplate/all
+        /// Get api/v2/global/usertemplate/all
         /// </remarks>
+        /// <param name="userCode">用户Code</param>
+        /// <returns>extension 为 获取到的模板数组</returns>
         [HttpGet("usertemplate/all")]
         [ApiExplorerSettings(GroupName = "v2")]
-        public async Task<ResponseMessage<List<DtoUserTemplate>>> GetUserAllTemplatesByUserCode([FromQuery] string userCode)
+        public async Task<ResponseMessage<List<DtoUserTemplate>>> GetUserAllTemplatesByUserCode([FromQuery, DefaultValue("8de083d45c614628b99516740d628e91")] string userCode)
         {
             ResponseMessage<List<DtoUserTemplate>> Response = new ResponseMessage<List<DtoUserTemplate>>();
 
@@ -750,11 +747,11 @@ namespace IngestGlobalPlugin.Controllers.v2
         /// <returns></returns>
         /// <remarks>
         /// 例子:
-        /// Delete api/v2/usertemplate/delete/{templateID}
+        /// Delete api/v2/global/usertemplate/delete/{templateID}
         /// </remarks>
         [HttpDelete("usertemplate/delete/{templateID}")]
         [ApiExplorerSettings(GroupName = "v2")]
-        public async Task<ResponseMessage> DeleteUserTemplateByID([FromRoute]int templateID)
+        public async Task<ResponseMessage> DeleteUserTemplateByID([FromRoute, DefaultValue(2)]int templateID)
         {
             ResponseMessage Response = new ResponseMessage();
 
@@ -784,19 +781,19 @@ namespace IngestGlobalPlugin.Controllers.v2
             }
             return Response;
         }
-
-        /// <summary>
-        /// 获得用户所有模板
-        /// </summary>
-        /// <param name="userCode"></param>
-        /// <returns></returns>
+        
         /// <remarks>
         /// 例子:
-        /// Get api/v2/userparammap/delete
+        /// Get api/v2/global/userparammap/delete
         /// </remarks>
+        /// <summary>
+        /// 删除用户Param映射关系UserCode-CaptureParamId
+        /// </summary>
+        /// <param name="userCode">UserParamMap的用户Code</param>
+        /// <returns>删除结果</returns>
         [HttpDelete("userparammap/delete")]
         [ApiExplorerSettings(GroupName = "v2")]
-        public async Task<ResponseMessage> DeleteUserParamTemplateByUserCode([FromQuery]string userCode)
+        public async Task<ResponseMessage> DeleteUserParamTemplateByUserCode([FromQuery, DefaultValue("ingest01")]string userCode)
         {
             ResponseMessage Response = new ResponseMessage();
 
@@ -836,15 +833,15 @@ namespace IngestGlobalPlugin.Controllers.v2
         /// <summary>
         /// 获得userinfo通过code
         /// </summary>
-        /// <param name="userCode"></param>
+        /// <param name="userCode">用户Code</param>
         /// <returns>取到的用户信息</returns>
         /// <remarks>
         /// 例子:
-        /// Get api/v2/userinfo
+        /// Get api/v2/global/userinfo
         /// </remarks>
         [HttpGet("userinfo")]
         [ApiExplorerSettings(GroupName = "v2")]
-        public async Task<ResponseMessage<DtoCMUserInfo>> GetUserInfoByCode([FromQuery]string userCode)
+        public async Task<ResponseMessage<DtoCMUserInfo>> GetUserInfoByCode([FromQuery, DefaultValue("897cd4f79531e3c04c2c9a371e4db4ea")]string userCode)
         {
             ResponseMessage<DtoCMUserInfo> Response = new ResponseMessage<DtoCMUserInfo>();
             try
@@ -869,19 +866,20 @@ namespace IngestGlobalPlugin.Controllers.v2
             return Response;
         }
 
+        
+        /// <remarks>
+        /// 例子:
+        /// Get api/v2/global/captureparamtemplate/highorstandard
+        /// </remarks>
         /// <summary>
         /// 通过用户ID得到用户高清或标清采集参数=
         /// </summary>
-        /// <param name="userToken"></param>
-        /// <param name="flag"></param>
-        /// <returns>取采集参数</returns>
-        /// <remarks>
-        /// 例子:
-        /// Get api/v2/captureparamtemplate/highorstandard
-        /// </remarks>
+        /// <param name="userToken">用户usertoken</param>
+        /// <param name="flag">nFlag：0为标清，1为高清</param>
+        /// <returns>采集参数</returns>
         [HttpGet("captureparamtemplate/highorstandard")]
         [ApiExplorerSettings(GroupName = "v2")]
-        public async Task<ResponseMessage<string>> GetUserHighOrStandardCapParam([FromQuery]string userToken, [FromQuery]int flag)//nFlag：0为标清，1为高清
+        public async Task<ResponseMessage<string>> GetUserHighOrStandardCapParam([FromQuery, DefaultValue("897cd4f79531e3c04c2c9a371e4db4ea")]string userToken, [FromQuery, DefaultValue(0)]int flag)//nFlag：0为标清，1为高清
         {
             ResponseMessage<string> Response = new ResponseMessage<string>();
             try

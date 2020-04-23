@@ -33,9 +33,17 @@ namespace IngestGlobalPlugin.Dto
 
     public class PostLockObject_param_in
     {
+        /// <summary>对象Id</summary>
+        /// <example>3538</example>
         public int ObjectID;
+        /// <summary>对象类型Id</summary>
+        /// <example>3</example>
         public OTID ObjectTypeID;
+        /// <summary>用户名</summary>
+        /// <example>RecMQServer</example>
         public string userName;
+        /// <summary>延时</summary>
+        /// <example>30000</example>
         public int TimeOut;
     }
 
@@ -50,8 +58,14 @@ namespace IngestGlobalPlugin.Dto
 
     public class SetUserSetting_IN
     {
+        /// <summary>用户Code</summary>
+        /// <example>06c70a52172d4393beb1bb6743ca6944</example>
         public string strUserCode;
+        /// <summary>settingType</summary>
+        /// <example>UserMoudleData</example>
         public string strSettingtype;
+        /// <summary>内容</summary>
+        /// <example>Content...</example>
         public string strSettingText;
     }
 
@@ -110,9 +124,17 @@ namespace IngestGlobalPlugin.Dto
 
     public class UserTemplate
     {
+        /// <summary>模板ID</summary>
+        /// <example>-1</example>
         public int nTemplateID = -1;                    //模板ID
+        /// <summary>用户名</summary>
+        /// <example>8de083d45c614628b99516740d628e91</example>
         public string strUserCode = string.Empty;       //用户名
+        /// <summary>模板名</summary>
+        /// <example>tName</example>
         public string strTemplateName = string.Empty;   //模板名
+        /// <summary>模板内容</summary>
+        /// <example><window_positions>...</window_positions></example>
         public string strTemplateContent = string.Empty;//模板内容   
     }
 

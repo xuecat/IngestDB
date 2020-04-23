@@ -19,8 +19,8 @@ namespace IngestDBCore.Basic
                 var parameters = descriptor.Parameters.Where(a => a is ControllerParameterDescriptor).Select(a => a as ControllerParameterDescriptor);
                 foreach (var parameter in parameters)
                 {
-                    var defaultValue = parameter.ParameterInfo.GetCustomAttributes(true).SingleOrDefault(a => a is DefaultValueAttribute) as DefaultValueAttribute;
-                    var param = operation.Parameters.SingleOrDefault(a => a.Name == parameter.Name);
+                    var defaultValue = parameter.ParameterInfo.GetCustomAttributes(true).FirstOrDefault(a => a is DefaultValueAttribute) as DefaultValueAttribute;
+                    var param = operation.Parameters.FirstOrDefault(a => a.Name == parameter.Name);
                     if (param != null && defaultValue != null)
                     {
                         param.Schema.Default = OpenApiAnyFactory.CreateFor(param.Schema, defaultValue.Value);
