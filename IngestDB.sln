@@ -1,7 +1,7 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
-# Visual Studio 15
-VisualStudioVersion = 15.0.28307.645
+# Visual Studio Version 16
+VisualStudioVersion = 16.0.29709.97
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "IngestDB", "IngestDB\IngestDB.csproj", "{8D4E0550-C373-45E5-B582-F3A4786A8151}"
 EndProject
@@ -30,6 +30,8 @@ EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "IngestGlobalPlugin", "IngestGlobalPlugin\IngestGlobalPlugin.csproj", "{42A262A9-63E6-467C-BDCB-BC54036DC1C1}"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "IngestGlobalInterfacePlugin", "IngestGlobalInterfacePlugin\IngestGlobalInterfacePlugin.csproj", "{7E71E1D6-1C0C-4C0D-8145-96A0C329571A}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "IngestMatrixPlugin", "IngestMatrixPlugin\IngestMatrixPlugin.csproj", "{D437C821-59BF-475D-86AB-A0B869FFEEEB}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -85,6 +87,10 @@ Global
 		{7E71E1D6-1C0C-4C0D-8145-96A0C329571A}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{7E71E1D6-1C0C-4C0D-8145-96A0C329571A}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{7E71E1D6-1C0C-4C0D-8145-96A0C329571A}.Release|Any CPU.Build.0 = Release|Any CPU
+		{D437C821-59BF-475D-86AB-A0B869FFEEEB}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{D437C821-59BF-475D-86AB-A0B869FFEEEB}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{D437C821-59BF-475D-86AB-A0B869FFEEEB}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{D437C821-59BF-475D-86AB-A0B869FFEEEB}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -100,6 +106,7 @@ Global
 		{8090BCD1-DE10-4F8A-8125-36E47455E4BC} = {59AD4432-774F-470C-B163-FFDE4F9097EC}
 		{42A262A9-63E6-467C-BDCB-BC54036DC1C1} = {59AD4432-774F-470C-B163-FFDE4F9097EC}
 		{7E71E1D6-1C0C-4C0D-8145-96A0C329571A} = {59AD4432-774F-470C-B163-FFDE4F9097EC}
+		{D437C821-59BF-475D-86AB-A0B869FFEEEB} = {59AD4432-774F-470C-B163-FFDE4F9097EC}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {98696BFC-44A3-4355-B438-A3953923FF58}

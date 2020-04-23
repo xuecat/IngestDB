@@ -386,12 +386,13 @@ namespace IngestTaskPlugin.Managers
                 var response1 = await _deviceinterface.GetDeviceCallBack(new DeviceInternals()
                 {
                     funtype = IngestDBCore.DeviceInternals.FunctionType.ChannelExtendData,
-                    ChannelId = channelid
+                    ChannelId = channelid,
+                    Status = (int)CHN_EXT_DATATYPE.CHN_EXT_PreviewVideo
                 });
 
                 if (response1.Code != ResponseCodeDefines.SuccessCode)
                 {
-                    Logger.Error("GetCaptureTemplateBySignalIdAndUserCode ChannelInfoBySrc error");
+                    Logger.Error("GetChannelCapturingLowMaterial ChannelExtendData error");
                     return null;
                 }
 
@@ -446,10 +447,69 @@ namespace IngestTaskPlugin.Managers
             return string.Empty;
         }
 
+        private async Task<List<int>> TryDispatchTask(DbpTask taskinfo, bool backup)
+        {
+            var _globalinterface = ApplicationContext.Current.ServiceProvider.GetRequiredService<IIngestDeviceInterface>();
+            if (_globalinterface != null)
+            {
+                var response1 = await _globalinterface.GetDeviceCallBack(new DeviceInternals() {
+                    funtype = IngestDBCore.DeviceInternals.FunctionType.AllCaptureChannels });
+                if (response1.Code != ResponseCodeDefines.SuccessCode)
+                {
+                    Logger.Error("TryDispatchTask AllCaptureChannels error");
+                    return null;
+                }
+
+                var rep = response1 as ResponseMessage<List<CaptureChannelInfoInterface>>;
+
+                if (taskinfo.Tasktype != (int)TaskType.TT_PERIODIC)
+                {
+                    if (rep != null && rep.Ext != null)
+                    {
+                        var lstchn = await Store.GetFreeChannels(rep.Ext.Where(b => b.BackState != BackupFlagInterface.emNoAllowBackUp).Select(a => a.ID).ToList(), taskinfo.Starttime, taskinfo.Endtime);
+
+                        if (lstchn.Count > 0)
+                        {
+                            Logger.Info("TryDispatchTask GetFreeChannels {0} ", string.Join(",", lstchn));
+                            return lstchn;
+                        }
+                    }
+                }
+                else
+                {
+                    var lstchn = await Store.GetFreePerodiChannels(rep.Ext.Where(b => b.BackState != BackupFlagInterface.emNoAllowBackUp).Select(a => a.ID).ToList(),
+                                                taskinfo.Taskid, taskinfo.Recunitid.GetValueOrDefault(), taskinfo.Signalid.GetValueOrDefault(), -1, taskinfo.Category, taskinfo.Starttime, taskinfo.Endtime);
+                    if (lstchn.Count > 0)
+                    {
+                        Logger.Info("TryDispatchTask GetFreePerodiChannels {0} ", string.Join(",", lstchn));
+                        return lstchn;
+                    }
+                }
+            }
+
+            return null;
+        }
+
+        private async Task<int> GetRescheduleChannel(DbpTask taskinfo, List<MSVChannelStateInterface> lstmsvstate)
+        {
+            var lstchn = await TryDispatchTask(taskinfo, true);
+
+            var backlst = lstchn.FindAll(a => lstmsvstate.Any(b => b.ChannelID == a && b.DevState != Device_StateInterface.DISCONNECTTED && b.MSVMode != MSV_ModeInterface.LOCAL));
+
+            /*
+             * @brief 正常代码有ChooseChannelForPeriod 有ChooseChannel，疯了，晕。直接用这个，我认为通过过滤应该在getfree就做好
+             */
+            return ChooseBestChannel(_mapper.Map<TaskContentRequest>(taskinfo), backlst, new CHSelCondition() { OnlyLocalChannel = true, BackupCHSel = true, CheckCHCurState = true});
+        }
+
         public async Task<List<T>> RescheduleTasks<T>()
         {
+            //重调度任务
             //TaskInfoRescheduledRequest
             //抄GetScheduleFailedTasks
+
+            List<T> lstback = new List<T>();
+
             var lsttask = await Store.GetTaskListAsync(a => a.Where(b =>
                         (b.DispatchState == (int)dispatchState.dpsDispatchFailed || b.DispatchState == (int)dispatchState.dpsRedispatch)
                         && b.State != (int)taskState.tsDelete
@@ -465,7 +525,7 @@ namespace IngestTaskPlugin.Managers
                 });
                 if (response1.Code != ResponseCodeDefines.SuccessCode)
                 {
-                    Logger.Error("GetCaptureTemplateBySignalIdAndUserCode ChannelInfoBySrc error");
+                    Logger.Error("RescheduleTasks AllChannelState error");
                     return null;
                 }
 
@@ -483,16 +543,17 @@ namespace IngestTaskPlugin.Managers
                             continue;
                         }
 
+                        //zmj2009-01-05 将重调度的顺序改变，先在原通道试验一下，若不成功再去备用通道进行选择
                         if (fresponse.Ext.Any(a => a.ChannelID == item.Channelid 
                                 && a.DevState != Device_StateInterface.DISCONNECTTED
                                 && a.MSVMode != MSV_ModeInterface.LOCAL))
                         {
                             item.SyncState = (int)syncState.ssNot;
                             item.DispatchState = (int)dispatchState.dpsDispatched;
-                            //zmj2008-10-24当kamataki任务遇到自动任务时，若该任务重调度不成功，则将此任务置为删除状态
                             /*
-                             * @brief 这种任务现在没用了
+                             * @brief 这种任务现在没用了，所以我不写了
                              */
+                            //zmj2008-10-24当kamataki任务遇到自动任务时，若该任务重调度不成功，则将此任务置为删除状态
                             //TaskFullInfo CapturingTask = TASKOPER.GetChannelCapturingTask(info.taskContent.nChannelID);
                             //if (CapturingTask != null)
                             //{
@@ -507,16 +568,40 @@ namespace IngestTaskPlugin.Managers
                         }
                         else
                         {
+                            //原通道不用可时
+                            var copyitem = Store.DeepClone(item);
+                            int newchannelid = await GetRescheduleChannel(copyitem, fresponse.Ext);
+                            if (newchannelid > 0)
+                            {
+                                copyitem.OldChannelid = item.Channelid;//为了map转换成nPreviousChannelID用
 
+                                item.Channelid = newchannelid;
+                                item.SyncState = (int)syncState.ssNot;
+                                item.DispatchState = (int)dispatchState.dpsDispatched;
+                                isUpdateGlobalState = true;
+
+                                lstback.Add(_mapper.Map<T>(copyitem));
+                            }
+                            else
+                            {
+                                item.SyncState = (int)syncState.ssNot;
+                                item.DispatchState = (int)dispatchState.dpsRedispatch;
+                                isUpdateGlobalState = true;
+
+                            }
                         }
-
+                        item.Tasklock = string.Empty;
 
                     }
+                    if (isUpdateGlobalState)
+                    {
+                        await Store.SaveChangeAsync();
+                    }
+
+                    return lstback;
                 }
             }
-
-
-            
+            return null;
             ///////return
         }
 
@@ -625,7 +710,7 @@ namespace IngestTaskPlugin.Managers
         /// 通过信号源ID或用户编码获得采集参数
         /// </summary>
         /// <param name="SignalId">信号源ID</param>
-        /// <param name="usetokencode">用户编码</param>
+        /// <param name="usetokencode">用户编码true是token false是code</param>
         /// <param name="userCode">采集参数</param>
         /// <returns>成功与否</returns>
         /// <remarks>
@@ -645,13 +730,13 @@ namespace IngestTaskPlugin.Managers
             {
                 var response1 = await _deviceinterface.GetDeviceCallBack(new DeviceInternals()
                 {
-                    funtype = IngestDBCore.DeviceInternals.FunctionType.SignalCaptureID,
+                    funtype = IngestDBCore.DeviceInternals.FunctionType.CaptureTemplateIDBySignal,
                     SrcId = SignalId,
                     Status = 1
                 });
                 if (response1.Code != ResponseCodeDefines.SuccessCode)
                 {
-                    Logger.Error("GetCaptureTemplateBySignalIdAndUserCode ChannelInfoBySrc error");
+                    Logger.Error("GetCaptureTemplateBySignalIdAndUserCode SignalCaptureID error");
                     return null;
                 }
 
@@ -681,7 +766,7 @@ namespace IngestTaskPlugin.Managers
                         });
                         if (response2.Code != ResponseCodeDefines.SuccessCode)
                         {
-                            Logger.Error("GetMatchedChannelForSignal ChannelInfoBySrc error");
+                            Logger.Error("GetCaptureTemplateBySignalIdAndUserCode UserParamTemplateByID error");
                             return null;
                         }
 
@@ -1122,7 +1207,7 @@ namespace IngestTaskPlugin.Managers
                 });
                 if (response1.Code != ResponseCodeDefines.SuccessCode)
                 {
-                    Logger.Error("ChooseUsealbeChannel ChannelInfoBySrc error");
+                    Logger.Error("ChooseUsealbeChannel AllChannelState error");
                     return 0;
                 }
 
@@ -1719,14 +1804,14 @@ namespace IngestTaskPlugin.Managers
                 var _globalinterface = ApplicationContext.Current.ServiceProvider.GetRequiredService<IIngestDeviceInterface>();
                 if (_globalinterface != null)
                 {
-                    DeviceInternals re = new DeviceInternals()
+                    
+                    var response1 = await _globalinterface.GetDeviceCallBack(new DeviceInternals()
                     {
                         funtype = IngestDBCore.DeviceInternals.FunctionType.ChannelInfoBySrc,
                         SrcId = taskModify.SignalID,
                         Status = 1
-                    };
+                    });
 
-                    var response1 = await _globalinterface.GetDeviceCallBack(re);
                     if (response1.Code != ResponseCodeDefines.SuccessCode)
                     {
                         Logger.Error("GetMatchedChannelForSignal ChannelInfoBySrc error");
@@ -2018,11 +2103,13 @@ namespace IngestTaskPlugin.Managers
             var _globalinterface = ApplicationContext.Current.ServiceProvider.GetRequiredService<IIngestDeviceInterface>();
             if (_globalinterface != null)
             {
-                DeviceInternals re = new DeviceInternals() { funtype = IngestDBCore.DeviceInternals.FunctionType.ChannelUnitMap, ChannelId = taskinfo.ChannelID };
-                var response1 = await _globalinterface.GetDeviceCallBack(re);
+                var response1 = await _globalinterface.GetDeviceCallBack(new DeviceInternals() {
+                    funtype = IngestDBCore.DeviceInternals.FunctionType.ChannelUnitMap, ChannelId = taskinfo.ChannelID
+                });
+
                 if (response1.Code != ResponseCodeDefines.SuccessCode)
                 {
-                    Logger.Error("WriteVTRUploadTaskDB ChannelInfoBySrc error");
+                    Logger.Error("WriteVTRUploadTaskDB ChannelUnitMap error");
                     return;
                 }
                 var fr = response1 as ResponseMessage<int>;
@@ -2275,8 +2362,7 @@ namespace IngestTaskPlugin.Managers
                 }
             }
 
-            TaskInfoRequest inf = new TaskInfoRequest();
-
+            
             await Store.AddTaskWithPolicys(findtask, true, src, strCapatureMetaData, strContentMetaData, strStoreMetaData, strPlanMetaData, null);
             return _mapper.Map<TResult>(findtask);
         }
@@ -2500,12 +2586,131 @@ namespace IngestTaskPlugin.Managers
             // Add by chenzhi 2013-07-23
             // TODO: 如果原任务是一个周期任务的子任务，则需要在这改为普通任务
 
-            if (oldTaskFullInfo.taskContent.emTaskType == (int)TaskType.TT_PERIODIC)
+            if (findtask.Tasktype == (int)TaskType.TT_PERIODIC)
             {
                 // 改为普通任务
-                newTaskFullInfo.taskContent.emTaskType = (int)TaskType.TT_NORMAL;
+                newtaskinfo.Tasktype = (int)TaskType.TT_NORMAL;
             }
+
+            //MetaDataPolicy[] arrMetaDataPolicy = PPLICYACCESS.GetPolicyByTaskID(oldTaskID);
+            //List<int> listPolicyId = new List<int>();
+            //foreach (MetaDataPolicy item in arrMetaDataPolicy)
+            //{
+            //    listPolicyId.Add(item.nID);
+            //}
+            //int[] arrPolicyId = listPolicyId.ToArray();
+
+            Store.StopTaskNoChange(findtask, starttime);
+
+            newtaskinfo.Taskguid = Guid.NewGuid().ToString("N");
+            newtaskinfo.Taskid = -1;
+            newtaskinfo.Starttime = starttime.AddSeconds(1);
+            newtaskinfo.NewBegintime = newtaskinfo.Starttime;
+            newtaskinfo.Taskname += "_1";
+
+            var _globalinterface = ApplicationContext.Current.ServiceProvider.GetRequiredService<IIngestDeviceInterface>();
+            if (_globalinterface != null)
+            {
+                var response1 = await _globalinterface.GetDeviceCallBack(new DeviceInternals()
+                {
+                    funtype = DeviceInternals.FunctionType.SingnalIDByChannel,
+                    ChannelId = findtask.Channelid.GetValueOrDefault()
+
+                });
+                if (response1.Code != ResponseCodeDefines.SuccessCode)
+                {
+                    Logger.Error("AutoAddTaskByOldTask SingnalIDByChannel error");
+                    return null;
+                }
+                var fr = response1 as ResponseMessage<int>;
+                if (fr != null && fr.Ext > 0)
+                {
+                    newtaskinfo.Signalid = fr.Ext;
+                }
+            }
+
+            newtaskinfo.Tasklock = string.Empty;
+            newtaskinfo.SyncState = (int)syncState.ssSync;
+            newtaskinfo.DispatchState = (int)dispatchState.dpsNotDispatch;
+            newtaskinfo.OpType = (int)opType.otAdd;
+            newtaskinfo.Description = string.Empty;
+            newtaskinfo.State = (int)taskState.tsReady;//先改成准备状态
+
+            //OpenEnd任务的结束时间和开始时间一样
+            if (newtaskinfo.Tasktype == (int)TaskType.TT_OPENEND)
+            {
+                newtaskinfo.Endtime = newtaskinfo.Starttime;
+                newtaskinfo.NewEndtime = newtaskinfo.Starttime;
+            }
+
+            TaskSource src = await GetTaskSource(findtask.Taskid);
+
+            var lsttaskmeta = await Store.GetTaskMetaDataListAsync(a => a.Where(b => b.Taskid == findtask.Taskid), true); ;
+            string strCapatureMetaData = string.Empty, strStoreMetaData = string.Empty, strContentMetaData = string.Empty, strPlanMetaData = string.Empty, strSplitMetaData = string.Empty;
+            foreach (var item in lsttaskmeta)
+            {
+                if (item.Metadatatype == (int)MetaDataType.emCapatureMetaData)
+                {
+                    strCapatureMetaData = await GetCaptureTemplateBySignalIdAndUserCode(newtaskinfo.Signalid.GetValueOrDefault(), false, findtask.Usercode);
+
+                    if (string.IsNullOrEmpty(strCapatureMetaData))
+                    {
+                        strCapatureMetaData = item.Metadatalong;
+                    }
+                }
+                else if (item.Metadatatype == (int)MetaDataType.emContentMetaData)
+                {
+                    strContentMetaData = item.Metadatalong;
+                }
+                else if (item.Metadatatype == (int)MetaDataType.emStoreMetaData)
+                {
+                    strStoreMetaData = item.Metadatalong;
+                }
+                else if (item.Metadatatype == (int)MetaDataType.emPlanMetaData)
+                {
+                    strPlanMetaData = item.Metadatalong;
+                }
+                else if (item.Metadatatype == (int)MetaDataType.emSplitData)
+                {
+                    strSplitMetaData = item.Metadatalong;
+                }
+            }
+
+            if (!string.IsNullOrEmpty(strStoreMetaData))
+            {
+                //<MADEBYINGEST></MADEBYINGEST>这个玩意会妨碍xml解析，居然有这个玩意，日了
+                var root = XElement.Parse(strStoreMetaData);
+                if (root != null)
+                {
+                    var ma = root.Element("MATERIAL");
+                    if (ma != null)
+                    {
+                        var t = ma.Element("TITLE");
+                        if (t != null) t.Value = newtaskinfo.Taskname;
+                        var m = ma.Element("MATERIALID");
+                        if (m != null) m.Value = string.Empty;
+                    }
+                }
+            }
+
+            if (!string.IsNullOrEmpty(strContentMetaData))
+            {
+                var root = XElement.Parse(strContentMetaData);
+                root.Descendants("RealStampIndex").Remove();
+                root.Descendants("PERIODPARAM").Remove();
+            }
+
+            var info = await Store.AddTaskWithPolicys(findtask, true, src,
+                                                        strCapatureMetaData,
+                                                        strContentMetaData,
+                                                        strStoreMetaData,
+                                                        strPlanMetaData, null);
+
+            return _mapper.Map<TaskContentResponse>(info);
         }
+
+        
+       
 
         public async Task<TaskContentResponse> AddTaskWithPolicy<TResult>(TResult info, bool backup, string CaptureMeta, string ContentMeta, string MatiralMeta, string PlanningMeta)
         {
@@ -2520,11 +2725,13 @@ namespace IngestTaskPlugin.Managers
                 if (_globalinterface != null)
                 {
                     // 获得备份信号源信息
-                    DeviceInternals re = new DeviceInternals() { funtype = IngestDBCore.DeviceInternals.FunctionType.BackSignalByID, SrcId = taskinfo.TaskContent.SignalID };
-                    var response1 = await _globalinterface.GetDeviceCallBack(re);
+                    var response1 = await _globalinterface.GetDeviceCallBack(new DeviceInternals() {
+                        funtype = IngestDBCore.DeviceInternals.FunctionType.BackSignalByID, SrcId = taskinfo.TaskContent.SignalID
+                    });
+
                     if (response1.Code != ResponseCodeDefines.SuccessCode)
                     {
-                        Logger.Error("AddTaskWithoutPolicy ChannelInfoBySrc error");
+                        Logger.Error("AddTaskWithPolicy BackSignalByID error");
                         return null;
                     }
                     var fr = response1 as ResponseMessage<ProgrammeInfoInterface>;
@@ -2599,12 +2806,13 @@ namespace IngestTaskPlugin.Managers
             {
                 if (_globalinterface != null)
                 {
-                    // 获得备份信号源信息
-                    DeviceInternals re = new DeviceInternals() { funtype = IngestDBCore.DeviceInternals.FunctionType.SignalInfoByID, SrcId = taskinfo.TaskContent.SignalID };
-                    var response1 = await _globalinterface.GetDeviceCallBack(re);
+                    var response1 = await _globalinterface.GetDeviceCallBack(new DeviceInternals() {
+                        funtype = IngestDBCore.DeviceInternals.FunctionType.SignalInfoByID, SrcId = taskinfo.TaskContent.SignalID
+                    });
+
                     if (response1.Code != ResponseCodeDefines.SuccessCode)
                     {
-                        Logger.Error("AddTaskWithoutPolicy ChannelInfoBySrc error");
+                        Logger.Error("AddTaskWithPolicy SignalInfoByID error");
                         return null;
                     }
                     var fr = response1 as ResponseMessage<ProgrammeInfoInterface>;
@@ -2641,11 +2849,14 @@ namespace IngestTaskPlugin.Managers
             {
                 if (_globalinterface != null)
                 {
-                    DeviceInternals re = new DeviceInternals() { funtype = IngestDBCore.DeviceInternals.FunctionType.ChannelUnitMap, ChannelId = taskinfo.TaskContent.ChannelID };
+                    DeviceInternals re = new DeviceInternals() {
+                        funtype = IngestDBCore.DeviceInternals.FunctionType.ChannelUnitMap, ChannelId = taskinfo.TaskContent.ChannelID
+                    };
+
                     var response1 = await _globalinterface.GetDeviceCallBack(re);
                     if (response1.Code != ResponseCodeDefines.SuccessCode)
                     {
-                        Logger.Error("AddTaskWithoutPolicy ChannelInfoBySrc error");
+                        Logger.Error("AddTaskWithPolicy ChannelUnitMap error");
                         return null;
                     }
                     var fr = response1 as ResponseMessage<int>;
@@ -2731,8 +2942,12 @@ namespace IngestTaskPlugin.Managers
 
                 bool bLockChannel = taskinfo.TaskContent.ChannelID > 0 ? false : true;
                 CHSelCondition condition = new CHSelCondition();
-                condition.BackupCHSel = false;
+                condition.BackupCHSel = backup;
                 condition.CheckCHCurState = true;//检查当前通道状态
+
+                /*
+                 * @brief 当前没有openend任务，估计路透就会有了，所以这个我暂时用false来表示
+                 */
                 condition.MoveExcutingOpenTask = false;
                 condition.OnlyLocalChannel = true;
                 condition.BaseCHID = -1;
@@ -2769,11 +2984,11 @@ namespace IngestTaskPlugin.Managers
                 {
                     if (_globalinterface != null)
                     {
-                        DeviceInternals re = new DeviceInternals() { funtype = IngestDBCore.DeviceInternals.FunctionType.SingnalInfoByChannel, ChannelId = taskinfo.TaskContent.ChannelID };
+                        DeviceInternals re = new DeviceInternals() { funtype = IngestDBCore.DeviceInternals.FunctionType.SingnalIDByChannel, ChannelId = taskinfo.TaskContent.ChannelID };
                         var response1 = await _globalinterface.GetDeviceCallBack(re);
                         if (response1.Code != ResponseCodeDefines.SuccessCode)
                         {
-                            Logger.Error("AddTaskWithoutPolicy ChannelInfoBySrc error");
+                            Logger.Error("AddTaskWithPolicy SingnalIDByChannel error");
                             return null;
                         }
                         var fr = response1 as ResponseMessage<int>;
@@ -2818,11 +3033,13 @@ namespace IngestTaskPlugin.Managers
                 var _globalinterface = ApplicationContext.Current.ServiceProvider.GetRequiredService<IIngestDeviceInterface>();
                 if (_globalinterface != null)
                 {
-                    DeviceInternals re = new DeviceInternals() { funtype = IngestDBCore.DeviceInternals.FunctionType.ChannelUnitMap, ChannelId = taskinfo.TaskContent.ChannelID };
-                    var response1 = await _globalinterface.GetDeviceCallBack(re);
+                    var response1 = await _globalinterface.GetDeviceCallBack(new DeviceInternals() {
+                        funtype = IngestDBCore.DeviceInternals.FunctionType.ChannelUnitMap, ChannelId = taskinfo.TaskContent.ChannelID
+                    });
+
                     if (response1.Code != ResponseCodeDefines.SuccessCode)
                     {
-                        Logger.Error("AddTaskWithoutPolicy ChannelInfoBySrc error");
+                        Logger.Error("AddTaskWithoutPolicy ChannelUnitMap error");
                         return null;
                     }
                     var fr = response1 as ResponseMessage<int>;
@@ -2946,11 +3163,14 @@ namespace IngestTaskPlugin.Managers
                     var _globalinterface = ApplicationContext.Current.ServiceProvider.GetRequiredService<IIngestDeviceInterface>();
                     if (_globalinterface != null)
                     {
-                        DeviceInternals re = new DeviceInternals() { funtype = IngestDBCore.DeviceInternals.FunctionType.SingnalInfoByChannel, ChannelId = taskinfo.TaskContent.ChannelID };
-                        var response1 = await _globalinterface.GetDeviceCallBack(re);
+                        var response1 = await _globalinterface.GetDeviceCallBack(new DeviceInternals() {
+                            funtype = IngestDBCore.DeviceInternals.FunctionType.SingnalIDByChannel,
+                            ChannelId = taskinfo.TaskContent.ChannelID
+                        });
+
                         if (response1.Code != ResponseCodeDefines.SuccessCode)
                         {
-                            Logger.Error("AddTaskWithoutPolicy ChannelInfoBySrc error");
+                            Logger.Error("AddTaskWithoutPolicy SingnalIDByChannel error");
                             return null;
                         }
                         var fr = response1 as ResponseMessage<int>;

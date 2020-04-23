@@ -10,7 +10,9 @@ using System.Collections.Generic;
 using System.Text;
 using System.Threading.Tasks;
 using IngestDevicePlugin.Dto.Request;
-using SignalDeviceRequest = IngestDevicePlugin.Dto.SignalDeviceMap;
+using IngestDevicePlugin.Dto.Response;
+using SignalDeviceRequest = IngestDevicePlugin.Dto.Response.SignalDeviceMapResponse;
+using TsDeviceInfoResponse = IngestDevicePlugin.Dto.TSDeviceInfo;
 
 namespace IngestDevicePlugin.Controllers
 {
@@ -34,7 +36,7 @@ namespace IngestDevicePlugin.Controllers
         /// 监听接口 /get/
         /// </summary>
         /// <returns></returns>
-        [HttpGet("Get")]
+        [HttpGet("get")]
         [ApiExplorerSettings(GroupName = "v2")]
         public string Get()
         {
@@ -46,266 +48,533 @@ namespace IngestDevicePlugin.Controllers
         /// <summary>获取所有采集通道</summary>
         /// <remarks>原方法 GetAllCaptureChannels</remarks>
         /// <returns>采集通道集合</returns>
-        [HttpGet("CaptureChannel/All")]
+        [HttpGet("capturechannel/all")]
         [IngestAuthentication]//device有点特殊，做了监听端口的所以不能全类检验
         [ApiExplorerSettings(GroupName = "v2")]
-        public async Task<ResponseMessage<List<CaptureChannelInfo>>> AllCaptureChannels()
+        public async Task<ResponseMessage<List<CaptureChannelInfoResponse>>> AllCaptureChannels()
         {
-            async Task Action(ResponseMessage<List<CaptureChannelInfo>> response)
+            ResponseMessage<List<CaptureChannelInfoResponse>> response = new ResponseMessage<List<CaptureChannelInfoResponse>>();
+            try
             {
-                response.Ext = await _deviceManage.GetAllCaptureChannelsAsync();
+                response.Ext = await _deviceManage.GetAllCaptureChannelsAsync<CaptureChannelInfoResponse>();
             }
-
-            return await TryInvoke((Func<ResponseMessage<List<CaptureChannelInfo>>, Task>)Action);
+            catch (Exception e)
+            {
+                if (e is SobeyRecException se)//sobeyexcep会自动打印错误
+                {
+                    response.Code = se.ErrorCode.ToString();
+                    response.Msg = se.Message;
+                }
+                else
+                {
+                    response.Code = ResponseCodeDefines.ServiceError;
+                    response.Msg = $"{System.Reflection.MethodBase.GetCurrentMethod().DeclaringType.FullName}：error info:{e}";
+                    Logger.Error(response.Msg);
+                }
+            }
+            return response;
         }
 
         /// <summary>通过 通道ID 获取采集通道</summary>
+        /// <completionlist cref=""/>
         /// <remarks>原方法 GetCaptureChannelByID</remarks>
-        /// <param name="nChannelID">通道ID</param>
+        /// <param name="channelId" value="888"></param>
         /// <returns>采集通道</returns>
-        [HttpGet("CaptureChannel/{nChannelID}")]
+        [HttpGet("capturechannel/{channelId}")]
         [IngestAuthentication]
         [ApiExplorerSettings(GroupName = "v2")]
-        public async Task<ResponseMessage<CaptureChannelInfo>> CaptureChannelByID([FromRoute, BindRequired]int nChannelID)
+        public async Task<ResponseMessage<CaptureChannelInfoResponse>> CaptureChannelByID([FromRoute, BindRequired]int channelId)
         {
-            async Task Action(ResponseMessage<CaptureChannelInfo> response)
+            ResponseMessage<CaptureChannelInfoResponse> response = new ResponseMessage<CaptureChannelInfoResponse>();
+            try
             {
-                response.Ext = await _deviceManage.GetCaptureChannelByIDAsync(nChannelID);
+                response.Ext = await _deviceManage.GetCaptureChannelByIDAsync<CaptureChannelInfoResponse>(channelId);
             }
-
-            return await TryInvoke((Func<ResponseMessage<CaptureChannelInfo>, Task>)Action);
+            catch (Exception e)
+            {
+                if (e is SobeyRecException se)//sobeyexcep会自动打印错误
+                {
+                    response.Code = se.ErrorCode.ToString();
+                    response.Msg = se.Message;
+                }
+                else
+                {
+                    response.Code = ResponseCodeDefines.ServiceError;
+                    response.Msg = $"{System.Reflection.MethodBase.GetCurrentMethod().DeclaringType.FullName}：error info:{e}";
+                    Logger.Error(response.Msg);
+                }
+            }
+            return response;
         }
 
         /// <summary>获取所有的采集设备信息</summary>
         /// <remarks>原方法 GetAllCaptureDevices</remarks>
         /// <returns>采集设备集合</returns>
-        [HttpGet("CaptureDevice/All")]
+        [HttpGet("capturedevice/all")]
         [IngestAuthentication]
         [ApiExplorerSettings(GroupName = "v2")]
-        public async Task<ResponseMessage<List<CaptureDeviceInfo>>> AllCaptureDevices()
+        public async Task<ResponseMessage<List<CaptureDeviceInfoResponse>>> AllCaptureDevices()
         {
-            async Task Action(ResponseMessage<List<CaptureDeviceInfo>> response)
+            ResponseMessage<List<CaptureDeviceInfoResponse>> response = new ResponseMessage<List<CaptureDeviceInfoResponse>>();
+            try
             {
-                response.Ext = await _deviceManage.GetAllCaptureDevicesAsync<CaptureDeviceInfo>();
+                response.Ext = await _deviceManage.GetAllCaptureDevicesAsync<CaptureDeviceInfoResponse>();
             }
-
-            return await TryInvoke((Func<ResponseMessage<List<CaptureDeviceInfo>>, Task>)Action);
+            catch (Exception e)
+            {
+                if (e is SobeyRecException se)//sobeyexcep会自动打印错误
+                {
+                    response.Code = se.ErrorCode.ToString();
+                    response.Msg = se.Message;
+                }
+                else
+                {
+                    response.Code = ResponseCodeDefines.ServiceError;
+                    response.Msg = $"{System.Reflection.MethodBase.GetCurrentMethod().DeclaringType.FullName}：error info:{e}";
+                    Logger.Error(response.Msg);
+                }
+            }
+            return response;
         }
 
         /// <summary>根据 信号源Id 获取绑定的采集参数</summary>
         /// <remarks>原方法 GetCaptureTemplateIDBySignalID</remarks>
+        /// <param name="signalID">信号ID</param>
         /// <returns>采集参数</returns>
-        [HttpGet("CaptureTemplate/Id/{nSignalID}")]
+        /// <example>1111</example>
+        [HttpGet("capturetemplate/id/{signalID}")]
         [IngestAuthentication]
         [ApiExplorerSettings(GroupName = "v2")]
-        public async Task<ResponseMessage<int>> CaptureTemplateId([FromRoute, BindRequired]int nSignalID)
+        public async Task<ResponseMessage<int>> CaptureTemplateId([FromRoute, BindRequired]int signalID)
         {
-            async Task Action(ResponseMessage<int> response)
+            ResponseMessage<int> response = new ResponseMessage<int>();
+            try
             {
-                response.Ext = await _deviceManage.GetSignalCaptureTemplateAsync(nSignalID);
+                response.Ext = await _deviceManage.GetSignalCaptureTemplateAsync(signalID);
             }
-
-            return await TryInvoke((Func<ResponseMessage<int>, Task>)Action);
+            catch (Exception e)
+            {
+                if (e is SobeyRecException se)//sobeyexcep会自动打印错误
+                {
+                    response.Code = se.ErrorCode.ToString();
+                    response.Msg = se.Message;
+                }
+                else
+                {
+                    response.Code = ResponseCodeDefines.ServiceError;
+                    response.Msg = $"{System.Reflection.MethodBase.GetCurrentMethod().DeclaringType.FullName}：error info:{e}";
+                    Logger.Error(response.Msg);
+                }
+            }
+            return response;
         }
         #endregion
 
         #region Channel
         /// <summary>根据 信号源Id 为信号源选择一个合适的预监通道</summary>
         /// <remarks>原方法 GetBestPreviewChannelForSignal</remarks>
+        /// <param name="signalID" Defualt="999">信号ID</param>
         /// <returns>预监通道Id</returns>
-        [HttpGet("BestPreviewChannel/Id/{nSignalID}")]
+
+        [HttpGet("bestpreviewchannel/id/{signalID}")]
         [IngestAuthentication]
         [ApiExplorerSettings(GroupName = "v2")]
-        public async Task<ResponseMessage<int>> BestPreviewChannelId([FromRoute, BindRequired]int nSignalID)
+        public async Task<ResponseMessage<int>> BestPreviewChannelId([FromRoute, BindRequired]int signalID)
         {
-            async Task Action(ResponseMessage<int> response)
+            ResponseMessage<int> response = new ResponseMessage<int>();
+            try
             {
-                response.Ext = await _deviceManage.GetBestPreviewChnForSignalAsync(nSignalID);
+                response.Ext = await _deviceManage.GetBestPreviewChnForSignalAsync(signalID);
             }
+            catch (Exception e)
+            {
+                if (e is SobeyRecException se)//sobeyexcep会自动打印错误
+                {
+                    response.Code = se.ErrorCode.ToString();
+                    response.Msg = se.Message;
+                }
+                else
+                {
+                    response.Code = ResponseCodeDefines.ServiceError;
+                    response.Msg = $"{System.Reflection.MethodBase.GetCurrentMethod().DeclaringType.FullName}：error info:{e}";
+                    Logger.Error(response.Msg);
+                }
+            }
+            return response;
+        }
 
-            return await TryInvoke((Func<ResponseMessage<int>, Task>)Action);
+        /// <summary> 更新通道的扩展数据 </summary>
+        /// <remarks>原方法 PostUpdateChnExtData</remarks>
+        /// <param name="channelID">通道ID</param>
+        /// <param name="data">设备通道扩展数据</param>
+        /// <returns>是否成功</returns>
+        [HttpPost("channel/extenddata/{channelID}")]
+        [IngestAuthentication]
+        [ApiExplorerSettings(GroupName = "v2")]
+        public async Task<ResponseMessage<bool>> UpdateChnExtData([FromRoute, BindRequired]int channelID, [FromBody, BindRequired]DeviceChannelExtdataRequest data)
+        {
+            ResponseMessage<bool> response = new ResponseMessage<bool>();
+            try
+            {
+                response.Ext = await _deviceManage.SaveChnExtenddataAsync(channelID, data.Datatype, data.Extenddata);
+            }
+            catch (Exception e)
+            {
+                if (e is SobeyRecException se)//sobeyexcep会自动打印错误
+                {
+                    response.Code = se.ErrorCode.ToString();
+                    response.Msg = se.Message;
+                }
+                else
+                {
+                    response.Code = ResponseCodeDefines.ServiceError;
+                    response.Msg = $"{System.Reflection.MethodBase.GetCurrentMethod().DeclaringType.FullName}：error info:{e}";
+                    Logger.Error(response.Msg);
+                }
+            }
+            return response;
         }
 
         /// <summary> 更新通道的扩展数据 </summary>
         /// <remarks>原方法 PostUpdateChnExtData</remarks>
         /// <returns>是否成功</returns>
-        [HttpPost("Channel/ExtendData/{nChnID}")]
+        [HttpGet("channel/extenddata/{channleid}")]
         [IngestAuthentication]
         [ApiExplorerSettings(GroupName = "v2")]
-        public async Task<ResponseMessage<bool>> UpdateChnExtData([FromQuery, BindRequired]int nChnID, [FromBody, BindRequired]DeviceChannelExtdataRequest data)
+        public async Task<ResponseMessage<string>> GetChannelExtendData([FromRoute, BindRequired]int channleid, [FromQuery, BindRequired]int type)
         {
-            async Task Action(ResponseMessage<bool> response)
+            ResponseMessage<string> response = new ResponseMessage<string>();
+            try
             {
-                response.Ext = await _deviceManage.SaveChnExtenddataAsync(nChnID, data.Datatype, data.Extenddata);
+                response.Ext = await _deviceManage.GetChannelExtendData(channleid, type);
             }
-
-            return await TryInvoke((Func<ResponseMessage<bool>, Task>)Action);
+            catch (Exception e)
+            {
+                if (e is SobeyRecException se)//sobeyexcep会自动打印错误
+                {
+                    response.Code = se.ErrorCode.ToString();
+                    response.Msg = se.Message;
+                }
+                else
+                {
+                    response.Code = ResponseCodeDefines.ServiceError;
+                    response.Msg = $"{System.Reflection.MethodBase.GetCurrentMethod().DeclaringType.FullName}：error info:{e}";
+                    Logger.Error(response.Msg);
+                }
+            }
+            return response;
         }
 
         /// <summary>根据 信号源Id,用户Code 自动匹配最优通道</summary>
         /// <remarks>原方法 GetBestChannelIDBySignalID</remarks>
-        /// <param name="nSignalID">信号源Id</param>
-        /// <param name="strUserCode">用户Code</param>
+        /// <param name="signalID">信号源Id</param>
+        /// <param name="userCode">用户Code</param>
         /// <returns>最优通道Id</returns>
-        [HttpGet("BestChannel/Id/{nSignalID}")]
+        [HttpGet("bestchannel/id/{nSignalID}")]
         [IngestAuthentication]
         [ApiExplorerSettings(GroupName = "v2")]
-        public async Task<ResponseMessage<int>> BestChannelId([FromRoute, BindRequired]int nSignalID, [FromQuery, BindRequired]string strUserCode)
+        public async Task<ResponseMessage<int>> BestChannelId([FromRoute, BindRequired]int signalID, [FromQuery, BindRequired]string userCode)
         {
-            async Task Action(ResponseMessage<int> response)
+            ResponseMessage<int> response = new ResponseMessage<int>();
+            try
             {
-                response.Ext = await _deviceManage.GetBestChannelIdBySignalIDAsync(nSignalID, strUserCode);
+                response.Ext = await _deviceManage.GetBestChannelIdBySignalIDAsync(signalID, userCode);
             }
-
-            return await TryInvoke((Func<ResponseMessage<int>, Task>)Action);
+            catch (Exception e)
+            {
+                if (e is SobeyRecException se)//sobeyexcep会自动打印错误
+                {
+                    response.Code = se.ErrorCode.ToString();
+                    response.Msg = se.Message;
+                }
+                else
+                {
+                    response.Code = ResponseCodeDefines.ServiceError;
+                    response.Msg = $"{System.Reflection.MethodBase.GetCurrentMethod().DeclaringType.FullName}：error info:{e}";
+                    Logger.Error(response.Msg);
+                }
+            }
+            return response;
         }
 
         /// <summary>根据 programmeId 获取相应的通道，有矩阵模式和无矩阵模式的区别</summary>
         /// <remarks>原方法 GetChannelsByProgrammeId</remarks>
         /// <param name="programmeId">programmeId</param>
         /// <returns>采集通道集合</returns>
-        [HttpGet("Channel/{programmeId}")]
+        [HttpGet("channel/{programmeId}")]
         [IngestAuthentication]
         [ApiExplorerSettings(GroupName = "v2")]
-        public async Task<ResponseMessage<List<CaptureChannelInfo>>> Channels([FromRoute, BindRequired]int programmeId)
+        public async Task<ResponseMessage<List<CaptureChannelInfoResponse>>> Channels([FromRoute, BindRequired]int programmeId)
         {
-            async Task Action(ResponseMessage<List<CaptureChannelInfo>> response)
+            ResponseMessage<List<CaptureChannelInfoResponse>> response = new ResponseMessage<List<CaptureChannelInfoResponse>>();
+            try
             {
-                response.Ext = await _deviceManage.GetChannelsByProgrammeIdAsync<CaptureChannelInfo>(programmeId);
+                response.Ext = await _deviceManage.GetChannelsByProgrammeIdAsync<CaptureChannelInfoResponse>(programmeId);
             }
-            return await TryInvoke((Func<ResponseMessage<List<CaptureChannelInfo>>, Task>)Action);
+            catch (Exception e)
+            {
+                if (e is SobeyRecException se)//sobeyexcep会自动打印错误
+                {
+                    response.Code = se.ErrorCode.ToString();
+                    response.Msg = se.Message;
+                }
+                else
+                {
+                    response.Code = ResponseCodeDefines.ServiceError;
+                    response.Msg = $"{System.Reflection.MethodBase.GetCurrentMethod().DeclaringType.FullName}：error info:{e}";
+                    Logger.Error(response.Msg);
+                }
+            }
+            return response;
         }
 
         /// <summary> 获得所有通道的状态 </summary>
         /// <remarks>原方法 GetAllChannelState</remarks>
         /// <returns>最优通道Id</returns>
-        [HttpGet("ChannelState/All")]
+        [HttpGet("channelstate/All")]
         [IngestAuthentication]
         [ApiExplorerSettings(GroupName = "v2")]
-        public async Task<ResponseMessage<List<MSVChannelState>>> AllChannelState()
+        public async Task<ResponseMessage<List<MSVChannelStateResponse>>> AllChannelState()
         {
-            async Task Action(ResponseMessage<List<MSVChannelState>> response)
+            ResponseMessage<List<MSVChannelStateResponse>> response = new ResponseMessage<List<MSVChannelStateResponse>>();
+            try
             {
-                response.Ext = await _deviceManage.GetAllChannelStateAsync();
+                response.Ext = await _deviceManage.GetAllChannelStateAsync<MSVChannelStateResponse>();
             }
-
-            return await TryInvoke((Func<ResponseMessage<List<MSVChannelState>>, Task>)Action);
+            catch (Exception e)
+            {
+                if (e is SobeyRecException se)//sobeyexcep会自动打印错误
+                {
+                    response.Code = se.ErrorCode.ToString();
+                    response.Msg = se.Message;
+                }
+                else
+                {
+                    response.Code = ResponseCodeDefines.ServiceError;
+                    response.Msg = $"{System.Reflection.MethodBase.GetCurrentMethod().DeclaringType.FullName}：error info:{e}";
+                    Logger.Error(response.Msg);
+                }
+            }
+            return response;
         }
 
         /// <summary>更改MSV设备状态信息</summary>
         /// <remarks>原方法 GetModifyDevState</remarks>
-        /// <param name="request">更新的对象</param>
+        /// <param name="id">对象id</param>
+        /// <param name="data">更新的对象</param>
         /// <returns>是否成功</returns>
-        [HttpPost("DevState")]
+        [HttpPost("channelstate/{id}")]
         [IngestAuthentication]
         [ApiExplorerSettings(GroupName = "v2")]
-        public async Task<ResponseMessage<bool>> GetModifyDevState([FromBody, BindRequired] DeviceMSVChannelStateRequest request)
+        public async Task<ResponseMessage<bool>> UpdateMSVChannelState([FromRoute, BindRequired]int id, [FromBody, BindRequired] DeviceMSVChannelStateRequest data)
         {
-            async Task Action(ResponseMessage<bool> response)
+            ResponseMessage<bool> response = new ResponseMessage<bool>();
+            try
             {
-                response.Ext = await _deviceManage.UpdateMSVChannelStateAsync(request.nID, request.nDevState, request.nMSVMode);
+                response.Ext = await _deviceManage.UpdateMSVChannelStateAsync(id, data.DevState, data.MSVMode);
             }
-            return (await TryInvoke((Func<ResponseMessage<bool>, Task>)Action));
+            catch (Exception e)
+            {
+                if (e is SobeyRecException se)//sobeyexcep会自动打印错误
+                {
+                    response.Code = se.ErrorCode.ToString();
+                    response.Msg = se.Message;
+                }
+                else
+                {
+                    response.Code = ResponseCodeDefines.ServiceError;
+                    response.Msg = $"{System.Reflection.MethodBase.GetCurrentMethod().DeclaringType.FullName}：error info:{e}";
+                    Logger.Error(response.Msg);
+                }
+            }
+            return response;
         }
-        #endregion
+        //#endregion
 
-        #region Device
+        //#region Device 
 
         /// <summary>获得所有的IP收录的设备</summary>
         /// <remarks>原方法 GetAllTSDeviceInfos</remarks>
         /// <returns>最优通道Id</returns>
-        [HttpGet("TSDeviceInfo/All")]
+        [HttpGet("tsdeviceinfo/all")]
         [IngestAuthentication]
         [ApiExplorerSettings(GroupName = "v2")]
-        public async Task<ResponseMessage<List<TSDeviceInfo>>> AllGTSDeviceInfos()
+        public async Task<ResponseMessage<List<TsDeviceInfoResponse>>> AllGTSDeviceInfos()
         {
-            async Task Action(ResponseMessage<List<TSDeviceInfo>> response)
+            ResponseMessage<List<TsDeviceInfoResponse>> response = new ResponseMessage<List<TsDeviceInfoResponse>>();
+            try
             {
                 response.Ext = await _deviceManage.GetAllTSDeviceInfosAsync();
             }
-            return await TryInvoke((Func<ResponseMessage<List<TSDeviceInfo>>, Task>)Action);
+            catch (Exception e)
+            {
+                if (e is SobeyRecException se)//sobeyexcep会自动打印错误
+                {
+                    response.Code = se.ErrorCode.ToString();
+                    response.Msg = se.Message;
+                }
+                else
+                {
+                    response.Code = ResponseCodeDefines.ServiceError;
+                    response.Msg = $"{System.Reflection.MethodBase.GetCurrentMethod().DeclaringType.FullName}：error info:{e}";
+                    Logger.Error(response.Msg);
+                }
+            }
+            return response;
         }
 
         /// <summary>更新所有的IP收录的设备</summary>
         /// <remarks>原方法 PostUpdateAllTSDeviceInfos</remarks>
-        /// <param name="deviceInfos">更新的对象</param>
+        /// <param name="datas">更新的对象</param>
         /// <returns>是否成功</returns>
-        [HttpPost("TSDeviceInfo/All")]
+        [HttpPost("tsdeviceinfo")]
         [IngestAuthentication]
         [ApiExplorerSettings(GroupName = "v2")]
-        public async Task<ResponseMessage<bool>> PostUpdateAllTSDeviceInfos([FromBody, BindRequired]DeviceTSDeviceInfoRequest deviceInfos)
+        public async Task<ResponseMessage<bool>> PostUpdateAllTSDeviceInfos([FromBody, BindRequired]DeviceTSDeviceInfoRequest datas)
         {
-            async Task Action(ResponseMessage<bool> response)
+            ResponseMessage<bool> response = new ResponseMessage<bool>();
+            try
             {
-                response.Ext = await _deviceManage.UpdateAllTSDeviceInfosAsync(deviceInfos.deviceInfos.ToArray());
-
+                response.Ext = await _deviceManage.UpdateAllTSDeviceInfosAsync(datas.deviceInfos.ToArray());
             }
-            return await TryInvoke((Func<ResponseMessage<bool>, Task>)Action);
+            catch (Exception e)
+            {
+                if (e is SobeyRecException se)//sobeyexcep会自动打印错误
+                {
+                    response.Code = se.ErrorCode.ToString();
+                    response.Msg = se.Message;
+                }
+                else
+                {
+                    response.Code = ResponseCodeDefines.ServiceError;
+                    response.Msg = $"{System.Reflection.MethodBase.GetCurrentMethod().DeclaringType.FullName}：error info:{e}";
+                    Logger.Error(response.Msg);
+                }
+            }
+            return response;
         }
 
         /// <summary>获取所有GPI设备</summary>
         /// <remarks>原方法 GetAllGPIDevices</remarks>
         /// <returns>GPI设备集合</returns>
-        [HttpGet("GPIDevices/All")]
+        [HttpGet("gpidevices/all")]
         [IngestAuthentication]
         [ApiExplorerSettings(GroupName = "v2")]
-        public async Task<ResponseMessage<List<GPIDeviceInfo>>> AllGPIDevices()
+        public async Task<ResponseMessage<List<GPIDeviceInfoResponse>>> AllGPIDevices()
         {
-            async Task Action(ResponseMessage<List<GPIDeviceInfo>> response)
+            ResponseMessage<List<GPIDeviceInfoResponse>> response = new ResponseMessage<List<GPIDeviceInfoResponse>>();
+            try
             {
-                response.Ext = await _deviceManage.GetAllGPIInfoAsync<GPIDeviceInfo>();
-
+                response.Ext = await _deviceManage.GetAllGPIInfoAsync<GPIDeviceInfoResponse>();
             }
-            return await TryInvoke((Func<ResponseMessage<List<GPIDeviceInfo>>, Task>)Action);
+            catch (Exception e)
+            {
+                if (e is SobeyRecException se)//sobeyexcep会自动打印错误
+                {
+                    response.Code = se.ErrorCode.ToString();
+                    response.Msg = se.Message;
+                }
+                else
+                {
+                    response.Code = ResponseCodeDefines.ServiceError;
+                    response.Msg = $"{System.Reflection.MethodBase.GetCurrentMethod().DeclaringType.FullName}：error info:{e}";
+                    Logger.Error(response.Msg);
+                }
+            }
+            return response;
         }
 
         /// <summary> 通过 GPIID 找出该GPI所有的映射 </summary>
         /// <remarks>原方法 GetAllGPIDevices</remarks>
+        /// <param name="gpiID">GPIID</param>
         /// <returns>GPI设备集合</returns>
-        [HttpGet("GPIMapInfo/{nGPIID}")]
+        [HttpGet("gpimapinfo/{gpiID}")]
         [IngestAuthentication]
         [ApiExplorerSettings(GroupName = "v2")]
-        public async Task<ResponseMessage<List<GPIDeviceMapInfo>>> GPIMapInfo([FromRoute, BindRequired]int nGPIID)
+        public async Task<ResponseMessage<List<GPIDeviceMapInfoResponse>>> GPIMapInfo([FromRoute, BindRequired]int gpiID)
         {
-            async Task Action(ResponseMessage<List<GPIDeviceMapInfo>> response)
+            ResponseMessage<List<GPIDeviceMapInfoResponse>> response = new ResponseMessage<List<GPIDeviceMapInfoResponse>>();
+            try
             {
-                response.Ext = await _deviceManage.GetGPIMapInfoByGPIIDAsync<GPIDeviceMapInfo>(nGPIID);
+                response.Ext = await _deviceManage.GetGPIMapInfoByGPIIDAsync<GPIDeviceMapInfoResponse>(gpiID);
             }
-
-            return await TryInvoke((Func<ResponseMessage<List<GPIDeviceMapInfo>>, Task>)Action);
+            catch (Exception e)
+            {
+                if (e is SobeyRecException se)//sobeyexcep会自动打印错误
+                {
+                    response.Code = se.ErrorCode.ToString();
+                    response.Msg = se.Message;
+                }
+                else
+                {
+                    response.Code = ResponseCodeDefines.ServiceError;
+                    response.Msg = $"{System.Reflection.MethodBase.GetCurrentMethod().DeclaringType.FullName}：error info:{e}";
+                    Logger.Error(response.Msg);
+                }
+            }
+            return response;
         }
 
         /// <summary> 根据 通道Id 获取MSV设备状态信息 </summary>
         /// <remarks>原方法 GetMSVChannelState</remarks>
-        /// <param name="nChannleID">通道Id</param>
+        /// <param name="channleID">通道Id</param>
         /// <returns>GPI设备集合</returns>
-        [HttpGet("MSVChannelState/{nChannleID}")]
+        [HttpGet("msvchannelstate/{channleID}")]
         [IngestAuthentication]
         [ApiExplorerSettings(GroupName = "v2")]
-        public async Task<ResponseMessage<MSVChannelState>> MSVChannelState([FromRoute, BindRequired]int nChannleID)
+        public async Task<ResponseMessage<MSVChannelStateResponse>> MSVChannelState([FromRoute, BindRequired]int channleID)
         {
-            async Task Action(ResponseMessage<MSVChannelState> response)
+            ResponseMessage<MSVChannelStateResponse> response = new ResponseMessage<MSVChannelStateResponse>();
+            try
             {
-                response.Ext = await _deviceManage.GetMsvChannelStateAsync(nChannleID);
+                response.Ext = await _deviceManage.GetMsvChannelStateAsync<MSVChannelStateResponse>(channleID);
             }
-
-            return await TryInvoke((Func<ResponseMessage<MSVChannelState>, Task>)Action);
+            catch (Exception e)
+            {
+                if (e is SobeyRecException se)//sobeyexcep会自动打印错误
+                {
+                    response.Code = se.ErrorCode.ToString();
+                    response.Msg = se.Message;
+                }
+                else
+                {
+                    response.Code = ResponseCodeDefines.ServiceError;
+                    response.Msg = $"{System.Reflection.MethodBase.GetCurrentMethod().DeclaringType.FullName}：error info:{e}";
+                    Logger.Error(response.Msg);
+                }
+            }
+            return response;
         }
 
         /// <summary>更改ModifySourceVTRIDAndUserCodeByChannelIDArray</summary>
         /// <remarks>原方法 ModifySourceVTRIDAndUserCodeByChannelIDArray</remarks>
         /// <param name="request">更新对象</param>
         /// <returns>是否成功</returns>
-        [HttpPost("ChannelState/UserCode/VTRID")]
+        [HttpPost("channelstate/usercode/vtrid")]
         [IngestAuthentication]
         [ApiExplorerSettings(GroupName = "v2")]
         public async Task<ResponseMessage<bool>> ModifySourceVTRIDAndUserCodeByChannelIDArray([FromBody, BindRequired]DeviceMSVVTRAndUserCodeRequest request)
         {
-            async Task Action(ResponseMessage<bool> response)
+            ResponseMessage<bool> response = new ResponseMessage<bool>();
+            try
             {
-                response.Ext = await _deviceManage.ModifySourceVTRIDAndUserCodeAsync(request.nSourceVTRID, request.userCode, request.nIDArray);
+                response.Ext = await _deviceManage.ModifySourceVTRIDAndUserCodeAsync(request.SourceVTRID, request.UserCode, request.IDArray);
             }
-            return await TryInvoke((Func<ResponseMessage<bool>, Task>)Action);
+            catch (Exception e)
+            {
+                if (e is SobeyRecException se)//sobeyexcep会自动打印错误
+                {
+                    response.Code = se.ErrorCode.ToString();
+                    response.Msg = se.Message;
+                }
+                else
+                {
+                    response.Code = ResponseCodeDefines.ServiceError;
+                    response.Msg = $"{System.Reflection.MethodBase.GetCurrentMethod().DeclaringType.FullName}：error info:{e}";
+                    Logger.Error(response.Msg);
+                }
+            }
+            return response;
         }
         #endregion
 
@@ -313,35 +582,64 @@ namespace IngestDevicePlugin.Controllers
 
         /// <summary> 根据 通道Id 获取高清还是标清 nType:0标清,1高清 </summary>
         /// <remarks>原方法 GetParamTypeByChannleID</remarks>
-        /// <param name="nChannelID">通道Id</param>
+        /// <param name="channelID">通道Id</param>
         /// <returns>0标清,1高清</returns>
-        [HttpGet("ParamType/Type")]
+        [HttpGet("paramtype/type/{nChannelID}")]
         [IngestAuthentication]
         [ApiExplorerSettings(GroupName = "v2")]
-        public async Task<ResponseMessage<int>> ParamTypeByChannleID([FromQuery, BindRequired]int nChannelID)
+        public async Task<ResponseMessage<int>> ParamTypeByChannleID([FromQuery, BindRequired]int channelID)
         {
-            async Task Action(ResponseMessage<int> response)
+            ResponseMessage<int> response = new ResponseMessage<int>();
+            try
             {
-                response.Ext = await _deviceManage.GetParamTypeByChannleIDAsync(nChannelID);
+                response.Ext = await _deviceManage.GetParamTypeByChannleIDAsync(channelID);
             }
-
-            return await TryInvoke((Func<ResponseMessage<int>, Task>)Action);
+            catch (Exception e)
+            {
+                if (e is SobeyRecException se)//sobeyexcep会自动打印错误
+                {
+                    response.Code = se.ErrorCode.ToString();
+                    response.Msg = se.Message;
+                }
+                else
+                {
+                    response.Code = ResponseCodeDefines.ServiceError;
+                    response.Msg = $"{System.Reflection.MethodBase.GetCurrentMethod().DeclaringType.FullName}：error info:{e}";
+                    Logger.Error(response.Msg);
+                }
+            }
+            return response;
         }
 
         /// <summary>根据 信号Id 获取是高清还是标清</summary>
         /// <remarks>原方法 GetParamTypeBySignalID</remarks>
-        /// <param name="nSignalID">信号Id</param>
+        /// <param name="signalID">信号Id</param>
         /// <returns>0标清,1高清</returns>
-        [HttpGet("ParamType/Type")]
+        [HttpGet("paramtype/type/{signalID}")]
         [IngestAuthentication]
         [ApiExplorerSettings(GroupName = "v2")]
-        public async Task<ResponseMessage<int>> ParamTypeBySignalID([FromQuery, BindRequired]int nSignalID)
+        public async Task<ResponseMessage<int>> ParamTypeBySignalID([FromQuery, BindRequired]int signalID)
         {
-            async Task Action(ResponseMessage<int> response)
+            ResponseMessage<int> response = new ResponseMessage<int>();
+            try
             {
-                response.Ext = await _deviceManage.GetParamTypeBySignalIDAsync(nSignalID);
+                response.Ext = await _deviceManage.GetParamTypeBySignalIDAsync(signalID);
             }
-            return await TryInvoke((Func<ResponseMessage<int>, Task>)Action);
+            catch (Exception e)
+            {
+                if (e is SobeyRecException se)//sobeyexcep会自动打印错误
+                {
+                    response.Code = se.ErrorCode.ToString();
+                    response.Msg = se.Message;
+                }
+                else
+                {
+                    response.Code = ResponseCodeDefines.ServiceError;
+                    response.Msg = $"{System.Reflection.MethodBase.GetCurrentMethod().DeclaringType.FullName}：error info:{e}";
+                    Logger.Error(response.Msg);
+                }
+            }
+            return response;
         }
 
         #endregion
@@ -350,36 +648,137 @@ namespace IngestDevicePlugin.Controllers
 
         /// <summary>根据 通道Id 获取相应的节目，有矩阵模式和无矩阵模式的区别</summary>
         /// <remarks>原方法 GetProgrammeInfosByChannelId</remarks>
-        /// <param name="nChannelID">通道Id</param>
+        /// <param name="channelID">通道Id</param>
         /// <returns>节目集合</returns>
-        [HttpGet("ProgrammeInfo/{nChannelID}")]
+        [HttpGet("programmeinfo/{channelID}")]
         [IngestAuthentication]
         [ApiExplorerSettings(GroupName = "v2")]
-        public async Task<ResponseMessage<List<ProgrammeInfo>>> ProgrammeInfos([FromRoute, BindRequired]int nChannelID)
+        public async Task<ResponseMessage<List<ProgrammeInfo>>> ProgrammeInfos([FromRoute, BindRequired]int channelID)
         {
-            async Task Action(ResponseMessage<List<ProgrammeInfo>> response)
+            ResponseMessage<List<ProgrammeInfo>> response = new ResponseMessage<List<ProgrammeInfo>>();
+            try
             {
-                response.Ext = await _deviceManage.GetProgrammeInfosByChannelIdAsync(nChannelID);
+                response.Ext = await _deviceManage.GetProgrammeInfosByChannelIdAsync(channelID);
             }
-
-            return await TryInvoke((Func<ResponseMessage<List<ProgrammeInfo>>, Task>)Action);
+            catch (Exception e)
+            {
+                if (e is SobeyRecException se)//sobeyexcep会自动打印错误
+                {
+                    response.Code = se.ErrorCode.ToString();
+                    response.Msg = se.Message;
+                }
+                else
+                {
+                    response.Code = ResponseCodeDefines.ServiceError;
+                    response.Msg = $"{System.Reflection.MethodBase.GetCurrentMethod().DeclaringType.FullName}：error info:{e}";
+                    Logger.Error(response.Msg);
+                }
+            }
+            return response;
         }
 
         /// <summary> 获取所有节目 </summary>
         /// <remarks>原方法 GetAllProgrammeInfos</remarks>
         /// <returns>节目集合</returns>
-        [HttpGet("Programme/All")]
+        [HttpGet("programme/all")]
         [IngestAuthentication]
         [ApiExplorerSettings(GroupName = "v2")]
         public async Task<ResponseMessage<List<ProgrammeInfo>>> AllProgrammeInfos()
         {
-            async Task Action(ResponseMessage<List<ProgrammeInfo>> response)
+            ResponseMessage<List<ProgrammeInfo>> response = new ResponseMessage<List<ProgrammeInfo>>();
+            try
             {
                 response.Ext = await _deviceManage.GetAllProgrammeInfosAsync();
             }
-
-            return await TryInvoke((Func<ResponseMessage<List<ProgrammeInfo>>, Task>)Action);
+            catch (Exception e)
+            {
+                if (e is SobeyRecException se)//sobeyexcep会自动打印错误
+                {
+                    response.Code = se.ErrorCode.ToString();
+                    response.Msg = se.Message;
+                }
+                else
+                {
+                    response.Code = ResponseCodeDefines.ServiceError;
+                    response.Msg = $"{System.Reflection.MethodBase.GetCurrentMethod().DeclaringType.FullName}：error info:{e}";
+                    Logger.Error(response.Msg);
+                }
+            }
+            return response;
         }
+
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <remarks>
+        /// </remarks>
+        /// GetAllChannelUnitMap
+        [HttpGet("signalinfo/backsignal/{mastersignalid}")]
+        [IngestAuthentication]//device有点特殊，做了监听端口的所以不能全类检验
+        [ApiExplorerSettings(GroupName = "v2")]
+        public async Task<ResponseMessage<ProgrammeInfoResponse>> GetBackProgramInfoBySrgid(int mastersignalid)
+        {
+            var Response = new ResponseMessage<ProgrammeInfoResponse>();
+
+            try
+            {
+                Response.Ext = await _deviceManage.GetBackProgramInfoBySrgid(mastersignalid);
+            }
+            catch (Exception e)
+            {
+                if (e.GetType() == typeof(SobeyRecException))//sobeyexcep会自动打印错误
+                {
+                    SobeyRecException se = e as SobeyRecException;
+                    Response.Code = se.ErrorCode.ToString();
+                    Response.Msg = se.Message;
+                }
+                else
+                {
+                    Response.Code = ResponseCodeDefines.ServiceError;
+                    Response.Msg = "GetBackProgramInfoBySrgid error info：" + e.ToString();
+                    Logger.Error(Response.Msg);
+                }
+            }
+            return Response;
+
+        }
+
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <remarks>
+        /// </remarks>
+        /// GetAllChannelUnitMap
+        [HttpGet("signalinfo/signal/{signalid}")]
+        [IngestAuthentication]//device有点特殊，做了监听端口的所以不能全类检验
+        [ApiExplorerSettings(GroupName = "v2")]
+        public async Task<ResponseMessage<ProgrammeInfoResponse>> GetProgramInfoBySrgid(int signalid)
+        {
+            var Response = new ResponseMessage<ProgrammeInfoResponse>();
+
+            try
+            {
+                Response.Ext = await _deviceManage.GetProgrammeInfoByIdAsync(signalid);
+            }
+            catch (Exception e)
+            {
+                if (e.GetType() == typeof(SobeyRecException))//sobeyexcep会自动打印错误
+                {
+                    SobeyRecException se = e as SobeyRecException;
+                    Response.Code = se.ErrorCode.ToString();
+                    Response.Msg = se.Message;
+                }
+                else
+                {
+                    Response.Code = ResponseCodeDefines.ServiceError;
+                    Response.Msg = "GetProgramInfoBySrgid error info：" + e.ToString();
+                    Logger.Error(Response.Msg);
+                }
+            }
+            return Response;
+
+        }
+
 
         #endregion
 
@@ -388,32 +787,61 @@ namespace IngestDevicePlugin.Controllers
         /// <summary>获取输入端口与信息</summary>
         /// <remarks>原方法 AllRouterInPortInfos</remarks>
         /// <returns>输入端口的集合</returns>
-        [HttpGet("RouterInPort/All")]
+        [HttpGet("routerinport/all")]
         [IngestAuthentication]//device有点特殊，做了监听端口的所以不能全类检验
         [ApiExplorerSettings(GroupName = "v2")]
         public async Task<ResponseMessage<List<RouterInResponse>>> AllRouterInPortInfos()
         {
-            async Task Action(ResponseMessage<List<RouterInResponse>> response)
+            ResponseMessage<List<RouterInResponse>> response = new ResponseMessage<List<RouterInResponse>>();
+            try
             {
                 response.Ext = await _deviceManage.GetAllRouterInPortAsync<RouterInResponse>();
             }
-            return await TryInvoke((Func<ResponseMessage<List<RouterInResponse>>, Task>)Action);
+            catch (Exception e)
+            {
+                if (e is SobeyRecException se)//sobeyexcep会自动打印错误
+                {
+                    response.Code = se.ErrorCode.ToString();
+                    response.Msg = se.Message;
+                }
+                else
+                {
+                    response.Code = ResponseCodeDefines.ServiceError;
+                    response.Msg = $"{System.Reflection.MethodBase.GetCurrentMethod().DeclaringType.FullName}：error info:{e}";
+                    Logger.Error(response.Msg);
+                }
+            }
+            return response;
         }
 
         /// <summary> 获取输出端口与信号源的映射 </summary>
         /// <remarks>原方法 AllRouterOutPortInfos</remarks>
         /// <returns>输出端口的集合</returns>
-        [HttpGet("RouterOutPort/All")]
+        [HttpGet("routeroutport/all")]
         [IngestAuthentication]
         [ApiExplorerSettings(GroupName = "v2")]
-        public async Task<ResponseMessage<List<RoterOutDesc>>> AllRouterOutPortInfos()
+        public async Task<ResponseMessage<List<RoterOutResponse>>> AllRouterOutPortInfos()
         {
-            async Task Action(ResponseMessage<List<RoterOutDesc>> response)
+            ResponseMessage<List<RoterOutResponse>> response = new ResponseMessage<List<RoterOutResponse>>();
+            try
             {
-                response.Ext = await _deviceManage.GetAllRouterOutPortAsync<RoterOutDesc>();
+                response.Ext = await _deviceManage.GetAllRouterOutPortAsync<RoterOutResponse>();
             }
-
-            return await TryInvoke((Func<ResponseMessage<List<RoterOutDesc>>, Task>)Action);
+            catch (Exception e)
+            {
+                if (e is SobeyRecException se)//sobeyexcep会自动打印错误
+                {
+                    response.Code = se.ErrorCode.ToString();
+                    response.Msg = se.Message;
+                }
+                else
+                {
+                    response.Code = ResponseCodeDefines.ServiceError;
+                    response.Msg = $"{System.Reflection.MethodBase.GetCurrentMethod().DeclaringType.FullName}：error info:{e}";
+                    Logger.Error(response.Msg);
+                }
+            }
+            return response;
         }
 
         #endregion
@@ -423,165 +851,277 @@ namespace IngestDevicePlugin.Controllers
         /// <summary> 获取所有信号源和采集设备的对应 </summary>
         /// <remarks>原方法 GetAllSignalDeviceMap</remarks>
         /// <returns>信号源和设备的Map</returns>
-        [HttpGet("SignalDeviceMaps/All")]
+        [HttpGet("signaldevicemaps/all")]
         [IngestAuthentication]
         [ApiExplorerSettings(GroupName = "v2")]
-        public async Task<ResponseMessage<List<SignalDeviceMap>>> AllSignalDeviceMap()
+        public async Task<ResponseMessage<List<SignalDeviceMapResponse>>> AllSignalDeviceMap()
         {
-            async Task Action(ResponseMessage<List<SignalDeviceMap>> response)
+            ResponseMessage<List<SignalDeviceMapResponse>> response = new ResponseMessage<List<SignalDeviceMapResponse>>();
+            try
             {
-                response.Ext = await _deviceManage.GetAllSignalDeviceMapAsync<SignalDeviceMap>();
+                response.Ext = await _deviceManage.GetAllSignalDeviceMapAsync<SignalDeviceMapResponse>();
             }
-
-            return await TryInvoke((Func<ResponseMessage<List<SignalDeviceMap>>, Task>)Action);
+            catch (Exception e)
+            {
+                if (e is SobeyRecException se)//sobeyexcep会自动打印错误
+                {
+                    response.Code = se.ErrorCode.ToString();
+                    response.Msg = se.Message;
+                }
+                else
+                {
+                    response.Code = ResponseCodeDefines.ServiceError;
+                    response.Msg = $"{System.Reflection.MethodBase.GetCurrentMethod().DeclaringType.FullName}：error info:{e}";
+                    Logger.Error(response.Msg);
+                }
+            }
+            return response;
         }
 
         /// <summary> 获取指定信号源和采集设备的对应 </summary>
         /// <remarks>原方法 GetSignalDeviceMapBySignalID</remarks>
-        /// <param name="nSignalID">信号ID</param>
+        /// <param name="signalID">信号ID</param>
         /// <returns>信号源和设备的Map</returns>
-        [HttpGet("SignalDeviceMap/BySignalID")]
+        [HttpGet("signaldevicemap/{signalID}")]
         [IngestAuthentication]
         [ApiExplorerSettings(GroupName = "v2")]
-        public async Task<ResponseMessage<SignalDeviceMap>> SignalDeviceMap([FromRoute, BindRequired]int nSignalID)
+        public async Task<ResponseMessage<SignalDeviceMapResponse>> SignalDeviceMap([FromRoute, BindRequired]int signalID)
         {
-            async Task Action(ResponseMessage<SignalDeviceMap> response)
+            ResponseMessage<SignalDeviceMapResponse> response = new ResponseMessage<SignalDeviceMapResponse>();
+            try
             {
-                response.Ext = await _deviceManage.GetSignalDeviceMapBySignalID(nSignalID);
+                response.Ext = await _deviceManage.GetSignalDeviceMapBySignalID<SignalDeviceMapResponse>(signalID);
             }
-
-            return await TryInvoke((Func<ResponseMessage<SignalDeviceMap>, Task>)Action);
+            catch (Exception e)
+            {
+                if (e is SobeyRecException se)//sobeyexcep会自动打印错误
+                {
+                    response.Code = se.ErrorCode.ToString();
+                    response.Msg = se.Message;
+                }
+                else
+                {
+                    response.Code = ResponseCodeDefines.ServiceError;
+                    response.Msg = $"{System.Reflection.MethodBase.GetCurrentMethod().DeclaringType.FullName}：error info:{e}";
+                    Logger.Error(response.Msg);
+                }
+            }
+            return response;
         }
-
+                
         /// <summary> 设置信号源和采集设备的对应 </summary>
         /// <remarks>原方法 GetSignalDeviceMapBySignalID</remarks>
-        /// <param name="request">设置的对象</param>
+        /// <param name="data">保存的对象</param>
         /// <returns>是否成功</returns>
-        [HttpPost("GetSetSignalDeviceMap")]
+        [HttpPost("getsetsignaldevicemap")]
         [IngestAuthentication]
         [ApiExplorerSettings(GroupName = "v2")]
-        public async Task<ResponseMessage<bool>> UpdateSignalDeviceMap([FromBody, BindRequired]SignalDeviceRequest request)
+        public async Task<ResponseMessage<bool>> UpdateSignalDeviceMap([FromBody, BindRequired]SignalDeviceRequest data)
         {
-            async Task Action(ResponseMessage<bool> response)
+            ResponseMessage<bool> response = new ResponseMessage<bool>();
+            try
             {
-                response.Ext = await _deviceManage.SaveSignalDeviceMapAsync(request.nSignalID, request.nDeviceID, request.nOutPortIdx, request.SignalSource);
+                response.Ext = await _deviceManage.SaveSignalDeviceMapAsync(data.SignalID, data.DeviceID, data.OutPortIdx, data.SignalSource);
             }
-
-            return await TryInvoke((Func<ResponseMessage<bool>, Task>)Action);
+            catch (Exception e)
+            {
+                if (e is SobeyRecException se)//sobeyexcep会自动打印错误
+                {
+                    response.Code = se.ErrorCode.ToString();
+                    response.Msg = se.Message;
+                }
+                else
+                {
+                    response.Code = ResponseCodeDefines.ServiceError;
+                    response.Msg = $"{System.Reflection.MethodBase.GetCurrentMethod().DeclaringType.FullName}：error info:{e}";
+                    Logger.Error(response.Msg);
+                }
+            }
+            return response;
         }
 
         /// <summary> 获得所有信号源分组 </summary>
         /// <remarks>原方法 GetAllSignalGroup</remarks>
         /// <returns>信号分组信息集合</returns>
-        [HttpGet("SignalGroups/All")]
+        [HttpGet("signalgroups/all")]
         [IngestAuthentication]
         [ApiExplorerSettings(GroupName = "v2")]
-        public async Task<ResponseMessage<List<AllSignalGroup>>> AllSignalGroup()
+        public async Task<ResponseMessage<List<SignalGroupResponse>>> AllSignalGroup()
         {
-            async Task Action(ResponseMessage<List<AllSignalGroup>> response)
+            ResponseMessage<List<SignalGroupResponse>> response = new ResponseMessage<List<SignalGroupResponse>>();
+            try
             {
-                response.Ext = await _deviceManage.GetAllSignalGroupAsync();
+                response.Ext = await _deviceManage.GetAllSignalGroupAsync<SignalGroupResponse>();
             }
-
-            return await TryInvoke((Func<ResponseMessage<List<AllSignalGroup>>, Task>)Action);
+            catch (Exception e)
+            {
+                if (e is SobeyRecException se)//sobeyexcep会自动打印错误
+                {
+                    response.Code = se.ErrorCode.ToString();
+                    response.Msg = se.Message;
+                }
+                else
+                {
+                    response.Code = ResponseCodeDefines.ServiceError;
+                    response.Msg = $"{System.Reflection.MethodBase.GetCurrentMethod().DeclaringType.FullName}：error info:{e}";
+                    Logger.Error(response.Msg);
+                }
+            }
+            return response;
         }
 
         /// <summary> 获取所有信号源分组状态信息 </summary>
         /// <remarks>原方法 GetAllSignalGroupInfo</remarks>
         /// <returns>信号分组状态集合</returns>
-        [HttpGet("SignalGroupInfo/All")]
+        [HttpGet("signalgroupinfo/all")]
         [IngestAuthentication]
         [ApiExplorerSettings(GroupName = "v2")]
-        public async Task<ResponseMessage<List<SignalGroupState>>> AllSignalGroupInfos()
+        public async Task<ResponseMessage<List<SignalGroupStateResponse>>> AllSignalGroupInfos()
         {
-            async Task Action(ResponseMessage<List<SignalGroupState>> response)
+            ResponseMessage<List<SignalGroupStateResponse>> response = new ResponseMessage<List<SignalGroupStateResponse>>();
+            try
             {
-                response.Ext = await _deviceManage.GetAllSignalGroupInfoAsync();
+                response.Ext = await _deviceManage.GetAllSignalGroupInfoAsync<SignalGroupStateResponse>();
             }
-
-            return await TryInvoke((Func<ResponseMessage<List<SignalGroupState>>, Task>)Action);
+            catch (Exception e)
+            {
+                if (e is SobeyRecException se)//sobeyexcep会自动打印错误
+                {
+                    response.Code = se.ErrorCode.ToString();
+                    response.Msg = se.Message;
+                }
+                else
+                {
+                    response.Code = ResponseCodeDefines.ServiceError;
+                    response.Msg = $"{System.Reflection.MethodBase.GetCurrentMethod().DeclaringType.FullName}：error info:{e}";
+                    Logger.Error(response.Msg);
+                }
+            }
+            return response;
         }
 
         /// <summary> 查询所有信号源的扩展信息 </summary>
         /// <remarks>原方法 GetAllSignalSrcExs</remarks>
         /// <returns>信号源的扩展信息集合</returns>
-        [HttpGet("SignalSrcExs/All")]
+        [HttpGet("signalsrcexs/all")]
         [IngestAuthentication]
         [ApiExplorerSettings(GroupName = "v2")]
-        public async Task<ResponseMessage<List<SignalSrcExInfo>>> AllSignalSrcExs()
+        public async Task<ResponseMessage<List<SignalSrcExResponse>>> AllSignalSrcExs()
         {
-            async Task Action(ResponseMessage<List<SignalSrcExInfo>> response)
+            ResponseMessage<List<SignalSrcExResponse>> response = new ResponseMessage<List<SignalSrcExResponse>>();
+            try
             {
-                response.Ext = await _deviceManage.GetAllSignalSrcExsAsync();
+                response.Ext = await _deviceManage.GetAllSignalSrcExsAsync<SignalSrcExResponse>();
             }
-
-            return await TryInvoke((Func<ResponseMessage<List<SignalSrcExInfo>>, Task>)Action);
+            catch (Exception e)
+            {
+                if (e is SobeyRecException se)//sobeyexcep会自动打印错误
+                {
+                    response.Code = se.ErrorCode.ToString();
+                    response.Msg = se.Message;
+                }
+                else
+                {
+                    response.Code = ResponseCodeDefines.ServiceError;
+                    response.Msg = $"{System.Reflection.MethodBase.GetCurrentMethod().DeclaringType.FullName}：error info:{e}";
+                    Logger.Error(response.Msg);
+                }
+            }
+            return response;
         }
 
         /// <summary> 获取所有信号源 </summary>
         /// <remarks>原方法 GetAllSignalSrcs</remarks>
         /// <returns>信号源信息集合</returns>
-        [HttpGet("SignalSrcs/All")]
+        [HttpGet("signalsrcs/all")]
         [IngestAuthentication]
         [ApiExplorerSettings(GroupName = "v2")]
-        public async Task<ResponseMessage<List<SignalSrcInfo>>> AllSignalSrcs()
+        public async Task<ResponseMessage<List<SignalSrcResponse>>> AllSignalSrcs()
         {
-            async Task Action(ResponseMessage<List<SignalSrcInfo>> response)
+            ResponseMessage<List<SignalSrcResponse>> response = new ResponseMessage<List<SignalSrcResponse>>();
+            try
             {
-                response.Ext = await _deviceManage.GetAllSignalSrcsAsync();
+                response.Ext = await _deviceManage.GetAllSignalSrcsAsync<SignalSrcResponse>();
             }
-
-            return await TryInvoke((Func<ResponseMessage<List<SignalSrcInfo>>, Task>)Action);
+            catch (Exception e)
+            {
+                if (e is SobeyRecException se)//sobeyexcep会自动打印错误
+                {
+                    response.Code = se.ErrorCode.ToString();
+                    response.Msg = se.Message;
+                }
+                else
+                {
+                    response.Code = ResponseCodeDefines.ServiceError;
+                    response.Msg = $"{System.Reflection.MethodBase.GetCurrentMethod().DeclaringType.FullName}：error info:{e}";
+                    Logger.Error(response.Msg);
+                }
+            }
+            return response;
         }
 
         /// <summary>获取该信号源的备份信号源ID</summary>
         /// <remarks>原方法 GetBackupSignalSrcInfo</remarks>
-        /// <param name="nSignalSrcId">信号源ID</param>
+        /// <param name="signalSrcId">信号源ID</param>
         /// <returns>备份信号源ID</returns>
-        [HttpGet("BackupSignalSrc/Id/{nSignalSrcId}")]
+        [HttpGet("backupsignalsrc/id/{signalSrcId}")]
         [IngestAuthentication]
         [ApiExplorerSettings(GroupName = "v2")]
-        public async Task<ResponseMessage<int>> BackupSignalSrcInfo([FromRoute, BindRequired]int nSignalSrcId)
+        public async Task<ResponseMessage<int>> BackupSignalSrcInfo([FromRoute, BindRequired]int signalSrcId)
         {
-            async Task Action(ResponseMessage<int> response)
+            ResponseMessage<int> response = new ResponseMessage<int>();
+            try
             {
-                response.Ext = await _deviceManage.GetBackupSignalSrcIdByIdAsync(nSignalSrcId);
+                response.Ext = await _deviceManage.GetBackupSignalSrcIdByIdAsync(signalSrcId);
             }
-            return await TryInvoke((Func<ResponseMessage<int>, Task>)Action);
+            catch (Exception e)
+            {
+                if (e is SobeyRecException se)//sobeyexcep会自动打印错误
+                {
+                    response.Code = se.ErrorCode.ToString();
+                    response.Msg = se.Message;
+                }
+                else
+                {
+                    response.Code = ResponseCodeDefines.ServiceError;
+                    response.Msg = $"{System.Reflection.MethodBase.GetCurrentMethod().DeclaringType.FullName}：error info:{e}";
+                    Logger.Error(response.Msg);
+                }
+            }
+            return response;
         }
 
         /// <summary> 根据 信号源Id 查询信号源是否是备份信号源 </summary>
         /// <remarks>原方法 GetIsBackupSignalSrcByID</remarks>
-        /// <param name="nSignalSrcId">信号源ID</param>
+        /// <param name="signalSrcId">信号源ID</param>
         /// <returns>是否是备份信号源</returns>
-        [HttpGet("SignalSrc/IsBackup/{nSignalSrcId}")]
+        [HttpGet("signalsrc/isbackup/{signalSrcId}")]
         [IngestAuthentication]
         [ApiExplorerSettings(GroupName = "v2")]
-        public async Task<ResponseMessage<bool>> IsBackupSignalSrc([FromRoute, BindRequired]int nSignalSrcId)
+        public async Task<ResponseMessage<bool>> IsBackupSignalSrc([FromRoute, BindRequired]int signalSrcId)
         {
-            async Task Action(ResponseMessage<bool> response)
+            ResponseMessage<bool> response = new ResponseMessage<bool>();
+            try
             {
-                response.Ext = await _deviceManage.IsBackupSignalSrcByIdAsync(nSignalSrcId);
+                response.Ext = await _deviceManage.IsBackupSignalSrcByIdAsync(signalSrcId);
             }
-            return await TryInvoke((Func<ResponseMessage<bool>, Task>)Action);
+            catch (Exception e)
+            {
+                if (e is SobeyRecException se)//sobeyexcep会自动打印错误
+                {
+                    response.Code = se.ErrorCode.ToString();
+                    response.Msg = se.Message;
+                }
+                else
+                {
+                    response.Code = ResponseCodeDefines.ServiceError;
+                    response.Msg = $"{System.Reflection.MethodBase.GetCurrentMethod().DeclaringType.FullName}：error info:{e}";
+                    Logger.Error(response.Msg);
+                }
+            }
+            return response;
         }
         #endregion
-
-        #region MyRegion
-
-
-
-        #endregion
-
-
-
-
-
-
-
-
-
-
 
         /// <summary>
         /// 根据节目ID获取相应的通道，有矩阵模式和无矩阵模式的区别
@@ -596,12 +1136,26 @@ namespace IngestDevicePlugin.Controllers
         [ApiExplorerSettings(GroupName = "v2")]
         public async Task<ResponseMessage<List<CaptureChannelInfoResponse>>> ChannelsByProgrammeId([FromRoute, BindRequired]int programmeId, [FromQuery, BindRequired]int status)
         {
-            async Task Action(ResponseMessage<List<CaptureChannelInfoResponse>> response)
+            ResponseMessage<List<CaptureChannelInfoResponse>> response = new ResponseMessage<List<CaptureChannelInfoResponse>>();
+            try
             {
                 response.Ext = await _deviceManage.GetChannelsByProgrammeIdAsync<CaptureChannelInfoResponse>(programmeId, status);
-
             }
-            return await TryInvoke((Func<ResponseMessage<List<CaptureChannelInfoResponse>>, Task>)Action);
+            catch (Exception e)
+            {
+                if (e is SobeyRecException se)//sobeyexcep会自动打印错误
+                {
+                    response.Code = se.ErrorCode.ToString();
+                    response.Msg = se.Message;
+                }
+                else
+                {
+                    response.Code = ResponseCodeDefines.ServiceError;
+                    response.Msg = $"{System.Reflection.MethodBase.GetCurrentMethod().DeclaringType.FullName}：error info:{e}";
+                    Logger.Error(response.Msg);
+                }
+            }
+            return response;
         }
 
         /// <summary>
@@ -615,12 +1169,26 @@ namespace IngestDevicePlugin.Controllers
         [ApiExplorerSettings(GroupName = "v2")]
         public async Task<ResponseMessage<int>> GetChannelSignalSrc([FromRoute, BindRequired]int channelid)
         {
-            async Task Action(ResponseMessage<int> response)
+            ResponseMessage<int> response = new ResponseMessage<int>();
+            try
             {
                 response.Ext = await _deviceManage.GetChannelSignalSrcAsync(channelid);
-
             }
-            return await TryInvoke((Func<ResponseMessage<int>, Task>)Action);
+            catch (Exception e)
+            {
+                if (e is SobeyRecException se)//sobeyexcep会自动打印错误
+                {
+                    response.Code = se.ErrorCode.ToString();
+                    response.Msg = se.Message;
+                }
+                else
+                {
+                    response.Code = ResponseCodeDefines.ServiceError;
+                    response.Msg = $"{System.Reflection.MethodBase.GetCurrentMethod().DeclaringType.FullName}：error info:{e}";
+                    Logger.Error(response.Msg);
+                }
+            }
+            return response;
         }
 
         /// <summary>
@@ -634,12 +1202,26 @@ namespace IngestDevicePlugin.Controllers
         [ApiExplorerSettings(GroupName = "v2")]
         public async Task<ResponseMessage<List<RecUnitMap>>> GetAllChannelUnitMap()
         {
-            async Task Action(ResponseMessage<List<RecUnitMap>> response)
+            ResponseMessage<List<RecUnitMap>> response = new ResponseMessage<List<RecUnitMap>>();
+            try
             {
                 response.Ext = await _deviceManage.GetAllChannelUnitMap();
-
             }
-            return await TryInvoke((Func<ResponseMessage<List<RecUnitMap>>, Task>)Action);
+            catch (Exception e)
+            {
+                if (e is SobeyRecException se)//sobeyexcep会自动打印错误
+                {
+                    response.Code = se.ErrorCode.ToString();
+                    response.Msg = se.Message;
+                }
+                else
+                {
+                    response.Code = ResponseCodeDefines.ServiceError;
+                    response.Msg = $"{System.Reflection.MethodBase.GetCurrentMethod().DeclaringType.FullName}error info:{e}";
+                    Logger.Error(response.Msg);
+                }
+            }
+            return response;
         }
 
         /// <summary>
@@ -653,7 +1235,8 @@ namespace IngestDevicePlugin.Controllers
         [ApiExplorerSettings(GroupName = "v2")]
         public async Task<ResponseMessage<int>> GetChannelUnitMapID([FromRoute, BindRequired]int channel)
         {
-            async Task Action(ResponseMessage<int> response)
+            ResponseMessage<int> response = new ResponseMessage<int>();
+            try
             {
                 var f = await _deviceManage.GetChannelUnitMap(channel);
                 if (f != null)
@@ -662,30 +1245,25 @@ namespace IngestDevicePlugin.Controllers
                 }
                 else
                     response.Ext = -1;
-
             }
-            return await TryInvoke((Func<ResponseMessage<int>, Task>)Action);
+            catch (Exception e)
+            {
+                if (e is SobeyRecException se)//sobeyexcep会自动打印错误
+                {
+                    response.Code = se.ErrorCode.ToString();
+                    response.Msg = se.Message;
+                }
+                else
+                {
+                    response.Code = ResponseCodeDefines.ServiceError;
+                    response.Msg = $"{System.Reflection.MethodBase.GetCurrentMethod().DeclaringType.FullName}error info:{e}";
+                    Logger.Error(response.Msg);
+                }
+            }
+            return response;
         }
-
-        ///// <summary>
-        ///// 
-        ///// </summary>
-        ///// <remarks>
-        ///// </remarks>
-        ///// GetAllChannelUnitMap
-        //[HttpGet("signalinfo/backsignal/{mastersignalid}")]
-        //[IngestAuthentication]//device有点特殊，做了监听端口的所以不能全类检验
-        //[ApiExplorerSettings(GroupName = "v2")]
-        //public async Task<ResponseMessage<ProgrammeInfoResponse>> GetBackProgramInfoBySrgid(int mastersignalid)
-        //{
-        //    async Task Action(ResponseMessage<ProgrammeInfoResponse> response)
-        //    {
-        //        response.Ext = await _deviceManage.GetBackProgramInfoBySrgidAsync(mastersignalid);
-        //    }
-        //    return await TryInvoke((Func<ResponseMessage<ProgrammeInfoResponse>, Task>)Action);
-        //}
-
-
+        
+        
         /// <summary> Try执行 </summary>
         /// <typeparam name="T">返回类型</typeparam>
         /// <param name="action">执行内容</param>

@@ -48,6 +48,10 @@ namespace IngestDevicePlugin.Stores
             {
                 throw new ArgumentNullException(nameof(query));
             }
+            if (notrack)
+            {
+                return await query(contextSet.AsNoTracking());
+            }
             return await query(contextSet);
         }
         #endregion
@@ -86,6 +90,12 @@ namespace IngestDevicePlugin.Stores
             await Context.DbpIpDatachannelinfo.AddRangeAsync(addList);
             return await Context.SaveChangesAsync();
         }
+        public async Task<int> GetBackUpSignalInfoByID(int srgid)
+        {
+            return await Context.DbpSignalsrcMasterbackup.AsNoTracking()
+                .Where(a => a.Mastersignalsrcid == srgid)
+                .Select(b => b.Signalsrcid).SingleOrDefaultAsync();
+        }
 
         public async Task<int> SaveIpDeviceAsync(IEnumerable<DbpIpDevice> models)
         {
@@ -102,13 +112,7 @@ namespace IngestDevicePlugin.Stores
         {
             return await Context.DbpMatrixinfo.AsNoTracking().AnyAsync(a => a.Matrixid == 2 && a.Matrixtypeid != 2);//老版本NULL MATRIX是6，现在是2，难道老版本一直返回的是有矩阵？
         }
-
-        public async Task<int> GetBackUpSignalInfoByID(int srgid)
-        {
-            return await Context.DbpSignalsrcMasterbackup.AsNoTracking()
-                .Where(a => a.Mastersignalsrcid == srgid)
-                .Select(b => b.Signalsrcid).SingleOrDefaultAsync();
-        }
+        
 
         //老版本 GetProgrammeInfoById
         public async Task<ProgrammeInfoDto> GetSignalInfoAsync(int srcid)
@@ -159,8 +163,7 @@ namespace IngestDevicePlugin.Stores
             }
             return query;
         }
-
-        // TODO:待验证生成SQL
+                
         public async Task<int> GetMatrixChannelBySignalAsync(int channelid)
         {
             return await Context.DbpRcdoutdesc.Where(rcdout => rcdout.Channelid == channelid)
@@ -181,8 +184,7 @@ namespace IngestDevicePlugin.Stores
             //              where p1.Virtualoutport == p3.Recoutidx && p1.State == 1
             //              select src.Signalsrcid).SingleOrDefaultAsync();
         }
-
-        // TODO:待验证对象转换
+                
         public async Task<List<Channel2SignalSrcMap>> GetAllChannel2SignalSrcMapAsync()
         {
             return await Context.DbpRcdoutdesc.Join(Context.DbpVirtualmatrixportstate.Where(matrix => matrix.State == 1),
@@ -470,6 +472,11 @@ namespace IngestDevicePlugin.Stores
                                               .ToListAsync();
         }
 
+        public async Task<TResult> GetChannelExtendDataAsync<TResult>(Func<IQueryable<DbpChnExtenddata>, Task<TResult>> query, bool notrack = false)
+        {
+            return await QueryModelAsync(Context.DbpChnExtenddata, query, notrack);
+        }
+
         public async Task<int> SaveChannelExtenddataAsync(int nChnID,int type, string data)
         {
             var deviceMap = await Context.DbpChnExtenddata.FirstOrDefaultAsync(a => a.Channaelid == nChnID && a.Datatype == type);
@@ -605,17 +612,17 @@ namespace IngestDevicePlugin.Stores
         }
 
 
-        public Task<List<SignalGroupState>> GetAllSignalGroupInfoAsync()
+        public Task<List<SignalGroupStateResponse>> GetAllSignalGroupInfoAsync()
         {
             return Context.DbpSignalsrcgroupmap.AsNoTracking().Join(Context.DbpSignalgroup.AsNoTracking(),
                                                      map => map.Groupid,
                                                      group => group.Groupid,
-                                                     (map, group) => new SignalGroupState
+                                                     (map, group) => new SignalGroupStateResponse
                                                      {
-                                                         signalsrcid = map.Signalsrcid,
-                                                         groupid = group.Groupid,
-                                                         groupname = group.Groupname,
-                                                         groupdesc = group.Groupdesc
+                                                         SignalSrcID = map.Signalsrcid,
+                                                         GroupID = group.Groupid,
+                                                         GroupName = group.Groupname,
+                                                         GroupDesc = group.Groupdesc
                                                      }).ToListAsync();
         }
 
@@ -646,7 +653,8 @@ namespace IngestDevicePlugin.Stores
 
         public async Task<int> UpdateMSVChannelStateAsync(DbpMsvchannelState model)
         {
-            Context.DbpMsvchannelState.Update(model);
+            var entity = Context.DbpMsvchannelState.Update(model);
+            entity.State = EntityState.Modified;
             return await Context.SaveChangesAsync();
         }
 

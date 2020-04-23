@@ -235,78 +235,136 @@ namespace IngestDevicePlugin.Dto
     public class TSPgmInfo
     {
         /// <summary>节目Id</summary>
+        /// <example>1</example>
         public int PgmId { set; get; }
 
         /// <summary>节目名称</summary>
+        /// <example>测试节目名称</example>
         public string PgmName { set; get; }
 
         /// <summary>节目描述</summary>
+        /// <example>测试节目描述</example>
         public string PgmDesc { set; get; }
 
         /// <summary>数据通道Id</summary>
+        /// <example>1</example>
         public int DataChannelId { set; get; }
 
         /// <summary>节目索引</summary>
+        /// <example>1</example>
         public int PgmIndex { set; get; }
 
         /// <summary>高标清，0：标清；1：高清</summary>
+        /// <example>0</example>
         public int PgmTypeId { set; get; }
 
         /// <summary>图像类型</summary>
+        /// <example>0</example>
         public ImageType emImageType { set; get; }
 
         /// <summary>TS信号Info</summary>
+        /// <example>信号源</example>
         public string TSSingalInfo { set; get; }
 
         /// <summary>多播IP</summary>
+        /// <example>127.0.0.1</example>
         public string MulticastIP { set; get; }
 
         /// <summary>多播Port</summary>
+        /// <example>9399</example>
         public int MulticastPort { set; get; }
 
         /// <summary>扩展信息</summary>
+        /// <example>测试信息</example>
         public string ExtendParams { set; get; }
 
-        /// <summary></summary>
+        /// <summary>音频</summary>
+        /// <example>0</example>
         public int nPureAudio { set; get; }
     }
     /// <summary>设备信息</summary>
     public class TSDeviceInfo
     {
+        /// <summary>设备ID</summary>
+        /// <example>99</example>
         public int DeviceId { set; get; }
+        /// <summary>设备名称</summary>
+        /// <example>测试设备名称</example>
         public string DeviceName { set; get; }
+        /// <summary>设备描述</summary>
+        /// <example>测试设备描述</example>
         public string DeviceDesc { set; get; }
+        /// <summary>IP地址</summary>
+        /// <example>127.0.0.1</example>
         public string IPAddress { set; get; }
+        /// <summary>端口</summary>
+        /// <example>9399</example>
         public int Port { set; get; }
+        /// <summary>虚拟通道集合</summary>
         public List<TSVirtualChannelInfo> ChannelInfos { set; get; }
+        /// <summary>数据通道集合</summary>
         public List<TSDataChannelInfo> DataChannelInfos { set; get; }
     }
     /// <summary>TS虚拟通道信息</summary>
     public class TSVirtualChannelInfo
     {
+        /// <summary>通道ID</summary>
+        /// <example>1</example>
         public int ChannelId { set; get; }
+        /// <summary>设备名称</summary>
+        /// <example>测试设备名称</example>
         public string ChannelName { set; get; }
+        /// <summary>设备描述</summary>
+        /// <example>测试设备描述</example>
         public string ChannelDesc { set; get; }
+        /// <summary>设备ID</summary>
+        /// <example>1</example>
         public int DeviceId { set; get; }
+        /// <summary>设备索引</summary>
+        /// <example>1</example>
         public int DeviceIndex { set; get; }
+        /// <summary>IP地址</summary>
+        /// <example>127.0.0.1</example>
         public string ChannelIPAddress { set; get; }
+        /// <summary>端口</summary>
+        /// <example>9399</example>
         public int CtrlPort { set; get; }
+        /// <summary>通道状态</summary>
+        /// <example>0</example>
         public Channel_State emChannelStatus { set; get; }
+        /// <summary>通道类型</summary>
+        /// <example>0</example>
         public Channel_Type emChannelType { set; get; }
-        public int nCarrierID { set; get; }//运营商的ID
-        public emBackupFlag emBackUpType { set; get; }//通道的备份类型
-        public int nCPSignalType { set; get; }//可以采集的信号源类型，0：Auto，1：SD，2：HD
+        /// <summary>运营商的ID</summary>
+        /// <example>10086</example>
+        public int nCarrierID { set; get; }
+        /// <summary>通道的备份类型</summary>
+        /// <example>0</example>
+        public emBackupFlag emBackUpType { set; get; }
+        /// <summary>可以采集的信号源类型，0：Auto，1：SD，2：HD</summary>
+        /// <example>0</example>
+        public int nCPSignalType { set; get; }
 
-        // Add by chenzhi 2013-07-4
-        public int nGroupID { set; get; } // 通道ID
+        /// <summary>分组ID</summary>
+        /// <example>999</example>
+        public int nGroupID { set; get; }
     }
     /// <summary>TS数据通道信息</summary>
     public class TSDataChannelInfo
     {
+        /// <summary>数据通道ID</summary>
+        /// <example>1</example>
         public int DataChannelId { set; get; }
+        /// <summary>数据通道名称</summary>
+        /// <example>测试数据通道名称</example>
         public string DataChannelName { set; get; }
+        /// <summary>数据通道索引</summary>
+        /// <example>1</example>
         public int DataChannelIndex { set; get; }
+        /// <summary>设备ID</summary>
+        /// <example>1</example>
         public int DeviceId { set; get; }
+        /// <summary>TS节目信息</summary>
         public List<TSPgmInfo> PgmInfos { set; get; }
     }
     /// <summary>任务信息</summary>
@@ -568,7 +626,7 @@ namespace IngestDevicePlugin.Dto
 
     #endregion ParamModel
 }
-namespace IngestDevicePlugin.Dto.Response
+namespace IngestDevicePlugin.Dto.Old.Response
 {
     public class ResponseMessage
     {
@@ -580,7 +638,7 @@ namespace IngestDevicePlugin.Dto.Response
             message = "OK";
         }
     }
-    public class ResponseMessage<T> : IngestDevicePlugin.Dto.Response.ResponseMessage
+    public class ResponseMessage<T> : ResponseMessage
     {
         public ResponseMessage() : base() { }
 

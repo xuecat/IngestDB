@@ -26,6 +26,9 @@ IngestCustomerInterfacePlugin/bin/
 IngestCustomerPlugin/obj/
 IngestCustomerPlugin/bin/
 
+IngestMatrixPlugin/obj/
+IngestMatrixPlugin/bin/
+
 IngestDeviceInterfacePlugin/obj/
 IngestDeviceInterfacePlugin/bin/
 

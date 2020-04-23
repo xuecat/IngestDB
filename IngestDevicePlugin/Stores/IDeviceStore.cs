@@ -7,6 +7,8 @@ using System.Text;
 using System.Threading.Tasks;
 using ProgrammeInfoDto = IngestDevicePlugin.Dto.ProgrammeInfoResponse;
 using CaptureChannelInfoDto = IngestDevicePlugin.Dto.CaptureChannelInfoResponse;
+using IngestDevicePlugin.Dto.Response;
+
 namespace IngestDevicePlugin.Stores
 {
 
@@ -24,6 +26,7 @@ namespace IngestDevicePlugin.Stores
         Task<List<DbpChannelRecmap>> GetAllChannelUnitMap();
         Task<DbpChannelRecmap> GetChannelUnitMap(int channel);
         Task<int> GetMatrixChannelBySignalAsync(int channelid);
+        Task<int> GetBackUpSignalInfoByID(int srgid);
         #endregion
 
         /// <summary> 获取输入端口与信号源 </summary>
@@ -72,6 +75,7 @@ namespace IngestDevicePlugin.Stores
         Task<List<TResult>> GetChannelgroupmapAsync<TResult>(Func<IQueryable<DbpChannelgroupmap>, IQueryable<TResult>> query, bool notrack = false);
 
 
+        Task<TResult> GetChannelExtendDataAsync<TResult>(Func<IQueryable<DbpChnExtenddata>, Task<TResult>> query, bool notrack = false);
         /// <summary> 更新或新增通道的扩展数据 </summary>
         Task<int> SaveChannelExtenddataAsync(int nChnID, int type, string data);
 
@@ -159,7 +163,7 @@ namespace IngestDevicePlugin.Stores
 
 
         /// <summary> 获取所有信号源分组信息 </summary>
-        Task<List<SignalGroupState>> GetAllSignalGroupInfoAsync();
+        Task<List<SignalGroupStateResponse>> GetAllSignalGroupInfoAsync();
 
         /// <summary> </summary>
         Task<List<Channel2SignalSrcMap>> GetAllChannel2SignalSrcMapAsync();

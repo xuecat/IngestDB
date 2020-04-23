@@ -306,9 +306,9 @@ namespace IngestTaskPlugin.Controllers
 
         }
 
-        [HttpPost("PostAddTaskSvr"), MapToApiVersion("1.0")]
+        [HttpPost("AddTaskExDb"), MapToApiVersion("1.0")]
         [ApiExplorerSettings(GroupName = "v1")]
-        public async Task<AddTaskExDb_out> PostAddTaskSvr([FromBody] AddTaskExDb_in pIn)
+        public async Task<AddTaskExDb_out> AddTaskExDb([FromBody] AddTaskExDb_in pIn)
         {
             var Response = new AddTaskExDb_out
             {
@@ -584,7 +584,7 @@ namespace IngestTaskPlugin.Controllers
 
         [HttpGet("GetChannelCapturingTask"), MapToApiVersion("1.0")]
         [ApiExplorerSettings(GroupName = "v1")]
-        public async Task<GetChannelCapturingTask_out> GetChannelCapturingTask(int nChannelID)
+        public async Task<GetChannelCapturingTask_out> GetChannelCapturingTask([FromQuery]int nChannelID)
         {
             var Response = new GetChannelCapturingTask_out
             {
@@ -614,7 +614,7 @@ namespace IngestTaskPlugin.Controllers
             }
         }
 
-        [HttpPost("GetChannelCapturingTask"), MapToApiVersion("1.0")]
+        [HttpPost("PostModifyTaskDb"), MapToApiVersion("1.0")]
         [ApiExplorerSettings(GroupName = "v1")]
         public async Task<PostModifyTaskDb_OUT> PostModifyTaskDb([FromBody]PostModifyTaskDb_IN pIn)
         {
@@ -661,7 +661,7 @@ namespace IngestTaskPlugin.Controllers
             return Response;
         }
 
-        [HttpPost("GetChannelCapturingTask"), MapToApiVersion("1.0")]
+        [HttpPost("ModifyTask"), MapToApiVersion("1.0")]
         [ApiExplorerSettings(GroupName = "v1")]
         public async Task<ModifyTask_out> ModifyTask([FromBody] ModifyTask_in pIn)
         {
@@ -734,7 +734,7 @@ namespace IngestTaskPlugin.Controllers
 
         [HttpGet("GetTaskByID"), MapToApiVersion("1.0")]
         [ApiExplorerSettings(GroupName = "v1")]
-        public async Task<GetTaskByID_OUT> GetTaskByID(int nTaskID)
+        public async Task<GetTaskByID_OUT> GetTaskByID([FromQuery]int nTaskID)
         {
             var Response = new GetTaskByID_OUT
             {
@@ -765,7 +765,7 @@ namespace IngestTaskPlugin.Controllers
 
         [HttpGet("GetTaskByIDForFSW"), MapToApiVersion("1.0")]
         [ApiExplorerSettings(GroupName = "v1")]
-        public async Task<GetTaskByIDForFSW_OUT> GetTaskByIDForFSW(int nTaskID)
+        public async Task<GetTaskByIDForFSW_OUT> GetTaskByIDForFSW([FromQuery]int nTaskID)
         {
             var Response = new GetTaskByIDForFSW_OUT
             {
@@ -796,7 +796,7 @@ namespace IngestTaskPlugin.Controllers
 
         [HttpGet("GetTieUpTaskByChannelID"), MapToApiVersion("1.0")]
         [ApiExplorerSettings(GroupName = "v1")]
-        public async Task<GetTieUpTaskByChannelID_OUT> GetTieUpTaskByChannelID(int nChannelID)
+        public async Task<GetTieUpTaskByChannelID_OUT> GetTieUpTaskByChannelID([FromQuery]int nChannelID)
         {
             var Response = new GetTieUpTaskByChannelID_OUT
             {
@@ -827,7 +827,7 @@ namespace IngestTaskPlugin.Controllers
 
         [HttpGet("GetStopTaskFromFSW"), MapToApiVersion("1.0")]
         [ApiExplorerSettings(GroupName = "v1")]
-        public async Task<StopTaskFromFSW_OUT> GetStopTaskFromFSW(int nTaskID)
+        public async Task<StopTaskFromFSW_OUT> GetStopTaskFromFSW([FromQuery]int nTaskID)
         {
             var Response = new StopTaskFromFSW_OUT
             {
@@ -866,9 +866,9 @@ namespace IngestTaskPlugin.Controllers
             }
         }
 
-        [HttpGet("GetStopTaskFromFSW"), MapToApiVersion("1.0")]
+        [HttpGet("GetStopCapture"), MapToApiVersion("1.0")]
         [ApiExplorerSettings(GroupName = "v1")]
-        public async Task<StopCapture_OUT> GetStopCapture(int nTaskID, string strEndTime)
+        public async Task<StopCapture_OUT> GetStopCapture([FromQuery]int nTaskID, [FromQuery]string strEndTime)
         {
             var Response = new StopCapture_OUT
             {
@@ -915,7 +915,7 @@ namespace IngestTaskPlugin.Controllers
 
         [HttpGet("GetSetTaskState"), MapToApiVersion("1.0")]
         [ApiExplorerSettings(GroupName = "v1")]
-        public async Task<GetSetTaskState_OUT> GetSetTaskState(int nTaskID, int nState)
+        public async Task<GetSetTaskState_OUT> GetSetTaskState([FromQuery]int nTaskID, [FromQuery]int nState)
         {
             var Response = new GetSetTaskState_OUT
             {
@@ -944,7 +944,7 @@ namespace IngestTaskPlugin.Controllers
             }
         }
 
-        [HttpGet("GetSetTaskState"), MapToApiVersion("1.0")]
+        [HttpGet("GetQueryTaskContent"), MapToApiVersion("1.0")]
         [ApiExplorerSettings(GroupName = "v1")]
         public async Task<GetQueryTaskContent_OUT> GetQueryTaskContent(int nUnitID, string strDay, int timeMode)
         {
@@ -979,7 +979,7 @@ namespace IngestTaskPlugin.Controllers
 
         [HttpGet("GetTaskSource"), MapToApiVersion("1.0")]
         [ApiExplorerSettings(GroupName = "v1")]
-        public async Task<GetTaskSource_OUT> GetTaskSource(int nTaskID)
+        public async Task<GetTaskSource_OUT> GetTaskSource([FromQuery]int nTaskID)
         {
             var Response = new GetTaskSource_OUT
             {
@@ -1016,7 +1016,7 @@ namespace IngestTaskPlugin.Controllers
 
         [HttpGet("GetTrimTaskBeginTime"), MapToApiVersion("1.0")]
         [ApiExplorerSettings(GroupName = "v1")]
-        public async Task<bool> GetTrimTaskBeginTime(int nTaskID, string strStartTime)
+        public async Task<bool> GetTrimTaskBeginTime([FromQuery]int nTaskID, [FromQuery]string strStartTime)
         {
             try
             {
@@ -1046,7 +1046,7 @@ namespace IngestTaskPlugin.Controllers
 
         [HttpPost("PostQueryTaskMetadataGroup"), MapToApiVersion("1.0")]
         [ApiExplorerSettings(GroupName = "v1")]
-        public async Task<QueryTaskMetadataGroup_OUT> PostQueryTaskMetadataGroup(List<int> nTaskID)
+        public async Task<QueryTaskMetadataGroup_OUT> PostQueryTaskMetadataGroup([FromQuery]List<int> nTaskID)
         {
             var Response = new QueryTaskMetadataGroup_OUT
             {
@@ -1083,7 +1083,7 @@ namespace IngestTaskPlugin.Controllers
 
         [HttpGet("GetDelTaskDb"), MapToApiVersion("1.0")]
         [ApiExplorerSettings(GroupName = "v1")]
-        public async Task<DelTaskDb_OUT> GetDelTaskDb(int nTaskID)
+        public async Task<DelTaskDb_OUT> GetDelTaskDb([FromQuery]int nTaskID)
         {
             var Response = new DelTaskDb_OUT
             {
@@ -1228,11 +1228,11 @@ namespace IngestTaskPlugin.Controllers
                 if (e.GetType() == typeof(SobeyRecException))//sobeyexcep会自动打印错误
                 {
                     SobeyRecException se = e as SobeyRecException;
-                    //Response.errStr = se.ErrorCode.ToString();
+                    Response.errStr = se.ErrorCode.ToString();
                 }
                 else
                 {
-                    //Response.errStr = "error info：" + e.ToString();
+                    Response.errStr = "error info：" + e.ToString();
                     Logger.Error("GetTrimTaskBeginTime" + e.ToString());
                 }
                 return Response;
@@ -1433,7 +1433,44 @@ namespace IngestTaskPlugin.Controllers
 
         }
 
-        [HttpGet("GetModifyCooperTask"), MapToApiVersion("1.0")]
+        [HttpGet("GetRescheduleTasks"), MapToApiVersion("1.0")]
+        [ApiExplorerSettings(GroupName = "v1")]
+        public async Task<RescheduleTasks_OUT> GetRescheduleTasks()
+        {
+            var Response = new RescheduleTasks_OUT()
+            {
+                errStr = "OK",
+                bRet = true
+            };
+
+            try
+            {
+                Response.taskInfoRescheduled = await _taskManage.RescheduleTasks<TaskInfoRescheduled>();
+                Response.nValidDataCount = Response.taskInfoRescheduled.Count;
+
+                return Response;
+            }
+            catch (Exception e)//其他未知的异常，写异常日志
+            {
+                if (e.GetType() == typeof(SobeyRecException))//sobeyexcep会自动打印错误
+                {
+                    SobeyRecException se = e as SobeyRecException;
+                    Response.errStr = se.ErrorCode.ToString();
+                    Response.bRet = false;
+                }
+                else
+                {
+                    Response.bRet = false;
+                    Response.errStr = "error info：" + e.ToString();
+                    Logger.Error("GetRescheduleTasks" + e.ToString());
+                }
+                return Response;
+            }
+            return Response;
+
+        }
+
+        [HttpGet("GetWarningInfos"), MapToApiVersion("1.0")]
         [ApiExplorerSettings(GroupName = "v1")]
         public async Task<GetWarningInfos_OUT> GetWarningInfos([FromQuery]int nChannel, [FromQuery]int bChannelAlive)
         {
@@ -1697,7 +1734,7 @@ namespace IngestTaskPlugin.Controllers
 
         [HttpPost("ModifyPeriodTask"), MapToApiVersion("1.0")]
         [ApiExplorerSettings(GroupName = "v1")]
-        public async Task<ModifyPeriodTask_out> ModifyPeriodTask([FromQuery]int isall, [FromBody]TaskContent req)
+        public async Task<ModifyPeriodTask_out> ModifyPeriodTask([FromQuery]int IsAll, [FromBody]TaskContent taskModify)
         {
             var Response = new ModifyPeriodTask_out()
             {
@@ -1707,10 +1744,10 @@ namespace IngestTaskPlugin.Controllers
 
             try
             {
-                Response.newTaskId = await _taskManage.ModifyPeriodTask<TaskContent>(req, isall == 1 ? true : false);
+                Response.newTaskId = await _taskManage.ModifyPeriodTask<TaskContent>(taskModify, IsAll == 1 ? true : false);
 
                 //添加后如果开始时间在2分钟以内，需要调度一次
-                if ((DateTimeFormat.DateTimeFromString(req.strBegin) - DateTime.Now).TotalSeconds < 120)
+                if ((DateTimeFormat.DateTimeFromString(taskModify.strBegin) - DateTime.Now).TotalSeconds < 120)
                     await _taskManage.UpdateComingTasks();
 
                 var _globalinterface = ApplicationContext.Current.ServiceProvider.GetRequiredService<IIngestGlobalInterface>();
@@ -1820,9 +1857,9 @@ namespace IngestTaskPlugin.Controllers
 
         [HttpPost("WriteVTRUploadTaskDB"), MapToApiVersion("1.0")]
         [ApiExplorerSettings(GroupName = "v1")]
-        public async Task<OldResponseMessage> WriteVTRUploadTaskDB([FromBody] TaskContent taskAdd)
+        public async Task<TaskOldResponseMessage> WriteVTRUploadTaskDB([FromBody] TaskContent taskAdd)
         {
-            var Response = new OldResponseMessage();
+            var Response = new TaskOldResponseMessage();
 
             try
             {
@@ -1882,9 +1919,9 @@ namespace IngestTaskPlugin.Controllers
 
         [HttpPost("SetTaskStampBmp"), MapToApiVersion("1.0")]
         [ApiExplorerSettings(GroupName = "v1")]
-        public async Task<OldResponseMessage> SetTaskStampBmp([FromQuery] int nTaskID, [FromBody] string strBmp)
+        public async Task<TaskOldResponseMessage> SetTaskStampBmp([FromQuery] int nTaskID, [FromBody] string strBmp)
         {
-            var Response = new OldResponseMessage() { nCode = 1, message = "OK"};
+            var Response = new TaskOldResponseMessage() { nCode = 1, message = "OK"};
 
             try
             {
@@ -1904,6 +1941,121 @@ namespace IngestTaskPlugin.Controllers
                 else
                 {
                     Response.nCode = 500;
+                    //Response.errStr = "error info：" + e.ToString();
+                    Logger.Error("SetTaskStampBmp" + e.ToString());
+                }
+                return Response;
+            }
+            return Response;
+
+        }
+
+        [HttpGet("AutoAddTaskByOldTask"), MapToApiVersion("1.0")]
+        [ApiExplorerSettings(GroupName = "v1")]
+        public async Task<int> AutoAddTaskByOldTask([FromQuery]int nOldTaskID, [FromQuery]string strStartTime)
+        {
+            var Response = 0;
+
+            try
+            {
+                var task = await _taskManage.AutoAddTaskByOldTask(nOldTaskID, DateTimeFormat.DateTimeFromString(strStartTime));
+
+                var _globalinterface = ApplicationContext.Current.ServiceProvider.GetRequiredService<IIngestGlobalInterface>();
+                if (_globalinterface != null)
+                {
+                    GlobalInternals re = new GlobalInternals() { funtype = IngestDBCore.GlobalInternals.FunctionType.SetGlobalState, State = GlobalStateName.ADDTASK };
+                    var response1 = await _globalinterface.SubmitGlobalCallBack(re);
+                    if (response1.Code != ResponseCodeDefines.SuccessCode)
+                    {
+                        Logger.Error("SetGlobalState modtask error");
+                    }
+                }
+                return task.TaskID;
+            }
+            catch (Exception e)//其他未知的异常，写异常日志
+            {
+                if (e.GetType() == typeof(SobeyRecException))//sobeyexcep会自动打印错误
+                {
+                    SobeyRecException se = e as SobeyRecException;
+                    //Response.nCode = se.ErrorCode;
+                    //Response.message = false;
+                }
+                else
+                {
+                    //Response.nCode = 500;
+                    //Response.errStr = "error info：" + e.ToString();
+                    Logger.Error("SetTaskStampBmp" + e.ToString());
+                }
+                return Response;
+            }
+            return Response;
+
+        }
+
+        [HttpPost("AddReScheduleTaskSvr"), MapToApiVersion("1.0")]
+        [ApiExplorerSettings(GroupName = "v1")]
+        public async Task<TaskOldResponseMessage<int>> AddReScheduleTaskSvr([FromBody] AddReScheduleTaskSvr_in pIn)
+        {
+            var Response = new TaskOldResponseMessage<int>();
+
+            try
+            {
+                string CaptureMeta = string.Empty;
+                string ContentMeta = string.Empty;
+                string MatiralMeta = string.Empty;
+                string PlanningMeta = string.Empty;
+                foreach (var item in pIn.metadatas)
+                {
+                    if (item.emtype == MetaDataType.emCapatureMetaData)
+                    {
+                        CaptureMeta = item.strMetadata;
+                    }
+                    else if (item.emtype == MetaDataType.emStoreMetaData)
+                    {
+                        MatiralMeta = item.strMetadata;
+                    }
+                    else if (item.emtype == MetaDataType.emContentMetaData)
+                    {
+                        ContentMeta = item.strMetadata;
+                    }
+                    else if (item.emtype == MetaDataType.emPlanMetaData)
+                    {
+                        PlanningMeta = item.strMetadata;
+                    }
+                }
+                /*
+                 * @brief 老代码会通过老任务查询一遍policy，再保存入库，由于现在入库策略就一种，所以去掉那部分逻辑
+                 */
+                var f = await _taskManage.AddTaskWithPolicy<AddReScheduleTaskSvr_in>(pIn, true, CaptureMeta, ContentMeta, MatiralMeta, PlanningMeta);
+
+                //添加后如果开始时间在2分钟以内，需要调度一次
+                if ((DateTimeFormat.DateTimeFromString(pIn.taskAdd.strBegin) - DateTime.Now).TotalSeconds < 120)
+                    await _taskManage.UpdateComingTasks();
+
+                var _globalinterface = ApplicationContext.Current.ServiceProvider.GetRequiredService<IIngestGlobalInterface>();
+                if (_globalinterface != null)
+                {
+                    GlobalInternals re = new GlobalInternals() { funtype = IngestDBCore.GlobalInternals.FunctionType.SetGlobalState, State = GlobalStateName.ADDTASK };
+                    var response1 = await _globalinterface.SubmitGlobalCallBack(re);
+                    if (response1.Code != ResponseCodeDefines.SuccessCode)
+                    {
+                        Logger.Error("SetGlobalState modtask error");
+                    }
+                }
+                Response.extention = f.TaskID;
+                return Response;
+            }
+            catch (Exception e)//其他未知的异常，写异常日志
+            {
+                if (e.GetType() == typeof(SobeyRecException))//sobeyexcep会自动打印错误
+                {
+                    SobeyRecException se = e as SobeyRecException;
+                    //Response.nCode = se.ErrorCode;
+                    //Response.message = false;
+                }
+                else
+                {
+                    //Response.nCode = 500;
                     //Response.errStr = "error info：" + e.ToString();
                     Logger.Error("SetTaskStampBmp" + e.ToString());
                 }

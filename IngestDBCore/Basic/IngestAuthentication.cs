@@ -82,6 +82,17 @@ namespace IngestDBCore.Basic
                 else
                     return true;
             }
+            if (requesta[0] == "WEBINGEST")
+            {
+                DateTime date = DateTime.Parse(requesta[1]);
+                var span = DateTime.Now - date;
+                if (span.TotalMinutes > 3)
+                {
+                    return false;
+                }
+                else
+                    return true;
+            }
             else if (requesta[0] == "ingest_client")
             {
                 DateTime date = DateTime.Parse(requesta[1]);
