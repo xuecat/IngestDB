@@ -227,15 +227,15 @@ namespace IngestDevicePlugin.Controllers.v2
         /// <summary> 更新通道的扩展数据 </summary>
         /// <remarks>原方法 PostUpdateChnExtData</remarks>
         /// <returns>是否成功</returns>
-        [HttpGet("channel/extenddata/{channleid}")]
+        [HttpGet("channel/extenddata/{channelID}")]
         [IngestAuthentication]
         [ApiExplorerSettings(GroupName = "v2")]
-        public async Task<ResponseMessage<string>> GetChannelExtendData([FromRoute, BindRequired, DefaultValue(911)]int channleid, [FromQuery, BindRequired, DefaultValue("0")]int type)
+        public async Task<ResponseMessage<string>> GetChannelExtendData([FromRoute, BindRequired, DefaultValue(911)]int channelID, [FromQuery, BindRequired, DefaultValue("0")]int type)
         {
             ResponseMessage<string> response = new ResponseMessage<string>();
             try
             {
-                response.Ext = await _deviceManage.GetChannelExtendData(channleid, type);
+                response.Ext = await _deviceManage.GetChannelExtendData(channelID, type);
             }
             catch (Exception e)
             {
@@ -508,15 +508,15 @@ namespace IngestDevicePlugin.Controllers.v2
         /// <remarks>原方法 GetMSVChannelState</remarks>
         /// <param name="channleID">通道Id</param>
         /// <returns>GPI设备集合</returns>
-        [HttpGet("msvchannelstate/{channleID}")]
+        [HttpGet("msvchannelstate/{channelID}")]
         [IngestAuthentication]
         [ApiExplorerSettings(GroupName = "v2")]
-        public async Task<ResponseMessage<MSVChannelStateResponse>> MSVChannelState([FromRoute, BindRequired, DefaultValue(911)]int channleID)
+        public async Task<ResponseMessage<MSVChannelStateResponse>> MSVChannelState([FromRoute, BindRequired, DefaultValue(911)]int channelID)
         {
             ResponseMessage<MSVChannelStateResponse> response = new ResponseMessage<MSVChannelStateResponse>();
             try
             {
-                response.Ext = await _deviceManage.GetMsvChannelStateAsync<MSVChannelStateResponse>(channleID);
+                response.Ext = await _deviceManage.GetMsvChannelStateAsync<MSVChannelStateResponse>(channelID);
             }
             catch (Exception e)
             {
@@ -576,12 +576,12 @@ namespace IngestDevicePlugin.Controllers.v2
         [HttpGet("paramtype/type/{channelID}")]
         [IngestAuthentication]
         [ApiExplorerSettings(GroupName = "v2")]
-        public async Task<ResponseMessage<int>> ParamTypeByChannleID([FromRoute, BindRequired, DefaultValue(911)]int channelID)
+        public async Task<ResponseMessage<int>> ParamTypeByChannelID([FromRoute, BindRequired, DefaultValue(911)]int channelID)
         {
             ResponseMessage<int> response = new ResponseMessage<int>();
             try
             {
-                response.Ext = await _deviceManage.GetParamTypeByChannleIDAsync(channelID);
+                response.Ext = await _deviceManage.GetParamTypeByChannelIDAsync(channelID);
             }
             catch (Exception e)
             {

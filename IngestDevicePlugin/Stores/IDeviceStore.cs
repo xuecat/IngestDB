@@ -157,7 +157,7 @@ namespace IngestDevicePlugin.Stores
 
 
         /// <summary>根据通道Id获取参数类型</summary>
-        Task<int?> GetParamTypeByChannleIDAsync(int nChannelID);
+        Task<int?> GetParamTypeByChannelIDAsync(int nChannelID);
         /// <summary>根据信号源获取是高清还是标清</summary>
         Task<int?> GetParamTypeBySignalIDAsync(int nSignalID);
 
