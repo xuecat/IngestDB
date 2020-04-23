@@ -932,7 +932,7 @@ namespace IngestDevicePlugin.Controllers.v2
         /// <summary> 获得所有信号源分组 </summary>
         /// <remarks>原方法 GetAllSignalGroup</remarks>
         /// <returns>信号分组信息集合</returns>
-        [HttpGet("signalgroups/all")]
+        [HttpGet("signalgroup/all")]
         [IngestAuthentication]
         [ApiExplorerSettings(GroupName = "v2")]
         public async Task<ResponseMessage<List<SignalGroupResponse>>> AllSignalGroup()
@@ -992,7 +992,7 @@ namespace IngestDevicePlugin.Controllers.v2
         /// <summary> 查询所有信号源的扩展信息 </summary>
         /// <remarks>原方法 GetAllSignalSrcExs</remarks>
         /// <returns>信号源的扩展信息集合</returns>
-        [HttpGet("signalsrcexs/all")]
+        [HttpGet("signalsrcex/all")]
         [IngestAuthentication]
         [ApiExplorerSettings(GroupName = "v2")]
         public async Task<ResponseMessage<List<SignalSrcExResponse>>> AllSignalSrcExs()
@@ -1022,7 +1022,7 @@ namespace IngestDevicePlugin.Controllers.v2
         /// <summary> 获取所有信号源 </summary>
         /// <remarks>原方法 GetAllSignalSrcs</remarks>
         /// <returns>信号源信息集合</returns>
-        [HttpGet("signalsrcs/all")]
+        [HttpGet("signalsrc/all")]
         [IngestAuthentication]
         [ApiExplorerSettings(GroupName = "v2")]
         public async Task<ResponseMessage<List<SignalSrcResponse>>> AllSignalSrcs()
@@ -1053,7 +1053,7 @@ namespace IngestDevicePlugin.Controllers.v2
         /// <remarks>原方法 GetBackupSignalSrcInfo</remarks>
         /// <param name="signalSrcId">信号源ID</param>
         /// <returns>备份信号源ID</returns>
-        [HttpGet("backupsignalsrc/id/{signalSrcId}")]
+        [HttpGet("signalsrc/backupid/{signalSrcId}")]
         [IngestAuthentication]
         [ApiExplorerSettings(GroupName = "v2")]
         public async Task<ResponseMessage<int>> BackupSignalSrcInfo([FromRoute, BindRequired, DefaultValue(777)]int signalSrcId)
