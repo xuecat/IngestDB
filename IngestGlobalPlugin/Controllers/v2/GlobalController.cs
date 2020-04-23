@@ -12,15 +12,14 @@ using System.Collections.Generic;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace IngestGlobalPlugin.Controllers
+namespace IngestGlobalPlugin.Controllers.v2
 {
 
     [IngestAuthentication]
     [Route("api/v{version:apiVersion}/[controller]")]
-    [ApiVersion("1.0")]
     [ApiVersion("2.0")]
     [ApiController]
-    public partial class GlobalController : ControllerBase
+    public  class GlobalController : ControllerBase
     {
         private readonly ILogger Logger = LoggerManager.GetLogger("GlobalInfo");
         private readonly GlobalManager _GlobalManager;

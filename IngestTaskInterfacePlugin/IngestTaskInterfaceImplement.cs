@@ -1,7 +1,7 @@
 ﻿using AutoMapper;
 using IngestDBCore;
 using IngestDBCore.Interface;
-using IngestTaskPlugin.Controllers;
+using IngestTaskPlugin.Controllers.v2;
 using Microsoft.Extensions.DependencyInjection;
 using System;
 using System.Collections.Generic;

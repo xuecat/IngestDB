@@ -31,11 +31,10 @@ using AutoMapper;
 ///代码美观对齐
 ///
 
-namespace IngestTaskPlugin.Controllers
+namespace IngestTaskPlugin.Controllers.v2
 {
     [IngestAuthentication]
     [Route("api/v{version:apiVersion}/[controller]")]
-    [ApiVersion("1.0")]
     [ApiVersion("2.0")]
     [ApiController]
     public partial class TaskController : ControllerBase

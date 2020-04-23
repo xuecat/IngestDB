@@ -4,12 +4,37 @@ using IngestDBCore;
 using IngestDBCore.Basic;
 using IngestDevicePlugin.Dto;
 using IngestDevicePlugin.Dto.Enum;
+using IngestDevicePlugin.Managers;
 using Microsoft.AspNetCore.Mvc;
+using Sobey.Core.Log;
 
-namespace IngestDevicePlugin.Controllers
+namespace IngestDevicePlugin.Controllers.v1
 {
-    public partial class DeviceController : ControllerBase
+    [Route("api/v{version:apiVersion}/[controller]")]
+    [ApiVersion("1.0")]
+    [ApiController]
+    public class DeviceController : ControllerBase
     {
+        private readonly ILogger Logger = LoggerManager.GetLogger("DeviceInfo");
+        private readonly DeviceManager _deviceManage;
+        //private readonly RestClient _restClient;
+
+        public DeviceController(DeviceManager task)
+        {
+            _deviceManage = task;
+        }
+        /// <summary>
+        /// 监听接口 /get/
+        /// </summary>
+        /// <returns></returns>
+        [HttpGet("get")]
+        [ApiExplorerSettings(GroupName = "v1")]
+        public string Get()
+        {
+
+            return "DBPlatform Service is already startup at " + DateTime.Now.ToString();
+        }
+
         //private readonly ILogger Logger = LoggerManager.GetLogger("TaskInfo");
         //private readonly TaskManager _monthManage;
         //private readonly RestClient _restClient;
@@ -194,7 +219,7 @@ namespace IngestDevicePlugin.Controllers
         [HttpGet("GetSignalDeviceMapBySignalID"), MapToApiVersion("1.0")]
         [IngestAuthentication]
         [ApiExplorerSettings(GroupName = "v1")]
-        public async Task<GetSignalDeviceMapBySignalID_param> GetSignalDeviceMapBySignalID(int nSignalID)
+        public async Task<GetSignalDeviceMapBySignalID_param> GetSignalDeviceMapBySignalID([FromQuery, DefaultValue(711)]int nSignalID)
         {
             GetSignalDeviceMapBySignalID_param response = new GetSignalDeviceMapBySignalID_param();
             try
@@ -232,7 +257,7 @@ namespace IngestDevicePlugin.Controllers
         [HttpGet("GetSetSignalDeviceMap"), MapToApiVersion("1.0")]
         [IngestAuthentication]
         [ApiExplorerSettings(GroupName = "v1")]
-        public async Task<string> GetSetSignalDeviceMap(int nSignalID, int nDeviceID, int nDeviceOutPortIdx, emSignalSource SignalSource)
+        public async Task<string> GetSetSignalDeviceMap([FromQuery, DefaultValue(711)]int nSignalID, [FromQuery, DefaultValue(666)]int nDeviceID, [FromQuery, DefaultValue(1)]int nDeviceOutPortIdx, [FromQuery, DefaultValue(1)]emSignalSource SignalSource)
         {
             Base_param response = new Base_param();
             try
@@ -289,7 +314,7 @@ namespace IngestDevicePlugin.Controllers
         [HttpGet("GetIsBackupSignalSrcByID"), MapToApiVersion("1.0")]
         [IngestAuthentication]
         [ApiExplorerSettings(GroupName = "v1")]
-        public async Task<string> GetIsBackupSignalSrcByID(int nSignalSrcId)
+        public async Task<string> GetIsBackupSignalSrcByID([FromQuery, DefaultValue(711)]int nSignalSrcId)
         {
             GetAllSignalSrcExs_param response = new GetAllSignalSrcExs_param();
             try
@@ -320,7 +345,7 @@ namespace IngestDevicePlugin.Controllers
         [HttpGet("GetParamTypeByChannleID"), MapToApiVersion("1.0")]
         [IngestAuthentication]
         [ApiExplorerSettings(GroupName = "v1")]
-        public async Task<GetParamTypeByChannleID_param> GetParamTypeByChannleID(int nChannelID)
+        public async Task<GetParamTypeByChannleID_param> GetParamTypeByChannleID([FromQuery, DefaultValue(911)]int nChannelID)
         {
             GetParamTypeByChannleID_param response = new GetParamTypeByChannleID_param();
             try
@@ -353,7 +378,7 @@ namespace IngestDevicePlugin.Controllers
         [HttpGet("GetMSVChannelState"), MapToApiVersion("1.0")]
         [IngestAuthentication]
         [ApiExplorerSettings(GroupName = "v1")]
-        public async Task<GetMSVChannelState_param> GetMSVChannelState(int nID)
+        public async Task<GetMSVChannelState_param> GetMSVChannelState([FromQuery, DefaultValue(666)]int nID)
         {
             GetMSVChannelState_param response = new GetMSVChannelState_param();
             try
@@ -439,7 +464,7 @@ namespace IngestDevicePlugin.Controllers
         [HttpGet("GetGPIMapInfoByGPIID"), MapToApiVersion("1.0")]
         [IngestAuthentication]
         [ApiExplorerSettings(GroupName = "v1")]
-        public async Task<GetGPIMapInfoByGPIID_OUT> GetGPIMapInfoByGPIID(int nGPIID)
+        public async Task<GetGPIMapInfoByGPIID_OUT> GetGPIMapInfoByGPIID([FromQuery, DefaultValue(666)]int nGPIID)
         {
             GetGPIMapInfoByGPIID_OUT response = new GetGPIMapInfoByGPIID_OUT();
             try
@@ -526,7 +551,7 @@ namespace IngestDevicePlugin.Controllers
         [HttpGet("GetProgrammeInfosByChannelId"), MapToApiVersion("1.0")]
         [IngestAuthentication]
         [ApiExplorerSettings(GroupName = "v1")]
-        public async Task<GetProgrammeInfosByChannelId_OUT> GetProgrammeInfosByChannelId(int channelId)
+        public async Task<GetProgrammeInfosByChannelId_OUT> GetProgrammeInfosByChannelId([FromQuery, DefaultValue(911)]int channelId)
         {
             GetProgrammeInfosByChannelId_OUT response = new GetProgrammeInfosByChannelId_OUT();
             try
@@ -560,7 +585,7 @@ namespace IngestDevicePlugin.Controllers
         [HttpGet("GetCaptureChannelByID"), MapToApiVersion("1.0")]
         [IngestAuthentication]
         [ApiExplorerSettings(GroupName = "v1")]
-        public async Task<GetCaptureChannelByID_OUT> GetCaptureChannelByID(int nChannelID)
+        public async Task<GetCaptureChannelByID_OUT> GetCaptureChannelByID([FromQuery, DefaultValue(911)]int nChannelID)
         {
             GetCaptureChannelByID_OUT response = new GetCaptureChannelByID_OUT();
             try
@@ -591,7 +616,7 @@ namespace IngestDevicePlugin.Controllers
         [HttpGet("GetModifyDevState"), MapToApiVersion("1.0")]
         [IngestAuthentication]
         [ApiExplorerSettings(GroupName = "v1")]
-        public async Task<bool> GetModifyDevState(int nID, int nDevState, int nMSVMode)
+        public async Task<bool> GetModifyDevState([FromQuery]int nID, [FromQuery, DefaultValue(0)]int nDevState, [FromQuery, DefaultValue(0)]int nMSVMode)
         {
             GetAllTSDeviceInfos_OUT response = new GetAllTSDeviceInfos_OUT();
             try
@@ -649,7 +674,7 @@ namespace IngestDevicePlugin.Controllers
         [HttpGet("GetBackupSignalSrcInfo"), MapToApiVersion("1.0")]
         [IngestAuthentication]
         [ApiExplorerSettings(GroupName = "v1")]
-        public async Task<GetBackupSignalSrcInfo_OUT> GetBackupSignalSrcInfo(int nSignalSrcId)
+        public async Task<GetBackupSignalSrcInfo_OUT> GetBackupSignalSrcInfo([FromQuery, DefaultValue(711)]int nSignalSrcId)
         {
             GetBackupSignalSrcInfo_OUT response = new GetBackupSignalSrcInfo_OUT();
             try
@@ -679,7 +704,7 @@ namespace IngestDevicePlugin.Controllers
         [HttpGet("GetParamTypeBySignalID"), MapToApiVersion("1.0")]
         [IngestAuthentication]
         [ApiExplorerSettings(GroupName = "v1")]
-        public async Task<GetParamTypeBySignalID_OUT> GetParamTypeBySignalID(int nSignalID)//nType:0标清,1高清
+        public async Task<GetParamTypeBySignalID_OUT> GetParamTypeBySignalID([FromQuery, DefaultValue(711)]int nSignalID)//nType:0标清,1高清
         {
             GetParamTypeBySignalID_OUT response = new GetParamTypeBySignalID_OUT();
             try
@@ -709,10 +734,10 @@ namespace IngestDevicePlugin.Controllers
         }
 
         /// <summary>根据节目ID获取相应的通道，有矩阵模式和无矩阵模式的区别</summary>
-        [HttpGet("api/device/GetChannelsByProgrammeId"), MapToApiVersion("1.0")]
+        [HttpGet("GetChannelsByProgrammeId"), MapToApiVersion("1.0")]
         [IngestAuthentication]
         [ApiExplorerSettings(GroupName = "v1")]
-        public async Task<GetChannelsByProgrammeId_out> GetChannelsByProgrammeId(int programmeId)
+        public async Task<GetChannelsByProgrammeId_out> GetChannelsByProgrammeId([FromQuery, DefaultValue(666)]int programmeId)
         {
             GetChannelsByProgrammeId_out response = new GetChannelsByProgrammeId_out();
             try
@@ -738,10 +763,10 @@ namespace IngestDevicePlugin.Controllers
         }
 
         /// <summary>根据信号源,用户名,自动匹配最优通道</summary>
-        [HttpGet("device/GetBestChannelIDBySignalID"), MapToApiVersion("1.0")]
+        [HttpGet("GetBestChannelIDBySignalID"), MapToApiVersion("1.0")]
         [IngestAuthentication]
         [ApiExplorerSettings(GroupName = "v1")]
-        public async Task<GetBestChannelIDBySignalID_out> GetBestChannelIDBySignalID(int nSignalID, string strUserCode)
+        public async Task<GetBestChannelIDBySignalID_out> GetBestChannelIDBySignalID([FromQuery, DefaultValue(711)]int nSignalID, [FromQuery, DefaultValue("9527")]string strUserCode)
         {
             GetBestChannelIDBySignalID_out response = new GetBestChannelIDBySignalID_out();
             try
@@ -769,7 +794,7 @@ namespace IngestDevicePlugin.Controllers
         [HttpGet("GetBestPreviewChannelForSignal"), MapToApiVersion("1.0")]
         [IngestAuthentication]
         [ApiExplorerSettings(GroupName = "v1")]
-        public async Task<GetBestPreviewChannelForSignal_out> GetBestPreviewChannelForSignal(int nSignalID)
+        public async Task<GetBestPreviewChannelForSignal_out> GetBestPreviewChannelForSignal([FromQuery, DefaultValue(711)]int nSignalID)
         {
             GetBestPreviewChannelForSignal_out response = new GetBestPreviewChannelForSignal_out();
             try
@@ -803,7 +828,7 @@ namespace IngestDevicePlugin.Controllers
 
 
         /// <summary>获取所有GPI设备</summary>
-        [HttpGet("/api/device/GetAllGPIDevices"), MapToApiVersion("1.0")]
+        [HttpGet("GetAllGPIDevices"), MapToApiVersion("1.0")]
         [IngestAuthentication]
         [ApiExplorerSettings(GroupName = "v1")]
         public async Task<Dto.Old.Response.ResponseMessage<GPIDeviceInfo[]>> GetAllGPIDevices()
@@ -831,40 +856,40 @@ namespace IngestDevicePlugin.Controllers
             return p;
         }
 
-        /// <summary>根据GPID获取GPI映射信息</summary>
-        [HttpGet("/api/device/GetGPIMapInfoByGPIID"), MapToApiVersion("1.0")]
-        [IngestAuthentication]
-        [ApiExplorerSettings(GroupName = "v1")]
-        public async Task<Dto.Old.Response.ResponseMessage<GPIDeviceMapInfo[]>> GetGPIMapInfoByGPIID2(int nGPIID)
-        {
-            Dto.Old.Response.ResponseMessage<GPIDeviceMapInfo[]> p = new Dto.Old.Response.ResponseMessage<GPIDeviceMapInfo[]>();
-            try
-            {
-                p.extention = (await _deviceManage.GetGPIMapInfoByGPIIDAsync<GPIDeviceMapInfo>(nGPIID)).ToArray();
-            }
-            catch (Exception ex)
-            {
-                if (ex.GetType() == typeof(SobeyRecException))//sobeyexcep会自动打印错误
-                {
-                    SobeyRecException se = ex as SobeyRecException;
-                    p.nCode = 0;
-                    p.message = se.Message;
-                }
-                else
-                {
-                    p.nCode = 0;
-                    p.message = $"error info:{ex.ToString()}";
-                    Logger.Error(p.message);
-                }
-            }
-            return p;
-        }
+        ///// <summary>根据GPID获取GPI映射信息</summary>
+        //[HttpGet("GetGPIMapInfoByGPIID"), MapToApiVersion("1.0")]
+        //[IngestAuthentication]
+        //[ApiExplorerSettings(GroupName = "v1")]
+        //public async Task<Dto.Old.Response.ResponseMessage<GPIDeviceMapInfo[]>> GetGPIMapInfoByGPIID2([FromQuery]int nGPIID)
+        //{
+        //    Dto.Old.Response.ResponseMessage<GPIDeviceMapInfo[]> p = new Dto.Old.Response.ResponseMessage<GPIDeviceMapInfo[]>();
+        //    try
+        //    {
+        //        p.extention = (await _deviceManage.GetGPIMapInfoByGPIIDAsync<GPIDeviceMapInfo>(nGPIID)).ToArray();
+        //    }
+        //    catch (Exception ex)
+        //    {
+        //        if (ex.GetType() == typeof(SobeyRecException))//sobeyexcep会自动打印错误
+        //        {
+        //            SobeyRecException se = ex as SobeyRecException;
+        //            p.nCode = 0;
+        //            p.message = se.Message;
+        //        }
+        //        else
+        //        {
+        //            p.nCode = 0;
+        //            p.message = $"error info:{ex.ToString()}";
+        //            Logger.Error(p.message);
+        //        }
+        //    }
+        //    return p;
+        //}
 
         /// <summary>根据信号源获取绑定的采集参数</summary>
-        [HttpGet("api/device/GetCaptureTemplateIDBySignalID"), MapToApiVersion("1.0")]
+        [HttpGet("GetCaptureTemplateIDBySignalID"), MapToApiVersion("1.0")]
         [IngestAuthentication]
         [ApiExplorerSettings(GroupName = "v1")]
-        public async Task<IngestDevicePlugin.Dto.Old.Response.ResponseMessage<int>> GetCaptureTemplateIDBySignalID(int nSignalID)
+        public async Task<IngestDevicePlugin.Dto.Old.Response.ResponseMessage<int>> GetCaptureTemplateIDBySignalID([FromQuery, DefaultValue(711)]int nSignalID)
         {
             IngestDevicePlugin.Dto.Old.Response.ResponseMessage<int> p = new IngestDevicePlugin.Dto.Old.Response.ResponseMessage<int>();
             try
@@ -895,7 +920,7 @@ namespace IngestDevicePlugin.Controllers
 
         //Todo:Post
         /// <summary>更新所有的IP收录的设备</summary>
-        [HttpPost("UpdateAllTSDeviceInfos_IN"), MapToApiVersion("1.0")]
+        [HttpPost("UpdateAllTSDeviceInfos"), MapToApiVersion("1.0")]
         [IngestAuthentication]
         [ApiExplorerSettings(GroupName = "v1")]
         public async Task<bool> PostUpdateAllTSDeviceInfos([FromBody]UpdateAllTSDeviceInfos_IN pIn)
@@ -944,7 +969,7 @@ namespace IngestDevicePlugin.Controllers
         [HttpGet("ModifySourceVTRIDAndUserCode"), MapToApiVersion("1.0")]
         [IngestAuthentication]
         [ApiExplorerSettings(GroupName = "v1")]
-        public async Task<ModifySourceVTRIDAndUserCode_out> ModifySourceVTRIDAndUserCode(int nID, int nSourceVTRID, string userCode)
+        public async Task<ModifySourceVTRIDAndUserCode_out> ModifySourceVTRIDAndUserCode([FromQuery, DefaultValue(666)]int nID, [FromQuery, DefaultValue(777)]int nSourceVTRID, [FromQuery, DefaultValue(9527)]string userCode)
         {
             ModifySourceVTRIDAndUserCode_out response = new ModifySourceVTRIDAndUserCode_out();
             try
@@ -972,7 +997,7 @@ namespace IngestDevicePlugin.Controllers
         [HttpPost("ModifySourceVTRIDAndUserCodeByChannelIDArray"), MapToApiVersion("1.0")]
         [IngestAuthentication]
         [ApiExplorerSettings(GroupName = "v1")]
-        public async Task<ModifySourceVTRIDAndUserCode_out> ModifySourceVTRIDAndUserCodeByChannelIDArray(ModifySourceVTR_in pIn)
+        public async Task<ModifySourceVTRIDAndUserCode_out> ModifySourceVTRIDAndUserCodeByChannelIDArray([FromBody]ModifySourceVTR_in pIn)
         {
             ModifySourceVTRIDAndUserCode_out response = new ModifySourceVTRIDAndUserCode_out();
             try

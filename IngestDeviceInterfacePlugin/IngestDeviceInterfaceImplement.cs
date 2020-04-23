@@ -1,8 +1,7 @@
 ﻿using AutoMapper;
 using IngestDBCore;
 using IngestDBCore.Interface;
-using IngestDevicePlugin.Controllers;
-using IngestDevicePlugin.Dto;
+using IngestDevicePlugin.Controllers.v2;
 using Microsoft.Extensions.DependencyInjection;
 using System;
 using System.Collections.Generic;
@@ -29,7 +28,7 @@ namespace IngestTaskInterfacePlugin
                 {
                     case FunctionType.ChannelInfoBySrc:
                         {
-                            return _mapper.Map< ResponseMessage < List < CaptureChannelInfoInterface >>>(
+                            return _mapper.Map< ResponseMessage <List< CaptureChannelInfoInterface >>>(
                                 await reqService.ChannelsByProgrammeId(examineResponse.SrcId, examineResponse.Status));
                         } break;
 
@@ -58,7 +57,7 @@ namespace IngestTaskInterfacePlugin
                     case FunctionType.AllChannelState:
                         {
                             return _mapper.Map<ResponseMessage<List<MSVChannelStateInterface>>>(
-                                await reqService.GetAllChannelState()
+                                await reqService.AllChannelState()
                                 );
                         }
                         break;
@@ -77,7 +76,7 @@ namespace IngestTaskInterfacePlugin
                     case FunctionType.AllCaptureChannels:
                         {
                             return _mapper.Map<ResponseMessage<List<CaptureChannelInfoInterface>>>(
-                                await reqService.GetAllCaptureChannels()
+                                await reqService.AllCaptureChannels()
                                 );
                         } break;
 

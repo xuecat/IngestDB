@@ -14,15 +14,14 @@ using IngestDevicePlugin.Dto.Response;
 using SignalDeviceRequest = IngestDevicePlugin.Dto.Response.SignalDeviceMapResponse;
 using TsDeviceInfoResponse = IngestDevicePlugin.Dto.TSDeviceInfo;
 
-namespace IngestDevicePlugin.Controllers
+namespace IngestDevicePlugin.Controllers.v2
 {
 
 
     [Route("api/v{version:apiVersion}/[controller]")]
-    [ApiVersion("1.0")]
     [ApiVersion("2.0")]
     [ApiController]
-    public partial class DeviceController : ControllerBase
+    public class DeviceController : ControllerBase
     {
         private readonly ILogger Logger = LoggerManager.GetLogger("DeviceInfo");
         private readonly DeviceManager _deviceManage;
@@ -83,7 +82,7 @@ namespace IngestDevicePlugin.Controllers
         [HttpGet("capturechannel/{channelId}")]
         [IngestAuthentication]
         [ApiExplorerSettings(GroupName = "v2")]
-        public async Task<ResponseMessage<CaptureChannelInfoResponse>> CaptureChannelByID([FromRoute, BindRequired]int channelId)
+        public async Task<ResponseMessage<CaptureChannelInfoResponse>> CaptureChannelByID([FromRoute, BindRequired, DefaultValue(911)]int channelId)
         {
             ResponseMessage<CaptureChannelInfoResponse> response = new ResponseMessage<CaptureChannelInfoResponse>();
             try
@@ -145,7 +144,7 @@ namespace IngestDevicePlugin.Controllers
         [HttpGet("capturetemplate/id/{signalID}")]
         [IngestAuthentication]
         [ApiExplorerSettings(GroupName = "v2")]
-        public async Task<ResponseMessage<int>> CaptureTemplateId([FromRoute, BindRequired]int signalID)
+        public async Task<ResponseMessage<int>> CaptureTemplateId([FromRoute, BindRequired, DefaultValue(777)]int signalID)
         {
             ResponseMessage<int> response = new ResponseMessage<int>();
             try
@@ -179,7 +178,7 @@ namespace IngestDevicePlugin.Controllers
         [HttpGet("bestpreviewchannel/id/{signalID}")]
         [IngestAuthentication]
         [ApiExplorerSettings(GroupName = "v2")]
-        public async Task<ResponseMessage<int>> BestPreviewChannelId([FromRoute, BindRequired]int signalID)
+        public async Task<ResponseMessage<int>> BestPreviewChannelId([FromRoute, BindRequired, DefaultValue(777)]int signalID)
         {
             ResponseMessage<int> response = new ResponseMessage<int>();
             try
@@ -211,7 +210,7 @@ namespace IngestDevicePlugin.Controllers
         [HttpPost("channel/extenddata/{channelID}")]
         [IngestAuthentication]
         [ApiExplorerSettings(GroupName = "v2")]
-        public async Task<ResponseMessage<bool>> UpdateChnExtData([FromRoute, BindRequired]int channelID, [FromBody, BindRequired]DeviceChannelExtdataRequest data)
+        public async Task<ResponseMessage<bool>> UpdateChnExtData([FromRoute, BindRequired, DefaultValue(911)]int channelID, [FromBody, BindRequired]DeviceChannelExtdataRequest data)
         {
             ResponseMessage<bool> response = new ResponseMessage<bool>();
             try
@@ -241,7 +240,7 @@ namespace IngestDevicePlugin.Controllers
         [HttpGet("channel/extenddata/{channleid}")]
         [IngestAuthentication]
         [ApiExplorerSettings(GroupName = "v2")]
-        public async Task<ResponseMessage<string>> GetChannelExtendData([FromRoute, BindRequired]int channleid, [FromQuery, BindRequired]int type)
+        public async Task<ResponseMessage<string>> GetChannelExtendData([FromRoute, BindRequired, DefaultValue(911)]int channleid, [FromQuery, BindRequired, DefaultValue("0")]int type)
         {
             ResponseMessage<string> response = new ResponseMessage<string>();
             try
@@ -270,10 +269,10 @@ namespace IngestDevicePlugin.Controllers
         /// <param name="signalID">信号源Id</param>
         /// <param name="userCode">用户Code</param>
         /// <returns>最优通道Id</returns>
-        [HttpGet("bestchannel/id/{nSignalID}")]
+        [HttpGet("bestchannel/id/{signalID}")]
         [IngestAuthentication]
         [ApiExplorerSettings(GroupName = "v2")]
-        public async Task<ResponseMessage<int>> BestChannelId([FromRoute, BindRequired]int signalID, [FromQuery, BindRequired]string userCode)
+        public async Task<ResponseMessage<int>> BestChannelId([FromRoute, BindRequired, DefaultValue(777)]int signalID, [FromQuery, BindRequired, DefaultValue("9527")]string userCode)
         {
             ResponseMessage<int> response = new ResponseMessage<int>();
             try
@@ -304,7 +303,7 @@ namespace IngestDevicePlugin.Controllers
         [HttpGet("channel/{programmeId}")]
         [IngestAuthentication]
         [ApiExplorerSettings(GroupName = "v2")]
-        public async Task<ResponseMessage<List<CaptureChannelInfoResponse>>> Channels([FromRoute, BindRequired]int programmeId)
+        public async Task<ResponseMessage<List<CaptureChannelInfoResponse>>> Channels([FromRoute, BindRequired, DefaultValue(666)]int programmeId)
         {
             ResponseMessage<List<CaptureChannelInfoResponse>> response = new ResponseMessage<List<CaptureChannelInfoResponse>>();
             try
@@ -366,7 +365,7 @@ namespace IngestDevicePlugin.Controllers
         [HttpPost("channelstate/{id}")]
         [IngestAuthentication]
         [ApiExplorerSettings(GroupName = "v2")]
-        public async Task<ResponseMessage<bool>> UpdateMSVChannelState([FromRoute, BindRequired]int id, [FromBody, BindRequired] DeviceMSVChannelStateRequest data)
+        public async Task<ResponseMessage<bool>> UpdateMSVChannelState([FromRoute, BindRequired, DefaultValue(711)]int id, [FromBody, BindRequired] DeviceMSVChannelStateRequest data)
         {
             ResponseMessage<bool> response = new ResponseMessage<bool>();
             try
@@ -427,10 +426,10 @@ namespace IngestDevicePlugin.Controllers
         /// <remarks>原方法 PostUpdateAllTSDeviceInfos</remarks>
         /// <param name="datas">更新的对象</param>
         /// <returns>是否成功</returns>
-        [HttpPost("tsdeviceinfo")]
+        [HttpPost("tsdeviceinfo/all")]
         [IngestAuthentication]
         [ApiExplorerSettings(GroupName = "v2")]
-        public async Task<ResponseMessage<bool>> PostUpdateAllTSDeviceInfos([FromBody, BindRequired]DeviceTSDeviceInfoRequest datas)
+        public async Task<ResponseMessage<bool>> UpdateAllTSDeviceInfos([FromBody, BindRequired]DeviceTSDeviceInfoRequest datas)
         {
             ResponseMessage<bool> response = new ResponseMessage<bool>();
             try
@@ -491,7 +490,7 @@ namespace IngestDevicePlugin.Controllers
         [HttpGet("gpimapinfo/{gpiID}")]
         [IngestAuthentication]
         [ApiExplorerSettings(GroupName = "v2")]
-        public async Task<ResponseMessage<List<GPIDeviceMapInfoResponse>>> GPIMapInfo([FromRoute, BindRequired]int gpiID)
+        public async Task<ResponseMessage<List<GPIDeviceMapInfoResponse>>> GPIMapInfo([FromRoute, BindRequired, DefaultValue(711)]int gpiID)
         {
             ResponseMessage<List<GPIDeviceMapInfoResponse>> response = new ResponseMessage<List<GPIDeviceMapInfoResponse>>();
             try
@@ -522,7 +521,7 @@ namespace IngestDevicePlugin.Controllers
         [HttpGet("msvchannelstate/{channleID}")]
         [IngestAuthentication]
         [ApiExplorerSettings(GroupName = "v2")]
-        public async Task<ResponseMessage<MSVChannelStateResponse>> MSVChannelState([FromRoute, BindRequired]int channleID)
+        public async Task<ResponseMessage<MSVChannelStateResponse>> MSVChannelState([FromRoute, BindRequired, DefaultValue(911)]int channleID)
         {
             ResponseMessage<MSVChannelStateResponse> response = new ResponseMessage<MSVChannelStateResponse>();
             try
@@ -584,10 +583,10 @@ namespace IngestDevicePlugin.Controllers
         /// <remarks>原方法 GetParamTypeByChannleID</remarks>
         /// <param name="channelID">通道Id</param>
         /// <returns>0标清,1高清</returns>
-        [HttpGet("paramtype/type/{nChannelID}")]
+        [HttpGet("paramtype/type/{channelID}")]
         [IngestAuthentication]
         [ApiExplorerSettings(GroupName = "v2")]
-        public async Task<ResponseMessage<int>> ParamTypeByChannleID([FromQuery, BindRequired]int channelID)
+        public async Task<ResponseMessage<int>> ParamTypeByChannleID([FromRoute, BindRequired, DefaultValue(911)]int channelID)
         {
             ResponseMessage<int> response = new ResponseMessage<int>();
             try
@@ -618,7 +617,7 @@ namespace IngestDevicePlugin.Controllers
         [HttpGet("paramtype/type/{signalID}")]
         [IngestAuthentication]
         [ApiExplorerSettings(GroupName = "v2")]
-        public async Task<ResponseMessage<int>> ParamTypeBySignalID([FromQuery, BindRequired]int signalID)
+        public async Task<ResponseMessage<int>> ParamTypeBySignalID([FromRoute, BindRequired, DefaultValue(777)]int signalID)
         {
             ResponseMessage<int> response = new ResponseMessage<int>();
             try
@@ -653,7 +652,7 @@ namespace IngestDevicePlugin.Controllers
         [HttpGet("programmeinfo/{channelID}")]
         [IngestAuthentication]
         [ApiExplorerSettings(GroupName = "v2")]
-        public async Task<ResponseMessage<List<ProgrammeInfo>>> ProgrammeInfos([FromRoute, BindRequired]int channelID)
+        public async Task<ResponseMessage<List<ProgrammeInfo>>> ProgrammeInfos([FromRoute, BindRequired, DefaultValue(911)]int channelID)
         {
             ResponseMessage<List<ProgrammeInfo>> response = new ResponseMessage<List<ProgrammeInfo>>();
             try
@@ -716,7 +715,7 @@ namespace IngestDevicePlugin.Controllers
         [HttpGet("signalinfo/backsignal/{mastersignalid}")]
         [IngestAuthentication]//device有点特殊，做了监听端口的所以不能全类检验
         [ApiExplorerSettings(GroupName = "v2")]
-        public async Task<ResponseMessage<ProgrammeInfoResponse>> GetBackProgramInfoBySrgid(int mastersignalid)
+        public async Task<ResponseMessage<ProgrammeInfoResponse>> GetBackProgramInfoBySrgid([FromRoute, BindRequired, DefaultValue(711)]int mastersignalid)
         {
             var Response = new ResponseMessage<ProgrammeInfoResponse>();
 
@@ -752,7 +751,7 @@ namespace IngestDevicePlugin.Controllers
         [HttpGet("signalinfo/signal/{signalid}")]
         [IngestAuthentication]//device有点特殊，做了监听端口的所以不能全类检验
         [ApiExplorerSettings(GroupName = "v2")]
-        public async Task<ResponseMessage<ProgrammeInfoResponse>> GetProgramInfoBySrgid(int signalid)
+        public async Task<ResponseMessage<ProgrammeInfoResponse>> GetProgramInfoBySrgid([FromRoute, BindRequired, DefaultValue(777)]int signalid)
         {
             var Response = new ResponseMessage<ProgrammeInfoResponse>();
 
@@ -885,7 +884,7 @@ namespace IngestDevicePlugin.Controllers
         [HttpGet("signaldevicemap/{signalID}")]
         [IngestAuthentication]
         [ApiExplorerSettings(GroupName = "v2")]
-        public async Task<ResponseMessage<SignalDeviceMapResponse>> SignalDeviceMap([FromRoute, BindRequired]int signalID)
+        public async Task<ResponseMessage<SignalDeviceMapResponse>> SignalDeviceMap([FromRoute, BindRequired, DefaultValue(777)]int signalID)
         {
             ResponseMessage<SignalDeviceMapResponse> response = new ResponseMessage<SignalDeviceMapResponse>();
             try
@@ -1067,7 +1066,7 @@ namespace IngestDevicePlugin.Controllers
         [HttpGet("backupsignalsrc/id/{signalSrcId}")]
         [IngestAuthentication]
         [ApiExplorerSettings(GroupName = "v2")]
-        public async Task<ResponseMessage<int>> BackupSignalSrcInfo([FromRoute, BindRequired]int signalSrcId)
+        public async Task<ResponseMessage<int>> BackupSignalSrcInfo([FromRoute, BindRequired, DefaultValue(777)]int signalSrcId)
         {
             ResponseMessage<int> response = new ResponseMessage<int>();
             try
@@ -1098,7 +1097,7 @@ namespace IngestDevicePlugin.Controllers
         [HttpGet("signalsrc/isbackup/{signalSrcId}")]
         [IngestAuthentication]
         [ApiExplorerSettings(GroupName = "v2")]
-        public async Task<ResponseMessage<bool>> IsBackupSignalSrc([FromRoute, BindRequired]int signalSrcId)
+        public async Task<ResponseMessage<bool>> IsBackupSignalSrc([FromRoute, BindRequired, DefaultValue(777)]int signalSrcId)
         {
             ResponseMessage<bool> response = new ResponseMessage<bool>();
             try
@@ -1134,7 +1133,7 @@ namespace IngestDevicePlugin.Controllers
         [HttpGet("programme/{programmeId}")]
         [IngestAuthentication]//device有点特殊，做了监听端口的所以不能全类检验
         [ApiExplorerSettings(GroupName = "v2")]
-        public async Task<ResponseMessage<List<CaptureChannelInfoResponse>>> ChannelsByProgrammeId([FromRoute, BindRequired]int programmeId, [FromQuery, BindRequired]int status)
+        public async Task<ResponseMessage<List<CaptureChannelInfoResponse>>> ChannelsByProgrammeId([FromRoute, BindRequired, DefaultValue(666)]int programmeId, [FromQuery, BindRequired, DefaultValue("0")]int status)
         {
             ResponseMessage<List<CaptureChannelInfoResponse>> response = new ResponseMessage<List<CaptureChannelInfoResponse>>();
             try
@@ -1167,7 +1166,7 @@ namespace IngestDevicePlugin.Controllers
         [HttpGet("signalinfo/id/{channelid}")]
         [IngestAuthentication]//device有点特殊，做了监听端口的所以不能全类检验
         [ApiExplorerSettings(GroupName = "v2")]
-        public async Task<ResponseMessage<int>> GetChannelSignalSrc([FromRoute, BindRequired]int channelid)
+        public async Task<ResponseMessage<int>> GetChannelSignalSrc([FromRoute, BindRequired, DefaultValue(911)]int channelid)
         {
             ResponseMessage<int> response = new ResponseMessage<int>();
             try
@@ -1233,7 +1232,7 @@ namespace IngestDevicePlugin.Controllers
         [HttpGet("channelunitmap/id/{channel}")]
         [IngestAuthentication]//device有点特殊，做了监听端口的所以不能全类检验
         [ApiExplorerSettings(GroupName = "v2")]
-        public async Task<ResponseMessage<int>> GetChannelUnitMapID([FromRoute, BindRequired]int channel)
+        public async Task<ResponseMessage<int>> GetChannelUnitMapID([FromRoute, BindRequired, DefaultValue(911)]int channel)
         {
             ResponseMessage<int> response = new ResponseMessage<int>();
             try
@@ -1257,34 +1256,6 @@ namespace IngestDevicePlugin.Controllers
                 {
                     response.Code = ResponseCodeDefines.ServiceError;
                     response.Msg = $"{System.Reflection.MethodBase.GetCurrentMethod().DeclaringType.FullName}error info:{e}";
-                    Logger.Error(response.Msg);
-                }
-            }
-            return response;
-        }
-        
-        
-        /// <summary> Try执行 </summary>
-        /// <typeparam name="T">返回类型</typeparam>
-        /// <param name="action">执行内容</param>
-        private async Task<ResponseMessage<T>> TryInvoke<T>(Func<ResponseMessage<T>, Task> action)
-        {
-            ResponseMessage<T> response = new ResponseMessage<T>();
-            try
-            {
-                await action(response);
-            }
-            catch (Exception e)
-            {
-                if (e is SobeyRecException se)//sobeyexcep会自动打印错误
-                {
-                    response.Code = se.ErrorCode.ToString();
-                    response.Msg = se.Message;
-                }
-                else
-                {
-                    response.Code = ResponseCodeDefines.ServiceError;
-                    response.Msg = $"error info:{e}";
                     Logger.Error(response.Msg);
                 }
             }

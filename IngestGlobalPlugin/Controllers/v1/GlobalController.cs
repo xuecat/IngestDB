@@ -1,16 +1,32 @@
 ﻿using IngestDBCore;
+using IngestDBCore.Basic;
 using IngestDBCore.Dto;
 using IngestGlobalPlugin.Dto;
+using IngestGlobalPlugin.Managers;
 using Microsoft.AspNetCore.Mvc;
+using Sobey.Core.Log;
 using System;
 using System.Collections.Generic;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace IngestGlobalPlugin.Controllers
+namespace IngestGlobalPlugin.Controllers.v1
 {
-    public partial class GlobalController : ControllerBase
+    [IngestAuthentication]
+    [Route("api/v{version:apiVersion}/[controller]")]
+    [ApiVersion("1.0")]
+    [ApiController]
+    public class GlobalController : ControllerBase
     {
+        private readonly ILogger Logger = LoggerManager.GetLogger("GlobalInfo");
+        private readonly GlobalManager _GlobalManager;
+        //private readonly RestClient _restClient;
+
+        public GlobalController(GlobalManager global)
+        {
+            _GlobalManager = global;
+            //_restClient = rsc;
+        }
         string no_err = "OK";
 
         [HttpGet("SetGlobalState"), MapToApiVersion("1.0")]

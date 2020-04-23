@@ -22,7 +22,8 @@ namespace IngestTaskInterfacePlugin
         {
             
             context.Services.AddScoped<IIngestTaskInterface, IngestTaskInterfaceImplement>();
-            context.Services.AddScoped<TaskController>();
+            context.Services.AddScoped<IngestTaskPlugin.Controllers.v1.TaskController>();
+            context.Services.AddScoped<IngestTaskPlugin.Controllers.v2.TaskController>();
             return base.Init(context);
         }
 

@@ -12,15 +12,26 @@ using System.Collections.Generic;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace IngestTaskPlugin.Controllers
+namespace IngestTaskPlugin.Controllers.v1
 {
-    //[IngestAuthentication]
-    //[Produces("application/json")]
-    //[ApiVersion("1.0")]
-    //[Route("api/v0/task")]
-    //[ApiController]
-    public partial class TaskController : ControllerBase
+    [IngestAuthentication]
+    [Route("api/v{version:apiVersion}/[controller]")]
+    [ApiVersion("1.0")]
+    [ApiController]
+    public class TaskController : ControllerBase
     {
+        private readonly ILogger Logger = LoggerManager.GetLogger("TaskInfo");
+        private readonly TaskManager _taskManage;
+        private readonly RestClient _restClient;
+        //private readonly IMapper _mapper;
+
+        public TaskController(RestClient rsc, TaskManager task/*, IMapper mapper*/)
+        {
+            _taskManage = task;
+            _restClient = rsc;
+            //_mapper = mapper ?? throw new ArgumentNullException(nameof(mapper));
+        }
+
         //private readonly ILogger Logger = LoggerManager.GetLogger("TaskInfo");
         //private readonly TaskManager _monthManage;
         //private readonly RestClient _restClient;

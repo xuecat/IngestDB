@@ -42,12 +42,12 @@ namespace IngestDB
                 //.AddXmlFile("publicsetting.xml") //好气  用不了,只能自己手动解析
                 .AddEnvironmentVariables()
                 .Build();
-                
+
             services.AddSingleton<IConfigurationRoot>(cfg);
             services.AddMvc()
                 .SetCompatibilityVersion(CompatibilityVersion.Version_2_1);
-                //.AddJsonOptions(options =>//为swagger加的
-                //options.SerializerSettings.Converters.Add(new StringEnumConverter()));
+            //.AddJsonOptions(options =>//为swagger加的
+            //options.SerializerSettings.Converters.Add(new StringEnumConverter()));
 
             string path = AppDomain.CurrentDomain.BaseDirectory.Replace("\\", "/") + "/publicsetting.xml";
             if (File.Exists(path))
@@ -87,7 +87,8 @@ namespace IngestDB
             bool InitIsOk = applicationContext.Init().Result;
 
             services.AddToolDefined();
-            services.AddApiVersioning(o => {
+            services.AddApiVersioning(o =>
+            {
                 o.ReportApiVersions = true;
                 //o.AssumeDefaultVersionWhenUnspecified = true;
                 o.DefaultApiVersion = new ApiVersion(1, 0);
@@ -112,7 +113,7 @@ namespace IngestDB
                         Title = "> 收录新版本网关接口文档",
                         Description = "**Ingest Web API**(接口设计原则: `Post`->新加和修改，`Post`->新加；`Put`->修改)",
                         Contact = new OpenApiContact { Name = "XueCat", Email = "", Url = new Uri("http://xuecat.com") },
-                        License = new OpenApiLicense { Name = "Sobey", Url = new Uri("http://www.sobey.com")}
+                        License = new OpenApiLicense { Name = "Sobey", Url = new Uri("http://www.sobey.com") }
                         //TermsOfService = new Uri("None"),
                     });
 
@@ -136,6 +137,7 @@ namespace IngestDB
                     c.IncludeXmlComments(xmlPath3);
                     //c.DescribeAllEnumsAsStrings();
                     c.OperationFilter<HttpHeaderOperation>(); // 添加httpHeader参数
+                    c.OperationFilter<DefaultValueOperation>(); // 添加defaultValue参数
                 });
             }
 
@@ -164,7 +166,7 @@ namespace IngestDB
                     return string.Format(
                 "Server={0};Port={4};Database={1};Uid={2};Pwd={3};Pooling=true;minpoolsize=1;MaximumPoolSize=30;SslMode=none;Convert Zero Datetime=True;Allow Zero Datetime=True",
                 vip, item.Element("Instance").Value,
-                item.Element("Username").Value, 
+                item.Element("Username").Value,
                 IngestDBCore.Tool.Base64SQL.Base64_Decode(item.Element("Password").Value),
                 item.Element("Port").Value);
                 }
@@ -195,7 +197,8 @@ namespace IngestDB
 
             if (applicationContext.UseSwagger)
             {
-                app.UseSwagger().UseSwaggerUI(c => {
+                app.UseSwagger().UseSwaggerUI(c =>
+                {
                     c.SwaggerEndpoint("/swagger/v1/swagger.json", "IngestGateway API V1");
                     c.SwaggerEndpoint("/swagger/v2/swagger.json", "IngestGateway API V2");
                     //c.ShowRequestHeaders();
@@ -212,7 +215,7 @@ namespace IngestDB
 
             //app.UseHttpsRedirection();
             app.UseMvc();
-            applicationContext.AppServiceProvider= app.ApplicationServices;
+            applicationContext.AppServiceProvider = app.ApplicationServices;
             using (var scope = app.ApplicationServices.GetRequiredService<IServiceScopeFactory>().CreateScope())
             {
                 applicationContext.ServiceProvider = scope.ServiceProvider;

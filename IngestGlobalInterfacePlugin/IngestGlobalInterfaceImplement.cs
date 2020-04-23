@@ -2,6 +2,7 @@
 using IngestDBCore;
 using IngestDBCore.Interface;
 using IngestGlobalPlugin.Controllers;
+using IngestGlobalPlugin.Controllers.v2;
 using Microsoft.Extensions.DependencyInjection;
 using System;
 using System.Collections.Generic;
