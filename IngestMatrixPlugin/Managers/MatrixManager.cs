@@ -174,7 +174,7 @@ namespace IngestMatrixPlugin.Managers
         private async Task<bool> ReleaseWhenSwitch(long lInPort, long lOutPort, List<MatrixRoutInfo> matrixRouts)
         {
             var matrixroutList = _mapper.Map<List<MatrixRoutInfo>>(await Store.QueryMatrixrout(a => a, true));
-            matrixroutList.ForEach(a => a.lState = default);
+            matrixroutList.ForEach(a => a.lState = 0);
 
             var matrixList = _mapper.Map<List<MatrixRoutInfo>>(await Store.QueryMatrixrout(a => a, true));
             matrixRouts.AddRange(matrixList);
