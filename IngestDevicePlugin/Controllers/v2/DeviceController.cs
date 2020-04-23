@@ -840,7 +840,7 @@ namespace IngestDevicePlugin.Controllers.v2
         /// <summary> 获取所有信号源和采集设备的对应 </summary>
         /// <remarks>原方法 GetAllSignalDeviceMap</remarks>
         /// <returns>信号源和设备的Map</returns>
-        [HttpGet("signaldevicemaps/all")]
+        [HttpGet("signaldevicemap/all")]
         [IngestAuthentication]
         [ApiExplorerSettings(GroupName = "v2")]
         public async Task<ResponseMessage<List<SignalDeviceMapResponse>>> AllSignalDeviceMap()
