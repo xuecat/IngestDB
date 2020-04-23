@@ -166,7 +166,7 @@ namespace IngestGlobalPlugin.Controllers.v1
         /// <returns>获取global value</returns>
         [HttpGet("GetValueString"), MapToApiVersion("1.0")]
         [ApiExplorerSettings(GroupName = "v1")]
-        public async Task<string> OldGetValueString([FromQuery]string strKey)
+        public async Task<string> OldGetValueString([FromQuery, DefaultValue("DEFAULT_CATALOG")]string strKey)
         {
             try
             {
@@ -186,7 +186,7 @@ namespace IngestGlobalPlugin.Controllers.v1
         /// <returns>获取状态结果</returns>
         [HttpGet("SetValue"), MapToApiVersion("1.0")]
         [ApiExplorerSettings(GroupName = "v1")]
-        public async Task<OldResponseMessage> OldSetValue([FromQuery]string strKey, [FromQuery]string strValue)
+        public async Task<OldResponseMessage> OldSetValue([FromQuery,DefaultValue("DEFAULT_CATALOG")]string strKey, [FromQuery, DefaultValue("\\Public Material")]string strValue)
         {
             OldResponseMessage res = new OldResponseMessage();
             try
@@ -209,7 +209,7 @@ namespace IngestGlobalPlugin.Controllers.v1
 
         [HttpGet("GetDefaultSTC"), MapToApiVersion("1.0")]
         [ApiExplorerSettings(GroupName = "v1")]
-        public async Task<GetDefaultSTC_param> OldGetDefaultSTC([FromQuery]int tcMode)
+        public async Task<GetDefaultSTC_param> OldGetDefaultSTC([FromQuery, DefaultValue(0)]int tcMode)
         {
 
             GetDefaultSTC_param p = new GetDefaultSTC_param();
@@ -238,9 +238,14 @@ namespace IngestGlobalPlugin.Controllers.v1
             return p;
         }
 
+        /// <summary>
+        /// 获取默认Global STC
+        /// </summary>
+        /// <param name="tcMode">0=emForLine,1=emForOther</param>
+        /// <returns></returns>
         [HttpGet("GetDefaultSTCExt"), MapToApiVersion("1.0")]
         [ApiExplorerSettings(GroupName = "v1")]
-        public async Task<GetDefaultSTC_param> OldGetDefaultSTCExt([FromQuery]int tcMode)
+        public async Task<GetDefaultSTC_param> OldGetDefaultSTCExt([FromQuery, DefaultValue(0)]int tcMode)
         {
 
             GetDefaultSTC_param p = new GetDefaultSTC_param();
@@ -264,6 +269,11 @@ namespace IngestGlobalPlugin.Controllers.v1
         #endregion
 
         #region User
+        /// <summary>
+        /// 修改usersetting
+        /// </summary>
+        /// <param name="pIn">usersetting参数</param>
+        /// <returns>修改结果</returns>
         [HttpPost("Post_SetUserSetting"), MapToApiVersion("1.0")]
         [ApiExplorerSettings(GroupName = "v1")]
         public async Task<PostParam_Out> OldPost_SetUserSetting([FromBody]SetUserSetting_IN pIn)
@@ -306,7 +316,7 @@ namespace IngestGlobalPlugin.Controllers.v1
         /// <returns> extention为strSettingText </returns>
         [HttpGet("GetUserSetting"), MapToApiVersion("1.0")]
         [ApiExplorerSettings(GroupName = "v1")]
-        public async Task<OldResponseMessage<string>> OldGetUserSetting([FromQuery]string strUserCode, [FromQuery]string strSettingtype)
+        public async Task<OldResponseMessage<string>> OldGetUserSetting([FromQuery, DefaultValue("06c70a52172d4393beb1bb6743ca6944")]string strUserCode, [FromQuery, DefaultValue("UserMoudleData")]string strSettingtype)
         {
             OldResponseMessage<string> res = new OldResponseMessage<string>();
             res.message = no_err;
@@ -329,9 +339,15 @@ namespace IngestGlobalPlugin.Controllers.v1
 
         #region ParamTemplate
 
+        /// <summary>
+        /// 得到模板信息通过Id
+        /// </summary>
+        /// <param name="nCaptureParamID">模板id</param>
+        /// <param name="nFlag">hd=0，sd=1,uhd=2标识</param>
+        /// <returns></returns>
         [HttpGet("GetParamTemplateByID"), MapToApiVersion("1.0")]
         [ApiExplorerSettings(GroupName = "v1")]
-        public async Task<GetParamTemplateByID_out> OldGetParamTemplateByID([FromQuery]int nCaptureParamID, [FromQuery]int nFlag)
+        public async Task<GetParamTemplateByID_out> OldGetParamTemplateByID([FromQuery, DefaultValue(2)]int nCaptureParamID, [FromQuery, DefaultValue(0)]int nFlag)
         {
             GetParamTemplateByID_out p = new GetParamTemplateByID_out();
             p.errStr = no_err;
@@ -364,7 +380,7 @@ namespace IngestGlobalPlugin.Controllers.v1
         /// <summary>
         /// 增加一个新的用户模板
         /// </summary>
-        /// <param name="userTemplate"></param>
+        /// <param name="userTemplate">模板信息</param>
         /// <returns>extention 为用户模版ID</returns>
         [HttpPost("AddUserTemplate"), MapToApiVersion("1.0")]
         [ApiExplorerSettings(GroupName = "v1")]
@@ -410,12 +426,12 @@ namespace IngestGlobalPlugin.Controllers.v1
         /// <summary>
         /// 根据模板ID修改模板内容
         /// </summary>
-        /// <param name="nTemplateID"></param>
-        /// <param name="strTemplateContent"></param>
+        /// <param name="nTemplateID">模板id</param>
+        /// <param name="strTemplateContent">模板内容</param>
         /// <returns>标准返回信息</returns>
         [HttpPost("ModifyUserTempalteContent"), MapToApiVersion("1.0")]
         [ApiExplorerSettings(GroupName = "v1")]
-        public async Task<OldResponseMessage> OldModifyUserTempalteContent([FromQuery] int nTemplateID, [FromBody] string strTemplateContent)
+        public async Task<OldResponseMessage> OldModifyUserTempalteContent([FromQuery,DefaultValue(2)] int nTemplateID, [FromBody,DefaultValue("<window_positions>...</window_positions>")] string strTemplateContent)
         {
             OldResponseMessage res = new OldResponseMessage();
             res.message = no_err;
@@ -437,11 +453,16 @@ namespace IngestGlobalPlugin.Controllers.v1
             }
             return res;
         }
-
-        //通过采集参数ID获得采集参数
+        
+        /// <summary>
+        /// 修改采集模板名
+        /// </summary>
+        /// <param name="nTemplateID">模板Id</param>
+        /// <param name="strNewTemplateName">新模板名</param>
+        /// <returns></returns>
         [HttpPost("ModifyUserTemplateName"), MapToApiVersion("1.0")]
         [ApiExplorerSettings(GroupName = "v1")]
-        public async Task<OldResponseMessage> OldModifyUserTemplateName([FromQuery] int nTemplateID, [FromBody] string strNewTemplateName)
+        public async Task<OldResponseMessage> OldModifyUserTemplateName([FromQuery,DefaultValue(2)] int nTemplateID, [FromBody,DefaultValue("newName")] string strNewTemplateName)
         {
             OldResponseMessage res = new OldResponseMessage();
             res.message = no_err;
@@ -465,9 +486,14 @@ namespace IngestGlobalPlugin.Controllers.v1
 
         }
         
+        /// <summary>
+        /// 通过模板id删除UserTemplate
+        /// </summary>
+        /// <param name="nTemplateID">模板id</param>
+        /// <returns>删除结果</returns>
         [HttpDelete("DeleteUserTemplateByID"), MapToApiVersion("1.0")]
         [ApiExplorerSettings(GroupName = "v1")]
-        public async Task<OldResponseMessage> OldDeleteUserTemplateByID([FromQuery]int nTemplateID)
+        public async Task<OldResponseMessage> OldDeleteUserTemplateByID([FromQuery, DefaultValue(2)]int nTemplateID)
         {
             OldResponseMessage res = new OldResponseMessage();
             res.message = no_err;
@@ -498,11 +524,11 @@ namespace IngestGlobalPlugin.Controllers.v1
         /// <summary>
         /// 获得用户所有模板
         /// </summary>
-        /// <param name="strUserCode"></param>
+        /// <param name="strUserCode">用户Code</param>
         /// <returns>extension 为 获取到的模板数组</returns>
         [HttpGet("GetUserAllTemplates"), MapToApiVersion("1.0")]
         [ApiExplorerSettings(GroupName = "v1")]
-        public async Task<OldResponseMessage<List<UserTemplate>>> OldGetUserAllTemplates([FromQuery] string strUserCode)
+        public async Task<OldResponseMessage<List<UserTemplate>>> OldGetUserAllTemplates([FromQuery, DefaultValue("8de083d45c614628b99516740d628e91")] string strUserCode)
         {
             OldResponseMessage<List<UserTemplate>> res = new OldResponseMessage<List<UserTemplate>>();
             res.message = no_err;
@@ -527,10 +553,14 @@ namespace IngestGlobalPlugin.Controllers.v1
             return res;
         }
         
-
+        /// <summary>
+        /// 删除用户Param映射关系UserCode-CaptureParamId
+        /// </summary>
+        /// <param name="szUserCode">UserParamMap的用户Code</param>
+        /// <returns>删除结果</returns>
         [HttpGet("DelUserParamTemplate"), MapToApiVersion("1.0")]
         [ApiExplorerSettings(GroupName = "v1")]
-        public async Task<OldResponseMessage> OldDelUserParamTemplate([FromQuery]string szUserCode)
+        public async Task<OldResponseMessage> OldDelUserParamTemplate([FromQuery, DefaultValue("ingest01")]string szUserCode)
         {
             OldResponseMessage res = new OldResponseMessage();
             res.message = no_err;
@@ -561,10 +591,14 @@ namespace IngestGlobalPlugin.Controllers.v1
         #endregion
 
         #region CMApi
-
+        /// <summary>
+        /// 获取UserInfo
+        /// </summary>
+        /// <param name="strUserCode">用户编码</param>
+        /// <returns>用户信息</returns>
         [HttpGet("GetUserInfoByCode"), MapToApiVersion("1.0")]
         [ApiExplorerSettings(GroupName = "v1")]
-        public async Task<OldResponseMessage<CMUserInfo>> OldGetUserInfoByCode([FromQuery]string strUserCode)
+        public async Task<OldResponseMessage<CMUserInfo>> OldGetUserInfoByCode([FromQuery, DefaultValue("897cd4f79531e3c04c2c9a371e4db4ea")]string strUserCode)
         {
             OldResponseMessage<CMUserInfo> res = new OldResponseMessage<CMUserInfo>();
             res.message = no_err;
@@ -593,11 +627,16 @@ namespace IngestGlobalPlugin.Controllers.v1
             return res;
         }
 
-
-        //通过用户ID得到用户高清或标清采集参数=
+        
+        /// <summary>
+        /// 通过用户ID得到用户高清或标清采集参数=
+        /// </summary>
+        /// <param name="szUserToken">用户usertoken</param>
+        /// <param name="nFlag">nFlag：0为标清，1为高清</param>
+        /// <returns>采集参数</returns>
         [HttpGet("GetUserHighOrStandardParam"), MapToApiVersion("1.0")]
         [ApiExplorerSettings(GroupName = "v1")]
-        public async Task<OldResponseMessage<string>> OldGetUserHighOrStandardParam([FromQuery]string szUserToken, [FromQuery]int nFlag)//nFlag：0为标清，1为高清
+        public async Task<OldResponseMessage<string>> OldGetUserHighOrStandardParam([FromQuery, DefaultValue("897cd4f79531e3c04c2c9a371e4db4ea")]string szUserToken, [FromQuery, DefaultValue(0)]int nFlag)//nFlag：0为标清，1为高清
         {
             OldResponseMessage<string> Res = new OldResponseMessage<string>();
             try

@@ -77,7 +77,7 @@ namespace IngestDevicePlugin.Stores
 
         Task<TResult> GetChannelExtendDataAsync<TResult>(Func<IQueryable<DbpChnExtenddata>, Task<TResult>> query, bool notrack = false);
         /// <summary> 更新或新增通道的扩展数据 </summary>
-        Task<int> SaveChannelExtenddataAsync(int nChnID, int type, string data);
+        Task<int> SaveChannelExtenddataAsync(int channelId, int type, string data);
 
         /// <summary> 查询信号源的扩展信息 </summary>
         Task<List<TResult>> GetSignalSrcExsAsync<TResult>(Func<IQueryable<DbpSignalsrcMasterbackup>, IQueryable<TResult>> query, bool notrack = false);
@@ -157,9 +157,9 @@ namespace IngestDevicePlugin.Stores
 
 
         /// <summary>根据通道Id获取参数类型</summary>
-        Task<int?> GetParamTypeByChannelIDAsync(int nChannelID);
+        Task<int?> GetParamTypeByChannelIDAsync(int channelID);
         /// <summary>根据信号源获取是高清还是标清</summary>
-        Task<int?> GetParamTypeBySignalIDAsync(int nSignalID);
+        Task<int?> GetParamTypeBySignalIDAsync(int signalID);
 
 
         /// <summary> 获取所有信号源分组信息 </summary>
@@ -173,7 +173,7 @@ namespace IngestDevicePlugin.Stores
         Task<TResult> GetUserSettingAsync<TResult>(Func<IQueryable<DbpUsersettings>, Task<TResult>> query, bool notrack = false);
 
 
-        Task<int> ModifySourceVTRIDAndUserCodeAsync(int nSourceVTRID, string userCode, params int[] nID);
+        Task<int> ModifySourceVTRIDAndUserCodeAsync(int sourceVTRID, string userCode, params int[] ids);
 
         Task<int> UpdateMSVChannelStateAsync(DbpMsvchannelState model);
 
