@@ -2,6 +2,7 @@
 using IngestDBCore.Dto;
 using IngestDBCore.Tool;
 using IngestGlobalPlugin.Dto;
+using IngestGlobalPlugin.Dto.Request;
 using IngestGlobalPlugin.Models;
 using System;
 using System.Collections.Generic;
@@ -82,7 +83,11 @@ namespace IngestGlobalPlugin
                 .ForMember(a => a.Usercode, (map) => map.MapFrom(b => b.szClassCode));
 
 
-
+            CreateMap<MqMsgInfoRequest, MQmsgInfo>()
+                .ForMember(a => a.type, (map) => map.MapFrom(b => b.Type))
+                .ForMember(a => a.sNextRetry, (map) => map.MapFrom(b => b.NextRetry))
+                .ForMember(a => a.strLock, (map) => map.MapFrom(b => b.Lock))
+                .ForMember(a => a.nActionID, (map) => map.MapFrom(b => b.ActionID)).ReverseMap();
             //ReverseMap
         }
 
