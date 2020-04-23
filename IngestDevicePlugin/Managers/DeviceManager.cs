@@ -222,9 +222,9 @@ namespace IngestDevicePlugin.Managers
         }
 
         /// <summary> 根据 通道ID 获取高清还是标清 nType:0标清,1高清 </summary>
-        public virtual async Task<int> GetParamTypeByChannleIDAsync(int nChannelID)
+        public virtual async Task<int> GetParamTypeByChannelIDAsync(int nChannelID)
         {
-            var nType = await Store.GetParamTypeByChannleIDAsync(nChannelID);
+            var nType = await Store.GetParamTypeByChannelIDAsync(nChannelID);
             return nType ?? -1;
         }
 

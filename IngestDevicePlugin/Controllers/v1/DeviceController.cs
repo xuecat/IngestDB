@@ -350,7 +350,7 @@ namespace IngestDevicePlugin.Controllers.v1
             GetParamTypeByChannleID_param response = new GetParamTypeByChannleID_param();
             try
             {
-                response.nType = await _deviceManage.GetParamTypeByChannleIDAsync(nChannelID);
+                response.nType = await _deviceManage.GetParamTypeByChannelIDAsync(nChannelID);
                 if (response.nType == -1)
                 {
                     response.errStr = "No Such Value!";

@@ -627,7 +627,7 @@ namespace IngestDevicePlugin.Stores
         }
 
 
-        public async Task<int?> GetParamTypeByChannleIDAsync(int nChannelID)
+        public async Task<int?> GetParamTypeByChannelIDAsync(int nChannelID)
         {
             return await Context.DbpRcdoutdesc.AsNoTracking().Where(rcdout => rcdout.Channelid == nChannelID)
                                                .Join(Context.DbpVirtualmatrixportstate.AsNoTracking().Where(state => state.State == 1),
