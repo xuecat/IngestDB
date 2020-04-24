@@ -337,7 +337,7 @@ namespace IngestDevicePlugin.Managers
                     break;
 
                 default:
-                    return null;
+                    return new List<ProgrammeInfo>();
             }
             switch (channelInfo.nGroupID)
             {
@@ -368,7 +368,7 @@ namespace IngestDevicePlugin.Managers
                     return programmeInfos.Where(info => info.emPgmType == ProgrammeType.PT_StreamMedia).ToList();
 
                 default:
-                    return null;
+                    return new List<ProgrammeInfo>();
             }
         }
 
