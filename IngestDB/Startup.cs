@@ -80,9 +80,9 @@ namespace IngestDB
                     apm.ApplicationParts.Add(new AssemblyPart(a));
                 });
             }
-            bool InitIsOk = applicationContext.Init().Result;
-
             services.AddToolDefined();
+
+            bool InitIsOk = applicationContext.Init().Result;
             services.AddApiVersioning(o =>
             {
                 o.ReportApiVersions = true;

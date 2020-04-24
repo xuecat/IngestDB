@@ -1,4 +1,5 @@
-﻿using IngestDBCore.Tool;
+﻿using IngestDBCore.Notify;
+using IngestDBCore.Tool;
 using Microsoft.Extensions.DependencyInjection;
 using System;
 using System.Collections.Generic;
@@ -15,7 +16,10 @@ namespace IngestDBCore
                 throw new ArgumentNullException(nameof(services));
             }
             services.AddSingleton<RestClient>();
-            
+
+           
+            ApplicationContext.Current.NotifyClock = new NotifyClock();
+            services.AddSingleton<NotifyClock>(ApplicationContext.Current.NotifyClock);
         }
     }
 }

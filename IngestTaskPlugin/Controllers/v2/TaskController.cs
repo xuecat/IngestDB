@@ -21,7 +21,7 @@ using PropertyRequest = IngestTaskPlugin.Dto.PropertyResponse;
 using TaskInfoRequest = IngestTaskPlugin.Dto.TaskInfoResponse;
 using TaskContentRequest = IngestTaskPlugin.Dto.TaskContentResponse;
 using TaskCustomMetadataRequest = IngestTaskPlugin.Dto.TaskCustomMetadataResponse;
-using AutoMapper;
+using IngestDBCore.Notify;
 
 /// 
 ///MADEBYINGEST没更新完
@@ -42,12 +42,14 @@ namespace IngestTaskPlugin.Controllers.v2
         private readonly ILogger Logger = LoggerManager.GetLogger("TaskInfo");
         private readonly TaskManager _taskManage;
         private readonly RestClient _restClient;
+        private readonly NotifyClock _clock;
         //private readonly IMapper _mapper;
 
-        public TaskController(RestClient rsc, TaskManager task/*, IMapper mapper*/)
+        public TaskController(RestClient rsc, TaskManager task, NotifyClock clock/*, IMapper mapper*/)
         {
             _taskManage = task;
             _restClient = rsc;
+            _clock = clock;
             //_mapper = mapper ?? throw new ArgumentNullException(nameof(mapper));
         }
 
@@ -750,6 +752,8 @@ namespace IngestTaskPlugin.Controllers.v2
             try
             {
                 Response.Ext = await _taskManage.GetTaskInfoByID<TaskContentResponse>(taskid, changestate);
+
+                //_clock.InvokeNotify("relocate", "pi", 23, "data");
             }
             catch (Exception e)
             {

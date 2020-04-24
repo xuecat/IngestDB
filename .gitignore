@@ -8,6 +8,7 @@ IngestDB/packages
 *.cache
 *.user
 bin/
+binu/
 IngestDB/bin/
 IngestDB/obj/
 IngestDB/IngestDB/bin/
