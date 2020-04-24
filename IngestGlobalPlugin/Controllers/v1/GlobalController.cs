@@ -31,20 +31,30 @@ namespace IngestGlobalPlugin.Controllers.v1
 
         [HttpGet("SetGlobalState"), MapToApiVersion("1.0")]
         [ApiExplorerSettings(GroupName = "v1")]
-        public async Task OldSetGlobalState([FromQuery]int nTaskID)
+        public async Task OldSetGlobalState([FromQuery]string strLabel)
         {
-            
+            if (string.IsNullOrEmpty(strLabel))
+            {
+                return;
+            }
 
-
+            try
+            {
+                await _GlobalManager.UpdateGlobalStateAsync(strLabel);
+            }
+            catch (Exception ex)
+            {
+                Logger.Error("OldSetGlobalState : " + ex.ToString());
+            }
         }
-        
+
         #region lock obj
         [HttpPost("PostLockObject"), MapToApiVersion("1.0")]
         [ApiExplorerSettings(GroupName = "v1")]
         public async Task<PostParam_Out> OldPostLockObject([FromBody] PostLockObject_param_in pIn)
         {
             PostParam_Out pOut = new PostParam_Out();
-            
+
             try
             {
                 if (pIn.ObjectID < 0)
@@ -66,7 +76,7 @@ namespace IngestGlobalPlugin.Controllers.v1
                 }
 
                 pOut.bRet = await _GlobalManager.SetLockObjectAsync(pIn.ObjectID, pIn.ObjectTypeID, pIn.userName, pIn.TimeOut);
-                
+
             }
             catch (Exception ex)
             {
@@ -151,7 +161,7 @@ namespace IngestGlobalPlugin.Controllers.v1
             }
             catch (System.Exception ex)
             {
-                Logger.Error("OldGetGlobalState is error:"+ ex.ToString());
+                Logger.Error("OldGetGlobalState is error:" + ex.ToString());
                 p.strErr = ex.Message;
             }
             return p;
@@ -186,7 +196,7 @@ namespace IngestGlobalPlugin.Controllers.v1
         /// <returns>获取状态结果</returns>
         [HttpGet("SetValue"), MapToApiVersion("1.0")]
         [ApiExplorerSettings(GroupName = "v1")]
-        public async Task<OldResponseMessage> OldSetValue([FromQuery,DefaultValue("DEFAULT_CATALOG")]string strKey, [FromQuery, DefaultValue("\\Public Material")]string strValue)
+        public async Task<OldResponseMessage> OldSetValue([FromQuery, DefaultValue("DEFAULT_CATALOG")]string strKey, [FromQuery, DefaultValue("\\Public Material")]string strValue)
         {
             OldResponseMessage res = new OldResponseMessage();
             try
@@ -295,7 +305,7 @@ namespace IngestGlobalPlugin.Controllers.v1
                     pOut.bRet = false;
                     return pOut;
                 }
-                
+
                 await _GlobalManager.UpdateUserSettingAsync(pIn.strUserCode, pIn.strSettingtype, pIn.strSettingText);
                 pOut.bRet = true;
             }
@@ -431,7 +441,7 @@ namespace IngestGlobalPlugin.Controllers.v1
         /// <returns>标准返回信息</returns>
         [HttpPost("ModifyUserTempalteContent"), MapToApiVersion("1.0")]
         [ApiExplorerSettings(GroupName = "v1")]
-        public async Task<OldResponseMessage> OldModifyUserTempalteContent([FromQuery,DefaultValue(2)] int nTemplateID, [FromBody,DefaultValue("<window_positions>...</window_positions>")] string strTemplateContent)
+        public async Task<OldResponseMessage> OldModifyUserTempalteContent([FromQuery, DefaultValue(2)] int nTemplateID, [FromBody, DefaultValue("<window_positions>...</window_positions>")] string strTemplateContent)
         {
             OldResponseMessage res = new OldResponseMessage();
             res.message = no_err;
@@ -453,7 +463,7 @@ namespace IngestGlobalPlugin.Controllers.v1
             }
             return res;
         }
-        
+
         /// <summary>
         /// 修改采集模板名
         /// </summary>
@@ -462,7 +472,7 @@ namespace IngestGlobalPlugin.Controllers.v1
         /// <returns></returns>
         [HttpPost("ModifyUserTemplateName"), MapToApiVersion("1.0")]
         [ApiExplorerSettings(GroupName = "v1")]
-        public async Task<OldResponseMessage> OldModifyUserTemplateName([FromQuery,DefaultValue(2)] int nTemplateID, [FromBody,DefaultValue("newName")] string strNewTemplateName)
+        public async Task<OldResponseMessage> OldModifyUserTemplateName([FromQuery, DefaultValue(2)] int nTemplateID, [FromBody, DefaultValue("newName")] string strNewTemplateName)
         {
             OldResponseMessage res = new OldResponseMessage();
             res.message = no_err;
@@ -485,7 +495,7 @@ namespace IngestGlobalPlugin.Controllers.v1
             return res;
 
         }
-        
+
         /// <summary>
         /// 通过模板id删除UserTemplate
         /// </summary>
@@ -552,7 +562,7 @@ namespace IngestGlobalPlugin.Controllers.v1
             }
             return res;
         }
-        
+
         /// <summary>
         /// 删除用户Param映射关系UserCode-CaptureParamId
         /// </summary>
@@ -587,7 +597,7 @@ namespace IngestGlobalPlugin.Controllers.v1
             }
             return res;
         }
-        
+
         #endregion
 
         #region CMApi
@@ -627,7 +637,7 @@ namespace IngestGlobalPlugin.Controllers.v1
             return res;
         }
 
-        
+
         /// <summary>
         /// 通过用户ID得到用户高清或标清采集参数=
         /// </summary>

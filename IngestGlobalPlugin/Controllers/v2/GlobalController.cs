@@ -232,65 +232,65 @@ namespace IngestGlobalPlugin.Controllers.v2
             return Response;
         }
 
+        ///// <summary>
+        ///// 获取dbpGLOBAL中GLOBAL_KEY对应的value,和上面函数可合并
+        ///// </summary>
+        ///// <remarks>
+        ///// 例子:
+        ///// Get api/v2/global/defaultstc/{tcMode}
+        ///// </remarks>
+        ///// <param name="mode">键值</param>
+        ///// <returns></returns>
+        //[HttpGet("defaultstc/{mode}")]
+        //[ApiExplorerSettings(GroupName = "v2")]
+        //public async Task<ResponseMessage<GlobalTcResponse>> GetDefaultSTC([FromRoute, DefaultValue(0)]int mode)
+        //{
+        //    ResponseMessage<GlobalTcResponse> Response = new ResponseMessage<GlobalTcResponse>();
+
+        //    try
+        //    {
+        //        string strKey = string.Empty;
+        //        if ((TC_MODE)mode == TC_MODE.emForLine)
+        //            strKey = "DEFAULT_STC_LINE";
+        //        else
+        //            strKey = "DEFAULT_STC_OTHER";
+
+        //        string tcType = await _GlobalManager.GetValueStringAsync(strKey);
+        //        Response.Ext.TcType = (TC_TYPE)Convert.ToInt32(tcType);
+        //        Response.Ext.TC = Convert.ToInt32(await _GlobalManager.GetValueStringAsync("PRESET_STC"));
+
+        //        Response.Code = ResponseCodeDefines.SuccessCode;
+        //    }
+        //    catch (Exception e)
+        //    {
+        //        if (e.GetType() == typeof(SobeyRecException))//sobeyexcep会自动打印错误
+        //        {
+        //            SobeyRecException se = e as SobeyRecException;
+        //            Response.Code = se.ErrorCode.ToString();
+        //            Response.Msg = se.Message;
+        //        }
+        //        else
+        //        {
+        //            Response.Code = ResponseCodeDefines.ServiceError;
+        //            Response.Msg = "error info：" + e.ToString();
+        //            Logger.Error("GetDefaultSTC : " + Response.Msg);
+        //        }
+        //    }
+
+        //    return Response;
+
+        //}
+
         /// <summary>
         /// 获取dbpGLOBAL中GLOBAL_KEY对应的value,和上面函数可合并
         /// </summary>
         /// <remarks>
         /// 例子:
-        /// Get api/v2/global/defaultstc/{tcMode}
-        /// </remarks>
-        /// <param name="mode">键值</param>
-        /// <returns></returns>
-        [HttpGet("defaultstc/{mode}")]
-        [ApiExplorerSettings(GroupName = "v2")]
-        public async Task<ResponseMessage<GlobalTcResponse>> GetDefaultSTC([FromRoute, DefaultValue(0)]int mode)
-        {
-            ResponseMessage<GlobalTcResponse> Response = new ResponseMessage<GlobalTcResponse>();
-
-            try
-            {
-                string strKey = string.Empty;
-                if ((TC_MODE)mode == TC_MODE.emForLine)
-                    strKey = "DEFAULT_STC_LINE";
-                else
-                    strKey = "DEFAULT_STC_OTHER";
-
-                string tcType = await _GlobalManager.GetValueStringAsync(strKey);
-                Response.Ext.TcType = (TC_TYPE)Convert.ToInt32(tcType);
-                Response.Ext.TC = Convert.ToInt32(await _GlobalManager.GetValueStringAsync("PRESET_STC"));
-
-                Response.Code = ResponseCodeDefines.SuccessCode;
-            }
-            catch (Exception e)
-            {
-                if (e.GetType() == typeof(SobeyRecException))//sobeyexcep会自动打印错误
-                {
-                    SobeyRecException se = e as SobeyRecException;
-                    Response.Code = se.ErrorCode.ToString();
-                    Response.Msg = se.Message;
-                }
-                else
-                {
-                    Response.Code = ResponseCodeDefines.ServiceError;
-                    Response.Msg = "error info：" + e.ToString();
-                    Logger.Error("GetDefaultSTC : " + Response.Msg);
-                }
-            }
-
-            return Response;
-
-        }
-
-        /// <summary>
-        /// 获取dbpGLOBAL中GLOBAL_KEY对应的value,和上面函数可合并
-        /// </summary>
-        /// <remarks>
-        /// 例子:
-        /// Get api/v2/global/defaultstcext/{mode}
+        /// Get api/v2/global/defaultstc/{mode}
         /// </remarks>
         /// <param name="mode">0=emForLine,1=emForOther</param>
         /// <returns></returns>
-        [HttpGet("defaultstcext/{mode}")]
+        [HttpGet("defaultstc/{mode}")]
         [ApiExplorerSettings(GroupName = "v2")]
         public async Task<ResponseMessage<GlobalTcResponse>> GetDefaultSTCExt([FromRoute, DefaultValue(0)]int mode)
         {
@@ -677,7 +677,7 @@ namespace IngestGlobalPlugin.Controllers.v2
             }
             try
             {
-                await _GlobalManager.ModifyUserTemplateAsync(templateID, UserTemplate.TemplateName, UserTemplate.TemplateContent);
+                await _GlobalManager.ModifyUserTemplateAsync(templateID, UserTemplate.TemplateContent, UserTemplate.TemplateName);
                 Response.Code = ResponseCodeDefines.SuccessCode;
             }
             catch (System.Exception e)
