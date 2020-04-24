@@ -1,11 +1,12 @@
 ﻿using System;
 using System.Collections.Generic;
 
-namespace IngestCustomerPlugin.Models
+namespace IngestGlobalPlugin.Models
 {
-    public partial class DbpMsmqmsg
+    public partial class DbpMsmqmsgFailed
     {
         public string Msgid { get; set; }
+        public int Actionid { get; set; }
         public string Msgcontent { get; set; }
         public DateTime Msgsendtime { get; set; }
         public DateTime Msgrevtime { get; set; }
@@ -13,7 +14,7 @@ namespace IngestCustomerPlugin.Models
         public DateTime Msgprocesstime { get; set; }
         public int? Failedcount { get; set; }
         public int? Msgtype { get; set; }
-        public DateTime? Nextretry { get; set; }
+        public DateTime Nextretry { get; set; }
         public string Lockdata { get; set; }
     }
 }
