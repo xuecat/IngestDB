@@ -52,12 +52,13 @@ namespace IngestTaskPlugin.Controllers.v2
         }
 
         /// <summary>
-        /// 使用路由 /taskinfo/materialmetadata/{taskid}
+        /// 获取material元数据
         /// </summary>
         /// <remarks>
         /// 例子:
         ///     Get api/v2/task/taskmaterialmetadata/1
         /// </remarks>
+        /// <param name="taskid">任务id</param>
         /// <returns>素材任务元数据结构体</returns>     
         [HttpGet("taskinfo/materialmetadata/{taskid}")]
         [ApiExplorerSettings(GroupName = "v2")]
@@ -92,12 +93,13 @@ namespace IngestTaskPlugin.Controllers.v2
         }
 
         /// <summary>
-        /// 使用路由 /taskinfo/contentmetadata/{taskid}
+        /// 获取content元数据
         /// </summary>
         /// <remarks>
         /// 例子:
         ///     Get api/v2/task/taskcontentmetadata/1
         /// </remarks>
+        /// <param name="taskid">任务id</param>
         /// <returns>任务元数据结构体</returns>     
         [HttpGet("taskinfo/contentmetadata/{taskid}")]
         [ApiExplorerSettings(GroupName = "v2")]
@@ -132,12 +134,13 @@ namespace IngestTaskPlugin.Controllers.v2
         }
 
         /// <summary>
-        /// 使用路由 /taskinfo/planningmetadata/{taskid}
+        /// 获取planning元数据
         /// </summary>
         /// <remarks>
         /// 例子:
         ///     Get api/v2/task/taskplanningmetadata/1
         /// </remarks>
+        /// <param name="taskid">任务id</param>
         /// <returns>任务计划元数据结构体</returns>     
         [HttpGet("taskinfo/planningmetadata/{taskid}")]
         [ApiExplorerSettings(GroupName = "v2")]
@@ -172,7 +175,7 @@ namespace IngestTaskPlugin.Controllers.v2
         }
 
         /// <summary>
-        /// 使用路由 /taskinfo/metadata//{taskid}
+        /// 更新所有任务的元数据
         /// </summary>
         /// <remarks>
         /// 假如没有此属性会新加，有此属性会更新
@@ -216,12 +219,13 @@ namespace IngestTaskPlugin.Controllers.v2
         }
 
         /// <summary>
-        /// 使用路由 /taskcustommetadata/{taskid}
+        /// 获取自定义元数据
         /// </summary>
         /// <remarks>
         /// 例子:
         ///     Get api/v2/task/taskcustommetadata/1
         /// </remarks>
+        /// <param name="taskid">任务id</param>
         /// <returns>获取任务自定义数据</returns>     
         [HttpGet("taskinfo/custommetadata/{taskid}")]
         [ApiExplorerSettings(GroupName = "v2")]
@@ -256,7 +260,7 @@ namespace IngestTaskPlugin.Controllers.v2
         }
 
         /// <summary>
-        /// 使用路由 /taskinfo/custommetadata/{taskid}
+        /// 更新任务自定义元数据
         /// </summary>
         /// <remarks>
         /// 例子:
@@ -264,7 +268,7 @@ namespace IngestTaskPlugin.Controllers.v2
         /// </remarks>
         /// <param name="taskid">任务id</param>
         /// <param name="data">更新数据，taskid填不填看你，我不会用</param>
-        /// <returns>获取任务自定义数据</returns>     
+        /// <returns>任务id</returns>     
         [HttpPost("taskinfo/custommetadata/{taskid}")]
         [ApiExplorerSettings(GroupName = "v2")]
         public async Task<ResponseMessage<int>> UpdateTaskCustomMetaData([FromRoute, BindRequired]int taskid, [FromBody, BindRequired]TaskCustomMetadataRequest data)
@@ -358,7 +362,7 @@ namespace IngestTaskPlugin.Controllers.v2
         ///     Get api/v2/task/grouptask/1
         /// </remarks>
         /// <param name="taskid">单个组任务id</param>
-        /// <returns>停止的所有任务id</returns>
+        /// <returns>删除的所有任务id</returns>
         [HttpDelete("grouptask/{taskid}")]
         [ApiExplorerSettings(GroupName = "v2")]
         public async Task<ResponseMessage<List<int>>> DeleteGroupTask([FromRoute, BindRequired]int taskid)
@@ -631,7 +635,7 @@ namespace IngestTaskPlugin.Controllers.v2
         ///
         /// </remarks>
         /// <param name="channelid">通道信息</param>
-        /// <returns>任务id</returns>
+        /// <returns>当前正在采集的任务</returns>
         [HttpGet("capturing/{channelid}")]
         [ApiExplorerSettings(GroupName = "v2")]
         public async Task<ResponseMessage<TaskContentResponse>> GetChannelCapturingTaskInfo([FromRoute, BindRequired]int channelid)
@@ -673,7 +677,7 @@ namespace IngestTaskPlugin.Controllers.v2
         /// </remarks>
         /// <param name="taskid">任务id，给不给值无所谓只是为了好看</param>
         /// <param name="req">修改请求体，请填入taskid信息</param>
-        /// <returns>任务id</returns>
+        /// <returns>任务信息</returns>
         [HttpPut("taskinfo/content/{taskid}")]
         [ApiExplorerSettings(GroupName = "v2")]
         public async Task<ResponseMessage<TaskContentResponse>> ModifyTask([FromRoute, BindRequired]int taskid, [FromBody, BindRequired]TaskContentRequest req)
@@ -723,7 +727,7 @@ namespace IngestTaskPlugin.Controllers.v2
         }
 
         /// <summary>
-        /// 获取任务内容元数据
+        /// 获取任务基础元数据
         /// </summary>
         /// <remarks>
         /// 例子:
@@ -991,9 +995,9 @@ namespace IngestTaskPlugin.Controllers.v2
         ///
         /// </remarks>
         /// <param name="unitid">随便填</param>
-        /// <param name="day">查询时间</param>
+        /// <param name="day">查询时间yyyy/MM/dd HH:mm:ss </param>
         /// <param name="timemode">查询模式0是24小时模式，1是32小时模式</param>
-        /// <returns>任务id</returns>
+        /// <returns>任务基础元数据</returns>
         [HttpGet("onedaytask")]
         [ApiExplorerSettings(GroupName = "v2")]
         public async Task<ResponseMessage<List<TaskContentResponse>>> QueryTaskContent([FromQuery, BindRequired]int unitid, [FromQuery, BindRequired]string day, [FromQuery, BindRequired]int timemode)
@@ -1030,7 +1034,7 @@ namespace IngestTaskPlugin.Controllers.v2
         ///
         /// </remarks>
         /// <param name="taskid">查询任务id</param>
-        /// <returns>任务id</returns>
+        /// <returns>任务来源source 枚举</returns>
         [HttpGet("taskinfo/tasksource/{taskid}")]
         [ApiExplorerSettings(GroupName = "v2")]
         public async Task<ResponseMessage<TaskSource>> GetTaskSourceById([FromRoute, BindRequired]int taskid)
@@ -1282,19 +1286,19 @@ namespace IngestTaskPlugin.Controllers.v2
         }
 
         /// <summary>
-        /// 分裂素材用
+        /// 设置任务的分裂信息
         /// </summary>
         /// <remarks>
         /// 例子:
         ///
         /// </remarks>
         /// <param name="taskid">任务id</param>
-        /// <param name="oldlen">任务id</param>
-        /// <param name="oldclipnum">任务id</param>
-        /// <param name="newname">任务id</param>
-        /// <param name="newguid">任务id</param>
-        /// <param name="index">任务id</param>
-        /// <returns></returns>
+        /// <param name="oldlen">前面一段的分裂长度</param>
+        /// <param name="oldclipnum">前面一段采了多少段</param>
+        /// <param name="newname">新分裂的素材名</param>
+        /// <param name="newguid">新分裂的素材guid</param>
+        /// <param name="index">新分裂的段号</param>
+        /// <returns>任务guid</returns>
         [HttpPost("splittaskwithclip/{taskid}")]
         [ApiExplorerSettings(GroupName = "v2")]
         public async Task<ResponseMessage<string>> SplitClip(
@@ -1410,7 +1414,7 @@ namespace IngestTaskPlugin.Controllers.v2
         ///
         /// </remarks>
         /// <param name="taskid">任务id</param>
-        /// <param name="cooptype">要设置的类型</param>
+        /// <param name="cooptype">要设置的类型 枚举</param>
         /// <returns></returns>
         [HttpPut("taskinfo/coopertype/{taskid}")]
         [ApiExplorerSettings(GroupName = "v2")]
@@ -1564,7 +1568,7 @@ namespace IngestTaskPlugin.Controllers.v2
         /// <param name="taskid">老任务id</param>
         /// <param name="newguid">新id</param>
         /// <param name="newname">新名字</param>
-        /// <returns>素材路径名</returns>
+        /// <returns>任务信息元数据</returns>
         [HttpPost("splittask/{taskid}")]
         [ApiExplorerSettings(GroupName = "v2")]
         public async Task<ResponseMessage<TaskContentResponse>> SplitTaskInfo([FromRoute, BindRequired]int taskid, [FromQuery, BindRequired]string newguid, [FromQuery, BindRequired]string newname)
@@ -1725,7 +1729,7 @@ namespace IngestTaskPlugin.Controllers.v2
         /// <param name="lstchannelid">占位任务id</param>
         /// <param name="begin">开始时间</param>
         /// <param name="end">结束时间</param>
-        /// <returns>分裂后的任务</returns>
+        /// <returns>选择后的通道id</returns>
         [HttpPost("chooseuseablechannel")]
         [ApiExplorerSettings(GroupName = "v2")]
         public async Task<ResponseMessage<int>> ChooseUseableChannelID([FromQuery, BindRequired]List<int> lstchannelid, [FromQuery, BindRequired]string begin, [FromQuery, BindRequired]string end)
@@ -1761,7 +1765,7 @@ namespace IngestTaskPlugin.Controllers.v2
         /// </remarks>
         /// <param name="taskid">任务id</param>
         /// <param name="taskname">任务名字</param>
-        /// <returns>分裂后的任务</returns>
+        /// <returns>无返回</returns>
         [HttpPut("taskinfo/name/{taskid}")]
         [ApiExplorerSettings(GroupName = "v2")]
         public async Task<ResponseMessage> ModifyTaskInfoName([FromRoute, BindRequired]int taskid, [FromQuery, BindRequired]string taskname)
@@ -1808,7 +1812,7 @@ namespace IngestTaskPlugin.Controllers.v2
         /// </remarks>
         /// <param name="isall">是否全部修改</param>
         /// <param name="taskname">任务名字</param>
-        /// <returns>分裂后的任务</returns>
+        /// <returns>任务id</returns>
         [HttpPost("taskinfo/name/{taskid}")]
         [ApiExplorerSettings(GroupName = "v2")]
         public async Task<ResponseMessage<int>> ModifyPeriodTaskInfo([FromQuery, BindRequired]int isall, [FromBody, BindRequired]TaskContentRequest req)
@@ -1861,7 +1865,7 @@ namespace IngestTaskPlugin.Controllers.v2
         /// <param name="begintime"></param>
         /// <param name="endtime"></param>
         /// <param name="vtrid"></param>
-        /// <returns>分裂后的任务</returns>
+        /// <returns>冲突信息</returns>
         [HttpGet("IsVTRCollide/{taskid}")]
         [ApiExplorerSettings(GroupName = "v2")]
         public async Task<ResponseMessage<IsVtrCollide>> IsTaskVTRCollide(

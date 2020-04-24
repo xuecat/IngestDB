@@ -6,7 +6,11 @@ namespace IngestTaskPlugin.Dto
 {
     public class TaskCustomMetadataResponse
     {
-        public int TaskID;
-        public string Metadata;
+        /// <summary>任务id</summary>
+        /// <example>1</example>
+        public int TaskID { get; set; }
+        /// <summary>任务元数据</summary>
+        /// <example>任务元数据</example>
+        public string Metadata { get; set; }
     }
 }
