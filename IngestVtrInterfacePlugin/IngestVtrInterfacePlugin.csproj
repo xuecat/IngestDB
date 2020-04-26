@@ -10,7 +10,7 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\IngestDevicePlugin\IngestDevicePlugin.csproj" />
+    <ProjectReference Include="..\IngestDBCore\IngestDBCore.csproj" />
   </ItemGroup>
 
 </Project>

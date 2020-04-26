@@ -72,7 +72,8 @@ namespace IngestDBCore.Basic
                 var param = operation.Parameters.SingleOrDefault(a => a.Name == "version" && a.In == ParameterLocation.Path);
                 if (param!=null)
                 {
-                    param.Schema.Default = new OpenApiString(apiVersion.Versions[0].ToString());
+                    operation.Parameters.Remove(param);
+                    //param.Schema.Default = new OpenApiString(apiVersion.Versions[0].ToString());
                 }
                 
             }

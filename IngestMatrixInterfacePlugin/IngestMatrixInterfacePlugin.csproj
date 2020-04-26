@@ -5,12 +5,14 @@
   </PropertyGroup>
 
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
+    <DocumentationFile></DocumentationFile>
     <OutputPath>..\Bin\netcoreapp2.1\Plugin\</OutputPath>
     <AppendTargetFrameworkToOutputPath>false</AppendTargetFrameworkToOutputPath>
   </PropertyGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\IngestDevicePlugin\IngestDevicePlugin.csproj" />
+    <ProjectReference Include="..\IngestDBCore\IngestDBCore.csproj" />
+    <ProjectReference Include="..\IngestMatrixPlugin\IngestMatrixPlugin.csproj" />
   </ItemGroup>
 
 </Project>

@@ -27,6 +27,7 @@ IngestCustomerInterfacePlugin/bin/
 IngestCustomerPlugin/obj/
 IngestCustomerPlugin/bin/
 
+/IngestMatrixInterfacePlugin/obj
 IngestMatrixPlugin/obj/
 IngestMatrixPlugin/bin/
 
@@ -55,3 +56,7 @@ IngestGlobalPlugin/bin/
 IngestGlobalPlugin/obj/
 IngestTaskPlugin/Properties/
 IngestGlobalInterfacePlugin/bin/
+
+/IngestVtrInterfacePlugin/obj
+
+/IngestVtrPlugin/obj

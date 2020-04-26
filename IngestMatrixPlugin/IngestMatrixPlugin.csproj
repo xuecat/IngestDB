@@ -6,6 +6,13 @@
     <AssemblyName>IngestMatrixPlugin</AssemblyName>
   </PropertyGroup>
 
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
+    <DocumentationFile>..\Bin\netcoreapp2.1\Plugin\IngestMatrixPlugin.xml</DocumentationFile>
+    <OutputPath>..\Bin\netcoreapp2.1\Plugin\</OutputPath>
+    <AppendTargetFrameworkToOutputPath>false</AppendTargetFrameworkToOutputPath>
+    <CheckForOverflowUnderflow>false</CheckForOverflowUnderflow>
+  </PropertyGroup>
+
   <ItemGroup>
     <Folder Include="Dto\Enums\" />
     <Folder Include="Dto\Request\" />

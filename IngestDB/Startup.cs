@@ -40,7 +40,7 @@ namespace IngestDB
                 .Build();
 
             services.AddSingleton<IConfigurationRoot>(cfg);
-            services.AddMvc()
+            services.AddMvc(option => { option.Filters.Add(typeof(IngestAuthentication)); })
                 .SetCompatibilityVersion(CompatibilityVersion.Version_2_1);
             //.AddJsonOptions(options =>//为swagger加的
             //options.SerializerSettings.Converters.Add(new StringEnumConverter()));
@@ -98,6 +98,7 @@ namespace IngestDB
             var xmlPath1 = Path.Combine(basePath, "Plugin", "IngestGlobalPlugin.xml");
             var xmlPath2 = Path.Combine(basePath, "Plugin", "IngestDevicePlugin.xml");
             var xmlPath3 = Path.Combine(basePath, "Plugin", "IngestTaskPlugin.xml");
+            var xmlPath4 = Path.Combine(basePath, "Plugin", "IngestMatrixPlugin.xml");
 
             if (File.Exists(xmlPath1) && File.Exists(xmlPath2) && File.Exists(xmlPath3))
             {
@@ -132,6 +133,7 @@ namespace IngestDB
                     c.IncludeXmlComments(xmlPath1);
                     c.IncludeXmlComments(xmlPath2);
                     c.IncludeXmlComments(xmlPath3);
+                    c.IncludeXmlComments(xmlPath4);
                     //c.DescribeAllEnumsAsStrings();
                     c.OperationFilter<HttpHeaderOperation>(); // 添加httpHeader参数
                     c.OperationFilter<DefaultValueOperation>(); // 添加defaultValue参数

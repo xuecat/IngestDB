@@ -5,8 +5,9 @@
   </PropertyGroup>
 
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
-    <OutputPath>..\Bin\Plugin</OutputPath>
-    <DocumentationFile>..\Bin\Plugin\IngestTaskPlugin.xml</DocumentationFile>
+    <OutputPath>..\Bin\netcoreapp2.1\Plugin\</OutputPath>
+    <DocumentationFile>..\Bin\netcoreapp2.1\Plugin\IngestTaskPlugin.xml</DocumentationFile>
+    <AppendTargetFrameworkToOutputPath>false</AppendTargetFrameworkToOutputPath>
     <NoWarn>1701;1702;1591</NoWarn>
   </PropertyGroup>
 
