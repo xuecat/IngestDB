@@ -8,7 +8,6 @@ using System.Text;
 
 namespace IngestGlobalPlugin.Controllers.v2
 {
-    [IngestAuthentication]
     [Route("api/v{version:apiVersion}/[controller]")]
     [ApiVersion("2.0")]
     [ApiController]
@@ -24,5 +23,7 @@ namespace IngestGlobalPlugin.Controllers.v2
             //_restClient = rsc;
             //_mapper = mapper ?? throw new ArgumentNullException(nameof(mapper));
         }
+
+
     }
 }

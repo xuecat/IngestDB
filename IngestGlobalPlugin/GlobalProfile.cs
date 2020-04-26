@@ -88,6 +88,11 @@ namespace IngestGlobalPlugin
                 .ForMember(a => a.sNextRetry, (map) => map.MapFrom(b => b.NextRetry))
                 .ForMember(a => a.strLock, (map) => map.MapFrom(b => b.Lock))
                 .ForMember(a => a.nActionID, (map) => map.MapFrom(b => b.ActionID)).ReverseMap();
+
+            CreateMap<VideoInfoResponse, VideoInfo>()
+                .ForMember(a => a.nVideoSource, (map) => map.MapFrom(b => b.VideoSource))
+                .ForMember(a => a.nVideoTypeID, (map) => map.MapFrom(b => b.VideoTypeID))
+                .ForMember(a => a.strFilename, (map) => map.MapFrom(b => b.Filename));
             //ReverseMap
         }
 

@@ -217,5 +217,49 @@ namespace IngestGlobalPlugin.Dto
         public string strLock;//加锁
         public int nActionID = -1;//对于没有处理过的消息，这个ID是0，失败重试的消息，这个ID是策略ID
     }
+    public enum CLIP_STATE
+    {
+        STARTCAPUTER = 0,   //开始采集了,可以边采边编了	
+        STOPCAPTURE,    //采集完成
+    }
+
+    public enum DELETED_STATE
+    {
+        NOTDELETED = 0,                 //没有被删除  
+        DELETEDBYARCHIVESERVICE,        //被入库服务删除
+        DELETEDBYMETADATASTATUSMANAGER, //被入库失败素材查询工具删除
+        DELETEDBYOTHER,                 //被其他工具删除的
+    }
+    public class VideoInfo
+    {
+        public string strFilename = "";
+        public int nVideoTypeID = -1;
+        public int nVideoSource = 0;//视频来源
+    }
+
+    public class AudioInfo
+    {
+        public string strFilename = "";
+        public int nAudioTypeID = -1;
+        public int nAudioSource = 0;//音频来源
+    }
+
+    public class MaterialInfo
+    {
+        public int nID = 0;         //素材ID
+        public string strName = "";     //素材名
+        public string strRemark = "";   //素材描述
+        public string strUserCode = ""; //用户编码
+        public string strCreateTime = DateTime.MinValue.ToString("yyyy-MM-dd HH:mm:ss");    //创建时间
+        public int nTaskID = 0;     //任务ID
+        public int nSectionID = 0;  //分段索引
+        public string strGUID = ""; //素材GUID
+        public int nClipState = (int)CLIP_STATE.STARTCAPUTER;   //素材采集状态
+        public List<VideoInfo> videos;  //视频文件列表
+        public List<AudioInfo> audios;  //音频文件列表
+        public List<int> ArchivePolicys;    //入库策略列表
+        public int nDeleteState = (int)DELETED_STATE.NOTDELETED;
+    };
+    
 
 }

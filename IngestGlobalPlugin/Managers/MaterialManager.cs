@@ -25,14 +25,12 @@ namespace IngestGlobalPlugin.Managers
 
         public async Task<bool> AddMqMsg<T>(T info)
         {
-            /*
-             * @brief 记得加上 DateTime tmProcess = DateTime.Now;
-            if (!string.IsNullOrEmpty(msg.MsgProcessTime))
-            {
-                DateTime.TryParse(msg.MsgProcessTime, out tmProcess);
-            }
-             */
             var msg = _mapper.Map<DbpMsmqmsg>(info);
+
+            if (msg.Msgprocesstime == DateTime.MinValue)
+            {
+                msg.Msgprocesstime = DateTime.Now;
+            }
             if (msg != null)
             {
                 await Store.AddMQMsg(msg);
