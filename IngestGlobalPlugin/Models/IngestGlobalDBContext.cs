@@ -25,6 +25,9 @@ namespace IngestGlobalPlugin.Models
         public virtual DbSet<DbpUsersettings> DbpUsersetting { get; set; }
         public virtual DbSet<DbpUsertemplate> DbpUsertemplate { get; set; }
         public virtual DbSet<DbpUserparamMap> DbpUserparamMap { get; set; }
+        public virtual DbSet<DbpMsgFailedrecord> DbpMsgFailedrecord { get; set; }
+        public virtual DbSet<DbpMsmqmsg> DbpMsmqmsg { get; set; }
+        public virtual DbSet<DbpMsmqmsgFailed> DbpMsmqmsgFailed { get; set; }
 
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
@@ -159,8 +162,8 @@ namespace IngestGlobalPlugin.Models
                 entity.Property(e => e.Lasttime)
                     .HasColumnName("LASTTIME")
                     .HasColumnType("timestamp")
-                    .HasDefaultValueSql("'CURRENT_TIMESTAMP'")
-                    .ValueGeneratedOnAddOrUpdate();
+                    .HasDefaultValueSql("'CURRENT_TIMESTAMP'");
+
             });
 
             modelBuilder.Entity<DbpObjectstateinfo>(entity => {
@@ -203,7 +206,140 @@ namespace IngestGlobalPlugin.Models
                 entity.Property(e => e.Captureparamid).HasColumnName("CAPTUREPARAMID").HasColumnType("int(11)");
             });
 
+            modelBuilder.Entity<DbpMsgFailedrecord>(entity =>
+            {
+                entity.HasKey(e => e.MsgGuid);
 
+                entity.ToTable("dbp_msg_failedrecord");
+
+                entity.HasIndex(e => e.TaskId)
+                    .HasName("IDX_TASKID");
+
+                entity.Property(e => e.MsgGuid).HasColumnType("char(50)");
+
+                entity.Property(e => e.DealMsg).HasColumnType("varchar(255)");
+
+                entity.Property(e => e.DealTime).HasColumnType("datetime");
+
+                entity.Property(e => e.SectionId)
+                    .HasColumnName("SectionID")
+                    .HasColumnType("int(5)");
+
+                entity.Property(e => e.TaskId)
+                    .HasColumnName("TaskID")
+                    .HasColumnType("int(12)");
+            });
+
+            modelBuilder.Entity<DbpMsmqmsg>(entity =>
+            {
+                entity.HasKey(e => e.Msgid);
+
+                entity.ToTable("dbp_msmqmsg");
+
+                entity.Property(e => e.Msgid)
+                    .HasColumnName("MSGID")
+                    .HasColumnType("varchar(64)");
+
+                entity.Property(e => e.Failedcount)
+                    .HasColumnName("FAILEDCOUNT")
+                    .HasColumnType("int(11)")
+                    .HasDefaultValueSql("'0'");
+
+                entity.Property(e => e.Lockdata)
+                    .HasColumnName("LOCKDATA")
+                    .HasColumnType("varchar(64)");
+
+                entity.Property(e => e.Msgcontent)
+                    .HasColumnName("MSGCONTENT")
+                    .HasColumnType("text");
+
+                entity.Property(e => e.Msgprocesstime)
+                    .HasColumnName("MSGPROCESSTIME")
+                    .HasColumnType("timestamp")
+                    .HasDefaultValueSql("'0000-00-00 00:00:00'");
+
+                entity.Property(e => e.Msgrevtime)
+                    .HasColumnName("MSGREVTIME")
+                    .HasColumnType("timestamp")
+                    .HasDefaultValueSql("'0000-00-00 00:00:00'");
+
+                entity.Property(e => e.Msgsendtime)
+                    .HasColumnName("MSGSENDTIME")
+                    .HasColumnType("timestamp")
+                    .HasDefaultValueSql("'CURRENT_TIMESTAMP'")
+                    .ValueGeneratedOnAddOrUpdate();
+
+                entity.Property(e => e.Msgstatus)
+                    .HasColumnName("MSGSTATUS")
+                    .HasColumnType("int(11)");
+
+                entity.Property(e => e.Msgtype)
+                    .HasColumnName("MSGTYPE")
+                    .HasColumnType("int(11)")
+                    .HasDefaultValueSql("'0'");
+
+                entity.Property(e => e.Nextretry)
+                    .HasColumnName("NEXTRETRY")
+                    .HasColumnType("date");
+            });
+
+            modelBuilder.Entity<DbpMsmqmsgFailed>(entity =>
+            {
+                entity.HasKey(e => new { e.Msgid, e.Actionid });
+
+                entity.ToTable("dbp_msmqmsg_failed");
+
+                entity.Property(e => e.Msgid)
+                    .HasColumnName("MSGID")
+                    .HasColumnType("varchar(64)");
+
+                entity.Property(e => e.Actionid)
+                    .HasColumnName("ACTIONID")
+                    .HasColumnType("int(11)");
+
+                entity.Property(e => e.Failedcount)
+                    .HasColumnName("FAILEDCOUNT")
+                    .HasColumnType("int(11)")
+                    .HasDefaultValueSql("'0'");
+
+                entity.Property(e => e.Lockdata)
+                    .HasColumnName("LOCKDATA")
+                    .HasColumnType("varchar(64)");
+
+                entity.Property(e => e.Msgcontent)
+                    .HasColumnName("MSGCONTENT")
+                    .HasColumnType("text");
+
+                entity.Property(e => e.Msgprocesstime)
+                    .HasColumnName("MSGPROCESSTIME")
+                    .HasColumnType("timestamp")
+                    .HasDefaultValueSql("'0000-00-00 00:00:00'");
+
+                entity.Property(e => e.Msgrevtime)
+                    .HasColumnName("MSGREVTIME")
+                    .HasColumnType("timestamp")
+                    .HasDefaultValueSql("'0000-00-00 00:00:00'");
+
+                entity.Property(e => e.Msgsendtime)
+                    .HasColumnName("MSGSENDTIME")
+                    .HasColumnType("timestamp")
+                    .HasDefaultValueSql("'CURRENT_TIMESTAMP'")
+                    .ValueGeneratedOnAddOrUpdate();
+
+                entity.Property(e => e.Msgstatus)
+                    .HasColumnName("MSGSTATUS")
+                    .HasColumnType("int(11)");
+
+                entity.Property(e => e.Msgtype)
+                    .HasColumnName("MSGTYPE")
+                    .HasColumnType("int(11)")
+                    .HasDefaultValueSql("'0'");
+
+                entity.Property(e => e.Nextretry)
+                    .HasColumnName("NEXTRETRY")
+                    .HasColumnType("timestamp")
+                    .HasDefaultValueSql("'0000-00-00 00:00:00'");
+            });
 
         }
 

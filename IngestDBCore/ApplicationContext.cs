@@ -1,4 +1,5 @@
 ﻿using IngestDBCore.Interface;
+using IngestDBCore.Notify;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.Extensions.DependencyInjection;
 using System;
@@ -28,6 +29,7 @@ namespace IngestDBCore
         public string VIP { get; set; }
         public string CMServerUrl { get; set; }
         public string CMServerWindowsUrl { get; set; }
+        public NotifyClock NotifyClock { get; set;}
         public ApplicationContext(IServiceCollection serviceContainer)
         {
             Current = this;

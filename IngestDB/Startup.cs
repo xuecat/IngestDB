@@ -80,9 +80,9 @@ namespace IngestDB
                     apm.ApplicationParts.Add(new AssemblyPart(a));
                 });
             }
-            bool InitIsOk = applicationContext.Init().Result;
-
             services.AddToolDefined();
+
+            bool InitIsOk = applicationContext.Init().Result;
             services.AddApiVersioning(o =>
             {
                 o.ReportApiVersions = true;
@@ -186,7 +186,7 @@ namespace IngestDB
                 if (item.Attribute("module").Value.CompareTo("INGESTDB") == 0)
                 {
                     return string.Format(
-                "Server={0};Port={4};Database={1};Uid={2};Pwd={3};Pooling=true;minpoolsize=1;MaximumPoolSize=30;SslMode=none;Convert Zero Datetime=True;Allow Zero Datetime=True",
+                "Server={0};Port={4};Database={1};Uid={2};Pwd={3};Pooling=true;minpoolsize=1;MaximumPoolSize=30;SslMode=none;",
                 vip, item.Element("Instance").Value,
                 item.Element("Username").Value,
                 IngestDBCore.Tool.Base64SQL.Base64_Decode(item.Element("Password").Value),

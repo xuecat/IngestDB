@@ -182,7 +182,7 @@ namespace IngestGlobalPlugin.Stores
                     return false;
                 }
                 //加锁
-                var deleteObj = await GetObjectstateinfoAsync(a => a.Where(x => x.Username == arrObjects.Username && ((arrObjects.Objectid >= 0 && x.Objectid == arrObjects.Objectid) || arrObjects.Objectid < 0) && ((arrObjects.Objecttypeid >= 0 && x.Objecttypeid == (int)arrObjects.Objecttypeid) || arrObjects.Objecttypeid < 0)));
+                //var deleteObj = await GetObjectstateinfoAsync(a => a.Where(x => x.Username == arrObjects.Username && ((arrObjects.Objectid >= 0 && x.Objectid == arrObjects.Objectid) || arrObjects.Objectid < 0) && ((arrObjects.Objecttypeid >= 0 && x.Objecttypeid == (int)arrObjects.Objecttypeid) || arrObjects.Objecttypeid < 0)));
 
                 Context.DbpObjectstateinfo.Remove(arrObjects);
                 int LineNum = await Context.SaveChangesAsync();
@@ -225,6 +225,11 @@ namespace IngestGlobalPlugin.Stores
         //excute global
         public async Task<TResult> GetGlobalAsync<TResult>(Func<IQueryable<DbpGlobal>, IQueryable<TResult>> query, bool notrack = false)
         {
+
+            //var result = Context.DbpUsertemplate.FromSql("select next_val('DBP_SQ_UESRTEMPLATEID')");// .ExecuteSqlCommand("select next_val('DBP_SQ_UESRTEMPLATEID')");
+
+            //var result = Context.Database.ExecuteSqlCommand("select next_val('DBP_SQ_UESRTEMPLATEID')");//.FirstOrDefault();
+
             if (query == null)
             {
                 throw new ArgumentNullException(nameof(query));
@@ -825,29 +830,40 @@ namespace IngestGlobalPlugin.Stores
 
         }
 
-        public async Task UpdateUserTempalteAsync(int templateID, string templateContent, string newTemplateName)
+        public async Task UpdateUserTempalteAsync(int templateID,string userCode, string templateContent, string newTemplateName)
         {
             try
             {
                 var userTemplate = new DbpUsertemplate()
                 {
-                    Templateid = templateID
+                    Templateid = templateID,
+                    Usercode = userCode
                 };
-                if (!string.IsNullOrWhiteSpace(templateContent))
+
+                if (!string.IsNullOrWhiteSpace(newTemplateName) && !string.IsNullOrWhiteSpace(templateContent))
+                {
+                    userTemplate.Templatename = newTemplateName;
+                    userTemplate.Templatecontent = templateContent;
+                    Context.Attach(userTemplate);
+                    Context.Entry(userTemplate).Property(x => x.Templatename).IsModified = true;
+                    Context.Entry(userTemplate).Property(x => x.Templatecontent).IsModified = true;
+                    await Context.SaveChangesAsync();
+                }
+                else if (!string.IsNullOrWhiteSpace(newTemplateName) && string.IsNullOrWhiteSpace(templateContent))
                 {
                     userTemplate.Templatecontent = templateContent;
                     Context.Attach(userTemplate);
                     Context.Entry(userTemplate).Property(x => x.Templatecontent).IsModified = true;
+                    await Context.SaveChangesAsync();
                 }
-
-                if (!string.IsNullOrWhiteSpace(newTemplateName))
+                else if (!string.IsNullOrWhiteSpace(templateContent) && string.IsNullOrWhiteSpace(newTemplateName))
                 {
                     userTemplate.Templatename = newTemplateName;
                     Context.Attach(userTemplate);
                     Context.Entry(userTemplate).Property(x => x.Templatename).IsModified = true;
+                    await Context.SaveChangesAsync();
                 }
-
-                await Context.SaveChangesAsync();
+                
             }
             catch (Exception ex)
             {
