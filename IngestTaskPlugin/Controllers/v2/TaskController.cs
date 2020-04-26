@@ -561,7 +561,7 @@ namespace IngestTaskPlugin.Controllers.v2
         /// </remarks>
         /// <param name="taskguid">guid信息</param>
         /// <returns>任务id</returns>
-        [HttpGet("taskinfo/id")]
+        [HttpGet("taskinfo/backid")]
         [ApiExplorerSettings(GroupName = "v2")]
         public async Task<ResponseMessage<int>> TaskIDByTaskGUID([FromQuery, BindRequired]string taskguid)
         {
@@ -753,7 +753,8 @@ namespace IngestTaskPlugin.Controllers.v2
             {
                 Response.Ext = await _taskManage.GetTaskInfoByID<TaskContentResponse>(taskid, changestate);
 
-                //_clock.InvokeNotify("relocate", "pi", 23, "data");
+                //await Task.Run(() => { _clock.InvokeNotify("relocate", "pi", 23, "data"); });
+                
             }
             catch (Exception e)
             {

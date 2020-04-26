@@ -1,21 +1,20 @@
 ﻿using IngestDBCore;
-using IngestDBCore.Notify;
 using IngestDBCore.Plugin;
-using Microsoft.Extensions.DependencyInjection;
 using System;
 using System.Threading.Tasks;
 
-namespace MSVNotifyPlugin
+namespace OrleansNotifyPlugin
 {
     public class Plugin : PluginBase
     {
-        // {B8AD5930-E923-49D1-AC54-AF77EA755418}
-       
+        // {8D82BB78-EAB5-41E7-9EFE-2EE7A71C35CC}
+
+
         public override string PluginID
         {
             get
             {
-                return "B8AD5930-E923-49D1-AC54-AF77EA755418";
+                return "8D82BB78-EAB5-41E7-9EFE-2EE7A71C35CC";
             }
         }
 
@@ -23,7 +22,7 @@ namespace MSVNotifyPlugin
         {
             get
             {
-                return "MsvNotify";
+                return "OrleansNotify";
             }
         }
 
@@ -31,18 +30,17 @@ namespace MSVNotifyPlugin
         {
             get
             {
-                return "MsvNotifyManager";
+                return "OrleansNotifyManager";
             }
         }
 
 
         public override Task<ResponseMessage> Init(ApplicationContext context)
         {
-            var notify = new MSVNotify();
-            notify.Subscribe(context.NotifyClock);
-            context.Services.AddSingleton<MSVNotify>(notify);
-            context.Services.AddSingleton<MsvClientSDK.CClientTaskSDKImp>();
             
+            //context.Services.AddMassTransit();
+            //context.Services.configure
+
 
             return base.Init(context);
         }
