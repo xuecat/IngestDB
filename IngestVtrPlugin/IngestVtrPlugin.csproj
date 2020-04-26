@@ -1,0 +1,22 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>netcoreapp2.1</TargetFramework>
+  </PropertyGroup>
+
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
+    <DocumentationFile>..\Bin\netcoreapp2.1\Plugin\IngestVtrPlugin.xml</DocumentationFile>
+    <OutputPath>..\Bin\netcoreapp2.1\Plugin\</OutputPath>
+    <AppendTargetFrameworkToOutputPath>false</AppendTargetFrameworkToOutputPath>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\IngestDBCore\IngestDBCore.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Folder Include="Dto\" />
+    <Folder Include="Models\DB\" />
+  </ItemGroup>
+
+</Project>

@@ -1,6 +1,7 @@
 ﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Mvc.Authorization;
 using Microsoft.AspNetCore.Mvc.Filters;
 using Sobey.Core.Log;
 using System;
@@ -14,11 +15,12 @@ using System.Threading.Tasks;
 namespace IngestDBCore.Basic
 {
     [AttributeUsage(AttributeTargets.Class | AttributeTargets.Method)]
-    public class IngestAuthentication : ActionFilterAttribute
+    public class IngestAuthentication : Attribute, IAuthorizationFilter
     {
         private readonly static ILogger Logger = LoggerManager.GetLogger("Interface");
         public void OnAuthorization(AuthorizationFilterContext context)
         {
+            if (context.Filters.Any(item => item is IngestIgnoreFilter)) return;
             if (!IsValidRequestAsync(context.HttpContext.Request))
             {
                 context.Result = new Microsoft.AspNetCore.Mvc.UnauthorizedResult();
@@ -32,13 +34,14 @@ namespace IngestDBCore.Basic
 
             //base.OnAuthorization(context);
         }
-        public override void OnActionExecuting(ActionExecutingContext context)
-        {
-            if (!IsValidRequestAsync(context.HttpContext.Request))
-            {
-                context.Result = new BadRequestObjectResult(context.ModelState);
-            }
-        }
+
+        //public override void OnActionExecuting(ActionExecutingContext context)
+        //{
+        //    if (!IsValidRequestAsync(context.HttpContext.Request))
+        //    {
+        //        context.Result = new BadRequestObjectResult(context.ModelState);
+        //    }
+        //}
 
         public static string UnBase64String(string value)
         {
@@ -52,8 +55,8 @@ namespace IngestDBCore.Basic
         private bool IsValidRequestAsync(HttpRequest request)
         {
             var headerExists = request.Headers["sobeyhive-ingest-signature"];
-                //"sobeyhive-ingest-signature", out signature);
-            if (Microsoft.Extensions.Primitives.StringValues.IsNullOrEmpty(headerExists) || headerExists.Count <=0) return false;
+            //"sobeyhive-ingest-signature", out signature);
+            if (Microsoft.Extensions.Primitives.StringValues.IsNullOrEmpty(headerExists) || headerExists.Count <= 0) return false;
 
             if (headerExists.First() == "ingest_admin")
             {

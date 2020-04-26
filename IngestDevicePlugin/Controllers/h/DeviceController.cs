@@ -1,4 +1,6 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using IngestDBCore.Basic;
+using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Mvc;
 using System;
 using System.Collections.Generic;
 using System.Text;
@@ -12,6 +14,7 @@ namespace IngestDevicePlugin.Controllers.h
         /// 监听接口 /get/
         /// </summary>
         /// <returns></returns>
+        [IngestIgnoreFilter]
         [HttpGet("api/device/get")]
         public string Get()
         {

@@ -33,7 +33,6 @@ using IngestDBCore.Notify;
 
 namespace IngestTaskPlugin.Controllers.v2
 {
-    [IngestAuthentication]
     [Route("api/v{version:apiVersion}/[controller]")]
     [ApiVersion("2.0")]
     [ApiController]

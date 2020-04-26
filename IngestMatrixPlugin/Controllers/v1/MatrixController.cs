@@ -1,39 +1,55 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using IngestDBCore;
-using IngestMatrixPlugin.Dto.Response;
+﻿using IngestDBCore;
+using IngestDBCore.Basic;
+using IngestMatrixPlugin.Managers;
 using Microsoft.AspNetCore.Mvc;
-using ResponseMessage = IngestMatrixPlugin.Dto.Response.ResponseMessage;
+using Sobey.Core.Log;
+using System;
+using System.Linq;
+using System.Threading;
+using System.Threading.Tasks;
 
-namespace IngestMatrixPlugin.Controllers
+namespace IngestMatrixPlugin.Controllers.v1
 {
+    /// <summary>
+    /// V1矩阵接口控制器
+    /// </summary>
+    [Route("api/v{version:apiVersion}/[controller]")]
+    [ApiVersion("1.0")]
+    [ApiController]
     public partial class MatrixController : ControllerBase
     {
-        /// <summary>矩阵开关</summary>
+        private readonly ILogger Logger = LoggerManager.GetLogger("DeviceInfo");
+        private readonly MatrixManager _matrixManage;
+        //private readonly RestClient _restClient;
+
+        public MatrixController(MatrixManager task) { _matrixManage = task; }
+
+        /// <summary>
+        /// 矩阵开关
+        /// </summary>
         /// <param name="lInPort"></param>
         /// <param name="lOutPort"></param>
         /// <param name="lTimeOut"></param>
         /// <returns></returns>
-        [HttpGet("matrix/SwitchInOut"), MapToApiVersion("1.0")]
+        [HttpGet("SwitchInOut"), MapToApiVersion("1.0")]
         [ApiExplorerSettings(GroupName = "v1")]
-        public async Task<ResponseMessage> SwitchInOut([FromQuery]int lInPort, [FromQuery]int lOutPort, [FromQuery]int lTimeOut)
+        public IngestMatrixPlugin.Dto.Response.v1.MatrixOldResponseMessage SwitchInOut([FromQuery]int lInPort,
+                                                                                       [FromQuery]int lOutPort,
+                                                                                       [FromQuery]int lTimeOut)
         {
-            ResponseMessage response = new ResponseMessage();
+            IngestMatrixPlugin.Dto.Response.v1.MatrixOldResponseMessage response = new IngestMatrixPlugin.Dto.Response.v1.MatrixOldResponseMessage();
             try
             {
                 if (lInPort <= 0 || lOutPort <= 0)
                 {
                     throw new Exception("Switch failed！ param is invailed");
                 }
-                m_Matrixmt.WaitOne();
-                lock (lockObj)  //保证只有一个切换在进行
+                IngestMatrixPlugin.Controllers.v2.MatrixController.m_MatrixMt.WaitOne();
+                lock (IngestMatrixPlugin.Controllers.v2.MatrixController.lockObj)  //保证只有一个切换在进行
                 {
                     response.nCode = _matrixManage.SwitchInOutAsync(lInPort, lOutPort).Result ? 1 : 0;
                 }
-                m_Matrixmt.ReleaseMutex();
+                IngestMatrixPlugin.Controllers.v2.MatrixController.m_MatrixMt.ReleaseMutex();
             }
             catch (Exception e)
             {
@@ -56,27 +72,25 @@ namespace IngestMatrixPlugin.Controllers
         /// </summary>
         /// <param name="OutPort"></param>
         /// <returns>nCode,message,扩展字段为inPort</returns>
-        [HttpGet("matrix/GetInPortFromOutPort"), MapToApiVersion("1.0")]
+        [HttpGet("GetInPortFromOutPort"), MapToApiVersion("1.0")]
         [ApiExplorerSettings(GroupName = "v1")]
-        public async Task<Dto.Response.ResponseMessage<long>> GetInPortFromOutPort([FromQuery]long OutPort)
+        public async Task<Dto.Response.v1.MatrixOldResponseMessage<long>> GetInPortFromOutPort([FromQuery]long OutPort)
         {
-            Dto.Response.ResponseMessage<long> response = new Dto.Response.ResponseMessage<long>();
+            Dto.Response.v1.MatrixOldResponseMessage<long> response = new Dto.Response.v1.MatrixOldResponseMessage<long>();
             try
             {
                 response.extention = await _matrixManage.GetInPortFromOutPortAsync(OutPort);
-                if (response.extention == -1)
+                if(response.extention == -1)
                 {
                     response.message = "获取矩阵入口出错";
                     response.nCode = 0;
                 }
-            }
-            catch (Exception e)
+            } catch(Exception e)
             {
-                if (e is SobeyRecException se)//sobeyexcep会自动打印错误
+                if(e is SobeyRecException se)//sobeyexcep会自动打印错误
                 {
                     response.message = se.Message;
-                }
-                else
+                } else
                 {
                     response.message = $"{System.Reflection.MethodBase.GetCurrentMethod().DeclaringType.FullName}：error info:{e}";
                     Logger.Error(response.message);
@@ -90,27 +104,25 @@ namespace IngestMatrixPlugin.Controllers
         /// 查询矩阵链接状态
         /// </summary>
         /// <returns></returns>
-        [HttpGet("matrix/QueryLinkState"), MapToApiVersion("1.0")]
+        [HttpGet("QueryLinkState"), MapToApiVersion("1.0")]
         [ApiExplorerSettings(GroupName = "v1")]
-        public async Task<Dto.Response.ResponseMessage<string>> QueryLinkState()
+        public async Task<Dto.Response.v1.MatrixOldResponseMessage<string>> QueryLinkState()
         {
-            Dto.Response.ResponseMessage<string> res = new Dto.Response.ResponseMessage<string>();
+            Dto.Response.v1.MatrixOldResponseMessage<string> res = new Dto.Response.v1.MatrixOldResponseMessage<string>();
             try
             {
                 res.extention = await _matrixManage.QueryLinkStateAsync();
-                if (string.IsNullOrEmpty(res.extention))
+                if(string.IsNullOrEmpty(res.extention))
                 {
                     res.extention = "<?xml version=\"1.0\" encoding=\"UTF-8\" ?><MatrixLinkState/>";
                     res.nCode = 0;
                 }
-            }
-            catch (Exception e)
+            } catch(Exception e)
             {
-                if (e is SobeyRecException se)//sobeyexcep会自动打印错误
+                if(e is SobeyRecException se)//sobeyexcep会自动打印错误
                 {
                     res.message = se.Message;
-                }
-                else
+                } else
                 {
                     res.message = $"{System.Reflection.MethodBase.GetCurrentMethod().DeclaringType.FullName}：error info:{e}";
                     Logger.Error(res.message);

@@ -14,7 +14,6 @@ using System.Threading.Tasks;
 
 namespace IngestTaskPlugin.Controllers.v1
 {
-    [IngestAuthentication]
     [Route("api/v{version:apiVersion}/[controller]")]
     [ApiVersion("1.0")]
     [ApiController]

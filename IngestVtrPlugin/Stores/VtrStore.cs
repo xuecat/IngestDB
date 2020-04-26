@@ -1,13 +1,13 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Linq.Expressions;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace IngestMatrixPlugin.Extend
+namespace IngestVtrPlugin.Stores
 {
-    public static class EFCoreLinqExtend
+    public class VtrStore : IVtrStore
     {
+
     }
 }

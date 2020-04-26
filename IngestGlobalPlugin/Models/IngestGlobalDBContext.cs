@@ -155,6 +155,15 @@ namespace IngestGlobalPlugin.Models
 
                 entity.ToTable("dbp_global_state");
 
+                entity.Property(e => e.Label)
+                    .HasColumnName("LABEL")
+                    .HasColumnType("varchar(10)");
+
+                entity.Property(e => e.Lasttime)
+                    .HasColumnName("LASTTIME")
+                    .HasColumnType("timestamp")
+                    .HasDefaultValueSql("'CURRENT_TIMESTAMP'");
+
             });
 
             modelBuilder.Entity<DbpObjectstateinfo>(entity => {
