@@ -203,6 +203,9 @@ namespace IngestGlobalPlugin.Dto
         MsgForSDICapture,
         MsgForFileImport
     }
+    /// <summary>
+    /// 消息结构
+    /// </summary>
     public class MQmsgInfo
     {
         public MsgSourceType type { set; get; }    //消息的类型，是SDI的还是文件引入的
@@ -260,6 +263,64 @@ namespace IngestGlobalPlugin.Dto
         public List<int> ArchivePolicys;    //入库策略列表
         public int nDeleteState = (int)DELETED_STATE.NOTDELETED;
     };
-    
+
+    public class FileFormatInfo_out
+    {
+        public int nCode;
+        public string errStr;
+        public string key;
+        public long nformatid;
+        public long videostrandid;
+        public string videostrandguid;
+        public string extrainfo;
+    }
+
+    public class FileFormatInfo_in
+    {
+        public string key;
+        public long nformatid;
+        public long videostrandid;
+        public string videostrandguid;
+        public string extrainfo;
+    }
+    public class FailedMessageParam
+    {
+        public int TaskID { get; set; }
+        public int SectionID { get; set; }
+        public string MsgContent { get; set; }
+    }
+
+    public class MsgFailedRecord
+    {
+        public string MsgGuid { get; set; }
+        public uint TaskID { get; set; }
+        public uint SectionID { get; set; }
+        public string DealTime { get; set; }
+        public string DealMsg { get; set; }
+    }
+
+    //yangchuang20130220这个状态实际上表示的是入库过程中的状态，并不是表示入库结果,重新命名
+    //0.1.2.3,分别是第一次入库准备,结束,第二次入库准备,结束
+    public enum SAVE_IN_DB_STATE
+    {
+        FIRST_READY = 0,            //第一次入库准备
+        FIRST_END,              //第一次入库结束
+        SECOND_READY,           //第二次入库准备
+        SECOND_END,             //第二次入库结束
+        MANUALMODE,             //手动入库模式
+    }
+    public class UpdateSaveInDBStateForTask_IN
+    {
+        public int nTaskID;
+        public int nPolicyID;
+        public int nSectionID;
+        public int state;
+        public string strResult;
+    }
+    public class UpdateSaveInDBStateForTask_OUT
+    {
+        public string errStr;
+        public bool bRet;
+    }
 
 }

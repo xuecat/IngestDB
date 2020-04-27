@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 
-namespace IngestCustomerPlugin.Models
+namespace IngestGlobalPlugin.Models
 {
     public partial class DbpMaterialArchive
     {

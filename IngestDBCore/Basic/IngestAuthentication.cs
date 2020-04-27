@@ -116,6 +116,21 @@ namespace IngestDBCore.Basic
                     return true;
                 }
             }
+            if (requesta[0] == "ingest_other")
+            {
+                DateTime date = DateTime.Parse(requesta[1]);
+                var span = DateTime.Now - date;
+                if (span.TotalMinutes > 3)
+                {
+                    return false;
+                }
+                else
+                {
+                    //StreamReader reader = new StreamReader(request.Body);
+                    //Logger.Info("WEBINGEST " + reader.ReadToEnd());
+                    return true;
+                }
+            }
             else if (requesta[0] == "ingest_client")
             {
                 DateTime date = DateTime.Parse(requesta[1]);

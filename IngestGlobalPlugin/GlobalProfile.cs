@@ -2,7 +2,6 @@
 using IngestDBCore.Dto;
 using IngestDBCore.Tool;
 using IngestGlobalPlugin.Dto;
-using IngestGlobalPlugin.Dto.Request;
 using IngestGlobalPlugin.Models;
 using System;
 using System.Collections.Generic;
@@ -51,10 +50,11 @@ namespace IngestGlobalPlugin
                 .ForMember(a => a.strTemplateContent, (map) => map.MapFrom(b => b.Templatecontent));
 
             CreateMap<DbpUsertemplate, DtoUserTemplate>()
-                .ForMember(a => a.TemplateID, (map) => map.MapFrom(b => b.Templateid))
-                .ForMember(a => a.UserCode, (map) => map.MapFrom(b => b.Usercode))
-                .ForMember(a => a.TemplateName, (map) => map.MapFrom(b => b.Templatename))
-                .ForMember(a => a.TemplateContent, (map) => map.MapFrom(b => b.Templatecontent));
+                //.ForMember(a => a.TemplateID, (map) => map.MapFrom(b => b.Templateid))
+                //.ForMember(a => a.UserCode, (map) => map.MapFrom(b => b.Usercode))
+                //.ForMember(a => a.TemplateName, (map) => map.MapFrom(b => b.Templatename))
+                //.ForMember(a => a.TemplateContent, (map) => map.MapFrom(b => b.Templatecontent))
+                ;
 
             CreateMap<CMUserInfo, DtoCMUserInfo>()
                 .ForMember(a => a.Id, (map) => map.MapFrom(b => b.id))
@@ -88,11 +88,48 @@ namespace IngestGlobalPlugin
                 .ForMember(a => a.sNextRetry, (map) => map.MapFrom(b => b.NextRetry))
                 .ForMember(a => a.strLock, (map) => map.MapFrom(b => b.Lock))
                 .ForMember(a => a.nActionID, (map) => map.MapFrom(b => b.ActionID)).ReverseMap();
+            CreateMap<DbpMsmqmsg, MqMsgInfoRequest>()
+                .ForMember(a => a.MsgSendTime, (map) => map.MapFrom(b => b.Msgsendtime))
+                .ForMember(a => a.MsgRevTime, (map) => map.MapFrom(b => b.Msgrevtime))
+                .ForMember(a => a.MsgStatus, (map) => map.MapFrom(b => b.Msgstatus))
+                .ForMember(a => a.MsgProcessTime, (map) => map.MapFrom(b => b.Msgprocesstime))
+                .ForMember(a => a.Type, (map) => map.MapFrom(b => b.Msgtype))
+                .ForMember(a => a.NextRetry, (map) => map.MapFrom(b => b.Nextretry))
+                .ForMember(a => a.Lock, (map) => map.MapFrom(b => b.Lockdata));
+            CreateMap<DbpMsmqmsg, MQmsgInfo>()
+                .ForMember(a => a.MsgSendTime, (map) => map.MapFrom(b => b.Msgsendtime))
+                .ForMember(a => a.MsgRevTime, (map) => map.MapFrom(b => b.Msgrevtime))
+                .ForMember(a => a.MsgStatus, (map) => map.MapFrom(b => b.Msgstatus))
+                .ForMember(a => a.MsgProcessTime, (map) => map.MapFrom(b => b.Msgprocesstime))
+                .ForMember(a => a.type, (map) => map.MapFrom(b => b.Msgtype))
+                .ForMember(a => a.sNextRetry, (map) => map.MapFrom(b => b.Nextretry))
+                .ForMember(a => a.strLock, (map) => map.MapFrom(b => b.Lockdata));
 
             CreateMap<VideoInfoResponse, VideoInfo>()
                 .ForMember(a => a.nVideoSource, (map) => map.MapFrom(b => b.VideoSource))
                 .ForMember(a => a.nVideoTypeID, (map) => map.MapFrom(b => b.VideoTypeID))
-                .ForMember(a => a.strFilename, (map) => map.MapFrom(b => b.Filename));
+                .ForMember(a => a.strFilename, (map) => map.MapFrom(b => b.Filename)).ReverseMap();
+
+            CreateMap<FileFormateInfoResponse, FileFormatInfo_in>()
+                .ForMember(a => a.extrainfo, (map) => map.MapFrom(b => b.ExtraInfo))
+                .ForMember(a => a.key, (map) => map.MapFrom(b => b.Key))
+                .ForMember(a => a.nformatid, (map) => map.MapFrom(b => b.FormatID))
+                .ForMember(a => a.videostrandguid, (map) => map.MapFrom(b => b.VideoStrandGuid))
+                .ForMember(a => a.videostrandid, (map) => map.MapFrom(b => b.VideoStrandID))
+                .ReverseMap();
+
+            CreateMap<FileFormatInfo_in, FileFormatInfo_out>().ReverseMap();
+            CreateMap<FileFormateInfoResponse, FileFormatInfo_out>()
+                .ForMember(a => a.extrainfo, (map) => map.MapFrom(b => b.ExtraInfo))
+                .ForMember(a => a.key, (map) => map.MapFrom(b => b.Key))
+                .ForMember(a => a.nformatid, (map) => map.MapFrom(b => b.FormatID))
+                .ForMember(a => a.videostrandguid, (map) => map.MapFrom(b => b.VideoStrandGuid))
+                .ForMember(a => a.videostrandid, (map) => map.MapFrom(b => b.VideoStrandID));
+
+            CreateMap<MsgFailedRecord, DbpMsgFailedrecord>()
+                .ForMember(a => a.TaskId, (map) => map.MapFrom(b => b.TaskID))
+                .ForMember(a => a.SectionId, (map) => map.MapFrom(b => b.SectionID))
+                .ForMember(a => a.DealTime, (map) => map.MapFrom(b => b.DealTime)).ReverseMap();
             //ReverseMap
         }
 

@@ -28,7 +28,9 @@ namespace IngestGlobalPlugin.Models
         public virtual DbSet<DbpMsgFailedrecord> DbpMsgFailedrecord { get; set; }
         public virtual DbSet<DbpMsmqmsg> DbpMsmqmsg { get; set; }
         public virtual DbSet<DbpMsmqmsgFailed> DbpMsmqmsgFailed { get; set; }
-
+        public virtual DbSet<DbpMaterial> DbpMaterial { get; set; }
+        public virtual DbSet<DbpMaterialArchive> DbpMaterialArchive { get; set; }
+        public virtual DbSet<Sequence> Sequence { get; set; }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
@@ -339,6 +341,136 @@ namespace IngestGlobalPlugin.Models
                     .HasColumnName("NEXTRETRY")
                     .HasColumnType("timestamp")
                     .HasDefaultValueSql("'0000-00-00 00:00:00'");
+            });
+            modelBuilder.Entity<DbpMaterial>(entity =>
+            {
+                entity.HasKey(e => e.Materialid);
+
+                entity.ToTable("dbp_material");
+
+                entity.HasIndex(e => e.Clipstate)
+                    .HasName("IDX_IMATERIAL_S");
+
+                entity.Property(e => e.Materialid)
+                    .HasColumnName("MATERIALID")
+                    .HasColumnType("int(11)");
+
+                entity.Property(e => e.Clipstate)
+                    .HasColumnName("CLIPSTATE")
+                    .HasColumnType("int(11)")
+                    .HasDefaultValueSql("'0'");
+
+                entity.Property(e => e.Createtime)
+                    .HasColumnName("CREATETIME")
+                    .HasColumnType("timestamp")
+                    .HasDefaultValueSql("'CURRENT_TIMESTAMP'");
+
+                entity.Property(e => e.Deletedstate)
+                    .HasColumnName("DELETEDSTATE")
+                    .HasColumnType("int(11)")
+                    .HasDefaultValueSql("'0'");
+
+                entity.Property(e => e.Guid)
+                    .HasColumnName("GUID")
+                    .HasColumnType("varchar(64)")
+                    .HasDefaultValueSql("''");
+
+                entity.Property(e => e.Name)
+                    .HasColumnName("NAME")
+                    .HasColumnType("varchar(1024)")
+                    .HasDefaultValueSql("''");
+
+                entity.Property(e => e.Remark)
+                    .HasColumnName("REMARK")
+                    .HasColumnType("varchar(1024)")
+                    .HasDefaultValueSql("''");
+
+                entity.Property(e => e.Sectionid)
+                    .HasColumnName("SECTIONID")
+                    .HasColumnType("int(11)")
+                    .HasDefaultValueSql("'0'");
+
+                entity.Property(e => e.Taskid)
+                    .HasColumnName("TASKID")
+                    .HasColumnType("int(11)");
+
+                entity.Property(e => e.Usercode)
+                    .HasColumnName("USERCODE")
+                    .HasColumnType("varchar(256)")
+                    .HasDefaultValueSql("''");
+            });
+
+            modelBuilder.Entity<DbpMaterialArchive>(entity =>
+            {
+                entity.HasKey(e => new { e.Materialid, e.Policyid });
+
+                entity.ToTable("dbp_material_archive");
+
+                entity.HasIndex(e => e.Archivestate)
+                    .HasName("IDX_IARCHIVE_S");
+
+                entity.Property(e => e.Materialid)
+                    .HasColumnName("MATERIALID")
+                    .HasColumnType("int(11)");
+
+                entity.Property(e => e.Policyid)
+                    .HasColumnName("POLICYID")
+                    .HasColumnType("int(11)");
+
+                entity.Property(e => e.Archiveresult)
+                    .HasColumnName("ARCHIVERESULT")
+                    .HasColumnType("varchar(1024)")
+                    .HasDefaultValueSql("''");
+
+                entity.Property(e => e.Archivestate)
+                    .HasColumnName("ARCHIVESTATE")
+                    .HasColumnType("int(11)")
+                    .HasDefaultValueSql("'0'");
+
+                entity.Property(e => e.Failedtimes)
+                    .HasColumnName("FAILEDTIMES")
+                    .HasColumnType("int(11)")
+                    .HasDefaultValueSql("'0'");
+
+                entity.Property(e => e.Isprocessing)
+                    .HasColumnName("ISPROCESSING")
+                    .HasColumnType("int(11)")
+                    .HasDefaultValueSql("'0'");
+
+                entity.Property(e => e.Lastresult)
+                    .HasColumnName("LASTRESULT")
+                    .HasColumnType("int(11)")
+                    .HasDefaultValueSql("'0'");
+
+                entity.Property(e => e.Lastupdatetime)
+                    .HasColumnName("LASTUPDATETIME")
+                    .HasColumnType("timestamp")
+                    .HasDefaultValueSql("'CURRENT_TIMESTAMP'");
+
+                entity.Property(e => e.Nextretry)
+                    .HasColumnName("NEXTRETRY")
+                    .HasColumnType("timestamp")
+                    .HasDefaultValueSql("'CURRENT_TIMESTAMP'");
+            });
+            modelBuilder.Entity<Sequence>(entity =>
+            {
+                entity.HasKey(e => e.Name);
+
+                entity.ToTable("_sequence");
+
+                entity.Property(e => e.Name)
+                    .HasColumnName("name")
+                    .HasColumnType("varchar(100)");
+
+                entity.Property(e => e.CurrentVal)
+                    .HasColumnName("current_val")
+                    .HasColumnType("int(11)")
+                    .HasDefaultValueSql("'0'");
+
+                entity.Property(e => e.IncrementSize)
+                    .HasColumnName("increment_size")
+                    .HasColumnType("int(11)")
+                    .HasDefaultValueSql("'1'");
             });
 
         }
