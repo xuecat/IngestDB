@@ -689,13 +689,11 @@ namespace IngestGlobalPlugin.Stores
             try
             {
 
-                await Context.DbpGlobal.FromSql("").FirstOrDefaultAsync();
-
                 var dbpCapParam = GetCaptureparamtemplateAsync(a => a.Where(x => x.Captureparamid == nParamTemplateID), true);
                 if (dbpCapParam == null)
                 {
                     //add
-                    nParamTemplateID = IngestGlobalDBContext.next_val("DBP_SQ_PARAMTEMPLATE");
+                    nParamTemplateID = GetNextValId("DBP_SQ_PARAMTEMPLATE");// IngestGlobalDBContext.next_val("DBP_SQ_PARAMTEMPLATE");
                     Context.DbpCaptureparamtemplate.Add(new DbpCaptureparamtemplate()
                     {
                         Captureparamid = nParamTemplateID,
@@ -969,6 +967,10 @@ namespace IngestGlobalPlugin.Stores
         }
         
 
+        public int GetNextValId(string value)
+        {
+            return Context.DbpUsertemplate.Select(x => IngestGlobalDBContext.next_val(value)).FirstOrDefault();
+        }
 
 
         #endregion

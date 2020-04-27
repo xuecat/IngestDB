@@ -422,7 +422,7 @@ namespace IngestGlobalPlugin.Managers
 
             if (templateID <= 0)
             {
-                templateID = IngestGlobalDBContext.next_val("DBP_SQ_UESRTEMPLATEID");
+                templateID = Store.GetNextValId("DBP_SQ_UESRTEMPLATEID");
             }
 
             //DBACCESS.AddUserTemplate(userTemplate);
