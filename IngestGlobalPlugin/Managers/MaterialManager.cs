@@ -414,7 +414,7 @@ namespace IngestGlobalPlugin.Managers
         //    return Info;
         //}
 
-        public async Task<(MaterialInfo info, int materialId)> AddMaterialInfo(MaterialInfo mtrl)
+        public async Task<int> AddMaterialInfo(MaterialInfo mtrl)
         {
             //加个判断
             if (mtrl.nDeleteState > (int)DELETED_STATE.DELETEDBYOTHER || mtrl.nDeleteState < 0)
@@ -439,7 +439,7 @@ namespace IngestGlobalPlugin.Managers
                 var material = await Store.GetMaterial(a => a.SingleOrDefaultAsync(x => x.Materialid == materialID));
                 material.Clipstate = mtrl.nClipState;
                 await Store.DbContextSaveChange();
-                return (mtrl, materialID);
+                return  materialID;
             }
 
             int nId = await Store.GetMaterial(a => a.MaxAsync(x => x.Materialid)) + 1;
@@ -472,7 +472,7 @@ namespace IngestGlobalPlugin.Managers
                     await Store.UpdateTaskBmp(taskBmps);
                 }
             }
-            return (mtrl, mtrl.nID);
+            return mtrl.nID;
         }
 
         //修改入库策略,在重复分段开始的情况下,修改分段开始的情况,最重要是取得分段开始的信息
