@@ -3,6 +3,7 @@ using IngestDBCore.Dto;
 using IngestDBCore.Tool;
 using IngestGlobalPlugin.Dto;
 using IngestGlobalPlugin.Dto.Request;
+using IngestGlobalPlugin.Extend;
 using IngestGlobalPlugin.Models;
 using System;
 using System.Collections.Generic;
@@ -33,7 +34,7 @@ namespace IngestGlobalPlugin
             CreateMap<DateTime, string>().ConvertUsing(new DateTimeStringTypeConverter());
 
             CreateMap<GlobalTcResponse, GetDefaultSTC_param>()
-                .ForMember( a=> a.tcType, (map) => map.MapFrom(b => b.TcType))
+                .ForMember(a => a.tcType, (map) => map.MapFrom(b => b.TcType))
                 .ForMember(a => a.nTC, (map) => map.MapFrom(b => b.TC));
 
             CreateMap<DbpGlobalState, GlobalState>()
@@ -93,6 +94,27 @@ namespace IngestGlobalPlugin
                 .ForMember(a => a.nVideoSource, (map) => map.MapFrom(b => b.VideoSource))
                 .ForMember(a => a.nVideoTypeID, (map) => map.MapFrom(b => b.VideoTypeID))
                 .ForMember(a => a.strFilename, (map) => map.MapFrom(b => b.Filename));
+
+
+            CreateMap<DbpMetadatapolicy, MetaDataPolicy>()
+                .ForMember(a => a.nID, (map) => map.MapFrom(b => b.Policyid))
+                .ForMember(a => a.strName, (map) => map.MapFrom(b => b.Policyname))
+                .ForMember(a => a.strDesc, (map) => map.MapFrom(b => b.Policydesc))
+                .ForMember(a => a.nDefaultPolicy, (map) => map.MapFrom(b => b.Defaultpolicy))
+                .ForMember(a => a.strArchiveType, (map) => map.MapFrom(b => b.Archivetype));
+
+            CreateMap<MaterialInfo, DbpMaterial>()
+                .ForMember(a => a.Materialid, (map) => map.MapFrom(b => b.nID))
+                .ForMember(a => a.Name, (map) => map.MapFrom(b => b.strName))
+                .ForMember(a => a.Remark, (map) => map.MapFrom(b => b.strRemark))
+                .ForMember(a => a.Createtime, (map) => map.MapFrom(b => b.strCreateTime.ToDateTime()))
+                .ForMember(a => a.Taskid, (map) => map.MapFrom(b => b.nTaskID))
+                .ForMember(a => a.Sectionid, (map) => map.MapFrom(b => b.nSectionID))
+                .ForMember(a => a.Guid, (map) => map.MapFrom(b => b.strGUID))
+                .ForMember(a => a.Clipstate, (map) => map.MapFrom(b => b.nClipState))
+                .ForMember(a => a.Usercode, (map) => map.MapFrom(b => b.strUserCode))
+                .ForMember(a => a.Deletedstate, (map) => map.MapFrom(b => b.nDeleteState));
+            
             //ReverseMap
         }
 
