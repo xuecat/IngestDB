@@ -84,8 +84,7 @@ namespace IngestGlobalPlugin.Controllers.v1
             AddMaterialNew_OUT p = new AddMaterialNew_OUT();
             try
             {
-                var mtr = await _materialManage.AddMaterialInfo(Info);
-                p.nMaterialID = mtr.materialId;
+                p.nMaterialID = await _materialManage.AddMaterialInfo(Info);
                 p.errStr = "OK";
                 p.bRet = true;
             }
