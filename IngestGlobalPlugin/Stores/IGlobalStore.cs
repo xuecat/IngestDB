@@ -77,8 +77,8 @@ namespace IngestGlobalPlugin.Stores
         Task DeleteUserParamMapAsync(DbpUserparamMap userparamMap);
 
         Task UpdateUserParamMapAsync(string strUserCode, int nParamTemplateID);
-        
-        
+
+        int GetNextValId(string value);
         #endregion
 
     }

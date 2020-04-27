@@ -30,6 +30,14 @@ namespace IngestGlobalPlugin.Dto
         OTID_OTHER,//其他
     }
 
+    public class MetaDataPolicy
+    {
+        public int nID = 0;
+        public string strName = "";
+        public string strDesc = "";
+        public int nDefaultPolicy = 0;
+        public string strArchiveType = "";
+    }
 
     public class PostLockObject_param_in
     {
@@ -96,6 +104,19 @@ namespace IngestGlobalPlugin.Dto
     {
         public TC_TYPE tcType;
         public int nTC;
+        public string errStr;
+        public bool bRet;
+    }
+
+    public class DeleteMqMsg_OUT
+    {
+        public string errStr;
+        public bool bRet;
+    }
+
+    public class AddMaterialNew_OUT
+    {
+        public int nMaterialID;
         public string errStr;
         public bool bRet;
     }
