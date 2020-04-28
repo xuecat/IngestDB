@@ -31,42 +31,40 @@ namespace IngestGlobalPlugin.Controllers.v2
             //_mapper = mapper ?? throw new ArgumentNullException(nameof(mapper));
         }
 
+
+
         /// <summary>
-        /// 更新任务所有分段的入库状态
+        /// 获取material信息通过taskid
         /// </summary>
         /// <remarks>
-        /// 更新任务所有分段的入库状态
+        /// 获取material信息通过taskid
         ///     
         /// </remarks>
+        /// <param name="taskid"> taskid </param>
         /// <returns>消息组</returns>     
-        [HttpPost("PostUpdateSaveInDBStateForTask")]
+        [HttpPost("material/{taskid}")]
         [ApiExplorerSettings(GroupName = "v2")]
-        public async Task<UpdateSaveInDBStateForTask_OUT> PostUpdateSaveInDBStateForTask([FromBody]UpdateSaveInDBStateForTask_IN pIn)
+        public async Task<ResponseMessage<List<MaterialInfoResponse>>> GetMaterailInfo([FromRoute]int taskid)
         {
-            var Response = new UpdateSaveInDBStateForTask_OUT();
-            Response.errStr = "OK";
+            var Response = new ResponseMessage<List<MaterialInfoResponse>>();
 
             try
             {
-                await _materialManage.UpdateSaveInDBStateForTask(pIn.nTaskID, pIn.nPolicyID, pIn.nSectionID, (SAVE_IN_DB_STATE)pIn.state, pIn.strResult);
-
-                Response.bRet = true;
+                Response.Ext = await _materialManage.GetMaterialInfo(taskid);
             }
             catch (Exception e)
             {
                 if (e.GetType() == typeof(SobeyRecException))//sobeyexcep会自动打印错误
                 {
                     SobeyRecException se = e as SobeyRecException;
-                    //Response.Code = se.ErrorCode.ToString();
-                    //Response.Msg = se.Message;
-                    Response.bRet = false;
+                    Response.Code = se.ErrorCode.ToString();
+                    Response.Msg = se.Message;
                 }
                 else
                 {
-                    Response.bRet = false;
-                    //Response.Code = ResponseCodeDefines.ServiceError;
-                    //Response.Msg = "GetNeedProcessedMqMsg error info：" + e.ToString();
-                    Logger.Error("GetNeedProcessedMqMsg error info：" + e.ToString());
+                    Response.Code = ResponseCodeDefines.ServiceError;
+                    Response.Msg = "GetMaterailInfo error info：" + e.ToString();
+                    Logger.Error("GetMaterailInfo error info：" + e.ToString());
                 }
             }
             return Response;

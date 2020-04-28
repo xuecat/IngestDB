@@ -455,11 +455,11 @@ namespace IngestGlobalPlugin.Stores
         #endregion
 
         #region DbpMaterialAudio
-        public async Task<List<TResult>> GetMaterialAudio<TResult>(Func<IQueryable<DbpMaterialAudio>, IQueryable<TResult>> query, bool notrack = false)
+        public async Task<List<TResult>> GetMaterialAudioListAsync<TResult>(Func<IQueryable<DbpMaterialAudio>, IQueryable<TResult>> query, bool notrack = false)
         {
             return await QueryList(query, notrack);
         }
-        public async Task<TResult> GetMaterialAudio<TResult>(Func<IQueryable<DbpMaterialAudio>, Task<TResult>> query, bool notrack = false)
+        public async Task<TResult> GetMaterialAudioAsync<TResult>(Func<IQueryable<DbpMaterialAudio>, Task<TResult>> query, bool notrack = false)
         {
             return await QueryModel(query, notrack);
         }
@@ -503,11 +503,11 @@ namespace IngestGlobalPlugin.Stores
         #endregion
 
         #region DbpMaterialVideo
-        public async Task<List<TResult>> GetMaterialVideo<TResult>(Func<IQueryable<DbpMaterialVideo>, IQueryable<TResult>> query, bool notrack = false)
+        public async Task<List<TResult>> GetMaterialVideoListAsync<TResult>(Func<IQueryable<DbpMaterialVideo>, IQueryable<TResult>> query, bool notrack = false)
         {
             return await QueryList(query, notrack);
         }
-        public async Task<TResult> GetMaterialVideo<TResult>(Func<IQueryable<DbpMaterialVideo>, Task<TResult>> query, bool notrack = false)
+        public async Task<TResult> GetMaterialVideoAsync<TResult>(Func<IQueryable<DbpMaterialVideo>, Task<TResult>> query, bool notrack = false)
         {
             return await QueryModel(query, notrack);
         }

@@ -35,19 +35,7 @@ namespace IngestDBCore
         public int TaskID { get; set; }
     }
 
-    public class VideoInfoInterface
-    {
-        public string strFilename = "";
-        public int nVideoTypeID = -1;
-        public int nVideoSource = 0;//视频来源
-    }
-
-    public class AudioInfoInterface
-    {
-        public string strFilename = "";
-        public int nAudioTypeID = -1;
-        public int nAudioSource = 0;//音频来源
-    }
+   
     public enum CLIP_STATEINTERFACE
     {
         STARTCAPUTER = 0,   //开始采集了,可以边采边编了	
@@ -62,6 +50,19 @@ namespace IngestDBCore
         DELETEDBYOTHER,                 //被其他工具删除的
     }
 
+    public class VideoInfoInterface
+    {
+        public string Filename { get; set; }
+        public int VideoTypeID { get; set; } = -1;
+        public int VideoSource { get; set; }//视频来源
+    }
+
+    public class AudioInfoInterface
+    {
+        public string Filename { get; set; }
+        public int AudioTypeID { get; set; } = -1;
+        public int AudioSource { get; set; }//音频来源
+    }
     public class MaterialInfoInterface
     {
         public int ID { get; set; }         //素材ID
@@ -73,9 +74,9 @@ namespace IngestDBCore
         public int SectionID { get; set; }  //分段索引
         public string GUID { get; set; } //素材GUID
         public int ClipState { get; set; } = (int)CLIP_STATEINTERFACE.STARTCAPUTER;   //素材采集状态
-        public List<VideoInfoInterface> videos;  //视频文件列表
-        public List<AudioInfoInterface> audios;  //音频文件列表
-        public int[] ArchivePolicys;    //入库策略列表
-        public int nDeleteState { get; set; } = (int)DELETED_STATEINTERFACE.NOTDELETED;
-    };
+        public List<VideoInfoInterface> Videos { get; set; }  //视频文件列表
+        public List<AudioInfoInterface> Audios { get; set; }  //音频文件列表
+        public List<int> ArchivePolicys { get; set; }    //入库策略列表
+        public int DeleteState { get; set; } = (int)DELETED_STATEINTERFACE.NOTDELETED;
+    }
 }

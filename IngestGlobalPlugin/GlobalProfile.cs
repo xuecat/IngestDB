@@ -150,7 +150,17 @@ namespace IngestGlobalPlugin
                 .ForMember(a => a.Clipstate, (map) => map.MapFrom(b => b.nClipState))
                 .ForMember(a => a.Usercode, (map) => map.MapFrom(b => b.strUserCode))
                 .ForMember(a => a.Deletedstate, (map) => map.MapFrom(b => b.nDeleteState));
-            
+
+            CreateMap<DbpMaterial, MaterialInfoResponse>()
+                .ForMember(a => a.ID, (map) => map.MapFrom(b => b.Materialid))
+                .ForMember(a => a.CreateTime, (map) => map.MapFrom(b => b.Createtime))
+                .ForMember(a => a.DeleteState, (map) => map.MapFrom(b => b.Deletedstate));
+
+            CreateMap<DbpMaterialVideo, VideoInfoResponse > ()
+                .ForMember(a => a.Filename, (map) => map.MapFrom(b => b.Videofilename)).ReverseMap();
+
+            CreateMap<DbpMaterialAudio, AudioInfoResponse>()
+                .ForMember(a => a.Filename, (map) => map.MapFrom(b => b.Audiofilename)).ReverseMap();
             //ReverseMap
         }
 

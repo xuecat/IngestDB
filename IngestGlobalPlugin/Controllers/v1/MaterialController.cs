@@ -46,7 +46,48 @@ namespace IngestGlobalPlugin.Controllers.v1
 
             return false;
         }
-        
+
+        /// <summary>
+        /// 更新任务所有分段的入库状态
+        /// </summary>
+        /// <remarks>
+        /// 更新任务所有分段的入库状态
+        ///     
+        /// </remarks>
+        /// <returns>消息组</returns>     
+        [HttpGet("PostUpdateSaveInDBStateForTask"), MapToApiVersion("1.0")]
+        [ApiExplorerSettings(GroupName = "v1")]
+        public async Task<UpdateSaveInDBStateForTask_OUT> PostUpdateSaveInDBStateForTask([FromBody]UpdateSaveInDBStateForTask_IN pIn)
+        {
+            var Response = new UpdateSaveInDBStateForTask_OUT();
+            Response.errStr = "OK";
+
+            try
+            {
+                await _materialManage.UpdateSaveInDBStateForTask(pIn.nTaskID, pIn.nPolicyID, pIn.nSectionID, (SAVE_IN_DB_STATE)pIn.state, pIn.strResult);
+
+                Response.bRet = true;
+            }
+            catch (Exception e)
+            {
+                if (e.GetType() == typeof(SobeyRecException))//sobeyexcep会自动打印错误
+                {
+                    SobeyRecException se = e as SobeyRecException;
+                    //Response.Code = se.ErrorCode.ToString();
+                    //Response.Msg = se.Message;
+                    Response.bRet = false;
+                }
+                else
+                {
+                    Response.bRet = false;
+                    //Response.Code = ResponseCodeDefines.ServiceError;
+                    //Response.Msg = "GetNeedProcessedMqMsg error info：" + e.ToString();
+                    Logger.Error("GetNeedProcessedMqMsg error info：" + e.ToString());
+                }
+            }
+            return Response;
+        }
+
         /// <summary>
         /// 获取需要重新处理的消息
         /// </summary>

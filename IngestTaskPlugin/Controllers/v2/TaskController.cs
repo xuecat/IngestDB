@@ -1815,7 +1815,7 @@ namespace IngestTaskPlugin.Controllers.v2
         /// 
         /// </remarks>
         /// <param name="isall">是否全部修改</param>
-        /// <param name="taskname">任务名字</param>
+        /// <param name="req">请求任务元数据基础结构体 体</param>
         /// <returns>任务id</returns>
         [HttpPost("taskinfo/name/{taskid}")]
         [ApiExplorerSettings(GroupName = "v2")]
@@ -1941,7 +1941,6 @@ namespace IngestTaskPlugin.Controllers.v2
         /// 
         /// </remarks>
         /// <param name="req">请求体</param>
-        /// <param name="taskname">任务名字</param>
         /// <returns>分裂后的任务</returns>
         [HttpPost("writevtruploadtask")]
         [ApiExplorerSettings(GroupName = "v2")]
