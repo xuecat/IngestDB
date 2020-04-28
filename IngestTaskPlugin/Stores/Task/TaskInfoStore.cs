@@ -2616,9 +2616,20 @@ namespace IngestTaskPlugin.Stores
 
         public async Task UnLockAllTask()
         {
+            var lst = await Context.DbpTask.Where(a => string.IsNullOrEmpty(a.Tasklock)).ToListAsync();
+            if (lst != null && lst.Count >0)
+            {
+                lst.ForEach(a => a.Tasklock = string.Empty);
+            }
 
-            //Context.Entry(await Context.DbpTask.FirstOrDefaultAsync(x => x.Taskid == taskid)).CurrentValues.SetValues();
-            //(await Context.SaveChangesAsync()) > 0;
+            try
+            {
+                await Context.SaveChangesAsync();
+            }
+            catch (Exception e)
+            {
+                throw e;
+            }
         }
 
         public async Task UnLockTask(int taskid)

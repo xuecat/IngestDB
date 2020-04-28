@@ -107,6 +107,28 @@ namespace IngestGlobalPlugin.Managers
             return _mapper.Map<List<T>>(await Store.GetNeedProcessMsg((int)MqmsgStatus.Processed, DateTime.Now.AddDays(-1)));
         }
 
+        public async Task<List<MaterialInfoResponse>> GetMaterialInfo(int taskid)
+        {
+            var items = _mapper.Map<List<MaterialInfoResponse>>(await Store.GetMaterialListAsync(a => a.Where(b => b.Taskid == taskid), true));
+
+            if (items != null && items.Count > 0)
+            {
+                foreach (var item in items)
+                {
+                    var lstpolicy = await Store.GetMaterialArchiveListAsync(a => a.Where(b => b.Materialid == item.ID).Select(z => z.Policyid), true);
+
+                    item.ArchivePolicys = lstpolicy;
+
+                    item.Audios = _mapper.Map<List<AudioInfoResponse>>(await Store.GetMaterialAudioListAsync(a => a.Where(b => b.Materialid == item.ID), true));
+                    item.Videos = _mapper.Map<List<VideoInfoResponse>>(await Store.GetMaterialVideoListAsync(a => a.Where(b => b.Materialid == item.ID), true));
+                }
+
+                return items;
+            }
+
+            return null;
+        }
+
         public async Task UpdateSaveInDBStateForTask(int nTaskID, int nPolicyID, int nSectionID, SAVE_IN_DB_STATE state, string strResult)
         {
             bool findmaterial = false;

@@ -429,13 +429,13 @@ namespace IngestTaskPlugin.Managers
                             }
                             if (lastSectionInfo != null)
                             {
-                                if (lastSectionInfo.videos != null)
+                                if (lastSectionInfo.Videos != null)
                                 {
-                                    foreach (VideoInfoInterface vInfo in lastSectionInfo.videos)
+                                    foreach (VideoInfoInterface vInfo in lastSectionInfo.Videos)
                                     {
-                                        if (vInfo.nVideoSource == 1) //低质量
+                                        if (vInfo.VideoSource == 1) //低质量
                                         {
-                                            return vInfo.strFilename;
+                                            return vInfo.Filename;
                                         }
                                     }
                                 }
@@ -1868,7 +1868,7 @@ namespace IngestTaskPlugin.Managers
             DateTime modifybegin = DateTimeFormat.DateTimeFromString(taskModify.Begin);
             DateTime modifyend = DateTimeFormat.DateTimeFromString(taskModify.End);
 
-            List<TaskContentResponse> lsttask = null;
+            //List<TaskContentResponse> lsttask = null;
             //看修改的时间是否冲突,如果是周期任务，传入真实的beginTime.EndTime
             if (taskModify.TaskType != TaskType.TT_PERIODIC)
             {
@@ -2202,9 +2202,11 @@ namespace IngestTaskPlugin.Managers
                             }
                             catch (System.FormatException ex)
                             {
+                                throw ex;
                             }
                             catch (System.Exception ex)
                             {
+                                throw ex;
                             }
                         }
 

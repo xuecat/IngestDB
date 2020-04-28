@@ -14,6 +14,11 @@ namespace IngestGlobalInterfacePlugin
 {
     public class IngestGlobalInterfaceImplement : IIngestGlobalInterface
     {
+        public IngestGlobalInterfaceImplement(IMapper mapper)
+        {
+            _mapper = mapper ?? throw new ArgumentNullException(nameof(mapper));
+        }
+        protected IMapper _mapper { get; }
         public async Task<ResponseMessage> GetGlobalCallBack(GlobalInternals examineResponse)
         {
             using (var scope = ApplicationContext.Current.ServiceProvider.GetRequiredService<IServiceScopeFactory>().CreateScope())
@@ -27,6 +32,9 @@ namespace IngestGlobalInterfacePlugin
                     case FunctionType.MaterialInfo:
                         {
                             //MaterialInfoInterface
+                            return _mapper.Map<ResponseMessage<List<MaterialInfoInterface>>>(
+                                await scope.ServiceProvider.GetRequiredService<MaterialController>().GetMaterailInfo(examineResponse.TaskID)
+                                );
                         }
                         break;
                     default:
