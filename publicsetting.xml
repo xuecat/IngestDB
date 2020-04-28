@@ -22,7 +22,7 @@
 	</System>
 	<DBConfig>
 		<DatabaseConfig key="1" value="1" module="INGESTDB">
-			<Instance>ingestdb</Instance>
+			<Instance>ingestdbstrand</Instance>
 			<Username>ingestdba</Username>
 			<Password>MEiS97VU8Woh</Password>
 			<Port>3307</Port>

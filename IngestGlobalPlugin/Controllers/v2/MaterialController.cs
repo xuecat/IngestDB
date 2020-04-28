@@ -156,9 +156,9 @@ namespace IngestGlobalPlugin.Controllers.v2
         /// </remarks>
         /// <param name="msgInfo">添加消息体</param>
         /// <returns>id</returns>     
-        [HttpDelete("failedrecord/delete/{taskid}")]
+        [HttpPost("failedrecord/add/")]
         [ApiExplorerSettings(GroupName = "v2")]
-        public async Task<ResponseMessage<int>> DeleteMsgFaieldRecord([FromBody , BindRequired] MsgFailedRecord msgInfo)
+        public async Task<ResponseMessage<int>> AddMsgFailedRecord([FromBody , BindRequired] MsgFailedRecord msgInfo)
         {
             var Response = new ResponseMessage<int>();
             if (msgInfo == null)
@@ -181,7 +181,7 @@ namespace IngestGlobalPlugin.Controllers.v2
                 else
                 {
                     Response.Code = ResponseCodeDefines.ServiceError;
-                    Response.Msg = "DeleteMsgFaieldRecord error info：" + e.ToString();
+                    Response.Msg = "AddMsgFailedRecord error info：" + e.ToString();
                     Logger.Error(Response.Msg);
                 }
             }
