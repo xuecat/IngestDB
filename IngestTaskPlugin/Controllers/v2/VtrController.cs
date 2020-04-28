@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 using IngestDBCore.Basic;
 using Microsoft.AspNetCore.Mvc;
 
-namespace IngestVtrPlugin.Controllers.v2
+namespace IngestTaskPlugin.Controllers.v2
 {
     /// <summary>
     /// VTR磁带
@@ -16,6 +16,6 @@ namespace IngestVtrPlugin.Controllers.v2
     [ApiController]
     public class VtrController : ControllerBase
     {
-        
+
     }
 }

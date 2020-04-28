@@ -35,10 +35,6 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "IngestMatrixPlugin", "Inges
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "IngestMatrixInterfacePlugin", "IngestMatrixInterfacePlugin\IngestMatrixInterfacePlugin.csproj", "{300F4193-BBA8-47A9-8A1A-EE56C2EB74DE}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "IngestVtrPlugin", "IngestVtrPlugin\IngestVtrPlugin.csproj", "{111B1657-7E1B-48F5-9686-09874992DF0F}"
-EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "IngestVtrInterfacePlugin", "IngestVtrInterfacePlugin\IngestVtrInterfacePlugin.csproj", "{47E84DEF-E095-43F6-8847-CBF4BB375FAD}"
-EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -101,14 +97,6 @@ Global
 		{300F4193-BBA8-47A9-8A1A-EE56C2EB74DE}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{300F4193-BBA8-47A9-8A1A-EE56C2EB74DE}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{300F4193-BBA8-47A9-8A1A-EE56C2EB74DE}.Release|Any CPU.Build.0 = Release|Any CPU
-		{111B1657-7E1B-48F5-9686-09874992DF0F}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{111B1657-7E1B-48F5-9686-09874992DF0F}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{111B1657-7E1B-48F5-9686-09874992DF0F}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{111B1657-7E1B-48F5-9686-09874992DF0F}.Release|Any CPU.Build.0 = Release|Any CPU
-		{47E84DEF-E095-43F6-8847-CBF4BB375FAD}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{47E84DEF-E095-43F6-8847-CBF4BB375FAD}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{47E84DEF-E095-43F6-8847-CBF4BB375FAD}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{47E84DEF-E095-43F6-8847-CBF4BB375FAD}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -126,8 +114,6 @@ Global
 		{7E71E1D6-1C0C-4C0D-8145-96A0C329571A} = {59AD4432-774F-470C-B163-FFDE4F9097EC}
 		{D437C821-59BF-475D-86AB-A0B869FFEEEB} = {59AD4432-774F-470C-B163-FFDE4F9097EC}
 		{300F4193-BBA8-47A9-8A1A-EE56C2EB74DE} = {59AD4432-774F-470C-B163-FFDE4F9097EC}
-		{111B1657-7E1B-48F5-9686-09874992DF0F} = {59AD4432-774F-470C-B163-FFDE4F9097EC}
-		{47E84DEF-E095-43F6-8847-CBF4BB375FAD} = {59AD4432-774F-470C-B163-FFDE4F9097EC}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {98696BFC-44A3-4355-B438-A3953923FF58}

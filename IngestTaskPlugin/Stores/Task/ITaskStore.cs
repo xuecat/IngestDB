@@ -76,5 +76,9 @@ namespace IngestTaskPlugin.Stores
         bool GetPerodicTaskNextExectueTime(DateTime tmBegin, DateTime tmEnd, string strPerodicDesc, ref DateTime tmExecuteBegin, ref DateTime tmExecuteEnd);
         List<DateTime> GetDateTimeFromString(string str);
         bool IsInvalidPerodicTask(string strClassify, DateTime begin);
+
+        Task<bool> AddTaskSource(DbpTaskSource taskSource);
+
+        Task<bool> AddPolicyTask(List<DbpPolicytask> policytasks);
     }
 }

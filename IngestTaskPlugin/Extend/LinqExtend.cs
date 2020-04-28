@@ -4,7 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace IngestTaskPlugin.Managers
+namespace IngestTaskPlugin.Extend
 {
     public static class LinqExtend
     {
