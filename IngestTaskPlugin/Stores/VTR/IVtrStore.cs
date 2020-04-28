@@ -4,6 +4,8 @@
     using System.Collections.Generic;
     using System.Linq;
     using System.Threading.Tasks;
+    using IngestTaskPlugin.Dto.Request;
+    using IngestTaskPlugin.Dto.Response.OldVtr;
     using IngestTaskPlugin.Models;
 
     /// <summary>
@@ -11,13 +13,13 @@
     /// </summary>
     public interface IVtrStore
     {
-        Task<List<TResult>> GetMetadatapolicy<TResult>(Func<IQueryable<DbpMetadatapolicy>, IQueryable<TResult>> query, bool notrack = true);
+        Task<List<TResult>> GetMetadatapolicy<TResult>(Func<IQueryable<DbpMetadatapolicy>, IQueryable<TResult>> query, bool notrack = false);
 
-        Task<TResult> GetMetadatapolicy<TResult>(Func<IQueryable<DbpMetadatapolicy>, Task<TResult>> query, bool notrack = true);
+        Task<TResult> GetMetadatapolicy<TResult>(Func<IQueryable<DbpMetadatapolicy>, Task<TResult>> query, bool notrack = false);
 
-        Task<List<TResult>> GetPolicyuser<TResult>(Func<IQueryable<DbpPolicyuser>, IQueryable<TResult>> query, bool notrack = true);
+        Task<List<TResult>> GetPolicyuser<TResult>(Func<IQueryable<DbpPolicyuser>, IQueryable<TResult>> query, bool notrack = false);
 
-        Task<TResult> GetPolicyuser<TResult>(Func<IQueryable<DbpPolicyuser>, Task<TResult>> query, bool notrack = true);
+        Task<TResult> GetPolicyuser<TResult>(Func<IQueryable<DbpPolicyuser>, Task<TResult>> query, bool notrack = false);
 
         /// <summary>
         /// The GetTapelist.
@@ -26,7 +28,7 @@
         /// <param name="query">The query<see cref="Func{IQueryable{VtrTapelist}, IQueryable{TResult}}"/>.</param>
         /// <param name="notrack">The notrack<see cref="bool"/>.</param>
         /// <returns>The <see cref="Task{List{TResult}}"/>.</returns>
-        Task<List<TResult>> GetTapelist<TResult>(Func<IQueryable<VtrTapelist>, IQueryable<TResult>> query, bool notrack = true);
+        Task<List<TResult>> GetTapelist<TResult>(Func<IQueryable<VtrTapelist>, IQueryable<TResult>> query, bool notrack = false);
 
         /// <summary>
         /// The GetTapelist.
@@ -35,7 +37,7 @@
         /// <param name="query">The query<see cref="Func{IQueryable{VtrTapelist}, Task{TResult}}"/>.</param>
         /// <param name="notrack">The notrack<see cref="bool"/>.</param>
         /// <returns>The <see cref="Task{TResult}"/>.</returns>
-        Task<TResult> GetTapelist<TResult>(Func<IQueryable<VtrTapelist>, Task<TResult>> query, bool notrack = true);
+        Task<TResult> GetTapelist<TResult>(Func<IQueryable<VtrTapelist>, Task<TResult>> query, bool notrack = false);
 
         /// <summary>
         /// The SaveTaplist.
@@ -58,7 +60,7 @@
         /// <param name="query">The query<see cref="Func{IQueryable{VtrTapeVtrMap}, IQueryable{TResult}}"/>.</param>
         /// <param name="notrack">The notrack<see cref="bool"/>.</param>
         /// <returns>The <see cref="Task{List{TResult}}"/>.</returns>
-        Task<List<TResult>> GetTapeVtrMap<TResult>(Func<IQueryable<VtrTapeVtrMap>, IQueryable<TResult>> query, bool notrack = true);
+        Task<List<TResult>> GetTapeVtrMap<TResult>(Func<IQueryable<VtrTapeVtrMap>, IQueryable<TResult>> query, bool notrack = false);
 
         /// <summary>
         /// The GetTapeVtrMap.
@@ -67,7 +69,7 @@
         /// <param name="query">The query<see cref="Func{IQueryable{VtrTapeVtrMap}, Task{TResult}}"/>.</param>
         /// <param name="notrack">The notrack<see cref="bool"/>.</param>
         /// <returns>The <see cref="Task{TResult}"/>.</returns>
-        Task<TResult> GetTapeVtrMap<TResult>(Func<IQueryable<VtrTapeVtrMap>, Task<TResult>> query, bool notrack = true);
+        Task<TResult> GetTapeVtrMap<TResult>(Func<IQueryable<VtrTapeVtrMap>, Task<TResult>> query, bool notrack = false);
 
         /// <summary>
         /// The SaveTapeVtrMap.
@@ -90,7 +92,7 @@
         /// <param name="query">The query<see cref="Func{IQueryable{DbpTask}, Task{TResult}}"/>.</param>
         /// <param name="notrack">The notrack<see cref="bool"/>.</param>
         /// <returns>The <see cref="Task{TResult}"/>.</returns>
-        Task<TResult> GetTask<TResult>(Func<IQueryable<DbpTask>, Task<TResult>> query, bool notrack = true);
+        Task<TResult> GetTask<TResult>(Func<IQueryable<DbpTask>, Task<TResult>> query, bool notrack = false);
 
         /// <summary>
         /// The GetTypeinfo.
@@ -99,7 +101,7 @@
         /// <param name="query">The query<see cref="Func{IQueryable{VtrTypeinfo}, IQueryable{TResult}}"/>.</param>
         /// <param name="notrack">The notrack<see cref="bool"/>.</param>
         /// <returns>The <see cref="Task{List{TResult}}"/>.</returns>
-        Task<List<TResult>> GetTypeinfo<TResult>(Func<IQueryable<VtrTypeinfo>, IQueryable<TResult>> query, bool notrack = true);
+        Task<List<TResult>> GetTypeinfo<TResult>(Func<IQueryable<VtrTypeinfo>, IQueryable<TResult>> query, bool notrack = false);
 
         /// <summary>
         /// The GetTypeinfo.
@@ -108,7 +110,7 @@
         /// <param name="query">The query<see cref="Func{IQueryable{VtrTypeinfo}, Task{TResult}}"/>.</param>
         /// <param name="notrack">The notrack<see cref="bool"/>.</param>
         /// <returns>The <see cref="Task{TResult}"/>.</returns>
-        Task<TResult> GetTypeinfo<TResult>(Func<IQueryable<VtrTypeinfo>, Task<TResult>> query, bool notrack = true);
+        Task<TResult> GetTypeinfo<TResult>(Func<IQueryable<VtrTypeinfo>, Task<TResult>> query, bool notrack = false);
 
         /// <summary>
         /// The GetDetailinfo.
@@ -117,7 +119,7 @@
         /// <param name="query">The query<see cref="Func{IQueryable{VtrDetailinfo}, IQueryable{TResult}}"/>.</param>
         /// <param name="notrack">The notrack<see cref="bool"/>.</param>
         /// <returns>The <see cref="Task{List{TResult}}"/>.</returns>
-        Task<List<TResult>> GetDetailinfo<TResult>(Func<IQueryable<VtrDetailinfo>, IQueryable<TResult>> query, bool notrack = true);
+        Task<List<TResult>> GetDetailinfo<TResult>(Func<IQueryable<VtrDetailinfo>, IQueryable<TResult>> query, bool notrack = false);
 
         /// <summary>
         /// The GetDetailinfo.
@@ -126,7 +128,11 @@
         /// <param name="query">The query<see cref="Func{IQueryable{VtrDetailinfo}, Task{TResult}}"/>.</param>
         /// <param name="notrack">The notrack<see cref="bool"/>.</param>
         /// <returns>The <see cref="Task{TResult}"/>.</returns>
-        Task<TResult> GetDetailinfo<TResult>(Func<IQueryable<VtrDetailinfo>, Task<TResult>> query, bool notrack = true);
+        Task<TResult> GetDetailinfo<TResult>(Func<IQueryable<VtrDetailinfo>, Task<TResult>> query, bool notrack = false);
+
+        Task<List<VTRUploadTaskContent>> GetUploadTaskContent(VTRUploadCondition Condition);
+
+        Task<List<VtrUploadtask>> GetUploadtaskInfo(VTRUploadCondition Condition, bool bTaskMoreThanZero);
 
         /// <summary>
         /// The GetUploadtask.
@@ -135,7 +141,7 @@
         /// <param name="query">The query<see cref="Func{IQueryable{VtrUploadtask}, IQueryable{TResult}}"/>.</param>
         /// <param name="notrack">The notrack<see cref="bool"/>.</param>
         /// <returns>The <see cref="Task{List{TResult}}"/>.</returns>
-        Task<List<TResult>> GetUploadtask<TResult>(Func<IQueryable<VtrUploadtask>, IQueryable<TResult>> query, bool notrack = true);
+        Task<List<TResult>> GetUploadtask<TResult>(Func<IQueryable<VtrUploadtask>, IQueryable<TResult>> query, bool notrack = false);
 
         /// <summary>
         /// The GetUploadtask.
@@ -144,7 +150,7 @@
         /// <param name="query">The query<see cref="Func{IQueryable{VtrUploadtask}, Task{TResult}}"/>.</param>
         /// <param name="notrack">The notrack<see cref="bool"/>.</param>
         /// <returns>The <see cref="Task{TResult}"/>.</returns>
-        Task<TResult> GetUploadtask<TResult>(Func<IQueryable<VtrUploadtask>, Task<TResult>> query, bool notrack = true);
+        Task<TResult> GetUploadtask<TResult>(Func<IQueryable<VtrUploadtask>, Task<TResult>> query, bool notrack = false);
 
         /// <summary>
         /// The AddUploadtask.

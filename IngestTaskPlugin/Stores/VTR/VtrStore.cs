@@ -5,6 +5,10 @@
     using System.Linq;
     using System.Threading.Tasks;
     using IngestDBCore;
+    using IngestDBCore.Tool;
+    using IngestTaskPlugin.Dto;
+    using IngestTaskPlugin.Dto.Request;
+    using IngestTaskPlugin.Dto.Response.OldVtr;
     using IngestTaskPlugin.Models;
     using Microsoft.EntityFrameworkCore;
     using Sobey.Core.Log;
@@ -75,22 +79,22 @@
             return await query(Context.Set<TEntity>());
         }
 
-        public async Task<List<TResult>> GetMetadatapolicy<TResult>(Func<IQueryable<DbpMetadatapolicy>, IQueryable<TResult>> query, bool notrack = true)
+        public async Task<List<TResult>> GetMetadatapolicy<TResult>(Func<IQueryable<DbpMetadatapolicy>, IQueryable<TResult>> query, bool notrack = false)
         {
             return await this.QueryListAsync(query, notrack);
         }
 
-        public async Task<TResult> GetMetadatapolicy<TResult>(Func<IQueryable<DbpMetadatapolicy>, Task<TResult>> query, bool notrack = true)
+        public async Task<TResult> GetMetadatapolicy<TResult>(Func<IQueryable<DbpMetadatapolicy>, Task<TResult>> query, bool notrack = false)
         {
             return await this.QueryModelAsync(query, notrack);
         }
 
-        public async Task<List<TResult>> GetPolicyuser<TResult>(Func<IQueryable<DbpPolicyuser>, IQueryable<TResult>> query, bool notrack = true)
+        public async Task<List<TResult>> GetPolicyuser<TResult>(Func<IQueryable<DbpPolicyuser>, IQueryable<TResult>> query, bool notrack = false)
         {
             return await this.QueryListAsync(query, notrack);
         }
 
-        public async Task<TResult> GetPolicyuser<TResult>(Func<IQueryable<DbpPolicyuser>, Task<TResult>> query, bool notrack = true)
+        public async Task<TResult> GetPolicyuser<TResult>(Func<IQueryable<DbpPolicyuser>, Task<TResult>> query, bool notrack = false)
         {
             return await this.QueryModelAsync(query, notrack);
         }
@@ -102,7 +106,7 @@
         /// <param name="query">The query<see cref="Func{IQueryable{VtrTapelist}, IQueryable{TResult}}"/>.</param>
         /// <param name="notrack">The notrack<see cref="bool"/>.</param>
         /// <returns>The <see cref="Task{List{TResult}}"/>.</returns>
-        public async Task<List<TResult>> GetTapelist<TResult>(Func<IQueryable<VtrTapelist>, IQueryable<TResult>> query, bool notrack = true)
+        public async Task<List<TResult>> GetTapelist<TResult>(Func<IQueryable<VtrTapelist>, IQueryable<TResult>> query, bool notrack = false)
         {
             return await this.QueryListAsync(query, notrack);
         }
@@ -114,7 +118,7 @@
         /// <param name="query">The query<see cref="Func{IQueryable{VtrTapelist}, Task{TResult}}"/>.</param>
         /// <param name="notrack">The notrack<see cref="bool"/>.</param>
         /// <returns>The <see cref="Task{TResult}"/>.</returns>
-        public async Task<TResult> GetTapelist<TResult>(Func<IQueryable<VtrTapelist>, Task<TResult>> query, bool notrack = true)
+        public async Task<TResult> GetTapelist<TResult>(Func<IQueryable<VtrTapelist>, Task<TResult>> query, bool notrack = false)
         {
             return await this.QueryModelAsync(query, notrack);
         }
@@ -166,7 +170,7 @@
         /// <param name="query">The query<see cref="Func{IQueryable{VtrTapeVtrMap}, IQueryable{TResult}}"/>.</param>
         /// <param name="notrack">The notrack<see cref="bool"/>.</param>
         /// <returns>The <see cref="Task{List{TResult}}"/>.</returns>
-        public async Task<List<TResult>> GetTapeVtrMap<TResult>(Func<IQueryable<VtrTapeVtrMap>, IQueryable<TResult>> query, bool notrack = true)
+        public async Task<List<TResult>> GetTapeVtrMap<TResult>(Func<IQueryable<VtrTapeVtrMap>, IQueryable<TResult>> query, bool notrack = false)
         {
             return await this.QueryListAsync(query, notrack);
         }
@@ -178,7 +182,7 @@
         /// <param name="query">The query<see cref="Func{IQueryable{VtrTapeVtrMap}, Task{TResult}}"/>.</param>
         /// <param name="notrack">The notrack<see cref="bool"/>.</param>
         /// <returns>The <see cref="Task{TResult}"/>.</returns>
-        public async Task<TResult> GetTapeVtrMap<TResult>(Func<IQueryable<VtrTapeVtrMap>, Task<TResult>> query, bool notrack = true)
+        public async Task<TResult> GetTapeVtrMap<TResult>(Func<IQueryable<VtrTapeVtrMap>, Task<TResult>> query, bool notrack = false)
         {
             return await this.QueryModelAsync(query, notrack);
         }
@@ -233,7 +237,7 @@
         /// <param name="query">The query<see cref="Func{IQueryable{DbpTask}, Task{TResult}}"/>.</param>
         /// <param name="notrack">The notrack<see cref="bool"/>.</param>
         /// <returns>The <see cref="Task{List{TResult}}"/>.</returns>
-        public async Task<TResult> GetTask<TResult>(Func<IQueryable<DbpTask>, Task<TResult>> query, bool notrack = true)
+        public async Task<TResult> GetTask<TResult>(Func<IQueryable<DbpTask>, Task<TResult>> query, bool notrack = false)
         {
             return await this.QueryModelAsync(query, notrack);
         }
@@ -245,7 +249,7 @@
         /// <param name="query">The query<see cref="Func{IQueryable{VtrTypeinfo}, IQueryable{TResult}}"/>.</param>
         /// <param name="notrack">The notrack<see cref="bool"/>.</param>
         /// <returns>The <see cref="Task{List{TResult}}"/>.</returns>
-        public async Task<List<TResult>> GetTypeinfo<TResult>(Func<IQueryable<VtrTypeinfo>, IQueryable<TResult>> query, bool notrack = true)
+        public async Task<List<TResult>> GetTypeinfo<TResult>(Func<IQueryable<VtrTypeinfo>, IQueryable<TResult>> query, bool notrack = false)
         {
             return await this.QueryListAsync(query, notrack);
         }
@@ -257,7 +261,7 @@
         /// <param name="query">The query<see cref="Func{IQueryable{VtrTypeinfo}, Task{TResult}}"/>.</param>
         /// <param name="notrack">The notrack<see cref="bool"/>.</param>
         /// <returns>The <see cref="Task{TResult}"/>.</returns>
-        public async Task<TResult> GetTypeinfo<TResult>(Func<IQueryable<VtrTypeinfo>, Task<TResult>> query, bool notrack = true)
+        public async Task<TResult> GetTypeinfo<TResult>(Func<IQueryable<VtrTypeinfo>, Task<TResult>> query, bool notrack = false)
         {
             return await this.QueryModelAsync(query, notrack);
         }
@@ -269,7 +273,7 @@
         /// <param name="query">The query<see cref="Func{IQueryable{VtrDetailinfo}, IQueryable{TResult}}"/>.</param>
         /// <param name="notrack">The notrack<see cref="bool"/>.</param>
         /// <returns>The <see cref="Task{List{TResult}}"/>.</returns>
-        public async Task<List<TResult>> GetDetailinfo<TResult>(Func<IQueryable<VtrDetailinfo>, IQueryable<TResult>> query, bool notrack = true)
+        public async Task<List<TResult>> GetDetailinfo<TResult>(Func<IQueryable<VtrDetailinfo>, IQueryable<TResult>> query, bool notrack = false)
         {
             return await this.QueryListAsync(query, notrack);
         }
@@ -281,9 +285,125 @@
         /// <param name="query">The query<see cref="Func{IQueryable{VtrDetailinfo}, Task{TResult}}"/>.</param>
         /// <param name="notrack">The notrack<see cref="bool"/>.</param>
         /// <returns>The <see cref="Task{TResult}"/>.</returns>
-        public async Task<TResult> GetDetailinfo<TResult>(Func<IQueryable<VtrDetailinfo>, Task<TResult>> query, bool notrack = true)
+        public async Task<TResult> GetDetailinfo<TResult>(Func<IQueryable<VtrDetailinfo>, Task<TResult>> query, bool notrack = false)
         {
             return await this.QueryModelAsync(query, notrack);
+        }
+
+        public async Task<List<VTRUploadTaskContent>> GetUploadTaskContent(VTRUploadCondition Condition)
+        {
+            IQueryable<VtrUploadtask> query = Context.VtrUploadtask.AsNoTracking();
+            if (Condition.lBlankTaskID > 0) query = query.Where(a => a.Vtrtaskid == Condition.lBlankTaskID);
+            if (string.IsNullOrEmpty(Condition.strTaskName)) query = query.Where(a => a.Taskname.Contains(Condition.strTaskName));
+            if (Condition.lTaskID > 0) query = query.Where(a => a.Taskid == Condition.lTaskID);
+            if (Condition.lVtrID > 0) query = query.Where(a => a.Vtrid == Condition.lVtrID);
+            if (Condition.state != null && Condition.state.Count > 0)
+            {
+                var states = Condition.state.Select(a => (int?)a).ToList();
+                query = query.Where(a => states.Contains(a.Taskstate));
+            }
+            if (!string.IsNullOrEmpty(Condition.szUserCode)) query = query.Where(a => a.Usercode == Condition.szUserCode);
+            if (!string.IsNullOrEmpty(Condition.strUserToken)) query = query.Where(a => a.Usertoken == Condition.strUserToken);
+            string szMinTime = DateTime.MinValue.ToString("yyyy-MM-dd HH:mm:ss");
+            if (!string.IsNullOrEmpty(Condition.strMaxCommitTime) && Condition.strMaxCommitTime != szMinTime)
+            {
+                var maxCommitTime = DateTimeFormat.DateTimeFromString(Condition.strMaxCommitTime);
+                query = query.Where(a => a.Committime <= maxCommitTime);
+            }
+            if (!string.IsNullOrEmpty(Condition.strMinCommitTime) && Condition.strMinCommitTime != szMinTime)
+            {
+                var minCommitTime = DateTimeFormat.DateTimeFromString(Condition.strMinCommitTime);
+                query = query.Where(a => a.Committime >= minCommitTime);
+            }
+            var ab = await query.Join(Context.DbpTask.AsNoTracking(), a => a.Taskid, b => b.Taskid, (a, b) => new { task = b, vtr = a }).ToListAsync();
+            if (ab != null && ab.Count > 0)
+            {
+                return ab.Select(a => new VTRUploadTaskContent
+                {
+                    nTaskId = a.task.Taskid,
+                    strTaskName = a.task.Taskname,
+                    nUnit = (int)a.task.Recunitid,
+                    nSignalId = (int)a.task.Signalid,
+                    nChannelId = (int)a.task.Channelid,
+                    emState = (int)a.task.State,
+                    strBegin = a.task.Starttime.ToString(),
+                    strEnd = a.task.Endtime.ToString(),
+                    strClassify = a.task.Category,
+                    strTaskDesc = a.task.Description,
+                    strStampImage = a.task.Description,
+                    emTaskType = (int)a.task.Tasktype,
+                    emCooperantType = (int)a.task.Backtype,
+                    strTaskGUID = a.task.Taskguid,
+
+                    nVtrId = (int)a.vtr.Vtrid,
+                    nBlankTaskId = (int)a.vtr.Vtrtaskid,
+                    nTrimIn = (int)a.vtr.Trimin,
+                    nTrimOut = (int)a.vtr.Trimout,
+                    emTaskState = (VTRUPLOADTASKSTATE)a.vtr.Taskstate,
+                    strUserCode = a.vtr.Usercode,
+                    strCommitTime = a.vtr.Committime.ToString(),
+                    nOrder = (int)a.vtr.Uploadorder,
+                    nTapeId = (int)a.vtr.Tapeid,
+                    strUserToken = a.vtr.Usertoken,
+                    nTrimInCTL = (int)a.vtr.Triminctl,
+                    nTrimOutCTL = (int)a.vtr.Trimoutctl,
+                    emVtrTaskType = (VTRUPLOADTASKTYPE)a.vtr.Vtrtasktype,
+                }).ToList();
+            }
+            return new List<VTRUploadTaskContent>();
+        }
+
+        public async Task<List<VtrUploadtask>> GetUploadtaskInfo(VTRUploadCondition Condition, bool bTaskMoreThanZero)
+        {
+            IQueryable<VtrUploadtask> query = Context.VtrUploadtask.AsNoTracking();
+            if (Condition.lBlankTaskID > 0)
+            {
+                query = query.Where(a => a.Vtrtaskid == Condition.lBlankTaskID);
+            }
+            if (string.IsNullOrEmpty(Condition.strTaskName))
+            {
+                query = query.Where(a => a.Taskname.Contains(Condition.strTaskName));
+            }
+            if (!bTaskMoreThanZero)
+            {
+                if (Condition.lTaskID >= 0)
+                {
+                    query = query.Where(a => a.Taskid == Condition.lTaskID);
+                }
+            }
+            else if (Condition.lTaskID > 0)
+            {
+                query = query.Where(a => a.Taskid == Condition.lTaskID);
+            }
+            if (Condition.lVtrID > 0)
+            {
+                query = query.Where(a => a.Vtrid == Condition.lVtrID);
+            }
+            if (Condition.state != null && Condition.state.Count > 0)
+            {
+                var states = Condition.state.Select(a => (int?)a).ToList();
+                query = query.Where(a => states.Contains(a.Taskstate));
+            }
+            if (!string.IsNullOrEmpty(Condition.szUserCode))
+            {
+                query = query.Where(a => a.Usercode == Condition.szUserCode);
+            }
+            if (!string.IsNullOrEmpty(Condition.strUserToken))
+            {
+                query = query.Where(a => a.Usertoken == Condition.strUserToken);
+            }
+            string szMinTime = DateTime.MinValue.ToString("yyyy-MM-dd HH:mm:ss");
+            if (!string.IsNullOrEmpty(Condition.strMaxCommitTime) && Condition.strMaxCommitTime != szMinTime)
+            {
+                var maxCommitTime = DateTimeFormat.DateTimeFromString(Condition.strMaxCommitTime);
+                query = query.Where(a => a.Committime <= maxCommitTime);
+            }
+            if (!string.IsNullOrEmpty(Condition.strMinCommitTime) && Condition.strMinCommitTime != szMinTime)
+            {
+                var minCommitTime = DateTimeFormat.DateTimeFromString(Condition.strMinCommitTime);
+                query = query.Where(a => a.Committime >= minCommitTime);
+            }
+            return await query.ToListAsync();
         }
 
         /// <summary>
@@ -293,7 +413,7 @@
         /// <param name="query">The query<see cref="Func{IQueryable{VtrUploadtask}, IQueryable{TResult}}"/>.</param>
         /// <param name="notrack">The notrack<see cref="bool"/>.</param>
         /// <returns>The <see cref="Task{List{TResult}}"/>.</returns>
-        public async Task<List<TResult>> GetUploadtask<TResult>(Func<IQueryable<VtrUploadtask>, IQueryable<TResult>> query, bool notrack = true)
+        public async Task<List<TResult>> GetUploadtask<TResult>(Func<IQueryable<VtrUploadtask>, IQueryable<TResult>> query, bool notrack = false)
         {
             return await this.QueryListAsync(query, notrack);
         }
@@ -305,7 +425,7 @@
         /// <param name="query">The query<see cref="Func{IQueryable{VtrUploadtask}, Task{TResult}}"/>.</param>
         /// <param name="notrack">The notrack<see cref="bool"/>.</param>
         /// <returns>The <see cref="Task{TResult}"/>.</returns>
-        public async Task<TResult> GetUploadtask<TResult>(Func<IQueryable<VtrUploadtask>, Task<TResult>> query, bool notrack = true)
+        public async Task<TResult> GetUploadtask<TResult>(Func<IQueryable<VtrUploadtask>, Task<TResult>> query, bool notrack = false)
         {
             return await this.QueryModelAsync(query, notrack);
         }

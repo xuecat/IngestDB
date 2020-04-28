@@ -725,6 +725,8 @@ namespace IngestTaskPlugin.Dto
     }
     public class TaskOldResponseMessage<T> : TaskOldResponseMessage
     {
+        public TaskOldResponseMessage() : base()
+        { }
         public T extention;
     }
     public class AddReScheduleTaskSvr_in

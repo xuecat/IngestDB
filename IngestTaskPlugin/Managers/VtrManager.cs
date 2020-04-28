@@ -4,12 +4,14 @@
     using System.Collections.Generic;
     using System.Linq;
     using System.Threading.Tasks;
+    using System.Xml;
     using AutoMapper;
     using IngestDBCore;
     using IngestDBCore.Tool;
     using IngestTaskPlugin.Dto;
     using IngestTaskPlugin.Dto.Request;
     using IngestTaskPlugin.Dto.Response;
+    using IngestTaskPlugin.Dto.Response.OldVtr;
     using IngestTaskPlugin.Extend;
     using IngestTaskPlugin.Models;
     using IngestTaskPlugin.Stores;
@@ -124,7 +126,7 @@
         /// </summary>
         /// <param name="uploadTaskInfo">The uploadTaskInfo<see cref="VTRUploadTaskInfo"/>.</param>
         /// <returns>The <see cref="Task{int}"/>.</returns>
-        public async Task<int> SetVTRUploadTaskInfo(VTRUploadTaskInfo uploadTaskInfo)
+        public async Task<int> SetVTRUploadTaskInfoAsync(VTRUploadTaskInfo uploadTaskInfo)
         {
             int retTaskID = -1;
 
@@ -206,6 +208,110 @@
             return retTaskID;
         }
 
+        public async Task SetVBUTasksMetadatasAsync(int taskId, MetaDataType type, string metadata)
+        {
+            //需要将其中的三个字符串提取出来
+            if (type == MetaDataType.emContentMetaData)
+            {
+                string materialMeta = string.Empty;
+                string planningMeta = string.Empty;
+                string originalMeta = string.Empty;
+                XmlDocument doc = new XmlDocument();
+                doc.LoadXml(metadata);
+                XmlNode taskContentNode = doc.SelectSingleNode("/TaskContentMetaData");
+                if (taskContentNode != null)
+                {
+                    if (taskContentNode.HasChildNodes)
+                    {
+                        XmlNode materialNode = doc.SelectSingleNode("/TaskContentMetaData/MetaMaterial");
+                        if (materialNode != null)
+                        {
+                            materialMeta = materialNode.InnerText;
+                            taskContentNode.RemoveChild(materialNode);
+                        }
+
+                        XmlNode planningNode = doc.SelectSingleNode("/TaskContentMetaData/MetaPlanning");
+                        if (planningNode != null)
+                        {
+                            planningMeta = planningNode.InnerText;
+                            taskContentNode.RemoveChild(planningNode);
+                        }
+
+                        XmlNode originalNode = doc.SelectSingleNode("/TaskContentMetaData/MetaOriginal");
+                        if (originalNode != null)
+                        {
+                            originalMeta = originalNode.InnerText;
+                            taskContentNode.RemoveChild(originalNode);
+                        }
+                    }
+                }
+
+                await TaskStore.UpdateTaskMetaDataAsync(taskId, MetaDataType.emStoreMetaData, materialMeta);
+                await TaskStore.UpdateTaskMetaDataAsync(taskId, MetaDataType.emPlanMetaData, planningMeta);
+                await TaskStore.UpdateTaskMetaDataAsync(taskId, MetaDataType.emOriginalMetaData, originalMeta);
+                await TaskStore.UpdateTaskMetaDataAsync(taskId, MetaDataType.emContentMetaData, doc.OuterXml);
+            }
+            else
+            {
+                await TaskStore.UpdateTaskMetaDataAsync(taskId, (MetaDataType)type, metadata);
+            }
+        }
+
+        public async Task<List<VTRUploadTaskInfo>> QueryVTRUploadTaskInfoAsync(VTRUploadCondition condition)
+        {
+            return Mapper.Map<List<VTRUploadTaskInfo>>(await VtrStore.GetUploadtaskInfo(condition, true));
+        }
+
+        public async Task<List<VTRUploadTaskContent>> GetVTRUploadTasksAsync(VTRUploadCondition condition)
+        {
+            return Mapper.Map<List<VTRUploadTaskContent>>(await VtrStore.GetUploadTaskContent(condition));
+        }
+
+        public async Task<VTRDetailInfo> GetVTRDetailInfoByID(int vtrId)
+        {
+            VTRDetailInfo vtrinfo = new VTRDetailInfo();
+            var row = Mapper.Map<VTRDetailInfo>(await VtrStore.GetDetailinfo(a => a.SingleOrDefaultAsync(x => x.Vtrid == vtrId)));
+            if (row == null)
+            {
+                SobeyRecException.ThrowSelfNoParam(string.Format(GlobalDictionary.Instance.GetMessageByCode(GlobalDictionary.GLOBALDICT_CODE_VTRID_DOES_NOT_EXIST_THE_NVTRID_IS_ONEPARAM),
+                    vtrId.ToString()), GlobalDictionary.GLOBALDICT_CODE_VTRID_DOES_NOT_EXIST_THE_NVTRID_IS_ONEPARAM, Logger, null);
+            }
+            return vtrinfo;
+        }
+
+        public async Task<VtrState> GetVtrStateAsync(int vtrId)
+        {
+            return (VtrState)await VtrStore.GetDetailinfo(a => a.Where(x => x.Vtrid == vtrId).Select(x => x.Vtrstate).SingleOrDefaultAsync());
+        }
+
+        public async Task<bool> UpdateUploadTaskStateAsync(int taskId, int taskState)
+        {
+            return await SetVTRUploadTaskStateAsync(taskId, (VTRUPLOADTASKSTATE)taskState, string.Empty);
+        }
+
+        public async Task<bool> SetVTRUploadTaskStateAsync(int taskId, VTRUPLOADTASKSTATE vtrTaskState, string errorContent)
+        {
+            var upload = await VtrStore.GetUploadtask(a => a.FirstOrDefaultAsync(x => x.Taskid == taskId), true);
+
+            if (upload == null)
+            {
+                if (vtrTaskState == VTRUPLOADTASKSTATE.VTR_UPLOAD_COMMIT && (upload.Taskstate == (int)VTRUPLOADTASKSTATE.VTR_UPLOAD_COMPLETE))
+                {//已入库素材重新上载是，改变GUID以保证再次入库时不会覆盖前面的素材
+                    upload.Taskguid = Guid.NewGuid().ToString();
+                }
+
+                upload.Taskstate = (int)vtrTaskState;
+                if (vtrTaskState == VTRUPLOADTASKSTATE.VTR_UPLOAD_FAIL)
+                {
+                    upload.Usertoken = errorContent;
+                }
+                return await VtrStore.UpdateUploadtask(upload);
+            }
+            //UpdateTime = DateTime.Now;
+            return false;
+        }
+
+
         private async Task AddPolicyTaskByUserCode(string userCode, int vtrTaskId)
         {
             List<DbpPolicytask> tasks = new List<DbpPolicytask>();
@@ -267,7 +373,7 @@
         /// <param name="tp">The tp<see cref="TimePeriod"/>.</param>
         /// <param name="vtrFreeTimePeriods">The vtrFreeTimePeriods<see cref="VTRTimePeriods"/>.</param>
         /// <returns>The <see cref="bool"/>.</returns>
-        public bool IsTimePeriodInVTRTimePeriods(TimePeriod tp, VTRTimePeriods vtrFreeTimePeriods)
+        private bool IsTimePeriodInVTRTimePeriods(TimePeriod tp, VTRTimePeriods vtrFreeTimePeriods)
         {
             if (vtrFreeTimePeriods.Periods != null)
             {
@@ -301,6 +407,7 @@
             (int?)VTRUPLOADTASKSTATE.VTR_UPLOAD_EXECUTE
         };
 
+
         /// <summary>
         /// The GetFreeTimePeriodByVtrId.
         /// </summary>
@@ -308,7 +415,7 @@
         /// <param name="beginCheckTime">The beginCheckTime<see cref="DateTime"/>.</param>
         /// <param name="exTaskId">The exTaskId<see cref="int"/>.</param>
         /// <returns>The <see cref="Task{VTRTimePeriods}"/>.</returns>
-        public async Task<VTRTimePeriods> GetFreeTimePeriodByVtrId(VTRTimePeriods vtrFreeTimePeriods, DateTime beginCheckTime, int exTaskId)
+        private async Task<VTRTimePeriods> GetFreeTimePeriodByVtrId(VTRTimePeriods vtrFreeTimePeriods, DateTime beginCheckTime, int exTaskId)
         {
             if (vtrFreeTimePeriods.VTRId <= 0)
             {
@@ -374,7 +481,7 @@
         /// <param name="channelIds">The channelIds<see cref="List{int}"/>.</param>
         /// <param name="exTaskId">The exTaskId<see cref="int"/>.</param>
         /// <returns>The <see cref="List{ChannelTimePeriods}"/>.</returns>
-        public async Task<List<ChannelTimePeriods>> GetChannelsFreeTimePeriods(DateTime beginTime, List<int> channelIds, int exTaskId)
+        private async Task<List<ChannelTimePeriods>> GetChannelsFreeTimePeriods(DateTime beginTime, List<int> channelIds, int exTaskId)
         {
             if (beginTime < new DateTime(DateTime.Now.Year, DateTime.Now.Month, DateTime.Now.Day, 0, 0, 0) || channelIds == null || channelIds.Count <= 0)
             {

@@ -13,8 +13,15 @@ namespace IngestDBCore
         static public string MLCPT { get { return "ML_CPT"; } }
         static public string BACKUP { get { return "BACKUP"; } }
     }
-
-    
+    public class ClientOperLabelName
+    {
+        static public string SDI_AddTask = "SDI_AddTask";
+        static public string SDI_DeleteTask = "SDI_DeleteTask";
+        static public string SDI_ModifyTask = "SDI_ModifyTask";
+        static public string VTR_UPLOAD_AddTask = "VTR_UPLOAD_AddTask";
+        static public string VTR_UPLOAD_DeleteTask = "VTR_UPLOAD_DeleteTask";
+        static public string VTR_UPLOAD_ModifyTask = "VTR_UPLOAD_ModifyTask";
+    }
 
     public class GlobalInternals
     {
@@ -35,7 +42,7 @@ namespace IngestDBCore
         public int TaskID { get; set; }
     }
 
-   
+
     public enum CLIP_STATEINTERFACE
     {
         STARTCAPUTER = 0,   //开始采集了,可以边采边编了	
