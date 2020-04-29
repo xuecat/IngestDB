@@ -30,25 +30,25 @@ namespace IngestMatrixPlugin.Controllers.v2
         /// <summary>
         /// 矩阵开关
         /// </summary>
-        /// <param name="inPort">输入端口</param>
-        /// <param name="outPort">输出端口</param>
+        /// <param name="inport">输入端口</param>
+        /// <param name="outport">输出端口</param>
         /// <returns>是否切换成功</returns>
         [HttpGet("matrix/switch"), MapToApiVersion("2.0")]
         [ApiExplorerSettings(GroupName = "v2")]
-        public ResponseMessage<bool> SwitchInOut([FromQuery, BindRequired]int inPort,
-                                                 [FromQuery, BindRequired]int outPort)
+        public ResponseMessage<bool> SwitchInOut([FromQuery, BindRequired]int inport,
+                                                 [FromQuery, BindRequired]int outport)
         {
             ResponseMessage<bool> response = new ResponseMessage<bool>();
             try
             {
-                if (inPort <= 0 || outPort <= 0)
+                if (inport <= 0 || outport <= 0)
                 {
                     throw new Exception("Switch failed！ param is invailed");
                 }
                 m_MatrixMt.WaitOne();
                 lock (lockObj)  //保证只有一个切换在进行
                 {
-                    response.Ext = _matrixManage.SwitchInOutAsync(inPort, outPort).Result;
+                    response.Ext = _matrixManage.SwitchInOutAsync(inport, outport).Result;
                 }
                 m_MatrixMt.ReleaseMutex();
             }
@@ -72,16 +72,16 @@ namespace IngestMatrixPlugin.Controllers.v2
         /// <summary>
         /// 通过出点获取入点
         /// </summary>
-        /// <param name="outPort">输出端口</param>
+        /// <param name="outport">输出端口</param>
         /// <returns>输入端口</returns>
-        [HttpGet("matrix/inport/{outPort}"), MapToApiVersion("2.0")]
+        [HttpGet("matrix/inport/{outport}"), MapToApiVersion("2.0")]
         [ApiExplorerSettings(GroupName = "v2")]
-        public async Task<ResponseMessage<long>> GetInPortFromOutPort([FromRoute, BindRequired, DefaultValue(1)]long outPort)
+        public async Task<ResponseMessage<long>> GetInPortFromOutPort([FromRoute, BindRequired, DefaultValue(1)]long outport)
         {
             ResponseMessage<long> response = new ResponseMessage<long>();
             try
             {
-                response.Ext = await _matrixManage.GetInPortFromOutPortAsync(outPort);
+                response.Ext = await _matrixManage.GetInPortFromOutPortAsync(outport);
                 if (response.Ext == -1)
                 {
                     response.Msg = "获取矩阵入口出错";

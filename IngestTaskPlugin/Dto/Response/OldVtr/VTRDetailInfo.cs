@@ -63,7 +63,7 @@
         /// <summary>
         /// VTR备份标识
         /// </summary>
-        public emBackupFlag emBackUpType = emBackupFlag.emAllowBackUp;
+        public VtrBackupFlag emBackUpType = VtrBackupFlag.emAllowBackUp;
 
         /// <summary>
         /// VTR当前状态

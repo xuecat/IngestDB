@@ -5,10 +5,9 @@
     using System.Linq;
     using System.Threading.Tasks;
     using IngestDBCore;
-    using IngestDBCore.Tool;
     using IngestTaskPlugin.Dto;
     using IngestTaskPlugin.Dto.Request;
-    using IngestTaskPlugin.Dto.Response.OldVtr;
+    using IngestTaskPlugin.Dto.Response;
     using IngestTaskPlugin.Models;
     using Microsoft.EntityFrameworkCore;
     using Sobey.Core.Log;
@@ -79,21 +78,49 @@
             return await query(Context.Set<TEntity>());
         }
 
+        /// <summary>
+        /// The GetMetadatapolicy.
+        /// </summary>
+        /// <typeparam name="TResult">.</typeparam>
+        /// <param name="query">The query<see cref="Func{IQueryable{DbpMetadatapolicy}, IQueryable{TResult}}"/>.</param>
+        /// <param name="notrack">The notrack<see cref="bool"/>.</param>
+        /// <returns>The <see cref="Task{List{TResult}}"/>.</returns>
         public async Task<List<TResult>> GetMetadatapolicy<TResult>(Func<IQueryable<DbpMetadatapolicy>, IQueryable<TResult>> query, bool notrack = false)
         {
             return await this.QueryListAsync(query, notrack);
         }
 
+        /// <summary>
+        /// The GetMetadatapolicy.
+        /// </summary>
+        /// <typeparam name="TResult">.</typeparam>
+        /// <param name="query">The query<see cref="Func{IQueryable{DbpMetadatapolicy}, Task{TResult}}"/>.</param>
+        /// <param name="notrack">The notrack<see cref="bool"/>.</param>
+        /// <returns>The <see cref="Task{TResult}"/>.</returns>
         public async Task<TResult> GetMetadatapolicy<TResult>(Func<IQueryable<DbpMetadatapolicy>, Task<TResult>> query, bool notrack = false)
         {
             return await this.QueryModelAsync(query, notrack);
         }
 
+        /// <summary>
+        /// The GetPolicyuser.
+        /// </summary>
+        /// <typeparam name="TResult">.</typeparam>
+        /// <param name="query">The query<see cref="Func{IQueryable{DbpPolicyuser}, IQueryable{TResult}}"/>.</param>
+        /// <param name="notrack">The notrack<see cref="bool"/>.</param>
+        /// <returns>The <see cref="Task{List{TResult}}"/>.</returns>
         public async Task<List<TResult>> GetPolicyuser<TResult>(Func<IQueryable<DbpPolicyuser>, IQueryable<TResult>> query, bool notrack = false)
         {
             return await this.QueryListAsync(query, notrack);
         }
 
+        /// <summary>
+        /// The GetPolicyuser.
+        /// </summary>
+        /// <typeparam name="TResult">.</typeparam>
+        /// <param name="query">The query<see cref="Func{IQueryable{DbpPolicyuser}, Task{TResult}}"/>.</param>
+        /// <param name="notrack">The notrack<see cref="bool"/>.</param>
+        /// <returns>The <see cref="Task{TResult}"/>.</returns>
         public async Task<TResult> GetPolicyuser<TResult>(Func<IQueryable<DbpPolicyuser>, Task<TResult>> query, bool notrack = false)
         {
             return await this.QueryModelAsync(query, notrack);
@@ -290,119 +317,130 @@
             return await this.QueryModelAsync(query, notrack);
         }
 
-        public async Task<List<VTRUploadTaskContent>> GetUploadTaskContent(VTRUploadCondition Condition)
+        /// <summary>
+        /// The GetUploadTaskContent.
+        /// </summary>
+        /// <param name="Condition">The Condition<see cref="VTRUploadConditionRequest"/>.</param>
+        /// <returns>The <see cref="Task{List{VTRUploadTaskContentResponse}}"/>.</returns>
+        public async Task<List<VTRUploadTaskContentResponse>> GetUploadTaskContent(VTRUploadConditionRequest Condition)
         {
             IQueryable<VtrUploadtask> query = Context.VtrUploadtask.AsNoTracking();
-            if (Condition.lBlankTaskID > 0) query = query.Where(a => a.Vtrtaskid == Condition.lBlankTaskID);
-            if (string.IsNullOrEmpty(Condition.strTaskName)) query = query.Where(a => a.Taskname.Contains(Condition.strTaskName));
-            if (Condition.lTaskID > 0) query = query.Where(a => a.Taskid == Condition.lTaskID);
-            if (Condition.lVtrID > 0) query = query.Where(a => a.Vtrid == Condition.lVtrID);
-            if (Condition.state != null && Condition.state.Count > 0)
-            {
-                var states = Condition.state.Select(a => (int?)a).ToList();
-                query = query.Where(a => states.Contains(a.Taskstate));
-            }
-            if (!string.IsNullOrEmpty(Condition.szUserCode)) query = query.Where(a => a.Usercode == Condition.szUserCode);
-            if (!string.IsNullOrEmpty(Condition.strUserToken)) query = query.Where(a => a.Usertoken == Condition.strUserToken);
-            string szMinTime = DateTime.MinValue.ToString("yyyy-MM-dd HH:mm:ss");
-            if (!string.IsNullOrEmpty(Condition.strMaxCommitTime) && Condition.strMaxCommitTime != szMinTime)
-            {
-                var maxCommitTime = DateTimeFormat.DateTimeFromString(Condition.strMaxCommitTime);
-                query = query.Where(a => a.Committime <= maxCommitTime);
-            }
-            if (!string.IsNullOrEmpty(Condition.strMinCommitTime) && Condition.strMinCommitTime != szMinTime)
-            {
-                var minCommitTime = DateTimeFormat.DateTimeFromString(Condition.strMinCommitTime);
-                query = query.Where(a => a.Committime >= minCommitTime);
-            }
-            var ab = await query.Join(Context.DbpTask.AsNoTracking(), a => a.Taskid, b => b.Taskid, (a, b) => new { task = b, vtr = a }).ToListAsync();
-            if (ab != null && ab.Count > 0)
-            {
-                return ab.Select(a => new VTRUploadTaskContent
-                {
-                    nTaskId = a.task.Taskid,
-                    strTaskName = a.task.Taskname,
-                    nUnit = (int)a.task.Recunitid,
-                    nSignalId = (int)a.task.Signalid,
-                    nChannelId = (int)a.task.Channelid,
-                    emState = (int)a.task.State,
-                    strBegin = a.task.Starttime.ToString(),
-                    strEnd = a.task.Endtime.ToString(),
-                    strClassify = a.task.Category,
-                    strTaskDesc = a.task.Description,
-                    strStampImage = a.task.Description,
-                    emTaskType = (int)a.task.Tasktype,
-                    emCooperantType = (int)a.task.Backtype,
-                    strTaskGUID = a.task.Taskguid,
-
-                    nVtrId = (int)a.vtr.Vtrid,
-                    nBlankTaskId = (int)a.vtr.Vtrtaskid,
-                    nTrimIn = (int)a.vtr.Trimin,
-                    nTrimOut = (int)a.vtr.Trimout,
-                    emTaskState = (VTRUPLOADTASKSTATE)a.vtr.Taskstate,
-                    strUserCode = a.vtr.Usercode,
-                    strCommitTime = a.vtr.Committime.ToString(),
-                    nOrder = (int)a.vtr.Uploadorder,
-                    nTapeId = (int)a.vtr.Tapeid,
-                    strUserToken = a.vtr.Usertoken,
-                    nTrimInCTL = (int)a.vtr.Triminctl,
-                    nTrimOutCTL = (int)a.vtr.Trimoutctl,
-                    emVtrTaskType = (VTRUPLOADTASKTYPE)a.vtr.Vtrtasktype,
-                }).ToList();
-            }
-            return new List<VTRUploadTaskContent>();
+            if (Condition.BlankTaskId > 0) query = query.Where(a => a.Vtrtaskid == Condition.BlankTaskId);
+            if (string.IsNullOrEmpty(Condition.TaskName)) query = query.Where(a => a.Taskname.Contains(Condition.TaskName));
+            if (Condition.TaskId > 0) query = query.Where(a => a.Taskid == Condition.TaskId);
+            if (Condition.VtrId > 0) query = query.Where(a => a.Vtrid == Condition.VtrId);
+            if (Condition.TaskState != null && Condition.TaskState.Count > 0) query = query.Where(a => Condition.TaskState.Contains(a.Taskstate));
+            if (!string.IsNullOrEmpty(Condition.UserCode)) query = query.Where(a => a.Usercode == Condition.UserCode);
+            if (!string.IsNullOrEmpty(Condition.UserToken)) query = query.Where(a => a.Usertoken == Condition.UserToken);
+            if (Condition.MaxCommitTime != DateTime.MinValue) query = query.Where(a => a.Committime <= Condition.MaxCommitTime);
+            if (Condition.MinCommitTime != DateTime.MinValue) query = query.Where(a => a.Committime >= Condition.MinCommitTime);
+            return await GetUploadTaskContent(query, Context.DbpTask.AsNoTracking());
         }
 
-        public async Task<List<VtrUploadtask>> GetUploadtaskInfo(VTRUploadCondition Condition, bool bTaskMoreThanZero)
+        /// <summary>
+        /// The GetNeedScheduleExecuteVTRUploadTasks.
+        /// </summary>
+        /// <param name="dtBegin">The dtBegin<see cref="DateTime"/>.</param>
+        /// <returns>The <see cref="Task{List{VTRUploadTaskContentResponse}}"/>.</returns>
+        public async Task<List<VTRUploadTaskContentResponse>> GetNeedScheduleExecuteVTRUploadTasks(DateTime dtBegin)
+        {
+            IQueryable<VtrUploadtask> uploadQuery = Context.VtrUploadtask.AsNoTracking();
+            uploadQuery.Where(a => a.Vtrtasktype == 1 && a.Taskstate == 2);
+            IQueryable<DbpTask> taskQeruy = Context.DbpTask.AsNoTracking();
+            taskQeruy.Where(a => a.Tasktype == 6 &&
+                                 a.Tasklock == "" &&
+                                 a.SyncState == 0 &&
+                                 a.Starttime < dtBegin.AddSeconds(5) &&
+                                 a.Starttime > dtBegin.AddDays(-1));
+
+            return await GetUploadTaskContent(uploadQuery, taskQeruy);
+        }
+
+        /// <summary>
+        /// The GetWillExecuteVTRUploadTasks.
+        /// </summary>
+        /// <param name="minute">The minute<see cref="int"/>.</param>
+        /// <returns>The <see cref="Task{List{VTRUploadTaskContentResponse}}"/>.</returns>
+        public async Task<List<VTRUploadTaskContentResponse>> GetWillExecuteVTRUploadTasks(int minute)
+        {
+            DateTime dtNow = DateTime.Now;
+            IQueryable<VtrUploadtask> uploadQuery = Context.VtrUploadtask.AsNoTracking();
+            uploadQuery.Where(a => a.Vtrtasktype == 1 && a.Taskstate == 2);
+            IQueryable<DbpTask> taskQeruy = Context.DbpTask.AsNoTracking();
+            taskQeruy.Where(a => a.Tasktype == 6 &&
+                                 a.Tasklock == null &&
+                                 a.SyncState == 0 &&
+                                 a.Starttime < dtNow.AddMinutes(minute) &&
+                                 a.Starttime > dtNow.AddDays(-1));
+
+            return await GetUploadTaskContent(uploadQuery, taskQeruy);
+        }
+
+        /// <summary>
+        /// The GetUploadTaskContent.
+        /// </summary>
+        /// <param name="uploadQuery">The uploadQuery<see cref="IQueryable{VtrUploadtask}"/>.</param>
+        /// <param name="taskQeruy">The taskQeruy<see cref="IQueryable{DbpTask}"/>.</param>
+        /// <returns>The <see cref="Task{List{VTRUploadTaskContentResponse}}"/>.</returns>
+        private async Task<List<VTRUploadTaskContentResponse>> GetUploadTaskContent(IQueryable<VtrUploadtask> uploadQuery, IQueryable<DbpTask> taskQeruy)
+        {
+            var ab = await uploadQuery.Join(taskQeruy, a => a.Taskid, b => b.Taskid, (a, b) => new { task = b, vtr = a }).ToListAsync();
+            if (ab != null && ab.Count > 0)
+            {
+                return ab.Select(a => new VTRUploadTaskContentResponse
+                {
+                    TaskId = a.task.Taskid,
+                    TaskName = a.task.Taskname,
+                    Unit = (int)a.task.Recunitid,
+                    SignalId = (int)a.task.Signalid,
+                    ChannelId = (int)a.task.Channelid,
+                    State = (taskState)a.task.State,
+                    BeginTime = a.task.Starttime,
+                    EndTime = a.task.Endtime,
+                    Classify = a.task.Category,
+                    TaskDesc = a.task.Description,
+                    StampImage = a.task.Description,
+                    TaskType = (TaskType)a.task.Tasktype,
+                    CooperantType = (CooperantType)a.task.Backtype,
+                    TaskGUID = a.task.Taskguid,
+
+                    VtrId = (int)a.vtr.Vtrid,
+                    BlankTaskId = (int)a.vtr.Vtrtaskid,
+                    TrimIn = (int)a.vtr.Trimin,
+                    TrimOut = (int)a.vtr.Trimout,
+                    TaskState = (VTRUPLOADTASKSTATE)a.vtr.Taskstate,
+                    UserCode = a.vtr.Usercode,
+                    CommitTime = a.vtr.Committime.ToString(),
+                    Order = (int)a.vtr.Uploadorder,
+                    TapeId = (int)a.vtr.Tapeid,
+                    UserToken = a.vtr.Usertoken,
+                    TrimInCTL = (int)a.vtr.Triminctl,
+                    TrimOutCTL = (int)a.vtr.Trimoutctl,
+                    VtrTaskType = (VTRUPLOADTASKTYPE)a.vtr.Vtrtasktype,
+                }).ToList();
+            }
+            return new List<VTRUploadTaskContentResponse>();
+        }
+
+        /// <summary>
+        /// The GetUploadtaskInfo.
+        /// </summary>
+        /// <param name="Condition">The Condition<see cref="VTRUploadConditionRequest"/>.</param>
+        /// <param name="bTaskMoreThanZero">The bTaskMoreThanZero<see cref="bool"/>.</param>
+        /// <returns>The <see cref="Task{List{VtrUploadtask}}"/>.</returns>
+        public async Task<List<VtrUploadtask>> GetUploadtaskInfo(VTRUploadConditionRequest Condition, bool bTaskMoreThanZero)
         {
             IQueryable<VtrUploadtask> query = Context.VtrUploadtask.AsNoTracking();
-            if (Condition.lBlankTaskID > 0)
-            {
-                query = query.Where(a => a.Vtrtaskid == Condition.lBlankTaskID);
-            }
-            if (string.IsNullOrEmpty(Condition.strTaskName))
-            {
-                query = query.Where(a => a.Taskname.Contains(Condition.strTaskName));
-            }
-            if (!bTaskMoreThanZero)
-            {
-                if (Condition.lTaskID >= 0)
-                {
-                    query = query.Where(a => a.Taskid == Condition.lTaskID);
-                }
-            }
-            else if (Condition.lTaskID > 0)
-            {
-                query = query.Where(a => a.Taskid == Condition.lTaskID);
-            }
-            if (Condition.lVtrID > 0)
-            {
-                query = query.Where(a => a.Vtrid == Condition.lVtrID);
-            }
-            if (Condition.state != null && Condition.state.Count > 0)
-            {
-                var states = Condition.state.Select(a => (int?)a).ToList();
-                query = query.Where(a => states.Contains(a.Taskstate));
-            }
-            if (!string.IsNullOrEmpty(Condition.szUserCode))
-            {
-                query = query.Where(a => a.Usercode == Condition.szUserCode);
-            }
-            if (!string.IsNullOrEmpty(Condition.strUserToken))
-            {
-                query = query.Where(a => a.Usertoken == Condition.strUserToken);
-            }
-            string szMinTime = DateTime.MinValue.ToString("yyyy-MM-dd HH:mm:ss");
-            if (!string.IsNullOrEmpty(Condition.strMaxCommitTime) && Condition.strMaxCommitTime != szMinTime)
-            {
-                var maxCommitTime = DateTimeFormat.DateTimeFromString(Condition.strMaxCommitTime);
-                query = query.Where(a => a.Committime <= maxCommitTime);
-            }
-            if (!string.IsNullOrEmpty(Condition.strMinCommitTime) && Condition.strMinCommitTime != szMinTime)
-            {
-                var minCommitTime = DateTimeFormat.DateTimeFromString(Condition.strMinCommitTime);
-                query = query.Where(a => a.Committime >= minCommitTime);
-            }
+            if (Condition.BlankTaskId > 0) query = query.Where(a => a.Vtrtaskid == Condition.BlankTaskId);
+            if (string.IsNullOrEmpty(Condition.TaskName)) query = query.Where(a => a.Taskname.Contains(Condition.TaskName));
+            if (!bTaskMoreThanZero && Condition.TaskId >= 0) query = query.Where(a => a.Taskid == Condition.TaskId);
+            if (bTaskMoreThanZero && Condition.TaskId > 0) query = query.Where(a => a.Taskid == Condition.TaskId);
+            if (Condition.VtrId > 0) query = query.Where(a => a.Vtrid == Condition.VtrId);
+            if (Condition.TaskState != null && Condition.TaskState.Count > 0) query = query.Where(a => Condition.TaskState.Contains(a.Taskstate));
+            if (!string.IsNullOrEmpty(Condition.UserCode)) query = query.Where(a => a.Usercode == Condition.UserCode);
+            if (!string.IsNullOrEmpty(Condition.UserToken)) query = query.Where(a => a.Usertoken == Condition.UserToken);
+            if (Condition.MaxCommitTime != DateTime.MinValue) query = query.Where(a => a.Committime <= Condition.MaxCommitTime);
+            if (Condition.MinCommitTime != DateTime.MinValue) query = query.Where(a => a.Committime >= Condition.MinCommitTime);
             return await query.ToListAsync();
         }
 
