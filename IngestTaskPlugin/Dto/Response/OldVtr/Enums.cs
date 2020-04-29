@@ -3,7 +3,7 @@
     /// <summary>
     /// 任务备份属性
     /// </summary>
-    public enum emBackupFlag
+    public enum VtrBackupFlag
     {
         /// <summary>
         /// 不允许备份 = 0

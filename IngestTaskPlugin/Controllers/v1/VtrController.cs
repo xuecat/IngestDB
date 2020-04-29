@@ -61,14 +61,13 @@
             catch (Exception e)//其他未知的异常，写异常日志
             {
                 response.nCode = 0;
-                if (e.GetType() == typeof(SobeyRecException))//sobeyexcep会自动打印错误
+                if (e is SobeyRecException se)//sobeyexcep会自动打印错误
                 {
-                    SobeyRecException se = e as SobeyRecException;
                     response.message = se.ErrorCode.ToString();
                 }
                 else
                 {
-                    response.message = "OldGetTaskMetaData error info：" + e.ToString();
+                    response.message = $"{System.Reflection.MethodBase.GetCurrentMethod().DeclaringType.FullName}：error info:{e}";
                     Logger.Error(response.message);
                 }
             }
@@ -92,14 +91,13 @@
             catch (Exception e)//其他未知的异常，写异常日志
             {
                 response.nCode = 0;
-                if (e.GetType() == typeof(SobeyRecException))//sobeyexcep会自动打印错误
+                if (e is SobeyRecException se)//sobeyexcep会自动打印错误
                 {
-                    SobeyRecException se = e as SobeyRecException;
                     response.message = se.ErrorCode.ToString();
                 }
                 else
                 {
-                    response.message = "OldGetTaskMetaData error info：" + e.ToString();
+                    response.message = $"{System.Reflection.MethodBase.GetCurrentMethod().DeclaringType.FullName}：error info:{e}";
                     Logger.Error(response.message);
                 }
             }
@@ -125,14 +123,13 @@
             catch (Exception e)//其他未知的异常，写异常日志
             {
                 response.nCode = 0;
-                if (e.GetType() == typeof(SobeyRecException))//sobeyexcep会自动打印错误
+                if (e is SobeyRecException se)//sobeyexcep会自动打印错误
                 {
-                    SobeyRecException se = e as SobeyRecException;
                     response.message = se.ErrorCode.ToString();
                 }
                 else
                 {
-                    response.message = "OldGetTaskMetaData error info：" + e.ToString();
+                    response.message = $"{System.Reflection.MethodBase.GetCurrentMethod().DeclaringType.FullName}：error info:{e}";
                     Logger.Error(response.message);
                 }
             }
@@ -155,14 +152,13 @@
             catch (Exception e)//其他未知的异常，写异常日志
             {
                 response.nCode = 0;
-                if (e.GetType() == typeof(SobeyRecException))//sobeyexcep会自动打印错误
+                if (e is SobeyRecException se)//sobeyexcep会自动打印错误
                 {
-                    SobeyRecException se = e as SobeyRecException;
                     response.message = se.ErrorCode.ToString();
                 }
                 else
                 {
-                    response.message = "OldGetTaskMetaData error info：" + e.ToString();
+                    response.message = $"{System.Reflection.MethodBase.GetCurrentMethod().DeclaringType.FullName}：error info:{e}";
                     Logger.Error(response.message);
                 }
             }
@@ -190,14 +186,13 @@
             catch (Exception e)//其他未知的异常，写异常日志
             {
                 response.nCode = 0;
-                if (e.GetType() == typeof(SobeyRecException))//sobeyexcep会自动打印错误
+                if (e is SobeyRecException se)//sobeyexcep会自动打印错误
                 {
-                    SobeyRecException se = e as SobeyRecException;
                     response.message = se.ErrorCode.ToString();
                 }
                 else
                 {
-                    response.message = "OldGetTaskMetaData error info：" + e.ToString();
+                    response.message = $"{System.Reflection.MethodBase.GetCurrentMethod().DeclaringType.FullName}：error info:{e}";
                     Logger.Error(response.message);
                 }
             }
@@ -236,14 +231,13 @@
             catch (Exception e)//其他未知的异常，写异常日志
             {
                 response.nCode = 0;
-                if (e.GetType() == typeof(SobeyRecException))//sobeyexcep会自动打印错误
+                if (e is SobeyRecException se)//sobeyexcep会自动打印错误
                 {
-                    SobeyRecException se = e as SobeyRecException;
                     response.message = se.ErrorCode.ToString();
                 }
                 else
                 {
-                    response.message = "OldGetTaskMetaData error info：" + e.ToString();
+                    response.message = $"{System.Reflection.MethodBase.GetCurrentMethod().DeclaringType.FullName}：error info:{e}";
                     Logger.Error(response.message);
                 }
             }
@@ -282,14 +276,13 @@
             catch (Exception e)//其他未知的异常，写异常日志
             {
                 response.nCode = 0;
-                if (e.GetType() == typeof(SobeyRecException))//sobeyexcep会自动打印错误
+                if (e is SobeyRecException se)//sobeyexcep会自动打印错误
                 {
-                    SobeyRecException se = e as SobeyRecException;
                     response.message = se.ErrorCode.ToString();
                 }
                 else
                 {
-                    response.message = "OldGetTaskMetaData error info：" + e.ToString();
+                    response.message = $"{System.Reflection.MethodBase.GetCurrentMethod().DeclaringType.FullName}：error info:{e}";
                     Logger.Error(response.message);
                 }
             }
@@ -313,19 +306,18 @@
             try
             {
                 Condition.state = Condition.state?.Where(a => a > (int)VTRUPLOADTASKSTATE.VTR_ALL_UPLOAD_STATE && a <= (int)VTRUPLOADTASKSTATE.VTR_UPLOAD_PRE_EXECUTE).ToList();
-                response.extention = await _VtrManage.QueryVTRUploadTaskInfoAsync(Condition);
+                response.extention = await _VtrManage.QueryVTRUploadTaskInfoAsync<VTRUploadTaskInfo, VTRUploadCondition>(Condition);
             }
             catch (Exception e)//其他未知的异常，写异常日志
             {
                 response.nCode = 0;
-                if (e.GetType() == typeof(SobeyRecException))//sobeyexcep会自动打印错误
+                if (e is SobeyRecException se)//sobeyexcep会自动打印错误
                 {
-                    SobeyRecException se = e as SobeyRecException;
                     response.message = se.ErrorCode.ToString();
                 }
                 else
                 {
-                    response.message = "OldGetTaskMetaData error info：" + e.ToString();
+                    response.message = $"{System.Reflection.MethodBase.GetCurrentMethod().DeclaringType.FullName}：error info:{e}";
                     Logger.Error(response.message);
                 }
             }
@@ -350,35 +342,29 @@
                     return response;
                 }
 
-                List<VTRUploadTaskContent> vtrTasks = null;
-                VTRUploadCondition condition = new VTRUploadCondition();
-                condition.lTaskID = taskId;
+                var task = await _VtrManage.GetVTRUploadTaskByIdAsync<VTRUploadTaskContent>(taskId);
 
-                vtrTasks = await _VtrManage.GetVTRUploadTasksAsync(condition);
-
-                if (vtrTasks == null || vtrTasks.Count <= 0 || vtrTasks[0] == null)
+                if (task == null)
                 {
-                    response.message = "Can not find the task.TaskId = " + taskId.ToString();
+                    response.message = $"Can not find the task.TaskId = {taskId}";
                     response.nCode = 0;
                     return response;
                 }
-                response.extention = vtrTasks[0];
+                response.extention = task;
             }
             catch (Exception e)//其他未知的异常，写异常日志
             {
                 response.nCode = 0;
-                if (e.GetType() == typeof(SobeyRecException))//sobeyexcep会自动打印错误
+                if (e is SobeyRecException se)//sobeyexcep会自动打印错误
                 {
-                    SobeyRecException se = e as SobeyRecException;
                     response.message = se.ErrorCode.ToString();
                 }
                 else
                 {
-                    response.message = "OldGetTaskMetaData error info：" + e.ToString();
+                    response.message = $"{System.Reflection.MethodBase.GetCurrentMethod().DeclaringType.FullName}：error info:{e}";
                     Logger.Error(response.message);
                 }
             }
-
             return response;
         }
 
@@ -393,19 +379,18 @@
             TaskOldResponseMessage<VTRDetailInfo> response = new TaskOldResponseMessage<VTRDetailInfo>();
             try
             {
-                response.extention = await _VtrManage.GetVTRDetailInfoByID(nVTRID);
+                response.extention = await _VtrManage.GetVTRDetailInfoByIDAsync<VTRDetailInfo>(nVTRID);
             }
             catch (Exception e)//其他未知的异常，写异常日志
             {
                 response.nCode = 0;
-                if (e.GetType() == typeof(SobeyRecException))//sobeyexcep会自动打印错误
+                if (e is SobeyRecException se)//sobeyexcep会自动打印错误
                 {
-                    SobeyRecException se = e as SobeyRecException;
                     response.message = se.ErrorCode.ToString();
                 }
                 else
                 {
-                    response.message = "OldGetTaskMetaData error info：" + e.ToString();
+                    response.message = $"{System.Reflection.MethodBase.GetCurrentMethod().DeclaringType.FullName}：error info:{e}";
                     Logger.Error(response.message);
                 }
             }
@@ -434,14 +419,13 @@
             catch (Exception e)//其他未知的异常，写异常日志
             {
                 response.nCode = 0;
-                if (e.GetType() == typeof(SobeyRecException))//sobeyexcep会自动打印错误
+                if (e is SobeyRecException se)//sobeyexcep会自动打印错误
                 {
-                    SobeyRecException se = e as SobeyRecException;
                     response.message = se.ErrorCode.ToString();
                 }
                 else
                 {
-                    response.message = "OldGetTaskMetaData error info：" + e.ToString();
+                    response.message = $"{System.Reflection.MethodBase.GetCurrentMethod().DeclaringType.FullName}：error info:{e}";
                     Logger.Error(response.message);
                 }
             }
@@ -454,7 +438,7 @@
         /// <param name="lVtrTaskID"></param>
         /// <param name="lTaskState"></param>
         /// <returns></returns>
-        [HttpGet("vtr/UpdateUploadTaskState")]
+        [HttpGet("UpdateUploadTaskState")]
         public async Task<TaskOldResponseMessage> UpdateUploadTaskState([FromQuery] int lVtrTaskID, [FromQuery] int lTaskState)
         {
             TaskOldResponseMessage response = new TaskOldResponseMessage();
@@ -472,19 +456,191 @@
             }
             try
             {
-                await _VtrManage.UpdateUploadTaskStateAsync(lVtrTaskID, lTaskState);
+                await _VtrManage.UpdateUploadTaskStateAsync(lVtrTaskID, (VTRUPLOADTASKSTATE)lTaskState);
             }
             catch (Exception e)//其他未知的异常，写异常日志
             {
                 response.nCode = 0;
-                if (e.GetType() == typeof(SobeyRecException))//sobeyexcep会自动打印错误
+                if (e is SobeyRecException se)//sobeyexcep会自动打印错误
                 {
-                    SobeyRecException se = e as SobeyRecException;
                     response.message = se.ErrorCode.ToString();
                 }
                 else
                 {
-                    response.message = "OldGetTaskMetaData error info：" + e.ToString();
+                    response.message = $"{System.Reflection.MethodBase.GetCurrentMethod().DeclaringType.FullName}：error info:{e}";
+                    Logger.Error(response.message);
+                }
+            }
+            return response;
+        }
+
+        /// <summary>
+        /// 获取所有vtr信息
+        /// </summary>
+        /// <returns></returns>
+        [HttpGet("GetUsableVtrList")]
+        public async Task<TaskOldResponseMessage<List<VTRDetailInfo>>> GetUsableVtrList()
+        {
+            TaskOldResponseMessage<List<VTRDetailInfo>> response = new TaskOldResponseMessage<List<VTRDetailInfo>>();
+            try
+            {
+                response.extention = await _VtrManage.GetUsableVtrListAsync<VTRDetailInfo>();
+            }
+            catch (Exception e)//其他未知的异常，写异常日志
+            {
+                response.nCode = 0;
+                if (e is SobeyRecException se)//sobeyexcep会自动打印错误
+                {
+                    response.message = se.ErrorCode.ToString();
+                }
+                else
+                {
+                    response.message = $"{System.Reflection.MethodBase.GetCurrentMethod().DeclaringType.FullName}：error info:{e}";
+                    Logger.Error(response.message);
+                }
+            }
+            return response;
+        }
+
+        /// <summary>
+        /// 获得需要即将要执行的VTR任务
+        /// </summary>
+        /// <returns></returns>
+        [HttpGet("GetNeedExecuteVTRUploadTasks")]
+        public async Task<TaskOldResponseMessage<List<VTRUploadTaskContent>>> GetNeedExecuteVTRUploadTasks()
+        {
+            TaskOldResponseMessage<List<VTRUploadTaskContent>> response = new TaskOldResponseMessage<List<VTRUploadTaskContent>>();
+            try
+            {
+                response.extention = await _VtrManage.GetNeedExecuteVTRUploadTasksAsync<VTRUploadTaskContent>();
+            }
+            catch (Exception e)//其他未知的异常，写异常日志
+            {
+                response.nCode = 0;
+                if (e is SobeyRecException se)//sobeyexcep会自动打印错误
+                {
+                    response.message = se.ErrorCode.ToString();
+                }
+                else
+                {
+                    response.message = $"{System.Reflection.MethodBase.GetCurrentMethod().DeclaringType.FullName}：error info:{e}";
+                    Logger.Error(response.message);
+                }
+            }
+            return response;
+        }
+
+        /// <summary>
+        /// 通过条件查询VTR上载任务
+        /// </summary>
+        /// <param name="condition"></param>
+        /// <returns></returns>
+        [HttpPost("GetVTRUploadTasks")]
+        public async Task<TaskOldResponseMessage<List<VTRUploadTaskContent>>> GetVTRUploadTasks([FromBody] VTRUploadCondition condition)
+        {
+            TaskOldResponseMessage<List<VTRUploadTaskContent>> response = new TaskOldResponseMessage<List<VTRUploadTaskContent>>();
+            if (condition == null)
+            {
+                response.message = "the param is null";
+                response.nCode = 0;
+                return response;
+            }
+            try
+            {
+                if (condition == null)
+                {
+                    response.message = "condition is null";
+                    response.nCode = 0;
+                    return response;
+                }
+                response.extention = await _VtrManage.GetVTRUploadTasksAsync<VTRUploadTaskContent, VTRUploadCondition>(condition);
+            }
+            catch (Exception e)//其他未知的异常，写异常日志
+            {
+                response.nCode = 0;
+                if (e is SobeyRecException se)//sobeyexcep会自动打印错误
+                {
+                    response.message = se.ErrorCode.ToString();
+                }
+                else
+                {
+                    response.message = $"{System.Reflection.MethodBase.GetCurrentMethod().DeclaringType.FullName}：error info:{e}";
+                    Logger.Error(response.message);
+                }
+            }
+            return response;
+        }
+
+        /// <summary>
+        /// 获得即将要执行的VTR任务，用来提示TapeID切换的
+        /// </summary>
+        /// <param name="minute">minute</param>
+        /// <returns></returns>
+        [HttpGet("GetVTRUploadTasks")]
+        public async Task<TaskOldResponseMessage<List<VTRUploadTaskContent>>> GetWillExecuteVTRUploadTasks([FromQuery] int minute)
+        {
+            TaskOldResponseMessage<List<VTRUploadTaskContent>> response = new TaskOldResponseMessage<List<VTRUploadTaskContent>>();
+            try
+            {
+                response.extention = await _VtrManage.GetWillExecuteVTRUploadTasksAsync<VTRUploadTaskContent>(minute);
+            }
+            catch (Exception e)//其他未知的异常，写异常日志
+            {
+                response.nCode = 0;
+                if (e is SobeyRecException se)//sobeyexcep会自动打印错误
+                {
+                    response.message = se.ErrorCode.ToString();
+                }
+                else
+                {
+                    response.message = $"{System.Reflection.MethodBase.GetCurrentMethod().DeclaringType.FullName}：error info:{e}";
+                    Logger.Error(response.message);
+                }
+            }
+            return response;
+        }
+
+        /// <summary>
+        /// 修改一个VTR任务的状态
+        /// </summary>
+        /// <param name="nTaskId"></param>
+        /// <param name="vtrTaskState"></param>
+        /// <param name="errorContent"></param>
+        /// <returns></returns>
+        [HttpGet("SetVTRUploadTaskState")]
+        public async Task<TaskOldResponseMessage> SetVTRUploadTaskState([FromQuery] int nTaskId, [FromQuery] int vtrTaskState, [FromQuery] string errorContent)
+        {
+            TaskOldResponseMessage response = new TaskOldResponseMessage();
+            if (nTaskId <= 0)
+            {
+                response.message = "TaskId Invalid.";
+                response.nCode = 0;
+                return response;
+            }
+            try
+            {
+                await _VtrManage.SetVTRUploadTaskStateAsync(nTaskId, (VTRUPLOADTASKSTATE)vtrTaskState, errorContent);
+                var _globalinterface = ApplicationContext.Current.ServiceProvider.GetRequiredService<IIngestGlobalInterface>();
+                if (_globalinterface != null)
+                {
+                    GlobalInternals re = new GlobalInternals() { funtype = IngestDBCore.GlobalInternals.FunctionType.SetGlobalState, State = ClientOperLabelName.VTR_UPLOAD_ModifyTask };
+                    var response1 = await _globalinterface.SubmitGlobalCallBack(re);
+                    if (response1.Code != ResponseCodeDefines.SuccessCode)
+                    {
+                        Logger.Error("SetGlobalState modtask error");
+                    }
+                }
+            }
+            catch (Exception e)//其他未知的异常，写异常日志
+            {
+                response.nCode = 0;
+                if (e is SobeyRecException se)//sobeyexcep会自动打印错误
+                {
+                    response.message = se.ErrorCode.ToString();
+                }
+                else
+                {
+                    response.message = $"{System.Reflection.MethodBase.GetCurrentMethod().DeclaringType.FullName}：error info:{e}";
                     Logger.Error(response.message);
                 }
             }
