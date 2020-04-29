@@ -10,6 +10,7 @@ namespace IngestGlobalPlugin.Stores
 {
     public interface IMaterialStore
     {
+        int GetNextValId(string value);
         Task<int> DbContextSaveChange();
         Task<bool> AddMQMsg(DbpMsmqmsg info);
         Task<TResult> GetMqMsgAsync<TResult>(Func<IQueryable<DbpMsmqmsg>, IQueryable<TResult>> query, bool notrack = false);

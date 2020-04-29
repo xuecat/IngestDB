@@ -1950,7 +1950,7 @@ namespace IngestTaskPlugin.Stores
         {
             if (task.Taskid <= 0)
             {
-                task.Taskid = IngestTaskDBContext.next_val("DBP_SQ_TASKID");
+                task.Taskid = GetNextValId("DBP_SQ_TASKID");
             }
             if (task.Tasktype != (int)TaskType.TT_PERIODIC)
             {
@@ -2640,7 +2640,10 @@ namespace IngestTaskPlugin.Stores
             Context.Entry(obj).Property("Tasklock").IsModified = true;
             await Context.SaveChangesAsync();
         }
-
+        public int GetNextValId(string value)
+        {
+            return Context.DbpTask.Select(x => IngestTaskDBContext.next_val(value)).FirstOrDefault();
+        }
         /////////////////////
     }
 }

@@ -28,7 +28,7 @@ namespace IngestTaskPlugin.Stores
     {
         //IQueryable<TaskInfo> SimpleQuery { get; }
         Task SaveChangeAsync();
-
+        int GetNextValId(string value);
         Task<List<DbpTask>> GetTaskListAsync(TaskCondition condition , bool Track, bool uselock);
         Task UpdateTaskListAsync(List<DbpTask> lst);
 

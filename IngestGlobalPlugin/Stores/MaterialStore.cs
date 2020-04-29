@@ -591,5 +591,10 @@ namespace IngestGlobalPlugin.Stores
 
 
         #endregion
+
+        public int GetNextValId(string value)
+        {
+            return Context.Sequence.Select(x => IngestGlobalDBContext.next_val(value)).FirstOrDefault();
+        }
     }
 }

@@ -23,12 +23,12 @@ namespace IngestGlobalInterfacePlugin
         {
             using (var scope = ApplicationContext.Current.ServiceProvider.GetRequiredService<IServiceScopeFactory>().CreateScope())
             {
-                var reqService = scope.ServiceProvider.GetRequiredService<GlobalController>();
+                //var reqService = scope.ServiceProvider.GetRequiredService<GlobalController>();
 
                 switch (examineResponse.funtype)
                 {
                     case FunctionType.UserParamTemplateByID:
-                        return await reqService.GetParamTemplateStringByID(examineResponse.TemplateID);
+                        return await scope.ServiceProvider.GetRequiredService<UserController>().GetParamTemplateStringByID(examineResponse.TemplateID);
                     case FunctionType.MaterialInfo:
                         {
                             //MaterialInfoInterface

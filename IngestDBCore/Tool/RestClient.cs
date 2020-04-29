@@ -379,7 +379,7 @@ namespace IngestDBCore.Tool
                 UseTokenHeader(userTokenOrCode);
             else
                 UseCodeHeader(userTokenOrCode);
-
+            
             var back = await AutoRetry.Run<ResponseMessage<CmParam>>(() =>
                 {
                     DefaultParameter param = new DefaultParameter()
@@ -388,15 +388,15 @@ namespace IngestDBCore.Tool
                         paramname = "HIGH_RESOLUTION",
                         system = "INGEST"
                     };
-                return Post<ResponseMessage<CmParam>>(
+                    return Post<ResponseMessage<CmParam>>(
                     string.Format("{0}/CMApi/api/basic/config/getuserparam", ApplicationContext.Current.CMServerUrl),
-                    JsonHelper.ToJson(param));
+                    param);
 
                 });
 
             if (back != null)
             {
-                return int.Parse(back.Ext.paramvalue);
+                return int.Parse(back.Ext?.paramvalue);
             }
             return 0;
         }
@@ -408,12 +408,13 @@ namespace IngestDBCore.Tool
             else
                 UseCodeHeader(userTokenOrCode);
 
+           
             var back = await AutoRetry.Run<ResponseMessage<ExtParam>>(() =>
             {
+
                 NameValueCollection v = new NameValueCollection();
                 v.Add("storagetype", storagetype);
                 v.Add("storagemark", storagemark);
-
                 return Get<ResponseMessage<ExtParam>>(
                     string.Format("{0}/CMApi/api/basic/user/getcurrentusercanwritepathbycondition",ApplicationContext.Current.CMServerUrl),
                     v);
@@ -434,11 +435,12 @@ namespace IngestDBCore.Tool
             else
                 UseCodeHeader(userTokenOrCode);
 
+           
             var back = await AutoRetry.Run<ResponseMessage<CMUserInfo>>(() =>
             {
+
                 NameValueCollection v = new NameValueCollection();
                 v.Add("usercode", userCode);
-
                 return Get<ResponseMessage<CMUserInfo>>(
                     string.Format("{0}/CMApi/api/basic/account/getuserinfobyusercode", ApplicationContext.Current.CMServerUrl),
                     v);

@@ -666,9 +666,9 @@ namespace IngestGlobalPlugin.Stores
             }
             if (notrack)
             {
-                return await query.Invoke(Context.DbpCaptureparamtemplate.AsNoTracking()).FirstOrDefaultAsync();
+                return await query.Invoke(Context.DbpCaptureparamtemplate.AsNoTracking()).SingleOrDefaultAsync();
             }
-            return await query.Invoke(Context.DbpCaptureparamtemplate).FirstOrDefaultAsync();
+            return await query.Invoke(Context.DbpCaptureparamtemplate).SingleOrDefaultAsync();
         }
 
         public async Task<List<TResult>> GetCaptureparamtemplateListAsync<TResult>(Func<IQueryable<DbpCaptureparamtemplate>, IQueryable<TResult>> query, bool notrack = false)
@@ -689,7 +689,7 @@ namespace IngestGlobalPlugin.Stores
             try
             {
 
-                var dbpCapParam = GetCaptureparamtemplateAsync(a => a.Where(x => x.Captureparamid == nParamTemplateID), true);
+                var dbpCapParam = await GetCaptureparamtemplateAsync(a => a.Where(x => x.Captureparamid == nParamTemplateID), true);
                 if (dbpCapParam == null)
                 {
                     //add
@@ -969,7 +969,7 @@ namespace IngestGlobalPlugin.Stores
 
         public int GetNextValId(string value)
         {
-            return Context.DbpUsertemplate.Select(x => IngestGlobalDBContext.next_val(value)).FirstOrDefault();
+            return Context.Sequence.Select(x => IngestGlobalDBContext.next_val(value)).FirstOrDefault();
         }
 
 

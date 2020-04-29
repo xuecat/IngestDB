@@ -197,7 +197,7 @@ namespace IngestGlobalPlugin.Managers
             if (!findmaterial)
             {
                 //
-                int id = IngestGlobalDBContext.next_val("DBP_SQ_MATERIALID");
+                int id = Store.GetNextValId("DBP_SQ_MATERIALID");
                 //添加素材
                 string strGUID = Guid.NewGuid().ToString();
                 int nClipState = (state == SAVE_IN_DB_STATE.SECOND_END || state == SAVE_IN_DB_STATE.SECOND_READY) ? 1 : 0;

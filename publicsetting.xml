@@ -1,8 +1,8 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <PublicSetting>
 	<System>
-     <Sys_VIP>172.16.0.205</Sys_VIP>
-    <CMServer>172.16.0.205:9023</CMServer>
+     <Sys_VIP>172.16.149.205</Sys_VIP>
+    <CMServer>172.16.149.205:9023</CMServer>
     <CMserver_windows>172.16.0.205:9037</CMserver_windows>
     <CMweb>172.16.168.0:9021</CMweb>
     <Fls>172.16.168.0:9031</Fls>
@@ -22,7 +22,7 @@
 	</System>
 	<DBConfig>
 		<DatabaseConfig key="1" value="1" module="INGESTDB">
-			<Instance>ingestdbstrand</Instance>
+			<Instance>ingestdb</Instance>
 			<Username>ingestdba</Username>
 			<Password>MEiS97VU8Woh</Password>
 			<Port>3307</Port>
