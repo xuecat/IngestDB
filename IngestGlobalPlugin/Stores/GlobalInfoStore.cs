@@ -689,7 +689,7 @@ namespace IngestGlobalPlugin.Stores
             try
             {
 
-                var dbpCapParam = GetCaptureparamtemplateAsync(a => a.Where(x => x.Captureparamid == nParamTemplateID), true);
+                var dbpCapParam = await GetCaptureparamtemplateAsync(a => a.Where(x => x.Captureparamid == nParamTemplateID), true);
                 if (dbpCapParam == null)
                 {
                     //add

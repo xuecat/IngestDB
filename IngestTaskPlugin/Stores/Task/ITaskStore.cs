@@ -80,5 +80,7 @@ namespace IngestTaskPlugin.Stores
         Task<bool> AddTaskSource(DbpTaskSource taskSource);
 
         Task<bool> AddPolicyTask(List<DbpPolicytask> policytasks);
+
+        Task<bool> UpdateTaskSource(DbpTaskSource taskSource);
     }
 }

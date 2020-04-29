@@ -80,6 +80,10 @@ namespace IngestTaskInterfacePlugin
                                 );
                         } break;
 
+                    case FunctionType.AllRouterInPort:
+                        return _mapper.Map<ResponseMessage<List<RouterInInterface>>>(
+                                await reqService.AllRouterInPortInfos()
+                                );
                     default:
                         break;
                 }

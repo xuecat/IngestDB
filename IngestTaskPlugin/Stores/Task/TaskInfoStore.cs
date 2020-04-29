@@ -2664,5 +2664,32 @@ namespace IngestTaskPlugin.Stores
             return false;
         }
         /////////////////////
+        ///
+        public async Task<bool> UpdateTaskSource(DbpTaskSource taskSource)
+        {
+            try
+            {
+
+                var dbpCapParam = await GetTaskSourceAsync(a => a.Where(x => x.Taskid == taskSource.Taskid), true);
+                if (dbpCapParam == null)
+                {
+                    //add
+                    Context.DbpTaskSource.Add(taskSource);
+                }
+                else
+                {
+                    //update
+                    Context.Attach(taskSource);
+                    Context.Entry(taskSource).Property(x=>x.Tasksource).IsModified = true;
+                }
+                await Context.SaveChangesAsync();
+            }
+            catch (System.Exception ex)
+            {
+                Logger.Error("UpdateGlobalValueAsync : " + ex.ToString());
+                throw ex;
+            }
+            return true;
+        }
     }
 }

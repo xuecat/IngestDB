@@ -490,5 +490,212 @@
             }
             return response;
         }
+
+
+
+
+
+        #region  Vtr set
+        string no_err = "OK";
+        /// <summary>
+        /// 修改一个VTR上载任务
+        /// </summary>
+        /// 通知未写
+        /// <param name="pIn">见定义</param>
+        /// <returns></returns>
+        [HttpPost("SetVTRUploadTask")]
+        public async Task<TaskOldResponseMessage<VTRUploadTaskContent>> SetVTRUploadTask([FromBody] SetVTRUploadTask_in pIn)
+        {
+            TaskOldResponseMessage<VTRUploadTaskContent> res = new TaskOldResponseMessage<VTRUploadTaskContent>();
+            res.message = no_err;
+            try
+            {
+                res.message = no_err;
+                if (pIn.vtrTask.nTaskId <= 0)
+                {
+                    res.message = "TaskId Invalid.";
+                    res.nCode = 0;
+                    return res;
+                }
+                res.extention = await  _VtrManage.SetVTRUploadTask<VTRUploadTaskContent>(pIn.vtrTask, pIn.metadatas, pIn.lMask);
+                //res.extention = pIn.vtrTask;  //返回vtr任务，原本传递的引用，这里只能返回
+
+                //GLOBALSERVICE.SetGlobalState2(ClientOperLabelName.VTR_UPLOAD_ModifyTask);
+                var _globalinterface = ApplicationContext.Current.ServiceProvider.GetRequiredService<IIngestGlobalInterface>();
+                if (_globalinterface != null)
+                {
+                    GlobalInternals re = new GlobalInternals() { funtype = IngestDBCore.GlobalInternals.FunctionType.SetGlobalState, State = ClientOperLabelName.VTR_UPLOAD_ModifyTask };
+                    var response1 = await _globalinterface.SubmitGlobalCallBack(re);
+                    if (response1.Code != ResponseCodeDefines.SuccessCode)
+                    {
+                        Logger.Error("SetGlobalState modtask error");
+                    }
+                }
+
+                //UdpNotify.SendToAll(UdpNotify.NotifyType_ModifyTask, pIn.vtrTask.nTaskId);
+
+                res.nCode = (res.extention != null) ? 1 : 0;
+            }
+            catch (Exception ex)//其他未知的异常，写异常日志
+            {
+                Logger.Error("SetVTRUploadTask : " + ex.ToString());
+                res.message = ex.Message;
+                res.nCode = 0;
+            }
+            return res;
+
+        }
+        
+
+        public bool SetVTRUploadTask(ref VTRUploadTaskContent vtrTask, VTR_UPLOAD_MetadataPair[] metadatas, long lMask, VTRUploadTaskMask uploadTaskMask/*此参数，只是用来导出代理，没有实际作用*/, out string errStr)
+        {
+            errStr = no_err;
+            try
+            {
+                errStr = no_err;
+
+                if (vtrTask.nTaskId <= 0)
+                {
+                    errStr = "TaskId Invalid.";
+                    return false;
+                }
+                vtrTask = _VtrManage.SetVTRUploadTask<VTRUploadTaskContent>(vtrTask, metadatas, lMask).Result;
+
+                var _globalinterface = ApplicationContext.Current.ServiceProvider.GetRequiredService<IIngestGlobalInterface>();
+                if (_globalinterface != null)
+                {
+                    GlobalInternals re = new GlobalInternals() { funtype = IngestDBCore.GlobalInternals.FunctionType.SetGlobalState, State = ClientOperLabelName.VTR_UPLOAD_ModifyTask };
+                    var response1 =  _globalinterface.SubmitGlobalCallBack(re).Result;
+                    if (response1.Code != ResponseCodeDefines.SuccessCode)
+                    {
+                        Logger.Error("SetGlobalState modtask error");
+                    }
+                }
+                //GLOBALSERVICE.SetGlobalState2(ClientOperLabelName.VTR_UPLOAD_ModifyTask);
+                return vtrTask != null? true:false;
+            }
+            catch (Exception ex)//其他未知的异常，写异常日志
+            {
+                Logger.Error("SetVTRUploadTask2 :" + ex.ToString());
+                errStr = ex.Message;
+                return false;
+            }
+        }
+
+
+        /// <summary>
+        /// 通过ID获得上载任务信息
+        /// </summary>
+        /// <param name="nTaskID"></param>
+        /// <returns>extention 为 VTRUploadTaskInfo</returns>
+        [HttpGet]
+        [Route("GetUploadTaskInfoByID")]
+        public async Task<TaskOldResponseMessage<VTRUploadTaskInfo>> GetUploadTaskInfoByID([FromQuery] int nTaskID)
+        {
+            TaskOldResponseMessage<VTRUploadTaskInfo> res = new TaskOldResponseMessage<VTRUploadTaskInfo>();
+            res.message = no_err;
+            res.extention = null;
+            try
+            {
+                res.extention = await _VtrManage.GetUploadTaskInfoByIDAsync<VTRUploadTaskInfo>(nTaskID);
+                res.nCode = 1;
+            }
+            catch (Exception ex)//其他未知的异常，写异常日志
+            {
+                Logger.Error("GetUploadTaskInfoByID : " + ex.ToString());
+                res.message = ex.Message;
+                res.nCode = 0;
+            }
+            return res;
+        }
+
+        /// <summary>
+        /// 提交一个vtr上载任务VTR_BUT_ErrorCode
+        /// </summary>
+        /// <param name="taskId"></param>
+        /// <returns> 扩展字段枚举VTR_BUT_ErrorCode的整数形式 </returns>
+        [HttpGet]
+        [Route("CommitVTRUploadTask")]
+        public async Task<TaskOldResponseMessage<int>> CommitVTRUploadTask([FromQuery] int taskId)
+        {
+            TaskOldResponseMessage<int> res = new TaskOldResponseMessage<int>();
+            res.message = no_err;
+            res.extention = (int)VTR_BUT_ErrorCode.emNormal;
+
+            try
+            {
+                res.message = no_err;
+
+                if (taskId <= 0)
+                {
+                    res.message = "taskId is Invalid";
+                    res.nCode = 0;
+                    return res;
+                }
+
+                //res.extention = await (int)VtrManager.AddCommitVTRBUTasksEx(taskId);
+
+                //GLOBALSERVICE.SetGlobalState2(ClientOperLabelName.VTR_UPLOAD_AddTask);
+                //UdpNotify.SendToAll(UdpNotify.NotifyType_ModifyTask, taskId);
+                //if (res.extention == (int)VTR_BUT_ErrorCode.emNormal)
+                //    res.nCode = 1;
+                //else
+                //    res.nCode = 0;
+            }
+
+            catch (Exception ex)//其他未知的异常，写异常日志
+            {
+                Logger.Error("CommitVTRUploadTask : " + ex.ToString());
+                res.message = ex.Message;
+                res.nCode = 0;
+            }
+            return res;
+        }
+
+
+        /// <summary>
+        /// 删除VTR上载任务信息
+        /// </summary>
+        /// <param name="lVtrTaskID"></param>
+        /// <returns></returns>
+        [HttpGet("DelVTRUploadTaskInfo")]
+        public async Task<TaskOldResponseMessage> DelVTRUploadTaskInfo(int lVtrTaskID)
+        {
+            TaskOldResponseMessage res = new TaskOldResponseMessage();
+            if (lVtrTaskID <= 0)
+            {
+                res.message = "VtrTaskID is Invaild ";
+                res.nCode = 0;
+                return res;
+            }
+            try
+            {
+                res.message = no_err;
+                //VTRACCESS.DelVTRUploadTaskInfo((int)lVtrTaskID);
+
+                //GLOBALSERVICE.SetGlobalState2(ClientOperLabelName.VTR_UPLOAD_DeleteTask);
+                var _globalinterface = ApplicationContext.Current.ServiceProvider.GetRequiredService<IIngestGlobalInterface>();
+                if (_globalinterface != null)
+                {
+                    GlobalInternals re = new GlobalInternals() { funtype = IngestDBCore.GlobalInternals.FunctionType.SetGlobalState, State = ClientOperLabelName.VTR_UPLOAD_DeleteTask };
+                    var response1 = await _globalinterface.SubmitGlobalCallBack(re);
+                    if (response1.Code != ResponseCodeDefines.SuccessCode)
+                    {
+                        Logger.Error("SetGlobalState modtask error");
+                    }
+                }
+                res.nCode = 1;
+            }
+            catch (Exception ex)//其他未知的异常，写异常日志
+            {
+                Logger.Error("DelVTRUploadTaskInfo : " + ex.ToString());
+                res.message = ex.Message;
+                res.nCode = 0;
+            }
+            return res;
+        }
+
+        #endregion
+
     }
 }
