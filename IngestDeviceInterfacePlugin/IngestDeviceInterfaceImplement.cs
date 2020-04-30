@@ -13,81 +13,80 @@ namespace IngestTaskInterfacePlugin
 {
     public class IngestDeviceInterfaceImplement : IIngestDeviceInterface
     {
-        public IngestDeviceInterfaceImplement(IMapper mapper)
+        public IngestDeviceInterfaceImplement(IMapper mapper, DeviceController controller)
         {
             _mapper = mapper ?? throw new ArgumentNullException(nameof(mapper));
+            _controller = controller;
         }
+
+        private DeviceController _controller { get; }
         protected IMapper _mapper { get; }
         public async Task<ResponseMessage> GetDeviceCallBack(DeviceInternals examineResponse)
         {
-            using (var scope = ApplicationContext.Current.ServiceProvider.GetRequiredService<IServiceScopeFactory>().CreateScope())
+            switch (examineResponse.funtype)
             {
-                var reqService = scope.ServiceProvider.GetRequiredService<DeviceController>();
+                case FunctionType.ChannelInfoBySrc:
+                    {
+                        return _mapper.Map< ResponseMessage <List< CaptureChannelInfoInterface >>>(
+                            await _controller.ChannelsByProgrammeId(examineResponse.SrcId, examineResponse.Status));
+                    } break;
 
-                switch (examineResponse.funtype)
-                {
-                    case FunctionType.ChannelInfoBySrc:
-                        {
-                            return _mapper.Map< ResponseMessage <List< CaptureChannelInfoInterface >>>(
-                                await reqService.ChannelsByProgrammeId(examineResponse.SrcId, examineResponse.Status));
-                        } break;
+                case FunctionType.SingnalIDByChannel:
+                    {
+                        return await _controller.GetChannelSignalSrc(examineResponse.ChannelId);
+                    }
 
-                    case FunctionType.SingnalIDByChannel:
-                        {
-                            return await reqService.GetChannelSignalSrc(examineResponse.ChannelId);
-                        }
+                case FunctionType.ChannelUnitMap:
+                    {
+                            return await _controller.GetChannelUnitMapID(examineResponse.ChannelId);
+                    }
 
-                    case FunctionType.ChannelUnitMap:
-                        {
-                             return await reqService.GetChannelUnitMapID(examineResponse.ChannelId);
-                        }
+                case FunctionType.BackSignalByID:
+                    {
+                        return _mapper.Map<ResponseMessage<ProgrammeInfoInterface>>(
+                            await _controller.GetBackProgramInfoBySrgid(examineResponse.SrcId)
+                            );
+                    }
 
-                    case FunctionType.BackSignalByID:
-                        {
-                            return _mapper.Map<ResponseMessage<ProgrammeInfoInterface>>(
-                                await reqService.GetBackProgramInfoBySrgid(examineResponse.SrcId)
-                                );
-                        }
+                case FunctionType.CaptureTemplateIDBySignal:
+                    {
+                        return await _controller.CaptureTemplateId(examineResponse.SrcId);
+                    } 
 
-                    case FunctionType.CaptureTemplateIDBySignal:
-                        {
-                            return await reqService.CaptureTemplateId(examineResponse.SrcId);
-                        } 
+                case FunctionType.AllChannelState:
+                    {
+                        return _mapper.Map<ResponseMessage<List<MSVChannelStateInterface>>>(
+                            await _controller.AllChannelState()
+                            );
+                    }
+                    break;
+                case FunctionType.ChannelExtendData:
+                    {
+                        return await _controller.GetChannelExtendData(examineResponse.ChannelId, examineResponse.Status);
+                    }
 
-                    case FunctionType.AllChannelState:
-                        {
-                            return _mapper.Map<ResponseMessage<List<MSVChannelStateInterface>>>(
-                                await reqService.AllChannelState()
-                                );
-                        }
-                        break;
-                    case FunctionType.ChannelExtendData:
-                        {
-                            return await reqService.GetChannelExtendData(examineResponse.ChannelId, examineResponse.Status);
-                        }
+                    break;
+                case FunctionType.SignalInfoByID:
+                    {
+                        return _mapper.Map<ResponseMessage<ProgrammeInfoInterface>>(
+                            await _controller.GetProgramInfoBySrgid(examineResponse.SrcId)
+                            );
+                    } break;
+                case FunctionType.AllCaptureChannels:
+                    {
+                        return _mapper.Map<ResponseMessage<List<CaptureChannelInfoInterface>>>(
+                            await _controller.AllCaptureChannels()
+                            );
+                    } break;
 
-                        break;
-                    case FunctionType.SignalInfoByID:
-                        {
-                            return _mapper.Map<ResponseMessage<ProgrammeInfoInterface>>(
-                                await reqService.GetProgramInfoBySrgid(examineResponse.SrcId)
-                                );
-                        } break;
-                    case FunctionType.AllCaptureChannels:
-                        {
-                            return _mapper.Map<ResponseMessage<List<CaptureChannelInfoInterface>>>(
-                                await reqService.AllCaptureChannels()
-                                );
-                        } break;
-
-                    default:
-                        break;
-                }
-                //var response = await scope.ServiceProvider.GetRequiredService<GlobalController>()
-                //    .SubmitGlobalCallback();
-
-                //return Mapper.Map<ResponseMessage>(response);
+                default:
+                    break;
             }
+            //var response = await scope.ServiceProvider.GetRequiredService<GlobalController>()
+            //    .SubmitGlobalCallback();
+
+            //return Mapper.Map<ResponseMessage>(response);
+            
 
             return null;
         }

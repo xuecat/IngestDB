@@ -119,12 +119,12 @@ namespace IngestDevicePlugin.Stores
         {
             //DBP_STREAMMEDIA DBP_IP_PROGRAMME 这些没有写，后面写吧
 
-            var query = await (from sig in Context.DbpSignalsrc
-                               join recin in Context.DbpRcdindesc on sig.Signalsrcid equals recin.Signalsrcid into ps
-                               join grp in Context.DbpSignalsrcgroupmap on sig.Signalsrcid equals grp.Signalsrcid into pg
+            var query = await (from sig in Context.DbpSignalsrc.AsNoTracking()
+                               join recin in Context.DbpRcdindesc.AsNoTracking() on sig.Signalsrcid equals recin.Signalsrcid into ps
+                               join grp in Context.DbpSignalsrcgroupmap.AsNoTracking() on sig.Signalsrcid equals grp.Signalsrcid into pg
                                from p in ps.DefaultIfEmpty()
                                from g in pg.DefaultIfEmpty()
-                               where sig.Signalsrcid == srcid
+                               where p!=null && sig.Signalsrcid == srcid
                                select new ProgrammeInfoDto
                                {
                                    ProgrammeId = sig.Signalsrcid,
@@ -218,7 +218,7 @@ namespace IngestDevicePlugin.Stores
                              join grp in Context.DbpChannelgroupmap on channel.Cpdeviceid equals grp.Channelid into ps3
                              from p1 in ps1.DefaultIfEmpty()
                              from p3 in ps3.DefaultIfEmpty()
-                             where channel.Channelid == channelid
+                             where ps1 !=null && channel.Channelid == channelid
                              select new CaptureChannelInfoDto
                              {
                                  ID = channel.Channelid,
@@ -264,11 +264,12 @@ namespace IngestDevicePlugin.Stores
             {
                 lst = await (from channel in Context.DbpCapturechannels
                              join device in Context.DbpCapturedevice on channel.Cpdeviceid equals device.Cpdeviceid into ps1
-                             //join recout in Context.DbpRcdoutdesc on channel.Channelid equals recout.Channelid into ps2
+                             join recout in Context.DbpRcdoutdesc on channel.Channelid equals recout.Channelid into ps2
                              join grp in Context.DbpChannelgroupmap on channel.Cpdeviceid equals grp.Channelid into ps3
                              from p1 in ps1.DefaultIfEmpty()
-                                 //from p2 in ps2.DefaultIfEmpty()
+                             from p2 in ps2.DefaultIfEmpty()
                              from p3 in ps3.DefaultIfEmpty()
+                             where p2 != null
                              select new CaptureChannelInfoDto
                              {
                                  ID = channel.Channelid,
@@ -287,12 +288,13 @@ namespace IngestDevicePlugin.Stores
             {
                 lst = await (from channel in Context.DbpCapturechannels
                              join device in Context.DbpCapturedevice on channel.Cpdeviceid equals device.Cpdeviceid into ps1
+                             join recout in Context.DbpRcdoutdesc on channel.Channelid equals recout.Channelid into psc
                              join cstatu in Context.DbpMsvchannelState on channel.Channelid equals cstatu.Channelid into ps2
                              join grp in Context.DbpChannelgroupmap on channel.Cpdeviceid equals grp.Channelid into ps3
                              from p1 in ps1.DefaultIfEmpty()
                              from p2 in ps2.DefaultIfEmpty()
                              from p3 in ps3.DefaultIfEmpty()
-                             where p2 != null && p2.Devstate != 0 && p2.Msvmode != 0
+                             where psc!=null && p2 != null && p2.Devstate != (int)Device_State.DISCONNECTTED && p2.Msvmode != (int)MSV_Mode.LOCAL
                              select new CaptureChannelInfoDto
                              {
                                  ID = channel.Channelid,

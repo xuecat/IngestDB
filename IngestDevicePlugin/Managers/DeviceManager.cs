@@ -302,7 +302,8 @@ namespace IngestDevicePlugin.Managers
         public virtual async Task<List<ProgrammeInfo>> GetProgrammeInfosByChannelIdAsync(int channelId)
         {
             CaptureChannelInfo channelInfo = await GetCaptureChannelByIDAsync<CaptureChannelInfo>(channelId);
-            if (channelInfo.nDeviceTypeID == (int)CaptureChannelType.emMsvChannel && !await HaveMatrixAsync())
+            if ((channelInfo.nDeviceTypeID == (int)CaptureChannelType.emMsvChannel || channelInfo.nDeviceTypeID == (int)CaptureChannelType.emDefualtChannel)
+                && !await HaveMatrixAsync())
             {
                 var signalIds = await Store.GetSignalIdsByChannelIdForNotMatrix(channelId);
                 var programmeInfoList = _mapper.Map<List<ProgrammeInfo>>(await Store.GetSignalsrcAsync(a => a.Where(x => signalIds.Contains(x.Signalsrcid)), true));
@@ -312,7 +313,7 @@ namespace IngestDevicePlugin.Managers
             else
             {
                 int signalId = 0;
-                if (channelInfo.nDeviceTypeID == (int)CaptureChannelType.emMsvChannel)
+                if ((channelInfo.nDeviceTypeID == (int)CaptureChannelType.emMsvChannel || channelInfo.nDeviceTypeID == (int)CaptureChannelType.emDefualtChannel))
                 {
                     signalId = await GetChannelSignalSrcAsync(channelInfo.nID);
                 }
@@ -323,53 +324,70 @@ namespace IngestDevicePlugin.Managers
         /// <summary>获取筛选结果</summary>
         private List<ProgrammeInfo> GetProgrammeInfoListMatrix(CaptureChannelInfo channelInfo, int signalId, IEnumerable<ProgrammeInfo> programmeInfos)
         {
-            switch (channelInfo.nCPSignalType)
+            List<ProgrammeInfo> lstback = new List<ProgrammeInfo>();
+            foreach (var item in programmeInfos)
             {
-                case 0: //是Auto
-                    break;
-
-                case 1: //SD
-                    programmeInfos = programmeInfos.Where(info => info.TypeId != 1);//排除HD，保留Auto和SD
-                    break;
-
-                case 2: //HD
-                    programmeInfos = programmeInfos.Where(info => info.TypeId != 0);//排除SD，保留HD和Auto
-                    break;
-
-                default:
-                    return new List<ProgrammeInfo>();
-            }
-            switch (channelInfo.nGroupID)
-            {
-                case -1: //通道没有分组信息，则所有的信号源均可匹配，故这不做任何操作
-                    break;
-
-                default:// 通道有分组，需要排除不同分组的信号源
-                    programmeInfos = programmeInfos.Where(info =>
+                //首先判断高标清
+                if (channelInfo.nCPSignalType > 0)//不是Auto
+                {
+                    if (channelInfo.nCPSignalType == 1)//SD
                     {
-                        var groupmap = Store.GetSignalsrcgroupmapAsync(async a => await a.Where(x => x.Signalsrcid == info.ProgrammeId).FirstOrDefaultAsync(), true).Result;
-                        return !(groupmap != null && groupmap.Groupid == -1 && channelInfo.nGroupID != groupmap.Groupid);
-                    });
-                    break;
+                        if (item.TypeId == 1)//排除HD，Auto和SD可以匹配
+                            continue;
+                    }
+                    else if (channelInfo.nCPSignalType == 2)//HD
+                    {
+                        if (item.TypeId == 0)//排除SD，保留HD和Auto
+                            continue;
+                    }
+                }
+
+                if (channelInfo.nGroupID > 0 && item.nGroupID > 0 && channelInfo.nGroupID != item.nGroupID)
+                {
+                    continue;
+                }
+
+                if (channelInfo.nDeviceTypeID == (int)CaptureChannelType.emMsvChannel
+                    || channelInfo.nDeviceTypeID == (int)CaptureChannelType.emDefualtChannel)
+                {
+                    if (item.emPgmType == ProgrammeType.PT_SDI /* && signalId == info.ProgrammeId */)
+                    {
+                        // Add by chenzhi 2013-08-21
+                        // TODO: Fix Bug: snp4100051546
+                        // TODO: 这里修改此函数的功能，如果是SDI通道和信号源通过矩阵服务直接连接，
+                        // 则优先返回此信号源，注意：这需要在客户端限制不同分组的信号源和通道通过矩阵直接连接
+                        if (signalId == item.ProgrammeId)
+                        {
+                            lstback.Insert(0, item);
+                        }
+                        else
+                        {
+                            lstback.Add(item);
+                        }
+                        // ----------------------- The End 2013-08-21 -----------------------
+                    }
+                }
+                else if (channelInfo.nDeviceTypeID == (int)CaptureChannelType.emIPTSChannel)
+                {
+                    if (item.emPgmType == ProgrammeType.PT_IPTS/* || info.emPgmType == ProgrammeType.PT_StreamMedia*/)
+                    {
+                        lstback.Add(item);
+                    }
+                }
+                else if (channelInfo.nDeviceTypeID == (int)CaptureChannelType.emStreamChannel)
+                {
+                    // Delete by chenzhi 2013-07-09
+                    // TODO: 运营商的概念已经被分组所取代，故移除该部分代码
+
+                    if (item.emPgmType == ProgrammeType.PT_StreamMedia /*&& info.nCarrierID == channelInfo.nCarrierID */)//运营商信息也要判断
+                    {
+                        lstback.Add(item);
+                    }
+                }
             }
-            switch (channelInfo.nDeviceTypeID)
-            {
-                case (int)CaptureChannelType.emMsvChannel:
-                    programmeInfos = programmeInfos.Where(info => info.emPgmType == ProgrammeType.PT_SDI);
-                    var firstList = programmeInfos.Where(info => info.ProgrammeId == signalId).ToList();
-                    var lastList = programmeInfos.Where(info => info.ProgrammeId != signalId);
-                    firstList.AddRange(lastList);
-                    return firstList;
 
-                case (int)CaptureChannelType.emIPTSChannel:
-                    return programmeInfos.Where(info => info.emPgmType == ProgrammeType.PT_IPTS).ToList();
-
-                case (int)CaptureChannelType.emStreamChannel:
-                    return programmeInfos.Where(info => info.emPgmType == ProgrammeType.PT_StreamMedia).ToList();
-
-                default:
-                    return new List<ProgrammeInfo>();
-            }
+           
+            return lstback;
         }
 
         /// <summary>根据 通道Id 获取 信号id</summary>
@@ -380,7 +398,8 @@ namespace IngestDevicePlugin.Managers
             {
                 CaptureChannelInfo channelInfo = await GetCaptureChannelByIDAsync<CaptureChannelInfo>(channelid);
 
-                if (channelInfo.nDeviceTypeID == (int)CaptureChannelType.emMsvChannel)
+                if (channelInfo.nDeviceTypeID == (int)CaptureChannelType.emMsvChannel
+                    || channelInfo.nDeviceTypeID == (int)CaptureChannelType.emDefualtChannel)
                 {
                     var signalIds = await Store.GetSignalIdsByChannelIdForNotMatrix(channelid);
 
@@ -606,7 +625,8 @@ namespace IngestDevicePlugin.Managers
                 var taskResponse = await _globalinterface.GetTaskCallBack(re);
                 var taskContents = (taskResponse as IngestDBCore.ResponseMessage<List<TaskContentInterface>>).Ext;
 
-                var tempList = captureChannels.Where(a => a.nDeviceTypeID == (int)CaptureChannelType.emMsvChannel &&
+                var tempList = captureChannels.Where(a => (a.nDeviceTypeID == (int)CaptureChannelType.emMsvChannel ||
+                                                            a.nDeviceTypeID == (int)CaptureChannelType.emDefualtChannel) &&
                                               IsDeviceOk(a.nID, arrMsvChannelState) &&
                                             taskContents.Any(x => x.emState == taskStateInterface.tsExecuting && x.nChannelID == a.nID))
                                .Select(a => new ChannelScore { Id = a.nID }).ToList();
@@ -658,53 +678,69 @@ namespace IngestDevicePlugin.Managers
         /// <returns></returns>
         public async Task<List<TResult>> GetChannelsByProgrammeIdAsync<TResult>(int programmeId)
         {
-            var programme = _mapper.Map<ProgrammeInfo>(await Store.GetSignalsrcAsync(a => a.SingleOrDefaultAsync(x => programmeId == x.Signalsrcid), true));
+            var programme = await Store.GetSignalInfoAsync(programmeId);
             var channelInfos = await Store.GetAllCaptureChannelsAsync(0);
+            
+            List<CaptureChannelInfoResponse> lstchn = new List<CaptureChannelInfoResponse>();
 
-            // TODO: 获取所对应的分组ID
-            int nGroupId = await Store.GetSignalsrcgroupmapAsync(async a => await a.Where(x => x.Signalsrcid == programmeId)
-                                                                                   .Select(x => x.Groupid)
-                                                                                   .FirstOrDefaultAsync(), true);
+            foreach (var item in channelInfos)
+            {
+                ////类型匹配
+                if (!((programme.PgmType == ProgrammeType.PT_SDI && (item.DeviceTypeID == (int)CaptureChannelType.emMsvChannel || item.DeviceTypeID == (int)CaptureChannelType.emDefualtChannel))
+                     || ((programme.PgmType == ProgrammeType.PT_IPTS) && (item.DeviceTypeID == (int)CaptureChannelType.emIPTSChannel))
+                     || ((programme.PgmType == ProgrammeType.PT_StreamMedia) && (item.DeviceTypeID == (int)CaptureChannelType.emStreamChannel))))
+                {
+                    continue;
+                }
 
-            Func<CaptureChannelInfoResponse, bool> groupWhere = a => true;
-            if (nGroupId != -1)
-            {
-                // 有分组，则排除分组不同的通道，只保留同组的通道和无分组信息的通道
-                groupWhere = a => a.GroupID != -1 && a.GroupID != nGroupId;
+                //高标清匹配
+                if (item.CPSignalType > 0)//0表示Auto，可以任意匹配，不需要处理,1:SD, 2:HD
+                {
+                    if (item.CPSignalType == 1)//SD
+                    {
+                        if (programme.TypeId == 1)//排除HD，Auto和SD可以匹配
+                            continue;
+                    }
+                    else if (item.CPSignalType == 2)//HD
+                    {
+                        if (programme.TypeId == 0)//排除SD，保留HD和Auto
+                            continue;
+                    }
+                }
+
+                if (programme.GroupID > 0 && item.GroupID >0 && item.GroupID != programme.GroupID)
+                {
+                    continue;
+                }
+
+                /*
+                 * @brief 查对应out和in的index 我认为没有矩阵直连填信号也没用，没事的
+                 */
+                //bool isNeedAdd = true;
+                //if (programmeInfo.emPgmType == ProgrammeType.PT_SDI)
+                //{
+                //    if (!isHaveMatrix)
+                //    {
+                //        //需要根据列表对通道进行判断
+                //        channelIdListInNotMatrix = deviceAccess.GetChannelIdsBySignalIdForNotMatrix(programmeId);
+
+                //        isNeedAdd = false;
+                //        foreach (int channelId in channelIdListInNotMatrix)
+                //        {
+                //            if (channelId == channelInfo.nID)
+                //            {
+                //                isNeedAdd = true;
+                //                break;
+                //            }
+                //        }
+                //    }
+                //}
+                lstchn.Add(item);
             }
-            Func<CaptureChannelInfoResponse, bool> emWhere;
-            //判断是否是无矩阵
-            bool isHaveMatrix = await HaveMatrixAsync();
-            List<int> channelIds = await Store.GetChannelIdsBySignalIdForNotMatrix(programmeId);
-            switch (programme.emPgmType)//类型匹配
-            {
-                case ProgrammeType.PT_SDI:
-                    emWhere = a => (a.DeviceTypeID == (int)CaptureChannelType.emMsvChannel) && (isHaveMatrix || channelIds.Contains(a.ID));
-                    break;
-                case ProgrammeType.PT_IPTS:
-                    emWhere = a => a.DeviceTypeID == (int)CaptureChannelType.emIPTSChannel;
-                    break;
-                case ProgrammeType.PT_StreamMedia:
-                    emWhere = a => a.DeviceTypeID == (int)CaptureChannelType.emIPTSChannel;
-                    break;
-                default:
-                    emWhere = a => false;
-                    break;
-            }
-            Func<CaptureChannelInfoResponse, bool> typeIdwhere;
-            switch (programme.TypeId)
-            {
-                case 0:
-                    typeIdwhere = a => a.CPSignalType != 2;
-                    break;
-                case 1:
-                    typeIdwhere = a => a.CPSignalType != 1;
-                    break;
-                default:
-                    typeIdwhere = a => true;
-                    break;
-            }
-            return _mapper.Map<List<TResult>>(channelInfos.Where(groupWhere).Where(emWhere).Where(typeIdwhere).ToList());
+            // Add by chenzhi 2013-07-09
+            // TODO: 通道需要排序，同一个分组的排在前面，无分组的排在后面
+            lstchn.OrderBy(x => x.GroupID);
+            return _mapper.Map<List<TResult>>(lstchn);
         }
 
         public virtual async Task<bool> HaveMatrixAsync()
@@ -805,7 +841,7 @@ namespace IngestDevicePlugin.Managers
             foreach (var item in channels)
             {
                 ////类型匹配
-                if (!((programinfo.PgmType == ProgrammeType.PT_SDI && (item.DeviceTypeID == (int)CaptureChannelType.emMsvChannel))
+                if (!((programinfo.PgmType == ProgrammeType.PT_SDI && ((item.DeviceTypeID == (int)CaptureChannelType.emMsvChannel || item.DeviceTypeID == (int)CaptureChannelType.emDefualtChannel)))
                      || ((programinfo.PgmType == ProgrammeType.PT_IPTS) && (item.DeviceTypeID == (int)CaptureChannelType.emIPTSChannel))
                      || ((programinfo.PgmType == ProgrammeType.PT_StreamMedia) && (item.DeviceTypeID == (int)CaptureChannelType.emStreamChannel))))
                 {

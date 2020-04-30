@@ -15,6 +15,7 @@ using Microsoft.AspNetCore.Mvc.ApplicationParts;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.OpenApi.Models;
+using Newtonsoft.Json.Serialization;
 using Swashbuckle.AspNetCore.SwaggerGen;
 
 namespace IngestDB
@@ -41,7 +42,8 @@ namespace IngestDB
 
             services.AddSingleton<IConfigurationRoot>(cfg);
             services.AddMvc(option => { option.Filters.Add(typeof(IngestAuthentication)); })
-                .SetCompatibilityVersion(CompatibilityVersion.Version_2_1);
+                .SetCompatibilityVersion(CompatibilityVersion.Version_2_1)
+                .AddJsonOptions(options => { options.SerializerSettings.ContractResolver = new DefaultContractResolver(); });
             //.AddJsonOptions(options =>//为swagger加的
             //options.SerializerSettings.Converters.Add(new StringEnumConverter()));
 
@@ -120,7 +122,7 @@ namespace IngestDB
                     {
                         Version = "v2",
                         Title = "> 收录新版本网关接口文档",
-                        Description = "**Ingest Web API**(接口设计原则: `Post`->新加和修改，`Post`->新加；`Put`->修改)",
+                        Description = "**Ingest Web API**(接口设计原则: `Post`->新加和修改，`Post`->新加；`Put`->修改, 所有路由和参数均是小写)",
                         Contact = new OpenApiContact { Name = "XueCat", Email = "", Url = new Uri("http://xuecat.com") },
                         License = new OpenApiLicense { Name = "Sobey", Url = new Uri("http://www.sobey.com") }
                         //TermsOfService = new Uri("None"),
@@ -240,7 +242,7 @@ namespace IngestDB
             applicationContext.AppServiceProvider = app.ApplicationServices;
             using (var scope = app.ApplicationServices.GetRequiredService<IServiceScopeFactory>().CreateScope())
             {
-                applicationContext.ServiceProvider = scope.ServiceProvider;
+                //applicationContext.ServiceProvider = scope.ServiceProvider;
                 //var context = scope.ServiceProvider.GetRequiredService<ApplicationDbContext>();
                 //var pluginFactory = scope.ServiceProvider.GetRequiredService<IPluginFactory>();
             }

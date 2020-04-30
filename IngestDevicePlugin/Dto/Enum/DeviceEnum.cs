@@ -71,6 +71,8 @@
     /// <summary> 采集通道类型 </summary>
     public enum CaptureChannelType
     {
+        /// <summary> 默认通道时msv通道，为啥有这个是因为前端乱存数据msv存0，所以为了兼容msv和默认是一样 </summary>
+        emDefualtChannel = 0,
         /// <summary> MSV 采集通道 </summary>
         emMsvChannel = 1,
 
@@ -78,7 +80,8 @@
         emIPTSChannel,
 
         /// <summary> 流媒体通道 </summary>
-        emStreamChannel
+        emStreamChannel,
+        emIPSChannel                //IPS2110 
     }
 
     /// <summary>通道状态</summary>

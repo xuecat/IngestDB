@@ -316,6 +316,7 @@ namespace IngestDevicePlugin.Controllers.v1
             GetAllSignalSrcExs_param response = new GetAllSignalSrcExs_param();
             try
             {
+                response.errStr = "OK";
                 if(!await _deviceManage.IsBackupSignalSrcByIdAsync(nSignalSrcId))
                 {
                     response.errStr = null;
@@ -554,6 +555,8 @@ namespace IngestDevicePlugin.Controllers.v1
                 if(channelId <= 0)
                 {
                     response.errStr = "Param wrong.";
+                    response.bRet = false;
+                    return response;
                 }
 
                 response.programmeInfos = await _deviceManage.GetProgrammeInfosByChannelIdAsync(channelId);

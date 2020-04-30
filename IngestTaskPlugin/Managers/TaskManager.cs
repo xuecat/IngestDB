@@ -24,13 +24,16 @@ namespace IngestTaskPlugin.Managers
 {
     public class TaskManager
     {
-        public TaskManager(ITaskStore store, IMapper mapper, RestClient client)
+        public TaskManager(ITaskStore store, IMapper mapper, RestClient client, IIngestDeviceInterface device, IIngestGlobalInterface global)
         {
             Store = store;
             _restClient = client;
             _mapper = mapper ?? throw new ArgumentNullException(nameof(mapper));
+            _deviceInterface = device;
+            _globalInterface = global;
         }
-
+        private readonly IIngestGlobalInterface _globalInterface;
+        private IIngestDeviceInterface _deviceInterface { get; }
         private RestClient _restClient { get; }
         protected ITaskStore Store { get; }
         protected IMapper _mapper { get; }
@@ -380,10 +383,9 @@ namespace IngestTaskPlugin.Managers
 
         public async Task<string> GetChannelCapturingLowMaterial(int channelid)
         {
-            var _deviceinterface = ApplicationContext.Current.ServiceProvider.GetRequiredService<IIngestDeviceInterface>();
-            if (_deviceinterface != null)
+            if (_deviceInterface != null)
             {
-                var response1 = await _deviceinterface.GetDeviceCallBack(new DeviceInternals()
+                var response1 = await _deviceInterface.GetDeviceCallBack(new DeviceInternals()
                 {
                     funtype = IngestDBCore.DeviceInternals.FunctionType.ChannelExtendData,
                     ChannelId = channelid,
@@ -405,10 +407,9 @@ namespace IngestTaskPlugin.Managers
                 var findtask = await GetChannelCapturingTask<TaskContentResponse>(channelid);
                 if (findtask != null)
                 {
-                    var _globalinterface = ApplicationContext.Current.ServiceProvider.GetRequiredService<IIngestGlobalInterface>();
-                    if (_globalinterface != null)
+                    if (_globalInterface != null)
                     {
-                        var rep = await _globalinterface.GetGlobalCallBack(new GlobalInternals() {
+                        var rep = await _globalInterface.GetGlobalCallBack(new GlobalInternals() {
                             funtype = GlobalInternals.FunctionType.MaterialInfo,
                             TaskID = findtask.TaskID
                         });
@@ -449,10 +450,9 @@ namespace IngestTaskPlugin.Managers
 
         private async Task<List<int>> TryDispatchTask(DbpTask taskinfo, bool backup)
         {
-            var _globalinterface = ApplicationContext.Current.ServiceProvider.GetRequiredService<IIngestDeviceInterface>();
-            if (_globalinterface != null)
+            if (_deviceInterface != null)
             {
-                var response1 = await _globalinterface.GetDeviceCallBack(new DeviceInternals() {
+                var response1 = await _deviceInterface.GetDeviceCallBack(new DeviceInternals() {
                     funtype = IngestDBCore.DeviceInternals.FunctionType.AllCaptureChannels });
                 if (response1.Code != ResponseCodeDefines.SuccessCode)
                 {
@@ -516,10 +516,10 @@ namespace IngestTaskPlugin.Managers
                         && (b.Endtime > DateTime.Now && b.Endtime < DateTime.Now.AddDays(1))
                         && (b.Tasktype != (int)TaskType.TT_OPENEND && b.Tasktype != (int)TaskType.TT_OPENENDEX)));
 
-            var _deviceinterface = ApplicationContext.Current.ServiceProvider.GetRequiredService<IIngestDeviceInterface>();
-            if (_deviceinterface != null)
+            
+            if (_deviceInterface != null)
             {
-                var response1 = await _deviceinterface.GetDeviceCallBack(new DeviceInternals()
+                var response1 = await _deviceInterface.GetDeviceCallBack(new DeviceInternals()
                 {
                     funtype = IngestDBCore.DeviceInternals.FunctionType.AllChannelState,
                 });
@@ -724,11 +724,10 @@ namespace IngestTaskPlugin.Managers
             {
                 SobeyRecException.ThrowSelfNoParam("",GlobalDictionary.GLOBALDICT_CODE_NO_SINGAL_SRC,Logger, null);
             }
-
-            var _deviceinterface = ApplicationContext.Current.ServiceProvider.GetRequiredService<IIngestDeviceInterface>();
-            if (_deviceinterface != null)
+            
+            if (_deviceInterface != null)
             {
-                var response1 = await _deviceinterface.GetDeviceCallBack(new DeviceInternals()
+                var response1 = await _deviceInterface.GetDeviceCallBack(new DeviceInternals()
                 {
                     funtype = IngestDBCore.DeviceInternals.FunctionType.CaptureTemplateIDBySignal,
                     SrcId = SignalId,
@@ -756,10 +755,10 @@ namespace IngestTaskPlugin.Managers
                         }
                     }
 
-                    var _globalinterface = ApplicationContext.Current.ServiceProvider.GetRequiredService<IIngestGlobalInterface>();
-                    if (_globalinterface != null)
+                    
+                    if (_globalInterface != null)
                     {
-                        var response2 = await _globalinterface.GetGlobalCallBack(new GlobalInternals()
+                        var response2 = await _globalInterface.GetGlobalCallBack(new GlobalInternals()
                         {
                             funtype = GlobalInternals.FunctionType.UserParamTemplateByID,
                             TemplateID = fresponse.Ext
@@ -1198,10 +1197,10 @@ namespace IngestTaskPlugin.Managers
 
         public async Task<int> ChooseUsealbeChannel(List<int> lstchannelid, DateTime dtbegin, DateTime dtend)
         {
-            var _deviceinterface = ApplicationContext.Current.ServiceProvider.GetRequiredService<IIngestDeviceInterface>();
-            if (_deviceinterface != null)
+            
+            if (_deviceInterface != null)
             {
-                var response1 = await _deviceinterface.GetDeviceCallBack(new DeviceInternals()
+                var response1 = await _deviceInterface.GetDeviceCallBack(new DeviceInternals()
                 {
                     funtype = IngestDBCore.DeviceInternals.FunctionType.AllChannelState,
                 });
@@ -1801,11 +1800,11 @@ namespace IngestTaskPlugin.Managers
             bool match = false;
             if (findtask.Channelid != taskModify.ChannelID || findtask.Signalid != taskModify.SignalID)
             {
-                var _globalinterface = ApplicationContext.Current.ServiceProvider.GetRequiredService<IIngestDeviceInterface>();
-                if (_globalinterface != null)
+                
+                if (_deviceInterface != null)
                 {
                     
-                    var response1 = await _globalinterface.GetDeviceCallBack(new DeviceInternals()
+                    var response1 = await _deviceInterface.GetDeviceCallBack(new DeviceInternals()
                     {
                         funtype = IngestDBCore.DeviceInternals.FunctionType.ChannelInfoBySrc,
                         SrcId = taskModify.SignalID,
@@ -2100,10 +2099,10 @@ namespace IngestTaskPlugin.Managers
         {
             TaskContentRequest taskinfo = _mapper.Map<TaskContentRequest>(taskAdd);
 
-            var _globalinterface = ApplicationContext.Current.ServiceProvider.GetRequiredService<IIngestDeviceInterface>();
-            if (_globalinterface != null)
+            
+            if (_deviceInterface != null)
             {
-                var response1 = await _globalinterface.GetDeviceCallBack(new DeviceInternals() {
+                var response1 = await _deviceInterface.GetDeviceCallBack(new DeviceInternals() {
                     funtype = IngestDBCore.DeviceInternals.FunctionType.ChannelUnitMap, ChannelId = taskinfo.ChannelID
                 });
 
@@ -2610,10 +2609,10 @@ namespace IngestTaskPlugin.Managers
             newtaskinfo.NewBegintime = newtaskinfo.Starttime;
             newtaskinfo.Taskname += "_1";
 
-            var _globalinterface = ApplicationContext.Current.ServiceProvider.GetRequiredService<IIngestDeviceInterface>();
-            if (_globalinterface != null)
+            
+            if (_deviceInterface != null)
             {
-                var response1 = await _globalinterface.GetDeviceCallBack(new DeviceInternals()
+                var response1 = await _deviceInterface.GetDeviceCallBack(new DeviceInternals()
                 {
                     funtype = DeviceInternals.FunctionType.SingnalIDByChannel,
                     ChannelId = findtask.Channelid.GetValueOrDefault()
@@ -2718,16 +2717,16 @@ namespace IngestTaskPlugin.Managers
         {
             var taskinfo = _mapper.Map<TaskInfoRequest>(info);
 
-            var _globalinterface = ApplicationContext.Current.ServiceProvider.GetRequiredService<IIngestDeviceInterface>();
+            //var _globalinterface = ApplicationContext.Current.ServiceProvider.GetRequiredService<IIngestDeviceInterface>();
 
             TaskSource ts = TaskSource.emUnknowTask;
             if (backup)
             {
 
-                if (_globalinterface != null)
+                if (_deviceInterface != null)
                 {
                     // 获得备份信号源信息
-                    var response1 = await _globalinterface.GetDeviceCallBack(new DeviceInternals() {
+                    var response1 = await _deviceInterface.GetDeviceCallBack(new DeviceInternals() {
                         funtype = IngestDBCore.DeviceInternals.FunctionType.BackSignalByID, SrcId = taskinfo.TaskContent.SignalID
                     });
 
@@ -2806,9 +2805,9 @@ namespace IngestTaskPlugin.Managers
             }
             else
             {
-                if (_globalinterface != null)
+                if (_deviceInterface != null)
                 {
-                    var response1 = await _globalinterface.GetDeviceCallBack(new DeviceInternals() {
+                    var response1 = await _deviceInterface.GetDeviceCallBack(new DeviceInternals() {
                         funtype = IngestDBCore.DeviceInternals.FunctionType.SignalInfoByID, SrcId = taskinfo.TaskContent.SignalID
                     });
 
@@ -2849,13 +2848,13 @@ namespace IngestTaskPlugin.Managers
 
             if (taskinfo.TaskContent.TaskType == TaskType.TT_MANUTASK)
             {
-                if (_globalinterface != null)
+                if (_deviceInterface != null)
                 {
                     DeviceInternals re = new DeviceInternals() {
                         funtype = IngestDBCore.DeviceInternals.FunctionType.ChannelUnitMap, ChannelId = taskinfo.TaskContent.ChannelID
                     };
 
-                    var response1 = await _globalinterface.GetDeviceCallBack(re);
+                    var response1 = await _deviceInterface.GetDeviceCallBack(re);
                     if (response1.Code != ResponseCodeDefines.SuccessCode)
                     {
                         Logger.Error("AddTaskWithPolicy ChannelUnitMap error");
@@ -2984,10 +2983,10 @@ namespace IngestTaskPlugin.Managers
 
                 if (taskinfo.TaskContent.GroupColor > 0)
                 {
-                    if (_globalinterface != null)
+                    if (_deviceInterface != null)
                     {
                         DeviceInternals re = new DeviceInternals() { funtype = IngestDBCore.DeviceInternals.FunctionType.SingnalIDByChannel, ChannelId = taskinfo.TaskContent.ChannelID };
-                        var response1 = await _globalinterface.GetDeviceCallBack(re);
+                        var response1 = await _deviceInterface.GetDeviceCallBack(re);
                         if (response1.Code != ResponseCodeDefines.SuccessCode)
                         {
                             Logger.Error("AddTaskWithPolicy SingnalIDByChannel error");
@@ -3037,10 +3036,10 @@ namespace IngestTaskPlugin.Managers
 
             if (taskinfo.TaskContent.TaskType == TaskType.TT_MANUTASK)
             {
-                var _globalinterface = ApplicationContext.Current.ServiceProvider.GetRequiredService<IIngestDeviceInterface>();
-                if (_globalinterface != null)
+                //var _globalinterface = ApplicationContext.Current.ServiceProvider.GetRequiredService<IIngestDeviceInterface>();
+                if (_deviceInterface != null)
                 {
-                    var response1 = await _globalinterface.GetDeviceCallBack(new DeviceInternals() {
+                    var response1 = await _deviceInterface.GetDeviceCallBack(new DeviceInternals() {
                         funtype = IngestDBCore.DeviceInternals.FunctionType.ChannelUnitMap, ChannelId = taskinfo.TaskContent.ChannelID
                     });
 
@@ -3167,10 +3166,10 @@ namespace IngestTaskPlugin.Managers
 
                 if (taskinfo.TaskContent.GroupColor > 0)
                 {
-                    var _globalinterface = ApplicationContext.Current.ServiceProvider.GetRequiredService<IIngestDeviceInterface>();
-                    if (_globalinterface != null)
+                    //var _globalinterface = ApplicationContext.Current.ServiceProvider.GetRequiredService<IIngestDeviceInterface>();
+                    if (_deviceInterface != null)
                     {
-                        var response1 = await _globalinterface.GetDeviceCallBack(new DeviceInternals() {
+                        var response1 = await _deviceInterface.GetDeviceCallBack(new DeviceInternals() {
                             funtype = IngestDBCore.DeviceInternals.FunctionType.SingnalIDByChannel,
                             ChannelId = taskinfo.TaskContent.ChannelID
                         });
@@ -3337,11 +3336,11 @@ namespace IngestTaskPlugin.Managers
         }
         public async Task<List<int>> GetMatchedChannelForSignal(int SignalID, int ChID, CHSelCondition condition)
         {
-            var _globalinterface = ApplicationContext.Current.ServiceProvider.GetRequiredService<IIngestDeviceInterface>();
-            if (_globalinterface != null)
+            
+            if (_deviceInterface != null)
             {
                 DeviceInternals re = new DeviceInternals() { funtype = IngestDBCore.DeviceInternals.FunctionType.ChannelInfoBySrc, SrcId = SignalID, Status = condition.CheckCHCurState ? 1 : 0 };
-                var response1 = await _globalinterface.GetDeviceCallBack(re);
+                var response1 = await _deviceInterface.GetDeviceCallBack(re);
                 if (response1.Code != ResponseCodeDefines.SuccessCode)
                 {
                     Logger.Error("GetMatchedChannelForSignal ChannelInfoBySrc error");

@@ -13,45 +13,45 @@ namespace IngestTaskInterfacePlugin
 {
     public class IngestTaskInterfaceImplement : IIngestTaskInterface
     {
-        public IngestTaskInterfaceImplement(IMapper mapper)
+        public IngestTaskInterfaceImplement(IMapper mapper, TaskController task)
         {
             _mapper = mapper ?? throw new ArgumentNullException(nameof(mapper));
+            _controller = task;
         }
+
+        private TaskController _controller { get; }
         protected IMapper _mapper { get; }
         public async Task<ResponseMessage> GetTaskCallBack(TaskInternals examineResponse)
         {
-            using (var scope = ApplicationContext.Current.ServiceProvider.GetRequiredService<IServiceScopeFactory>().CreateScope())
+            
+            switch (examineResponse.funtype)
             {
-                var reqService = scope.ServiceProvider.GetRequiredService<TaskController>();
-
-                switch (examineResponse.funtype)
-                {
-                    case FunctionType.WillBeginAndCapturingTasks:
+                case FunctionType.WillBeginAndCapturingTasks:
+                    {
+                        var f = await _controller.GetWillBeginAndCapturingTasks();
+                        var ret = new ResponseMessage<List<TaskContentInterface>>()
                         {
-                            var f = await reqService.GetWillBeginAndCapturingTasks();
-                            var ret = new ResponseMessage<List<TaskContentInterface>>()
-                            {
-                                Code = f.Code,
-                                Msg = f.Msg,
-                                Ext = _mapper.Map<List<TaskContentInterface>>(f.Ext),
-                            };
-                            return ret;
-                        }
-                    case FunctionType.CurrentTasks:
+                            Code = f.Code,
+                            Msg = f.Msg,
+                            Ext = _mapper.Map<List<TaskContentInterface>>(f.Ext),
+                        };
+                        return ret;
+                    }
+                case FunctionType.CurrentTasks:
+                    {
+                        var f = await _controller.GetCurrentTasks();
+                        var ret = new ResponseMessage<List<TaskContentInterface>>()
                         {
-                            var f = await reqService.GetCurrentTasks();
-                            var ret = new ResponseMessage<List<TaskContentInterface>>()
-                            {
-                                Code = f.Code,
-                                Msg = f.Msg,
-                                Ext = _mapper.Map<List<TaskContentInterface>>(f.Ext),
-                            };
-                            return ret;
-                        }
-                    default:
-                        break;
-                }
+                            Code = f.Code,
+                            Msg = f.Msg,
+                            Ext = _mapper.Map<List<TaskContentInterface>>(f.Ext),
+                        };
+                        return ret;
+                    }
+                default:
+                    break;
             }
+            
             return null;
         }
 

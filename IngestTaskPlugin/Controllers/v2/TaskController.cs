@@ -40,15 +40,15 @@ namespace IngestTaskPlugin.Controllers.v2
     {
         private readonly ILogger Logger = LoggerManager.GetLogger("TaskInfo");
         private readonly TaskManager _taskManage;
-        private readonly RestClient _restClient;
         private readonly NotifyClock _clock;
+        private readonly IIngestGlobalInterface _globalInterface;
         //private readonly IMapper _mapper;
 
-        public TaskController(RestClient rsc, TaskManager task, NotifyClock clock/*, IMapper mapper*/)
+        public TaskController( TaskManager task, IIngestGlobalInterface global, NotifyClock clock/*, IMapper mapper*/)
         {
             _taskManage = task;
-            _restClient = rsc;
             _clock = clock;
+            _globalInterface = global;
             //_mapper = mapper ?? throw new ArgumentNullException(nameof(mapper));
         }
 
@@ -326,11 +326,10 @@ namespace IngestTaskPlugin.Controllers.v2
             {
                 Response.Ext = await _taskManage.StopGroupTaskAsync(taskid);
 
-                var _globalinterface = ApplicationContext.Current.ServiceProvider.GetRequiredService<IIngestGlobalInterface>();
-                if (_globalinterface != null)
+                if (_globalInterface != null)
                 {
                     GlobalInternals re = new GlobalInternals() { funtype = IngestDBCore.GlobalInternals.FunctionType.SetGlobalState, State = GlobalStateName.MODTASK };
-                    var response1 = await _globalinterface.SubmitGlobalCallBack(re);
+                    var response1 = await _globalInterface.SubmitGlobalCallBack(re);
                     if (response1.Code != ResponseCodeDefines.SuccessCode)
                     {
                         Logger.Error("SetGlobalState modtask error");
@@ -378,11 +377,11 @@ namespace IngestTaskPlugin.Controllers.v2
             {
                 Response.Ext = await _taskManage.DeleteGroupTaskAsync(taskid);
 
-                var _globalinterface = ApplicationContext.Current.ServiceProvider.GetRequiredService<IIngestGlobalInterface>();
-                if (_globalinterface != null)
+                
+                if (_globalInterface != null)
                 {
                     GlobalInternals re = new GlobalInternals() { funtype = IngestDBCore.GlobalInternals.FunctionType.SetGlobalState, State = GlobalStateName.MODTASK };
-                    var response1 = await _globalinterface.SubmitGlobalCallBack(re);
+                    var response1 = await _globalInterface.SubmitGlobalCallBack(re);
                     if (response1.Code != ResponseCodeDefines.SuccessCode)
                     {
                         Logger.Error("SetGlobalState modtask error");
@@ -440,12 +439,11 @@ namespace IngestTaskPlugin.Controllers.v2
                 //添加后如果开始时间在2分钟以内，需要调度一次
                 if ((DateTimeFormat.DateTimeFromString(task.TaskContent.Begin) - DateTime.Now).TotalSeconds < 120)
                     await _taskManage.UpdateComingTasks();
-
-                var _globalinterface = ApplicationContext.Current.ServiceProvider.GetRequiredService<IIngestGlobalInterface>();
-                if (_globalinterface != null)
+                
+                if (_globalInterface != null)
                 {
                     GlobalInternals re = new GlobalInternals() { funtype = IngestDBCore.GlobalInternals.FunctionType.SetGlobalState, State = GlobalStateName.ADDTASK };
-                    var response1 = await _globalinterface.SubmitGlobalCallBack(re);
+                    var response1 = await _globalInterface.SubmitGlobalCallBack(re);
                     if (response1.Code != ResponseCodeDefines.SuccessCode)
                     {
                         Logger.Error("SetGlobalState modtask error");
@@ -516,12 +514,11 @@ namespace IngestTaskPlugin.Controllers.v2
                 //添加后如果开始时间在2分钟以内，需要调度一次
                 if ((DateTimeFormat.DateTimeFromString(task.TaskContent.Begin) - DateTime.Now).TotalSeconds < 120)
                     await _taskManage.UpdateComingTasks();
-
-                var _globalinterface = ApplicationContext.Current.ServiceProvider.GetRequiredService<IIngestGlobalInterface>();
-                if (_globalinterface != null)
+                
+                if (_globalInterface != null)
                 {
                     GlobalInternals re = new GlobalInternals() { funtype = IngestDBCore.GlobalInternals.FunctionType.SetGlobalState, State = GlobalStateName.ADDTASK };
-                    var response1 = await _globalinterface.SubmitGlobalCallBack(re);
+                    var response1 = await _globalInterface.SubmitGlobalCallBack(re);
                     if (response1.Code != ResponseCodeDefines.SuccessCode)
                     {
                         Logger.Error("SetGlobalState modtask error");
@@ -697,12 +694,11 @@ namespace IngestTaskPlugin.Controllers.v2
                 //添加后如果开始时间在2分钟以内，需要调度一次
                 if ((DateTimeFormat.DateTimeFromString(req.Begin) - DateTime.Now).TotalSeconds < 120)
                     await _taskManage.UpdateComingTasks();
-
-                var _globalinterface = ApplicationContext.Current.ServiceProvider.GetRequiredService<IIngestGlobalInterface>();
-                if (_globalinterface != null)
+                
+                if (_globalInterface != null)
                 {
                     GlobalInternals re = new GlobalInternals() { funtype = IngestDBCore.GlobalInternals.FunctionType.SetGlobalState, State = GlobalStateName.MODTASK };
-                    var response1 = await _globalinterface.SubmitGlobalCallBack(re);
+                    var response1 = await _globalInterface.SubmitGlobalCallBack(re);
                     if (response1.Code != ResponseCodeDefines.SuccessCode)
                     {
                         Logger.Error("SetGlobalState modtask error");
@@ -848,12 +844,11 @@ namespace IngestTaskPlugin.Controllers.v2
                     Response.Code = ResponseCodeDefines.NotFound;
                     Response.Msg = "not found task";
                 }
-
-                var _globalinterface = ApplicationContext.Current.ServiceProvider.GetRequiredService<IIngestGlobalInterface>();
-                if (_globalinterface != null)
+                
+                if (_globalInterface != null)
                 {
                     GlobalInternals re = new GlobalInternals() { funtype = IngestDBCore.GlobalInternals.FunctionType.SetGlobalState, State = GlobalStateName.MODTASK };
-                    var response1 = await _globalinterface.SubmitGlobalCallBack(re);
+                    var response1 = await _globalInterface.SubmitGlobalCallBack(re);
                     if (response1.Code != ResponseCodeDefines.SuccessCode)
                     {
                         Logger.Error("SetGlobalState modtask error");
@@ -913,12 +908,11 @@ namespace IngestTaskPlugin.Controllers.v2
                     Response.Code = ResponseCodeDefines.NotFound;
                     Response.Msg = "not found task";
                 }
-
-                var _globalinterface = ApplicationContext.Current.ServiceProvider.GetRequiredService<IIngestGlobalInterface>();
-                if (_globalinterface != null)
+                
+                if (_globalInterface != null)
                 {
                     GlobalInternals re = new GlobalInternals() { funtype = IngestDBCore.GlobalInternals.FunctionType.SetGlobalState, State = GlobalStateName.MODTASK };
-                    var response1 = await _globalinterface.SubmitGlobalCallBack(re);
+                    var response1 = await _globalInterface.SubmitGlobalCallBack(re);
                     if (response1.Code != ResponseCodeDefines.SuccessCode)
                     {
                         Logger.Error("SetGlobalState modtask error");
@@ -1694,12 +1688,11 @@ namespace IngestTaskPlugin.Controllers.v2
             try
             {
                 Response.Ext = await _taskManage.StartTieupTask(taskid);
-
-                var _globalinterface = ApplicationContext.Current.ServiceProvider.GetRequiredService<IIngestGlobalInterface>();
-                if (_globalinterface != null)
+                
+                if (_globalInterface != null)
                 {
                     GlobalInternals re = new GlobalInternals() { funtype = IngestDBCore.GlobalInternals.FunctionType.SetGlobalState, State = GlobalStateName.MODTASK };
-                    var response1 = await _globalinterface.SubmitGlobalCallBack(re);
+                    var response1 = await _globalInterface.SubmitGlobalCallBack(re);
                     if (response1.Code != ResponseCodeDefines.SuccessCode)
                     {
                         Logger.Error("SetGlobalState modtask error");
@@ -1779,12 +1772,11 @@ namespace IngestTaskPlugin.Controllers.v2
             try
             {
                 await _taskManage.ModifyTaskName(taskid, taskname);
-
-                var _globalinterface = ApplicationContext.Current.ServiceProvider.GetRequiredService<IIngestGlobalInterface>();
-                if (_globalinterface != null)
+                
+                if (_globalInterface != null)
                 {
                     GlobalInternals re = new GlobalInternals() { funtype = IngestDBCore.GlobalInternals.FunctionType.SetGlobalState, State = GlobalStateName.MODTASK };
-                    var response1 = await _globalinterface.SubmitGlobalCallBack(re);
+                    var response1 = await _globalInterface.SubmitGlobalCallBack(re);
                     if (response1.Code != ResponseCodeDefines.SuccessCode)
                     {
                         Logger.Error("SetGlobalState modtask error");
@@ -1830,12 +1822,11 @@ namespace IngestTaskPlugin.Controllers.v2
                 //添加后如果开始时间在2分钟以内，需要调度一次
                 if ((DateTimeFormat.DateTimeFromString(req.Begin) - DateTime.Now).TotalSeconds < 120)
                     await _taskManage.UpdateComingTasks();
-
-                var _globalinterface = ApplicationContext.Current.ServiceProvider.GetRequiredService<IIngestGlobalInterface>();
-                if (_globalinterface != null)
+                
+                if (_globalInterface != null)
                 {
                     GlobalInternals re = new GlobalInternals() { funtype = IngestDBCore.GlobalInternals.FunctionType.SetGlobalState, State = GlobalStateName.MODTASK };
-                    var response1 = await _globalinterface.SubmitGlobalCallBack(re);
+                    var response1 = await _globalInterface.SubmitGlobalCallBack(re);
                     if (response1.Code != ResponseCodeDefines.SuccessCode)
                     {
                         Logger.Error("SetGlobalState modtask error");
@@ -2059,12 +2050,11 @@ namespace IngestTaskPlugin.Controllers.v2
             try
             {
                 Response.Ext = await _taskManage.AutoAddTaskByOldTask(oldtaskid, DateTimeFormat.DateTimeFromString(starttime));
-
-                var _globalinterface = ApplicationContext.Current.ServiceProvider.GetRequiredService<IIngestGlobalInterface>();
-                if (_globalinterface != null)
+                
+                if (_globalInterface != null)
                 {
                     GlobalInternals re = new GlobalInternals() { funtype = IngestDBCore.GlobalInternals.FunctionType.SetGlobalState, State = GlobalStateName.ADDTASK };
-                    var response1 = await _globalinterface.SubmitGlobalCallBack(re);
+                    var response1 = await _globalInterface.SubmitGlobalCallBack(re);
                     if (response1.Code != ResponseCodeDefines.SuccessCode)
                     {
                         Logger.Error("SetGlobalState modtask error");
