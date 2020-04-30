@@ -59,7 +59,8 @@ namespace IngestTaskPlugin.Dto.Request
     public class SetVTRUploadTask_in
     {
         public VTRUploadTaskContent vtrTask;
-        public List<VTR_UPLOAD_MetadataPair> metadatas;
+        //public List<VTR_UPLOAD_MetadataPair> metadatas;
+        public List<VTRUPLOADMetadataPairRequest> metadatas;
         public long lMask;
         public VTRUploadTaskMask uploadTaskMask;
 
@@ -70,5 +71,41 @@ namespace IngestTaskPlugin.Dto.Request
         public int nTaskID;
         public string strMetadata;
         public int emType;
+    }
+
+    public class VTRUploadTaskRequest
+    {
+        public VTRUploadTaskContent vtrtask { get; set; }
+        public List<VTRUPLOADMetadataPairRequest> metadatas { get; set; }
+        public long lmask { get; set; }
+        public VTRUploadTaskMask uploadtaskmask { get; set; }
+
+    }
+
+    public class CommitParam
+    {
+        public List<int> taskIds;
+        public bool ignoreWrong;
+    }
+
+
+    public class CommitParamRequest
+    {
+        public List<int> taskids { get; set; }
+        public bool ignorewrong { get; set; }
+    }
+
+    public class VTRBatchUploadTasksRequest
+    {
+        public List<VTRUploadTaskContent> vtrtasks { get; set; }
+        public List<VTRUPLOADMetadataPairRequest> metadatas { get; set; }
+        public bool ignoreWrong { get; set; }
+    }
+
+    public class VTRUPLOADMetadataPairRequest
+    {
+        public int taskid { get; set; }
+        public string metadata { get; set; }
+        public int type { get; set; }
     }
 }

@@ -521,5 +521,12 @@
             }
             return false;
         }
+
+
+        public async Task<List<DbpMetadatapolicy>> GetMetadatapoliciesByUserCode(string usercode)
+        {
+            return await Context.DbpPolicyuser.AsNoTracking().Where(x => x.Usercode == usercode).Join(Context.DbpMetadatapolicy, user => user.Policyid, policy => policy.Policyid, (x, y) => y).ToListAsync();
+        }
+
     }
 }

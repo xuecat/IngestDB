@@ -225,6 +225,11 @@ namespace IngestTaskPlugin
                .ForMember(a => a.nTaskID, (map) => map.MapFrom(b => b.TaskId))
                .ForMember(a => a.strMetadata, (map) => map.MapFrom(b => b.Metadata))
                .ForMember(a => a.emType, (map) => map.MapFrom(b => b.Type));
+
+            CreateMap<VTRUPLOADMetadataPairRequest, VTR_UPLOAD_MetadataPair>()
+               .ForMember(a => a.nTaskID, (map) => map.MapFrom(b => b.taskid))
+               .ForMember(a => a.strMetadata, (map) => map.MapFrom(b => b.metadata))
+               .ForMember(a => a.emType, (map) => map.MapFrom(b => b.type));
         }
     }
 }
