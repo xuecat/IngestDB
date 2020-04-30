@@ -70,12 +70,12 @@ namespace IngestDBCore.Basic
                 });
                 var apiVersion = methodInfo.DeclaringType.GetCustomAttributes(true).Where(a => a is ApiVersionAttribute).Select(a => a as ApiVersionAttribute).FirstOrDefault();
                 var param = operation.Parameters.SingleOrDefault(a => a.Name == "version" && a.In == ParameterLocation.Path);
-                if (param!=null)
+                if (param != null)
                 {
-                    operation.Parameters.Remove(param);
-                    //param.Schema.Default = new OpenApiString(apiVersion.Versions[0].ToString());
+                    //operation.Parameters.Remove(param);
+                    param.Schema.Default = new OpenApiString(apiVersion.Versions[0].ToString());
                 }
-                
+
             }
         }
     }

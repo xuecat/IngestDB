@@ -16,22 +16,23 @@ using Microsoft.Extensions.DependencyInjection;
 using Remotion.Linq.Parsing;
 using Sobey.Core.Log;
 using taskState = IngestDevicePlugin.Dto.Enum.taskState;
-
+using emSignalSource = IngestDevicePlugin.Dto.Enum.emSignalSource;
 namespace IngestDevicePlugin.Managers
 {
     public class DeviceManager
     {
-        public DeviceManager(IDeviceStore store, IMapper mapper)
+        public DeviceManager(IDeviceStore store, IMapper mapper, IIngestTaskInterface task)
         {
             Store = store;
             _mapper = mapper ?? throw new ArgumentNullException(nameof(mapper));
+            _taskInterface = task;
         }
 
         private readonly ILogger Logger = LoggerManager.GetLogger("DeviceInfo");
 
         /// <summary> 设备（仓储） </summary>
         protected IDeviceStore Store { get; }
-
+        private IIngestTaskInterface _taskInterface { get; }
         /// <summary> 数据映射器 </summary>
         protected IMapper _mapper { get; }
 
@@ -428,8 +429,8 @@ namespace IngestDevicePlugin.Managers
                 return 0;
             }
             DateTime dtNow = DateTime.Now;
-            var _globalinterface = ApplicationContext.Current.ServiceProvider.GetRequiredService<IIngestTaskInterface>();
-            if (_globalinterface != null)
+            
+            if (_taskInterface != null)
             {
                 var channelIds = await GetUserHiddenChannels(userCode);     //获得该用户的隐藏通道
                 List<MSVChannelState> arrMsvChannelState =
@@ -439,12 +440,12 @@ namespace IngestDevicePlugin.Managers
                 List<CaptureChannelInfoResponse> captureChannels = await Store.GetAllCaptureChannelsAsync(0);
                 //获得将要和正在执行的任务
                 TaskInternals reWillBeginAndCapturingTasks = new TaskInternals() { funtype = IngestDBCore.TaskInternals.FunctionType.WillBeginAndCapturingTasks };
-                var willResponse = await _globalinterface.GetTaskCallBack(reWillBeginAndCapturingTasks);
+                var willResponse = await _taskInterface.GetTaskCallBack(reWillBeginAndCapturingTasks);
                 var taskContents = (willResponse as IngestDBCore.ResponseMessage<List<TaskContentInterface>>)?.Ext;
 
                 //获得当前任务
                 TaskInternals reCurrentTasks = new TaskInternals() { funtype = IngestDBCore.TaskInternals.FunctionType.CurrentTasks };
-                var currentResponse = await _globalinterface.GetTaskCallBack(reCurrentTasks);
+                var currentResponse = await _taskInterface.GetTaskCallBack(reCurrentTasks);
                 var currentTasks = (currentResponse as IngestDBCore.ResponseMessage<List<TaskContentInterface>>)?.Ext;
                 var curIds = currentTasks?.Select(a => a.nChannelID).ToList();
                 //获得当前通道与信号源的映射
@@ -618,11 +619,11 @@ namespace IngestDevicePlugin.Managers
                 return map.nChannelID;
             }
 
-            var _globalinterface = ApplicationContext.Current.ServiceProvider.GetRequiredService<IIngestTaskInterface>();
-            if (_globalinterface != null)
+            
+            if (_taskInterface != null)
             {
                 TaskInternals re = new TaskInternals() { funtype = IngestDBCore.TaskInternals.FunctionType.WillBeginAndCapturingTasks };
-                var taskResponse = await _globalinterface.GetTaskCallBack(re);
+                var taskResponse = await _taskInterface.GetTaskCallBack(re);
                 var taskContents = (taskResponse as IngestDBCore.ResponseMessage<List<TaskContentInterface>>).Ext;
 
                 var tempList = captureChannels.Where(a => (a.nDeviceTypeID == (int)CaptureChannelType.emMsvChannel ||

@@ -61,16 +61,16 @@ namespace IngestDevicePlugin.Controllers.v2
         /// 通过 通道ID 获取采集通道
         /// </summary>
         /// <remarks>原方法 GetCaptureChannelByID</remarks>
-        /// <param name="channelId">通道Id</param>
+        /// <param name="channelid">通道Id</param>
         /// <returns>采集通道</returns>
-        [HttpGet("capturechannel/{channelId}")]
+        [HttpGet("capturechannel/{channelid}")]
         [ApiExplorerSettings(GroupName = "v2")]
-        public async Task<ResponseMessage<CaptureChannelInfoResponse>> CaptureChannelByID([FromRoute, BindRequired, DefaultValue(2)]int channelId)
+        public async Task<ResponseMessage<CaptureChannelInfoResponse>> CaptureChannelByID([FromRoute, BindRequired, DefaultValue(2)]int channelid)
         {
             ResponseMessage<CaptureChannelInfoResponse> response = new ResponseMessage<CaptureChannelInfoResponse>();
             try
             {
-                response.Ext = await _deviceManage.GetCaptureChannelByIDAsync<CaptureChannelInfoResponse>(channelId);
+                response.Ext = await _deviceManage.GetCaptureChannelByIDAsync<CaptureChannelInfoResponse>(channelid);
             } catch(Exception e)
             {
                 if(e is SobeyRecException se)//sobeyexcep会自动打印错误
@@ -120,17 +120,17 @@ namespace IngestDevicePlugin.Controllers.v2
         /// 根据 信号源Id 获取绑定的采集参数
         /// </summary>
         /// <remarks>原方法 GetCaptureTemplateIDBySignalID</remarks>
-        /// <param name="signalID">信号ID</param>
+        /// <param name="signalid">信号ID</param>
         /// <returns>采集参数</returns>
         /// <example>1111</example>
-        [HttpGet("capturetemplate/id/{signalID}")]
+        [HttpGet("capturetemplate/id/{signalid}")]
         [ApiExplorerSettings(GroupName = "v2")]
-        public async Task<ResponseMessage<int>> CaptureTemplateId([FromRoute, BindRequired, DefaultValue(39)]int signalID)
+        public async Task<ResponseMessage<int>> CaptureTemplateId([FromRoute, BindRequired, DefaultValue(39)]int signalid)
         {
             ResponseMessage<int> response = new ResponseMessage<int>();
             try
             {
-                response.Ext = await _deviceManage.GetSignalCaptureTemplateAsync(signalID);
+                response.Ext = await _deviceManage.GetSignalCaptureTemplateAsync(signalid);
             } catch(Exception e)
             {
                 if(e is SobeyRecException se)//sobeyexcep会自动打印错误
@@ -155,17 +155,17 @@ namespace IngestDevicePlugin.Controllers.v2
         /// 根据 信号源Id 为信号源选择一个合适的预监通道
         /// </summary>
         /// <remarks>原方法 GetBestPreviewChannelForSignal</remarks>
-        /// <param name="signalID">信号ID</param>
+        /// <param name="signalid">信号ID</param>
         /// <returns>预监通道Id</returns>
 
-        [HttpGet("bestpreviewchannel/id/{signalID}")]
+        [HttpGet("bestpreviewchannel/id/{signalid}")]
         [ApiExplorerSettings(GroupName = "v2")]
-        public async Task<ResponseMessage<int>> BestPreviewChannelId([FromRoute, BindRequired, DefaultValue(39)]int signalID)
+        public async Task<ResponseMessage<int>> BestPreviewChannelId([FromRoute, BindRequired, DefaultValue(39)]int signalid)
         {
             ResponseMessage<int> response = new ResponseMessage<int>();
             try
             {
-                response.Ext = await _deviceManage.GetBestPreviewChnForSignalAsync(signalID);
+                response.Ext = await _deviceManage.GetBestPreviewChnForSignalAsync(signalid);
             } catch(Exception e)
             {
                 if(e is SobeyRecException se)//sobeyexcep会自动打印错误
@@ -186,18 +186,18 @@ namespace IngestDevicePlugin.Controllers.v2
         /// 更新通道的扩展数据
         /// </summary>
         /// <remarks>原方法 PostUpdateChnExtData</remarks>
-        /// <param name="channelID">通道ID</param>
+        /// <param name="channelid">通道ID</param>
         /// <param name="data">设备通道扩展数据</param>
         /// <returns>是否成功</returns>
-        [HttpPost("channel/extenddata/{channelID}")]
+        [HttpPost("channel/extenddata/{channelid}")]
         [ApiExplorerSettings(GroupName = "v2")]
-        public async Task<ResponseMessage<bool>> UpdateChnExtData([FromRoute, BindRequired, DefaultValue(911)]int channelID,
+        public async Task<ResponseMessage<bool>> UpdateChnExtData([FromRoute, BindRequired, DefaultValue(911)]int channelid,
                                                                   [FromBody, BindRequired]DeviceChannelExtdataRequest data)
         {
             ResponseMessage<bool> response = new ResponseMessage<bool>();
             try
             {
-                response.Ext = await _deviceManage.SaveChnExtenddataAsync(channelID, data.Datatype, data.Extenddata);
+                response.Ext = await _deviceManage.SaveChnExtenddataAsync(channelid, data.Datatype, data.Extenddata);
             } catch(Exception e)
             {
                 if(e is SobeyRecException se)//sobeyexcep会自动打印错误
@@ -219,15 +219,15 @@ namespace IngestDevicePlugin.Controllers.v2
         /// </summary>
         /// <remarks>原方法 PostUpdateChnExtData</remarks>
         /// <returns>是否成功</returns>
-        [HttpGet("channel/extenddata/{channelID}")]
+        [HttpGet("channel/extenddata/{channelid}")]
         [ApiExplorerSettings(GroupName = "v2")]
-        public async Task<ResponseMessage<string>> GetChannelExtendData([FromRoute, BindRequired, DefaultValue(24)]int channelID,
+        public async Task<ResponseMessage<string>> GetChannelExtendData([FromRoute, BindRequired, DefaultValue(24)]int channelid,
                                                                         [FromQuery, BindRequired, DefaultValue(2)]int type)
         {
             ResponseMessage<string> response = new ResponseMessage<string>();
             try
             {
-                response.Ext = await _deviceManage.GetChannelExtendData(channelID, type);
+                response.Ext = await _deviceManage.GetChannelExtendData(channelid, type);
             } catch(Exception e)
             {
                 if(e is SobeyRecException se)//sobeyexcep会自动打印错误
@@ -248,18 +248,18 @@ namespace IngestDevicePlugin.Controllers.v2
         /// 根据 信号源Id,用户Code 自动匹配最优通道
         /// </summary>
         /// <remarks>原方法 GetBestChannelIDBySignalID</remarks>
-        /// <param name="signalID">信号源Id</param>
-        /// <param name="userCode">用户Code</param>
+        /// <param name="signalid">信号源Id</param>
+        /// <param name="usercode">用户Code</param>
         /// <returns>最优通道Id</returns>
-        [HttpGet("bestchannel/id/{signalID}")]
+        [HttpGet("bestchannel/id/{signalid}")]
         [ApiExplorerSettings(GroupName = "v2")]
-        public async Task<ResponseMessage<int>> BestChannelId([FromRoute, BindRequired, DefaultValue(20)]int signalID,
-                                                              [FromQuery, BindRequired, DefaultValue("8de083d45c614628b99516740d628e91")]string userCode)
+        public async Task<ResponseMessage<int>> BestChannelId([FromRoute, BindRequired, DefaultValue(20)]int signalid,
+                                                              [FromQuery, BindRequired, DefaultValue("8de083d45c614628b99516740d628e91")]string usercode)
         {
             ResponseMessage<int> response = new ResponseMessage<int>();
             try
             {
-                response.Ext = await _deviceManage.GetBestChannelIdBySignalIDAsync(signalID, userCode);
+                response.Ext = await _deviceManage.GetBestChannelIdBySignalIDAsync(signalid, usercode);
             } catch(Exception e)
             {
                 if(e is SobeyRecException se)//sobeyexcep会自动打印错误
@@ -280,16 +280,16 @@ namespace IngestDevicePlugin.Controllers.v2
         /// 根据 programmeId 获取相应的通道，有矩阵模式和无矩阵模式的区别
         /// </summary>
         /// <remarks>原方法 GetChannelsByProgrammeId</remarks>
-        /// <param name="programmeId">programmeId</param>
+        /// <param name="programmeid">programmeId</param>
         /// <returns>采集通道集合</returns>
-        [HttpGet("channel/{programmeId}")]
+        [HttpGet("channel/{programmeid}")]
         [ApiExplorerSettings(GroupName = "v2")]
-        public async Task<ResponseMessage<List<CaptureChannelInfoResponse>>> Channels([FromRoute, BindRequired, DefaultValue(12)]int programmeId)
+        public async Task<ResponseMessage<List<CaptureChannelInfoResponse>>> Channels([FromRoute, BindRequired, DefaultValue(12)]int programmeid)
         {
             ResponseMessage<List<CaptureChannelInfoResponse>> response = new ResponseMessage<List<CaptureChannelInfoResponse>>();
             try
             {
-                response.Ext = await _deviceManage.GetChannelsByProgrammeIdAsync<CaptureChannelInfoResponse>(programmeId);
+                response.Ext = await _deviceManage.GetChannelsByProgrammeIdAsync<CaptureChannelInfoResponse>(programmeid);
             } catch(Exception e)
             {
                 if(e is SobeyRecException se)//sobeyexcep会自动打印错误
@@ -311,7 +311,7 @@ namespace IngestDevicePlugin.Controllers.v2
         /// </summary>
         /// <remarks>原方法 GetAllChannelState</remarks>
         /// <returns>最优通道Id</returns>
-        [HttpGet("channelstate/All")]
+        [HttpGet("channelstate/all")]
         [ApiExplorerSettings(GroupName = "v2")]
         public async Task<ResponseMessage<List<MSVChannelStateResponse>>> AllChannelState()
         {
@@ -463,16 +463,16 @@ namespace IngestDevicePlugin.Controllers.v2
         /// 通过 GPIID 找出该GPI所有的映射
         /// </summary>
         /// <remarks>原方法 GetGPIMapInfoByGPIID</remarks>
-        /// <param name="gpiID">GPIID</param>
+        /// <param name="gpiid">GPIID</param>
         /// <returns>GPI设备集合</returns>
-        [HttpGet("gpimapinfo/{gpiID}")]
+        [HttpGet("gpimapinfo/{gpiid}")]
         [ApiExplorerSettings(GroupName = "v2")]
-        public async Task<ResponseMessage<List<GPIDeviceMapInfoResponse>>> GPIMapInfo([FromRoute, BindRequired, DefaultValue(666)]int gpiID)
+        public async Task<ResponseMessage<List<GPIDeviceMapInfoResponse>>> GPIMapInfo([FromRoute, BindRequired, DefaultValue(666)]int gpiid)
         {
             ResponseMessage<List<GPIDeviceMapInfoResponse>> response = new ResponseMessage<List<GPIDeviceMapInfoResponse>>();
             try
             {
-                response.Ext = await _deviceManage.GetGPIMapInfoByGPIIDAsync<GPIDeviceMapInfoResponse>(gpiID);
+                response.Ext = await _deviceManage.GetGPIMapInfoByGPIIDAsync<GPIDeviceMapInfoResponse>(gpiid);
             } catch(Exception e)
             {
                 if(e is SobeyRecException se)//sobeyexcep会自动打印错误
@@ -493,16 +493,16 @@ namespace IngestDevicePlugin.Controllers.v2
         /// 根据 通道Id 获取MSV设备状态信息
         /// </summary>
         /// <remarks>原方法 GetMSVChannelState</remarks>
-        /// <param name="channelID">通道Id</param>
+        /// <param name="channelid">通道Id</param>
         /// <returns>GPI设备集合</returns>
-        [HttpGet("msvchannelstate/{channelID}")]
+        [HttpGet("msvchannelstate/{channelid}")]
         [ApiExplorerSettings(GroupName = "v2")]
-        public async Task<ResponseMessage<MSVChannelStateResponse>> MSVChannelState([FromRoute, BindRequired, DefaultValue(12)]int channelID)
+        public async Task<ResponseMessage<MSVChannelStateResponse>> MSVChannelState([FromRoute, BindRequired, DefaultValue(12)]int channelid)
         {
             ResponseMessage<MSVChannelStateResponse> response = new ResponseMessage<MSVChannelStateResponse>();
             try
             {
-                response.Ext = await _deviceManage.GetMsvChannelStateAsync<MSVChannelStateResponse>(channelID);
+                response.Ext = await _deviceManage.GetMsvChannelStateAsync<MSVChannelStateResponse>(channelid);
             } catch(Exception e)
             {
                 if(e is SobeyRecException se)//sobeyexcep会自动打印错误
@@ -559,16 +559,16 @@ namespace IngestDevicePlugin.Controllers.v2
         /// 根据 通道Id 获取高清还是标清 nType:0标清,1高清
         /// </summary>
         /// <remarks>原方法 GetParamTypeByChannleID</remarks>
-        /// <param name="channelID">通道Id</param>
+        /// <param name="channelid">通道Id</param>
         /// <returns>0标清,1高清</returns>
-        [HttpGet("paramtype/type/{channelID}")]
+        [HttpGet("paramtype/type/{channelid}")]
         [ApiExplorerSettings(GroupName = "v2")]
-        public async Task<ResponseMessage<int>> ParamTypeByChannelID([FromRoute, BindRequired, DefaultValue(14)]int channelID)
+        public async Task<ResponseMessage<int>> ParamTypeByChannelID([FromRoute, BindRequired, DefaultValue(14)]int channelid)
         {
             ResponseMessage<int> response = new ResponseMessage<int>();
             try
             {
-                response.Ext = await _deviceManage.GetParamTypeByChannelIDAsync(channelID);
+                response.Ext = await _deviceManage.GetParamTypeByChannelIDAsync(channelid);
             } catch(Exception e)
             {
                 if(e is SobeyRecException se)//sobeyexcep会自动打印错误
@@ -589,16 +589,16 @@ namespace IngestDevicePlugin.Controllers.v2
         /// 根据 信号Id 获取是高清还是标清
         /// </summary>
         /// <remarks>原方法 GetParamTypeBySignalID</remarks>
-        /// <param name="signalID">信号Id</param>
+        /// <param name="signalid">信号Id</param>
         /// <returns>0标清,1高清</returns>
-        [HttpGet("paramtype/type/{signalID}")]
+        [HttpGet("paramtype/type/{signalid}")]
         [ApiExplorerSettings(GroupName = "v2")]
-        public async Task<ResponseMessage<int>> ParamTypeBySignalID([FromRoute, BindRequired, DefaultValue(14)]int signalID)
+        public async Task<ResponseMessage<int>> ParamTypeBySignalID([FromRoute, BindRequired, DefaultValue(14)]int signalid)
         {
             ResponseMessage<int> response = new ResponseMessage<int>();
             try
             {
-                response.Ext = await _deviceManage.GetParamTypeBySignalIDAsync(signalID);
+                response.Ext = await _deviceManage.GetParamTypeBySignalIDAsync(signalid);
             } catch(Exception e)
             {
                 if(e is SobeyRecException se)//sobeyexcep会自动打印错误
@@ -623,16 +623,16 @@ namespace IngestDevicePlugin.Controllers.v2
         /// 根据 通道Id 获取相应的节目，有矩阵模式和无矩阵模式的区别
         /// </summary>
         /// <remarks>原方法 GetProgrammeInfosByChannelId</remarks>
-        /// <param name="channelID">通道Id</param>
+        /// <param name="channelid">通道Id</param>
         /// <returns>节目集合</returns>
-        [HttpGet("programmeinfo/{channelID}")]
+        [HttpGet("programmeinfo/{channelid}")]
         [ApiExplorerSettings(GroupName = "v2")]
-        public async Task<ResponseMessage<List<ProgrammeInfo>>> ProgrammeInfos([FromRoute, BindRequired, DefaultValue(14)]int channelID)
+        public async Task<ResponseMessage<List<ProgrammeInfo>>> ProgrammeInfos([FromRoute, BindRequired, DefaultValue(14)]int channelid)
         {
             ResponseMessage<List<ProgrammeInfo>> response = new ResponseMessage<List<ProgrammeInfo>>();
             try
             {
-                response.Ext = await _deviceManage.GetProgrammeInfosByChannelIdAsync(channelID);
+                response.Ext = await _deviceManage.GetProgrammeInfosByChannelIdAsync(channelid);
             } catch(Exception e)
             {
                 if(e is SobeyRecException se)//sobeyexcep会自动打印错误
@@ -846,16 +846,16 @@ namespace IngestDevicePlugin.Controllers.v2
         /// 获取指定信号源和采集设备的对应
         /// </summary>
         /// <remarks>原方法 GetSignalDeviceMapBySignalID</remarks>
-        /// <param name="signalID">信号ID</param>
+        /// <param name="signalid">信号ID</param>
         /// <returns>信号源和设备的Map</returns>
-        [HttpGet("signaldevicemap/{signalID}")]
+        [HttpGet("signaldevicemap/{signalid}")]
         [ApiExplorerSettings(GroupName = "v2")]
-        public async Task<ResponseMessage<SignalDeviceMapResponse>> SignalDeviceMap([FromRoute, BindRequired, DefaultValue(39)]int signalID)
+        public async Task<ResponseMessage<SignalDeviceMapResponse>> SignalDeviceMap([FromRoute, BindRequired, DefaultValue(39)]int signalid)
         {
             ResponseMessage<SignalDeviceMapResponse> response = new ResponseMessage<SignalDeviceMapResponse>();
             try
             {
-                response.Ext = await _deviceManage.GetSignalDeviceMapBySignalID<SignalDeviceMapResponse>(signalID);
+                response.Ext = await _deviceManage.GetSignalDeviceMapBySignalID<SignalDeviceMapResponse>(signalid);
             } catch(Exception e)
             {
                 if(e is SobeyRecException se)//sobeyexcep会自动打印错误
@@ -1025,16 +1025,16 @@ namespace IngestDevicePlugin.Controllers.v2
         /// 获取该信号源的备份信号源ID
         /// </summary>
         /// <remarks>原方法 GetBackupSignalSrcInfo</remarks>
-        /// <param name="signalSrcId">信号源ID</param>
+        /// <param name="signalsrcid">信号源ID</param>
         /// <returns>备份信号源ID</returns>
-        [HttpGet("signalsrc/backupid/{signalSrcId}")]
+        [HttpGet("signalsrc/backupid/{signalsrcid}")]
         [ApiExplorerSettings(GroupName = "v2")]
-        public async Task<ResponseMessage<int>> BackupSignalSrcInfo([FromRoute, BindRequired, DefaultValue(0)]int signalSrcId)
+        public async Task<ResponseMessage<int>> BackupSignalSrcInfo([FromRoute, BindRequired, DefaultValue(0)]int signalsrcid)
         {
             ResponseMessage<int> response = new ResponseMessage<int>();
             try
             {
-                response.Ext = await _deviceManage.GetBackupSignalSrcIdByIdAsync(signalSrcId);
+                response.Ext = await _deviceManage.GetBackupSignalSrcIdByIdAsync(signalsrcid);
             } catch(Exception e)
             {
                 if(e is SobeyRecException se)//sobeyexcep会自动打印错误
@@ -1055,16 +1055,16 @@ namespace IngestDevicePlugin.Controllers.v2
         /// 根据 信号源Id 查询信号源是否是备份信号源
         /// </summary>
         /// <remarks>原方法 GetIsBackupSignalSrcByID</remarks>
-        /// <param name="signalSrcId">信号源ID</param>
+        /// <param name="signalsrcid">信号源ID</param>
         /// <returns>是否是备份信号源</returns>
-        [HttpGet("signalsrc/isbackup/{signalSrcId}")]
+        [HttpGet("signalsrc/isbackup/{signalsrcid}")]
         [ApiExplorerSettings(GroupName = "v2")]
-        public async Task<ResponseMessage<bool>> IsBackupSignalSrc([FromRoute, BindRequired, DefaultValue(39)]int signalSrcId)
+        public async Task<ResponseMessage<bool>> IsBackupSignalSrc([FromRoute, BindRequired, DefaultValue(39)]int signalsrcid)
         {
             ResponseMessage<bool> response = new ResponseMessage<bool>();
             try
             {
-                response.Ext = await _deviceManage.IsBackupSignalSrcByIdAsync(signalSrcId);
+                response.Ext = await _deviceManage.IsBackupSignalSrcByIdAsync(signalsrcid);
             } catch(Exception e)
             {
                 if(e is SobeyRecException se)//sobeyexcep会自动打印错误
@@ -1089,19 +1089,19 @@ namespace IngestDevicePlugin.Controllers.v2
         /// <remarks>
         ///
         /// </remarks>
-        /// <param name="programmeId">信号源id</param>
+        /// <param name="programmeid">信号源id</param>
         /// <param name="status">int 0是不选返回所有通道信息，1是选通道和msv连接正常的通道信息</param>
         /// <returns>当前信号源匹配通道，是list</returns>
-        [HttpGet("programme/{programmeId}")]
+        [HttpGet("programme/{programmeid}")]
         //device有点特殊，做了监听端口的所以不能全类检验
         [ApiExplorerSettings(GroupName = "v2")]
-        public async Task<ResponseMessage<List<CaptureChannelInfoResponse>>> ChannelsByProgrammeId([FromRoute, BindRequired, DefaultValue(39)]int programmeId,
+        public async Task<ResponseMessage<List<CaptureChannelInfoResponse>>> ChannelsByProgrammeId([FromRoute, BindRequired, DefaultValue(39)]int programmeid,
                                                                                                    [FromQuery, BindRequired, DefaultValue("0")]int status)
         {
             ResponseMessage<List<CaptureChannelInfoResponse>> response = new ResponseMessage<List<CaptureChannelInfoResponse>>();
             try
             {
-                response.Ext = await _deviceManage.GetChannelsByProgrammeIdAsync<CaptureChannelInfoResponse>(programmeId,
+                response.Ext = await _deviceManage.GetChannelsByProgrammeIdAsync<CaptureChannelInfoResponse>(programmeid,
                                                                                                              status);
             } catch(Exception e)
             {

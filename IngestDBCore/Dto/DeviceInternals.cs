@@ -4,7 +4,7 @@ using System.Text;
 
 namespace IngestDBCore
 {
-    
+
     public class DeviceInternals
     {
         public enum FunctionType
@@ -19,7 +19,8 @@ namespace IngestDBCore
             CaptureTemplateIDBySignal,
             AllChannelState,
             ChannelExtendData,
-            AllCaptureChannels
+            AllCaptureChannels,
+            AllRouterInPort
             /////////////////////////////set信息//
         }
 
@@ -200,6 +201,42 @@ namespace IngestDBCore
 
         /// <summary>通道索引</summary>
         public int ChannelIndex { get; set; }
+    }
+
+    /// <summary> 信号来源 </summary>
+    public enum emSignalSource
+    {
+        /// <summary>卫星</summary>
+        emSatlitlleSource = 0,
+
+        /// <summary>总控矩阵</summary>
+        emCtrlMatrixSource = 1,
+
+        /// <summary>视频服务器</summary>
+        emVideoServerSource = 2,
+
+        /// <summary>VTR</summary>
+        emVtrSource = 3,
+
+        /// <summary>MSV</summary>
+        emMSVSource = 4,
+
+        /// <summary>蓝光</summary>
+        emXDCAM = 5,
+
+        /// <summary>IPTS流</summary>
+        emIPTS = 6,
+
+        /// <summary>流媒体</summary>
+        emStreamMedia = 7
+    }
+
+    public class RouterInInterface
+    {
+        public int RCDeviceID { get; set; }
+        public int RCInportIdx { get; set; }
+        public int SignalSrcID { get; set; }
+        public emSignalSource SignalSource { get; set; } = emSignalSource.emSatlitlleSource;//信号来源， 0:卫星 1:总控矩阵 2 视频服务器 3: VTR 4: MSV  5 蓝光  其他以后再扩展
     }
 
 }

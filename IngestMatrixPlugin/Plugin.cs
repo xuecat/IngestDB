@@ -23,7 +23,6 @@ namespace IngestMatrixPlugin
         {
             context.Services.AddDbContext<IngestMatrixDBContext>(options => options.UseMySql(context.ConnectionString), ServiceLifetime.Scoped);
             context.Services.AddScoped<IMatrixStore, MatrixStore>();
-            context.Services.AddScoped<RestClient>();
             context.Services.AddScoped<MatrixManager>();
 
             return base.Init(context);

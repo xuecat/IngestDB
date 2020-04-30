@@ -19,6 +19,7 @@ using TaskInfoRequest = IngestTaskPlugin.Dto.TaskInfoResponse;
 using TaskContentRequest = IngestTaskPlugin.Dto.TaskContentResponse;
 using TaskInfoRescheduledRequest = IngestTaskPlugin.Dto.Response.TaskInfoRescheduledResponse;
 using CooperantType = IngestTaskPlugin.Dto.CooperantType;
+using IngestTaskPlugin.Extend;
 
 namespace IngestTaskPlugin.Managers
 {
@@ -32,7 +33,7 @@ namespace IngestTaskPlugin.Managers
             _deviceInterface = device;
             _globalInterface = global;
         }
-        private readonly IIngestGlobalInterface _globalInterface;
+        private IIngestGlobalInterface _globalInterface { get; }
         private IIngestDeviceInterface _deviceInterface { get; }
         private RestClient _restClient { get; }
         protected ITaskStore Store { get; }
@@ -2501,7 +2502,7 @@ namespace IngestTaskPlugin.Managers
         /// <param name="beginTime"></param>
         /// <param name="endTime"></param>
         /// <returns></returns>
-        private List<TimePeriod> GetFreeTimePeriodsByTieup(int id, List<TimePeriod> tieupTimePeriods, DateTime beginTime, DateTime endTime)
+        internal List<TimePeriod> GetFreeTimePeriodsByTieup(int id, List<TimePeriod> tieupTimePeriods, DateTime beginTime, DateTime endTime)
         {
             List<TimePeriod> freeTimePeriods = new List<TimePeriod>();
             if (tieupTimePeriods == null || tieupTimePeriods.Count == 0)

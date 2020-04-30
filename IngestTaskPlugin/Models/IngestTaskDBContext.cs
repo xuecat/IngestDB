@@ -1,7 +1,5 @@
-﻿using Microsoft.EntityFrameworkCore;
-using System;
-using System.Collections.Generic;
-using System.Text;
+﻿using System;
+using Microsoft.EntityFrameworkCore;
 
 namespace IngestTaskPlugin.Models
 {
@@ -11,6 +9,7 @@ namespace IngestTaskPlugin.Models
             : base(options)
         {
         }
+
         public virtual DbSet<DbpImportTask> DbpImportTask { get; set; }
         public virtual DbSet<DbpTask> DbpTask { get; set; }
         public virtual DbSet<DbpTaskBackup> DbpTaskBackup { get; set; }
@@ -31,9 +30,192 @@ namespace IngestTaskPlugin.Models
         public virtual DbSet<VtrRecordtask> VtrRecordtask { get; set; }
         public virtual DbSet<VtrUploadtask> VtrUploadtask { get; set; }
         public virtual DbSet<DbpPolicytask> DbpPolicytask { get; set; }
+        public DbSet<VtrDetailinfo> VtrDetailinfo { get; set; }
+        public DbSet<VtrTapelist> VtrTapelist { get; set; }
+        public DbSet<VtrTapeVtrMap> VtrTapeVtrMap { get; set; }
+        public DbSet<VtrTypeinfo> VtrTypeinfo { get; set; }
+        public DbSet<DbpPolicyuser> DbpPolicyuser { get; set; }
+        public DbSet<DbpMetadatapolicy> DbpMetadatapolicy { get; set; }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
+            modelBuilder.Entity<DbpMetadatapolicy>(entity =>
+            {
+                entity.HasKey(e => e.Policyid);
+
+                entity.ToTable("dbp_metadatapolicy");
+
+                entity.Property(e => e.Policyid)
+                    .HasColumnName("POLICYID")
+                    .HasColumnType("int(11)");
+
+                entity.Property(e => e.Archivetype)
+                    .IsRequired()
+                    .HasColumnName("ARCHIVETYPE")
+                    .HasColumnType("varchar(256)");
+
+                entity.Property(e => e.Defaultpolicy)
+                    .HasColumnName("DEFAULTPOLICY")
+                    .HasColumnType("int(11)")
+                    .HasDefaultValueSql("'0'");
+
+                entity.Property(e => e.Policydesc)
+                    .HasColumnName("POLICYDESC")
+                    .HasColumnType("varchar(4000)")
+                    .HasDefaultValueSql("''");
+
+                entity.Property(e => e.Policyname)
+                    .HasColumnName("POLICYNAME")
+                    .HasColumnType("varchar(128)")
+                    .HasDefaultValueSql("''");
+            });
+
+            modelBuilder.Entity<DbpPolicyuser>(entity =>
+            {
+                entity.HasKey(e => new { e.Policyid, e.Usercode });
+
+                entity.ToTable("dbp_policyuser");
+
+                entity.Property(e => e.Policyid)
+                    .HasColumnName("POLICYID")
+                    .HasColumnType("int(11)");
+
+                entity.Property(e => e.Usercode)
+                    .HasColumnName("USERCODE")
+                    .HasColumnType("varchar(32)")
+                    .HasDefaultValueSql("''");
+            });
+
+            modelBuilder.Entity<VtrDetailinfo>(entity =>
+            {
+                entity.HasKey(e => e.Vtrid);
+
+                entity.ToTable("vtr_detailinfo");
+
+                entity.Property(e => e.Vtrid)
+                    .HasColumnName("VTRID")
+                    .HasColumnType("int(11)");
+
+                entity.Property(e => e.Backuptype)
+                    .HasColumnName("BACKUPTYPE")
+                    .HasColumnType("int(11)")
+                    .HasDefaultValueSql("'0'");
+
+                entity.Property(e => e.Baudrate)
+                    .HasColumnName("BAUDRATE")
+                    .HasColumnType("int(11)")
+                    .HasDefaultValueSql("'38400'");
+
+                entity.Property(e => e.Framerate)
+                    .HasColumnName("FRAMERATE")
+                    .HasColumnType("float(10,3)")
+                    .HasDefaultValueSql("'25.000'");
+
+                entity.Property(e => e.Looprecord)
+                    .HasColumnName("LOOPRECORD")
+                    .HasColumnType("int(11)")
+                    .HasDefaultValueSql("'0'");
+
+                entity.Property(e => e.Prerolframenum)
+                    .HasColumnName("PREROLFRAMENUM")
+                    .HasColumnType("int(11)")
+                    .HasDefaultValueSql("'0'");
+
+                entity.Property(e => e.Vtrcomport)
+                    .HasColumnName("VTRCOMPORT")
+                    .HasColumnType("int(11)");
+
+                entity.Property(e => e.Vtrddescribe)
+                    .HasColumnName("VTRDDESCRIBE")
+                    .HasColumnType("varchar(128)")
+                    .HasDefaultValueSql("''");
+
+                entity.Property(e => e.Vtrname)
+                    .IsRequired()
+                    .HasColumnName("VTRNAME")
+                    .HasColumnType("varchar(128)");
+
+                entity.Property(e => e.Vtrserverip)
+                    .HasColumnName("VTRSERVERIP")
+                    .HasColumnType("varchar(32)")
+                    .HasDefaultValueSql("''");
+
+                entity.Property(e => e.Vtrsignaltype)
+                    .HasColumnName("VTRSIGNALTYPE")
+                    .HasColumnType("int(11)")
+                    .HasDefaultValueSql("'0'");
+
+                entity.Property(e => e.Vtrstate)
+                    .HasColumnName("VTRSTATE")
+                    .HasColumnType("int(11)")
+                    .HasDefaultValueSql("'0'");
+
+                entity.Property(e => e.Vtrsubtype)
+                    .HasColumnName("VTRSUBTYPE")
+                    .HasColumnType("int(11)");
+
+                entity.Property(e => e.Vtrtypeid)
+                    .HasColumnName("VTRTYPEID")
+                    .HasColumnType("int(11)");
+
+                entity.Property(e => e.Workmode)
+                    .HasColumnName("WORKMODE")
+                    .HasColumnType("int(11)")
+                    .HasDefaultValueSql("'0'");
+            });
+
+            modelBuilder.Entity<VtrTapelist>(entity =>
+            {
+                entity.HasKey(e => e.Tapeid);
+
+                entity.ToTable("vtr_tapelist");
+
+                entity.Property(e => e.Tapeid).HasColumnName("TAPEID").HasColumnType("int(11)");
+
+                entity.Property(e => e.Tapedesc).HasColumnName("TAPEDESC").HasColumnType("varchar(512)");
+
+                entity.Property(e => e.Tapename).HasColumnName("TAPENAME").HasColumnType("varchar(512)");
+            });
+
+            modelBuilder.Entity<VtrTapeVtrMap>(entity =>
+            {
+                entity.HasKey(e => e.Vtrid);
+
+                entity.ToTable("vtr_tape_vtr_map");
+
+                entity.Property(e => e.Vtrid)
+                    .HasColumnName("VTRID")
+                    .HasColumnType("int(11)");
+
+                entity.Property(e => e.Tapeid)
+                    .HasColumnName("TAPEID")
+                    .HasColumnType("int(11)");
+            });
+
+            modelBuilder.Entity<VtrTypeinfo>(entity =>
+            {
+                entity.HasKey(e => new { e.Vtrtypeid, e.Vtrsubtype });
+
+                entity.ToTable("vtr_typeinfo");
+
+                entity.Property(e => e.Vtrtypeid)
+                    .HasColumnName("VTRTYPEID")
+                    .HasColumnType("int(11)");
+
+                entity.Property(e => e.Vtrsubtype)
+                    .HasColumnName("VTRSUBTYPE")
+                    .HasColumnType("int(11)");
+
+                entity.Property(e => e.Vtrtypedescribe)
+                    .HasColumnName("VTRTYPEDESCRIBE")
+                    .HasColumnType("varchar(512)")
+                    .HasDefaultValueSql("''");
+
+                entity.Property(e => e.Vtrtypename)
+                    .IsRequired()
+                    .HasColumnName("VTRTYPENAME")
+                    .HasColumnType("varchar(128)");
+            });
             modelBuilder.Entity<DbpImportTask>(entity =>
             {
                 entity.ToTable("dbp_import_task");
@@ -994,7 +1176,6 @@ namespace IngestTaskPlugin.Models
                     .HasColumnName("TASKID")
                     .HasColumnType("int(11)");
             });
-
         }
 
         [DbFunction]

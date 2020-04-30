@@ -28,28 +28,14 @@ namespace IngestTaskInterfacePlugin
             {
                 case FunctionType.WillBeginAndCapturingTasks:
                     {
-                        var f = await _controller.GetWillBeginAndCapturingTasks();
-                        var ret = new ResponseMessage<List<TaskContentInterface>>()
-                        {
-                            Code = f.Code,
-                            Msg = f.Msg,
-                            Ext = _mapper.Map<List<TaskContentInterface>>(f.Ext),
-                        };
-                        return ret;
+                        return _mapper.Map<ResponseMessage<TaskContentInterface>>(await _controller.GetWillBeginAndCapturingTasks());
                     }
                 case FunctionType.CurrentTasks:
                     {
-                        var f = await _controller.GetCurrentTasks();
-                        var ret = new ResponseMessage<List<TaskContentInterface>>()
-                        {
-                            Code = f.Code,
-                            Msg = f.Msg,
-                            Ext = _mapper.Map<List<TaskContentInterface>>(f.Ext),
-                        };
-                        return ret;
+                        return _mapper.Map<ResponseMessage<TaskContentInterface>>(await _controller.GetCurrentTasks());
                     }
                 default:
-                    break;
+                        break;
             }
             
             return null;

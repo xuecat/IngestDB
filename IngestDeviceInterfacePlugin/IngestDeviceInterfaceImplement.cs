@@ -78,10 +78,18 @@ namespace IngestTaskInterfacePlugin
                             await _controller.AllCaptureChannels()
                             );
                     } break;
-
+                case FunctionType.AllRouterInPort:
+                    return _mapper.Map<ResponseMessage<List<RouterInInterface>>>(
+                            await _controller.AllRouterInPortInfos()
+                            );
                 default:
-                    break;
-            }
+                        break;
+                }
+                //var response = await scope.ServiceProvider.GetRequiredService<GlobalController>()
+                //    .SubmitGlobalCallback();
+
+                //return Mapper.Map<ResponseMessage>(response);
+            
             //var response = await scope.ServiceProvider.GetRequiredService<GlobalController>()
             //    .SubmitGlobalCallback();
 

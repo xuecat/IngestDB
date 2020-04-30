@@ -362,6 +362,16 @@ namespace IngestTaskPlugin.Dto
         public int nSGroupColor = 0;
     }
 
+    //DBP_METADATAPOLICY
+    public class MetaDataPolicy
+    {
+        public int nID = 0;
+        public string strName = "";
+        public string strDesc = "";
+        public int nDefaultPolicy = 0;
+        public string strArchiveType = "";
+    }
+
     public class TaskFullInfo
     {
         public TaskContent taskContent;
@@ -715,6 +725,8 @@ namespace IngestTaskPlugin.Dto
     }
     public class TaskOldResponseMessage<T> : TaskOldResponseMessage
     {
+        public TaskOldResponseMessage() : base()
+        { }
         public T extention;
     }
     public class AddReScheduleTaskSvr_in

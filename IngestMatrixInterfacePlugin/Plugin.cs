@@ -23,7 +23,6 @@ namespace IngestMatrixInterfacePlugin
         {
 
             context.Services.AddScoped<IIngestMatrixInterface, IngestMatrixInterfaceImplement>();
-            context.Services.AddScoped<IngestMatrixPlugin.Controllers.v1.MatrixController>();
             context.Services.AddScoped<IngestMatrixPlugin.Controllers.v2.MatrixController>();
             return base.Init(context);
         }

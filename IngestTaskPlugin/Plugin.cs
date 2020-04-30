@@ -2,6 +2,7 @@
 using IngestDBCore.Plugin;
 using IngestTaskPlugin.Managers;
 using IngestTaskPlugin.Stores;
+using IngestTaskPlugin.Stores.VTR;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
 using System;
@@ -42,6 +43,8 @@ namespace IngestTaskPlugin
             context.Services.AddDbContext<IngestTaskPlugin.Models.IngestTaskDBContext>(options => options.UseMySql(context.ConnectionString), ServiceLifetime.Scoped);
             context.Services.AddScoped<ITaskStore, TaskInfoStore>();
             context.Services.AddScoped<TaskManager>();
+            context.Services.AddScoped<IVtrStore, VtrStore>();
+            context.Services.AddScoped<VtrManager>();
 
             return base.Init(context);
         }

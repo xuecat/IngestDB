@@ -12,8 +12,9 @@ namespace IngestTaskInterfacePlugin
     {
         public IngestTaskInterfaceMappingProfile()
         {
-            CreateMap<TaskContent, TaskContentInterface>();
+            //CreateMap<TaskContent, TaskContentInterface>();
             CreateMap<TaskContent, TaskContentInterface>().ReverseMap();
+            CreateMap<ResponseMessage<List<TaskContent>>, ResponseMessage<List<TaskContentInterface>>>().ReverseMap();
         }
     }
 }

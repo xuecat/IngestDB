@@ -37,35 +37,35 @@ namespace IngestGlobalPlugin.Controllers.v2
         /// 例子:
         /// Post api/v2/global/objectinfo/lock
         /// </remarks>
-        /// <param name="objectParamIn">锁对象参数</param>
+        /// <param name="objectparamin">锁对象参数</param>
         /// <returns>锁对象结果</returns>
         [HttpPost("objectinfo/lock")]
         [ApiExplorerSettings(GroupName = "v2")]
-        public async Task<ResponseMessage> PostLockObject([FromBody] DtoLockObjectParamIn objectParamIn)
+        public async Task<ResponseMessage> PostLockObject([FromBody] DtoLockObjectParamIn objectparamin)
         {
             ResponseMessage Response = new ResponseMessage();
 
             try
             {
-                if (objectParamIn.ObjectID < 0)
+                if (objectparamin.ObjectID < 0)
                 {
                     Logger.Error("PostLockObject : ObjectID < 0 ,参数传递错误");
-                    SobeyRecException.ThrowSelfNoParam(objectParamIn.ObjectID.ToString(), GlobalDictionary.GLOBALDICT_CODE_LOCK_OBJECTID_WRONG, Logger, null);
+                    SobeyRecException.ThrowSelfNoParam(objectparamin.ObjectID.ToString(), GlobalDictionary.GLOBALDICT_CODE_LOCK_OBJECTID_WRONG, Logger, null);
                 }
-                if (objectParamIn.ObjectTypeID < OTID.OTID_VTR || objectParamIn.ObjectTypeID > OTID.OTID_OTHER)
+                if (objectparamin.ObjectTypeID < OTID.OTID_VTR || objectparamin.ObjectTypeID > OTID.OTID_OTHER)
                 {
-                    SobeyRecException.ThrowSelfNoParam(objectParamIn.ObjectTypeID.ToString(), GlobalDictionary.GLOBALDICT_CODE_LOCK_OBJECT_TPYEID_IS_NOT_EXIST, Logger, null);
+                    SobeyRecException.ThrowSelfNoParam(objectparamin.ObjectTypeID.ToString(), GlobalDictionary.GLOBALDICT_CODE_LOCK_OBJECT_TPYEID_IS_NOT_EXIST, Logger, null);
                 }
-                if (string.IsNullOrEmpty(objectParamIn.UserName))
+                if (string.IsNullOrEmpty(objectparamin.UserName))
                 {
-                    objectParamIn.UserName = "NullUserName";
+                    objectparamin.UserName = "NullUserName";
                 }
-                if (objectParamIn.TimeOut < 0)
+                if (objectparamin.TimeOut < 0)
                 {
-                    SobeyRecException.ThrowSelfNoParam(objectParamIn.TimeOut.ToString(), GlobalDictionary.GLOBALDICT_CODE_LOCK_OBJECT_TIMEOUT_IS_WRONG, Logger, null);
+                    SobeyRecException.ThrowSelfNoParam(objectparamin.TimeOut.ToString(), GlobalDictionary.GLOBALDICT_CODE_LOCK_OBJECT_TIMEOUT_IS_WRONG, Logger, null);
                 }
 
-                bool ret = await _GlobalManager.SetLockObjectAsync(objectParamIn.ObjectID, objectParamIn.ObjectTypeID, objectParamIn.UserName, objectParamIn.TimeOut);
+                bool ret = await _GlobalManager.SetLockObjectAsync(objectparamin.ObjectID, objectparamin.ObjectTypeID, objectparamin.UserName, objectparamin.TimeOut);
 
                 Response.Code = ret ? ResponseCodeDefines.SuccessCode : ResponseCodeDefines.PartialFailure;
             }
@@ -96,31 +96,31 @@ namespace IngestGlobalPlugin.Controllers.v2
         /// 例子:
         /// Post api/v1/global/objectinfo/unlock
         /// </remarks>
-        /// <param name="objectParamIn">锁对象参数</param>
+        /// <param name="objectparamin">锁对象参数</param>
         /// <returns>锁对象结果</returns>
         [HttpPost("objectinfo/unlock")]
         [ApiExplorerSettings(GroupName = "v2")]
-        public async Task<ResponseMessage> PostUnlockObject([FromBody] DtoLockObjectParamIn objectParamIn)
+        public async Task<ResponseMessage> PostUnlockObject([FromBody] DtoLockObjectParamIn objectparamin)
         {
 
             ResponseMessage Response = new ResponseMessage();
 
             try
             {
-                if (objectParamIn.ObjectID < -1)
+                if (objectparamin.ObjectID < -1)
                 {
-                    SobeyRecException.ThrowSelfNoParam(objectParamIn.ObjectID.ToString(),  GlobalDictionary.GLOBALDICT_CODE_UNLOCK_OBJECTID_IS_WRONG, Logger, null);
+                    SobeyRecException.ThrowSelfNoParam(objectparamin.ObjectID.ToString(),  GlobalDictionary.GLOBALDICT_CODE_UNLOCK_OBJECTID_IS_WRONG, Logger, null);
                 }
-                if (objectParamIn.ObjectTypeID < OTID.OTID_ALL || objectParamIn.ObjectTypeID > OTID.OTID_OTHER)
+                if (objectparamin.ObjectTypeID < OTID.OTID_ALL || objectparamin.ObjectTypeID > OTID.OTID_OTHER)
                 {
-                    SobeyRecException.ThrowSelfNoParam(objectParamIn.ObjectID.ToString(), GlobalDictionary.GLOBALDICT_CODE_UNLOCK_OBJECT_TYPEID_IS_NOT_EXIST, Logger, null);
+                    SobeyRecException.ThrowSelfNoParam(objectparamin.ObjectID.ToString(), GlobalDictionary.GLOBALDICT_CODE_UNLOCK_OBJECT_TYPEID_IS_NOT_EXIST, Logger, null);
                 }
-                if (objectParamIn.UserName == "" || objectParamIn.UserName == String.Empty)
+                if (objectparamin.UserName == "" || objectparamin.UserName == String.Empty)
                 {
-                    objectParamIn.UserName = "NullUserName";
+                    objectparamin.UserName = "NullUserName";
                 }
 
-                bool bRet = await _GlobalManager.SetUnlockObjectAsync(objectParamIn.ObjectID, objectParamIn.ObjectTypeID, objectParamIn.UserName);
+                bool bRet = await _GlobalManager.SetUnlockObjectAsync(objectparamin.ObjectID, objectparamin.ObjectTypeID, objectparamin.UserName);
 
                 Response.Code = bRet ? ResponseCodeDefines.SuccessCode : ResponseCodeDefines.PartialFailure;
             }
@@ -408,8 +408,9 @@ namespace IngestGlobalPlugin.Controllers.v2
         }
 
         #endregion
-
-     
+        
+        
+        
 
     }
 }

@@ -14,60 +14,63 @@ namespace IngestGlobalInterfacePlugin
 {
     public class IngestGlobalInterfaceImplement : IIngestGlobalInterface
     {
-        public IngestGlobalInterfaceImplement(IMapper mapper)
+        public IngestGlobalInterfaceImplement(IMapper mapper, UserController user, MaterialController mate, GlobalController global)
         {
             _mapper = mapper ?? throw new ArgumentNullException(nameof(mapper));
+            _userController = user;
+            _materialController = mate;
+            _globalController = global;
         }
+        private UserController _userController { get; }
+        private MaterialController _materialController { get; }
+        private GlobalController _globalController { get; }
         protected IMapper _mapper { get; }
         public async Task<ResponseMessage> GetGlobalCallBack(GlobalInternals examineResponse)
         {
-            using (var scope = ApplicationContext.Current.ServiceProvider.GetRequiredService<IServiceScopeFactory>().CreateScope())
+            
+            
+            //var reqService = scope.ServiceProvider.GetRequiredService<GlobalController>();
+
+            switch (examineResponse.funtype)
             {
-                //var reqService = scope.ServiceProvider.GetRequiredService<GlobalController>();
-
-                switch (examineResponse.funtype)
-                {
-                    case FunctionType.UserParamTemplateByID:
-                        return await scope.ServiceProvider.GetRequiredService<UserController>().GetParamTemplateStringByID(examineResponse.TemplateID);
-                    case FunctionType.MaterialInfo:
-                        {
-                            //MaterialInfoInterface
-                            return _mapper.Map<ResponseMessage<List<MaterialInfoInterface>>>(
-                                await scope.ServiceProvider.GetRequiredService<MaterialController>().GetMaterailInfo(examineResponse.TaskID)
-                                );
-                        }
-                        break;
-                    default:
-                        break;
-                }
-                //var response = await scope.ServiceProvider.GetRequiredService<GlobalController>()
-                //    .SubmitGlobalCallback();
-
-                //return Mapper.Map<ResponseMessage>(response);
+                case FunctionType.UserParamTemplateByID:
+                    return await _userController.GetParamTemplateStringByID(examineResponse.TemplateID);
+                case FunctionType.MaterialInfo:
+                    {
+                        //MaterialInfoInterface
+                        return _mapper.Map<ResponseMessage<List<MaterialInfoInterface>>>(
+                            await _materialController.GetMaterailInfo(examineResponse.TaskID)
+                            );
+                    }
+                    break;
+                default:
+                    break;
             }
+            //var response = await scope.ServiceProvider.GetRequiredService<GlobalController>()
+            //    .SubmitGlobalCallback();
+
+            //return Mapper.Map<ResponseMessage>(response);
+            
 
             return null;
         }
 
         public async Task<ResponseMessage> SubmitGlobalCallBack(GlobalInternals examineResponse)
         {
-            using (var scope = ApplicationContext.Current.ServiceProvider.GetRequiredService<IServiceScopeFactory>().CreateScope())
+            
+            switch (examineResponse.funtype)
             {
-                var reqService = scope.ServiceProvider.GetRequiredService<GlobalController>();
-
-                switch (examineResponse.funtype)
-                {
-                    case FunctionType.SetGlobalState:
-                        return await reqService.SetGlobalState(examineResponse.State);
+                case FunctionType.SetGlobalState:
+                    return await _globalController.SetGlobalState(examineResponse.State);
                     
-                    default:
-                        break;
-                }
-                //var response = await scope.ServiceProvider.GetRequiredService<GlobalController>()
-                //    .SubmitGlobalCallback();
-
-                //return Mapper.Map<ResponseMessage>(response);
+                default:
+                    break;
             }
+            //var response = await scope.ServiceProvider.GetRequiredService<GlobalController>()
+            //    .SubmitGlobalCallback();
+
+            //return Mapper.Map<ResponseMessage>(response);
+            
 
             return null;
         }
