@@ -7,6 +7,7 @@ using Microsoft.AspNetCore.Mvc;
 using Sobey.Core.Log;
 using System;
 using System.Threading.Tasks;
+using emSignalSource = IngestDevicePlugin.Dto.Enum.emSignalSource;
 
 namespace IngestDevicePlugin.Controllers.v1
 {

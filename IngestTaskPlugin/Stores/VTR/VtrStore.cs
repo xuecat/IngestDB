@@ -130,6 +130,30 @@
         /// The GetTapelist.
         /// </summary>
         /// <typeparam name="TResult">.</typeparam>
+        /// <param name="query">The query<see cref="Func{IQueryable{DbpTaskMetadataBackup}, IQueryable{TResult}}"/>.</param>
+        /// <param name="notrack">The notrack<see cref="bool"/>.</param>
+        /// <returns>The <see cref="Task{List{TResult}}"/>.</returns>
+        public async Task<List<TResult>> GetTaskMetadataBackup<TResult>(Func<IQueryable<DbpTaskMetadataBackup>, IQueryable<TResult>> query, bool notrack = false)
+        {
+            return await this.QueryListAsync(query, notrack);
+        }
+
+        /// <summary>
+        /// The GetTapelist.
+        /// </summary>
+        /// <typeparam name="TResult">.</typeparam>
+        /// <param name="query">The query<see cref="Func{IQueryable{DbpTaskMetadataBackup}, Task{TResult}}"/>.</param>
+        /// <param name="notrack">The notrack<see cref="bool"/>.</param>
+        /// <returns>The <see cref="Task{TResult}"/>.</returns>
+        public async Task<TResult> GetTaskMetadataBackup<TResult>(Func<IQueryable<DbpTaskMetadataBackup>, Task<TResult>> query, bool notrack = false)
+        {
+            return await this.QueryModelAsync(query, notrack);
+        }
+
+        /// <summary>
+        /// The GetTapelist.
+        /// </summary>
+        /// <typeparam name="TResult">.</typeparam>
         /// <param name="query">The query<see cref="Func{IQueryable{VtrTapelist}, IQueryable{TResult}}"/>.</param>
         /// <param name="notrack">The notrack<see cref="bool"/>.</param>
         /// <returns>The <see cref="Task{List{TResult}}"/>.</returns>

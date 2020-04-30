@@ -215,6 +215,17 @@ namespace IngestTaskPlugin
                .ForMember(a => a.VtrTaskType, (map) => map.MapFrom(b => b.emVtrTaskType)).ReverseMap();
             #endregion
 
+            CreateMap<VTRUploadTaskRequest, SetVTRUploadTask_in>()
+               .ForMember(a => a.vtrTask, (map) => map.MapFrom(b => b.VtrTask))
+               .ForMember(a => a.metadatas, (map) => map.MapFrom(b => b.Metadatas))
+               .ForMember(a => a.lMask, (map) => map.MapFrom(b => b.Mask))
+               .ForMember(a => a.uploadTaskMask, (map) => map.MapFrom(b => b.UploadTaskMask));
+
+            CreateMap<VTRUploadMetadataPair, VTR_UPLOAD_MetadataPair>()
+               .ForMember(a => a.nTaskID, (map) => map.MapFrom(b => b.TaskId))
+               .ForMember(a => a.strMetadata, (map) => map.MapFrom(b => b.Metadata))
+               .ForMember(a => a.emType, (map) => map.MapFrom(b => b.Type));
+
             CreateMap<VTRUPLOADMetadataPairRequest, VTR_UPLOAD_MetadataPair>()
                .ForMember(a => a.nTaskID, (map) => map.MapFrom(b => b.taskid))
                .ForMember(a => a.strMetadata, (map) => map.MapFrom(b => b.metadata))
