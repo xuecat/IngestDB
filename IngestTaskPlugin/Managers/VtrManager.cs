@@ -742,15 +742,21 @@
         }
 
 
-        #region vtr task update
+        //#region vtr task update
+        //public async Task<TResult> SetVTRUploadTask<TResult, TRequest>(TRequest request)
+        //{
+        //    SetVTRUploadTask_in reque = Mapper.Map<SetVTRUploadTask_in>(request);
+        //    VTRUploadTaskContent vtrTask = reque.vtrTask;
+        //    List<VTR_UPLOAD_MetadataPair> metadatas = reque.metadatas;
+        //    long lMask = reque.lMask;
+        //}
+        //public async Task<TResult> SetVTRUploadTask<TResult,TRequest>(TRequest request)
+        //{
+        //    SetVTRUploadTask_in reque = Mapper.Map<SetVTRUploadTask_in>(request);
 
-        public async Task<TResult> SetVTRUploadTask<TResult,TRequest>(TRequest request)
-        {
-            SetVTRUploadTask_in reque = Mapper.Map<SetVTRUploadTask_in>(request);
-
-            //VTRUploadTaskContent vtrTask = reque.vtrTask;
-            //List<VTR_UPLOAD_MetadataPair> metadatas = reque.metadatas;
-            //long lMask = reque.lMask;
+        //    //VTRUploadTaskContent vtrTask = reque.vtrTask;
+        //    //List<VTR_UPLOAD_MetadataPair> metadatas = reque.metadatas;
+        //    //long lMask = reque.lMask;
 
         #region vtr task update
         public async Task<TResult>
@@ -2343,7 +2349,7 @@
 
                 if (vtrTask.emTaskState == VTRUPLOADTASKSTATE.VTR_UPLOAD_COMMIT)
                 {
-                    await AddCommitVTRBUTasksEx(taskList, false, metadatas, true);
+                    await AddCommitVTRBUTasksExAsync(taskList, false, metadatas, true, new List<int>());
                 }
             }
             catch (System.Exception ex)
@@ -2407,7 +2413,7 @@
             }
 
             //开始往表里加任务
-            await SetVBUT2DataSet(tempSaveTasks, metadatas, true);
+            await SetVBUT2DataSetAsync(tempSaveTasks, metadatas, true, new List<int>());
             return true;
         }
     }

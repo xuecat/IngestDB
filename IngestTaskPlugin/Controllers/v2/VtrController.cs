@@ -682,88 +682,88 @@
             return response;
         }
 
-        /// <summary>
-        /// 修改一个VTR上载任务
-        /// </summary>
-        /// 通知未写
-        /// <param name="request">见定义<see cref="VTRUploadTaskRequest"/>.</param>
-        /// <returns>The 是否修改成功<see cref="Task{ResponseMessage{VTRUploadTaskContentResponse}}"/>.</returns>
-        [HttpPost("vtruploadtask")]
-        public async Task<ResponseMessage<VTRUploadTaskContentResponse>> SetVTRUploadTask([FromBody, BindRequired] VTRUploadTaskRequest request)
-        {
-            ResponseMessage<VTRUploadTaskContentResponse> response = new ResponseMessage<VTRUploadTaskContentResponse>();
-            if (request.VtrTask.TaskId <= 0)
-            {
-                response.Msg = "TaskId Invalid.";
-                response.Code = "0";
-                return response;
-            }
-            try
-            {
-                response.Ext = await _VtrManage.SetVTRUploadTask<VTRUploadTaskContentResponse, VTRUploadTaskRequest>(request);
+        ///// <summary>
+        ///// 修改一个VTR上载任务
+        ///// </summary>
+        ///// 通知未写
+        ///// <param name="request">见定义<see cref="VTRUploadTaskRequest"/>.</param>
+        ///// <returns>The 是否修改成功<see cref="Task{ResponseMessage{VTRUploadTaskContentResponse}}"/>.</returns>
+        //[HttpPost("vtruploadtask")]
+        //public async Task<ResponseMessage<VTRUploadTaskContentResponse>> SetVTRUploadTask([FromBody, BindRequired] VTRUploadTaskRequest request)
+        //{
+        //    ResponseMessage<VTRUploadTaskContentResponse> response = new ResponseMessage<VTRUploadTaskContentResponse>();
+        //    if (request.VtrTask.TaskId <= 0)
+        //    {
+        //        response.Msg = "TaskId Invalid.";
+        //        response.Code = "0";
+        //        return response;
+        //    }
+        //    try
+        //    {
+        //        response.Ext = await _VtrManage.SetVTRUploadTask<VTRUploadTaskContentResponse, VTRUploadTaskRequest>(request);
 
-                var _globalinterface = ApplicationContext.Current.ServiceProvider.GetRequiredService<IIngestGlobalInterface>();
-                if (_globalinterface != null)
-                {
-                    GlobalInternals re = new GlobalInternals();
-                    re.funtype = IngestDBCore.GlobalInternals.FunctionType.SetGlobalState;
-                    re.State = ClientOperLabelName.VTR_UPLOAD_ModifyTask;
-                    var response1 = await _globalinterface.SubmitGlobalCallBack(re);
-                    if (response1.Code != ResponseCodeDefines.SuccessCode)
-                    {
-                        Logger.Error("SetGlobalState modtask error");
-                    }
-                }
+        //        var _globalinterface = ApplicationContext.Current.ServiceProvider.GetRequiredService<IIngestGlobalInterface>();
+        //        if (_globalinterface != null)
+        //        {
+        //            GlobalInternals re = new GlobalInternals();
+        //            re.funtype = IngestDBCore.GlobalInternals.FunctionType.SetGlobalState;
+        //            re.State = ClientOperLabelName.VTR_UPLOAD_ModifyTask;
+        //            var response1 = await _globalinterface.SubmitGlobalCallBack(re);
+        //            if (response1.Code != ResponseCodeDefines.SuccessCode)
+        //            {
+        //                Logger.Error("SetGlobalState modtask error");
+        //            }
+        //        }
 
-                response.Code = (response.Ext != null) ? ResponseCodeDefines.SuccessCode : ResponseCodeDefines.ServiceError;
-            }
-            catch (Exception e)//其他未知的异常，写异常日志
-            {
-                if (e is SobeyRecException se)//sobeyexcep会自动打印错误
-                {
-                    response.Code = se.ErrorCode.ToString();
-                    response.Msg = se.Message;
-                }
-                else
-                {
-                    response.Code = ResponseCodeDefines.ServiceError;
-                    response.Msg = $"{System.Reflection.MethodBase.GetCurrentMethod().DeclaringType.FullName}：error info:{e}";
-                    Logger.Error(response.Msg);
-                }
-            }
-            return response;
+        //        response.Code = (response.Ext != null) ? ResponseCodeDefines.SuccessCode : ResponseCodeDefines.ServiceError;
+        //    }
+        //    catch (Exception e)//其他未知的异常，写异常日志
+        //    {
+        //        if (e is SobeyRecException se)//sobeyexcep会自动打印错误
+        //        {
+        //            response.Code = se.ErrorCode.ToString();
+        //            response.Msg = se.Message;
+        //        }
+        //        else
+        //        {
+        //            response.Code = ResponseCodeDefines.ServiceError;
+        //            response.Msg = $"{System.Reflection.MethodBase.GetCurrentMethod().DeclaringType.FullName}：error info:{e}";
+        //            Logger.Error(response.Msg);
+        //        }
+        //    }
+        //    return response;
 
-        }
+        //}
 
-        /// <summary>
-        /// 通过ID获得上载任务信息
-        /// </summary>
-        /// <param name="taskid">任务Id</param>
-        /// <returns>extention 为 VTRUploadTaskInfo</returns>
-        [HttpGet("uploadtaskinfo/{taskid}")]
-        public async Task<ResponseMessage<VTRUploadTaskInfoResponse>> GetUploadTaskInfoByID([FromRoute, BindRequired, DefaultValue(1)] int taskid)
-        {
-            ResponseMessage<VTRUploadTaskInfoResponse> response = new ResponseMessage<VTRUploadTaskInfoResponse>();
-            try
-            {
-                response.Ext = await _VtrManage.GetUploadTaskInfoByIDAsync<VTRUploadTaskInfoResponse>(taskid);
-            }
-            catch (Exception e)//其他未知的异常，写异常日志
-            {
-                if (e is SobeyRecException se)//sobeyexcep会自动打印错误
-                {
-                    response.Code = se.ErrorCode.ToString();
-                    response.Msg = se.Message;
-                }
-                else
-                {
-                    response.Code = ResponseCodeDefines.ServiceError;
-                    response.Msg = $"{System.Reflection.MethodBase.GetCurrentMethod().DeclaringType.FullName}：error info:{e}";
-                    Logger.Error(response.Msg);
-                }
-            }
-            return response;
-        }
+        ///// <summary>
+        ///// 通过ID获得上载任务信息
+        ///// </summary>
+        ///// <param name="taskid">任务Id</param>
+        ///// <returns>extention 为 VTRUploadTaskInfo</returns>
+        //[HttpGet("uploadtaskinfo/{taskid}")]
+        //public async Task<ResponseMessage<VTRUploadTaskInfoResponse>> GetUploadTaskInfoByID([FromRoute, BindRequired, DefaultValue(1)] int taskid)
+        //{
+        //    ResponseMessage<VTRUploadTaskInfoResponse> response = new ResponseMessage<VTRUploadTaskInfoResponse>();
+        //    try
+        //    {
+        //        response.Ext = await _VtrManage.GetUploadTaskInfoByIDAsync<VTRUploadTaskInfoResponse>(taskid);
+        //    }
+        //    catch (Exception e)//其他未知的异常，写异常日志
+        //    {
+        //        if (e is SobeyRecException se)//sobeyexcep会自动打印错误
+        //        {
+        //            response.Code = se.ErrorCode.ToString();
+        //            response.Msg = se.Message;
+        //        }
+        //        else
+        //        {
+        //            response.Code = ResponseCodeDefines.ServiceError;
+        //            response.Msg = $"{System.Reflection.MethodBase.GetCurrentMethod().DeclaringType.FullName}：error info:{e}";
+        //            Logger.Error(response.Msg);
+        //        }
+        //    }
+        //    return response;
+        //}
 
 
 
@@ -775,7 +775,7 @@
         /// <param name="vtrtaskrequest">见定义</param>
         /// <returns></returns>
         [HttpPut("vtruploadtask/modify")]
-        public async  Task<ResponseMessage<VTRUploadTaskContentResponse>> SetVTRUploadTask([FromBody] VTRUploadTaskRequest vtrtaskrequest)
+        public async  Task<ResponseMessage<VTRUploadTaskContentResponse>> SetVTRUploadTaskAsync([FromBody] VTRUploadTaskRequest vtrtaskrequest)
         {
             ResponseMessage<VTRUploadTaskContentResponse> response = new ResponseMessage<VTRUploadTaskContentResponse>();
             try

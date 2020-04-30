@@ -673,9 +673,9 @@
                     res.nCode = 0;
                     return res;
                 }
-                res.extention = await  _VtrManage.SetVTRUploadTask<VTRUploadTaskContent, SetVTRUploadTask_in>(pIn);
+                //res.extention = await  _VtrManage.SetVTRUploadTask<VTRUploadTaskContent, SetVTRUploadTask_in>(pIn);
                 
-                //res.extention = await  _VtrManage.SetVTRUploadTaskAsync<VTRUploadTaskContent>(pIn.vtrTask, pIn.metadatas, pIn.lMask);
+                res.extention = await  _VtrManage.SetVTRUploadTaskAsync<VTRUploadTaskContent>(pIn.vtrTask, pIn.metadatas, pIn.lMask);
                 //res.extention = pIn.vtrTask;  //返回vtr任务，原本传递的引用，这里只能返回
 
                 //GLOBALSERVICE.SetGlobalState2(ClientOperLabelName.VTR_UPLOAD_ModifyTask);
@@ -705,7 +705,7 @@
         }
         
 
-        public bool SetVTRUploadTask(ref VTRUploadTaskContent vtrTask, List<VTR_UPLOAD_MetadataPair> metadatas, long lMask, VTRUploadTaskMask uploadTaskMask/*此参数，只是用来导出代理，没有实际作用*/, out string errStr)
+        public bool SetVTRUploadTask(ref VTRUploadTaskContent vtrTask, List<VTRUPLOADMetadataPairRequest> metadatas, long lMask, VTRUploadTaskMask uploadTaskMask/*此参数，只是用来导出代理，没有实际作用*/, out string errStr)
         //public bool SetVTRUploadTask(ref VTRUploadTaskContent vtrTask, List<VTRUPLOADMetadataPairRequest> metadatas, long lMask, VTRUploadTaskMask uploadTaskMask/*此参数，只是用来导出代理，没有实际作用*/, out string errStr)
         {
             errStr = no_err;
@@ -718,9 +718,9 @@
                     errStr = "TaskId Invalid.";
                     return false;
                 }
-                var pin = new SetVTRUploadTask_in { vtrTask = vtrTask, metadatas = metadatas, lMask = lMask, uploadTaskMask = uploadTaskMask };
-                vtrTask = _VtrManage.SetVTRUploadTask<VTRUploadTaskContent, SetVTRUploadTask_in>(pin).Result;
-                //vtrTask = _VtrManage.SetVTRUploadTaskAsync<VTRUploadTaskContent>(vtrTask, metadatas, lMask).Result;
+                //var pin = new SetVTRUploadTask_in { vtrTask = vtrTask, metadatas = metadatas, lMask = lMask, uploadTaskMask = uploadTaskMask };
+                //vtrTask = _VtrManage.SetVTRUploadTask<VTRUploadTaskContent, SetVTRUploadTask_in>(pin).Result;
+                vtrTask = _VtrManage.SetVTRUploadTaskAsync<VTRUploadTaskContent>(vtrTask, metadatas, lMask).Result;
 
                 var _globalinterface = ApplicationContext.Current.ServiceProvider.GetRequiredService<IIngestGlobalInterface>();
                 if (_globalinterface != null)
