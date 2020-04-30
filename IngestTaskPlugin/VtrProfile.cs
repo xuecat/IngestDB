@@ -214,6 +214,11 @@ namespace IngestTaskPlugin
                .ForMember(a => a.TrimOutCTL, (map) => map.MapFrom(b => b.nTrimOutCTL))
                .ForMember(a => a.VtrTaskType, (map) => map.MapFrom(b => b.emVtrTaskType)).ReverseMap();
             #endregion
+
+            CreateMap<VTRUPLOADMetadataPairRequest, VTR_UPLOAD_MetadataPair>()
+               .ForMember(a => a.nTaskID, (map) => map.MapFrom(b => b.taskid))
+               .ForMember(a => a.strMetadata, (map) => map.MapFrom(b => b.metadata))
+               .ForMember(a => a.emType, (map) => map.MapFrom(b => b.type));
         }
     }
 }

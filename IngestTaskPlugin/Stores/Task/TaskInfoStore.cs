@@ -2691,5 +2691,39 @@ namespace IngestTaskPlugin.Stores
             }
             return true;
         }
+
+
+        public async Task<bool> AddTaskSourceList(List<DbpTaskSource> taskSources)
+        {
+            if (taskSources != null && taskSources.Count > 0)
+            {
+                await Context.DbpTaskSource.AddRangeAsync(taskSources);
+                return await Context.SaveChangesAsync() > 0;
+            }
+            return false;
+        }
+
+        public async Task<bool> AddTaskList(List<DbpTask> tasks)
+        {
+            if (tasks != null && tasks.Count > 0)
+            {
+                await Context.DbpTask.AddRangeAsync(tasks);
+                return await Context.SaveChangesAsync() > 0;
+            }
+            return false;
+        }
+
+        public async Task UpdateVtrUploadTaskListAsync(List<VtrUploadtask> lst)
+        {
+            Context.VtrUploadtask.UpdateRange(lst);
+            try
+            {
+                await Context.SaveChangesAsync();
+            }
+            catch (DbUpdateException e)
+            {
+                throw e;
+            }
+        }
     }
 }

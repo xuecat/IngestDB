@@ -739,26 +739,27 @@
 
 
         #region vtr task update
-
-        public async Task<TResult> SetVTRUploadTask<TResult>(VTRUploadTaskContent vtrTask, VTR_UPLOAD_MetadataPair[] metadatas, long lMask)
+        public async Task<TResult>
+        SetVTRUploadTaskAsync<TResult>(VTRUploadTaskContent vtrTask, List<VTRUPLOADMetadataPairRequest> metadatas, long lMask)
         {
             if (vtrTask.nTaskId <= 0)
             {
                 return default(TResult);
             }
 
-            VTRUploadCondition Condition = new VTRUploadCondition() { lTaskID = vtrTask.nTaskId };
-            List<VTRUploadTaskContent> vtrTasks = await VtrStore.GetUploadTaskContent(Condition);
+            //判断vtr任务当前状态，如果是正在采集时，不能改变长度
+            VTRUploadConditionRequest Condition = new VTRUploadConditionRequest() {  TaskId = vtrTask.nTaskId };
+            List<VTRUploadTaskContentResponse> vtrUploadTasks = await VtrStore.GetUploadTaskContent(Condition);
 
             // 新增从普通任务转换为VTR任务 VTR表中无法查询到任务，该任务原本可能是一个普通任务
-            if (vtrTasks == null || vtrTasks.Count <= 0)
+            if (vtrUploadTasks == null || vtrUploadTasks.Count <= 0)
             {
                 if (vtrTask.emTaskState != VTRUPLOADTASKSTATE.VTR_UPLOAD_COMMIT && vtrTask.emVtrTaskType != VTRUPLOADTASKTYPE.VTR_SCHEDULE_UPLOAD)
                 {
                     throw new Exception("Can not find the task.TaskId = " + vtrTask.nTaskId);
                 }
 
-                var dbpTask = await TaskStore.GetTaskAsync(a => a.Where(x => x.Taskid == vtrTask.nTaskId), true);
+                var dbpTask = await TaskStore.GetTaskAsync(a => a.Where(x => x.Taskid == vtrTask.nTaskId));
                 if (dbpTask == null)
                 {
                     throw new Exception("Can not find the task in DBP_TASK.TaskId = " + vtrTask.nTaskId);
@@ -777,7 +778,8 @@
                 try
                 {
                     Logger.Info("In SetVTRUploadTask.Before ModifyNormalTaskToVTRUploadTask");
-                    await ModifyNormalTaskToVTRUploadTask(vtrTask, metadatas);
+                    var metada = Mapper.Map<List<VTR_UPLOAD_MetadataPair>>(metadatas);
+                    await ModifyNormalTaskToVTRUploadTaskAsync(vtrTask, metada, dbpTask);
 
 
                     return Mapper.Map<TResult>(vtrTask);
@@ -788,53 +790,49 @@
                 }
             }
 
-            VTRUploadTaskContent vtrTaskNow = vtrTasks[0];
+            VTRUploadTaskContentResponse vtrTaskNow = vtrUploadTasks[0];
             //正在执行的状态下，不允许更新时间，不允许更新通道，不允许更新信号源，不允许更新vtrId
-            if (vtrTaskNow.emTaskState == VTRUPLOADTASKSTATE.VTR_UPLOAD_EXECUTE ||
-                vtrTaskNow.emState == (int)taskState.tsExecuting)
+            if (vtrTaskNow.TaskState == VTRUPLOADTASKSTATE.VTR_UPLOAD_EXECUTE ||
+                vtrTaskNow.State == taskState.tsExecuting)
             {
                 Logger.Info("begin to into filling vtr jugde modify!");
-                Logger.Info(string.Format("vtrTaskNow.strBegin:{0},vtrTask.strBegin:{1}, vtrTaskNow.strEnd:{2}, vtrTask.strEnd:{3},", vtrTaskNow.strBegin, vtrTask.strBegin, vtrTaskNow.strEnd, vtrTask.strEnd));
-                Logger.Info(string.Format("vtrTaskNow.nTrimIn:{0},vtrTask.nTrimIn:{1}, vtrTaskNow.nTrimOut:{2}, vtrTask.strEnd:{3},", vtrTaskNow.nTrimIn, vtrTask.nTrimIn, vtrTaskNow.nTrimOut, vtrTask.nTrimOut));
-                Logger.Info(string.Format("vtrTaskNow.nChannelId:{0}, vtrTask.nChannelId:{1},vtrTaskNow.nSignalId:{2}, vtrTask.nSignalId:{3}, vtrTaskNow.nVtrId:{4},vtrTask.nVtrId:{5} ,", vtrTaskNow.nChannelId, vtrTask.nChannelId, vtrTaskNow.nSignalId, vtrTask.nSignalId, vtrTaskNow.nVtrId, vtrTask.nVtrId));
+                Logger.Info(string.Format("vtrTaskNow.strBegin:{0},vtrTask.strBegin:{1}, vtrTaskNow.strEnd:{2}, vtrTask.strEnd:{3},", vtrTaskNow.BeginTime, vtrTask.strBegin, vtrTaskNow.EndTime, vtrTask.strEnd));
+                Logger.Info(string.Format("vtrTaskNow.nTrimIn:{0},vtrTask.nTrimIn:{1}, vtrTaskNow.nTrimOut:{2}, vtrTask.strEnd:{3},", vtrTaskNow.TrimIn, vtrTask.nTrimIn, vtrTaskNow.TrimOut, vtrTask.nTrimOut));
+                Logger.Info(string.Format("vtrTaskNow.nChannelId:{0}, vtrTask.nChannelId:{1},vtrTaskNow.nSignalId:{2}, vtrTask.nSignalId:{3}, vtrTaskNow.nVtrId:{4},vtrTask.nVtrId:{5} ,", vtrTaskNow.ChannelId, vtrTask.nChannelId, vtrTaskNow.SignalId, vtrTask.nSignalId, vtrTaskNow.VtrId, vtrTask.nVtrId));
                 if (lMask <= 0)
                 {
-                    DateTime dt1 = DateTimeFormat.DateTimeFromString(vtrTaskNow.strBegin);
+                    DateTime dt1 = vtrTaskNow.BeginTime;
                     DateTime dt2 = DateTimeFormat.DateTimeFromString(vtrTask.strBegin);
 
-                    DateTime dt3 = DateTimeFormat.DateTimeFromString(vtrTaskNow.strEnd);
+                    DateTime dt3 = vtrTaskNow.EndTime;
                     DateTime dt4 = DateTimeFormat.DateTimeFromString(vtrTask.strEnd);
 
                     if (dt1 != dt2 || dt3 != dt4 ||
-                        vtrTaskNow.nTrimIn != vtrTask.nTrimIn ||
-                        vtrTaskNow.nTrimInCTL != vtrTask.nTrimInCTL ||
-                        vtrTaskNow.nTrimOut != vtrTask.nTrimOut ||
-                        vtrTaskNow.nTrimOutCTL != vtrTask.nTrimOutCTL)
+                        vtrTaskNow.TrimIn != vtrTask.nTrimIn ||
+                        vtrTaskNow.TrimInCTL != vtrTask.nTrimInCTL ||
+                        vtrTaskNow.TrimOut != vtrTask.nTrimOut ||
+                        vtrTaskNow.TrimOutCTL != vtrTask.nTrimOutCTL)
                     {
-                        Logger.Info(string.Format("1Can not modify the duration where the task is running.TaskId = {0},TaskName = {1}", vtrTaskNow.nTaskId, vtrTaskNow.strTaskName));
-                        //throw new Exception(string.Format("Can not modify the duration where the task is running.TaskId = {0},TaskName = {1}", vtrTaskNow.nTaskId, vtrTaskNow.strTaskName));
-                        SobeyRecException.ThrowSelfNoParam(vtrTaskNow.nTaskId.ToString(), GlobalDictionary.GLOBALDICT_CODE_CANNOTMODIFYTASK_WHERE_FILING, Logger, null);
+                        Logger.Info(string.Format("1Can not modify the duration where the task is running.TaskId = {0},TaskName = {1}", vtrTaskNow.TaskId, vtrTaskNow.TaskName));
+                        SobeyRecException.ThrowSelfNoParam(vtrTaskNow.TaskId.ToString(), GlobalDictionary.GLOBALDICT_CODE_CANNOTMODIFYTASK_WHERE_FILING, Logger, null);
                     }
 
-                    if (vtrTaskNow.nChannelId != vtrTask.nChannelId)
+                    if (vtrTaskNow.ChannelId != vtrTask.nChannelId)
                     {
-                        Logger.Info(string.Format("2Can not modify the channel where the task is running.TaskId = {0},TaskName = {1}", vtrTaskNow.nTaskId, vtrTaskNow.strTaskName));
-                        //throw new Exception(string.Format("Can not modify the channel where the task is running.TaskId = {0},TaskName = {1}", vtrTaskNow.nTaskId, vtrTaskNow.strTaskName));
-                        SobeyRecException.ThrowSelfNoParam(vtrTaskNow.nTaskId.ToString(), GlobalDictionary.GLOBALDICT_CODE_CANNOTMODIFYTASK_WHERE_FILING, Logger, null);
+                        Logger.Info(string.Format("2Can not modify the channel where the task is running.TaskId = {0},TaskName = {1}", vtrTaskNow.TaskId, vtrTaskNow.TaskName));
+                        SobeyRecException.ThrowSelfNoParam(vtrTaskNow.TaskId.ToString(), GlobalDictionary.GLOBALDICT_CODE_CANNOTMODIFYTASK_WHERE_FILING, Logger, null);
                     }
 
-                    if (vtrTaskNow.nSignalId != vtrTask.nSignalId)
+                    if (vtrTaskNow.SignalId != vtrTask.nSignalId)
                     {
-                        Logger.Info(string.Format("3Can not modify the signal where the task is running.TaskId = {0},TaskName = {1}", vtrTaskNow.nTaskId, vtrTaskNow.strTaskName));
-                        //throw new Exception(string.Format("Can not modify the signal where the task is running.TaskId = {0},TaskName = {1}", vtrTaskNow.nTaskId, vtrTaskNow.strTaskName));
-                        SobeyRecException.ThrowSelfNoParam(vtrTaskNow.nTaskId.ToString(), GlobalDictionary.GLOBALDICT_CODE_CANNOTMODIFYTASK_WHERE_FILING, Logger, null);
+                        Logger.Info(string.Format("3Can not modify the signal where the task is running.TaskId = {0},TaskName = {1}", vtrTaskNow.TaskId, vtrTaskNow.TaskName));
+                        SobeyRecException.ThrowSelfNoParam(vtrTaskNow.TaskId.ToString(), GlobalDictionary.GLOBALDICT_CODE_CANNOTMODIFYTASK_WHERE_FILING, Logger, null);
                     }
 
-                    if (vtrTaskNow.nVtrId != vtrTask.nVtrId)
+                    if (vtrTaskNow.VtrId != vtrTask.nVtrId)
                     {
-                        Logger.Info(string.Format("4Can not modify the vtr where the task is running.TaskId = {0},TaskName = {1}", vtrTaskNow.nTaskId, vtrTaskNow.strTaskName));
-                        //throw new Exception(string.Format("Can not modify the vtr where the task is running.TaskId = {0},TaskName = {1}", vtrTaskNow.nTaskId, vtrTaskNow.strTaskName));
-                        SobeyRecException.ThrowSelfNoParam(vtrTaskNow.nTaskId.ToString(), GlobalDictionary.GLOBALDICT_CODE_CANNOTMODIFYTASK_WHERE_FILING, Logger, null);
+                        Logger.Info(string.Format("4Can not modify the vtr where the task is running.TaskId = {0},TaskName = {1}", vtrTaskNow.TaskId, vtrTaskNow.TaskName));
+                        SobeyRecException.ThrowSelfNoParam(vtrTaskNow.TaskId.ToString(), GlobalDictionary.GLOBALDICT_CODE_CANNOTMODIFYTASK_WHERE_FILING, Logger, null);
                     }
                 }
                 else
@@ -846,30 +844,29 @@
                         IsInMask(lMask, VTRUploadTaskMask.VTR_Mask_TrimInCTL) ||
                         IsInMask(lMask, VTRUploadTaskMask.VTR_Mask_TrimOutCTL))
                     {
-                        Logger.Info(string.Format("5Can not modify the duration where the task is running.TaskId = {0},TaskName = {1}", vtrTaskNow.nTaskId, vtrTaskNow.strTaskName));
-                        //throw new Exception(string.Format("Can not modify the duration where the task is running.TaskId = {0},TaskName = {1}", vtrTaskNow.nTaskId, vtrTaskNow.strTaskName));
-                        SobeyRecException.ThrowSelfNoParam(vtrTaskNow.nTaskId.ToString(), GlobalDictionary.GLOBALDICT_CODE_CANNOTMODIFYTASK_WHERE_FILING, Logger, null);
+                        Logger.Info(string.Format("5Can not modify the duration where the task is running.TaskId = {0},TaskName = {1}", vtrTaskNow.TaskId, vtrTaskNow.TaskName));
+                        SobeyRecException.ThrowSelfNoParam(vtrTaskNow.TaskId.ToString(), GlobalDictionary.GLOBALDICT_CODE_CANNOTMODIFYTASK_WHERE_FILING, Logger, null);
                     }
 
                     if (IsInMask(lMask, VTRUploadTaskMask.VTR_Mask_ChannelId))
                     {
-                        Logger.Info(string.Format("6Can not modify the channel where the task is running.TaskId = {0},TaskName = {1}", vtrTaskNow.nTaskId, vtrTaskNow.strTaskName));
+                        Logger.Info(string.Format("6Can not modify the channel where the task is running.TaskId = {0},TaskName = {1}", vtrTaskNow.TaskId, vtrTaskNow.TaskName));
                         //throw new Exception(string.Format("Can not modify the channel where the task is running.TaskId = {0},TaskName = {1}", vtrTaskNow.nTaskId, vtrTaskNow.strTaskName));
-                        SobeyRecException.ThrowSelfNoParam(vtrTaskNow.nTaskId.ToString(), GlobalDictionary.GLOBALDICT_CODE_CANNOTMODIFYTASK_WHERE_FILING, Logger, null);
+                        SobeyRecException.ThrowSelfNoParam(vtrTaskNow.TaskId.ToString(), GlobalDictionary.GLOBALDICT_CODE_CANNOTMODIFYTASK_WHERE_FILING, Logger, null);
                     }
 
                     if (IsInMask(lMask, VTRUploadTaskMask.VTR_Mask_SignalId))
                     {
-                        Logger.Info(string.Format("7Can not modify the signal where the task is running.TaskId = {0},TaskName = {1}", vtrTaskNow.nTaskId, vtrTaskNow.strTaskName));
+                        Logger.Info(string.Format("7Can not modify the signal where the task is running.TaskId = {0},TaskName = {1}", vtrTaskNow.TaskId, vtrTaskNow.TaskName));
                         //throw new Exception(string.Format("Can not modify the signal where the task is running.TaskId = {0},TaskName = {1}", vtrTaskNow.nTaskId, vtrTaskNow.strTaskName));
-                        SobeyRecException.ThrowSelfNoParam(vtrTaskNow.nTaskId.ToString(), GlobalDictionary.GLOBALDICT_CODE_CANNOTMODIFYTASK_WHERE_FILING, Logger, null);
+                        SobeyRecException.ThrowSelfNoParam(vtrTaskNow.TaskId.ToString(), GlobalDictionary.GLOBALDICT_CODE_CANNOTMODIFYTASK_WHERE_FILING, Logger, null);
                     }
 
                     if (IsInMask(lMask, VTRUploadTaskMask.VTR_Mask_VtrId))
                     {
-                        Logger.Info(string.Format("8Can not modify the vtr where the task is running.TaskId = {0},TaskName = {1}", vtrTaskNow.nTaskId, vtrTaskNow.strTaskName));
+                        Logger.Info(string.Format("8Can not modify the vtr where the task is running.TaskId = {0},TaskName = {1}", vtrTaskNow.TaskId, vtrTaskNow.TaskName));
                         //throw new Exception(string.Format("Can not modify the vtr where the task is running.TaskId = {0},TaskName = {1}", vtrTaskNow.nTaskId, vtrTaskNow.strTaskName));
-                        SobeyRecException.ThrowSelfNoParam(vtrTaskNow.nTaskId.ToString(), GlobalDictionary.GLOBALDICT_CODE_CANNOTMODIFYTASK_WHERE_FILING, Logger, null);
+                        SobeyRecException.ThrowSelfNoParam(vtrTaskNow.TaskId.ToString(), GlobalDictionary.GLOBALDICT_CODE_CANNOTMODIFYTASK_WHERE_FILING, Logger, null);
                     }
                 }
             }
@@ -909,38 +906,250 @@
             // TEMPSAVE任务时间不变
             if (vtrTask.emTaskState == VTRUPLOADTASKSTATE.VTR_UPLOAD_TEMPSAVE)
             {
-                vtrTask.strBegin = vtrTaskNow.strBegin;
-                vtrTask.strEnd = vtrTaskNow.strEnd;
+                vtrTask.strBegin = DateTimeFormat.DateTimeToString(vtrTaskNow.BeginTime);
+                vtrTask.strEnd = DateTimeFormat.DateTimeToString(vtrTaskNow.EndTime);
             }
 
-            var vtrResult = await TaskStore.GetVtrUploadTaskAsync(a => a.Where(x => x.Taskid == vtrTask.nTaskId));
+            var vtrUploadtaskResult = await TaskStore.GetVtrUploadTaskAsync(a => a.Where(x => x.Taskid == vtrTask.nTaskId));
 
-            if (vtrResult == null)
+            if (vtrUploadtaskResult == null)
             {
                 throw new Exception("Can not find the row in VTR_UPLOADTASK table,TaskId = " + vtrTask.nTaskId.ToString());
             }
 
-            var vtrtask = await TaskStore.GetTaskListAsync(a => a.Where(x => x.Taskid == vtrTask.nTaskId));
+            var dbptask = (await TaskStore.GetTaskListAsync(a => a.Where(x => x.Taskid == vtrTask.nTaskId))).FirstOrDefault();
 
-            if (vtrtask == null)
+            if (dbptask == null)
             {
                 throw new Exception("Can not find the row in DBP_TASK table,TaskId = " + vtrTask.nTaskId.ToString());
             }
 
-            await TaskStore.UpdateTaskListAsync(vtrtask);
-            await VtrStore.UpdateUploadtask(vtrResult);
+            dbptask = VTRUploadTaskContent2Dbptask(false, vtrTask, dbptask,  lMask);
+            vtrUploadtaskResult = VTRUploadTaskContent2VTRUPLOADTASK(vtrTask, vtrUploadtaskResult, lMask);
 
-            if (metadatas != null && metadatas.Length > 0)
+            await TaskStore.UpdateTaskListAsync(new List<DbpTask> { dbptask });
+            await VtrStore.UpdateUploadtask(vtrUploadtaskResult);
+
+            if (metadatas != null && metadatas.Count > 0)
             {
-                foreach (VTR_UPLOAD_MetadataPair meta in metadatas)
+                foreach (VTRUPLOADMetadataPairRequest meta in metadatas)
                 {
-                    await SetVBUTasksMetadatasAsync(vtrTask.nTaskId, (MetaDataType)meta.emType, meta.strMetadata);
+                    await SetVBUTasksMetadatasAsync(vtrTask.nTaskId, (MetaDataType)meta.type, meta.metadata);
                 }
             }
 
             return Mapper.Map<TResult>(vtrTask);
         }
 
+        private VtrUploadtask VTRUploadTaskContent2VTRUPLOADTASK(VTRUploadTaskContent task, VtrUploadtask vtrUploadtask, long lMask)
+        {
+            if (lMask <= 0)
+            {
+                vtrUploadtask = Mapper.Map<VtrUploadtask>(task);
+            }
+            else
+            {
+                #region
+
+                if (IsInMask(lMask, VTRUploadTaskMask.VTR_Mask_TaskId))
+                {
+                    vtrUploadtask.Taskid = task.nTaskId;
+                }
+
+                if (IsInMask(lMask, VTRUploadTaskMask.VTR_Mask_BlankTaskId))
+                {
+                    vtrUploadtask.Vtrtaskid = task.nBlankTaskId;
+                }
+
+                if (IsInMask(lMask, VTRUploadTaskMask.VTR_Mask_VtrId))
+                {
+                    vtrUploadtask.Vtrid = task.nVtrId;
+                }
+
+                if (IsInMask(lMask, VTRUploadTaskMask.VTR_Mask_ChannelId))
+                {
+                    vtrUploadtask.Recchannelid = task.nChannelId;
+                }
+
+                if (IsInMask(lMask, VTRUploadTaskMask.VTR_Mask_TrimIn))
+                {
+                    vtrUploadtask.Trimin = task.nTrimIn;
+                }
+
+                if (IsInMask(lMask, VTRUploadTaskMask.VTR_Mask_TrimOut))
+                {
+                    vtrUploadtask.Trimout = task.nTrimOut;
+                }
+
+                if (IsInMask(lMask, VTRUploadTaskMask.VTR_Mask_SignalId))
+                {
+                    vtrUploadtask.Signalid = task.nSignalId;
+                }
+
+                if (IsInMask(lMask, VTRUploadTaskMask.VTR_Mask_TaskState))
+                {
+                    vtrUploadtask.Taskstate = Convert.ToInt32(task.emTaskState);
+                }
+
+                if (IsInMask(lMask, VTRUploadTaskMask.VTR_Mask_UserCode))
+                {
+                    vtrUploadtask.Usercode = task.strUserCode;
+                }
+
+                if (IsInMask(lMask, VTRUploadTaskMask.VTR_Mask_CommitTime))
+                {
+                    vtrUploadtask.Committime = DateTimeFormat.DateTimeFromString(task.strCommitTime);
+                }
+
+                if (IsInMask(lMask, VTRUploadTaskMask.VTR_Mask_Order))
+                {
+                    vtrUploadtask.Uploadorder = task.nOrder;
+                }
+
+                if (IsInMask(lMask, VTRUploadTaskMask.VTR_Mask_TaskGUID))
+                {
+                    vtrUploadtask.Taskguid = task.strTaskGUID;
+                }
+
+                if (IsInMask(lMask, VTRUploadTaskMask.VTR_Mask_TaskName))
+                {
+                    vtrUploadtask.Taskname = task.strTaskName;
+                }
+
+                if (IsInMask(lMask, VTRUploadTaskMask.VTR_Mask_UserToken))
+                {
+                    vtrUploadtask.Usertoken = task.strUserToken;
+                }
+
+                if (IsInMask(lMask, VTRUploadTaskMask.VTR_Mask_TapeId))
+                {
+                    vtrUploadtask.Tapeid = task.nTapeId;
+                }
+
+                if (IsInMask(lMask, VTRUploadTaskMask.VTR_Mask_TrimInCTL))
+                {
+                    vtrUploadtask.Triminctl = task.nTrimInCTL;
+                }
+
+                if (IsInMask(lMask, VTRUploadTaskMask.VTR_Mask_TrimOutCTL))
+                {
+                    vtrUploadtask.Trimoutctl = task.nTrimOutCTL;
+                }
+
+                if (IsInMask(lMask, VTRUploadTaskMask.VTR_Mask_VtrTaskType))
+                {
+                    vtrUploadtask.Vtrtasktype = (int)task.emVtrTaskType;
+                }
+
+                #endregion
+            }
+
+            return vtrUploadtask;
+        }
+
+        private DbpTask VTRUploadTaskContent2Dbptask(bool isAdd, VTRUploadTaskContent task,DbpTask dbpTask, long lMask)
+        {
+            if (lMask <= 0)
+            {
+                dbpTask.Backtype = (int)CooperantType.emPureTask;
+                dbpTask.Category = task.strClassify;
+                dbpTask.Channelid = task.nChannelId;
+                dbpTask.Description = task.strTaskDesc;
+
+                if (isAdd)
+                {
+                    dbpTask.DispatchState = (int)dispatchState.dpsNotDispatch;
+                    dbpTask.OpType = (int)opType.otAdd;
+                    dbpTask.State = (int)taskState.tsReady;
+                    dbpTask.SyncState = (int)syncState.ssNot;
+                }
+
+                dbpTask.Starttime = DateTimeFormat.DateTimeFromString(task.strBegin);
+                dbpTask.Endtime = DateTimeFormat.DateTimeFromString(task.strEnd);
+                dbpTask.NewBegintime = DateTimeFormat.DateTimeFromString(task.strBegin);
+                dbpTask.NewEndtime = DateTimeFormat.DateTimeFromString(task.strEnd);
+                dbpTask.OldChannelid = 0;
+
+                dbpTask.Recunitid = 1;
+                dbpTask.Signalid = task.nSignalId;
+
+                dbpTask.Taskid = task.nTaskId;
+                dbpTask.Tasklock = "";
+                dbpTask.Taskname = task.strTaskName;
+                dbpTask.Tasktype = (int)TaskType.TT_VTRUPLOAD;
+                dbpTask.Usercode = task.strUserCode;
+                dbpTask.Taskguid = task.strTaskGUID;
+                dbpTask.Backupvtrid = 0;
+            }
+            else
+            {
+                #region                 
+                if (IsInMask(lMask, VTRUploadTaskMask.VTR_Mask_ChannelId))
+                {
+                    dbpTask.Channelid = task.nChannelId;
+                }
+
+                if (IsInMask(lMask, VTRUploadTaskMask.VTR_Mask_SignalId))
+                {
+                    dbpTask.Signalid = task.nSignalId;
+                }
+
+                if (IsInMask(lMask, VTRUploadTaskMask.VTR_Mask_UserCode))
+                {
+                    dbpTask.Usercode = task.strUserCode;
+                }
+
+                if (IsInMask(lMask, VTRUploadTaskMask.VTR_Mask_TaskGUID))
+                {
+                    dbpTask.Taskguid = task.strTaskGUID;
+                }
+
+                if (IsInMask(lMask, VTRUploadTaskMask.VTR_Mask_TaskName))
+                {
+                    dbpTask.Taskname = task.strTaskName;
+                }
+
+                if (IsInMask(lMask, VTRUploadTaskMask.VTR_Mask_Classify))
+                {
+                    dbpTask.Category = task.strClassify;
+                }
+
+                if (IsInMask(lMask, VTRUploadTaskMask.VTR_Mask_BeginTime))
+                {
+                    dbpTask.Starttime = DateTimeFormat.DateTimeFromString(task.strBegin);
+                    dbpTask.NewBegintime = DateTimeFormat.DateTimeFromString(task.strBegin);
+                }
+
+                if (IsInMask(lMask, VTRUploadTaskMask.VTR_Mask_EndTime))
+                {
+                    dbpTask.NewEndtime = DateTimeFormat.DateTimeFromString(task.strEnd);
+                    dbpTask.Endtime = DateTimeFormat.DateTimeFromString(task.strEnd);
+                }
+
+                if (IsInMask(lMask, VTRUploadTaskMask.VTR_Mask_TaskType))
+                {
+                    dbpTask.Tasktype = task.emTaskType;
+                }
+
+                if (IsInMask(lMask, VTRUploadTaskMask.VTR_Mask_CooperantType))
+                {
+                    dbpTask.Backtype = (int)CooperantType.emPureTask;
+                }
+
+                if (IsInMask(lMask, VTRUploadTaskMask.VTR_Mask_State))
+                {
+                    dbpTask.State = (int)taskState.tsReady;
+                }
+
+                if (IsInMask(lMask, VTRUploadTaskMask.VTR_Mask_StampImage)
+                    || IsInMask(lMask, VTRUploadTaskMask.VTR_Mask_TaskDesc))
+                {
+                    dbpTask.Description = task.strStampImage;
+                }
+                #endregion
+            }
+            return dbpTask;
+        }
 
         //----------------------------------------------------------------
         //!
@@ -952,7 +1161,7 @@
         //! @return true 成功执行
         //!
         //----------------------------------------------------------------
-        public async Task<bool> ModifyNormalTaskToVTRUploadTask(VTRUploadTaskContent vtrTask, VTR_UPLOAD_MetadataPair[] metadatas)
+        public async Task<bool> ModifyNormalTaskToVTRUploadTaskAsync(VTRUploadTaskContent vtrTask, List<VTR_UPLOAD_MetadataPair> metadatas, DbpTask dbpTask)
         {
             Logger.Info("ModifyNormalTaskToVTRUploadTask  In ModifyNormalTaskToVTRUploadTask");
             if (vtrTask == null)
@@ -1004,7 +1213,7 @@
 
             DateTime preSetEndTime = preSetBeginTime + tsDuration;
 
-            await GetFreeTimePeriodByVtrId(freeVtrTimePeriods, preSetBeginTime, vtrTask.nTaskId);
+            freeVtrTimePeriods = await GetFreeTimePeriodByVtrId(freeVtrTimePeriods, preSetBeginTime, vtrTask.nTaskId);
 
             //首先对vtr进行判断
             if (freeVtrTimePeriods == null
@@ -1120,24 +1329,24 @@
                 throw new Exception("No Channel");
             }
             #endregion
-            var dbpTask = await TaskStore.GetTaskListAsync(a => a.Where(x => x.Taskid == vtrTask.nTaskId));
-
             //更新DBP_TASK
-            Logger.Info("In ModifyNormalTaskToVTRUploadTask.Before Updating DBP_TASK");
-            if (dbpTask.Count >= 1)
-            {
-                vtrTask.strUserToken = "VTRBATCHUPLOAD_ERROR_OK";
-                dbpTask[0].Tasklock = string.Empty;
-            }
-            else
-            {
-                throw new Exception("In ModifyNormalTaskToVTRUploadTask.Can not find the task in DBP_TASK.TaskId = " + vtrTask.nTaskId.ToString());
-            }
+            //Logger.Info("In ModifyNormalTaskToVTRUploadTask.Before Updating DBP_TASK");
+            //if (dbpTask != null)
+            //{
+            //    vtrTask.strUserToken = "VTRBATCHUPLOAD_ERROR_OK";
+            //    dbpTask.Tasklock = string.Empty;
+            //}
+            //else
+            //{
+            //    throw new Exception("In ModifyNormalTaskToVTRUploadTask.Can not find the task in DBP_TASK.TaskId = " + vtrTask.nTaskId.ToString());
+            //}
 
-            await TaskStore.UpdateTaskListAsync(dbpTask);
+            dbpTask = VTRUploadTaskContent2Dbptask(true, vtrTask,dbpTask, -1);
+            await TaskStore.UpdateTaskListAsync( new List<DbpTask> { dbpTask });
             //添加VTR_UPLOADTASK
             Logger.Info("In ModifyNormalTaskToVTRUploadTask.Before Adding VTR_UPLOADTASK");
-            await VtrStore.AddUploadtask(Mapper.Map<VtrUploadtask>(vtrTask));
+            VtrUploadtask vtrUploadtask = Mapper.Map<VtrUploadtask>(vtrTask);
+            await VtrStore.AddUploadtask(vtrUploadtask);
 
             //更新任务来源表
             Logger.Info("In ModifyNormalTaskToVTRUploadTask.Before Updating DBP_TASK_SOURCE");
@@ -1156,6 +1365,7 @@
             Logger.Info("In ModifyNormalTaskToVTRUploadTask.Fin");
             return true;
         }
+        
 
         private ChannelTimePeriods MergeVTRAndChannelFreeTimePeriods(VTRTimePeriods vtrFreeTP, ChannelTimePeriods channelFreeTP)
         {
@@ -1212,12 +1422,12 @@
 
         public async Task<TResult> GetUploadTaskInfoByIDAsync<TResult>(int taskID)
         {
-            VTRUploadCondition condition = new VTRUploadCondition() { lTaskID = taskID };
+            VTRUploadConditionRequest condition = new VTRUploadConditionRequest() {  TaskId = taskID };
             var result = await VtrStore.GetUploadtaskInfo(condition, true);
             return Mapper.Map<TResult>(result.FirstOrDefault());
         }
 
-        public async Task<VTR_BUT_ErrorCode> CommitVTRBatchUploadTasks(int[] taskIds, bool ignoreWrong)
+        public async Task<int> CommitVTRBatchUploadTasksAsync(List<int> taskIds, bool ignoreWrong)
         {
             //如果是暂存的任务，将它分配通道，
             //如果是执行失败的任务，可以重新分配通道进行（素材方面不好处理）
@@ -1236,11 +1446,11 @@
                 if (vtrTaskList != null && vtrTaskList.Count > 0)
                 {
                     List<RouterInInterface> routerIns = null;
-                    var _globalinterface = ApplicationContext.Current.ServiceProvider.GetRequiredService<IIngestGlobalInterface>();
-                    if (_globalinterface != null)
+                    var _deviceinterface = ApplicationContext.Current.ServiceProvider.GetRequiredService<IIngestDeviceInterface>();
+                    if (_deviceinterface != null)
                     {
-                        GlobalInternals re = new GlobalInternals() { funtype = IngestDBCore.GlobalInternals.FunctionType.SetGlobalState, State = ClientOperLabelName.VTR_UPLOAD_ModifyTask };
-                        var response1 = await _globalinterface.SubmitGlobalCallBack(re);
+                        DeviceInternals re = new DeviceInternals() { funtype = IngestDBCore.DeviceInternals.FunctionType.AllRouterInPort};
+                        var response1 = await _deviceinterface.GetDeviceCallBack(re);
                         if (response1.Code != ResponseCodeDefines.SuccessCode)
                         {
                             Logger.Error("SetGlobalState modtask error");
@@ -1289,7 +1499,8 @@
                     {
                         vtrId = vtrTaskList[0].Vtrid == null?-1: (int)vtrTaskList[0].Vtrid;
                         //AddCommitVTRBUTasks(vtrTaskList, ignoreWrong, null, false, out taskIdList);
-                        await AddCommitVTRBUTasksEx(Mapper.Map<List<VTRUploadTaskContent>>(vtrTaskList), ignoreWrong, null, false, taskIdList);
+                        var vtrtaskcontent = Mapper.Map<List<VTRUploadTaskContent>>(vtrTaskList);
+                        await AddCommitVTRBUTasksExAsync(vtrtaskcontent, ignoreWrong, null, false, taskIdList);
                     }
                 }
             }
@@ -1301,8 +1512,8 @@
                 {
                     if (vtrId > 0)
                     {
-                        VTRDetailInfo vtrInfo = Mapper.Map<VTRDetailInfo>((await VtrStore.GetDetailinfo(a=>a.Where(x=>x.Vtrid == vtrId),true)).FirstOrDefault());
-                        msg = string.Format("{0} has been used by other tasks", vtrInfo.szVTRDetailName);
+                        VtrDetailinfo vtrInfo = (await VtrStore.GetDetailinfo(a => a.Where(x => x.Vtrid == vtrId))).FirstOrDefault();
+                        msg = string.Format("{0} has been used by other tasks", vtrInfo.Vtrname);
                     }
                 }
 
@@ -1320,7 +1531,7 @@
                 throw new Exception(msg);
             }
 
-            return errorCode;
+            return (int)errorCode;
         }
 
         private VTR_BUT_ErrorCode GetErrorCode(string msg)
@@ -1342,11 +1553,10 @@
 
             return VTR_BUT_ErrorCode.emNormal;
         }
-
-        //private async Task<bool> AddCommitVTRBUTasksEx(List<VTRUploadTaskContent> commitTasks, bool ignoreWrong, VTR_UPLOAD_MetadataPair[] metadatas, bool isAdd2DB, out List<int> taskIds)
-        private async Task<bool> AddCommitVTRBUTasksEx(List<VTRUploadTaskContent> commitTasks, bool ignoreWrong, VTR_UPLOAD_MetadataPair[] metadatas, bool isAdd2DB, List<int> taskIds)
+        
+        private async Task<List<int>> AddCommitVTRBUTasksExAsync(List<VTRUploadTaskContent> commitTasks, bool ignoreWrong, List<VTR_UPLOAD_MetadataPair> metadatas, bool isAdd2DB, List<int> taskIds)
         {
-            taskIds = new List<int>();
+
             if (commitTasks == null || commitTasks.Count <= 0)
             {
                 throw new Exception("No any commit tasks");
@@ -1400,9 +1610,8 @@
                 }
 
                 DateTime preSetEndTime = preSetBeginTime + tsDuration;
-                //Sobey.Ingest.Log.LoggerService.Info("In RecBusinessRule.VTROper.AddCommitVTRBUTasksEx. preSetEndTime:" + GlobalFun.DateTimeToString(preSetEndTime));
 
-                await GetFreeTimePeriodByVtrId(freeVtrTimePeriods, preSetBeginTime, vtrTask.nTaskId);
+                freeVtrTimePeriods = await GetFreeTimePeriodByVtrId(freeVtrTimePeriods, preSetBeginTime, vtrTask.nTaskId);
                 //首先对vtr进行判断
                 if (freeVtrTimePeriods == null
                     || freeVtrTimePeriods.Periods == null
@@ -1448,6 +1657,7 @@
                 }
 
                 channelsTimePeriods = await GetChannelsFreeTimePeriods(preSetBeginTime, channelIds, vtrTask.nTaskId);
+
                 if (channelsTimePeriods == null
                     || channelsTimePeriods.Count <= 0)
                 {
@@ -1495,7 +1705,6 @@
                                 selectedChannel = tempTP.Id;
                                 preSetBeginTime = tempTP.StartTime.AddSeconds(3);
                                 preSetEndTime = preSetBeginTime + preSetChTP.Duration;
-                                //Sobey.Ingest.Log.LoggerService.Info("In RecBusinessRule.VTROper.AddCommitVTRBUTasksEx. preSetEndTime2:" + GlobalFun.DateTimeToString(preSetEndTime));
                                 break;
                             }
                         }
@@ -1540,9 +1749,8 @@
                         }
                     }
                 }
-
-
-                await GetFreeTimePeriodByVtrId(freeVtrTimePeriods, preSetBeginTime, -1);//这多个通道要提交的，要不就是还没提交过的，要不就是提交过的，但是是失败的任务
+                
+                freeVtrTimePeriods = await GetFreeTimePeriodByVtrId(freeVtrTimePeriods, preSetBeginTime, -1);//这多个通道要提交的，要不就是还没提交过的，要不就是提交过的，但是是失败的任务
                 if (freeVtrTimePeriods == null
                     || freeVtrTimePeriods.Periods == null
                     || freeVtrTimePeriods.Periods.Count <= 0)
@@ -1568,8 +1776,9 @@
                         channelIds.Add(info.ID);
                     }
                 }
-                
+
                 channelsTimePeriods = await GetChannelsFreeTimePeriods(preSetBeginTime, channelIds, commitTasks[0].nTaskId);
+
                 if (channelsTimePeriods == null
                     || channelsTimePeriods.Count <= 0)
                 {
@@ -1600,7 +1809,6 @@
                             dtBegin = DateTimeFormat.DateTimeFromString(commitTasks[i].strBegin);
                         }
                     }
-
                     
                     // ---------------- The End 2014-02-27 ----------------
 
@@ -1801,43 +2009,215 @@
             }
 
             //开始往表里加任务
-            await SetVBUT2DataSet(commitTasks, metadatas, isAdd2DB, taskIds);
+            taskIds = await SetVBUT2DataSetAsync(commitTasks, metadatas, isAdd2DB, taskIds);
 
-            return true;
+            return taskIds;
         }
 
-        private async Task SetVBUT2DataSet(List<VTRUploadTaskContent> vbuTasks, VTR_UPLOAD_MetadataPair[] metadatas, bool isAdd2DB, List<int> taskIds)
+        private async Task<List<int>> SetVBUT2DataSetAsync(List<VTRUploadTaskContent> vbuTasks, List<VTR_UPLOAD_MetadataPair> metadatas, bool isAdd2DB, List<int> taskIds)
         {
-            vbuTasks.ForEach(x => {
-                if(x.nTaskId <0)
-                {
-                    x.nTaskId = IngestTaskDBContext.next_val("DBP_SQ_TASKID");
-                }
-
-                if (string.IsNullOrEmpty(x.strTaskGUID))
-                {
-                    x.strTaskGUID = Guid.NewGuid().ToString();
-                }
-            });
-
-            await TaskStore.UpdateTaskListAsync(Mapper.Map<List<DbpTask>>(vbuTasks));
+            List<DbpTask> submitTasks = new List<DbpTask>();
+            List<DbpTaskSource> submitTaskSource = new List<DbpTaskSource>();
+            List<DbpPolicytask> submitPolicy = new List<DbpPolicytask>();
+            List<VtrUploadtask> vtrUploadtasks = new List<VtrUploadtask>();
 
             foreach (VTRUploadTaskContent task in vbuTasks)
             {
+                int tempId = task.nTaskId;
+                if (tempId < 0)
+                {
+                    task.nTaskId = IngestTaskDBContext.next_val("DBP_SQ_TASKID");
+                    taskIds.Add(task.nTaskId);
+                }
+
+                if (string.IsNullOrEmpty(task.strTaskGUID))
+                {
+                    task.strTaskGUID = Guid.NewGuid().ToString();
+                }
+                //task.emTaskState = VTRUPLOADTASKSTATE.VTR_UPLOAD_COMMIT;
+
                 if (metadatas != null)
                 {
                     foreach (VTR_UPLOAD_MetadataPair metadata in metadatas)
                     {
-                        //if (metadata.nTaskID == tempId)
-                        //{
-                        //    //taskOper.SetTaskMetaData(task.nTaskId, (MetaDataType)metadata.emType, metadata.strMetadata);
-                        //    SetVBUTasksMetadatas(taskOper, task.nTaskId, (MetaDataType)metadata.emType, metadata.strMetadata);
-                        //}
+                        if (metadata.nTaskID == tempId)
+                        {
+                            await SetVBUTasksMetadatasAsync(task.nTaskId, (MetaDataType)metadata.emType, metadata.strMetadata);
+                        }
                     }
+                }
+                
+                if (isAdd2DB)
+                {
+                    task.strUserToken = "VTRBATCHUPLOAD_ERROR_OK";
+                    var dbpTask = new DbpTask();
+                    dbpTask = VTRUploadTaskContent2Dbptask(true, task, dbpTask, -1);
+
+                    submitTasks.Add(dbpTask);
+                    submitTaskSource.Add(new DbpTaskSource() { Taskid = task.nTaskId, Tasksource = (int)TaskSource.emVTRUploadTask });
+
+                    //await VtrStore.GetPolicyuser(a => a.Where(x => x.Usercode == task.strUserCode));
+                    List<DbpMetadatapolicy> dbpMetadatapolicies = await VtrStore.GetMetadatapoliciesByUserCode(task.strUserCode);
+                    
+                    foreach (DbpMetadatapolicy policy in dbpMetadatapolicies)
+                    {
+                        submitPolicy.Add(new DbpPolicytask() { Policyid = policy.Policyid, Taskid = task.nTaskId });
+                    }
+                }
+                else
+                {
+                    DbpTask dbpTask = await TaskStore.GetTaskAsync(a => a.Where(x => x.Taskid == task.nTaskId));
+                    if (dbpTask != null)
+                    {
+                        dbpTask = VTRUploadTaskContent2Dbptask(true, task, dbpTask, -1);
+                        submitTasks.Add(dbpTask);
+                    }
+
+                    VtrUploadtask uploadtask = await TaskStore.GetVtrUploadTaskAsync(a => a.Where(x => x.Taskid == task.nTaskId));
+                    if (uploadtask != null)
+                    {
+                        uploadtask = VTRUploadTaskContent2VTRUPLOADTASK(task, uploadtask, - 1);
+                        vtrUploadtasks.Add(uploadtask);
+                    }
+                }
+                
+            }
+
+            if (isAdd2DB)
+            {
+                await TaskStore.AddTaskList(submitTasks);
+                await TaskStore.AddTaskSourceList(submitTaskSource);
+                await TaskStore.AddPolicyTask(submitPolicy);
+            }
+            else
+            {
+                await TaskStore.UpdateTaskListAsync(submitTasks);
+                await TaskStore.UpdateVtrUploadTaskListAsync(vtrUploadtasks);
+
+            }
+
+            return taskIds;
+        }
+
+        public async Task<TResult> AddVTRBatchUploadTasksAsync<TResult>(List<VTRUploadTaskContent> vtrTasks, List<VTRUPLOADMetadataPairRequest> metadatas, bool ignoreWrong)
+        {
+            //判断是否为缓存状态，如果是，只存在VTR_UPLOAD表中
+
+            //如果是提交状态，那么再次判断是否自动选择通道
+            //1.判断VTR这个设备在当前时间是不是有冲突。
+            //2.如果是自动选择，选择一下通道，建起任务
+            //3.若已经分配好通道的，只需要判断是否时间上有冲突就行了
+            VtrBatchUploadTaskResponse response = new VtrBatchUploadTaskResponse();
+            response.taskids = new List<int>();
+            response.errorcode = VTR_BUT_ErrorCode.emNormal;
+            
+            if (vtrTasks == null || vtrTasks.Count <= 0)
+            {
+                throw new Exception("The Tasks params is smaller than 0.");
+            }
+
+            List<VTRUploadTaskContent> tempSaveTasks = new List<VTRUploadTaskContent>();
+            List<VTRUploadTaskContent> commitTasks = new List<VTRUploadTaskContent>();
+             
+            int vtrId = 0;
+            foreach (VTRUploadTaskContent task in vtrTasks)
+            {
+                vtrId = task.nVtrId;
+
+                if (task.emTaskState == VTRUPLOADTASKSTATE.VTR_UPLOAD_TEMPSAVE)
+                {
+                    tempSaveTasks.Add(task);
+                }
+
+                if (task.emTaskState == VTRUPLOADTASKSTATE.VTR_UPLOAD_COMMIT)
+                {
+                    commitTasks.Add(task);
                 }
             }
 
+            List<int> taskIds = new List<int>();
+            List<VTR_UPLOAD_MetadataPair> metada = Mapper.Map<List<VTR_UPLOAD_MetadataPair>>(metadatas);
+            try
+            {
+                if (tempSaveTasks.Count > 0)
+                {
+                    taskIds = await AddTempSaveVTRBUTasksAsync(tempSaveTasks, metada, taskIds);
+                }
+
+                if (commitTasks.Count > 0)
+                {
+                    taskIds = await AddCommitVTRBUTasksExAsync(commitTasks, ignoreWrong, metada, true, taskIds);
+
+                }
+                if (taskIds.Count > 0)
+                {
+                    for (int i = 0; i < taskIds.Count; i++)
+                    {
+                        response.taskids.Add(taskIds[i]);
+                    }
+                }
+
+            }
+            catch (System.Exception ex)
+            {
+                response.errorcode = GetErrorCode(ex.Message);
+
+                string msg = ex.Message;
+                if (response.errorcode == VTR_BUT_ErrorCode.emVTRCollide)
+                {
+                    if (vtrId > 0)
+                    {
+                        VtrDetailinfo vtrInfo = (await VtrStore.GetDetailinfo(a => a.Where(x => x.Vtrid == vtrId))).FirstOrDefault();
+                        msg = string.Format("{0} has been used by other tasks", vtrInfo.Vtrname);
+                    }
+                }
+
+                if (response.errorcode == VTR_BUT_ErrorCode.emNoChannel)
+                {
+                    msg = "No MSV channel can accept all the tasks, do you want to continue?";
+                }
+
+                if (response.errorcode == VTR_BUT_ErrorCode.emSomeSuccessful)
+                {
+                    msg = "The target MSV channel cannot accept all the tasks, do you want to continue?";
+                }
+
+                //重新抛个异常出去
+                throw new Exception(msg);
+            }
+
+            return Mapper.Map<TResult> (response);
         }
+
+        private async Task<List<int>> AddTempSaveVTRBUTasksAsync(List<VTRUploadTaskContent> tempSaveTasks, List<VTR_UPLOAD_MetadataPair> metadatas, List<int> taskIds)
+        {
+            if (tempSaveTasks.Count <= 0)
+            {
+                return new List<int>();
+            }
+
+            //占存的任务，只在DBP_TASK表中，占一席之地，以方便查找，开始时间和结束时间，改为最小值，在提交的时候，进行修改
+            //不去改变它的时间，等提交时，再去改变时间
+
+            //timestamp范围为1970年，以后修改2037那个bug之后，这里修改回来   edit by:xietao
+            //这个开始时间没用，只是占位，随意设置
+            foreach (VTRUploadTaskContent task in tempSaveTasks)
+            {
+                DateTime dtCur = System.DateTime.Now;
+                DateTime dtNow = new DateTime(1990, 1, 1, dtCur.Hour, dtCur.Minute, dtCur.Second);
+
+
+                task.strBegin = dtNow.ToString("yyyy-MM-dd HH:mm:ss");
+                //task.strEnd = GlobalFun.DateTimeToString(DateTime.MinValue);
+                task.strEnd = dtNow.ToString("yyyy-MM-dd HH:mm:ss");
+            }
+
+            //开始往表里加任务
+            taskIds = await SetVBUT2DataSetAsync(tempSaveTasks, metadatas, true, taskIds);
+            
+            return taskIds;
+        }
+
 
         public async Task DeleteVtrUploadTask(int taskId)
         {

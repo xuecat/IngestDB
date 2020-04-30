@@ -219,5 +219,8 @@
         /// <param name="task">The Vtr上传任务<see cref="VtrUploadtask"/>.</param>
         /// <returns>The 是否更新成功<see cref="Task{bool}"/>.</returns>
         Task<bool> UpdateUploadtask(VtrUploadtask task);
+
+
+        Task<List<DbpMetadatapolicy>> GetMetadatapoliciesByUserCode(string usercode);
     }
 }

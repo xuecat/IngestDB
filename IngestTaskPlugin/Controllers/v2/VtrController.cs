@@ -646,5 +646,266 @@
             }
             return response;
         }
+
+
+
+        #region vtr set
+
+        /// <summary>
+        /// 修改一个VTR上载任务
+        /// </summary>
+        /// <param name="vtrtaskrequest">见定义</param>
+        /// <returns></returns>
+        [HttpPut("vtruploadtask/modify")]
+        public async  Task<ResponseMessage<VTRUploadTaskContentResponse>> SetVTRUploadTask([FromBody] VTRUploadTaskRequest vtrtaskrequest)
+        {
+            ResponseMessage<VTRUploadTaskContentResponse> response = new ResponseMessage<VTRUploadTaskContentResponse>();
+            try
+            {
+                if (vtrtaskrequest.vtrtask.nTaskId <= 0)
+                {
+                    response.Msg = "TaskId Invalid.";
+                    response.Code = ResponseCodeDefines.ArgumentNullError;
+                }
+                //bool ret = VTRACCESS.SetVTRUploadTask(ref pIn.vtrTask, pIn.metadatas, pIn.lMask);
+                //res.extention = pIn.vtrTask;  //返回vtr任务，原本传递的引用，这里只能返回
+
+                response.Ext = await _VtrManage.SetVTRUploadTaskAsync<VTRUploadTaskContentResponse>(vtrtaskrequest.vtrtask, vtrtaskrequest.metadatas, vtrtaskrequest.lmask);
+
+                //GLOBALSERVICE.SetGlobalState2(ClientOperLabelName.VTR_UPLOAD_ModifyTask);
+                var _globalinterface = ApplicationContext.Current.ServiceProvider.GetRequiredService<IIngestGlobalInterface>();
+                if (_globalinterface != null)
+                {
+                    GlobalInternals re = new GlobalInternals() { funtype = IngestDBCore.GlobalInternals.FunctionType.SetGlobalState, State = ClientOperLabelName.VTR_UPLOAD_ModifyTask };
+                    var response1 = await _globalinterface.SubmitGlobalCallBack(re);
+                    if (response1.Code != ResponseCodeDefines.SuccessCode)
+                    {
+                        Logger.Error("SetGlobalState modtask error");
+                    }
+                }
+                //UdpNotify.SendToAll(UdpNotify.NotifyType_ModifyTask, pIn.vtrTask.nTaskId);
+                //res.nCode = (ret == true) ? 1 : 0;
+                response.Code = response.Ext != null ? ResponseCodeDefines.SuccessCode : ResponseCodeDefines.ServiceError;
+            }
+            catch (Exception e)//其他未知的异常，写异常日志
+            {
+                if (e.GetType() == typeof(SobeyRecException))//sobeyexcep会自动打印错误
+                {
+                    SobeyRecException se = e as SobeyRecException;
+                    response.Code = se.ErrorCode.ToString();
+                    response.Msg = se.Message;
+                }
+                else
+                {
+                    response.Code = ResponseCodeDefines.ServiceError;
+                    response.Msg = "error info：" + e.ToString();
+                    Logger.Error("GetUserInfoByCode : " + response.Msg);
+                }
+            }
+            return response;
+
+        }
+
+
+        /// <summary>
+        /// 通过ID获得上载任务信息
+        /// </summary>
+        /// <param name="taskid"></param>
+        /// <returns>VTRUploadTaskInfoResponse</returns>
+        [HttpGet("vtruploadtask/{taskid}")]
+        public async Task<ResponseMessage<VTRUploadTaskInfoResponse>> GetUploadTaskInfoByID([FromRoute, BindRequired] int taskid)
+        {
+            ResponseMessage<VTRUploadTaskInfoResponse> response = new ResponseMessage<VTRUploadTaskInfoResponse>();
+            try
+            {
+                response.Ext = await _VtrManage.GetUploadTaskInfoByIDAsync<VTRUploadTaskInfoResponse>(taskid);
+                response.Code = ResponseCodeDefines.SuccessCode;
+            }
+            catch (Exception e)//其他未知的异常，写异常日志
+            {
+                if (e.GetType() == typeof(SobeyRecException))//sobeyexcep会自动打印错误
+                {
+                    SobeyRecException se = e as SobeyRecException;
+                    response.Code = se.ErrorCode.ToString();
+                    response.Msg = se.Message;
+                }
+                else
+                {
+                    response.Code = ResponseCodeDefines.ServiceError;
+                    response.Msg = "error info：" + e.ToString();
+                    Logger.Error("GetUserInfoByCode : " + response.Msg);
+                }
+            }
+            return response;
+        }
+
+        /// <summary>
+        /// 提交一个vtr上载任务VTR_BUT_ErrorCode
+        /// </summary>
+        /// <param name="taskid"></param>
+        /// <returns> 扩展字段枚举VTR_BUT_ErrorCode的整数形式 </returns>
+        [HttpPost("vtruploadtask/commit/{taskid}")]
+        [Route("api/vtr/CommitVTRUploadTask")]
+        public async Task<ResponseMessage<int>> CommitVTRUploadTask([FromRoute, BindRequired] int taskid)
+        {
+            ResponseMessage<int> response = new ResponseMessage<int>();
+            response.Ext = (int)VTR_BUT_ErrorCode.emNormal;
+
+            try
+            {
+                if (taskid <= 0)
+                {
+                    response.Msg = "taskId is Invalid";
+                    response.Code = ResponseCodeDefines.ArgumentNullError;
+                }
+
+                response.Ext = await _VtrManage.CommitVTRBatchUploadTasksAsync(new List<int>() { taskid }, true );//.CommitVTRUploadTask(taskId);
+
+                //GLOBALSERVICE.SetGlobalState2(ClientOperLabelName.VTR_UPLOAD_AddTask);
+                var _globalinterface = ApplicationContext.Current.ServiceProvider.GetRequiredService<IIngestGlobalInterface>();
+                if (_globalinterface != null)
+                {
+                    GlobalInternals re = new GlobalInternals() { funtype = IngestDBCore.GlobalInternals.FunctionType.SetGlobalState, State = ClientOperLabelName.VTR_UPLOAD_AddTask };
+                    var response1 = await _globalinterface.SubmitGlobalCallBack(re);
+                    if (response1.Code != ResponseCodeDefines.SuccessCode)
+                    {
+                        Logger.Error("SetGlobalState modtask error");
+                    }
+                }
+                //UdpNotify.SendToAll(UdpNotify.NotifyType_ModifyTask, taskId);
+
+                response.Code = response.Ext == (int)VTR_BUT_ErrorCode.emNormal ? ResponseCodeDefines.SuccessCode : ResponseCodeDefines.ServiceError;
+            }
+            catch (Exception e)//其他未知的异常，写异常日志
+            {
+                if (e.GetType() == typeof(SobeyRecException))//sobeyexcep会自动打印错误
+                {
+                    SobeyRecException se = e as SobeyRecException;
+                    response.Code = se.ErrorCode.ToString();
+                    response.Msg = se.Message;
+                }
+                else
+                {
+                    response.Code = ResponseCodeDefines.ServiceError;
+                    response.Msg = "error info：" + e.ToString();
+                    Logger.Error("GetUserInfoByCode : " + response.Msg);
+                }
+            }
+            return response;
+        }
+
+
+        /// <summary>
+        /// 提交vtr批量上载任务
+        /// </summary>
+        /// <param name="param"></param>
+        /// <returns>extention为整数，对应枚举 VTR_BUT_ErrorCode </returns>
+        [HttpPost("vtruploadtask/commit")]
+        public async Task<ResponseMessage<int>> CommitVTRBatchUploadTasks([FromBody] CommitParamRequest param)
+        {
+            ResponseMessage<int> response = new ResponseMessage<int>();
+
+            response.Ext = (int)VTR_BUT_ErrorCode.emNormal;
+            if (param == null)
+            {
+                response.Msg = "ths param is null";
+                return response;
+            }
+
+            try
+            {
+                if (param.taskids == null || param.taskids.Count <= 0)
+                {
+                    response.Msg = "taskIds is Invalid";
+                    response.Code = ResponseCodeDefines.ArgumentNullError;
+                    return response;
+                }
+
+                response.Ext = await _VtrManage.CommitVTRBatchUploadTasksAsync(param.taskids, param.ignorewrong);
+                //GLOBALSERVICE.SetGlobalState2(ClientOperLabelName.VTR_UPLOAD_AddTask);
+                var _globalinterface = ApplicationContext.Current.ServiceProvider.GetRequiredService<IIngestGlobalInterface>();
+                if (_globalinterface != null)
+                {
+                    GlobalInternals re = new GlobalInternals() { funtype = IngestDBCore.GlobalInternals.FunctionType.SetGlobalState, State = ClientOperLabelName.VTR_UPLOAD_AddTask };
+                    var response1 = await _globalinterface.SubmitGlobalCallBack(re);
+                    if (response1.Code != ResponseCodeDefines.SuccessCode)
+                    {
+                        Logger.Error("SetGlobalState modtask error");
+                    }
+                }
+                //UdpNotify.SendToAll(UdpNotify.NotifyType_ModifyTask, taskId);
+
+                response.Code = response.Ext == (int)VTR_BUT_ErrorCode.emNormal ? ResponseCodeDefines.SuccessCode : ResponseCodeDefines.ServiceError;
+            }
+            catch (Exception e)//其他未知的异常，写异常日志
+            {
+                if (e.GetType() == typeof(SobeyRecException))//sobeyexcep会自动打印错误
+                {
+                    SobeyRecException se = e as SobeyRecException;
+                    response.Code = se.ErrorCode.ToString();
+                    response.Msg = se.Message;
+                }
+                else
+                {
+                    response.Code = ResponseCodeDefines.ServiceError;
+                    response.Msg = "error info：" + e.ToString();
+                    Logger.Error("GetUserInfoByCode : " + response.Msg);
+                }
+            }
+            return response;
+        }
+
+
+        /// <summary>
+        /// 增加一系列VTR批量上载任务
+        /// </summary>
+        /// <param name="pin">见声明</param>
+        /// <returns>见声明</returns>
+        [HttpPost("vtrbatchuploadtasks/add")]
+        public async Task<ResponseMessage<VtrBatchUploadTaskResponse>> AddVTRBatchUploadTasks([FromBody] VTRBatchUploadTasksRequest pin)
+        {
+            ResponseMessage<VtrBatchUploadTaskResponse> response = new ResponseMessage<VtrBatchUploadTaskResponse>();
+            response.Ext = new VtrBatchUploadTaskResponse();
+
+            response.Ext.errorcode = VTR_BUT_ErrorCode.emNormal;
+            response.Ext.taskids = null;
+            if (pin == null)
+            {
+                response.Msg = "ths param is null";
+                return response;
+            }
+            try
+            {
+                if (pin.vtrtasks == null || pin.vtrtasks.Count <= 0)
+                {
+                    response.Msg = "vtrTasks is null";
+                    response.Code = ResponseCodeDefines.ArgumentNullError;
+                }
+
+                response.Ext = await _VtrManage.AddVTRBatchUploadTasksAsync<VtrBatchUploadTaskResponse>(pin.vtrtasks, pin.metadatas, pin.ignoreWrong);
+                
+                response.Code = response.Ext.errorcode == VTR_BUT_ErrorCode.emNormal ? ResponseCodeDefines.SuccessCode : ResponseCodeDefines.ServiceError;
+            }
+            catch (Exception e)//其他未知的异常，写异常日志
+            {
+                if (e.GetType() == typeof(SobeyRecException))//sobeyexcep会自动打印错误
+                {
+                    SobeyRecException se = e as SobeyRecException;
+                    response.Code = se.ErrorCode.ToString();
+                    response.Msg = se.Message;
+                }
+                else
+                {
+                    response.Code = ResponseCodeDefines.ServiceError;
+                    response.Msg = "error info：" + e.ToString();
+                    Logger.Error("GetUserInfoByCode : " + response.Msg);
+                }
+            }
+
+            return response;
+        }
+
+        #endregion
+
     }
 }
