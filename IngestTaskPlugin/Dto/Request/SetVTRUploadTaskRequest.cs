@@ -59,7 +59,7 @@ namespace IngestTaskPlugin.Dto.Request
     public class SetVTRUploadTask_in
     {
         public VTRUploadTaskContent vtrTask;
-        public VTR_UPLOAD_MetadataPair[] metadatas;
+        public List<VTR_UPLOAD_MetadataPair> metadatas;
         public long lMask;
         public VTRUploadTaskMask uploadTaskMask;
 

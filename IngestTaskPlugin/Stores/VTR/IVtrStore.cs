@@ -51,6 +51,24 @@
         Task<TResult> GetPolicyuser<TResult>(Func<IQueryable<DbpPolicyuser>, Task<TResult>> query, bool notrack = false);
 
         /// <summary>
+        /// The 任务元数据备份.
+        /// </summary>
+        /// <typeparam name="TResult">返回类型.</typeparam>
+        /// <param name="query">The 条件<see cref="Func{IQueryable{DbpTaskMetadataBackup}, IQueryable{TResult}}"/>.</param>
+        /// <param name="notrack">The 是否跟踪<see cref="bool"/>.</param>
+        /// <returns>The 查询结果 <see cref="Task{List{TResult}}"/>.</returns>
+        Task<List<TResult>> GetTaskMetadataBackup<TResult>(Func<IQueryable<DbpTaskMetadataBackup>, IQueryable<TResult>> query, bool notrack = false);
+
+        /// <summary>
+        /// The 任务元数据备份.
+        /// </summary>
+        /// <typeparam name="TResult">返回类型.</typeparam>
+        /// <param name="query">The 条件<see cref="Func{IQueryable{DbpTaskMetadataBackup}, Task{TResult}}"/>.</param>
+        /// <param name="notrack">The 是否跟踪<see cref="bool"/>.</param>
+        /// <returns>The 查询结果 <see cref="Task{TResult}"/>.</returns>
+        Task<TResult> GetTaskMetadataBackup<TResult>(Func<IQueryable<DbpTaskMetadataBackup>, Task<TResult>> query, bool notrack = false);
+
+        /// <summary>
         /// The 查询磁带列表.
         /// </summary>
         /// <typeparam name="TResult">返回类型.</typeparam>

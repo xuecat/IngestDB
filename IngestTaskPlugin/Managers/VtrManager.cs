@@ -76,7 +76,7 @@
         public async Task<int> SetTapeInfoAsync(int tapeId, string tapeName, string tapeDesc)
         {
             var newTapeId = await VtrStore.SaveTaplist(new VtrTapelist
-                { Tapeid = tapeId, Tapename = tapeName, Tapedesc = tapeDesc });
+            { Tapeid = tapeId, Tapename = tapeName, Tapedesc = tapeDesc });
             return newTapeId;
         }
 
@@ -137,14 +137,15 @@
             DateTime beginCheckTime = info.CommitTime;
 
             TimeSpan tsDuration = new TimeSpan();
-            if(info.BlankTaskId > 0)//入点加长度
+            if (info.BlankTaskId > 0)//入点加长度
             {
                 tsDuration = new TimeSpan(0, 0, info.TrimOutCTL / info.BlankTaskId);
-            } else
+            }
+            else
             {
                 SB_TimeCode tcIn = new SB_TimeCode((uint)info.TrimInCTL);
                 SB_TimeCode tcOut = new SB_TimeCode((uint)info.TrimOutCTL);
-                if((uint)info.TrimOutCTL < (uint)info.TrimInCTL)
+                if ((uint)info.TrimOutCTL < (uint)info.TrimInCTL)
                 {
                     tcOut.Hour += 24;
                 }
@@ -155,22 +156,22 @@
 
             await IsTimePeriodUsable(tp, info.ChannelId, info.VtrId, info.VtrTaskId);
 
-            if(vtrtask == null)
+            if (vtrtask == null)
             {
                 retTaskID = info.VtrTaskId = await VtrStore.GetTask(a => a.MaxAsync(x => x.Taskid)) + 1;
 
-                if(info.CommitTime == DateTime.MinValue)
+                if (info.CommitTime == DateTime.MinValue)
                 {
                     info.CommitTime = DateTime.Now;
                 }
 
-                if(string.IsNullOrEmpty(info.TaskGUID))
+                if (string.IsNullOrEmpty(info.TaskGUID))
                 {
                     info.TaskGUID = Guid.NewGuid().ToString();
                 }
 
                 var upload = Mapper.Map<VtrUploadtask>(info);
-                if(upload.Tapeid == 0)
+                if (upload.Tapeid == 0)
                 {
                     upload.Tapeid = await VtrStore.GetTapeVtrMap(a => a.Where(x => x.Vtrid == upload.Vtrid)
                         .Select(x => x.Tapeid)
@@ -185,15 +186,16 @@
                 await TaskStore.AddTaskSource(taskSource);
 
                 await AddPolicyTaskByUserCode(info.UserCode, info.VtrTaskId);
-            } else
+            }
+            else
             {
-                if(info.CommitTime == DateTime.MinValue)
+                if (info.CommitTime == DateTime.MinValue)
                 {
                     info.CommitTime = DateTime.Now;
                 }
                 info.VtrTaskId = vtrtask.Taskid;
                 var upload = Mapper.Map<VtrUploadtask>(info);
-                if(upload.Tapeid == 0)
+                if (upload.Tapeid == 0)
                 {
                     upload.Tapeid = await VtrStore.GetTapeVtrMap(a => a.Where(x => x.Vtrid == upload.Vtrid)
                         .Select(x => x.Tapeid)
@@ -216,7 +218,7 @@
         public async Task SetVBUTasksMetadatasAsync(int taskId, MetaDataType type, string metadata)
         {
             //需要将其中的三个字符串提取出来
-            if(type == MetaDataType.emContentMetaData)
+            if (type == MetaDataType.emContentMetaData)
             {
                 string materialMeta = string.Empty;
                 string planningMeta = string.Empty;
@@ -224,26 +226,26 @@
                 XmlDocument doc = new XmlDocument();
                 doc.LoadXml(metadata);
                 XmlNode taskContentNode = doc.SelectSingleNode("/TaskContentMetaData");
-                if(taskContentNode != null)
+                if (taskContentNode != null)
                 {
-                    if(taskContentNode.HasChildNodes)
+                    if (taskContentNode.HasChildNodes)
                     {
                         XmlNode materialNode = doc.SelectSingleNode("/TaskContentMetaData/MetaMaterial");
-                        if(materialNode != null)
+                        if (materialNode != null)
                         {
                             materialMeta = materialNode.InnerText;
                             taskContentNode.RemoveChild(materialNode);
                         }
 
                         XmlNode planningNode = doc.SelectSingleNode("/TaskContentMetaData/MetaPlanning");
-                        if(planningNode != null)
+                        if (planningNode != null)
                         {
                             planningMeta = planningNode.InnerText;
                             taskContentNode.RemoveChild(planningNode);
                         }
 
                         XmlNode originalNode = doc.SelectSingleNode("/TaskContentMetaData/MetaOriginal");
-                        if(originalNode != null)
+                        if (originalNode != null)
                         {
                             originalMeta = originalNode.InnerText;
                             taskContentNode.RemoveChild(originalNode);
@@ -255,7 +257,8 @@
                 await TaskStore.UpdateTaskMetaDataAsync(taskId, MetaDataType.emPlanMetaData, planningMeta);
                 await TaskStore.UpdateTaskMetaDataAsync(taskId, MetaDataType.emOriginalMetaData, originalMeta);
                 await TaskStore.UpdateTaskMetaDataAsync(taskId, MetaDataType.emContentMetaData, doc.OuterXml);
-            } else
+            }
+            else
             {
                 await TaskStore.UpdateTaskMetaDataAsync(taskId, type, metadata);
             }
@@ -290,7 +293,8 @@
         /// <returns>磁带信息<see cref="Task{TResult}"/>.</returns>
         public async Task<TResult> GetVTRUploadTaskByIdAsync<TResult>(int taskId)
         {
-            return Mapper.Map<TResult>(await VtrStore.GetUploadtask(a => a.SingleOrDefaultAsync(x => x.Taskid == taskId)));
+            var conditionRequest = new VTRUploadConditionRequest { TaskId = taskId };
+            return Mapper.Map<List<TResult>>(await VtrStore.GetUploadTaskContent(conditionRequest)).FirstOrDefault();
         }
 
         /// <summary>
@@ -302,7 +306,7 @@
         {
             var vtrinfo = Mapper.Map<TResult>(await VtrStore.GetDetailinfo(a => a.SingleOrDefaultAsync(x => x.Vtrid ==
                 vtrId)));
-            if(vtrinfo == null)
+            if (vtrinfo == null)
             {
                 SobeyRecException.ThrowSelfNoParam(string.Format(GlobalDictionary.Instance
                     .GetMessageByCode(GlobalDictionary.GLOBALDICT_CODE_VTRID_DOES_NOT_EXIST_THE_NVTRID_IS_ONEPARAM),
@@ -348,16 +352,16 @@
         {
             var upload = await VtrStore.GetUploadtask(a => a.FirstOrDefaultAsync(x => x.Taskid == taskId), true);
 
-            if(upload == null)
+            if (upload == null)
             {
-                if(vtrTaskState == VTRUPLOADTASKSTATE.VTR_UPLOAD_COMMIT &&
+                if (vtrTaskState == VTRUPLOADTASKSTATE.VTR_UPLOAD_COMMIT &&
                     (upload.Taskstate == (int)VTRUPLOADTASKSTATE.VTR_UPLOAD_COMPLETE))
                 {//已入库素材重新上载是，改变GUID以保证再次入库时不会覆盖前面的素材
                     upload.Taskguid = Guid.NewGuid().ToString();
                 }
 
                 upload.Taskstate = (int)vtrTaskState;
-                if(vtrTaskState == VTRUPLOADTASKSTATE.VTR_UPLOAD_FAIL)
+                if (vtrTaskState == VTRUPLOADTASKSTATE.VTR_UPLOAD_FAIL)
                 {
                     upload.Usertoken = errorContent;
                 }
@@ -389,14 +393,14 @@
 
             //再获得计划的上载任务
             List<VTRUploadTaskContentResponse> vtrTasks = await VtrStore.GetNeedScheduleExecuteVTRUploadTasks(DateTime.Now);
-            if(vtrTasks != null && vtrTasks.Count > 0)
+            if (vtrTasks != null && vtrTasks.Count > 0)
             {
                 //每个通道只能返回一个，每个VTR也只能返回一个，而且只能返回时间最前的那个                
-                foreach(VTRUploadTaskContentResponse vtrScheduleTask in vtrTasks)
+                foreach (VTRUploadTaskContentResponse vtrScheduleTask in vtrTasks)
                 {
                     //重新调整开始时间
                     DateTime dtEnd = vtrScheduleTask.EndTime;
-                    if(dtEnd <= DateTime.Now)
+                    if (dtEnd <= DateTime.Now)
                     {
                         //重新调整开始时间跟结束时间 
                         SB_TimeCode tcIn = new SB_TimeCode((uint)vtrScheduleTask.TrimIn);
@@ -410,13 +414,13 @@
                     }
                     int i = 0;
                     bool isNeedReplace = false;
-                    for(; i < uploadTaskList.Count; i++)
+                    for (; i < uploadTaskList.Count; i++)
                     {
-                        if(uploadTaskList[i].ChannelId == vtrScheduleTask.ChannelId ||
+                        if (uploadTaskList[i].ChannelId == vtrScheduleTask.ChannelId ||
                             uploadTaskList[i].VtrId == vtrScheduleTask.VtrId)
                         {
                             //只返回时间上最小的
-                            if(vtrScheduleTask.BeginTime < uploadTaskList[i].BeginTime)
+                            if (vtrScheduleTask.BeginTime < uploadTaskList[i].BeginTime)
                             {
                                 isNeedReplace = true;
                                 break;
@@ -425,17 +429,17 @@
                     }
 
                     bool isHaveCapturingManulTask = false;
-                    if(capturingTasks != null)
+                    if (capturingTasks != null)
                     {
-                        foreach(TaskContent capturingTask in capturingTasks)
+                        foreach (TaskContent capturingTask in capturingTasks)
                         {
-                            if(capturingTask.nChannelID == vtrScheduleTask.ChannelId)
+                            if (capturingTask.nChannelID == vtrScheduleTask.ChannelId)
                             {
-                                if(capturingTask.emCooperantType == CooperantType.emKamataki)
+                                if (capturingTask.emCooperantType == CooperantType.emKamataki)
                                 {
                                     TaskSource ts = await TaskManager.GetTaskSource(capturingTask.nTaskID);
                                     //加上判断，如果遇到vtr上载任务的话，那么先不管，但是不让返回，等待下次判断
-                                    if(ts != TaskSource.emVTRUploadTask)
+                                    if (ts != TaskSource.emVTRUploadTask)
                                     {
                                         await SetVTRUploadTaskStateAsync(vtrScheduleTask.TaskId,
                                                                          VTRUPLOADTASKSTATE.VTR_UPLOAD_FAIL,
@@ -450,17 +454,17 @@
                     }
 
                     //没有找到相同的vtr或者channel的任务
-                    if(i == 0 || (i == uploadTaskList.Count && !isNeedReplace))
+                    if (i == 0 || (i == uploadTaskList.Count && !isNeedReplace))
                     {
-                        if(!isHaveCapturingManulTask)
+                        if (!isHaveCapturingManulTask)
                         {
                             uploadTaskList.Add(vtrScheduleTask);
                         }
                     }
 
-                    if(isNeedReplace)
+                    if (isNeedReplace)
                     {
-                        if(!isHaveCapturingManulTask)
+                        if (!isHaveCapturingManulTask)
                         {
                             uploadTaskList.RemoveAt(i - 1);
                             uploadTaskList.Add(vtrScheduleTask);
@@ -490,12 +494,13 @@
             List<DbpPolicytask> tasks = new List<DbpPolicytask>();
             //首先根据User ID查找Policy ID
             var policys = await VtrStore.GetPolicyuser(a => a.Where(x => x.Usercode == userCode));
-            if(policys.Count > 0)
+            if (policys.Count > 0)
             {
                 var policyIds = policys.Select(x => x.Policyid).ToList();
                 tasks = await VtrStore.GetMetadatapolicy(a => a.Where(x => policyIds.Contains(x.Policyid))
                     .Select(x => new DbpPolicytask { Policyid = x.Policyid, Taskid = vtrTaskId }));
-            } else
+            }
+            else
             {
                 tasks = await VtrStore.GetMetadatapolicy(a => a.Where(x => x.Defaultpolicy != 0)
                     .Select(x => new DbpPolicytask { Policyid = x.Policyid, Taskid = vtrTaskId }));
@@ -520,7 +525,7 @@
 
             await GetFreeTimePeriodByVtrId(vtrFreeTimePeriods, beginCheckTime, exTaskId);
 
-            if(!IsTimePeriodInVTRTimePeriods(tp, vtrFreeTimePeriods))
+            if (!IsTimePeriodInVTRTimePeriods(tp, vtrFreeTimePeriods))
             {
                 SobeyRecException.ThrowSelfNoParam(nameof(IsTimePeriodUsable) + "VTR Collide",
                                                    GlobalDictionary.GLOBALDICT_CODE_IN_ISVTRCOLLIDE_BEGINTIME_IS_WRONG,
@@ -534,7 +539,7 @@
             channelIds.Add(channelId);
             channelsTimePeriods = await GetChannelsFreeTimePeriods(beginCheckTime, channelIds, exTaskId);
 
-            if(channelsTimePeriods != null &&
+            if (channelsTimePeriods != null &&
                 channelsTimePeriods[0] != null &&
                 !IsTimePeriodInChannelTimePeriods(tp, channelsTimePeriods[0]))
             {
@@ -555,7 +560,7 @@
         /// <returns>The 是否在vtr时间段<see cref="bool"/>.</returns>
         private bool IsTimePeriodInVTRTimePeriods(TimePeriod tp, VTRTimePeriods vtrFreeTimePeriods)
         {
-            if(vtrFreeTimePeriods.Periods != null)
+            if (vtrFreeTimePeriods.Periods != null)
             {
                 return vtrFreeTimePeriods.Periods.Any(x => x.EndTime >= tp.EndTime && x.StartTime <= tp.StartTime);
             }
@@ -570,7 +575,7 @@
         /// <returns>The 是否在通道时间段<see cref="bool"/>.</returns>
         private bool IsTimePeriodInChannelTimePeriods(TimePeriod tp, ChannelTimePeriods channelFreeTimePeriods)
         {
-            if(channelFreeTimePeriods.Periods != null)
+            if (channelFreeTimePeriods.Periods != null)
             {
                 return channelFreeTimePeriods.Periods.Any(a => a.EndTime >= tp.EndTime && a.StartTime <= tp.StartTime);
             }
@@ -598,7 +603,7 @@
                                                                     DateTime beginCheckTime,
                                                                     int exTaskId)
         {
-            if(vtrFreeTimePeriods.VTRId <= 0)
+            if (vtrFreeTimePeriods.VTRId <= 0)
             {
                 SobeyRecException.ThrowSelfNoParam($"{nameof(GetFreeTimePeriodByVtrId)}: VTRId is smaller than 0",
                                                    GlobalDictionary.GLOBALDICT_CODE_IN_SETVTRTAPEMAP_TAPEID_IS_NOT_EXIST_ONEPARAM,
@@ -606,7 +611,7 @@
                                                    null);
             }
 
-            if(beginCheckTime == DateTime.MinValue)
+            if (beginCheckTime == DateTime.MinValue)
             {
                 beginCheckTime = DateTime.Now;
             }
@@ -621,14 +626,15 @@
             var manualCapturingTask = Mapper.Map<VTRUploadTaskInfo>(await TaskStore.GetVtrUploadTaskAsync(a => a.Where(x => taskStates.Contains(x.Taskstate) &&
                 x.Vtrtasktype == taskType &&
                 x.Vtrid == vtrId)));
-            if(manualCapturingTask != null)
+            if (manualCapturingTask != null)
             {
                 DateTime beginTime = DateTimeFormat.DateTimeFromString(manualCapturingTask.strCommitTime);
                 TimeSpan tsDuration = new TimeSpan();
-                if(manualCapturingTask.nBlankTaskID > 0)//入点加长度
+                if (manualCapturingTask.nBlankTaskID > 0)//入点加长度
                 {
                     tsDuration = new TimeSpan(0, 0, manualCapturingTask.nTrimOutCTL / manualCapturingTask.nBlankTaskID);
-                } else
+                }
+                else
                 {
                     SB_TimeCode inSTC = new SB_TimeCode((uint)manualCapturingTask.nTrimInCTL);
                     SB_TimeCode outSTC = new SB_TimeCode((uint)manualCapturingTask.nTrimOutCTL);
@@ -641,7 +647,7 @@
             }
 
             List<TimePeriod> scheduleTPs = await TaskStore.GetTimePeriodsByScheduleVBUTasks(vtrId, exTaskId);
-            if(scheduleTPs != null && scheduleTPs.Count > 0)
+            if (scheduleTPs != null && scheduleTPs.Count > 0)
             {
                 vtrTimePeriods.Periods.AddRange(scheduleTPs);
             }
@@ -667,7 +673,7 @@
                                                                                 List<int> channelIds,
                                                                                 int exTaskId)
         {
-            if(beginTime < new DateTime(DateTime.Now.Year, DateTime.Now.Month, DateTime.Now.Day, 0, 0, 0) ||
+            if (beginTime < new DateTime(DateTime.Now.Year, DateTime.Now.Month, DateTime.Now.Day, 0, 0, 0) ||
                 channelIds == null ||
                 channelIds.Count <= 0)
             {
@@ -680,20 +686,20 @@
 
             //取出三天的任务，进行过滤
             List<TaskContent> tasks = new List<TaskContent>();
-            for(int i = 0; i < 3; i++)
+            for (int i = 0; i < 3; i++)
             {
                 List<TaskContent> tasksIn = await TaskManager.QueryTaskContent<TaskContent>(0,
                                                                                             DateTime.Now.AddDays(i),
                                                                                             TimeLineType.em24HourDay);
-                if(tasksIn != null && tasksIn.Count > 0)
+                if (tasksIn != null && tasksIn.Count > 0)
                 {
                     tasks.AddRange(tasksIn);
                 }
             }
 
-            if(tasks == null || (tasks.Count == 1 && tasks[0] == null))
+            if (tasks == null || (tasks.Count == 1 && tasks[0] == null))
             {
-                foreach(ChannelTimePeriods ctp in chsFreeTimePeriods)
+                foreach (ChannelTimePeriods ctp in chsFreeTimePeriods)
                 {
                     ctp.Periods.Add(new TimePeriod(ctp.ChannelId, beginTime, beginTime.AddDays(2)));
                 }
@@ -704,20 +710,20 @@
             var preiodsTasks = tasks.Where(a => a.nTaskID != exTaskId &&
                 DateTimeFormat.DateTimeFromString(a.strEnd) > beginTime)
                 .ToList();
-            foreach(var task in preiodsTasks)
+            foreach (var task in preiodsTasks)
             {
                 var ctp = chsTimePeriods.FirstOrDefault(a => a.ChannelId == task.nChannelID);
-                if(ctp != null)
+                if (ctp != null)
                 {
                     DateTime dtBegin = task.strBegin.ToDateTime();
                     DateTime dtEnd = task.strEnd.ToDateTime();
-                    if((task.emTaskType == TaskType.TT_MANUTASK || task.emTaskType == TaskType.TT_OPENEND) &&
+                    if ((task.emTaskType == TaskType.TT_MANUTASK || task.emTaskType == TaskType.TT_OPENEND) &&
                         task.emState == taskState.tsExecuting)
                     {
                         dtEnd = dtBegin.AddDays(1);
                         dtBegin = DateTime.Now;
                     }
-                    if(dtEnd > beginTime)
+                    if (dtEnd > beginTime)
                     {
                         ctp.Periods.Add(new TimePeriod(ctp.ChannelId, dtBegin, dtEnd));
                     }
@@ -725,7 +731,7 @@
             }
 
             //对通道里的时间段进行排序
-            foreach(var ctp in chsTimePeriods)
+            foreach (var ctp in chsTimePeriods)
             {
                 DateTime thirdDay = beginTime.AddDays(3).AddSeconds(-1);
                 ctp.Periods = TaskManager.GetFreeTimePeriodsByTieup(ctp.ChannelId, ctp.Periods, beginTime, thirdDay);
@@ -736,22 +742,28 @@
         }
 
 
-
-
         #region vtr task update
 
-        public async Task<TResult> SetVTRUploadTask<TResult>(VTRUploadTaskContent vtrTask, VTR_UPLOAD_MetadataPair[] metadatas, long lMask)
+        public async Task<TResult> SetVTRUploadTask<TResult,TRequest>(TRequest request)
         {
+            SetVTRUploadTask_in reque = Mapper.Map<SetVTRUploadTask_in>(request);
+
+            VTRUploadTaskContent vtrTask = reque.vtrTask;
+            List<VTR_UPLOAD_MetadataPair> metadatas = reque.metadatas;
+            long lMask = reque.lMask;
+
             if (vtrTask.nTaskId <= 0)
             {
                 return default(TResult);
             }
 
-            VTRUploadCondition Condition = new VTRUploadCondition() { lTaskID = vtrTask.nTaskId };
-            List<VTRUploadTaskContent> vtrTasks = await VtrStore.GetUploadTaskContent(Condition);
+            //VTRUploadCondition Condition = new VTRUploadCondition() { lTaskID = vtrTask.nTaskId };
+            //List<VTRUploadTaskContent> vtrTasks = await VtrStore.GetUploadTaskContent(Condition);
+            VTRUploadTaskContent vtrTaskNow = await GetVTRUploadTaskByIdAsync<VTRUploadTaskContent>(vtrTask.nTaskId);
+
 
             // 新增从普通任务转换为VTR任务 VTR表中无法查询到任务，该任务原本可能是一个普通任务
-            if (vtrTasks == null || vtrTasks.Count <= 0)
+            if (vtrTaskNow == null)
             {
                 if (vtrTask.emTaskState != VTRUPLOADTASKSTATE.VTR_UPLOAD_COMMIT && vtrTask.emVtrTaskType != VTRUPLOADTASKTYPE.VTR_SCHEDULE_UPLOAD)
                 {
@@ -788,7 +800,7 @@
                 }
             }
 
-            VTRUploadTaskContent vtrTaskNow = vtrTasks[0];
+            //VTRUploadTaskContent vtrTaskNow = vtrTasks[0];
             //正在执行的状态下，不允许更新时间，不允许更新通道，不允许更新信号源，不允许更新vtrId
             if (vtrTaskNow.emTaskState == VTRUPLOADTASKSTATE.VTR_UPLOAD_EXECUTE ||
                 vtrTaskNow.emState == (int)taskState.tsExecuting)
@@ -930,7 +942,7 @@
             await TaskStore.UpdateTaskListAsync(vtrtask);
             await VtrStore.UpdateUploadtask(vtrResult);
 
-            if (metadatas != null && metadatas.Length > 0)
+            if (metadatas != null && metadatas.Count > 0)
             {
                 foreach (VTR_UPLOAD_MetadataPair meta in metadatas)
                 {
@@ -952,7 +964,7 @@
         //! @return true 成功执行
         //!
         //----------------------------------------------------------------
-        public async Task<bool> ModifyNormalTaskToVTRUploadTask(VTRUploadTaskContent vtrTask, VTR_UPLOAD_MetadataPair[] metadatas)
+        public async Task<bool> ModifyNormalTaskToVTRUploadTask(VTRUploadTaskContent vtrTask, List<VTR_UPLOAD_MetadataPair> metadatas)
         {
             Logger.Info("ModifyNormalTaskToVTRUploadTask  In ModifyNormalTaskToVTRUploadTask");
             if (vtrTask == null)
@@ -1212,7 +1224,7 @@
 
         public async Task<TResult> GetUploadTaskInfoByIDAsync<TResult>(int taskID)
         {
-            VTRUploadCondition condition = new VTRUploadCondition() { lTaskID = taskID };
+            VTRUploadConditionRequest condition = new VTRUploadConditionRequest { TaskId = taskID };
             var result = await VtrStore.GetUploadtaskInfo(condition, true);
             return Mapper.Map<TResult>(result.FirstOrDefault());
         }
@@ -1287,7 +1299,7 @@
 
                     if (vtrTaskList.Count > 0)
                     {
-                        vtrId = vtrTaskList[0].Vtrid == null?-1: (int)vtrTaskList[0].Vtrid;
+                        vtrId = vtrTaskList[0].Vtrid == null ? -1 : (int)vtrTaskList[0].Vtrid;
                         //AddCommitVTRBUTasks(vtrTaskList, ignoreWrong, null, false, out taskIdList);
                         await AddCommitVTRBUTasksEx(Mapper.Map<List<VTRUploadTaskContent>>(vtrTaskList), ignoreWrong, null, false, taskIdList);
                     }
@@ -1301,7 +1313,7 @@
                 {
                     if (vtrId > 0)
                     {
-                        VTRDetailInfo vtrInfo = Mapper.Map<VTRDetailInfo>((await VtrStore.GetDetailinfo(a=>a.Where(x=>x.Vtrid == vtrId),true)).FirstOrDefault());
+                        VTRDetailInfo vtrInfo = Mapper.Map<VTRDetailInfo>((await VtrStore.GetDetailinfo(a => a.Where(x => x.Vtrid == vtrId), true)).FirstOrDefault());
                         msg = string.Format("{0} has been used by other tasks", vtrInfo.szVTRDetailName);
                     }
                 }
@@ -1344,7 +1356,7 @@
         }
 
         //private async Task<bool> AddCommitVTRBUTasksEx(List<VTRUploadTaskContent> commitTasks, bool ignoreWrong, VTR_UPLOAD_MetadataPair[] metadatas, bool isAdd2DB, out List<int> taskIds)
-        private async Task<bool> AddCommitVTRBUTasksEx(List<VTRUploadTaskContent> commitTasks, bool ignoreWrong, VTR_UPLOAD_MetadataPair[] metadatas, bool isAdd2DB, List<int> taskIds)
+        private async Task<bool> AddCommitVTRBUTasksEx(List<VTRUploadTaskContent> commitTasks, bool ignoreWrong, List<VTR_UPLOAD_MetadataPair> metadatas, bool isAdd2DB, List<int> taskIds = null)
         {
             taskIds = new List<int>();
             if (commitTasks == null || commitTasks.Count <= 0)
@@ -1568,7 +1580,7 @@
                         channelIds.Add(info.ID);
                     }
                 }
-                
+
                 channelsTimePeriods = await GetChannelsFreeTimePeriods(preSetBeginTime, channelIds, commitTasks[0].nTaskId);
                 if (channelsTimePeriods == null
                     || channelsTimePeriods.Count <= 0)
@@ -1601,7 +1613,7 @@
                         }
                     }
 
-                    
+
                     // ---------------- The End 2014-02-27 ----------------
 
                     DateTime dtEnd = new DateTime();
@@ -1797,7 +1809,7 @@
                         }
                     }
                 }
-                
+
             }
 
             //开始往表里加任务
@@ -1806,10 +1818,11 @@
             return true;
         }
 
-        private async Task SetVBUT2DataSet(List<VTRUploadTaskContent> vbuTasks, VTR_UPLOAD_MetadataPair[] metadatas, bool isAdd2DB, List<int> taskIds)
+        private async Task SetVBUT2DataSet(List<VTRUploadTaskContent> vbuTasks, List<VTR_UPLOAD_MetadataPair> metadatas, bool isAdd2DB, List<int> listIds = null)
         {
-            vbuTasks.ForEach(x => {
-                if(x.nTaskId <0)
+            vbuTasks.ForEach(x =>
+            {
+                if (x.nTaskId < 0)
                 {
                     x.nTaskId = IngestTaskDBContext.next_val("DBP_SQ_TASKID");
                 }
@@ -1845,7 +1858,7 @@
             {
                 throw new Exception("TaskId is smaller than 0.");
             }
-            
+
             var vtrUploadTasks = await TaskStore.GetVtrUploadTaskListAsync(a => a.Where(x => x.Taskid == taskId), true);
             int nCount = vtrUploadTasks.Count;
 
@@ -1919,7 +1932,7 @@
 
                 //    taskAccess.UpdateTasks(ref taskSet);
                 //}
-                
+
                 //UpdateTime = DateTime.Now;
                 //DBACCESS.UpdateVtrSet(ref vtrSet);
             }
@@ -1927,5 +1940,93 @@
 
         #endregion
 
+        public async Task<AddVTRUploadTask_out> AddVTRUploadTask(VTRUploadTaskContent vtrTask,
+                                                                 List<VTR_UPLOAD_MetadataPair> metadatas)
+        {
+            var errCode = VTR_BUT_ErrorCode.emNormal;
+
+            if (vtrTask == null)
+            {
+                throw new Exception("The Task params is null.");
+            }
+
+            int vtrId = vtrTask.nVtrId;
+            List<VTRUploadTaskContent> taskList = new List<VTRUploadTaskContent> { vtrTask };
+            try
+            {
+                if (vtrTask.emTaskState == VTRUPLOADTASKSTATE.VTR_UPLOAD_TEMPSAVE)
+                {
+                    await AddTempSaveVTRBUTasks(taskList, metadatas);
+                }
+
+                if (vtrTask.emTaskState == VTRUPLOADTASKSTATE.VTR_UPLOAD_COMMIT)
+                {
+                    await AddCommitVTRBUTasksEx(taskList, false, metadatas, true);
+                }
+            }
+            catch (System.Exception ex)
+            {
+                errCode = GetErrorCode(ex.Message);
+                if (errCode == VTR_BUT_ErrorCode.emVTRCollide)
+                {
+                    if (vtrId > 0)
+                    {
+                        VTRDetailInfo vtrInfo = await GetVTRDetailInfoByIDAsync<VTRDetailInfo>(vtrId);
+                        throw new Exception($"{vtrInfo.szVTRDetailName} has been used by other tasks");
+                    }
+                }
+
+                if (errCode == VTR_BUT_ErrorCode.emNoChannel)
+                {
+                    throw new Exception("No MSV channel can accept all the tasks, do you want to continue?");
+                }
+                if (errCode == VTR_BUT_ErrorCode.emSomeSuccessful)
+                {
+                    throw new Exception("The target MSV channel cannot accept all the tasks, do you want to continue?");
+                }
+            }
+            AddVTRUploadTask_out task = new AddVTRUploadTask_out { vtrTask = vtrTask, errorCode = (int)errCode };
+            return task;
+        }
+
+        public async Task<string> GetVtrTaskMetaData(int taskId, int type)
+        {
+            var metadata = await TaskStore.GetTaskMetaDataAsync(a => a.Where(x => x.Taskid == taskId && x.Metadatatype == type), true);
+            var result = string.IsNullOrWhiteSpace(metadata?.Metadata) ? metadata?.Metadatalong : metadata?.Metadata;
+            if (string.IsNullOrEmpty(result))
+            {
+                var backup = await VtrStore.GetTaskMetadataBackup(a => a.FirstOrDefaultAsync(x => x.Taskid == taskId && x.Metadatatype == type), true);
+                result = string.IsNullOrWhiteSpace(backup?.Metadata) ? backup?.Metadatalong : backup?.Metadata;
+            }
+            return result;
+        }
+
+        private async Task<bool> AddTempSaveVTRBUTasks(List<VTRUploadTaskContent> tempSaveTasks, List<VTR_UPLOAD_MetadataPair> metadatas)
+        {
+            if (tempSaveTasks.Count <= 0)
+            {
+                return true;
+            }
+
+            //占存的任务，只在DBP_TASK表中，占一席之地，以方便查找，开始时间和结束时间，改为最小值，在提交的时候，进行修改
+            //不去改变它的时间，等提交时，再去改变时间
+
+            //timestamp范围为1970年，以后修改2037那个bug之后，这里修改回来   edit by:xietao
+            //这个开始时间没用，只是占位，随意设置
+            foreach (VTRUploadTaskContent task in tempSaveTasks)
+            {
+                DateTime dtCur = System.DateTime.Now;
+                DateTime dtNow = new DateTime(1990, 1, 1, dtCur.Hour, dtCur.Minute, dtCur.Second);
+
+
+                task.strBegin = dtNow.ToString("yyyy-MM-dd HH:mm:ss");
+                //task.strEnd = GlobalFun.DateTimeToString(DateTime.MinValue);
+                task.strEnd = dtNow.ToString("yyyy-MM-dd HH:mm:ss");
+            }
+
+            //开始往表里加任务
+            await SetVBUT2DataSet(tempSaveTasks, metadatas, true);
+            return true;
+        }
     }
 }
