@@ -37,11 +37,17 @@
         /// </summary>
         private readonly VtrManager _VtrManage;
 
+        private readonly IIngestGlobalInterface _globalInterface;
+
         /// <summary>
         /// Initializes a new instance of the <see cref="VtrController"/> class.
         /// </summary>
         /// <param name="vtrManager">VTR.</param>
-        public VtrController(VtrManager vtrManager) { _VtrManage = vtrManager; }
+        /// <param name="global">VTR.</param>
+        public VtrController(VtrManager vtrManager, IIngestGlobalInterface global) {
+            _VtrManage = vtrManager;
+            _globalInterface = global;
+        }
 
         /// <summary>
         /// 增加或修改一盘VTR磁带.
@@ -225,16 +231,14 @@
                     return response;
                 }
                 response.Ext = await _VtrManage.SetVTRUploadTaskInfoAsync(request);
-                var _globalinterface = ApplicationContext.Current.ServiceProvider
-                    .GetRequiredService<IIngestGlobalInterface>();
-                if (_globalinterface != null)
+                if (_globalInterface != null)
                 {
                     GlobalInternals re = new GlobalInternals()
                     {
-                        funtype = IngestDBCore.GlobalInternals.FunctionType.SetGlobalState,
+                        Funtype = IngestDBCore.GlobalInternals.FunctionType.SetGlobalState,
                         State = ClientOperLabelName.VTR_UPLOAD_ModifyTask
                     };
-                    var response1 = await _globalinterface.SubmitGlobalCallBack(re);
+                    var response1 = await _globalInterface.SubmitGlobalCallBack(re);
                     if (response1.Code != ResponseCodeDefines.SuccessCode)
                     {
                         Logger.Error("SetGlobalState modtask error");
@@ -648,16 +652,14 @@
                                                                            request.ErrorContent);
                 if (response.Ext)
                 {
-                    var _globalinterface = ApplicationContext.Current.ServiceProvider
-                        .GetRequiredService<IIngestGlobalInterface>();
-                    if (_globalinterface != null)
+                    if (_globalInterface != null)
                     {
                         GlobalInternals re = new GlobalInternals()
                         {
-                            funtype = IngestDBCore.GlobalInternals.FunctionType.SetGlobalState,
+                            Funtype = IngestDBCore.GlobalInternals.FunctionType.SetGlobalState,
                             State = ClientOperLabelName.VTR_UPLOAD_ModifyTask
                         };
-                        var response1 = await _globalinterface.SubmitGlobalCallBack(re);
+                        var response1 = await _globalInterface.SubmitGlobalCallBack(re);
                         if (response1.Code != ResponseCodeDefines.SuccessCode)
                         {
                             Logger.Error("SetGlobalState modtask error");
@@ -780,7 +782,7 @@
             ResponseMessage<VTRUploadTaskContentResponse> response = new ResponseMessage<VTRUploadTaskContentResponse>();
             try
             {
-                if (vtrtaskrequest.vtrtask.nTaskId <= 0)
+                if (vtrtaskrequest.VtrTask.TaskId <= 0)
                 {
                     response.Msg = "TaskId Invalid.";
                     response.Code = ResponseCodeDefines.ArgumentNullError;
@@ -788,14 +790,13 @@
                 //bool ret = VTRACCESS.SetVTRUploadTask(ref pIn.vtrTask, pIn.metadatas, pIn.lMask);
                 //res.extention = pIn.vtrTask;  //返回vtr任务，原本传递的引用，这里只能返回
 
-                response.Ext = await _VtrManage.SetVTRUploadTaskAsync<VTRUploadTaskContentResponse>(vtrtaskrequest.vtrtask, vtrtaskrequest.metadatas, vtrtaskrequest.lmask);
+                response.Ext = await _VtrManage.SetVTRUploadTaskAsync<VTRUploadTaskContentResponse,VTRUploadMetadataPair> (vtrtaskrequest.VtrTask, vtrtaskrequest.Metadatas, vtrtaskrequest.Mask);
 
                 //GLOBALSERVICE.SetGlobalState2(ClientOperLabelName.VTR_UPLOAD_ModifyTask);
-                var _globalinterface = ApplicationContext.Current.ServiceProvider.GetRequiredService<IIngestGlobalInterface>();
-                if (_globalinterface != null)
+                if (_globalInterface != null)
                 {
-                    GlobalInternals re = new GlobalInternals() { funtype = IngestDBCore.GlobalInternals.FunctionType.SetGlobalState, State = ClientOperLabelName.VTR_UPLOAD_ModifyTask };
-                    var response1 = await _globalinterface.SubmitGlobalCallBack(re);
+                    GlobalInternals re = new GlobalInternals() { Funtype = IngestDBCore.GlobalInternals.FunctionType.SetGlobalState, State = ClientOperLabelName.VTR_UPLOAD_ModifyTask };
+                    var response1 = await _globalInterface.SubmitGlobalCallBack(re);
                     if (response1.Code != ResponseCodeDefines.SuccessCode)
                     {
                         Logger.Error("SetGlobalState modtask error");
@@ -880,11 +881,10 @@
                 response.Ext = await _VtrManage.CommitVTRBatchUploadTasksAsync(new List<int>() { taskid }, true );//.CommitVTRUploadTask(taskId);
 
                 //GLOBALSERVICE.SetGlobalState2(ClientOperLabelName.VTR_UPLOAD_AddTask);
-                var _globalinterface = ApplicationContext.Current.ServiceProvider.GetRequiredService<IIngestGlobalInterface>();
-                if (_globalinterface != null)
+                if (_globalInterface != null)
                 {
-                    GlobalInternals re = new GlobalInternals() { funtype = IngestDBCore.GlobalInternals.FunctionType.SetGlobalState, State = ClientOperLabelName.VTR_UPLOAD_AddTask };
-                    var response1 = await _globalinterface.SubmitGlobalCallBack(re);
+                    GlobalInternals re = new GlobalInternals() { Funtype = IngestDBCore.GlobalInternals.FunctionType.SetGlobalState, State = ClientOperLabelName.VTR_UPLOAD_AddTask };
+                    var response1 = await _globalInterface.SubmitGlobalCallBack(re);
                     if (response1.Code != ResponseCodeDefines.SuccessCode)
                     {
                         Logger.Error("SetGlobalState modtask error");
@@ -941,11 +941,10 @@
 
                 response.Ext = await _VtrManage.CommitVTRBatchUploadTasksAsync(param.taskids, param.ignorewrong);
                 //GLOBALSERVICE.SetGlobalState2(ClientOperLabelName.VTR_UPLOAD_AddTask);
-                var _globalinterface = ApplicationContext.Current.ServiceProvider.GetRequiredService<IIngestGlobalInterface>();
-                if (_globalinterface != null)
+                if (_globalInterface != null)
                 {
-                    GlobalInternals re = new GlobalInternals() { funtype = IngestDBCore.GlobalInternals.FunctionType.SetGlobalState, State = ClientOperLabelName.VTR_UPLOAD_AddTask };
-                    var response1 = await _globalinterface.SubmitGlobalCallBack(re);
+                    GlobalInternals re = new GlobalInternals() { Funtype = IngestDBCore.GlobalInternals.FunctionType.SetGlobalState, State = ClientOperLabelName.VTR_UPLOAD_AddTask };
+                    var response1 = await _globalInterface.SubmitGlobalCallBack(re);
                     if (response1.Code != ResponseCodeDefines.SuccessCode)
                     {
                         Logger.Error("SetGlobalState modtask error");
@@ -980,13 +979,13 @@
         /// <param name="pin">见声明</param>
         /// <returns>见声明</returns>
         [HttpPost("vtrbatchuploadtasks/add")]
-        public async Task<ResponseMessage<VtrBatchUploadTaskResponse>> AddVTRBatchUploadTasks([FromBody] VTRBatchUploadTasksRequest pin)
+        public async Task<ResponseMessage<VtrBatchUploadTaskResponse>> AddVTRBatchUploadTasks([FromBody]VTRBatchUploadTaskRequest pin)
         {
             ResponseMessage<VtrBatchUploadTaskResponse> response = new ResponseMessage<VtrBatchUploadTaskResponse>();
             response.Ext = new VtrBatchUploadTaskResponse();
 
-            response.Ext.errorcode = VTR_BUT_ErrorCode.emNormal;
-            response.Ext.taskids = null;
+            response.Ext.errorCode = VTR_BUT_ErrorCode.emNormal;
+            response.Ext.taskIds = null;
             if (pin == null)
             {
                 response.Msg = "ths param is null";
@@ -994,15 +993,15 @@
             }
             try
             {
-                if (pin.vtrtasks == null || pin.vtrtasks.Count <= 0)
+                if (pin.VtrTasks == null || pin.VtrTasks.Count <= 0)
                 {
                     response.Msg = "vtrTasks is null";
                     response.Code = ResponseCodeDefines.ArgumentNullError;
                 }
 
-                response.Ext = await _VtrManage.AddVTRBatchUploadTasksAsync<VtrBatchUploadTaskResponse>(pin.vtrtasks, pin.metadatas, pin.ignoreWrong);
+                response.Ext = await _VtrManage.AddVTRBatchUploadTasksAsync<VTRUploadTaskContentResponse, VTRUploadMetadataPair>(pin.VtrTasks, pin.Metadatas, pin.IgnoreWrong);
                 
-                response.Code = response.Ext.errorcode == VTR_BUT_ErrorCode.emNormal ? ResponseCodeDefines.SuccessCode : ResponseCodeDefines.ServiceError;
+                response.Code = response.Ext.errorCode == VTR_BUT_ErrorCode.emNormal ? ResponseCodeDefines.SuccessCode : ResponseCodeDefines.ServiceError;
             }
             catch (Exception e)//其他未知的异常，写异常日志
             {

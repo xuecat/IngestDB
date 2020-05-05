@@ -35,7 +35,7 @@ namespace IngestDBCore
             MaterialInfo
         }
 
-        public FunctionType funtype { get; set; }
+        public FunctionType Funtype { get; set; }
         public int TemplateID { get; set; }
 
         public string State { get; set; }

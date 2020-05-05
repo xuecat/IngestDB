@@ -238,7 +238,7 @@ namespace IngestTaskPlugin.Controllers.v1
 
                 if (_globalInterface != null)
                 {
-                    GlobalInternals re = new GlobalInternals() { funtype = IngestDBCore.GlobalInternals.FunctionType.SetGlobalState, State = GlobalStateName.MODTASK };
+                    GlobalInternals re = new GlobalInternals() { Funtype = IngestDBCore.GlobalInternals.FunctionType.SetGlobalState, State = GlobalStateName.MODTASK };
                     var response1 = await _globalInterface.SubmitGlobalCallBack(re);
                     if (response1.Code != ResponseCodeDefines.SuccessCode)
                     {
@@ -289,7 +289,7 @@ namespace IngestTaskPlugin.Controllers.v1
                 
                 if (_globalInterface != null)
                 {
-                    GlobalInternals re = new GlobalInternals() { funtype = IngestDBCore.GlobalInternals.FunctionType.SetGlobalState, State = GlobalStateName.MODTASK };
+                    GlobalInternals re = new GlobalInternals() { Funtype = IngestDBCore.GlobalInternals.FunctionType.SetGlobalState, State = GlobalStateName.MODTASK };
                     var response1 = await _globalInterface.SubmitGlobalCallBack(re);
                     if (response1.Code != ResponseCodeDefines.SuccessCode)
                     {
@@ -344,7 +344,7 @@ namespace IngestTaskPlugin.Controllers.v1
                 
                 if (_globalInterface != null)
                 {
-                    GlobalInternals re = new GlobalInternals() { funtype = IngestDBCore.GlobalInternals.FunctionType.SetGlobalState, State = GlobalStateName.ADDTASK };
+                    GlobalInternals re = new GlobalInternals() { Funtype = IngestDBCore.GlobalInternals.FunctionType.SetGlobalState, State = GlobalStateName.ADDTASK };
                     var response1 = await _globalInterface.SubmitGlobalCallBack(re);
                     if (response1.Code != ResponseCodeDefines.SuccessCode)
                     {
@@ -417,7 +417,7 @@ namespace IngestTaskPlugin.Controllers.v1
                 
                 if (_globalInterface != null)
                 {
-                    GlobalInternals re = new GlobalInternals() { funtype = IngestDBCore.GlobalInternals.FunctionType.SetGlobalState, State = GlobalStateName.ADDTASK };
+                    GlobalInternals re = new GlobalInternals() { Funtype = IngestDBCore.GlobalInternals.FunctionType.SetGlobalState, State = GlobalStateName.ADDTASK };
                     var response1 = await _globalInterface.SubmitGlobalCallBack(re);
                     if (response1.Code != ResponseCodeDefines.SuccessCode)
                     {
@@ -498,7 +498,7 @@ namespace IngestTaskPlugin.Controllers.v1
                 
                 if (_globalInterface != null)
                 {
-                    GlobalInternals re = new GlobalInternals() { funtype = IngestDBCore.GlobalInternals.FunctionType.SetGlobalState, State = GlobalStateName.ADDTASK };
+                    GlobalInternals re = new GlobalInternals() { Funtype = IngestDBCore.GlobalInternals.FunctionType.SetGlobalState, State = GlobalStateName.ADDTASK };
                     var response1 = await _globalInterface.SubmitGlobalCallBack(re);
                     if (response1.Code != ResponseCodeDefines.SuccessCode)
                     {
@@ -645,7 +645,7 @@ namespace IngestTaskPlugin.Controllers.v1
                 
                 if (_globalInterface != null)
                 {
-                    GlobalInternals re = new GlobalInternals() { funtype = IngestDBCore.GlobalInternals.FunctionType.SetGlobalState, State = GlobalStateName.MODTASK };
+                    GlobalInternals re = new GlobalInternals() { Funtype = IngestDBCore.GlobalInternals.FunctionType.SetGlobalState, State = GlobalStateName.MODTASK };
                     var response1 = await _globalInterface.SubmitGlobalCallBack(re);
                     if (response1.Code != ResponseCodeDefines.SuccessCode)
                     {
@@ -716,7 +716,7 @@ namespace IngestTaskPlugin.Controllers.v1
                 
                 if (_globalInterface != null)
                 {
-                    GlobalInternals re = new GlobalInternals() { funtype = IngestDBCore.GlobalInternals.FunctionType.SetGlobalState, State = GlobalStateName.MODTASK };
+                    GlobalInternals re = new GlobalInternals() { Funtype = IngestDBCore.GlobalInternals.FunctionType.SetGlobalState, State = GlobalStateName.MODTASK };
                     var response1 = await _globalInterface.SubmitGlobalCallBack(re);
                     if (response1.Code != ResponseCodeDefines.SuccessCode)
                     {
@@ -852,7 +852,7 @@ namespace IngestTaskPlugin.Controllers.v1
                 
                 if (_globalInterface != null)
                 {
-                    GlobalInternals re = new GlobalInternals() { funtype = IngestDBCore.GlobalInternals.FunctionType.SetGlobalState, State = GlobalStateName.MODTASK };
+                    GlobalInternals re = new GlobalInternals() { Funtype = IngestDBCore.GlobalInternals.FunctionType.SetGlobalState, State = GlobalStateName.MODTASK };
                     var response1 = await _globalInterface.SubmitGlobalCallBack(re);
                     if (response1.Code != ResponseCodeDefines.SuccessCode)
                     {
@@ -899,7 +899,7 @@ namespace IngestTaskPlugin.Controllers.v1
                 
                 if (_globalInterface != null)
                 {
-                    GlobalInternals re = new GlobalInternals() { funtype = IngestDBCore.GlobalInternals.FunctionType.SetGlobalState, State = GlobalStateName.MODTASK };
+                    GlobalInternals re = new GlobalInternals() { Funtype = IngestDBCore.GlobalInternals.FunctionType.SetGlobalState, State = GlobalStateName.MODTASK };
                     var response1 = await _globalInterface.SubmitGlobalCallBack(re);
                     if (response1.Code != ResponseCodeDefines.SuccessCode)
                     {
@@ -1417,7 +1417,7 @@ namespace IngestTaskPlugin.Controllers.v1
                 
                 if (_globalInterface != null)
                 {
-                    GlobalInternals re = new GlobalInternals() { funtype = IngestDBCore.GlobalInternals.FunctionType.SetGlobalState, State = GlobalStateName.MODTASK };
+                    GlobalInternals re = new GlobalInternals() { Funtype = IngestDBCore.GlobalInternals.FunctionType.SetGlobalState, State = GlobalStateName.MODTASK };
                     var response1 = await _globalInterface.SubmitGlobalCallBack(re);
                     if (response1.Code != ResponseCodeDefines.SuccessCode)
                     {
@@ -1530,7 +1530,7 @@ namespace IngestTaskPlugin.Controllers.v1
 
             try
             {
-                Response.strLowFileName = await _taskManage.GetChannelCapturingLowMaterial(channelID);
+                Response.strLowFileName = await _taskManage.GetChannelCapturingLowMaterial(channelID, _globalInterface);
                 return Response;
             }
             catch (Exception e)//其他未知的异常，写异常日志
@@ -1644,7 +1644,7 @@ namespace IngestTaskPlugin.Controllers.v1
                 
                 if (_globalInterface != null)
                 {
-                    GlobalInternals re = new GlobalInternals() { funtype = IngestDBCore.GlobalInternals.FunctionType.SetGlobalState, State = GlobalStateName.MODTASK };
+                    GlobalInternals re = new GlobalInternals() { Funtype = IngestDBCore.GlobalInternals.FunctionType.SetGlobalState, State = GlobalStateName.MODTASK };
                     var response1 = await _globalInterface.SubmitGlobalCallBack(re);
                     if (response1.Code != ResponseCodeDefines.SuccessCode)
                     {
@@ -1764,7 +1764,7 @@ namespace IngestTaskPlugin.Controllers.v1
                 
                 if (_globalInterface != null)
                 {
-                    GlobalInternals re = new GlobalInternals() { funtype = IngestDBCore.GlobalInternals.FunctionType.SetGlobalState, State = GlobalStateName.MODTASK };
+                    GlobalInternals re = new GlobalInternals() { Funtype = IngestDBCore.GlobalInternals.FunctionType.SetGlobalState, State = GlobalStateName.MODTASK };
                     var response1 = await _globalInterface.SubmitGlobalCallBack(re);
                     if (response1.Code != ResponseCodeDefines.SuccessCode)
                     {
@@ -1969,12 +1969,12 @@ namespace IngestTaskPlugin.Controllers.v1
 
             try
             {
-                var task = await _taskManage.AutoAddTaskByOldTask(nOldTaskID, DateTimeFormat.DateTimeFromString(strStartTime));
+                var task = await _taskManage.AutoAddTaskByOldTask(nOldTaskID, DateTimeFormat.DateTimeFromString(strStartTime),_globalInterface);
 
                 
                 if (_globalInterface != null)
                 {
-                    GlobalInternals re = new GlobalInternals() { funtype = IngestDBCore.GlobalInternals.FunctionType.SetGlobalState, State = GlobalStateName.ADDTASK };
+                    GlobalInternals re = new GlobalInternals() { Funtype = IngestDBCore.GlobalInternals.FunctionType.SetGlobalState, State = GlobalStateName.ADDTASK };
                     var response1 = await _globalInterface.SubmitGlobalCallBack(re);
                     if (response1.Code != ResponseCodeDefines.SuccessCode)
                     {
@@ -2046,7 +2046,7 @@ namespace IngestTaskPlugin.Controllers.v1
                 
                 if (_globalInterface != null)
                 {
-                    GlobalInternals re = new GlobalInternals() { funtype = IngestDBCore.GlobalInternals.FunctionType.SetGlobalState, State = GlobalStateName.ADDTASK };
+                    GlobalInternals re = new GlobalInternals() { Funtype = IngestDBCore.GlobalInternals.FunctionType.SetGlobalState, State = GlobalStateName.ADDTASK };
                     var response1 = await _globalInterface.SubmitGlobalCallBack(re);
                     if (response1.Code != ResponseCodeDefines.SuccessCode)
                     {

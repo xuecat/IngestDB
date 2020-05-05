@@ -25,15 +25,13 @@ namespace IngestTaskPlugin.Managers
 {
     public class TaskManager
     {
-        public TaskManager(ITaskStore store, IMapper mapper, RestClient client, IIngestDeviceInterface device, IIngestGlobalInterface global)
+        public TaskManager(ITaskStore store, IMapper mapper, RestClient client, IIngestDeviceInterface device)
         {
             Store = store;
             _restClient = client;
             _mapper = mapper ?? throw new ArgumentNullException(nameof(mapper));
             _deviceInterface = device;
-            _globalInterface = global;
         }
-        private IIngestGlobalInterface _globalInterface { get; }
         private IIngestDeviceInterface _deviceInterface { get; }
         private RestClient _restClient { get; }
         protected ITaskStore Store { get; }
@@ -382,7 +380,7 @@ namespace IngestTaskPlugin.Managers
             return null;
         }
 
-        public async Task<string> GetChannelCapturingLowMaterial(int channelid)
+        public async Task<string> GetChannelCapturingLowMaterial(int channelid, IIngestGlobalInterface global)
         {
             if (_deviceInterface != null)
             {
@@ -408,10 +406,10 @@ namespace IngestTaskPlugin.Managers
                 var findtask = await GetChannelCapturingTask<TaskContentResponse>(channelid);
                 if (findtask != null)
                 {
-                    if (_globalInterface != null)
+                    if (global != null)
                     {
-                        var rep = await _globalInterface.GetGlobalCallBack(new GlobalInternals() {
-                            funtype = GlobalInternals.FunctionType.MaterialInfo,
+                        var rep = await global.GetGlobalCallBack(new GlobalInternals() {
+                            Funtype = GlobalInternals.FunctionType.MaterialInfo,
                             TaskID = findtask.TaskID
                         });
 
@@ -713,11 +711,12 @@ namespace IngestTaskPlugin.Managers
         /// <param name="SignalId">信号源ID</param>
         /// <param name="usetokencode">用户编码true是token false是code</param>
         /// <param name="userCode">采集参数</param>
+        /// <param name="global"</param>
         /// <returns>成功与否</returns>
         /// <remarks>
         /// Add by chenzhi 2013-07-30
         /// </remarks>
-        public async Task<string> GetCaptureTemplateBySignalIdAndUserCode(int SignalId, bool usetokencode, string userCode)
+        public async Task<string> GetCaptureTemplateBySignalIdAndUserCode(int SignalId, bool usetokencode, string userCode, IIngestGlobalInterface global)
         {
             string strCaptureTemplate = string.Empty;
 
@@ -757,11 +756,11 @@ namespace IngestTaskPlugin.Managers
                     }
 
                     
-                    if (_globalInterface != null)
+                    if (global != null)
                     {
-                        var response2 = await _globalInterface.GetGlobalCallBack(new GlobalInternals()
+                        var response2 = await global.GetGlobalCallBack(new GlobalInternals()
                         {
-                            funtype = GlobalInternals.FunctionType.UserParamTemplateByID,
+                            Funtype = GlobalInternals.FunctionType.UserParamTemplateByID,
                             TemplateID = fresponse.Ext
                         });
                         if (response2.Code != ResponseCodeDefines.SuccessCode)
@@ -2551,7 +2550,7 @@ namespace IngestTaskPlugin.Managers
             return _mapper.Map<TaskContent>(task);
         }
 
-        public async Task<TaskContentResponse> AutoAddTaskByOldTask(int oldtask, DateTime starttime)
+        public async Task<TaskContentResponse> AutoAddTaskByOldTask(int oldtask, DateTime starttime , IIngestGlobalInterface global)
         {
             var findtask = await Store.GetTaskAsync(a => a.Where(b => b.Taskid == oldtask));
             var newtaskinfo = Store.DeepClone(findtask);
@@ -2653,7 +2652,7 @@ namespace IngestTaskPlugin.Managers
             {
                 if (item.Metadatatype == (int)MetaDataType.emCapatureMetaData)
                 {
-                    strCapatureMetaData = await GetCaptureTemplateBySignalIdAndUserCode(newtaskinfo.Signalid.GetValueOrDefault(), false, findtask.Usercode);
+                    strCapatureMetaData = await GetCaptureTemplateBySignalIdAndUserCode(newtaskinfo.Signalid.GetValueOrDefault(), false, findtask.Usercode, global);
 
                     if (string.IsNullOrEmpty(strCapatureMetaData))
                     {

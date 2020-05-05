@@ -21,6 +21,8 @@
     using Microsoft.Extensions.DependencyInjection;
     using Sobey.Core.Log;
 
+    using VTRUploadTaskContentRequest = Dto.Response.VTRUploadTaskContentResponse;
+
     /// <summary>
     /// VTR磁带管理.
     /// </summary>
@@ -51,6 +53,8 @@
         /// </summary>
         private readonly TaskManager TaskManager;
 
+        private IIngestDeviceInterface _deviceInterface { get; }
+
         /// <summary>
         /// Initializes a new instance of the <see cref="VtrManager"/> class.
         /// </summary>
@@ -58,12 +62,14 @@
         /// <param name="taskStore">The taskStore<see cref="ITaskStore"/>.</param>
         /// <param name="vtrStore">The vtrStore<see cref="IVtrStore"/>.</param>
         /// <param name="taskManager">The taskManager<see cref="TaskManager"/>.</param>
-        public VtrManager(IMapper mapper, ITaskStore taskStore, IVtrStore vtrStore, TaskManager taskManager)
+        /// <param name="device">The taskManager<see />.</param>
+        public VtrManager(IMapper mapper, ITaskStore taskStore, IVtrStore vtrStore, IIngestDeviceInterface device, TaskManager taskManager)
         {
             this.TaskStore = taskStore;
             this.VtrStore = vtrStore;
             this.Mapper = mapper;
             this.TaskManager = taskManager;
+            _deviceInterface = device;
         }
 
         /// <summary>
@@ -760,8 +766,11 @@
 
         #region vtr task update
         public async Task<TResult>
-        SetVTRUploadTaskAsync<TResult>(VTRUploadTaskContent vtrTask, List<VTRUPLOADMetadataPairRequest> metadatas, long lMask)
+        SetVTRUploadTaskAsync<TResult, TPTwo>(TResult vtrTaskp, List<TPTwo> metadatasp, long lMask)
         {
+            var vtrTask = Mapper.Map<VTRUploadTaskContent>(vtrTaskp);
+            var metadatas = Mapper.Map<List<VTR_UPLOAD_MetadataPair>>(metadatasp);
+
             if (vtrTask.nTaskId <= 0)
             {
                 return default(TResult);
@@ -952,9 +961,9 @@
 
             if (metadatas != null && metadatas.Count > 0)
             {
-                foreach (VTRUPLOADMetadataPairRequest meta in metadatas)
+                foreach (var meta in metadatas)
                 {
-                    await SetVBUTasksMetadatasAsync(vtrTask.nTaskId, (MetaDataType)meta.type, meta.metadata);
+                    await SetVBUTasksMetadatasAsync(vtrTask.nTaskId, (MetaDataType)meta.emType, meta.strMetadata);
                 }
             }
 
@@ -1260,10 +1269,9 @@
             }
             else
             {
-                var _deviceinterface = ApplicationContext.Current.ServiceProvider.GetRequiredService<IIngestDeviceInterface>();
-                if (_deviceinterface != null)
+                if (_deviceInterface != null)
                 {
-                    var response = await _deviceinterface.GetDeviceCallBack(new DeviceInternals()
+                    var response = await _deviceInterface.GetDeviceCallBack(new DeviceInternals()
                     {
                         funtype = IngestDBCore.DeviceInternals.FunctionType.ChannelInfoBySrc,
                         SrcId = vtrTask.nSignalId,
@@ -1466,11 +1474,10 @@
                 if (vtrTaskList != null && vtrTaskList.Count > 0)
                 {
                     List<RouterInInterface> routerIns = null;
-                    var _deviceinterface = ApplicationContext.Current.ServiceProvider.GetRequiredService<IIngestDeviceInterface>();
-                    if (_deviceinterface != null)
+                    if (_deviceInterface != null)
                     {
                         DeviceInternals re = new DeviceInternals() { funtype = IngestDBCore.DeviceInternals.FunctionType.AllRouterInPort};
-                        var response1 = await _deviceinterface.GetDeviceCallBack(re);
+                        var response1 = await _deviceInterface.GetDeviceCallBack(re);
                         if (response1.Code != ResponseCodeDefines.SuccessCode)
                         {
                             Logger.Error("SetGlobalState modtask error");
@@ -1657,10 +1664,9 @@
                 }
                 else
                 {
-                    var _deviceinterface = ApplicationContext.Current.ServiceProvider.GetRequiredService<IIngestDeviceInterface>();
-                    if (_deviceinterface != null)
+                    if (_deviceInterface != null)
                     {
-                        var response = await _deviceinterface.GetDeviceCallBack(new DeviceInternals()
+                        var response = await _deviceInterface.GetDeviceCallBack(new DeviceInternals()
                         {
                             funtype = IngestDBCore.DeviceInternals.FunctionType.ChannelInfoBySrc,
                             SrcId = vtrTask.nSignalId,
@@ -1780,11 +1786,10 @@
 
                 List<int> channelIds = new List<int>();
                 List<ChannelTimePeriods> channelsTimePeriods = new List<ChannelTimePeriods>();
-
-                var _deviceinterface = ApplicationContext.Current.ServiceProvider.GetRequiredService<IIngestDeviceInterface>();
-                if (_deviceinterface != null)
+                
+                if (_deviceInterface != null)
                 {
-                    var response = await _deviceinterface.GetDeviceCallBack(new DeviceInternals()
+                    var response = await _deviceInterface.GetDeviceCallBack(new DeviceInternals()
                     {
                         funtype = IngestDBCore.DeviceInternals.FunctionType.AllCaptureChannels
                     });
@@ -2120,8 +2125,10 @@
             return taskIds;
         }
 
-        public async Task<TResult> AddVTRBatchUploadTasksAsync<TResult>(List<VTRUploadTaskContent> vtrTasks, List<VTRUPLOADMetadataPairRequest> metadatas, bool ignoreWrong)
+        public async Task<VtrBatchUploadTaskResponse> AddVTRBatchUploadTasksAsync<TPOne, TPTwo>(List<TPOne> vtrTasksp, List<TPTwo> metadatasp, bool ignoreWrong)
         {
+            var vtrTasks = Mapper.Map<List<VTRUploadTaskContent>>(vtrTasksp);
+            var metada = Mapper.Map<List<VTR_UPLOAD_MetadataPair>>(metadatasp);
             //判断是否为缓存状态，如果是，只存在VTR_UPLOAD表中
 
             //如果是提交状态，那么再次判断是否自动选择通道
@@ -2129,8 +2136,8 @@
             //2.如果是自动选择，选择一下通道，建起任务
             //3.若已经分配好通道的，只需要判断是否时间上有冲突就行了
             VtrBatchUploadTaskResponse response = new VtrBatchUploadTaskResponse();
-            response.taskids = new List<int>();
-            response.errorcode = VTR_BUT_ErrorCode.emNormal;
+            response.taskIds = new List<int>();
+            response.errorCode = VTR_BUT_ErrorCode.emNormal;
             
             if (vtrTasks == null || vtrTasks.Count <= 0)
             {
@@ -2157,7 +2164,6 @@
             }
 
             List<int> taskIds = new List<int>();
-            List<VTR_UPLOAD_MetadataPair> metada = Mapper.Map<List<VTR_UPLOAD_MetadataPair>>(metadatas);
             try
             {
                 if (tempSaveTasks.Count > 0)
@@ -2174,17 +2180,17 @@
                 {
                     for (int i = 0; i < taskIds.Count; i++)
                     {
-                        response.taskids.Add(taskIds[i]);
+                        response.taskIds.Add(taskIds[i]);
                     }
                 }
 
             }
             catch (System.Exception ex)
             {
-                response.errorcode = GetErrorCode(ex.Message);
+                response.errorCode = GetErrorCode(ex.Message);
 
                 string msg = ex.Message;
-                if (response.errorcode == VTR_BUT_ErrorCode.emVTRCollide)
+                if (response.errorCode == VTR_BUT_ErrorCode.emVTRCollide)
                 {
                     if (vtrId > 0)
                     {
@@ -2193,12 +2199,12 @@
                     }
                 }
 
-                if (response.errorcode == VTR_BUT_ErrorCode.emNoChannel)
+                if (response.errorCode == VTR_BUT_ErrorCode.emNoChannel)
                 {
                     msg = "No MSV channel can accept all the tasks, do you want to continue?";
                 }
 
-                if (response.errorcode == VTR_BUT_ErrorCode.emSomeSuccessful)
+                if (response.errorCode == VTR_BUT_ErrorCode.emSomeSuccessful)
                 {
                     msg = "The target MSV channel cannot accept all the tasks, do you want to continue?";
                 }
@@ -2207,7 +2213,7 @@
                 throw new Exception(msg);
             }
 
-            return Mapper.Map<TResult> (response);
+            return response;
         }
 
         private async Task<List<int>> AddTempSaveVTRBUTasksAsync(List<VTRUploadTaskContent> tempSaveTasks, List<VTR_UPLOAD_MetadataPair> metadatas, List<int> taskIds)
@@ -2328,17 +2334,20 @@
 
         #endregion
 
-        public async Task<AddVTRUploadTask_out> AddVTRUploadTask(VTRUploadTaskContent vtrTask,
-                                                                 List<VTR_UPLOAD_MetadataPair> metadatas)
+        //AddVTRUploadTask_out VTRUploadTaskContent VTR_UPLOAD_MetadataPair
+        public async Task<TResult> AddVTRUploadTask<TResult, TPOne, TPTwo>(TPOne vtrTaskp, List<TPTwo> metadatasp)
         {
+            VTRUploadTaskContent vtrTask = Mapper.Map<VTRUploadTaskContent>(vtrTaskp);
+
+            List<VTR_UPLOAD_MetadataPair> metadatas = Mapper.Map<List<VTR_UPLOAD_MetadataPair>>(metadatasp);
+
             var errCode = VTR_BUT_ErrorCode.emNormal;
 
             if (vtrTask == null)
             {
                 throw new Exception("The Task params is null.");
             }
-
-            int vtrId = vtrTask.nVtrId;
+            
             List<VTRUploadTaskContent> taskList = new List<VTRUploadTaskContent> { vtrTask };
             try
             {
@@ -2357,9 +2366,9 @@
                 errCode = GetErrorCode(ex.Message);
                 if (errCode == VTR_BUT_ErrorCode.emVTRCollide)
                 {
-                    if (vtrId > 0)
+                    if (vtrTask.nTaskId > 0)
                     {
-                        VTRDetailInfo vtrInfo = await GetVTRDetailInfoByIDAsync<VTRDetailInfo>(vtrId);
+                        VTRDetailInfo vtrInfo = await GetVTRDetailInfoByIDAsync<VTRDetailInfo>(vtrTask.nTaskId);
                         throw new Exception($"{vtrInfo.szVTRDetailName} has been used by other tasks");
                     }
                 }
@@ -2373,8 +2382,10 @@
                     throw new Exception("The target MSV channel cannot accept all the tasks, do you want to continue?");
                 }
             }
+            
             AddVTRUploadTask_out task = new AddVTRUploadTask_out { vtrTask = vtrTask, errorCode = (int)errCode };
-            return task;
+
+            return Mapper.Map<TResult>(task);
         }
 
         public async Task<string> GetVtrTaskMetaData(int taskId, int type)
