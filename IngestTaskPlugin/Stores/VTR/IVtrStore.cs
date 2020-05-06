@@ -240,5 +240,9 @@
 
 
         Task<List<DbpMetadatapolicy>> GetMetadatapoliciesByUserCode(string usercode);
+
+        Task<bool> AddUploadtask(VtrUploadtask task, bool submitFlag);
+        Task DeleteVtrUploadTask(VtrUploadtask task, bool submitFlag);
+        Task<bool> UpdateUploadtask(VtrUploadtask task, bool submitFlag);
     }
 }

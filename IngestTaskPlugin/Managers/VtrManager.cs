@@ -5,6 +5,7 @@
     using System.Linq;
     using System.Threading.Tasks;
     using System.Xml;
+    using System.Xml.Linq;
     using AutoMapper;
     using IngestDBCore;
     using IngestDBCore.Interface;
@@ -229,32 +230,39 @@
                 string materialMeta = string.Empty;
                 string planningMeta = string.Empty;
                 string originalMeta = string.Empty;
-                XmlDocument doc = new XmlDocument();
-                doc.LoadXml(metadata);
-                XmlNode taskContentNode = doc.SelectSingleNode("/TaskContentMetaData");
+                XElement xElement = XElement.Parse(metadata);
+                //xElement.LoadXml(metadata);
+                //XmlNode taskContentNode = doc.SelectSingleNode("/TaskContentMetaData");
+                var taskContentNode = xElement.Elements("TaskContentMetaData").FirstOrDefault();
                 if (taskContentNode != null)
                 {
-                    if (taskContentNode.HasChildNodes)
+                    if (taskContentNode.HasElements)
                     {
-                        XmlNode materialNode = doc.SelectSingleNode("/TaskContentMetaData/MetaMaterial");
+                        //XmlNode materialNode = doc.SelectSingleNode("/TaskContentMetaData/MetaMaterial");
+                        var materialNode = taskContentNode.Element("MetaMaterial");
                         if (materialNode != null)
                         {
-                            materialMeta = materialNode.InnerText;
-                            taskContentNode.RemoveChild(materialNode);
+                            materialMeta = materialNode.Value;
+                            //taskContentNode.RemoveChild(materialNode);
+                            materialNode.Remove();
                         }
 
-                        XmlNode planningNode = doc.SelectSingleNode("/TaskContentMetaData/MetaPlanning");
+                        //XmlNode planningNode = doc.SelectSingleNode("/TaskContentMetaData/MetaPlanning");
+                        var planningNode = taskContentNode.Element("MetaPlanning");
                         if (planningNode != null)
                         {
-                            planningMeta = planningNode.InnerText;
-                            taskContentNode.RemoveChild(planningNode);
+                            planningMeta = planningNode.Value ;
+                            //taskContentNode.RemoveChild(planningNode);
+                            planningNode.Remove();
                         }
 
-                        XmlNode originalNode = doc.SelectSingleNode("/TaskContentMetaData/MetaOriginal");
+                        //XmlNode originalNode = doc.SelectSingleNode("/TaskContentMetaData/MetaOriginal");
+                        var originalNode = taskContentNode.Element("MetaOriginal");
                         if (originalNode != null)
                         {
-                            originalMeta = originalNode.InnerText;
-                            taskContentNode.RemoveChild(originalNode);
+                            originalMeta = originalNode.Value;
+                            //taskContentNode.RemoveChild(originalNode);
+                            originalNode.Remove();
                         }
                     }
                 }
@@ -262,7 +270,7 @@
                 await TaskStore.UpdateTaskMetaDataAsync(taskId, MetaDataType.emStoreMetaData, materialMeta);
                 await TaskStore.UpdateTaskMetaDataAsync(taskId, MetaDataType.emPlanMetaData, planningMeta);
                 await TaskStore.UpdateTaskMetaDataAsync(taskId, MetaDataType.emOriginalMetaData, originalMeta);
-                await TaskStore.UpdateTaskMetaDataAsync(taskId, MetaDataType.emContentMetaData, doc.OuterXml);
+                await TaskStore.UpdateTaskMetaDataAsync(taskId, MetaDataType.emContentMetaData, xElement.Value);//doc.OuterXml);
             }
             else
             {
@@ -956,7 +964,7 @@
             dbptask = VTRUploadTaskContent2Dbptask(false, vtrTask, dbptask,  lMask);
             vtrUploadtaskResult = VTRUploadTaskContent2VTRUPLOADTASK(vtrTask, vtrUploadtaskResult, lMask);
 
-            await TaskStore.UpdateTaskListAsync(new List<DbpTask> { dbptask });
+            await TaskStore.UpdateTaskListAsync(new List<DbpTask> { dbptask }, false);
             await VtrStore.UpdateUploadtask(vtrUploadtaskResult);
 
             if (metadatas != null && metadatas.Count > 0)
@@ -1370,15 +1378,15 @@
             //}
 
             dbpTask = VTRUploadTaskContent2Dbptask(true, vtrTask,dbpTask, -1);
-            await TaskStore.UpdateTaskListAsync( new List<DbpTask> { dbpTask });
+            await TaskStore.UpdateTaskListAsync( new List<DbpTask> { dbpTask }, false);
             //添加VTR_UPLOADTASK
             Logger.Info("In ModifyNormalTaskToVTRUploadTask.Before Adding VTR_UPLOADTASK");
             VtrUploadtask vtrUploadtask = Mapper.Map<VtrUploadtask>(vtrTask);
-            await VtrStore.AddUploadtask(vtrUploadtask);
+            await VtrStore.AddUploadtask(vtrUploadtask, false);
 
             //更新任务来源表
             Logger.Info("In ModifyNormalTaskToVTRUploadTask.Before Updating DBP_TASK_SOURCE");
-            await TaskStore.UpdateTaskSource(new DbpTaskSource() { Taskid = vtrTask.nTaskId, Tasksource = (int)TaskSource.emVTRUploadTask });
+            await TaskStore.UpdateTaskSource(new DbpTaskSource() { Taskid = vtrTask.nTaskId, Tasksource = (int)TaskSource.emVTRUploadTask }, true);
 
             Logger.Info("In ModifyNormalTaskToVTRUploadTask.Before Updating dataset");
             // 更新MetaData
@@ -2111,14 +2119,14 @@
 
             if (isAdd2DB)
             {
-                await TaskStore.AddTaskList(submitTasks);
-                await TaskStore.AddTaskSourceList(submitTaskSource);
-                await TaskStore.AddPolicyTask(submitPolicy);
+                await TaskStore.AddTaskList(submitTasks, false);
+                await TaskStore.AddTaskSourceList(submitTaskSource, false);
+                await TaskStore.AddPolicyTask(submitPolicy, true);
             }
             else
             {
-                await TaskStore.UpdateTaskListAsync(submitTasks);
-                await TaskStore.UpdateVtrUploadTaskListAsync(vtrUploadtasks);
+                await TaskStore.UpdateTaskListAsync(submitTasks, false);
+                await TaskStore.UpdateVtrUploadTaskListAsync(vtrUploadtasks, true);
 
             }
 
@@ -2244,91 +2252,79 @@
             
             return taskIds;
         }
+        
 
-
-        public async Task DeleteVtrUploadTask(int taskId)
+        public async Task DeleteVtrUploadTaskAsync(int taskId)
         {
             if (taskId <= 0)
             {
                 throw new Exception("TaskId is smaller than 0.");
             }
-
-            var vtrUploadTasks = await TaskStore.GetVtrUploadTaskListAsync(a => a.Where(x => x.Taskid == taskId), true);
-            int nCount = vtrUploadTasks.Count;
-
-            if (nCount > 0)
+            
+            var vtrUploadtask = (await VtrStore.GetUploadtask(a => a.Where(x => x.Taskid == taskId))).FirstOrDefault();
+            if (vtrUploadtask != null)
             {
-                //foreach (VtrUploadtask item in vtrUploadTasks)
-                //{
-                //    if (item.Taskstate == (int)VTRUPLOADTASKSTATE.VTR_UPLOAD_COMPLETE)
-                //    {
-                //        Logger.Info("In DeleteVtrUploadTask,Find a VTR_UPLOAD_COMPLETE task,not delete.taskId = " + taskId.ToString());
-                //        return;
-                //    }
+                //分状态进行删除
+                //1.如果该任务是暂存，失败或者是删除状态，那么将它从表中删除
+                //2.如果是提交或执行的话，将它设置为删除状态，并且告诉vtr上载服务，相应把素材删除
+                //3.完成状态，不允许被删除
+                if (vtrUploadtask.Taskstate == (int)VTRUPLOADTASKSTATE.VTR_UPLOAD_COMPLETE)
+                {
+                    Logger.Info("In DeleteVtrUploadTask,Find a VTR_UPLOAD_COMPLETE task,not delete.taskId = " + taskId.ToString());
+                    return;
+                }
 
-                //    TaskAccess taskAccess = new TaskAccess();
-                //    SelectTaskFactory taskSelector = new SimpleSelectTask(taskId);
-                //    TaskSet taskSet = taskSelector.SelectTask();
-                //    //TaskSet.DBP_TASKRow taskRow = taskSet.DBP_TASK.FindByTASKID(taskId);
-                //    foreach (TaskSet.DBP_TASKRow taskRow in taskSet.DBP_TASK.Rows)
-                //    {
-                //        if (row.TASKSTATE == (int)VTRUPLOADTASKSTATE.VTR_UPLOAD_TEMPSAVE ||
-                //            row.TASKSTATE == (int)VTRUPLOADTASKSTATE.VTR_UPLOAD_FAIL ||
-                //            row.TASKSTATE == (int)VTRUPLOADTASKSTATE.VTR_UPLOAD_DELETE ||
-                //            row.TASKSTATE == (int)VTRUPLOADTASKSTATE.VTR_UPLOAD_COMMIT)
-                //        {
-                //            DBACCESS.DeleteVtrUploadTask(taskId);
-                //            taskAccess.DeleteTaskFromDB(taskId, true);
-                //            ApplicationLog.WriteInfo(string.Format("In DeleteVtrUploadTask,Find a {0} task,delete from table.taskId  = {1}", (VTRUPLOADTASKSTATE)row.TASKSTATE, taskId));
-                //            continue;
-                //        }
+                var task = await TaskStore.GetTaskAsync(a => a.Where(x => x.Taskid == taskId));
 
-                //        /* zmj 2010-07-08 将提交状态的任务也直接删除素材
-                //        if (row.TASKSTATE == (int)VTRUPLOADTASKSTATE.VTR_UPLOAD_COMMIT)
-                //        {
-                //            row.TASKSTATE = (int)VTRUPLOADTASKSTATE.VTR_UPLOAD_DELETE;
+                if (task != null)
+                {
+                    if (vtrUploadtask.Taskstate == (int)VTRUPLOADTASKSTATE.VTR_UPLOAD_TEMPSAVE ||
+                        vtrUploadtask.Taskstate == (int)VTRUPLOADTASKSTATE.VTR_UPLOAD_FAIL ||
+                        vtrUploadtask.Taskstate == (int)VTRUPLOADTASKSTATE.VTR_UPLOAD_DELETE ||
+                        vtrUploadtask.Taskstate == (int)VTRUPLOADTASKSTATE.VTR_UPLOAD_COMMIT)
+                    {
+                        await VtrStore.DeleteVtrUploadTask(vtrUploadtask, false);
+                        await TaskStore.DeleteTaskDB(taskId, true);
 
-                //            taskRow.STATE = (int)taskState.tsDelete;
-                //            taskRow.OP_TYPE = (int)opType.otDel;
-                //            taskRow.DISPATCH_STATE = (int)dispatchState.dpsDispatchFailed;
-                //        }*/
+                        Logger.Info(string.Format("In DeleteVtrUploadTask,Find a {0} task,delete from table.taskId  = {1}", vtrUploadtask.Taskstate, taskId));
+                        return;
+                    }
 
-                //        if (row.TASKSTATE == (int)VTRUPLOADTASKSTATE.VTR_UPLOAD_PRE_EXECUTE)
-                //        {
-                //            ApplicationLog.WriteInfo(string.Format("In DeleteVtrUploadTask,Find a {0} task,set delete state.taskId  = {1}"
-                //                , (VTRUPLOADTASKSTATE)row.TASKSTATE, taskId));
+                    if (vtrUploadtask.Taskstate == (int)VTRUPLOADTASKSTATE.VTR_UPLOAD_PRE_EXECUTE)
+                    {
+                        Logger.Info(string.Format("In DeleteVtrUploadTask,Find a {0} task,set delete state.taskId  = {1}"
+                            , (VTRUPLOADTASKSTATE)vtrUploadtask.Taskstate, taskId));
 
-                //            row.TASKSTATE = (int)VTRUPLOADTASKSTATE.VTR_UPLOAD_DELETE;
-                //            taskRow.STATE = (int)taskState.tsDelete;
-                //            taskRow.OP_TYPE = (int)opType.otDel;
-                //            taskRow.DISPATCH_STATE = (int)dispatchState.dpsDispatchFailed;
+                        vtrUploadtask.Taskstate = (int)VTRUPLOADTASKSTATE.VTR_UPLOAD_DELETE;
+                        await VtrStore.UpdateUploadtask(vtrUploadtask, false);
+                        
+                        task.State = (int)taskState.tsDelete;
+                        task.OpType = (int)opType.otDel;
+                        task.DispatchState = (int)dispatchState.dpsDispatchFailed;
+                        await TaskStore.UpdateTaskListAsync(new List<DbpTask>() { task }, true);
+                        return;
+                    }
 
-                //            continue;
-                //        }
+                    if (vtrUploadtask.Taskstate == (int)VTRUPLOADTASKSTATE.VTR_UPLOAD_EXECUTE)
+                    {
+                        Logger.Info(string.Format("In DeleteVtrUploadTask,Find a {0} task,set delete state.taskId  = {1}"
+                            , (VTRUPLOADTASKSTATE)vtrUploadtask.Taskstate, taskId));
 
-                //        if (row.TASKSTATE == (int)VTRUPLOADTASKSTATE.VTR_UPLOAD_EXECUTE)
-                //        {
-                //            ApplicationLog.WriteInfo(string.Format("In DeleteVtrUploadTask,Find a {0} task,set delete state.taskId  = {1}"
-                //                , (VTRUPLOADTASKSTATE)row.TASKSTATE, taskId));
+                        vtrUploadtask.Taskstate = (int)VTRUPLOADTASKSTATE.VTR_UPLOAD_DELETE;
+                        await VtrStore.UpdateUploadtask(vtrUploadtask, false);
 
-                //            row.TASKSTATE = (int)VTRUPLOADTASKSTATE.VTR_UPLOAD_DELETE;
-                //            //vtr上载服务，相应把素材删除
-                //            taskRow.SYNC_STATE = (int)syncState.ssNot;
-                //            taskRow.OP_TYPE = (int)opType.otDel;
-                //            taskRow.DISPATCH_STATE = (int)dispatchState.dpsInvalid;
-                //            taskRow.STATE = (int)taskState.tsInvaild;
-                //            taskRow.ENDTIME = DateTime.Now;
-                //            taskRow.NEW_ENDTIME = DateTime.Now;
+                        //vtr上载服务，相应把素材删除
+                        task.SyncState = (int)syncState.ssNot;
+                        task.OpType = (int)opType.otDel;
+                        task.DispatchState = (int)dispatchState.dpsInvalid;
+                        task.State = (int)taskState.tsInvaild;
+                        task.Endtime = DateTime.Now;
+                        task.NewEndtime = DateTime.Now;
+                        await TaskStore.UpdateTaskListAsync(new List<DbpTask>() { task }, true);
 
-                //            continue;
-                //        }
-                //    }
-
-                //    taskAccess.UpdateTasks(ref taskSet);
-                //}
-
-                //UpdateTime = DateTime.Now;
-                //DBACCESS.UpdateVtrSet(ref vtrSet);
+                        return;
+                    }
+                }
             }
         }
 

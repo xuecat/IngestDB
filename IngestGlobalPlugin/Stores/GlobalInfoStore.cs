@@ -262,7 +262,7 @@ namespace IngestGlobalPlugin.Stores
         }
 
         //add or update
-        public async Task UpdateGlobalValueAsync(string strKey, string strValue)
+        public async Task<bool> UpdateGlobalValueAsync(string strKey, string strValue)
         {
 
             try
@@ -283,13 +283,14 @@ namespace IngestGlobalPlugin.Stores
                     Context.Attach(state);
                     Context.Entry(state).Property(x => x.GlobalValue).IsModified = true;
                 }
-                await Context.SaveChangesAsync();
+                return await Context.SaveChangesAsync()>0;
             }
             catch (System.Exception ex)
             {
                 Logger.Error("UpdateGlobalValueAsync : " + ex.ToString());
                 throw ex;
             }
+
         }
         #endregion
 

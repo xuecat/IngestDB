@@ -28,24 +28,24 @@ namespace IngestGlobalPlugin.Controllers.v1
         }
         string no_err = "OK";
 
-        [HttpGet("SetGlobalState"), MapToApiVersion("1.0")]
-        [ApiExplorerSettings(GroupName = "v1")]
-        public async Task OldSetGlobalState([FromQuery]string strLabel)
-        {
-            if (string.IsNullOrEmpty(strLabel))
-            {
-                return;
-            }
+        //[HttpGet("SetGlobalState"), MapToApiVersion("1.0")]
+        //[ApiExplorerSettings(GroupName = "v1")]
+        //public async Task OldSetGlobalState([FromQuery]string strLabel)
+        //{
+        //    if (string.IsNullOrEmpty(strLabel))
+        //    {
+        //        return;
+        //    }
 
-            try
-            {
-                await _GlobalManager.UpdateGlobalStateAsync(strLabel);
-            }
-            catch (Exception ex)
-            {
-                Logger.Error("OldSetGlobalState : " + ex.ToString());
-            }
-        }
+        //    try
+        //    {
+        //        await _GlobalManager.UpdateGlobalStateAsync(strLabel);
+        //    }
+        //    catch (Exception ex)
+        //    {
+        //        Logger.Error("OldSetGlobalState : " + ex.ToString());
+        //    }
+        //}
 
         #region lock obj
         [HttpPost("PostLockObject"), MapToApiVersion("1.0")]
@@ -127,7 +127,6 @@ namespace IngestGlobalPlugin.Controllers.v1
             {
                 Logger.Error("PostUnlockObject 异常发生: " + ex.ToString());
                 pOut.errStr = ex.Message;
-                Logger.Error(ex.ToString());
                 pOut.bRet = false;
             }
 
@@ -202,8 +201,8 @@ namespace IngestGlobalPlugin.Controllers.v1
             {
                 if (strValue == null)
                     strValue = "";
-                await _GlobalManager.UpdateGlobalValueAsync(strKey, strValue);
-                res.nCode = 1;
+                bool ret = await _GlobalManager.UpdateGlobalValueAsync(strKey, strValue);
+                res.nCode = ret? 1:0;
             }
             catch (Exception ex)
             {

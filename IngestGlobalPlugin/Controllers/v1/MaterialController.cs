@@ -40,7 +40,7 @@ namespace IngestGlobalPlugin.Controllers.v1
             catch (Exception ex)
             {
                 //pOut.errStr = ex.Message;
-                Logger.Error("PostlockObject 异常发生: " + ex.ToString());
+                Logger.Error("AddMqMsg 异常发生: " + ex.ToString());
                 //pOut.bRet = false;
             }
 
@@ -76,13 +76,15 @@ namespace IngestGlobalPlugin.Controllers.v1
                     //Response.Code = se.ErrorCode.ToString();
                     //Response.Msg = se.Message;
                     Response.bRet = false;
+                    Response.errStr = e.Message;
                 }
                 else
                 {
                     Response.bRet = false;
                     //Response.Code = ResponseCodeDefines.ServiceError;
                     //Response.Msg = "GetNeedProcessedMqMsg error info：" + e.ToString();
-                    Logger.Error("GetNeedProcessedMqMsg error info：" + e.ToString());
+                    Logger.Error("GetNeedProcessedMqMsg error info：" + e.Message);
+                    Response.errStr = e.Message;
                 }
             }
             return Response;
@@ -97,6 +99,7 @@ namespace IngestGlobalPlugin.Controllers.v1
         public async Task<OldResponseMessage<List<MQmsgInfo>>> GetNeedProcessedMqMsg()
         {
             var Response = new OldResponseMessage<List<MQmsgInfo>>();
+            Response.message = "OK";
             try
             {
                 Response.extention = await _materialManage.GetNeedProcessMsg<MQmsgInfo>();
@@ -116,8 +119,8 @@ namespace IngestGlobalPlugin.Controllers.v1
                 else
                 {
                     Response.nCode = 0;
-                    Response.message = "error info：" + e.ToString();
-                    Logger.Error("GetNeedProcessedMqMsg" + e.ToString());
+                    Response.message = "error info：" + e.Message;
+                    Logger.Error("GetNeedProcessedMqMsg" + e.Message);
                 }
             }
             return Response;
@@ -150,8 +153,8 @@ namespace IngestGlobalPlugin.Controllers.v1
                 else
                 {
                     Response.nCode = 0;
-                    Response.message = "error info：" + e.ToString();
-                    Logger.Error("QueryMsgFailedRecord" + e.ToString());
+                    Response.message = "error info：" + e.Message;
+                    Logger.Error("QueryMsgFailedRecord" + e.Message);
                 }
             }
             return Response;
@@ -179,8 +182,8 @@ namespace IngestGlobalPlugin.Controllers.v1
                 else
                 {
                     Response.nCode = 0;
-                    Response.message = "error info：" + e.ToString();
-                    Logger.Error("QueryTaskResultByIDAndSection" + e.ToString());
+                    Response.message = "error info：" + e.Message;
+                    Logger.Error("QueryTaskResultByIDAndSection" + e.Message);
                 }
             }
             return Response;
@@ -217,8 +220,8 @@ namespace IngestGlobalPlugin.Controllers.v1
                 else
                 {
                     Response.nCode = 0;
-                    Response.message = "error info：" + e.ToString();
-                    Logger.Error("DeleteMsgFaieldRecord" + e.ToString());
+                    Response.message = "error info：" + e.Message;
+                    Logger.Error("DeleteMsgFaieldRecord" + e.Message);
                 }
             }
             return Response;
@@ -257,12 +260,14 @@ namespace IngestGlobalPlugin.Controllers.v1
                     SobeyRecException se = e as SobeyRecException;
                     Response.nCode = 0;// int.Parse(se.ErrorCode.ToString());
                     Response.message = e.Message;
+                    Response.extention = false;
                 }
                 else
                 {
                     Response.nCode = 0;
-                    Response.message = "error info：" + e.ToString();
-                    Logger.Error("QueryTaskResultByIDAndSection" + e.ToString());
+                    Response.message = "error info：" + e.Message;
+                    Logger.Error("QueryTaskResultByIDAndSection" + e.Message);
+                    Response.extention = false;
                 }
             }
             return Response;
@@ -296,12 +301,14 @@ namespace IngestGlobalPlugin.Controllers.v1
                     SobeyRecException se = e as SobeyRecException;
                     Response.nCode = 0;// int.Parse(se.ErrorCode.ToString());
                     Response.message = e.Message;
+                    Response.extention = false;
                 }
                 else
                 {
                     Response.nCode = 0;
-                    Response.message = "error info：" + e.ToString();
-                    Logger.Error("QueryTaskResultByID" + e.ToString());
+                    Response.message = "error info：" + e.Message;
+                    Logger.Error("QueryTaskResultByID" + e.Message);
+                    Response.extention = false;
                 }
             }
             return Response;
@@ -309,14 +316,14 @@ namespace IngestGlobalPlugin.Controllers.v1
 
         [HttpGet("GetMsgContentByTaskID"), MapToApiVersion("1.0")]
         [ApiExplorerSettings(GroupName = "v1")]
-        public async Task<List<FailedMessageParam>> GetMsgContentByTaskID([FromQuery]int taskID)
+        public async Task<OldResponseMessage<List<FailedMessageParam>>> GetMsgContentByTaskID([FromQuery]int taskID)
         {
-            var Response = new List<FailedMessageParam>();
+            var Response = new OldResponseMessage<List<FailedMessageParam>>();
             try
             {
                 var f = await _materialManage.GetMsgContentByTaskid(taskID);
-                
-                return f;
+                Response.extention = f;
+                return Response;
             }
             catch (Exception e)
             {
@@ -326,12 +333,18 @@ namespace IngestGlobalPlugin.Controllers.v1
                     SobeyRecException se = e as SobeyRecException;
                     //Response.nCode = int.Parse(se.ErrorCode.ToString());
                     //Response.errStr = e.Message;
+                    Response.nCode = 0;
+                    Response.message = e.Message;
+                    Response.extention = null;
                 }
                 else
                 {
                     //Response.nCode = 0;
                     //Response.errStr = "error info：" + e.ToString();
                     Logger.Error("GetMsgContentByTaskID" + e.ToString());
+                    Response.nCode = 0;
+                    Response.message = e.Message;
+                    Response.extention = null;
                 }
             }
             return Response;
@@ -361,8 +374,8 @@ namespace IngestGlobalPlugin.Controllers.v1
                 else
                 {
                     Response.nCode = 0;
-                    Response.errStr = "error info：" + e.ToString();
-                    Logger.Error("FindFormatInfo" + e.ToString());
+                    Response.errStr = "error info：" + e.Message;
+                    Logger.Error("FindFormatInfo" + e.Message);
                 }
             }
             return Response;
@@ -393,8 +406,8 @@ namespace IngestGlobalPlugin.Controllers.v1
                 else
                 {
                     Response.nCode = 0;
-                    Response.errStr = "error info：" + e.ToString();
-                    Logger.Error("AddFormatInfo" + e.ToString());
+                    Response.errStr = "error info：" + e.Message;
+                    Logger.Error("AddFormatInfo" + e.Message);
                 }
             }
             return Response;
@@ -424,8 +437,8 @@ namespace IngestGlobalPlugin.Controllers.v1
                 else
                 {
                     Response.nCode = 0;
-                    Response.errStr = "error info：" + e.ToString();
-                    Logger.Error("UpdateFormatInfo" + e.ToString());
+                    Response.errStr = "error info：" + e.Message;
+                    Logger.Error("UpdateFormatInfo" + e.Message);
                 }
             }
             return Response;

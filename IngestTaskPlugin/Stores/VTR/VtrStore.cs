@@ -528,5 +528,45 @@
             return await Context.DbpPolicyuser.AsNoTracking().Where(x => x.Usercode == usercode).Join(Context.DbpMetadatapolicy, user => user.Policyid, policy => policy.Policyid, (x, y) => y).ToListAsync();
         }
 
+        public async Task<bool> AddUploadtask(VtrUploadtask task, bool submitFlag)
+        {
+            if (task != null)
+            {
+                await Context.VtrUploadtask.AddAsync(task);
+                if (submitFlag)
+                {
+                    return await Context.SaveChangesAsync() > 0;
+                }
+                return true;
+            }
+            return false;
+        }
+
+        public async Task DeleteVtrUploadTask(VtrUploadtask task, bool submitFlag)
+        {
+            if (task != null)
+            {
+                Context.VtrUploadtask.Remove(task);
+                if (submitFlag)
+                {
+                    await Context.SaveChangesAsync();
+                }
+            }
+        }
+
+        public async Task<bool> UpdateUploadtask(VtrUploadtask task, bool submitFlag)
+        {
+            if (task != null)
+            {
+                Context.VtrUploadtask.Update(task);
+                if (submitFlag)
+                {
+                    return await Context.SaveChangesAsync() > 0;
+                }
+                return true;
+            }
+            return false;
+        }
+
     }
 }

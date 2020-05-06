@@ -43,9 +43,9 @@ namespace IngestGlobalPlugin.Managers
         }
 
         //add or update global value
-        public async Task UpdateGlobalValueAsync(string strKey, string strValue)
+        public async Task<bool> UpdateGlobalValueAsync(string strKey, string strValue)
         {
-            await Store.UpdateGlobalValueAsync(strKey, strValue);
+            return await Store.UpdateGlobalValueAsync(strKey, strValue);
         }
 
         public async Task<TResult> GetDefaultSTCAsync<TResult>(TC_MODE tcMode)
