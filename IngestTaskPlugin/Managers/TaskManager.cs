@@ -1796,7 +1796,7 @@ namespace IngestTaskPlugin.Managers
                 && findtask.DispatchState == (int)dispatchState.dpsDispatched
                 && findtask.SyncState == (int)syncState.ssSync)
             {
-                await Store.UnLockTask(findtask.Taskid);
+                await Store.UnLockTask(findtask, true);
                 SobeyRecException.ThrowSelfNoParam("ModifyTask findtask empty", GlobalDictionary.GLOBALDICT_CODE_TASK_IS_LOCKED, Logger, null);
             }
 
@@ -1831,7 +1831,7 @@ namespace IngestTaskPlugin.Managers
 
                 if (!match)
                 {
-                    await Store.UnLockTask(findtask.Taskid);
+                    await Store.UnLockTask(findtask, true);
                     SobeyRecException.ThrowSelfNoParam("ModifyTask match empty", GlobalDictionary.GLOBALDICT_CODE_SIGNAL_AND_CHANNEL_IS_MISMATCHED, Logger, null);
                 }
             }
@@ -1848,7 +1848,7 @@ namespace IngestTaskPlugin.Managers
                 var vtrtask = await Store.GetVtrUploadTaskAsync(a => a.Where(b => b.Taskid == findtask.Taskid), true);
                 if (vtrtask == null)
                 {
-                    await Store.UnLockTask(findtask.Taskid);
+                    await Store.UnLockTask(findtask, true);
                     SobeyRecException.ThrowSelfOneParam("ModifyTask vtrtask empty", GlobalDictionary.GLOBALDICT_CODE_CAN_NOT_FIND_THE_TASK_ONEPARAM, Logger, findtask.Taskid, null);
                 }
 
@@ -1861,7 +1861,7 @@ namespace IngestTaskPlugin.Managers
                 {
                     //VTRDetailInfo vtrInfo = new VTRDetailInfo();
                     //vtrInfo = vtrOper.GetVTRDetailInfoByID(vtrTasks[0].nVtrId);
-                    await Store.UnLockTask(findtask.Taskid);
+                    await Store.UnLockTask(findtask, true);
                     //SobeyRecException.ThrowSelf(Locallanguage.LoadString(vtrInfo.szVTRDetailName + " has been used by other tasks"), 3);
                     SobeyRecException.ThrowSelfOneParam("ModifyTask match empty", GlobalDictionary.GLOBALDICT_CODE_VTR_HAS_BEEN_USED_BY_OTHER_TASKS_ONEPARAM, Logger, vtrtask.Vtrid, null);
                 }
@@ -1891,7 +1891,7 @@ namespace IngestTaskPlugin.Managers
                 var freelst = await Store.GetFreeChannels(chl, taskModify.TaskID, modifybegin, modifyend);
                 if (freelst == null || freelst.Count < 1)
                 {
-                    await Store.UnLockTask(findtask.Taskid);
+                    await Store.UnLockTask(findtask, true);
                     SobeyRecException.ThrowSelfOneParam("ModifyTask GetFreeChannels empty",
                         GlobalDictionary.GLOBALDICT_CODE_CAN_NOT_MODIFY_TIME_CONFLICT_TASKS_ONEPARAM, Logger, taskModify.TaskID, null);
 
@@ -1921,7 +1921,7 @@ namespace IngestTaskPlugin.Managers
 
                     if (freelst == null || freelst.Count < 1)
                     {
-                        await Store.UnLockTask(findtask.Taskid);
+                        await Store.UnLockTask(findtask, true);
                         SobeyRecException.ThrowSelfOneParam("ModifyTask GetFreePerodiChannels1 empty",
                             GlobalDictionary.GLOBALDICT_CODE_CAN_NOT_MODIFY_TIME_CONFLICT_TASKS_ONEPARAM, Logger, taskModify.TaskID, null);
 
@@ -1932,7 +1932,7 @@ namespace IngestTaskPlugin.Managers
 
                     if (modifyend - modifybegin > new TimeSpan(0, 23, 59, 59))
                     {
-                        await Store.UnLockTask(findtask.Taskid);
+                        await Store.UnLockTask(findtask, true);
                         SobeyRecException.ThrowSelfNoParam("ModifyTask match over 24", GlobalDictionary.GLOBALDICT_CODE_TASK_TIME_IS_OVER_24_HOURS, Logger, null);
 
                     }
@@ -1943,7 +1943,7 @@ namespace IngestTaskPlugin.Managers
 
                     if (freelst == null || freelst.Count < 1)
                     {
-                        await Store.UnLockTask(findtask.Taskid);
+                        await Store.UnLockTask(findtask, true);
                         SobeyRecException.ThrowSelfOneParam("ModifyTask GetFreePerodiChannels2 empty",
                             GlobalDictionary.GLOBALDICT_CODE_CAN_NOT_MODIFY_TIME_CONFLICT_TASKS_ONEPARAM, Logger, taskModify.TaskID, null);
 
@@ -2006,7 +2006,7 @@ namespace IngestTaskPlugin.Managers
             }
             catch (Exception e)
             {
-                await Store.UnLockTask(findtask.Taskid);
+                await Store.UnLockTask(findtask, true);
                 SobeyRecException.ThrowSelfNoParam("ModifyTask match ModifyTask", GlobalDictionary.GLOBALDICT_CODE_SET_TASKMETADATA_FAIL, Logger, e);
 
             }
