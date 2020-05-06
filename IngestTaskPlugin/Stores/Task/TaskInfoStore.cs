@@ -1212,7 +1212,7 @@ namespace IngestTaskPlugin.Stores
 
 
 
-        public async Task<List<int>> GetFreeChannels(List<int> lst, DateTime begin, DateTime end, bool choosefilter = false)
+        public async Task<List<int>> GetFreeChannels(List<int> lst, int nTaskID, DateTime begin, DateTime end, bool choosefilter = false)
         {
             /*
              * @brief 老代码有个endtime > datetime.now, 我不明白为啥，应该没有道理的，我这里先屏蔽了看看
@@ -1305,7 +1305,12 @@ namespace IngestTaskPlugin.Stores
                 lsttask = lstfiltertask;
             }
 
-            var lstchn = lsttask.Select(x => x.Channelid);
+            if (nTaskID > 0)
+            {
+                lsttask.RemoveAll(x => x.Taskid == nTaskID);
+            }
+
+            var lstchn = lsttask.Select(x => x.Channelid).ToList();
 
             Logger.Info("GetFreeChannels normal " + string.Join(",", lstchn));
 
@@ -1383,13 +1388,22 @@ namespace IngestTaskPlugin.Stores
                 filtertask.Add(item);
             }
 
-            if (filtertask.Count > 0)
+            if (filtertask != null && filtertask.Count > 0)
             {
-                var periodch = filtertask.Select(x => x.Channelid).ToList();
-                lst.RemoveAll(z => periodch.Contains(z));
+                filtertask.RemoveAll(x => (!IsConflict(x.Starttime, x.Endtime, begin, end)) || (nTaskID>0&&x.Taskid == nTaskID));
+
+                if (filtertask.Count > 0)
+                {
+                    var periodch = filtertask.Select(x => x.Channelid).ToList();
+                    lst.RemoveAll(z => periodch.Contains(z));
+                }
             }
 
-            lst.RemoveAll(z => lstchn.Contains(z));
+            if (lstchn != null&& lstchn.Count > 0)
+            {
+                lst.RemoveAll(z => lstchn.Contains(z));
+            }
+            
             return lst;
         }
 
@@ -1914,28 +1928,45 @@ namespace IngestTaskPlugin.Stores
 
             Context.DbpTask.Update(task);
 
-            if (!string.IsNullOrEmpty(ContentMeta))
+            if (!string.IsNullOrEmpty(CaptureMeta))
             {
-                var itm = new DbpTaskMetadata() { Taskid = task.Taskid, Metadatatype = (int)MetaDataType.emContentMetaData, Metadatalong = ContentMeta };
+                //var itm = new DbpTaskMetadata() { Taskid = task.Taskid, Metadatatype = (int)MetaDataType.emCapatureMetaData, Metadatalong = CaptureMeta };
+                //Context.Attach(itm);
+                //Context.Entry(itm).Property(x => x.Metadatalong).IsModified = true;
+                //因为主键ID默认是不赋值的，只给其他项目赋值了 id是int类型，int类型如果不允许为空那么会被默认为0，所以插入第二条数据时，数据库中已经有了主键为0的数据
 
-                Context.DbpTaskMetadata.Update(itm);
+                var item = Context.DbpTaskMetadata.Where(x => x.Taskid == task.Taskid && x.Metadatatype == (int)MetaDataType.emCapatureMetaData).SingleOrDefault();
+                if (item != null)
+                {
+                    item.Metadatalong = CaptureMeta;
+                }
+                //Context.DbpTaskMetadata.Update(itm);
             }
             if (!string.IsNullOrEmpty(MatiralMeta))
             {
                 var itm = new DbpTaskMetadata() { Taskid = task.Taskid, Metadatatype = (int)MetaDataType.emStoreMetaData, Metadatalong = MatiralMeta };
+                Context.Attach(itm);
+                Context.Entry(itm).Property(x => x.Metadatalong).IsModified = true;
 
-                Context.DbpTaskMetadata.Update(itm);
+                //Context.DbpTaskMetadata.Update(itm);
             }
+            if (!string.IsNullOrEmpty(ContentMeta))
+            {
+                var itm = new DbpTaskMetadata() { Taskid = task.Taskid, Metadatatype = (int)MetaDataType.emContentMetaData, Metadatalong = ContentMeta };
+                Context.Attach(itm);
+                Context.Entry(itm).Property(x => x.Metadatalong).IsModified = true;
+
+                //Context.DbpTaskMetadata.Update(itm);
+            }
+            
             if (!string.IsNullOrEmpty(PlanningMeta))
             {
                 var itm = new DbpTaskMetadata() { Taskid = task.Taskid, Metadatatype = (int)MetaDataType.emPlanMetaData, Metadatalong = PlanningMeta };
-                Context.DbpTaskMetadata.Update(itm);
+                Context.Attach(itm);
+                Context.Entry(itm).Property(x => x.Metadatalong).IsModified = true;
+                //Context.DbpTaskMetadata.Update(itm);
             }
-            if (!string.IsNullOrEmpty(CaptureMeta))
-            {
-                var itm = new DbpTaskMetadata() { Taskid = task.Taskid, Metadatatype = (int)MetaDataType.emCapatureMetaData, Metadatalong = CaptureMeta };
-                Context.DbpTaskMetadata.Update(itm);
-            }
+
 
             try
             {
@@ -2602,14 +2633,14 @@ namespace IngestTaskPlugin.Stores
 
         public async Task LockTask(int taskid)
         {
-            DbpTask obj = new DbpTask()
+            
+            var item = await Context.DbpTask.Where(x => x.Taskid == taskid).SingleOrDefaultAsync();
+
+            if (item != null)
             {
-                Taskid = taskid,
-                Tasklock = Guid.NewGuid().ToString(),
-            };
-            Context.Attach(obj);
-            Context.Entry(obj).Property("Tasklock").IsModified = true;
-            await Context.SaveChangesAsync();
+                item.Tasklock = Guid.NewGuid().ToString();
+                await Context.SaveChangesAsync();
+            }
             //Context.Entry(await Context.DbpTask.FirstOrDefaultAsync(x => x.Taskid == taskid)).CurrentValues.SetValues();
             //(await Context.SaveChangesAsync()) > 0;
         }
@@ -2634,14 +2665,14 @@ namespace IngestTaskPlugin.Stores
 
         public async Task UnLockTask(int taskid)
         {
-            DbpTask obj = new DbpTask()
+          
+            var item = await Context.DbpTask.Where(x => x.Taskid == taskid).SingleOrDefaultAsync();
+
+            if (item != null)
             {
-                Taskid = taskid,
-                Tasklock = string.Empty,
-            };
-            Context.Attach(obj);
-            Context.Entry(obj).Property("Tasklock").IsModified = true;
-            await Context.SaveChangesAsync();
+                item.Tasklock = string.Empty;
+                await Context.SaveChangesAsync();
+            }
         }
         public int GetNextValId(string value)
         {

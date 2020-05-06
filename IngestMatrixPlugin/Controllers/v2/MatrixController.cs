@@ -33,7 +33,7 @@ namespace IngestMatrixPlugin.Controllers.v2
         /// <param name="inport">输入端口</param>
         /// <param name="outport">输出端口</param>
         /// <returns>是否切换成功</returns>
-        [HttpGet("matrix/switch"), MapToApiVersion("2.0")]
+        [HttpGet("switch"), MapToApiVersion("2.0")]
         [ApiExplorerSettings(GroupName = "v2")]
         public ResponseMessage<bool> SwitchInOut([FromQuery, BindRequired]int inport,
                                                  [FromQuery, BindRequired]int outport)
@@ -74,7 +74,7 @@ namespace IngestMatrixPlugin.Controllers.v2
         /// </summary>
         /// <param name="outport">输出端口</param>
         /// <returns>输入端口</returns>
-        [HttpGet("matrix/inport/{outport}"), MapToApiVersion("2.0")]
+        [HttpGet("inport/{outport}"), MapToApiVersion("2.0")]
         [ApiExplorerSettings(GroupName = "v2")]
         public async Task<ResponseMessage<long>> GetInPortFromOutPort([FromRoute, BindRequired, DefaultValue(1)]long outport)
         {
@@ -109,7 +109,7 @@ namespace IngestMatrixPlugin.Controllers.v2
         /// 查询矩阵链接状态
         /// </summary>
         /// <returns></returns>
-        [HttpGet("matrix/linkstate"), MapToApiVersion("2.0")]
+        [HttpGet("linkstate"), MapToApiVersion("2.0")]
         [ApiExplorerSettings(GroupName = "v2")]
         public async Task<ResponseMessage<string>> QueryLinkState()
         {

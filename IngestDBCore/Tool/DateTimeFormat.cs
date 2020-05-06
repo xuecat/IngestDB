@@ -11,6 +11,11 @@ namespace IngestDBCore.Tool
         {
             try
             {
+                if (strTime == string.Empty || strTime.Length < 19)
+                {
+
+                    return DateTime.MinValue;
+                }
                 return DateTime.Parse(strTime);
             }
             catch (System.Exception ex)
@@ -22,11 +27,7 @@ namespace IngestDBCore.Tool
         {
             try
             {
-                if (strTime == string.Empty || strTime.Length < 19)
-                {
-
-                    return DateTime.MinValue;
-                }
+                
                 IFormatProvider culture = new CultureInfo("fr-FR", true);
                 DateTime dt = DateTime.ParseExact(strTime, "yyyy-MM-dd HH:mm:ss", culture);
 

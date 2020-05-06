@@ -21,7 +21,9 @@ namespace IngestGlobalPlugin
         {
             context.Services.AddDbContext<Models.IngestGlobalDBContext>(options => options.UseMySql(context.ConnectionString), ServiceLifetime.Scoped);
             context.Services.AddScoped<IGlobalStore, GlobalInfoStore>();
+            context.Services.AddScoped<IMaterialStore, MaterialStore>();
             context.Services.AddScoped<GlobalManager>();
+            context.Services.AddScoped<MaterialManager>();
 
             return base.Init(context);
         }

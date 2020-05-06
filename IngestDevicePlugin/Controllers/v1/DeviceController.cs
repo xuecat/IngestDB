@@ -56,7 +56,7 @@ namespace IngestDevicePlugin.Controllers.v1
                 } else
                 {
                     response.bRet = false;
-                    response.errStr = $"{System.Reflection.MethodBase.GetCurrentMethod().DeclaringType.FullName}：error info:{e}";
+                    response.errStr = $"{System.Reflection.MethodBase.GetCurrentMethod().DeclaringType.FullName}：error info:{e.Message}";
                     Logger.Error(response.errStr);
                 }
             }
@@ -85,7 +85,7 @@ namespace IngestDevicePlugin.Controllers.v1
                 } else
                 {
                     response.bRet = false;
-                    response.errStr = $"{System.Reflection.MethodBase.GetCurrentMethod().DeclaringType.FullName}：error info:{e}";
+                    response.errStr = $"{System.Reflection.MethodBase.GetCurrentMethod().DeclaringType.FullName}：error info:{e.Message}";
                     Logger.Error(response.errStr);
                 }
             }
@@ -114,7 +114,7 @@ namespace IngestDevicePlugin.Controllers.v1
                 } else
                 {
                     response.bRet = false;
-                    response.errStr = $"{System.Reflection.MethodBase.GetCurrentMethod().DeclaringType.FullName}：error info:{e}";
+                    response.errStr = $"{System.Reflection.MethodBase.GetCurrentMethod().DeclaringType.FullName}：error info:{e.Message}";
                     Logger.Error(response.errStr);
                 }
             }
@@ -143,7 +143,7 @@ namespace IngestDevicePlugin.Controllers.v1
                 } else
                 {
                     response.bRet = false;
-                    response.errStr = $"{System.Reflection.MethodBase.GetCurrentMethod().DeclaringType.FullName}：error info:{e}";
+                    response.errStr = $"{System.Reflection.MethodBase.GetCurrentMethod().DeclaringType.FullName}：error info:{e.Message}";
                     Logger.Error(response.errStr);
                 }
             }
@@ -172,7 +172,7 @@ namespace IngestDevicePlugin.Controllers.v1
                 } else
                 {
                     response.bRet = false;
-                    response.errStr = $"{System.Reflection.MethodBase.GetCurrentMethod().DeclaringType.FullName}：error info:{e}";
+                    response.errStr = $"{System.Reflection.MethodBase.GetCurrentMethod().DeclaringType.FullName}：error info:{e.Message}";
                     Logger.Error(response.errStr);
                 }
             }
@@ -201,7 +201,7 @@ namespace IngestDevicePlugin.Controllers.v1
                 } else
                 {
                     response.bRet = false;
-                    response.errStr = $"{System.Reflection.MethodBase.GetCurrentMethod().DeclaringType.FullName}：error info:{e}";
+                    response.errStr = $"{System.Reflection.MethodBase.GetCurrentMethod().DeclaringType.FullName}：error info:{e.Message}";
                     Logger.Error(response.errStr);
                 }
             }
@@ -217,6 +217,8 @@ namespace IngestDevicePlugin.Controllers.v1
         public async Task<GetSignalDeviceMapBySignalID_param> GetSignalDeviceMapBySignalID([FromQuery, DefaultValue(39)]int nSignalID)
         {
             GetSignalDeviceMapBySignalID_param response = new GetSignalDeviceMapBySignalID_param();
+            response.nDeviceID = -1;
+            response.nDeviceOutPortIdx = -1;
             try
             {
                 var res = await _deviceManage.GetSignalDeviceMapBySignalID<SignalDeviceMap>(nSignalID);
@@ -235,7 +237,7 @@ namespace IngestDevicePlugin.Controllers.v1
                 } else
                 {
                     response.bRet = false;
-                    response.errStr = $"{System.Reflection.MethodBase.GetCurrentMethod().DeclaringType.FullName}：error info:{e}";
+                    response.errStr = $"{System.Reflection.MethodBase.GetCurrentMethod().DeclaringType.FullName}：error info:{e.Message}";
                     Logger.Error(response.errStr);
                 }
             }
@@ -270,7 +272,7 @@ namespace IngestDevicePlugin.Controllers.v1
                 } else
                 {
                     response.bRet = false;
-                    response.errStr = $"{System.Reflection.MethodBase.GetCurrentMethod().DeclaringType.FullName}：error info:{e}";
+                    response.errStr = $"{System.Reflection.MethodBase.GetCurrentMethod().DeclaringType.FullName}：error info:{e.Message}";
                     Logger.Error(response.errStr);
                 }
             }
@@ -299,7 +301,7 @@ namespace IngestDevicePlugin.Controllers.v1
                 } else
                 {
                     response.bRet = false;
-                    response.errStr = $"{System.Reflection.MethodBase.GetCurrentMethod().DeclaringType.FullName}：error info:{e}";
+                    response.errStr = $"{System.Reflection.MethodBase.GetCurrentMethod().DeclaringType.FullName}：error info:{e.Message}";
                     Logger.Error(response.errStr);
                 }
             }
@@ -331,7 +333,7 @@ namespace IngestDevicePlugin.Controllers.v1
                 } else
                 {
                     response.bRet = false;
-                    response.errStr = $"{System.Reflection.MethodBase.GetCurrentMethod().DeclaringType.FullName}：error info:{e}";
+                    response.errStr = $"{System.Reflection.MethodBase.GetCurrentMethod().DeclaringType.FullName}：error info:{e.Message}";
                     Logger.Error(response.errStr);
                 }
             }
@@ -347,6 +349,7 @@ namespace IngestDevicePlugin.Controllers.v1
         public async Task<GetParamTypeByChannleID_param> GetParamTypeByChannleID([FromQuery, DefaultValue(14)]int nChannelID)
         {
             GetParamTypeByChannleID_param response = new GetParamTypeByChannleID_param();
+            response.nType = -1;
             try
             {
                 response.nType = await _deviceManage.GetParamTypeByChannelIDAsync(nChannelID);
@@ -364,7 +367,7 @@ namespace IngestDevicePlugin.Controllers.v1
                 } else
                 {
                     response.bRet = false;
-                    response.errStr = $"{System.Reflection.MethodBase.GetCurrentMethod().DeclaringType.FullName}：error info:{e}";
+                    response.errStr = $"{System.Reflection.MethodBase.GetCurrentMethod().DeclaringType.FullName}：error info:{e.Message}";
                     Logger.Error(response.errStr);
                 }
             }
@@ -392,7 +395,7 @@ namespace IngestDevicePlugin.Controllers.v1
                 } else
                 {
                     response.bRet = false;
-                    response.errStr = $"{System.Reflection.MethodBase.GetCurrentMethod().DeclaringType.FullName}：error info:{e}";
+                    response.errStr = $"{System.Reflection.MethodBase.GetCurrentMethod().DeclaringType.FullName}：error info:{e.Message}";
                     Logger.Error(response.errStr);
                 }
             }
@@ -421,7 +424,7 @@ namespace IngestDevicePlugin.Controllers.v1
                 } else
                 {
                     response.bRet = false;
-                    response.errStr = $"{System.Reflection.MethodBase.GetCurrentMethod().DeclaringType.FullName}：error info:{e}";
+                    response.errStr = $"{System.Reflection.MethodBase.GetCurrentMethod().DeclaringType.FullName}：error info:{e.Message}";
                     Logger.Error(response.errStr);
                 }
             }
@@ -450,7 +453,7 @@ namespace IngestDevicePlugin.Controllers.v1
                 } else
                 {
                     response.bRet = false;
-                    response.errStr = $"{System.Reflection.MethodBase.GetCurrentMethod().DeclaringType.FullName}：error info:{e}";
+                    response.errStr = $"{System.Reflection.MethodBase.GetCurrentMethod().DeclaringType.FullName}：error info:{e.Message}";
                     Logger.Error(response.errStr);
                 }
             }
@@ -479,7 +482,7 @@ namespace IngestDevicePlugin.Controllers.v1
                 } else
                 {
                     response.bRet = false;
-                    response.errStr = $"{System.Reflection.MethodBase.GetCurrentMethod().DeclaringType.FullName}：error info:{e}";
+                    response.errStr = $"{System.Reflection.MethodBase.GetCurrentMethod().DeclaringType.FullName}：error info:{e.Message}";
                     Logger.Error(response.errStr);
                 }
             }
@@ -508,7 +511,7 @@ namespace IngestDevicePlugin.Controllers.v1
                 } else
                 {
                     response.bRet = false;
-                    response.errStr = $"{System.Reflection.MethodBase.GetCurrentMethod().DeclaringType.FullName}：error info:{e}";
+                    response.errStr = $"{System.Reflection.MethodBase.GetCurrentMethod().DeclaringType.FullName}：error info:{e.Message}";
                     Logger.Error(response.errStr);
                 }
             }
@@ -537,7 +540,7 @@ namespace IngestDevicePlugin.Controllers.v1
                 } else
                 {
                     response.bRet = false;
-                    response.errStr = $"{System.Reflection.MethodBase.GetCurrentMethod().DeclaringType.FullName}：error info:{e}";
+                    response.errStr = $"{System.Reflection.MethodBase.GetCurrentMethod().DeclaringType.FullName}：error info:{e.Message}";
                     Logger.Error(response.errStr);
                 }
             }
@@ -571,7 +574,7 @@ namespace IngestDevicePlugin.Controllers.v1
                 } else
                 {
                     response.bRet = false;
-                    response.errStr = $"{System.Reflection.MethodBase.GetCurrentMethod().DeclaringType.FullName}：error info:{e}";
+                    response.errStr = $"{System.Reflection.MethodBase.GetCurrentMethod().DeclaringType.FullName}：error info:{e.Message}";
                     Logger.Error(response.errStr);
                 }
             }
@@ -597,7 +600,7 @@ namespace IngestDevicePlugin.Controllers.v1
                 } else
                 {
                     response.bRet = false;
-                    response.errStr = $"{System.Reflection.MethodBase.GetCurrentMethod().DeclaringType.FullName}：error info:{e}";
+                    response.errStr = $"{System.Reflection.MethodBase.GetCurrentMethod().DeclaringType.FullName}：error info:{e.Message}";
                     Logger.Error(response.errStr);
                 }
             }
@@ -630,7 +633,7 @@ namespace IngestDevicePlugin.Controllers.v1
                 } else
                 {
                     response.bRet = false;
-                    response.errStr = $"{System.Reflection.MethodBase.GetCurrentMethod().DeclaringType.FullName}：error info:{e}";
+                    response.errStr = $"{System.Reflection.MethodBase.GetCurrentMethod().DeclaringType.FullName}：error info:{e.Message}";
                     Logger.Error(response.errStr);
                 }
             }
@@ -660,7 +663,7 @@ namespace IngestDevicePlugin.Controllers.v1
                 } else
                 {
                     response.bRet = false;
-                    response.errStr = $"{System.Reflection.MethodBase.GetCurrentMethod().DeclaringType.FullName}：error info:{e}";
+                    response.errStr = $"{System.Reflection.MethodBase.GetCurrentMethod().DeclaringType.FullName}：error info:{e.Message}";
                     Logger.Error(response.errStr);
                 }
             }
@@ -676,6 +679,7 @@ namespace IngestDevicePlugin.Controllers.v1
         public async Task<GetBackupSignalSrcInfo_OUT> GetBackupSignalSrcInfo([FromQuery, DefaultValue(0)]int nSignalSrcId)
         {
             GetBackupSignalSrcInfo_OUT response = new GetBackupSignalSrcInfo_OUT();
+            response.bIsHavingBackupSglSrc = false;
             try
             {
                 response.nBackupSignalSrcId = await _deviceManage.GetBackupSignalSrcIdByIdAsync(nSignalSrcId);
@@ -689,7 +693,7 @@ namespace IngestDevicePlugin.Controllers.v1
                 } else
                 {
                     response.bRet = false;
-                    response.errStr = $"{System.Reflection.MethodBase.GetCurrentMethod().DeclaringType.FullName}：error info:{e}";
+                    response.errStr = $"{System.Reflection.MethodBase.GetCurrentMethod().DeclaringType.FullName}：error info:{e.Message}";
                     Logger.Error(response.errStr);
                 }
             }
@@ -706,6 +710,7 @@ namespace IngestDevicePlugin.Controllers.v1
         public async Task<GetParamTypeBySignalID_OUT> GetParamTypeBySignalID([FromQuery, DefaultValue(14)]int nSignalID)//nType:0标清,1高清
         {
             GetParamTypeBySignalID_OUT response = new GetParamTypeBySignalID_OUT();
+            response.nType = -1;
             try
             {
                 response.nType = await _deviceManage.GetParamTypeBySignalIDAsync(nSignalID);
@@ -723,7 +728,7 @@ namespace IngestDevicePlugin.Controllers.v1
                 } else
                 {
                     response.bRet = false;
-                    response.errStr = $"{System.Reflection.MethodBase.GetCurrentMethod().DeclaringType.FullName}：error info:{e}";
+                    response.errStr = $"{System.Reflection.MethodBase.GetCurrentMethod().DeclaringType.FullName}：error info:{e.Message}";
                     Logger.Error(response.errStr);
                 }
             }
@@ -752,7 +757,7 @@ namespace IngestDevicePlugin.Controllers.v1
                 } else
                 {
                     response.bRet = false;
-                    response.errStr = $"{System.Reflection.MethodBase.GetCurrentMethod().DeclaringType.FullName}：error info:{e}";
+                    response.errStr = $"{System.Reflection.MethodBase.GetCurrentMethod().DeclaringType.FullName}：error info:{e.Message}";
                     Logger.Error(response.errStr);
                 }
             }
@@ -769,6 +774,7 @@ namespace IngestDevicePlugin.Controllers.v1
                                                                                      [FromQuery, DefaultValue("8de083d45c614628b99516740d628e91")]string strUserCode)
         {
             GetBestChannelIDBySignalID_out response = new GetBestChannelIDBySignalID_out();
+            response.nChannelID = -1;
             try
             {
                 response.nChannelID = await _deviceManage.GetBestChannelIdBySignalIDAsync(nSignalID, strUserCode);
@@ -781,7 +787,7 @@ namespace IngestDevicePlugin.Controllers.v1
                 } else
                 {
                     response.bRet = false;
-                    response.errStr = $"{System.Reflection.MethodBase.GetCurrentMethod().DeclaringType.FullName}：error info:{e}";
+                    response.errStr = $"{System.Reflection.MethodBase.GetCurrentMethod().DeclaringType.FullName}：error info:{e.Message}";
                     Logger.Error(response.errStr);
                 }
             }
@@ -795,6 +801,7 @@ namespace IngestDevicePlugin.Controllers.v1
         public async Task<GetBestPreviewChannelForSignal_out> GetBestPreviewChannelForSignal([FromQuery, DefaultValue(39)]int nSignalID)
         {
             GetBestPreviewChannelForSignal_out response = new GetBestPreviewChannelForSignal_out();
+            response.nChnID = -1;
             try
             {
                 if(nSignalID <= 0)
@@ -814,7 +821,7 @@ namespace IngestDevicePlugin.Controllers.v1
                 } else
                 {
                     response.bRet = false;
-                    response.errStr = $"{System.Reflection.MethodBase.GetCurrentMethod().DeclaringType.FullName}：error info:{e}";
+                    response.errStr = $"{System.Reflection.MethodBase.GetCurrentMethod().DeclaringType.FullName}：error info:{e.Message}";
                     Logger.Error(response.errStr);
                 }
             }
@@ -831,6 +838,7 @@ namespace IngestDevicePlugin.Controllers.v1
         public async Task<Dto.Old.Response.ResponseMessage<GPIDeviceInfo[]>> GetAllGPIDevices()
         {
             Dto.Old.Response.ResponseMessage<GPIDeviceInfo[]> p = new Dto.Old.Response.ResponseMessage<GPIDeviceInfo[]>();
+            p.nCode = 1;
             try
             {
                 p.extention = (await _deviceManage.GetAllGPIInfoAsync<GPIDeviceInfo>()).ToArray();
@@ -889,6 +897,7 @@ namespace IngestDevicePlugin.Controllers.v1
         public async Task<IngestDevicePlugin.Dto.Old.Response.ResponseMessage<int>> GetCaptureTemplateIDBySignalID([FromQuery, DefaultValue(39)]int nSignalID)
         {
             IngestDevicePlugin.Dto.Old.Response.ResponseMessage<int> p = new IngestDevicePlugin.Dto.Old.Response.ResponseMessage<int>();
+            p.extention = -1;
             try
             {
                 p.extention = await _deviceManage.GetSignalCaptureTemplateAsync(nSignalID);
@@ -953,7 +962,7 @@ namespace IngestDevicePlugin.Controllers.v1
                 } else
                 {
                     response.bRet = false;
-                    response.errStr = $"{System.Reflection.MethodBase.GetCurrentMethod().DeclaringType.FullName}：error info:{e}";
+                    response.errStr = $"{System.Reflection.MethodBase.GetCurrentMethod().DeclaringType.FullName}：error info:{e.Message}";
                     Logger.Error(response.errStr);
                 }
             }
@@ -984,7 +993,7 @@ namespace IngestDevicePlugin.Controllers.v1
                 } else
                 {
                     response.bRet = false;
-                    response.errStr = $"{System.Reflection.MethodBase.GetCurrentMethod().DeclaringType.FullName}：error info:{e}";
+                    response.errStr = $"{System.Reflection.MethodBase.GetCurrentMethod().DeclaringType.FullName}：error info:{e.Message}";
                     Logger.Error(response.errStr);
                 }
             }
@@ -1023,7 +1032,7 @@ namespace IngestDevicePlugin.Controllers.v1
                 } else
                 {
                     response.bRet = false;
-                    response.errStr = $"{System.Reflection.MethodBase.GetCurrentMethod().DeclaringType.FullName}：error info:{e}";
+                    response.errStr = $"{System.Reflection.MethodBase.GetCurrentMethod().DeclaringType.FullName}：error info:{e.Message}";
                     Logger.Error(response.errStr);
                 }
             }

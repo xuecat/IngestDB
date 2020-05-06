@@ -116,7 +116,7 @@ namespace IngestTaskPlugin
                 .ForMember(x => x.Priority, (y) => y.MapFrom(z => z.emPriority))
                 .ForMember(x => x.StampTitleIndex, (y) => y.MapFrom(z => z.nStampTitleIndex))
                 .ForMember(x => x.StampImageType, (y) => y.MapFrom(z => z.nStampImageType))
-                .ForMember(x => x.GroupColor, (y) => y.MapFrom(z => z.nSGroupColor));
+                .ForMember(x => x.GroupColor, (y) => y.MapFrom(z => z.nSGroupColor)).ReverseMap();
 
             CreateMap<AddTaskExDb_in, TaskInfoResponse>()
                 .ForMember(d => d.TaskContent, y => y.MapFrom(s => s.taskAdd))

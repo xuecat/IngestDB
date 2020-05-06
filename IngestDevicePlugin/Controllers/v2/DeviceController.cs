@@ -50,7 +50,7 @@ namespace IngestDevicePlugin.Controllers.v2
                 } else
                 {
                     response.Code = ResponseCodeDefines.ServiceError;
-                    response.Msg = $"{System.Reflection.MethodBase.GetCurrentMethod().DeclaringType.FullName}：error info:{e}";
+                    response.Msg = $"{System.Reflection.MethodBase.GetCurrentMethod().DeclaringType.FullName}：error info:{e.Message}";
                     Logger.Error(response.Msg);
                 }
             }
@@ -80,7 +80,7 @@ namespace IngestDevicePlugin.Controllers.v2
                 } else
                 {
                     response.Code = ResponseCodeDefines.ServiceError;
-                    response.Msg = $"{System.Reflection.MethodBase.GetCurrentMethod().DeclaringType.FullName}：error info:{e}";
+                    response.Msg = $"{System.Reflection.MethodBase.GetCurrentMethod().DeclaringType.FullName}：error info:{e.Message}";
                     Logger.Error(response.Msg);
                 }
             }
@@ -109,7 +109,7 @@ namespace IngestDevicePlugin.Controllers.v2
                 } else
                 {
                     response.Code = ResponseCodeDefines.ServiceError;
-                    response.Msg = $"{System.Reflection.MethodBase.GetCurrentMethod().DeclaringType.FullName}：error info:{e}";
+                    response.Msg = $"{System.Reflection.MethodBase.GetCurrentMethod().DeclaringType.FullName}：error info:{e.Message}";
                     Logger.Error(response.Msg);
                 }
             }
@@ -117,7 +117,7 @@ namespace IngestDevicePlugin.Controllers.v2
         }
 
         /// <summary>
-        /// 根据 信号源Id 获取绑定的采集参数
+        /// 根据 信号源Id 获取绑定的采集参数 id
         /// </summary>
         /// <remarks>原方法 GetCaptureTemplateIDBySignalID</remarks>
         /// <param name="signalid">信号ID</param>
@@ -140,7 +140,7 @@ namespace IngestDevicePlugin.Controllers.v2
                 } else
                 {
                     response.Code = ResponseCodeDefines.ServiceError;
-                    response.Msg = $"{System.Reflection.MethodBase.GetCurrentMethod().DeclaringType.FullName}：error info:{e}";
+                    response.Msg = $"{System.Reflection.MethodBase.GetCurrentMethod().DeclaringType.FullName}：error info:{e.Message}";
                     Logger.Error(response.Msg);
                 }
             }
@@ -152,7 +152,7 @@ namespace IngestDevicePlugin.Controllers.v2
         #region Channel
 
         /// <summary>
-        /// 根据 信号源Id 为信号源选择一个合适的预监通道
+        /// 根据 信号源Id 为信号源选择一个合适的预监通道 id
         /// </summary>
         /// <remarks>原方法 GetBestPreviewChannelForSignal</remarks>
         /// <param name="signalid">信号ID</param>
@@ -175,7 +175,7 @@ namespace IngestDevicePlugin.Controllers.v2
                 } else
                 {
                     response.Code = ResponseCodeDefines.ServiceError;
-                    response.Msg = $"{System.Reflection.MethodBase.GetCurrentMethod().DeclaringType.FullName}：error info:{e}";
+                    response.Msg = $"{System.Reflection.MethodBase.GetCurrentMethod().DeclaringType.FullName}：error info:{e.Message}";
                     Logger.Error(response.Msg);
                 }
             }
@@ -207,7 +207,7 @@ namespace IngestDevicePlugin.Controllers.v2
                 } else
                 {
                     response.Code = ResponseCodeDefines.ServiceError;
-                    response.Msg = $"{System.Reflection.MethodBase.GetCurrentMethod().DeclaringType.FullName}：error info:{e}";
+                    response.Msg = $"{System.Reflection.MethodBase.GetCurrentMethod().DeclaringType.FullName}：error info:{e.Message}";
                     Logger.Error(response.Msg);
                 }
             }
@@ -215,7 +215,7 @@ namespace IngestDevicePlugin.Controllers.v2
         }
 
         /// <summary>
-        /// 更新通道的扩展数据
+        /// 获取通道的扩展数据
         /// </summary>
         /// <remarks>原方法 PostUpdateChnExtData</remarks>
         /// <returns>是否成功</returns>
@@ -237,7 +237,7 @@ namespace IngestDevicePlugin.Controllers.v2
                 } else
                 {
                     response.Code = ResponseCodeDefines.ServiceError;
-                    response.Msg = $"{System.Reflection.MethodBase.GetCurrentMethod().DeclaringType.FullName}：error info:{e}";
+                    response.Msg = $"{System.Reflection.MethodBase.GetCurrentMethod().DeclaringType.FullName}：error info:{e.Message}";
                     Logger.Error(response.Msg);
                 }
             }
@@ -269,7 +269,7 @@ namespace IngestDevicePlugin.Controllers.v2
                 } else
                 {
                     response.Code = ResponseCodeDefines.ServiceError;
-                    response.Msg = $"{System.Reflection.MethodBase.GetCurrentMethod().DeclaringType.FullName}：error info:{e}";
+                    response.Msg = $"{System.Reflection.MethodBase.GetCurrentMethod().DeclaringType.FullName}：error info:{e.Message}";
                     Logger.Error(response.Msg);
                 }
             }
@@ -299,7 +299,7 @@ namespace IngestDevicePlugin.Controllers.v2
                 } else
                 {
                     response.Code = ResponseCodeDefines.ServiceError;
-                    response.Msg = $"{System.Reflection.MethodBase.GetCurrentMethod().DeclaringType.FullName}：error info:{e}";
+                    response.Msg = $"{System.Reflection.MethodBase.GetCurrentMethod().DeclaringType.FullName}：error info:{e.Message}";
                     Logger.Error(response.Msg);
                 }
             }
@@ -328,7 +328,7 @@ namespace IngestDevicePlugin.Controllers.v2
                 } else
                 {
                     response.Code = ResponseCodeDefines.ServiceError;
-                    response.Msg = $"{System.Reflection.MethodBase.GetCurrentMethod().DeclaringType.FullName}：error info:{e}";
+                    response.Msg = $"{System.Reflection.MethodBase.GetCurrentMethod().DeclaringType.FullName}：error info:{e.Message}";
                     Logger.Error(response.Msg);
                 }
             }
@@ -360,7 +360,7 @@ namespace IngestDevicePlugin.Controllers.v2
                 } else
                 {
                     response.Code = ResponseCodeDefines.ServiceError;
-                    response.Msg = $"{System.Reflection.MethodBase.GetCurrentMethod().DeclaringType.FullName}：error info:{e}";
+                    response.Msg = $"{System.Reflection.MethodBase.GetCurrentMethod().DeclaringType.FullName}：error info:{e.Message}";
                     Logger.Error(response.Msg);
                 }
             }
@@ -393,7 +393,7 @@ namespace IngestDevicePlugin.Controllers.v2
                 } else
                 {
                     response.Code = ResponseCodeDefines.ServiceError;
-                    response.Msg = $"{System.Reflection.MethodBase.GetCurrentMethod().DeclaringType.FullName}：error info:{e}";
+                    response.Msg = $"{System.Reflection.MethodBase.GetCurrentMethod().DeclaringType.FullName}：error info:{e.Message}";
                     Logger.Error(response.Msg);
                 }
             }
@@ -423,7 +423,7 @@ namespace IngestDevicePlugin.Controllers.v2
                 } else
                 {
                     response.Code = ResponseCodeDefines.ServiceError;
-                    response.Msg = $"{System.Reflection.MethodBase.GetCurrentMethod().DeclaringType.FullName}：error info:{e}";
+                    response.Msg = $"{System.Reflection.MethodBase.GetCurrentMethod().DeclaringType.FullName}：error info:{e.Message}";
                     Logger.Error(response.Msg);
                 }
             }
@@ -452,7 +452,7 @@ namespace IngestDevicePlugin.Controllers.v2
                 } else
                 {
                     response.Code = ResponseCodeDefines.ServiceError;
-                    response.Msg = $"{System.Reflection.MethodBase.GetCurrentMethod().DeclaringType.FullName}：error info:{e}";
+                    response.Msg = $"{System.Reflection.MethodBase.GetCurrentMethod().DeclaringType.FullName}：error info:{e.Message}";
                     Logger.Error(response.Msg);
                 }
             }
@@ -482,7 +482,7 @@ namespace IngestDevicePlugin.Controllers.v2
                 } else
                 {
                     response.Code = ResponseCodeDefines.ServiceError;
-                    response.Msg = $"{System.Reflection.MethodBase.GetCurrentMethod().DeclaringType.FullName}：error info:{e}";
+                    response.Msg = $"{System.Reflection.MethodBase.GetCurrentMethod().DeclaringType.FullName}：error info:{e.Message}";
                     Logger.Error(response.Msg);
                 }
             }
@@ -512,7 +512,7 @@ namespace IngestDevicePlugin.Controllers.v2
                 } else
                 {
                     response.Code = ResponseCodeDefines.ServiceError;
-                    response.Msg = $"{System.Reflection.MethodBase.GetCurrentMethod().DeclaringType.FullName}：error info:{e}";
+                    response.Msg = $"{System.Reflection.MethodBase.GetCurrentMethod().DeclaringType.FullName}：error info:{e.Message}";
                     Logger.Error(response.Msg);
                 }
             }
@@ -544,7 +544,7 @@ namespace IngestDevicePlugin.Controllers.v2
                 } else
                 {
                     response.Code = ResponseCodeDefines.ServiceError;
-                    response.Msg = $"{System.Reflection.MethodBase.GetCurrentMethod().DeclaringType.FullName}：error info:{e}";
+                    response.Msg = $"{System.Reflection.MethodBase.GetCurrentMethod().DeclaringType.FullName}：error info:{e.Message}";
                     Logger.Error(response.Msg);
                 }
             }
@@ -561,7 +561,7 @@ namespace IngestDevicePlugin.Controllers.v2
         /// <remarks>原方法 GetParamTypeByChannleID</remarks>
         /// <param name="channelid">通道Id</param>
         /// <returns>0标清,1高清</returns>
-        [HttpGet("paramtype/type/{channelid}")]
+        [HttpGet("channelparamtype/{channelid}")]
         [ApiExplorerSettings(GroupName = "v2")]
         public async Task<ResponseMessage<int>> ParamTypeByChannelID([FromRoute, BindRequired, DefaultValue(14)]int channelid)
         {
@@ -578,7 +578,7 @@ namespace IngestDevicePlugin.Controllers.v2
                 } else
                 {
                     response.Code = ResponseCodeDefines.ServiceError;
-                    response.Msg = $"{System.Reflection.MethodBase.GetCurrentMethod().DeclaringType.FullName}：error info:{e}";
+                    response.Msg = $"{System.Reflection.MethodBase.GetCurrentMethod().DeclaringType.FullName}：error info:{e.Message}";
                     Logger.Error(response.Msg);
                 }
             }
@@ -591,7 +591,7 @@ namespace IngestDevicePlugin.Controllers.v2
         /// <remarks>原方法 GetParamTypeBySignalID</remarks>
         /// <param name="signalid">信号Id</param>
         /// <returns>0标清,1高清</returns>
-        [HttpGet("paramtype/type/{signalid}")]
+        [HttpGet("signalparamtype/type/{signalid}")]
         [ApiExplorerSettings(GroupName = "v2")]
         public async Task<ResponseMessage<int>> ParamTypeBySignalID([FromRoute, BindRequired, DefaultValue(14)]int signalid)
         {
@@ -608,7 +608,7 @@ namespace IngestDevicePlugin.Controllers.v2
                 } else
                 {
                     response.Code = ResponseCodeDefines.ServiceError;
-                    response.Msg = $"{System.Reflection.MethodBase.GetCurrentMethod().DeclaringType.FullName}：error info:{e}";
+                    response.Msg = $"{System.Reflection.MethodBase.GetCurrentMethod().DeclaringType.FullName}：error info:{e.Message}";
                     Logger.Error(response.Msg);
                 }
             }
@@ -642,7 +642,7 @@ namespace IngestDevicePlugin.Controllers.v2
                 } else
                 {
                     response.Code = ResponseCodeDefines.ServiceError;
-                    response.Msg = $"{System.Reflection.MethodBase.GetCurrentMethod().DeclaringType.FullName}：error info:{e}";
+                    response.Msg = $"{System.Reflection.MethodBase.GetCurrentMethod().DeclaringType.FullName}：error info:{e.Message}";
                     Logger.Error(response.Msg);
                 }
             }
@@ -671,7 +671,7 @@ namespace IngestDevicePlugin.Controllers.v2
                 } else
                 {
                     response.Code = ResponseCodeDefines.ServiceError;
-                    response.Msg = $"{System.Reflection.MethodBase.GetCurrentMethod().DeclaringType.FullName}：error info:{e}";
+                    response.Msg = $"{System.Reflection.MethodBase.GetCurrentMethod().DeclaringType.FullName}：error info:{e.Message}";
                     Logger.Error(response.Msg);
                 }
             }
@@ -773,7 +773,7 @@ namespace IngestDevicePlugin.Controllers.v2
                 } else
                 {
                     response.Code = ResponseCodeDefines.ServiceError;
-                    response.Msg = $"{System.Reflection.MethodBase.GetCurrentMethod().DeclaringType.FullName}：error info:{e}";
+                    response.Msg = $"{System.Reflection.MethodBase.GetCurrentMethod().DeclaringType.FullName}：error info:{e.Message}";
                     Logger.Error(response.Msg);
                 }
             }
@@ -802,7 +802,7 @@ namespace IngestDevicePlugin.Controllers.v2
                 } else
                 {
                     response.Code = ResponseCodeDefines.ServiceError;
-                    response.Msg = $"{System.Reflection.MethodBase.GetCurrentMethod().DeclaringType.FullName}：error info:{e}";
+                    response.Msg = $"{System.Reflection.MethodBase.GetCurrentMethod().DeclaringType.FullName}：error info:{e.Message}";
                     Logger.Error(response.Msg);
                 }
             }
@@ -835,7 +835,7 @@ namespace IngestDevicePlugin.Controllers.v2
                 } else
                 {
                     response.Code = ResponseCodeDefines.ServiceError;
-                    response.Msg = $"{System.Reflection.MethodBase.GetCurrentMethod().DeclaringType.FullName}：error info:{e}";
+                    response.Msg = $"{System.Reflection.MethodBase.GetCurrentMethod().DeclaringType.FullName}：error info:{e.Message}";
                     Logger.Error(response.Msg);
                 }
             }
@@ -865,7 +865,7 @@ namespace IngestDevicePlugin.Controllers.v2
                 } else
                 {
                     response.Code = ResponseCodeDefines.ServiceError;
-                    response.Msg = $"{System.Reflection.MethodBase.GetCurrentMethod().DeclaringType.FullName}：error info:{e}";
+                    response.Msg = $"{System.Reflection.MethodBase.GetCurrentMethod().DeclaringType.FullName}：error info:{e.Message}";
                     Logger.Error(response.Msg);
                 }
             }
@@ -898,7 +898,7 @@ namespace IngestDevicePlugin.Controllers.v2
                 } else
                 {
                     response.Code = ResponseCodeDefines.ServiceError;
-                    response.Msg = $"{System.Reflection.MethodBase.GetCurrentMethod().DeclaringType.FullName}：error info:{e}";
+                    response.Msg = $"{System.Reflection.MethodBase.GetCurrentMethod().DeclaringType.FullName}：error info:{e.Message}";
                     Logger.Error(response.Msg);
                 }
             }
@@ -927,7 +927,7 @@ namespace IngestDevicePlugin.Controllers.v2
                 } else
                 {
                     response.Code = ResponseCodeDefines.ServiceError;
-                    response.Msg = $"{System.Reflection.MethodBase.GetCurrentMethod().DeclaringType.FullName}：error info:{e}";
+                    response.Msg = $"{System.Reflection.MethodBase.GetCurrentMethod().DeclaringType.FullName}：error info:{e.Message}";
                     Logger.Error(response.Msg);
                 }
             }
@@ -939,7 +939,7 @@ namespace IngestDevicePlugin.Controllers.v2
         /// </summary>
         /// <remarks>原方法 GetAllSignalGroupInfo</remarks>
         /// <returns>信号分组状态集合</returns>
-        [HttpGet("signalgroupinfo/all")]
+        [HttpGet("signalgroup/withsignalid/all")]
         [ApiExplorerSettings(GroupName = "v2")]
         public async Task<ResponseMessage<List<SignalGroupStateResponse>>> AllSignalGroupInfos()
         {
@@ -956,7 +956,7 @@ namespace IngestDevicePlugin.Controllers.v2
                 } else
                 {
                     response.Code = ResponseCodeDefines.ServiceError;
-                    response.Msg = $"{System.Reflection.MethodBase.GetCurrentMethod().DeclaringType.FullName}：error info:{e}";
+                    response.Msg = $"{System.Reflection.MethodBase.GetCurrentMethod().DeclaringType.FullName}：error info:{e.Message}";
                     Logger.Error(response.Msg);
                 }
             }
@@ -985,7 +985,7 @@ namespace IngestDevicePlugin.Controllers.v2
                 } else
                 {
                     response.Code = ResponseCodeDefines.ServiceError;
-                    response.Msg = $"{System.Reflection.MethodBase.GetCurrentMethod().DeclaringType.FullName}：error info:{e}";
+                    response.Msg = $"{System.Reflection.MethodBase.GetCurrentMethod().DeclaringType.FullName}：error info:{e.Message}";
                     Logger.Error(response.Msg);
                 }
             }
@@ -1014,7 +1014,7 @@ namespace IngestDevicePlugin.Controllers.v2
                 } else
                 {
                     response.Code = ResponseCodeDefines.ServiceError;
-                    response.Msg = $"{System.Reflection.MethodBase.GetCurrentMethod().DeclaringType.FullName}：error info:{e}";
+                    response.Msg = $"{System.Reflection.MethodBase.GetCurrentMethod().DeclaringType.FullName}：error info:{e.Message}";
                     Logger.Error(response.Msg);
                 }
             }
@@ -1044,7 +1044,7 @@ namespace IngestDevicePlugin.Controllers.v2
                 } else
                 {
                     response.Code = ResponseCodeDefines.ServiceError;
-                    response.Msg = $"{System.Reflection.MethodBase.GetCurrentMethod().DeclaringType.FullName}：error info:{e}";
+                    response.Msg = $"{System.Reflection.MethodBase.GetCurrentMethod().DeclaringType.FullName}：error info:{e.Message}";
                     Logger.Error(response.Msg);
                 }
             }
@@ -1074,7 +1074,7 @@ namespace IngestDevicePlugin.Controllers.v2
                 } else
                 {
                     response.Code = ResponseCodeDefines.ServiceError;
-                    response.Msg = $"{System.Reflection.MethodBase.GetCurrentMethod().DeclaringType.FullName}：error info:{e}";
+                    response.Msg = $"{System.Reflection.MethodBase.GetCurrentMethod().DeclaringType.FullName}：error info:{e.Message}";
                     Logger.Error(response.Msg);
                 }
             }
@@ -1112,7 +1112,7 @@ namespace IngestDevicePlugin.Controllers.v2
                 } else
                 {
                     response.Code = ResponseCodeDefines.ServiceError;
-                    response.Msg = $"{System.Reflection.MethodBase.GetCurrentMethod().DeclaringType.FullName}：error info:{e}";
+                    response.Msg = $"{System.Reflection.MethodBase.GetCurrentMethod().DeclaringType.FullName}：error info:{e.Message}";
                     Logger.Error(response.Msg);
                 }
             }
@@ -1144,7 +1144,7 @@ namespace IngestDevicePlugin.Controllers.v2
                 } else
                 {
                     response.Code = ResponseCodeDefines.ServiceError;
-                    response.Msg = $"{System.Reflection.MethodBase.GetCurrentMethod().DeclaringType.FullName}：error info:{e}";
+                    response.Msg = $"{System.Reflection.MethodBase.GetCurrentMethod().DeclaringType.FullName}：error info:{e.Message}";
                     Logger.Error(response.Msg);
                 }
             }
@@ -1176,7 +1176,7 @@ namespace IngestDevicePlugin.Controllers.v2
                 } else
                 {
                     response.Code = ResponseCodeDefines.ServiceError;
-                    response.Msg = $"{System.Reflection.MethodBase.GetCurrentMethod().DeclaringType.FullName}error info:{e}";
+                    response.Msg = $"{System.Reflection.MethodBase.GetCurrentMethod().DeclaringType.FullName}error info:{e.Message}";
                     Logger.Error(response.Msg);
                 }
             }
@@ -1213,7 +1213,7 @@ namespace IngestDevicePlugin.Controllers.v2
                 } else
                 {
                     response.Code = ResponseCodeDefines.ServiceError;
-                    response.Msg = $"{System.Reflection.MethodBase.GetCurrentMethod().DeclaringType.FullName}error info:{e}";
+                    response.Msg = $"{System.Reflection.MethodBase.GetCurrentMethod().DeclaringType.FullName}error info:{e.Message}";
                     Logger.Error(response.Msg);
                 }
             }

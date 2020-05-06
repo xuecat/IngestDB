@@ -23,13 +23,13 @@ namespace IngestTaskPlugin.Controllers.v1
         private readonly ILogger Logger = LoggerManager.GetLogger("TaskInfo");
         private readonly TaskManager _taskManage;
         //private readonly NotifyClock _clock;
-        private readonly IIngestGlobalInterface _globalInterface;
+        private readonly Lazy<IIngestGlobalInterface> _globalInterface;
         //private readonly IMapper _mapper;
 
-        public TaskController(TaskManager task, IIngestGlobalInterface global/*, IMapper mapper*/)
+        public TaskController(TaskManager task, IServiceProvider services/*, IMapper mapper*/)
         {
             _taskManage = task;
-            _globalInterface = global;
+            _globalInterface = new Lazy<IIngestGlobalInterface>(() => services.GetRequiredService<IIngestGlobalInterface>());
             //_mapper = mapper ?? throw new ArgumentNullException(nameof(mapper));
         }
 
@@ -59,16 +59,9 @@ namespace IngestTaskPlugin.Controllers.v1
                 {
                     bRet = false
                 };
-                if (e.GetType() == typeof(SobeyRecException))//sobeyexcep会自动打印错误
-                {
-                    SobeyRecException se = e as SobeyRecException;
-                    Response.errStr = se.ErrorCode.ToString();
-                }
-                else
-                {
-                    Response.errStr = "OldGetTaskMetaData error info：" + e.ToString();
-                    Logger.Error(Response.errStr);
-                }
+
+                Response.errStr = "OldGetTaskMetaData error info：" + e.Message;
+                Logger.Error(Response.errStr);
                 return Response;
             }
             
@@ -116,16 +109,9 @@ namespace IngestTaskPlugin.Controllers.v1
                 {
                     bRet = false
                 };
-                if (e.GetType() == typeof(SobeyRecException))//sobeyexcep会自动打印错误
-                {
-                    SobeyRecException se = e as SobeyRecException;
-                    Response.errStr = se.ErrorCode.ToString();
-                }
-                else
-                {
-                    Response.errStr = "PostSetTaskMetaData error info：" + e.ToString();
-                    Logger.Error(Response.errStr);
-                }
+
+                Response.errStr = "PostSetTaskMetaData error info：" + e.Message;
+                Logger.Error(Response.errStr);
                 return Response;
             }
 
@@ -157,16 +143,9 @@ namespace IngestTaskPlugin.Controllers.v1
                 {
                     bRet = false
                 };
-                if (e.GetType() == typeof(SobeyRecException))//sobeyexcep会自动打印错误
-                {
-                    SobeyRecException se = e as SobeyRecException;
-                    Response.errStr = se.ErrorCode.ToString();
-                }
-                else
-                {
-                    Response.errStr = "GetTaskCustomMetadata error info：" + e.ToString();
-                    Logger.Error(Response.errStr);
-                }
+
+                Response.errStr = "GetTaskCustomMetadata error info：" + e.Message;
+                Logger.Error(Response.errStr);
                 return Response;
             }
 
@@ -202,16 +181,9 @@ namespace IngestTaskPlugin.Controllers.v1
                 {
                     bRet = false
                 };
-                if (e.GetType() == typeof(SobeyRecException))//sobeyexcep会自动打印错误
-                {
-                    SobeyRecException se = e as SobeyRecException;
-                    Response.errStr = se.ErrorCode.ToString();
-                }
-                else
-                {
-                    Response.errStr = "PostSetTaskCustomMetadata error info：" + e.ToString();
-                    Logger.Error(Response.errStr);
-                }
+               
+                Response.errStr = "PostSetTaskCustomMetadata error info：" + e.Message;
+                Logger.Error(Response.errStr);
                 return Response;
             }
 
@@ -236,10 +208,10 @@ namespace IngestTaskPlugin.Controllers.v1
             {
                 Response.taskResults = await _taskManage.StopGroupTaskAsync(nTaskID);
 
-                if (_globalInterface != null)
+                if (_globalInterface != null && _globalInterface.Value != null)
                 {
                     GlobalInternals re = new GlobalInternals() { Funtype = IngestDBCore.GlobalInternals.FunctionType.SetGlobalState, State = GlobalStateName.MODTASK };
-                    var response1 = await _globalInterface.SubmitGlobalCallBack(re);
+                    var response1 = await _globalInterface.Value.SubmitGlobalCallBack(re);
                     if (response1.Code != ResponseCodeDefines.SuccessCode)
                     {
                         Logger.Error("SetGlobalState modtask error");
@@ -251,16 +223,9 @@ namespace IngestTaskPlugin.Controllers.v1
             catch (Exception e)
             {
                 Response.bRet = false;
-                if (e.GetType() == typeof(SobeyRecException))//sobeyexcep会自动打印错误
-                {
-                    SobeyRecException se = e as SobeyRecException;
-                    Response.errStr = se.ErrorCode.ToString();
-                }
-                else
-                {
-                    Response.errStr = "StopGroupTaskById error info：" + e.ToString();
-                    Logger.Error(Response.errStr);
-                }
+                
+                Response.errStr = "StopGroupTaskById error info：" + e.Message;
+                Logger.Error(Response.errStr);
                 return Response;
             }
 
@@ -290,7 +255,7 @@ namespace IngestTaskPlugin.Controllers.v1
                 if (_globalInterface != null)
                 {
                     GlobalInternals re = new GlobalInternals() { Funtype = IngestDBCore.GlobalInternals.FunctionType.SetGlobalState, State = GlobalStateName.MODTASK };
-                    var response1 = await _globalInterface.SubmitGlobalCallBack(re);
+                    var response1 = await _globalInterface.Value.SubmitGlobalCallBack(re);
                     if (response1.Code != ResponseCodeDefines.SuccessCode)
                     {
                         Logger.Error("SetGlobalState modtask error");
@@ -302,16 +267,9 @@ namespace IngestTaskPlugin.Controllers.v1
             catch (Exception e)
             {
                 Response.bRet = false;
-                if (e.GetType() == typeof(SobeyRecException))//sobeyexcep会自动打印错误
-                {
-                    SobeyRecException se = e as SobeyRecException;
-                    Response.errStr = se.ErrorCode.ToString();
-                }
-                else
-                {
-                    Response.errStr = "DeleteGroupTaskById error info：" + e.ToString();
-                    Logger.Error(Response.errStr);
-                }
+
+                Response.errStr = "DeleteGroupTaskById error info：" + e.Message;
+                Logger.Error(Response.errStr);
                 return Response;
             }
 
@@ -345,7 +303,7 @@ namespace IngestTaskPlugin.Controllers.v1
                 if (_globalInterface != null)
                 {
                     GlobalInternals re = new GlobalInternals() { Funtype = IngestDBCore.GlobalInternals.FunctionType.SetGlobalState, State = GlobalStateName.ADDTASK };
-                    var response1 = await _globalInterface.SubmitGlobalCallBack(re);
+                    var response1 = await _globalInterface.Value.SubmitGlobalCallBack(re);
                     if (response1.Code != ResponseCodeDefines.SuccessCode)
                     {
                         Logger.Error("SetGlobalState modtask error");
@@ -357,16 +315,9 @@ namespace IngestTaskPlugin.Controllers.v1
             catch (Exception e)
             {
                 Response.bRet = false;
-                if (e.GetType() == typeof(SobeyRecException))//sobeyexcep会自动打印错误
-                {
-                    SobeyRecException se = e as SobeyRecException;
-                    Response.errStr = se.ErrorCode.ToString();
-                }
-                else
-                {
-                    Response.errStr = "PostAddTaskSvr error info：" + e.ToString();
-                    Logger.Error(Response.errStr);
-                }
+                Response.taskID = -1;
+                Response.errStr = "PostAddTaskSvr error info：" + e.Message;
+                Logger.Error(Response.errStr);
                 return Response;
             }
 
@@ -379,7 +330,8 @@ namespace IngestTaskPlugin.Controllers.v1
             var Response = new AddTaskSvr_OUT
             {
                 bRet = true,
-                errStr = "OK"
+                errStr = "OK",
+                newTaskId = -1
             };
 
             try
@@ -418,7 +370,7 @@ namespace IngestTaskPlugin.Controllers.v1
                 if (_globalInterface != null)
                 {
                     GlobalInternals re = new GlobalInternals() { Funtype = IngestDBCore.GlobalInternals.FunctionType.SetGlobalState, State = GlobalStateName.ADDTASK };
-                    var response1 = await _globalInterface.SubmitGlobalCallBack(re);
+                    var response1 = await _globalInterface.Value.SubmitGlobalCallBack(re);
                     if (response1.Code != ResponseCodeDefines.SuccessCode)
                     {
                         Logger.Error("SetGlobalState modtask error");
@@ -430,16 +382,9 @@ namespace IngestTaskPlugin.Controllers.v1
             catch (Exception e)
             {
                 Response.bRet = false;
-                if (e.GetType() == typeof(SobeyRecException))//sobeyexcep会自动打印错误
-                {
-                    SobeyRecException se = e as SobeyRecException;
-                    Response.errStr = se.ErrorCode.ToString();
-                }
-                else
-                {
-                    Response.errStr = "PostAddTaskSvr error info：" + e.ToString();
-                    Logger.Error(Response.errStr);
-                }
+               
+                Response.errStr = "PostAddTaskSvr error info：" + e.Message;
+                Logger.Error(Response.errStr);
                 return Response;
             }
 
@@ -452,7 +397,9 @@ namespace IngestTaskPlugin.Controllers.v1
             var Response = new AddTaskSvrPolicysAndBackupFlag_OUT
             {
                 bRet = true,
-                errStr = "OK"
+                errStr = "OK",
+                newTaskId = -1,
+                backupTaskId = -1
             };
 
             try
@@ -499,7 +446,7 @@ namespace IngestTaskPlugin.Controllers.v1
                 if (_globalInterface != null)
                 {
                     GlobalInternals re = new GlobalInternals() { Funtype = IngestDBCore.GlobalInternals.FunctionType.SetGlobalState, State = GlobalStateName.ADDTASK };
-                    var response1 = await _globalInterface.SubmitGlobalCallBack(re);
+                    var response1 = await _globalInterface.Value.SubmitGlobalCallBack(re);
                     if (response1.Code != ResponseCodeDefines.SuccessCode)
                     {
                         Logger.Error("SetGlobalState modtask error");
@@ -512,16 +459,10 @@ namespace IngestTaskPlugin.Controllers.v1
             catch (Exception e)
             {
                 Response.bRet = false;
-                if (e.GetType() == typeof(SobeyRecException))//sobeyexcep会自动打印错误
-                {
-                    SobeyRecException se = e as SobeyRecException;
-                    Response.errStr = se.ErrorCode.ToString();
-                }
-                else
-                {
-                    Response.errStr = "PostAddTaskSvr error info：" + e.ToString();
-                    Logger.Error(Response.errStr);
-                }
+                Response.backupTaskId = -1;
+
+                Response.errStr = "PostAddTaskSvr error info：" + e.Message;
+                Logger.Error(Response.errStr);
                 return Response;
             }
 
@@ -534,7 +475,8 @@ namespace IngestTaskPlugin.Controllers.v1
             var Response = new GetTaskIDByTaskGUID_OUT
             {
                 bRet = true,
-                errStr = "OK"
+                errStr = "OK",
+                nTaskID = -1
             };
 
             try
@@ -544,16 +486,9 @@ namespace IngestTaskPlugin.Controllers.v1
             }
             catch (Exception e)
             {
-                if (e.GetType() == typeof(SobeyRecException))//sobeyexcep会自动打印错误
-                {
-                    SobeyRecException se = e as SobeyRecException;
-                    Response.errStr = se.ErrorCode.ToString();
-                }
-                else
-                {
-                    Response.errStr = "error info：" + e.ToString();
-                    Logger.Error("GetTaskIDByTaskGUID" + e.ToString());
-                }
+                Response.bRet = false;
+                Response.errStr = "error info：" + e.Message;
+                Logger.Error("GetTaskIDByTaskGUID" + e.Message);
                 return Response;
             }
 
@@ -578,16 +513,10 @@ namespace IngestTaskPlugin.Controllers.v1
             }
             catch (Exception e)
             {
-                if (e.GetType() == typeof(SobeyRecException))//sobeyexcep会自动打印错误
-                {
-                    SobeyRecException se = e as SobeyRecException;
-                    Response.errStr = se.ErrorCode.ToString();
-                }
-                else
-                {
-                    Response.errStr = "error info：" + e.ToString();
-                    Logger.Error("GetAllChannelCapturingTask" + e.ToString());
-                }
+                Response.bRet = false;
+
+                Response.errStr = "error info：" + e.Message;
+                Logger.Error("GetAllChannelCapturingTask" + e.Message);
                 return Response;
             }
 
@@ -611,16 +540,9 @@ namespace IngestTaskPlugin.Controllers.v1
             }
             catch (Exception e)
             {
-                if (e.GetType() == typeof(SobeyRecException))//sobeyexcep会自动打印错误
-                {
-                    SobeyRecException se = e as SobeyRecException;
-                    Response.errStr = se.ErrorCode.ToString();
-                }
-                else
-                {
-                    Response.errStr = "error info：" + e.ToString();
-                    Logger.Error("GetAllChannelCapturingTask" + e.ToString());
-                }
+                Response.bRet = false;
+                Response.errStr = "error info：" + e.Message;
+                Logger.Error("GetAllChannelCapturingTask" + e.Message);
                 return Response;
             }
         }
@@ -646,7 +568,7 @@ namespace IngestTaskPlugin.Controllers.v1
                 if (_globalInterface != null)
                 {
                     GlobalInternals re = new GlobalInternals() { Funtype = IngestDBCore.GlobalInternals.FunctionType.SetGlobalState, State = GlobalStateName.MODTASK };
-                    var response1 = await _globalInterface.SubmitGlobalCallBack(re);
+                    var response1 = await _globalInterface.Value.SubmitGlobalCallBack(re);
                     if (response1.Code != ResponseCodeDefines.SuccessCode)
                     {
                         Logger.Error("SetGlobalState modtask error");
@@ -657,16 +579,9 @@ namespace IngestTaskPlugin.Controllers.v1
             }
             catch (Exception e)
             {
-                if (e.GetType() == typeof(SobeyRecException))//sobeyexcep会自动打印错误
-                {
-                    SobeyRecException se = e as SobeyRecException;
-                    Response.errStr = se.ErrorCode.ToString();
-                }
-                else
-                {
-                    Response.errStr = "error info：" + e.ToString();
-                    Logger.Error("PostModifyTaskDb" + e.ToString());
-                }
+                Response.bRet = false;
+                Response.errStr = "error info：" + e.Message;
+                Logger.Error("PostModifyTaskDb" + e.Message);
                 return Response;
             }
             return Response;
@@ -717,7 +632,7 @@ namespace IngestTaskPlugin.Controllers.v1
                 if (_globalInterface != null)
                 {
                     GlobalInternals re = new GlobalInternals() { Funtype = IngestDBCore.GlobalInternals.FunctionType.SetGlobalState, State = GlobalStateName.MODTASK };
-                    var response1 = await _globalInterface.SubmitGlobalCallBack(re);
+                    var response1 = await _globalInterface.Value.SubmitGlobalCallBack(re);
                     if (response1.Code != ResponseCodeDefines.SuccessCode)
                     {
                         Logger.Error("SetGlobalState modtask error");
@@ -728,16 +643,9 @@ namespace IngestTaskPlugin.Controllers.v1
             }
             catch (Exception e)
             {
-                if (e.GetType() == typeof(SobeyRecException))//sobeyexcep会自动打印错误
-                {
-                    SobeyRecException se = e as SobeyRecException;
-                    Response.errStr = se.ErrorCode.ToString();
-                }
-                else
-                {
-                    Response.errStr = "error info：" + e.ToString();
-                    Logger.Error("ModifyTask" + e.ToString());
-                }
+                Response.bRet = false;
+                Response.errStr = "error info：" + e.Message;
+                Logger.Error("ModifyTask" + e.Message);
                 return Response;
             }
             return Response;
@@ -760,16 +668,9 @@ namespace IngestTaskPlugin.Controllers.v1
             }
             catch (Exception e)
             {
-                if (e.GetType() == typeof(SobeyRecException))//sobeyexcep会自动打印错误
-                {
-                    SobeyRecException se = e as SobeyRecException;
-                    Response.errStr = se.ErrorCode.ToString();
-                }
-                else
-                {
-                    Response.errStr = "error info：" + e.ToString();
-                    Logger.Error("GetTaskByID" + e.ToString());
-                }
+                Response.bRet = false;
+                Response.errStr = "error info：" + e.Message;
+                Logger.Error("GetTaskByID" + e.Message);
                 return Response;
             }
         }
@@ -791,16 +692,9 @@ namespace IngestTaskPlugin.Controllers.v1
             }
             catch (Exception e)
             {
-                if (e.GetType() == typeof(SobeyRecException))//sobeyexcep会自动打印错误
-                {
-                    SobeyRecException se = e as SobeyRecException;
-                    Response.errStr = se.ErrorCode.ToString();
-                }
-                else
-                {
-                    Response.errStr = "error info：" + e.ToString();
-                    Logger.Error("GetTaskByIDForFSW" + e.ToString());
-                }
+                Response.bRet = false;
+                Response.errStr = "error info：" + e.Message;
+                Logger.Error("GetTaskByIDForFSW" + e.Message);
                 return Response;
             }
         }
@@ -813,6 +707,7 @@ namespace IngestTaskPlugin.Controllers.v1
             {
                 bRet = true,
                 errStr = "OK",
+                nTaskID = -1
             };
 
             try
@@ -822,16 +717,9 @@ namespace IngestTaskPlugin.Controllers.v1
             }
             catch (Exception e)
             {
-                if (e.GetType() == typeof(SobeyRecException))//sobeyexcep会自动打印错误
-                {
-                    SobeyRecException se = e as SobeyRecException;
-                    Response.errStr = se.ErrorCode.ToString();
-                }
-                else
-                {
-                    Response.errStr = "error info：" + e.ToString();
-                    Logger.Error("GetTieUpTaskByChannelID" + e.ToString());
-                }
+                Response.bRet = false;
+                Response.errStr = "error info：" + e.Message;
+                Logger.Error("GetTieUpTaskByChannelID" + e.Message);
                 return Response;
             }
         }
@@ -853,7 +741,7 @@ namespace IngestTaskPlugin.Controllers.v1
                 if (_globalInterface != null)
                 {
                     GlobalInternals re = new GlobalInternals() { Funtype = IngestDBCore.GlobalInternals.FunctionType.SetGlobalState, State = GlobalStateName.MODTASK };
-                    var response1 = await _globalInterface.SubmitGlobalCallBack(re);
+                    var response1 = await _globalInterface.Value.SubmitGlobalCallBack(re);
                     if (response1.Code != ResponseCodeDefines.SuccessCode)
                     {
                         Logger.Error("SetGlobalState modtask error");
@@ -863,16 +751,9 @@ namespace IngestTaskPlugin.Controllers.v1
             }
             catch (Exception e)
             {
-                if (e.GetType() == typeof(SobeyRecException))//sobeyexcep会自动打印错误
-                {
-                    SobeyRecException se = e as SobeyRecException;
-                    Response.errStr = se.ErrorCode.ToString();
-                }
-                else
-                {
-                    Response.errStr = "error info：" + e.ToString();
-                    Logger.Error("GetStopTaskFromFSW" + e.ToString());
-                }
+                Response.bRet = false;
+                Response.errStr = "error info：" + e.Message;
+                Logger.Error("GetStopTaskFromFSW" + e.Message);
                 return Response;
             }
         }
@@ -900,7 +781,7 @@ namespace IngestTaskPlugin.Controllers.v1
                 if (_globalInterface != null)
                 {
                     GlobalInternals re = new GlobalInternals() { Funtype = IngestDBCore.GlobalInternals.FunctionType.SetGlobalState, State = GlobalStateName.MODTASK };
-                    var response1 = await _globalInterface.SubmitGlobalCallBack(re);
+                    var response1 = await _globalInterface.Value.SubmitGlobalCallBack(re);
                     if (response1.Code != ResponseCodeDefines.SuccessCode)
                     {
                         Logger.Error("SetGlobalState modtask error");
@@ -910,16 +791,9 @@ namespace IngestTaskPlugin.Controllers.v1
             }
             catch (Exception e)
             {
-                if (e.GetType() == typeof(SobeyRecException))//sobeyexcep会自动打印错误
-                {
-                    SobeyRecException se = e as SobeyRecException;
-                    Response.errStr = se.ErrorCode.ToString();
-                }
-                else
-                {
-                    Response.errStr = "error info：" + e.ToString();
-                    Logger.Error("GetStopTaskFromFSW" + e.ToString());
-                }
+                Response.bRet = false;
+                Response.errStr = "error info：" + e.Message;
+                Logger.Error("GetStopTaskFromFSW" + e.Message);
                 return Response;
             }
         }
@@ -941,16 +815,9 @@ namespace IngestTaskPlugin.Controllers.v1
             }
             catch (Exception e)
             {
-                if (e.GetType() == typeof(SobeyRecException))//sobeyexcep会自动打印错误
-                {
-                    SobeyRecException se = e as SobeyRecException;
-                    Response.errStr = se.ErrorCode.ToString();
-                }
-                else
-                {
-                    Response.errStr = "error info：" + e.ToString();
-                    Logger.Error("GetStopTaskFromFSW" + e.ToString());
-                }
+                Response.bRet = false;
+                Response.errStr = "error info：" + e.Message;
+                Logger.Error("GetStopTaskFromFSW" + e.Message);
                 return Response;
             }
         }
@@ -974,16 +841,10 @@ namespace IngestTaskPlugin.Controllers.v1
             }
             catch (Exception e)
             {
-                if (e.GetType() == typeof(SobeyRecException))//sobeyexcep会自动打印错误
-                {
-                    SobeyRecException se = e as SobeyRecException;
-                    Response.errStr = se.ErrorCode.ToString();
-                }
-                else
-                {
-                    Response.errStr = "error info：" + e.ToString();
-                    Logger.Error("GetStopTaskFromFSW" + e.ToString());
-                }
+
+                Response.errStr = "error info：" + e.Message;
+                Logger.Error("GetStopTaskFromFSW" + e.Message);
+                Response.bRet = false;
                 return Response;
             }
         }
@@ -1009,16 +870,9 @@ namespace IngestTaskPlugin.Controllers.v1
             }
             catch (Exception e)//其他未知的异常，写异常日志
             {
-                if (e.GetType() == typeof(SobeyRecException))//sobeyexcep会自动打印错误
-                {
-                    SobeyRecException se = e as SobeyRecException;
-                    Response.errStr = se.ErrorCode.ToString();
-                }
-                else
-                {
-                    Response.errStr = "error info：" + e.ToString();
-                    Logger.Error("GetTaskSource" + e.ToString());
-                }
+                Response.bRet = false;
+                Response.errStr = "error info：" + e.Message;
+                Logger.Error("GetTaskSource" + e.Message);
                 return Response;
             }
             return Response;
@@ -1039,15 +893,10 @@ namespace IngestTaskPlugin.Controllers.v1
             }
             catch (Exception e)//其他未知的异常，写异常日志
             {
-                if (e.GetType() == typeof(SobeyRecException))//sobeyexcep会自动打印错误
-                {
-                    SobeyRecException se = e as SobeyRecException;
-                    //Response.errStr = se.ErrorCode.ToString();
-                }
-                else
+                
                 {
                     //Response.errStr = "error info：" + e.ToString();
-                    Logger.Error("GetTrimTaskBeginTime" + e.ToString());
+                    Logger.Error("GetTrimTaskBeginTime" + e.Message);
                 }
                 return false;
             }
@@ -1057,7 +906,7 @@ namespace IngestTaskPlugin.Controllers.v1
 
         [HttpPost("PostQueryTaskMetadataGroup"), MapToApiVersion("1.0")]
         [ApiExplorerSettings(GroupName = "v1")]
-        public async Task<QueryTaskMetadataGroup_OUT> PostQueryTaskMetadataGroup([FromQuery]List<int> nTaskID)
+        public async Task<QueryTaskMetadataGroup_OUT> PostQueryTaskMetadataGroup([FromBody]List<int> nTaskID)
         {
             var Response = new QueryTaskMetadataGroup_OUT
             {
@@ -1076,16 +925,9 @@ namespace IngestTaskPlugin.Controllers.v1
             }
             catch (Exception e)//其他未知的异常，写异常日志
             {
-                if (e.GetType() == typeof(SobeyRecException))//sobeyexcep会自动打印错误
-                {
-                    SobeyRecException se = e as SobeyRecException;
-                    Response.errStr = se.ErrorCode.ToString();
-                }
-                else
-                {
-                    Response.errStr = "error info：" + e.ToString();
-                    Logger.Error("GetTrimTaskBeginTime" + e.ToString());
-                }
+                Response.bRet = false;
+                Response.errStr = "error info：" + e.Message;
+                Logger.Error("PostQueryTaskMetadataGroup" + e.Message);
                 return Response;
             }
             return Response;
@@ -1112,16 +954,9 @@ namespace IngestTaskPlugin.Controllers.v1
             }
             catch (Exception e)//其他未知的异常，写异常日志
             {
-                if (e.GetType() == typeof(SobeyRecException))//sobeyexcep会自动打印错误
-                {
-                    SobeyRecException se = e as SobeyRecException;
-                    Response.errStr = se.ErrorCode.ToString();
-                }
-                else
-                {
-                    Response.errStr = "error info：" + e.ToString();
-                    Logger.Error("GetTrimTaskBeginTime" + e.ToString());
-                }
+                Response.bRet = false;
+                Response.errStr = "error info：" + e.Message;
+                Logger.Error("GetDelTaskDb" + e.Message);
                 return Response;
             }
             return Response;
@@ -1148,16 +983,9 @@ namespace IngestTaskPlugin.Controllers.v1
             }
             catch (Exception e)//其他未知的异常，写异常日志
             {
-                if (e.GetType() == typeof(SobeyRecException))//sobeyexcep会自动打印错误
-                {
-                    SobeyRecException se = e as SobeyRecException;
-                    Response.errStr = se.ErrorCode.ToString();
-                }
-                else
-                {
-                    Response.errStr = "error info：" + e.ToString();
-                    Logger.Error("GetTrimTaskBeginTime" + e.ToString());
-                }
+                Response.bRet = false;
+                Response.errStr = "error info：" + e.Message;
+                Logger.Error("SetTaskClassify" + e.Message);
                 return Response;
             }
             return Response;
@@ -1176,16 +1004,9 @@ namespace IngestTaskPlugin.Controllers.v1
             }
             catch (Exception e)//其他未知的异常，写异常日志
             {
-                if (e.GetType() == typeof(SobeyRecException))//sobeyexcep会自动打印错误
-                {
-                    SobeyRecException se = e as SobeyRecException;
-                    //Response.errStr = se.ErrorCode.ToString();
-                }
-                else
-                {
-                    //Response.errStr = "error info：" + e.ToString();
-                    Logger.Error("GetTrimTaskBeginTime" + e.ToString());
-                }
+                
+                //Response.errStr = "error info：" + e.ToString();
+                Logger.Error("GetUnlockAllTasks" + e.Message);
                 return Response;
             }
             return Response;
@@ -1211,7 +1032,7 @@ namespace IngestTaskPlugin.Controllers.v1
                 else
                 {
                     //Response.errStr = "error info：" + e.ToString();
-                    Logger.Error("GetTrimTaskBeginTime" + e.ToString());
+                    Logger.Error("SetPeriodTaskToNextTime" + e.ToString());
                 }
                 return Response;
             }
@@ -1236,16 +1057,10 @@ namespace IngestTaskPlugin.Controllers.v1
             }
             catch (Exception e)//其他未知的异常，写异常日志
             {
-                if (e.GetType() == typeof(SobeyRecException))//sobeyexcep会自动打印错误
-                {
-                    SobeyRecException se = e as SobeyRecException;
-                    Response.errStr = se.ErrorCode.ToString();
-                }
-                else
-                {
-                    Response.errStr = "error info：" + e.ToString();
-                    Logger.Error("GetTrimTaskBeginTime" + e.ToString());
-                }
+                Response.bRet = false;
+
+                Response.errStr = "error info：" + e.Message;
+                Logger.Error("GetNeedSynTasks2" + e.Message);
                 return Response;
             }
             return Response;
@@ -1254,7 +1069,7 @@ namespace IngestTaskPlugin.Controllers.v1
 
         [HttpPost("PostCompleteSynTasks"), MapToApiVersion("1.0")]
         [ApiExplorerSettings(GroupName = "v1")]
-        public async Task PostCompleteSynTasks([FromBody]CompleteSynTasks_IN pIn)
+        public async Task<bool> PostCompleteSynTasks([FromBody]CompleteSynTasks_IN pIn)
         {
             //var Response = new GetNeedSynTasks2_OUT
             //{
@@ -1266,21 +1081,16 @@ namespace IngestTaskPlugin.Controllers.v1
             {
                 await _taskManage.CompleteSynTasks(pIn);
                 //Response.nValidDataCount = Response.synTasks.Count;
+                return true;
             }
             catch (Exception e)//其他未知的异常，写异常日志
             {
-                if (e.GetType() == typeof(SobeyRecException))//sobeyexcep会自动打印错误
-                {
-                    SobeyRecException se = e as SobeyRecException;
-                    //Response.errStr = se.ErrorCode.ToString();
-                }
-                else
-                {
+                
                     //Response.errStr = "error info：" + e.ToString();
-                    Logger.Error("GetTrimTaskBeginTime" + e.ToString());
-                }
+                Logger.Error("GetTrimTaskBeginTime" + e.Message);
                 //return Response;
             }
+            return false;
             //return Response;
 
         }
@@ -1301,18 +1111,12 @@ namespace IngestTaskPlugin.Controllers.v1
             catch (Exception e)//其他未知的异常，写异常日志
             {
                 if (e.GetType() == typeof(SobeyRecException))//sobeyexcep会自动打印错误
-                {
-                    SobeyRecException se = e as SobeyRecException;
-                    //Response.errStr = se.ErrorCode.ToString();
-                }
-                else
-                {
-                    //Response.errStr = "error info：" + e.ToString();
-                    Logger.Error("GetTrimTaskBeginTime" + e.ToString());
-                }
+               
+                //Response.errStr = "error info：" + e.ToString();
+                Logger.Error("GetTrimTaskBeginTime" + e.Message);
                 //return Response;
             }
-            return "error";
+            return "";
 
         }
 
@@ -1333,16 +1137,9 @@ namespace IngestTaskPlugin.Controllers.v1
             }
             catch (Exception e)//其他未知的异常，写异常日志
             {
-                if (e.GetType() == typeof(SobeyRecException))//sobeyexcep会自动打印错误
-                {
-                    SobeyRecException se = e as SobeyRecException;
-                    //Response.errStr = se.ErrorCode.ToString();
-                }
-                else
-                {
-                    //Response.errStr = "error info：" + e.ToString();
-                    Logger.Error("GetNeedRescheduleTasks" + e.ToString());
-                }
+                Response.bRet = false;
+                //Response.errStr = "error info：" + e.ToString();
+                Logger.Error("GetNeedRescheduleTasks" + e.Message);
                 return Response;
             }
             return Response;
@@ -1361,16 +1158,9 @@ namespace IngestTaskPlugin.Controllers.v1
             }
             catch (Exception e)//其他未知的异常，写异常日志
             {
-                if (e.GetType() == typeof(SobeyRecException))//sobeyexcep会自动打印错误
-                {
-                    SobeyRecException se = e as SobeyRecException;
-                    //Response.errStr = se.ErrorCode.ToString();
-                }
-                else
-                {
-                    //Response.errStr = "error info：" + e.ToString();
-                    Logger.Error("PostCompleteRescheduleTasks" + e.ToString());
-                }
+               
+                //Response.errStr = "error info：" + e.ToString();
+                Logger.Error("PostCompleteRescheduleTasks" + e.Message);
                 return Response;
             }
             return Response;
@@ -1389,16 +1179,9 @@ namespace IngestTaskPlugin.Controllers.v1
             }
             catch (Exception e)//其他未知的异常，写异常日志
             {
-                if (e.GetType() == typeof(SobeyRecException))//sobeyexcep会自动打印错误
-                {
-                    SobeyRecException se = e as SobeyRecException;
-                    //Response.errStr = se.ErrorCode.ToString();
-                }
-                else
-                {
+                
                     //Response.errStr = "error info：" + e.ToString();
-                    Logger.Error("GetLockTaskByID" + e.ToString());
-                }
+                    Logger.Error("GetLockTaskByID" + e.Message);
                 return Response;
             }
             return Response;
@@ -1418,7 +1201,7 @@ namespace IngestTaskPlugin.Controllers.v1
                 if (_globalInterface != null)
                 {
                     GlobalInternals re = new GlobalInternals() { Funtype = IngestDBCore.GlobalInternals.FunctionType.SetGlobalState, State = GlobalStateName.MODTASK };
-                    var response1 = await _globalInterface.SubmitGlobalCallBack(re);
+                    var response1 = await _globalInterface.Value.SubmitGlobalCallBack(re);
                     if (response1.Code != ResponseCodeDefines.SuccessCode)
                     {
                         Logger.Error("SetGlobalState modtask error");
@@ -1428,16 +1211,9 @@ namespace IngestTaskPlugin.Controllers.v1
             }
             catch (Exception e)//其他未知的异常，写异常日志
             {
-                if (e.GetType() == typeof(SobeyRecException))//sobeyexcep会自动打印错误
-                {
-                    SobeyRecException se = e as SobeyRecException;
-                    //Response.errStr = se.ErrorCode.ToString();
-                }
-                else
-                {
-                    //Response.errStr = "error info：" + e.ToString();
-                    Logger.Error("GetLockTaskByID" + e.ToString());
-                }
+               
+                //Response.errStr = "error info：" + e.ToString();
+                Logger.Error("GetLockTaskByID" + e.Message);
                 return Response;
             }
             return Response;
@@ -1463,18 +1239,9 @@ namespace IngestTaskPlugin.Controllers.v1
             }
             catch (Exception e)//其他未知的异常，写异常日志
             {
-                if (e.GetType() == typeof(SobeyRecException))//sobeyexcep会自动打印错误
-                {
-                    SobeyRecException se = e as SobeyRecException;
-                    Response.errStr = se.ErrorCode.ToString();
-                    Response.bRet = false;
-                }
-                else
-                {
-                    Response.bRet = false;
-                    Response.errStr = "error info：" + e.ToString();
-                    Logger.Error("GetRescheduleTasks" + e.ToString());
-                }
+                Response.bRet = false;
+                Response.errStr = "error info：" + e.Message;
+                Logger.Error("GetRescheduleTasks" + e.Message);
                 return Response;
             }
             return Response;
@@ -1500,18 +1267,9 @@ namespace IngestTaskPlugin.Controllers.v1
             }
             catch (Exception e)//其他未知的异常，写异常日志
             {
-                if (e.GetType() == typeof(SobeyRecException))//sobeyexcep会自动打印错误
-                {
-                    SobeyRecException se = e as SobeyRecException;
-                    //Response.errStr = se.ErrorCode.ToString();
-                    Response.bRet = false;
-                }
-                else
-                {
-                    Response.bRet = false;
-                    //Response.errStr = "error info：" + e.ToString();
-                    Logger.Error("GetLockTaskByID" + e.ToString());
-                }
+                Response.bRet = false;
+                //Response.errStr = "error info：" + e.ToString();
+                Logger.Error("GetWarningInfos" + e.Message);
                 return Response;
             }
             return Response;
@@ -1530,23 +1288,16 @@ namespace IngestTaskPlugin.Controllers.v1
 
             try
             {
-                Response.strLowFileName = await _taskManage.GetChannelCapturingLowMaterial(channelID, _globalInterface);
+                Response.strLowFileName = await _taskManage.GetChannelCapturingLowMaterial(channelID, _globalInterface.Value);
                 return Response;
             }
             catch (Exception e)//其他未知的异常，写异常日志
             {
                 if (e.GetType() == typeof(SobeyRecException))//sobeyexcep会自动打印错误
-                {
-                    SobeyRecException se = e as SobeyRecException;
-                    //Response.errStr = se.ErrorCode.ToString();
-                    Response.bRet = false;
-                }
-                else
-                {
-                    Response.bRet = false;
-                    //Response.errStr = "error info：" + e.ToString();
-                    Logger.Error("GetChannelCapturingLowMaterial" + e.ToString());
-                }
+                
+                Response.bRet = false;
+                //Response.errStr = "error info：" + e.ToString();
+                Logger.Error("GetChannelCapturingLowMaterial" + e.Message);
                 return Response;
             }
             return Response;
@@ -1571,18 +1322,10 @@ namespace IngestTaskPlugin.Controllers.v1
             }
             catch (Exception e)//其他未知的异常，写异常日志
             {
-                if (e.GetType() == typeof(SobeyRecException))//sobeyexcep会自动打印错误
-                {
-                    SobeyRecException se = e as SobeyRecException;
-                    Response.errStr = se.ErrorCode.ToString();
-                    Response.bRet = false;
-                }
-                else
-                {
-                    Response.bRet = false;
-                    Response.errStr = "error info：" + e.ToString();
-                    Logger.Error("SplitTask" + e.ToString());
-                }
+                
+                Response.bRet = false;
+                Response.errStr = "error info：" + e.Message;
+                Logger.Error("SplitTask" + e.Message);
                 return Response;
             }
             return Response;
@@ -1609,18 +1352,10 @@ namespace IngestTaskPlugin.Controllers.v1
             }
             catch (Exception e)//其他未知的异常，写异常日志
             {
-                if (e.GetType() == typeof(SobeyRecException))//sobeyexcep会自动打印错误
-                {
-                    SobeyRecException se = e as SobeyRecException;
-                    Response.errStr = se.ErrorCode.ToString();
-                    Response.bRet = false;
-                }
-                else
-                {
-                    Response.bRet = false;
-                    Response.errStr = "error info：" + e.ToString();
-                    Logger.Error("CreateNewTaskFromPeriodicTask" + e.ToString());
-                }
+
+                Response.bRet = false;
+                Response.errStr = "error info：" + e.Message;
+                Logger.Error("CreateNewTaskFromPeriodicTask" + e.Message);
                 return Response;
             }
             return Response;
@@ -1645,7 +1380,7 @@ namespace IngestTaskPlugin.Controllers.v1
                 if (_globalInterface != null)
                 {
                     GlobalInternals re = new GlobalInternals() { Funtype = IngestDBCore.GlobalInternals.FunctionType.SetGlobalState, State = GlobalStateName.MODTASK };
-                    var response1 = await _globalInterface.SubmitGlobalCallBack(re);
+                    var response1 = await _globalInterface.Value.SubmitGlobalCallBack(re);
                     if (response1.Code != ResponseCodeDefines.SuccessCode)
                     {
                         Logger.Error("SetGlobalState modtask error");
@@ -1655,18 +1390,10 @@ namespace IngestTaskPlugin.Controllers.v1
             }
             catch (Exception e)//其他未知的异常，写异常日志
             {
-                if (e.GetType() == typeof(SobeyRecException))//sobeyexcep会自动打印错误
-                {
-                    SobeyRecException se = e as SobeyRecException;
-                    Response.errStr = se.ErrorCode.ToString();
-                    Response.bRet = false;
-                }
-                else
-                {
-                    Response.bRet = false;
-                    Response.errStr = "error info：" + e.ToString();
-                    Logger.Error("GetStartTieUpTask" + e.ToString());
-                }
+
+                Response.bRet = false;
+                Response.errStr = "error info：" + e.Message;
+                Logger.Error("GetStartTieUpTask" + e.Message);
                 return Response;
             }
             return Response;
@@ -1690,18 +1417,10 @@ namespace IngestTaskPlugin.Controllers.v1
             }
             catch (Exception e)//其他未知的异常，写异常日志
             {
-                if (e.GetType() == typeof(SobeyRecException))//sobeyexcep会自动打印错误
-                {
-                    SobeyRecException se = e as SobeyRecException;
-                    Response.errStr = se.ErrorCode.ToString();
-                    Response.bRet = false;
-                }
-                else
-                {
-                    Response.bRet = false;
-                    Response.errStr = "error info：" + e.ToString();
-                    Logger.Error("GetStartTieUpTask" + e.ToString());
-                }
+
+                Response.bRet = false;
+                Response.errStr = "error info：" + e.Message;
+                Logger.Error("GetStartTieUpTask" + e.Message);
                 return Response;
             }
             return Response;
@@ -1725,18 +1444,10 @@ namespace IngestTaskPlugin.Controllers.v1
             }
             catch (Exception e)//其他未知的异常，写异常日志
             {
-                if (e.GetType() == typeof(SobeyRecException))//sobeyexcep会自动打印错误
-                {
-                    SobeyRecException se = e as SobeyRecException;
-                    Response.errStr = se.ErrorCode.ToString();
-                    Response.bRet = false;
-                }
-                else
-                {
-                    Response.bRet = false;
-                    Response.errStr = "error info：" + e.ToString();
-                    Logger.Error("ModifyTaskName" + e.ToString());
-                }
+
+                Response.bRet = false;
+                Response.errStr = "error info：" + e.Message;
+                Logger.Error("ModifyTaskName" + e.Message);
                 return Response;
             }
             return Response;
@@ -1750,7 +1461,8 @@ namespace IngestTaskPlugin.Controllers.v1
             var Response = new ModifyPeriodTask_out()
             {
                 errStr = "OK",
-                bRet = true
+                bRet = true,
+                newTaskId = -1
             };
 
             try
@@ -1765,7 +1477,7 @@ namespace IngestTaskPlugin.Controllers.v1
                 if (_globalInterface != null)
                 {
                     GlobalInternals re = new GlobalInternals() { Funtype = IngestDBCore.GlobalInternals.FunctionType.SetGlobalState, State = GlobalStateName.MODTASK };
-                    var response1 = await _globalInterface.SubmitGlobalCallBack(re);
+                    var response1 = await _globalInterface.Value.SubmitGlobalCallBack(re);
                     if (response1.Code != ResponseCodeDefines.SuccessCode)
                     {
                         Logger.Error("SetGlobalState modtask error");
@@ -1775,18 +1487,10 @@ namespace IngestTaskPlugin.Controllers.v1
             }
             catch (Exception e)//其他未知的异常，写异常日志
             {
-                if (e.GetType() == typeof(SobeyRecException))//sobeyexcep会自动打印错误
-                {
-                    SobeyRecException se = e as SobeyRecException;
-                    Response.errStr = se.ErrorCode.ToString();
+               
                     Response.bRet = false;
-                }
-                else
-                {
-                    Response.bRet = false;
-                    Response.errStr = "error info：" + e.ToString();
-                    Logger.Error("ModifyTaskName" + e.ToString());
-                }
+                    Response.errStr = "error info：" + e.Message;
+                    Logger.Error("ModifyPeriodTask" + e.Message);
                 return Response;
             }
             return Response;
@@ -1848,18 +1552,10 @@ namespace IngestTaskPlugin.Controllers.v1
             }
             catch (Exception e)//其他未知的异常，写异常日志
             {
-                if (e.GetType() == typeof(SobeyRecException))//sobeyexcep会自动打印错误
-                {
-                    SobeyRecException se = e as SobeyRecException;
-                    Response.errStr = se.ErrorCode.ToString();
-                    Response.bRet = false;
-                }
-                else
-                {
-                    Response.bRet = false;
-                    Response.errStr = "error info：" + e.ToString();
-                    Logger.Error("ModifyTaskName" + e.ToString());
-                }
+                
+                Response.bRet = false;
+                Response.errStr = "error info：" + e.Message;
+                Logger.Error("IsVTRCollide" + e.Message);
                 return Response;
             }
             return Response;
@@ -1889,7 +1585,7 @@ namespace IngestTaskPlugin.Controllers.v1
                 {
                     Response.nCode = 500;
                     //Response.errStr = "error info：" + e.ToString();
-                    Logger.Error("ModifyTaskName" + e.ToString());
+                    Logger.Error("ModifyTaskName" + e.Message);
                 }
                 return Response;
             }
@@ -1963,40 +1659,35 @@ namespace IngestTaskPlugin.Controllers.v1
 
         [HttpGet("AutoAddTaskByOldTask"), MapToApiVersion("1.0")]
         [ApiExplorerSettings(GroupName = "v1")]
-        public async Task<int> AutoAddTaskByOldTask([FromQuery]int nOldTaskID, [FromQuery]string strStartTime)
+        public async Task<TaskOldResponseMessage<int>> AutoAddTaskByOldTask([FromQuery]int nOldTaskID, [FromQuery]string strStartTime)
         {
-            var Response = 0;
+            var Response = new TaskOldResponseMessage<int>();
+            Response.extention = -1;
 
             try
             {
-                var task = await _taskManage.AutoAddTaskByOldTask(nOldTaskID, DateTimeFormat.DateTimeFromString(strStartTime),_globalInterface);
-
+                var task = await _taskManage.AutoAddTaskByOldTask(nOldTaskID, DateTimeFormat.DateTimeFromString(strStartTime),_globalInterface.Value);
+                Response.extention = task.TaskID;
+                Response.nCode = 1;
                 
                 if (_globalInterface != null)
                 {
                     GlobalInternals re = new GlobalInternals() { Funtype = IngestDBCore.GlobalInternals.FunctionType.SetGlobalState, State = GlobalStateName.ADDTASK };
-                    var response1 = await _globalInterface.SubmitGlobalCallBack(re);
+                    var response1 = await _globalInterface.Value.SubmitGlobalCallBack(re);
                     if (response1.Code != ResponseCodeDefines.SuccessCode)
                     {
                         Logger.Error("SetGlobalState modtask error");
                     }
                 }
-                return task.TaskID;
+                return Response;
             }
             catch (Exception e)//其他未知的异常，写异常日志
             {
-                if (e.GetType() == typeof(SobeyRecException))//sobeyexcep会自动打印错误
-                {
-                    SobeyRecException se = e as SobeyRecException;
-                    //Response.nCode = se.ErrorCode;
-                    //Response.message = false;
-                }
-                else
-                {
-                    //Response.nCode = 500;
-                    //Response.errStr = "error info：" + e.ToString();
-                    Logger.Error("SetTaskStampBmp" + e.ToString());
-                }
+
+                //Response.nCode = 500;
+                //Response.errStr = "error info：" + e.ToString();
+                Response.nCode = 0;
+                Logger.Error("AutoAddTaskByOldTask" + e.ToString());
                 return Response;
             }
             return Response;
@@ -2047,7 +1738,7 @@ namespace IngestTaskPlugin.Controllers.v1
                 if (_globalInterface != null)
                 {
                     GlobalInternals re = new GlobalInternals() { Funtype = IngestDBCore.GlobalInternals.FunctionType.SetGlobalState, State = GlobalStateName.ADDTASK };
-                    var response1 = await _globalInterface.SubmitGlobalCallBack(re);
+                    var response1 = await _globalInterface.Value.SubmitGlobalCallBack(re);
                     if (response1.Code != ResponseCodeDefines.SuccessCode)
                     {
                         Logger.Error("SetGlobalState modtask error");
@@ -2058,18 +1749,9 @@ namespace IngestTaskPlugin.Controllers.v1
             }
             catch (Exception e)//其他未知的异常，写异常日志
             {
-                if (e.GetType() == typeof(SobeyRecException))//sobeyexcep会自动打印错误
-                {
-                    SobeyRecException se = e as SobeyRecException;
-                    //Response.nCode = se.ErrorCode;
-                    //Response.message = false;
-                }
-                else
-                {
-                    //Response.nCode = 500;
-                    //Response.errStr = "error info：" + e.ToString();
-                    Logger.Error("SetTaskStampBmp" + e.ToString());
-                }
+                Response.nCode = 0;
+                Response.extention = -1;
+                    Logger.Error("AddReScheduleTaskSvr" + e.Message);
                 return Response;
             }
             return Response;

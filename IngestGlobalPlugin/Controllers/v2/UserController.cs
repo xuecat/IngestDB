@@ -121,7 +121,7 @@ namespace IngestGlobalPlugin.Controllers.v2
         #region ParamTemplate
 
         /// <summary>
-        /// 获取captureparamtemplate指定captureid和nflag的值，返回param
+        /// 获取captureparamtemplate指定captureid和nflag的值，返回param string
         /// </summary>
         /// <param name="captureParamID">模板id</param>
         /// <param name="flag">hd=0，sd=1,uhd=2标识</param>
@@ -130,7 +130,7 @@ namespace IngestGlobalPlugin.Controllers.v2
         /// 例子:
         /// Get api/v2/global/captureparamtemplate/{nCaptureParamID}
         /// </remarks>
-        [HttpGet("captureparamtemplate/{captureParamID}")]
+        [HttpGet("captureparamtemplate/flag/{captureParamID}")]
         [ApiExplorerSettings(GroupName = "v2")]
         public async Task<ResponseMessage<string>> GetParamTemplateByID([FromRoute, DefaultValue(1)]int captureParamID, [FromQuery, DefaultValue(0)]int flag)
         {
@@ -176,7 +176,7 @@ namespace IngestGlobalPlugin.Controllers.v2
         /// 例子:
         /// Get api/v2/global/captureparamtemplate/{nCaptureParamID}
         /// </remarks>
-        [HttpGet("captureparamtemplatestring/{CaptureParamID}")]
+        [HttpGet("captureparamtemplate/{CaptureParamID}")]
         [ApiExplorerSettings(GroupName = "v2")]
         public async Task<ResponseMessage<string>> GetParamTemplateStringByID([FromRoute, BindRequired, DefaultValue(1)]int CaptureParamID)
         {
@@ -223,7 +223,7 @@ namespace IngestGlobalPlugin.Controllers.v2
         /// 例子:
         /// Get api/v2/global/captureparamtemplate/{nCaptureParamID}
         /// </remarks>
-        [HttpPost("captureparamtemplatestring/{CaptureParamID}")]
+        [HttpPost("captureparamtemplate/{CaptureParamID}")]
         [ApiExplorerSettings(GroupName = "v2")]
         public async Task<ResponseMessage<int>> UpdateParamTemplate(
             [FromRoute, BindRequired, DefaultValue(1)]int CaptureParamID,

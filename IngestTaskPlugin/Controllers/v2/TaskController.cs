@@ -41,14 +41,14 @@ namespace IngestTaskPlugin.Controllers.v2
         private readonly ILogger Logger = LoggerManager.GetLogger("TaskInfo");
         private readonly TaskManager _taskManage;
         private readonly NotifyClock _clock;
-        private readonly IIngestGlobalInterface _globalInterface;
+        private readonly Lazy<IIngestGlobalInterface> _globalInterface;
         //private readonly IMapper _mapper;
 
-        public TaskController( TaskManager task, IIngestGlobalInterface global, NotifyClock clock/*, IMapper mapper*/)
+        public TaskController( TaskManager task, IServiceProvider services, NotifyClock clock/*, IMapper mapper*/)
         {
             _taskManage = task;
             _clock = clock;
-            _globalInterface = global;
+            _globalInterface = new Lazy<IIngestGlobalInterface>(() => services.GetRequiredService<IIngestGlobalInterface>());
             //_mapper = mapper ?? throw new ArgumentNullException(nameof(mapper));
         }
 
@@ -61,7 +61,7 @@ namespace IngestTaskPlugin.Controllers.v2
         /// </remarks>
         /// <param name="taskid">任务id</param>
         /// <returns>素材任务元数据结构体</returns>     
-        [HttpGet("taskinfo/materialmetadata/{taskid}")]
+        [HttpGet("materialmetadata/{taskid}")]
         [ApiExplorerSettings(GroupName = "v2")]
         public async Task<ResponseMessage<TaskMaterialMetaResponse>> GetTaskMaterialMetaData([FromRoute, BindRequired]int taskid)
         {
@@ -86,7 +86,7 @@ namespace IngestTaskPlugin.Controllers.v2
                 else
                 {
                     Response.Code = ResponseCodeDefines.ServiceError;
-                    Response.Msg = "GetTaskMaterialMetaData error info：" + e.ToString();
+                    Response.Msg = "GetTaskMaterialMetaData error info：" +e.Message;
                     Logger.Error(Response.Msg);
                 }
             }
@@ -102,7 +102,7 @@ namespace IngestTaskPlugin.Controllers.v2
         /// </remarks>
         /// <param name="taskid">任务id</param>
         /// <returns>任务元数据结构体</returns>     
-        [HttpGet("taskinfo/contentmetadata/{taskid}")]
+        [HttpGet("contentmetadata/{taskid}")]
         [ApiExplorerSettings(GroupName = "v2")]
         public async Task<ResponseMessage<TaskContentMetaResponse>> GetTaskContentMetaData([FromRoute, BindRequired]int taskid)
         {
@@ -127,7 +127,7 @@ namespace IngestTaskPlugin.Controllers.v2
                 else
                 {
                     Response.Code = ResponseCodeDefines.ServiceError;
-                    Response.Msg = "GetTaskContentMetaData error info：" + e.ToString();
+                    Response.Msg = "GetTaskContentMetaData error info：" +e.Message;
                     Logger.Error(Response.Msg);
                 }
             }
@@ -143,7 +143,7 @@ namespace IngestTaskPlugin.Controllers.v2
         /// </remarks>
         /// <param name="taskid">任务id</param>
         /// <returns>任务计划元数据结构体</returns>     
-        [HttpGet("taskinfo/planningmetadata/{taskid}")]
+        [HttpGet("planningmetadata/{taskid}")]
         [ApiExplorerSettings(GroupName = "v2")]
         public async Task<ResponseMessage<TaskPlanningResponse>> GetTaskPlanningMetaData([FromRoute, BindRequired]int taskid)
         {
@@ -168,7 +168,7 @@ namespace IngestTaskPlugin.Controllers.v2
                 else
                 {
                     Response.Code = ResponseCodeDefines.ServiceError;
-                    Response.Msg = "GetTaskPlanningMetaData error info：" + e.ToString();
+                    Response.Msg = "GetTaskPlanningMetaData error info：" +e.Message;
                     Logger.Error(Response.Msg);
                 }
             }
@@ -187,7 +187,7 @@ namespace IngestTaskPlugin.Controllers.v2
         /// <param name="tasktype">元数据类型</param>
         /// <param name="lst">键值对应需要更新的数据，proterty和value</param>
         /// <returns>任务计划元数据结构体</returns>     
-        [HttpPost("taskinfo/metadata/{taskid}")]
+        [HttpPost("metadata/{taskid}")]
         [ApiExplorerSettings(GroupName = "v2")]
         public async Task<ResponseMessage<string>> UpdateTaskMetaData([FromRoute, BindRequired]int taskid, [FromQuery, BindRequired]int tasktype, [FromBody, BindRequired]List<PropertyResponse> lst)
         {
@@ -212,7 +212,7 @@ namespace IngestTaskPlugin.Controllers.v2
                 else
                 {
                     Response.Code = ResponseCodeDefines.ServiceError;
-                    Response.Msg = "UpdateTaskMetaData error info：" + e.ToString();
+                    Response.Msg = "UpdateTaskMetaData error info：" +e.Message;
                     Logger.Error(Response.Msg);
                 }
             }
@@ -228,7 +228,7 @@ namespace IngestTaskPlugin.Controllers.v2
         /// </remarks>
         /// <param name="taskid">任务id</param>
         /// <returns>获取任务自定义数据</returns>     
-        [HttpGet("taskinfo/custommetadata/{taskid}")]
+        [HttpGet("custommetadata/{taskid}")]
         [ApiExplorerSettings(GroupName = "v2")]
         public async Task<ResponseMessage<TaskCustomMetadataResponse>> GetTaskCustomMetaData([FromRoute, BindRequired]int taskid)
         {
@@ -253,7 +253,7 @@ namespace IngestTaskPlugin.Controllers.v2
                 else
                 {
                     Response.Code = ResponseCodeDefines.ServiceError;
-                    Response.Msg = "GetTaskCustomMetaData error info：" + e.ToString();
+                    Response.Msg = "GetTaskCustomMetaData error info：" +e.Message;
                     Logger.Error(Response.Msg);
                 }
             }
@@ -270,7 +270,7 @@ namespace IngestTaskPlugin.Controllers.v2
         /// <param name="taskid">任务id</param>
         /// <param name="data">更新数据，taskid填不填看你，我不会用</param>
         /// <returns>任务id</returns>     
-        [HttpPost("taskinfo/custommetadata/{taskid}")]
+        [HttpPost("custommetadata/{taskid}")]
         [ApiExplorerSettings(GroupName = "v2")]
         public async Task<ResponseMessage<int>> UpdateTaskCustomMetaData([FromRoute, BindRequired]int taskid, [FromBody, BindRequired]TaskCustomMetadataRequest data)
         {
@@ -296,7 +296,7 @@ namespace IngestTaskPlugin.Controllers.v2
                 else
                 {
                     Response.Code = ResponseCodeDefines.ServiceError;
-                    Response.Msg = "UpdateTaskCustomMetaData error info：" + e.ToString();
+                    Response.Msg = "UpdateTaskCustomMetaData error info：" +e.Message;
                     Logger.Error(Response.Msg);
                 }
             }
@@ -329,7 +329,7 @@ namespace IngestTaskPlugin.Controllers.v2
                 if (_globalInterface != null)
                 {
                     GlobalInternals re = new GlobalInternals() { Funtype = IngestDBCore.GlobalInternals.FunctionType.SetGlobalState, State = GlobalStateName.MODTASK };
-                    var response1 = await _globalInterface.SubmitGlobalCallBack(re);
+                    var response1 = await _globalInterface.Value.SubmitGlobalCallBack(re);
                     if (response1.Code != ResponseCodeDefines.SuccessCode)
                     {
                         Logger.Error("SetGlobalState modtask error");
@@ -347,7 +347,7 @@ namespace IngestTaskPlugin.Controllers.v2
                 else
                 {
                     Response.Code = ResponseCodeDefines.ServiceError;
-                    Response.Msg = "StopGroupTask error info：" + e.ToString();
+                    Response.Msg = "StopGroupTask error info：" +e.Message;
                     Logger.Error(Response.Msg);
                 }
             }
@@ -381,7 +381,7 @@ namespace IngestTaskPlugin.Controllers.v2
                 if (_globalInterface != null)
                 {
                     GlobalInternals re = new GlobalInternals() { Funtype = IngestDBCore.GlobalInternals.FunctionType.SetGlobalState, State = GlobalStateName.MODTASK };
-                    var response1 = await _globalInterface.SubmitGlobalCallBack(re);
+                    var response1 = await _globalInterface.Value.SubmitGlobalCallBack(re);
                     if (response1.Code != ResponseCodeDefines.SuccessCode)
                     {
                         Logger.Error("SetGlobalState modtask error");
@@ -399,7 +399,7 @@ namespace IngestTaskPlugin.Controllers.v2
                 else
                 {
                     Response.Code = ResponseCodeDefines.ServiceError;
-                    Response.Msg = "DeleteGroupTask error info：" + e.ToString();
+                    Response.Msg = "DeleteGroupTask error info：" +e.Message;
                     Logger.Error(Response.Msg);
                 }
             }
@@ -443,7 +443,7 @@ namespace IngestTaskPlugin.Controllers.v2
                 if (_globalInterface != null)
                 {
                     GlobalInternals re = new GlobalInternals() { Funtype = IngestDBCore.GlobalInternals.FunctionType.SetGlobalState, State = GlobalStateName.ADDTASK };
-                    var response1 = await _globalInterface.SubmitGlobalCallBack(re);
+                    var response1 = await _globalInterface.Value.SubmitGlobalCallBack(re);
                     if (response1.Code != ResponseCodeDefines.SuccessCode)
                     {
                         Logger.Error("SetGlobalState modtask error");
@@ -467,7 +467,7 @@ namespace IngestTaskPlugin.Controllers.v2
                 else
                 {
                     Response.Code = ResponseCodeDefines.ServiceError;
-                    Response.Msg = "AddTaskWithoutPolicy error info：" + e.ToString();
+                    Response.Msg = "AddTaskWithoutPolicy error info：" +e.Message;
                     Logger.Error(Response.Msg);
                 }
             }
@@ -518,7 +518,7 @@ namespace IngestTaskPlugin.Controllers.v2
                 if (_globalInterface != null)
                 {
                     GlobalInternals re = new GlobalInternals() { Funtype = IngestDBCore.GlobalInternals.FunctionType.SetGlobalState, State = GlobalStateName.ADDTASK };
-                    var response1 = await _globalInterface.SubmitGlobalCallBack(re);
+                    var response1 = await _globalInterface.Value.SubmitGlobalCallBack(re);
                     if (response1.Code != ResponseCodeDefines.SuccessCode)
                     {
                         Logger.Error("SetGlobalState modtask error");
@@ -541,7 +541,7 @@ namespace IngestTaskPlugin.Controllers.v2
                 else
                 {
                     Response.Code = ResponseCodeDefines.ServiceError;
-                    Response.Msg = "AddTaskWithoutPolicy error info：" + e.ToString();
+                    Response.Msg = "AddTaskWithoutPolicy error info：" +e.Message;
                     Logger.Error(Response.Msg);
                 }
             }
@@ -557,7 +557,7 @@ namespace IngestTaskPlugin.Controllers.v2
         /// </remarks>
         /// <param name="taskguid">guid信息</param>
         /// <returns>任务id</returns>
-        [HttpGet("taskinfo/backid")]
+        [HttpGet("backid")]
         [ApiExplorerSettings(GroupName = "v2")]
         public async Task<ResponseMessage<int>> TaskIDByTaskGUID([FromQuery, BindRequired]string taskguid)
         {
@@ -582,7 +582,7 @@ namespace IngestTaskPlugin.Controllers.v2
                 else
                 {
                     Response.Code = ResponseCodeDefines.ServiceError;
-                    Response.Msg = "TaskIDByTaskGUID error info：" + e.ToString();
+                    Response.Msg = "TaskIDByTaskGUID error info：" +e.Message;
                     Logger.Error(Response.Msg);
                 }
             }
@@ -618,7 +618,7 @@ namespace IngestTaskPlugin.Controllers.v2
                 else
                 {
                     Response.Code = ResponseCodeDefines.ServiceError;
-                    Response.Msg = "GetAllChannelCapturingTaskInfo error info：" + e.ToString();
+                    Response.Msg = "GetAllChannelCapturingTaskInfo error info：" +e.Message;
                     Logger.Error(Response.Msg);
                 }
             }
@@ -659,7 +659,7 @@ namespace IngestTaskPlugin.Controllers.v2
                 else
                 {
                     Response.Code = ResponseCodeDefines.ServiceError;
-                    Response.Msg = "TaskIDByTaskGUID error info：" + e.ToString();
+                    Response.Msg = "TaskIDByTaskGUID error info：" +e.Message;
                     Logger.Error(Response.Msg);
                 }
             }
@@ -676,7 +676,7 @@ namespace IngestTaskPlugin.Controllers.v2
         /// <param name="taskid">任务id，给不给值无所谓只是为了好看</param>
         /// <param name="req">修改请求体，请填入taskid信息</param>
         /// <returns>任务信息</returns>
-        [HttpPut("taskinfo/content/{taskid}")]
+        [HttpPut("content/{taskid}")]
         [ApiExplorerSettings(GroupName = "v2")]
         public async Task<ResponseMessage<TaskContentResponse>> ModifyTask([FromRoute, BindRequired]int taskid, [FromBody, BindRequired]TaskContentRequest req)
         {
@@ -698,7 +698,7 @@ namespace IngestTaskPlugin.Controllers.v2
                 if (_globalInterface != null)
                 {
                     GlobalInternals re = new GlobalInternals() { Funtype = IngestDBCore.GlobalInternals.FunctionType.SetGlobalState, State = GlobalStateName.MODTASK };
-                    var response1 = await _globalInterface.SubmitGlobalCallBack(re);
+                    var response1 = await _globalInterface.Value.SubmitGlobalCallBack(re);
                     if (response1.Code != ResponseCodeDefines.SuccessCode)
                     {
                         Logger.Error("SetGlobalState modtask error");
@@ -716,7 +716,7 @@ namespace IngestTaskPlugin.Controllers.v2
                 else
                 {
                     Response.Code = ResponseCodeDefines.ServiceError;
-                    Response.Msg = "TaskIDByTaskGUID error info：" + e.ToString();
+                    Response.Msg = "TaskIDByTaskGUID error info：" +e.Message;
                     Logger.Error(Response.Msg);
                 }
             }
@@ -762,7 +762,7 @@ namespace IngestTaskPlugin.Controllers.v2
                 else
                 {
                     Response.Code = ResponseCodeDefines.ServiceError;
-                    Response.Msg = "TaskIDByTaskGUID error info：" + e.ToString();
+                    Response.Msg = "TaskIDByTaskGUID error info：" +e.Message;
                     Logger.Error(Response.Msg);
                 }
             }
@@ -809,7 +809,7 @@ namespace IngestTaskPlugin.Controllers.v2
                 else
                 {
                     Response.Code = ResponseCodeDefines.ServiceError;
-                    Response.Msg = "TaskIDByTaskGUID error info：" + e.ToString();
+                    Response.Msg = "TaskIDByTaskGUID error info：" +e.Message;
                     Logger.Error(Response.Msg);
                 }
             }
@@ -825,7 +825,7 @@ namespace IngestTaskPlugin.Controllers.v2
         /// </remarks>
         /// <param name="taskid">任务id，</param>
         /// <returns>任务id</returns>
-        [HttpPut("taskinfo/stop/{taskid}")]
+        [HttpPut("stop/{taskid}")]
         [ApiExplorerSettings(GroupName = "v2")]
         public async Task<ResponseMessage<int>> StopTask([FromRoute, BindRequired]int taskid)
         {
@@ -848,7 +848,7 @@ namespace IngestTaskPlugin.Controllers.v2
                 if (_globalInterface != null)
                 {
                     GlobalInternals re = new GlobalInternals() { Funtype = IngestDBCore.GlobalInternals.FunctionType.SetGlobalState, State = GlobalStateName.MODTASK };
-                    var response1 = await _globalInterface.SubmitGlobalCallBack(re);
+                    var response1 = await _globalInterface.Value.SubmitGlobalCallBack(re);
                     if (response1.Code != ResponseCodeDefines.SuccessCode)
                     {
                         Logger.Error("SetGlobalState modtask error");
@@ -866,7 +866,7 @@ namespace IngestTaskPlugin.Controllers.v2
                 else
                 {
                     Response.Code = ResponseCodeDefines.ServiceError;
-                    Response.Msg = "StopTask error info：" + e.ToString();
+                    Response.Msg = "StopTask error info：" +e.Message;
                     Logger.Error(Response.Msg);
                 }
             }
@@ -883,7 +883,7 @@ namespace IngestTaskPlugin.Controllers.v2
         /// <param name="taskid">任务id，</param>
         /// <param name="endtime">指定的时间 yyyy/MM/dd HH:mm:ss yyyy-MM-dd HH:mm:ss</param>
         /// <returns>任务id</returns>
-        [HttpPut("taskinfo/stoptime/{taskid}")]
+        [HttpPut("stoptime/{taskid}")]
         [ApiExplorerSettings(GroupName = "v2")]
         public async Task<ResponseMessage<int>> StopTask([FromRoute, BindRequired]int taskid, [FromQuery, BindRequired]string endtime)
         {
@@ -912,7 +912,7 @@ namespace IngestTaskPlugin.Controllers.v2
                 if (_globalInterface != null)
                 {
                     GlobalInternals re = new GlobalInternals() { Funtype = IngestDBCore.GlobalInternals.FunctionType.SetGlobalState, State = GlobalStateName.MODTASK };
-                    var response1 = await _globalInterface.SubmitGlobalCallBack(re);
+                    var response1 = await _globalInterface.Value.SubmitGlobalCallBack(re);
                     if (response1.Code != ResponseCodeDefines.SuccessCode)
                     {
                         Logger.Error("SetGlobalState modtask error");
@@ -930,7 +930,7 @@ namespace IngestTaskPlugin.Controllers.v2
                 else
                 {
                     Response.Code = ResponseCodeDefines.ServiceError;
-                    Response.Msg = "StopTask error info：" + e.ToString();
+                    Response.Msg = "StopTask error info：" +e.Message;
                     Logger.Error(Response.Msg);
                 }
             }
@@ -947,7 +947,7 @@ namespace IngestTaskPlugin.Controllers.v2
         /// <param name="taskid">任务id</param>
         /// <param name="state">任务状态</param>
         /// <returns>任务id</returns>
-        [HttpPut("taskinfo/state/{taskid}")]
+        [HttpPut("state/{taskid}")]
         [ApiExplorerSettings(GroupName = "v2")]
         public async Task<ResponseMessage<int>> SetTaskState([FromRoute, BindRequired]int taskid, [FromQuery, BindRequired]int state)
         {
@@ -978,7 +978,7 @@ namespace IngestTaskPlugin.Controllers.v2
                 else
                 {
                     Response.Code = ResponseCodeDefines.ServiceError;
-                    Response.Msg = "StopTask error info：" + e.ToString();
+                    Response.Msg = "StopTask error info：" +e.Message;
                     Logger.Error(Response.Msg);
                 }
             }
@@ -1017,7 +1017,7 @@ namespace IngestTaskPlugin.Controllers.v2
                 else
                 {
                     Response.Code = ResponseCodeDefines.ServiceError;
-                    Response.Msg = "QueryTaskContent error info：" + e.ToString();
+                    Response.Msg = "QueryTaskContent error info：" +e.Message;
                     Logger.Error(Response.Msg);
                 }
             }
@@ -1033,7 +1033,7 @@ namespace IngestTaskPlugin.Controllers.v2
         /// </remarks>
         /// <param name="taskid">查询任务id</param>
         /// <returns>任务来源source 枚举</returns>
-        [HttpGet("taskinfo/tasksource/{taskid}")]
+        [HttpGet("tasksource/{taskid}")]
         [ApiExplorerSettings(GroupName = "v2")]
         public async Task<ResponseMessage<TaskSource>> GetTaskSourceById([FromRoute, BindRequired]int taskid)
         {
@@ -1054,7 +1054,7 @@ namespace IngestTaskPlugin.Controllers.v2
                 else
                 {
                     Response.Code = ResponseCodeDefines.ServiceError;
-                    Response.Msg = "GetTaskSource error info：" + e.ToString();
+                    Response.Msg = "GetTaskSource error info：" +e.Message;
                     Logger.Error(Response.Msg);
                 }
             }
@@ -1071,7 +1071,7 @@ namespace IngestTaskPlugin.Controllers.v2
         /// <param name="taskid">查询任务id</param>
         /// <param name="starttime">任务开始时间 yyyy/MM/dd HH:mm:ss yyyy-MM-dd HH:mm:ss</param>
         /// <returns>任务id</returns>
-        [HttpPut("taskinfo/trimin/{taskid}")]
+        [HttpPut("trimin/{taskid}")]
         [ApiExplorerSettings(GroupName = "v2")]
         public async Task<ResponseMessage<int>> TrimTaskBeginTime([FromRoute, BindRequired]int taskid, [FromQuery, BindRequired]string starttime)
         {
@@ -1092,7 +1092,7 @@ namespace IngestTaskPlugin.Controllers.v2
                 else
                 {
                     Response.Code = ResponseCodeDefines.ServiceError;
-                    Response.Msg = "TrimTaskBeginTime error info：" + e.ToString();
+                    Response.Msg = "TrimTaskBeginTime error info：" +e.Message;
                     Logger.Error(Response.Msg);
                 }
             }
@@ -1108,7 +1108,7 @@ namespace IngestTaskPlugin.Controllers.v2
         /// </remarks>
         /// <param name="taskid">任务id</param>
         /// <returns>任务id</returns>
-        [HttpDelete("taskinfo/delete/{taskid}")]
+        [HttpDelete("delete/{taskid}")]
         [ApiExplorerSettings(GroupName = "v2")]
         public async Task<ResponseMessage<int>> DeleteTask([FromRoute, BindRequired]int taskid)
         {
@@ -1129,7 +1129,7 @@ namespace IngestTaskPlugin.Controllers.v2
                 else
                 {
                     Response.Code = ResponseCodeDefines.ServiceError;
-                    Response.Msg = "DeleteTask error info：" + e.ToString();
+                    Response.Msg = "DeleteTask error info：" +e.Message;
                     Logger.Error(Response.Msg);
                 }
             }
@@ -1146,7 +1146,7 @@ namespace IngestTaskPlugin.Controllers.v2
         /// <param name="taskid">任务id</param>
         /// <param name="classify">周期信息</param>
         /// <returns>任务id</returns>
-        [HttpPut("taskinfo/classify/{taskid}")]
+        [HttpPut("classify/{taskid}")]
         [ApiExplorerSettings(GroupName = "v2")]
         public async Task<ResponseMessage<int>> SetTaskInfoClassify([FromRoute, BindRequired]int taskid, [FromQuery, BindRequired]string classify)
         {
@@ -1167,7 +1167,7 @@ namespace IngestTaskPlugin.Controllers.v2
                 else
                 {
                     Response.Code = ResponseCodeDefines.ServiceError;
-                    Response.Msg = "SetTaskInfoClassify error info：" + e.ToString();
+                    Response.Msg = "SetTaskInfoClassify error info：" +e.Message;
                     Logger.Error(Response.Msg);
                 }
             }
@@ -1182,7 +1182,7 @@ namespace IngestTaskPlugin.Controllers.v2
         ///
         /// </remarks>
         /// <returns></returns>
-        [HttpPost("nexttimeperiod")]
+        [HttpPost("periodic/nexttime")]
         [ApiExplorerSettings(GroupName = "v2")]
         public async Task<ResponseMessage<bool>> SetPeriodTaskInfoToNextTime()
         {
@@ -1203,7 +1203,7 @@ namespace IngestTaskPlugin.Controllers.v2
                 else
                 {
                     Response.Code = ResponseCodeDefines.ServiceError;
-                    Response.Msg = "SetPeriodTaskToNextTime error info：" + e.ToString();
+                    Response.Msg = "SetPeriodTaskToNextTime error info：" +e.Message;
                     Logger.Error(Response.Msg);
                 }
             }
@@ -1239,7 +1239,7 @@ namespace IngestTaskPlugin.Controllers.v2
                 else
                 {
                     Response.Code = ResponseCodeDefines.ServiceError;
-                    Response.Msg = "SetPeriodTaskToNextTime error info：" + e.ToString();
+                    Response.Msg = "SetPeriodTaskToNextTime error info：" +e.Message;
                     Logger.Error(Response.Msg);
                 }
             }
@@ -1276,7 +1276,7 @@ namespace IngestTaskPlugin.Controllers.v2
                 else
                 {
                     Response.Code = ResponseCodeDefines.ServiceError;
-                    Response.Msg = "CompleteSynTasks error info：" + e.ToString();
+                    Response.Msg = "CompleteSynTasks error info：" +e.Message;
                     Logger.Error(Response.Msg);
                 }
             }
@@ -1324,7 +1324,7 @@ namespace IngestTaskPlugin.Controllers.v2
                 else
                 {
                     Response.Code = ResponseCodeDefines.ServiceError;
-                    Response.Msg = "CompleteSynTasks error info：" + e.ToString();
+                    Response.Msg = "CompleteSynTasks error info：" +e.Message;
                     Logger.Error(Response.Msg);
                 }
             }
@@ -1360,7 +1360,7 @@ namespace IngestTaskPlugin.Controllers.v2
                 else
                 {
                     Response.Code = ResponseCodeDefines.ServiceError;
-                    Response.Msg = "NeedRescheduleTasks error info：" + e.ToString();
+                    Response.Msg = "NeedRescheduleTasks error info：" +e.Message;
                     Logger.Error(Response.Msg);
                 }
             }
@@ -1397,7 +1397,7 @@ namespace IngestTaskPlugin.Controllers.v2
                 else
                 {
                     Response.Code = ResponseCodeDefines.ServiceError;
-                    Response.Msg = "CompleteRescheduleTasks error info：" + e.ToString();
+                    Response.Msg = "CompleteRescheduleTasks error info：" +e.Message;
                     Logger.Error(Response.Msg);
                 }
             }
@@ -1414,7 +1414,7 @@ namespace IngestTaskPlugin.Controllers.v2
         /// <param name="taskid">任务id</param>
         /// <param name="cooptype">要设置的类型 枚举</param>
         /// <returns></returns>
-        [HttpPut("taskinfo/coopertype/{taskid}")]
+        [HttpPut("coopertype/{taskid}")]
         [ApiExplorerSettings(GroupName = "v2")]
         public async Task<ResponseMessage<bool>> ModifyCooperTask([FromRoute, BindRequired]int taskid, [FromQuery, BindRequired]int cooptype)
         {
@@ -1435,7 +1435,7 @@ namespace IngestTaskPlugin.Controllers.v2
                 else
                 {
                     Response.Code = ResponseCodeDefines.ServiceError;
-                    Response.Msg = "ModifyCooperTask error info：" + e.ToString();
+                    Response.Msg = "ModifyCooperTask error info：" +e.Message;
                     Logger.Error(Response.Msg);
                 }
             }
@@ -1471,7 +1471,7 @@ namespace IngestTaskPlugin.Controllers.v2
                 else
                 {
                     Response.Code = ResponseCodeDefines.ServiceError;
-                    Response.Msg = "RescheduleTasks error info：" + e.ToString();
+                    Response.Msg = "RescheduleTasks error info：" +e.Message;
                     Logger.Error(Response.Msg);
                 }
             }
@@ -1512,7 +1512,7 @@ namespace IngestTaskPlugin.Controllers.v2
                 else
                 {
                     Response.Code = ResponseCodeDefines.ServiceError;
-                    Response.Msg = "WarningInfos error info：" + e.ToString();
+                    Response.Msg = "WarningInfos error info：" +e.Message;
                     Logger.Error(Response.Msg);
                 }
             }
@@ -1536,7 +1536,7 @@ namespace IngestTaskPlugin.Controllers.v2
 
             try
             {
-                Response.Ext = await _taskManage.GetChannelCapturingLowMaterial(channelid, _globalInterface);
+                Response.Ext = await _taskManage.GetChannelCapturingLowMaterial(channelid, _globalInterface.Value);
             }
             catch (Exception e)
             {
@@ -1549,7 +1549,7 @@ namespace IngestTaskPlugin.Controllers.v2
                 else
                 {
                     Response.Code = ResponseCodeDefines.ServiceError;
-                    Response.Msg = "ChannelCapturingLowMaterial error info：" + e.ToString();
+                    Response.Msg = "ChannelCapturingLowMaterial error info：" +e.Message;
                     Logger.Error(Response.Msg);
                 }
             }
@@ -1588,7 +1588,7 @@ namespace IngestTaskPlugin.Controllers.v2
                 else
                 {
                     Response.Code = ResponseCodeDefines.ServiceError;
-                    Response.Msg = "ChannelCapturingLowMaterial error info：" + e.ToString();
+                    Response.Msg = "ChannelCapturingLowMaterial error info：" +e.Message;
                     Logger.Error(Response.Msg);
                 }
             }
@@ -1598,13 +1598,13 @@ namespace IngestTaskPlugin.Controllers.v2
 
 
         /// <summary>
-        /// 获取当前任务
+        /// 获取当前ready任务
         /// </summary>
         /// <remarks>
         /// Decivce通讯接口
         /// </remarks>
         /// <returns>当前任务</returns>
-        [HttpPost("taskinfo/CurrentTasks")]
+        [HttpPost("currenttasks")]
         [ApiExplorerSettings(GroupName = "v2")]
         public async Task<ResponseMessage<List<TaskContent>>> GetCurrentTasks()
         {
@@ -1640,7 +1640,7 @@ namespace IngestTaskPlugin.Controllers.v2
         /// </remarks>
         /// <param name="taskid">周期任务id</param>
         /// <returns>分裂后的任务</returns>
-        [HttpPost("createperiodictask/{taskid}")]
+        [HttpPost("periodic/createtask/{taskid}")]
         [ApiExplorerSettings(GroupName = "v2")]
         public async Task<ResponseMessage<TaskContentResponse>> CreatePeriodicTask([FromRoute, BindRequired]int taskid)
         {
@@ -1692,7 +1692,7 @@ namespace IngestTaskPlugin.Controllers.v2
                 if (_globalInterface != null)
                 {
                     GlobalInternals re = new GlobalInternals() { Funtype = IngestDBCore.GlobalInternals.FunctionType.SetGlobalState, State = GlobalStateName.MODTASK };
-                    var response1 = await _globalInterface.SubmitGlobalCallBack(re);
+                    var response1 = await _globalInterface.Value.SubmitGlobalCallBack(re);
                     if (response1.Code != ResponseCodeDefines.SuccessCode)
                     {
                         Logger.Error("SetGlobalState modtask error");
@@ -1763,7 +1763,7 @@ namespace IngestTaskPlugin.Controllers.v2
         /// <param name="taskid">任务id</param>
         /// <param name="taskname">任务名字</param>
         /// <returns>无返回</returns>
-        [HttpPut("taskinfo/name/{taskid}")]
+        [HttpPut("name/{taskid}")]
         [ApiExplorerSettings(GroupName = "v2")]
         public async Task<ResponseMessage> ModifyTaskInfoName([FromRoute, BindRequired]int taskid, [FromQuery, BindRequired]string taskname)
         {
@@ -1776,7 +1776,7 @@ namespace IngestTaskPlugin.Controllers.v2
                 if (_globalInterface != null)
                 {
                     GlobalInternals re = new GlobalInternals() { Funtype = IngestDBCore.GlobalInternals.FunctionType.SetGlobalState, State = GlobalStateName.MODTASK };
-                    var response1 = await _globalInterface.SubmitGlobalCallBack(re);
+                    var response1 = await _globalInterface.Value.SubmitGlobalCallBack(re);
                     if (response1.Code != ResponseCodeDefines.SuccessCode)
                     {
                         Logger.Error("SetGlobalState modtask error");
@@ -1809,7 +1809,7 @@ namespace IngestTaskPlugin.Controllers.v2
         /// <param name="isall">是否全部修改</param>
         /// <param name="req">请求任务元数据基础结构体 体</param>
         /// <returns>任务id</returns>
-        [HttpPost("taskinfo/name/{taskid}")]
+        [HttpPost("periodic/{taskid}")]
         [ApiExplorerSettings(GroupName = "v2")]
         public async Task<ResponseMessage<int>> ModifyPeriodTaskInfo([FromQuery, BindRequired]int isall, [FromBody, BindRequired]TaskContentRequest req)
         {
@@ -1826,7 +1826,7 @@ namespace IngestTaskPlugin.Controllers.v2
                 if (_globalInterface != null)
                 {
                     GlobalInternals re = new GlobalInternals() { Funtype = IngestDBCore.GlobalInternals.FunctionType.SetGlobalState, State = GlobalStateName.MODTASK };
-                    var response1 = await _globalInterface.SubmitGlobalCallBack(re);
+                    var response1 = await _globalInterface.Value.SubmitGlobalCallBack(re);
                     if (response1.Code != ResponseCodeDefines.SuccessCode)
                     {
                         Logger.Error("SetGlobalState modtask error");
@@ -1861,7 +1861,7 @@ namespace IngestTaskPlugin.Controllers.v2
         /// <param name="endtime"></param>
         /// <param name="vtrid"></param>
         /// <returns>冲突信息</returns>
-        [HttpGet("IsVTRCollide/{taskid}")]
+        [HttpGet("isvtrcollide/{taskid}")]
         [ApiExplorerSettings(GroupName = "v2")]
         public async Task<ResponseMessage<IsVtrCollide>> IsTaskVTRCollide(
             [FromRoute, BindRequired]int taskid,
@@ -2003,7 +2003,7 @@ namespace IngestTaskPlugin.Controllers.v2
         /// <param name="taskid">任务id</param>
         /// <param name="bmppath">图片路径</param>
         /// <returns></returns>
-        [HttpPost("taskinfo/stampbmp/{taskid}")]
+        [HttpPost("stampbmp/{taskid}")]
         [ApiExplorerSettings(GroupName = "v2")]
         public async Task<ResponseMessage> SetTaskInfoStampBmp([FromRoute, BindRequired]int taskid, [FromBody, BindRequired]string bmppath)
         {
@@ -2049,12 +2049,12 @@ namespace IngestTaskPlugin.Controllers.v2
 
             try
             {
-                Response.Ext = await _taskManage.AutoAddTaskByOldTask(oldtaskid, DateTimeFormat.DateTimeFromString(starttime), _globalInterface);
+                Response.Ext = await _taskManage.AutoAddTaskByOldTask(oldtaskid, DateTimeFormat.DateTimeFromString(starttime), _globalInterface.Value);
                 
                 if (_globalInterface != null)
                 {
                     GlobalInternals re = new GlobalInternals() { Funtype = IngestDBCore.GlobalInternals.FunctionType.SetGlobalState, State = GlobalStateName.ADDTASK };
-                    var response1 = await _globalInterface.SubmitGlobalCallBack(re);
+                    var response1 = await _globalInterface.Value.SubmitGlobalCallBack(re);
                     if (response1.Code != ResponseCodeDefines.SuccessCode)
                     {
                         Logger.Error("SetGlobalState modtask error");
@@ -2082,7 +2082,7 @@ namespace IngestTaskPlugin.Controllers.v2
         /// Device调用接口，获取将要和正在执行的任务
         /// </summary>
         /// <returns>将要和正在执行的任务</returns>
-        [HttpGet("taskinfo/willbeginandcapturing")]
+        [HttpGet("willbeginandcapturing")]
         [ApiExplorerSettings(GroupName = "v2")]
         public async Task<ResponseMessage<List<TaskContent>>> GetWillBeginAndCapturingTasks()
         {
