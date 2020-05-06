@@ -31,7 +31,7 @@ namespace IngestGlobalInterfacePlugin
             
             //var reqService = scope.ServiceProvider.GetRequiredService<GlobalController>();
 
-            switch (examineResponse.funtype)
+            switch (examineResponse.Funtype)
             {
                 case FunctionType.UserParamTemplateByID:
                     return await _userController.GetParamTemplateStringByID(examineResponse.TemplateID);
@@ -58,7 +58,7 @@ namespace IngestGlobalInterfacePlugin
         public async Task<ResponseMessage> SubmitGlobalCallBack(GlobalInternals examineResponse)
         {
             
-            switch (examineResponse.funtype)
+            switch (examineResponse.Funtype)
             {
                 case FunctionType.SetGlobalState:
                     return await _globalController.SetGlobalState(examineResponse.State);
