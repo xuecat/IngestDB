@@ -864,7 +864,6 @@
         /// <param name="taskid"></param>
         /// <returns> 扩展字段枚举VTR_BUT_ErrorCode的整数形式 </returns>
         [HttpPost("vtruploadtask/commit/{taskid}")]
-        [Route("api/vtr/CommitVTRUploadTask")]
         public async Task<ResponseMessage<int>> CommitVTRUploadTask([FromRoute, BindRequired] int taskid)
         {
             ResponseMessage<int> response = new ResponseMessage<int>();
