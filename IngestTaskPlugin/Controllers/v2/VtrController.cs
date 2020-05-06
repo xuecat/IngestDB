@@ -76,7 +76,7 @@
                 else
                 {
                     response.Code = ResponseCodeDefines.ServiceError;
-                    response.Msg = "OldGetTaskMetaData error info：{e}";
+                    response.Msg = "OldGetTaskMetaData error info：" + e.Message;
                     Logger.Error(response.Msg);
                 }
             }
@@ -108,7 +108,7 @@
                 else
                 {
                     response.Code = ResponseCodeDefines.ServiceError;
-                    response.Msg = "OldGetTaskMetaData error info：{e}";
+                    response.Msg = "OldGetTaskMetaData error info：" + e.Message;
                     Logger.Error(response.Msg);
                 }
             }
@@ -141,7 +141,7 @@
                 else
                 {
                     response.Code = ResponseCodeDefines.ServiceError;
-                    response.Msg = $"{System.Reflection.MethodBase.GetCurrentMethod().DeclaringType.FullName}：error info:{e}";
+                    response.Msg = $"{System.Reflection.MethodBase.GetCurrentMethod().DeclaringType.FullName}：error info:{e.Message}";
                     Logger.Error(response.Msg);
                 }
             }
@@ -171,7 +171,7 @@
                 else
                 {
                     response.Code = ResponseCodeDefines.ServiceError;
-                    response.Msg = $"{System.Reflection.MethodBase.GetCurrentMethod().DeclaringType.FullName}：error info:{e}";
+                    response.Msg = $"{System.Reflection.MethodBase.GetCurrentMethod().DeclaringType.FullName}：error info:{e.Message}";
                     Logger.Error(response.Msg);
                 }
             }
@@ -206,7 +206,7 @@
                 else
                 {
                     response.Code = ResponseCodeDefines.ServiceError;
-                    response.Msg = $"{System.Reflection.MethodBase.GetCurrentMethod().DeclaringType.FullName}：error info:{e}";
+                    response.Msg = $"{System.Reflection.MethodBase.GetCurrentMethod().DeclaringType.FullName}：error info:{e.Message}";
                     Logger.Error(response.Msg);
                 }
             }
@@ -255,7 +255,7 @@
                 else
                 {
                     response.Code = ResponseCodeDefines.ServiceError;
-                    response.Msg = $"{System.Reflection.MethodBase.GetCurrentMethod().DeclaringType.FullName}：error info:{e}";
+                    response.Msg = $"{System.Reflection.MethodBase.GetCurrentMethod().DeclaringType.FullName}：error info:{e.Message}";
                     Logger.Error(response.Msg);
                 }
             }
@@ -305,7 +305,7 @@
                 else
                 {
                     response.Code = ResponseCodeDefines.ServiceError;
-                    response.Msg = $"{System.Reflection.MethodBase.GetCurrentMethod().DeclaringType.FullName}：error info:{e}";
+                    response.Msg = $"{System.Reflection.MethodBase.GetCurrentMethod().DeclaringType.FullName}：error info:{e.Message}";
                     Logger.Error(response.Msg);
                 }
             }
@@ -343,7 +343,7 @@
                 else
                 {
                     response.Code = ResponseCodeDefines.ServiceError;
-                    response.Msg = $"{System.Reflection.MethodBase.GetCurrentMethod().DeclaringType.FullName}：error info:{e}";
+                    response.Msg = $"{System.Reflection.MethodBase.GetCurrentMethod().DeclaringType.FullName}：error info:{e.Message}";
                     Logger.Error(response.Msg);
                 }
             }
@@ -387,7 +387,7 @@
                 else
                 {
                     response.Code = ResponseCodeDefines.ServiceError;
-                    response.Msg = $"{System.Reflection.MethodBase.GetCurrentMethod().DeclaringType.FullName}：error info:{e}";
+                    response.Msg = $"{System.Reflection.MethodBase.GetCurrentMethod().DeclaringType.FullName}：error info:{e.Message}";
                     Logger.Error(response.Msg);
                 }
             }
@@ -417,7 +417,7 @@
                 else
                 {
                     response.Code = ResponseCodeDefines.ServiceError;
-                    response.Msg = $"{System.Reflection.MethodBase.GetCurrentMethod().DeclaringType.FullName}：error info:{e}";
+                    response.Msg = $"{System.Reflection.MethodBase.GetCurrentMethod().DeclaringType.FullName}：error info:{e.Message}";
                     Logger.Error(response.Msg);
                 }
             }
@@ -453,7 +453,7 @@
                 else
                 {
                     response.Code = ResponseCodeDefines.ServiceError;
-                    response.Msg = $"{System.Reflection.MethodBase.GetCurrentMethod().DeclaringType.FullName}：error info:{e}";
+                    response.Msg = $"{System.Reflection.MethodBase.GetCurrentMethod().DeclaringType.FullName}：error info:{e.Message}";
                     Logger.Error(response.Msg);
                 }
             }
@@ -497,7 +497,7 @@
                 else
                 {
                     response.Code = ResponseCodeDefines.ServiceError;
-                    response.Msg = $"{System.Reflection.MethodBase.GetCurrentMethod().DeclaringType.FullName}：error info:{e}";
+                    response.Msg = $"{System.Reflection.MethodBase.GetCurrentMethod().DeclaringType.FullName}：error info:{e.Message}";
                     Logger.Error(response.Msg);
                 }
             }
@@ -526,7 +526,7 @@
                 else
                 {
                     response.Code = ResponseCodeDefines.ServiceError;
-                    response.Msg = $"{System.Reflection.MethodBase.GetCurrentMethod().DeclaringType.FullName}：error info:{e}";
+                    response.Msg = $"{System.Reflection.MethodBase.GetCurrentMethod().DeclaringType.FullName}：error info:{e.Message}";
                     Logger.Error(response.Msg);
                 }
             }
@@ -555,7 +555,7 @@
                 else
                 {
                     response.Code = ResponseCodeDefines.ServiceError;
-                    response.Msg = "OldGetTaskMetaData error info：{e}";
+                    response.Msg = "OldGetTaskMetaData error info：" + e.Message;
                     Logger.Error(response.Msg);
                 }
             }
@@ -591,7 +591,7 @@
                 else
                 {
                     response.Code = ResponseCodeDefines.ServiceError;
-                    response.Msg = $"{System.Reflection.MethodBase.GetCurrentMethod().DeclaringType.FullName}：error info:{e}";
+                    response.Msg = $"{System.Reflection.MethodBase.GetCurrentMethod().DeclaringType.FullName}：error info:{e.Message}";
                     Logger.Error(response.Msg);
                 }
             }
@@ -621,7 +621,7 @@
                 else
                 {
                     response.Code = ResponseCodeDefines.ServiceError;
-                    response.Msg = $"{System.Reflection.MethodBase.GetCurrentMethod().DeclaringType.FullName}：error info:{e}";
+                    response.Msg = $"{System.Reflection.MethodBase.GetCurrentMethod().DeclaringType.FullName}：error info:{e.Message}";
                     Logger.Error(response.Msg);
                 }
             }
@@ -677,7 +677,7 @@
                 else
                 {
                     response.Code = ResponseCodeDefines.ServiceError;
-                    response.Msg = $"{System.Reflection.MethodBase.GetCurrentMethod().DeclaringType.FullName}：error info:{e}";
+                    response.Msg = $"{System.Reflection.MethodBase.GetCurrentMethod().DeclaringType.FullName}：error info:{e.Message}";
                     Logger.Error(response.Msg);
                 }
             }
@@ -817,7 +817,7 @@
                 else
                 {
                     response.Code = ResponseCodeDefines.ServiceError;
-                    response.Msg = "error info：" + e.ToString();
+                    response.Msg = "error info：" + e.Message;
                     Logger.Error("GetUserInfoByCode : " + response.Msg);
                 }
             }
@@ -851,7 +851,7 @@
                 else
                 {
                     response.Code = ResponseCodeDefines.ServiceError;
-                    response.Msg = "error info：" + e.ToString();
+                    response.Msg = "error info：" + e.Message;
                     Logger.Error("GetUserInfoByCode : " + response.Msg);
                 }
             }
@@ -904,7 +904,7 @@
                 else
                 {
                     response.Code = ResponseCodeDefines.ServiceError;
-                    response.Msg = "error info：" + e.ToString();
+                    response.Msg = "error info：" + e.Message;
                     Logger.Error("GetUserInfoByCode : " + response.Msg);
                 }
             }
@@ -964,7 +964,7 @@
                 else
                 {
                     response.Code = ResponseCodeDefines.ServiceError;
-                    response.Msg = "error info：" + e.ToString();
+                    response.Msg = "error info：" + e.Message;
                     Logger.Error("GetUserInfoByCode : " + response.Msg);
                 }
             }
@@ -1013,11 +1013,60 @@
                 else
                 {
                     response.Code = ResponseCodeDefines.ServiceError;
-                    response.Msg = "error info：" + e.ToString();
+                    response.Msg = "error info：" + e.Message;
                     Logger.Error("GetUserInfoByCode : " + response.Msg);
                 }
             }
 
+            return response;
+        }
+
+        /// <summary>
+        /// 删除VTR上载任务信息
+        /// </summary>
+        /// <param name="vtrtaskid"></param>
+        /// <returns></returns>
+        [HttpDelete("vtruploadtask/delete/{vtrtaskid}")]
+        public async Task<ResponseMessage> DelVTRUploadTaskInfo(int vtrtaskid)
+        {
+            ResponseMessage response = new ResponseMessage();
+            if (vtrtaskid <= 0)
+            {
+                response.Msg = "VtrTaskID is Invaild ";
+                response.Code = ResponseCodeDefines.ArgumentNullError;
+                return response;
+            }
+            try
+            {
+                await _VtrManage.DeleteVtrUploadTaskAsync(vtrtaskid);
+                //GLOBALSERVICE.SetGlobalState2(ClientOperLabelName.VTR_UPLOAD_DeleteTask);
+                if (_globalInterface != null)
+                {
+                    GlobalInternals re = new GlobalInternals() { Funtype = IngestDBCore.GlobalInternals.FunctionType.SetGlobalState, State = ClientOperLabelName.VTR_UPLOAD_DeleteTask };
+                    var response1 = await _globalInterface.SubmitGlobalCallBack(re);
+                    if (response1.Code != ResponseCodeDefines.SuccessCode)
+                    {
+                        Logger.Error("SetGlobalState modtask error");
+                    }
+                }
+                //res.nCode = 1;
+                response.Code = ResponseCodeDefines.SuccessCode;
+            }
+            catch (Exception e)//其他未知的异常，写异常日志
+            {
+                if (e.GetType() == typeof(SobeyRecException))//sobeyexcep会自动打印错误
+                {
+                    SobeyRecException se = e as SobeyRecException;
+                    response.Code = se.ErrorCode.ToString();
+                    response.Msg = se.Message;
+                }
+                else
+                {
+                    response.Code = ResponseCodeDefines.ServiceError;
+                    response.Msg = "error info：" + e.Message;
+                    Logger.Error("GetUserInfoByCode : " + response.Msg);
+                }
+            }
             return response;
         }
 

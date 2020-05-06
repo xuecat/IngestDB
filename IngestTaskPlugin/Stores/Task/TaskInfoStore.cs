@@ -2648,7 +2648,7 @@ namespace IngestTaskPlugin.Stores
         public async Task UnLockAllTask()
         {
             var lst = await Context.DbpTask.Where(a => string.IsNullOrEmpty(a.Tasklock)).ToListAsync();
-            if (lst != null && lst.Count >0)
+            if (lst != null && lst.Count > 0)
             {
                 lst.ForEach(a => a.Tasklock = string.Empty);
             }
@@ -2715,7 +2715,7 @@ namespace IngestTaskPlugin.Stores
                 {
                     //update
                     Context.Attach(taskSource);
-                    Context.Entry(taskSource).Property(x=>x.Tasksource).IsModified = true;
+                    Context.Entry(taskSource).Property(x => x.Tasksource).IsModified = true;
                 }
                 await Context.SaveChangesAsync();
             }
@@ -2727,37 +2727,123 @@ namespace IngestTaskPlugin.Stores
             return true;
         }
 
+        public async Task<bool> UpdateTaskSource(DbpTaskSource taskSource, bool submitFlag)
+        {
+            try
+            {
 
-        public async Task<bool> AddTaskSourceList(List<DbpTaskSource> taskSources)
+                var dbpCapParam = await GetTaskSourceAsync(a => a.Where(x => x.Taskid == taskSource.Taskid), true);
+                if (dbpCapParam == null)
+                {
+                    //add
+                    Context.DbpTaskSource.Add(taskSource);
+                }
+                else
+                {
+                    //update
+                    Context.Attach(taskSource);
+                    Context.Entry(taskSource).Property(x => x.Tasksource).IsModified = true;
+                }
+
+                if (submitFlag)
+                {
+                    await Context.SaveChangesAsync();
+                }
+            }
+            catch (System.Exception ex)
+            {
+                Logger.Error("UpdateGlobalValueAsync : " + ex.ToString());
+                throw ex;
+            }
+            return true;
+        }
+
+
+        public async Task<bool> AddTaskSourceList(List<DbpTaskSource> taskSources, bool submitFlag)
         {
             if (taskSources != null && taskSources.Count > 0)
             {
                 await Context.DbpTaskSource.AddRangeAsync(taskSources);
+            }
+
+            if (submitFlag)
+            {
                 return await Context.SaveChangesAsync() > 0;
             }
-            return false;
+
+            return true;
         }
 
-        public async Task<bool> AddTaskList(List<DbpTask> tasks)
+        public async Task<bool> AddTaskList(List<DbpTask> tasks, bool submitFlag)
         {
             if (tasks != null && tasks.Count > 0)
             {
                 await Context.DbpTask.AddRangeAsync(tasks);
+            }
+
+            if (submitFlag)
+            {
                 return await Context.SaveChangesAsync() > 0;
             }
+            else
+            {
+                return true;
+            }
+
+        }
+
+        public async Task<bool> AddPolicyTask(List<DbpPolicytask> policytasks, bool submitFlag)
+        {
+            if (policytasks != null && policytasks.Count > 0)
+            {
+                await Context.DbpPolicytask.AddRangeAsync(policytasks);
+
+                if (submitFlag)
+                {
+                    return await Context.SaveChangesAsync() > 0;
+                }
+
+                return true;
+            }
+
             return false;
         }
 
-        public async Task UpdateVtrUploadTaskListAsync(List<VtrUploadtask> lst)
+        public async Task UpdateTaskListAsync(List<DbpTask> lst, bool submitFlag)
         {
-            Context.VtrUploadtask.UpdateRange(lst);
-            try
+            if (lst != null && lst.Count > 0)
             {
-                await Context.SaveChangesAsync();
+                Context.DbpTask.UpdateRange(lst);
+                if (submitFlag)
+                {
+                    try
+                    {
+                        await Context.SaveChangesAsync();
+                    }
+                    catch (DbUpdateException e)
+                    {
+                        throw e;
+                    }
+                }
             }
-            catch (DbUpdateException e)
+        }
+
+        public async Task UpdateVtrUploadTaskListAsync(List<VtrUploadtask> lst, bool submitFlag)
+        {
+            if (lst != null && lst.Count > 0)
             {
-                throw e;
+                Context.VtrUploadtask.UpdateRange(lst);
+                if (submitFlag)
+                {
+                    try
+                    {
+                        await Context.SaveChangesAsync();
+                    }
+                    catch (DbUpdateException e)
+                    {
+                        throw e;
+                    }
+                }
             }
         }
     }

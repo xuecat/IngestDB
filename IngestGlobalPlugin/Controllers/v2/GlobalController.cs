@@ -80,7 +80,7 @@ namespace IngestGlobalPlugin.Controllers.v2
                 else
                 {
                     Response.Code = ResponseCodeDefines.ServiceError;
-                    Response.Msg = "error info：" + e.ToString();
+                    Response.Msg = "error info：" + e.Message;
                     Logger.Error("PostLockObject : " + Response.Msg);
                 }
             }
@@ -135,7 +135,7 @@ namespace IngestGlobalPlugin.Controllers.v2
                 else
                 {
                     Response.Code = ResponseCodeDefines.ServiceError;
-                    Response.Msg = "error info：" + e.ToString();
+                    Response.Msg = "error info：" + e.Message;
                     Logger.Error(Response.Msg);
                 }
             }
@@ -180,7 +180,7 @@ namespace IngestGlobalPlugin.Controllers.v2
                 else
                 {
                     Response.Code = ResponseCodeDefines.ServiceError;
-                    Response.Msg = "error info：" + e.ToString();
+                    Response.Msg = "error info：" + e.Message;
                     Logger.Error("GetValueString : " + Response.Msg);
                 }
             }
@@ -221,7 +221,7 @@ namespace IngestGlobalPlugin.Controllers.v2
                 else
                 {
                     Response.Code = ResponseCodeDefines.ServiceError;
-                    Response.Msg = "error info：" + e.ToString();
+                    Response.Msg = "error info：" + e.Message;
                     Logger.Error("SetGlobalValue : " + Response.Msg);
                 }
             }
@@ -308,7 +308,7 @@ namespace IngestGlobalPlugin.Controllers.v2
                 else
                 {
                     Response.Code = ResponseCodeDefines.ServiceError;
-                    Response.Msg = "error info：" + e.ToString();
+                    Response.Msg = "error info：" + e.Message;
                     Logger.Error("GetDefaultSTCExt : " + Response.Msg);
                 }
             }
@@ -354,7 +354,7 @@ namespace IngestGlobalPlugin.Controllers.v2
                 else
                 {
                     Response.Code = ResponseCodeDefines.ServiceError;
-                    Response.Msg = "error info：" + e.ToString();
+                    Response.Msg = "error info：" + e.Message;
                     Logger.Error("SetGlobalState : " + Response.Msg);
                 }
             }
@@ -398,7 +398,7 @@ namespace IngestGlobalPlugin.Controllers.v2
                 else
                 {
                     Response.Code = ResponseCodeDefines.ServiceError;
-                    Response.Msg = "error info：" + e.ToString();
+                    Response.Msg = "error info：" + e.Message;
                     Logger.Error("GetAllGlobalState : " + Response.Msg);
                 }
             }

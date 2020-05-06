@@ -72,7 +72,7 @@ namespace IngestGlobalPlugin.Controllers.v2
                 else
                 {
                     Response.Code = ResponseCodeDefines.ServiceError;
-                    Response.Msg = "error info：" + e.ToString();
+                    Response.Msg = "error info：" + e.Message;
                     Logger.Error("Post_SetUserSetting : " + Response.Msg);
                 }
             }
@@ -110,7 +110,7 @@ namespace IngestGlobalPlugin.Controllers.v2
                 else
                 {
                     Response.Code = ResponseCodeDefines.ServiceError;
-                    Response.Msg = "error info：" + e.ToString();
+                    Response.Msg = "error info：" + e.Message;
                     Logger.Error("GetUserSetting : " + Response.Msg);
                 }
             }
@@ -160,7 +160,7 @@ namespace IngestGlobalPlugin.Controllers.v2
                 else
                 {
                     Response.Code = ResponseCodeDefines.ServiceError;
-                    Response.Msg = "error info：" + e.ToString();
+                    Response.Msg = "error info：" + e.Message;
                     Logger.Error("GetParamTemplateByID : " + Response.Msg);
                 }
             }
@@ -205,7 +205,7 @@ namespace IngestGlobalPlugin.Controllers.v2
                 else
                 {
                     Response.Code = ResponseCodeDefines.ServiceError;
-                    Response.Msg = "error info：" + e.ToString();
+                    Response.Msg = "error info：" + e.Message;
                     Logger.Error("GetParamTemplateStringByID : " + Response.Msg);
                 }
             }
@@ -248,7 +248,7 @@ namespace IngestGlobalPlugin.Controllers.v2
                 else
                 {
                     Response.Code = ResponseCodeDefines.ServiceError;
-                    Response.Msg = "error info：" + e.ToString();
+                    Response.Msg = "error info：" + e.Message;
                     Logger.Error("UpdateParamTemplate : " + Response.Msg);
                 }
             }
@@ -307,7 +307,7 @@ namespace IngestGlobalPlugin.Controllers.v2
                 else
                 {
                     Response.Code = ResponseCodeDefines.ServiceError;
-                    Response.Msg = "error info：" + e.ToString();
+                    Response.Msg = "error info：" + e.Message;
                     Logger.Error("AddUserTemplate : " + Response.Msg);
                 }
             }
@@ -351,7 +351,7 @@ namespace IngestGlobalPlugin.Controllers.v2
                 else
                 {
                     Response.Code = ResponseCodeDefines.ServiceError;
-                    Response.Msg = "error info：" + e.ToString();
+                    Response.Msg = "error info：" + e.Message;
                     Logger.Error("ModifyUserTempalte : " + Response.Msg);
                 }
             }
@@ -393,7 +393,7 @@ namespace IngestGlobalPlugin.Controllers.v2
                 else
                 {
                     Response.Code = ResponseCodeDefines.ServiceError;
-                    Response.Msg = "error info：" + e.ToString();
+                    Response.Msg = "error info：" + e.Message;
                     Logger.Error("GetUserAllTemplatesByUserCode : " + Response.Msg);
                 }
             }
@@ -435,7 +435,7 @@ namespace IngestGlobalPlugin.Controllers.v2
                 else
                 {
                     Response.Code = ResponseCodeDefines.ServiceError;
-                    Response.Msg = "error info：" + e.ToString();
+                    Response.Msg = "error info：" + e.Message;
                     Logger.Error("DeleteUserTemplateByID : " + Response.Msg);
                 }
             }
@@ -478,7 +478,7 @@ namespace IngestGlobalPlugin.Controllers.v2
                 else
                 {
                     Response.Code = ResponseCodeDefines.ServiceError;
-                    Response.Msg = "error info：" + e.ToString();
+                    Response.Msg = "error info：" + e.Message;
                     Logger.Error("DeleteUserParamTemplateByUserCode : " + Response.Msg);
                 }
             }
@@ -519,7 +519,7 @@ namespace IngestGlobalPlugin.Controllers.v2
                 else
                 {
                     Response.Code = ResponseCodeDefines.ServiceError;
-                    Response.Msg = "error info：" + e.ToString();
+                    Response.Msg = "error info：" + e.Message;
                     Logger.Error("GetUserInfoByCode : " + Response.Msg);
                 }
             }
@@ -568,7 +568,7 @@ namespace IngestGlobalPlugin.Controllers.v2
                 else
                 {
                     Response.Code = ResponseCodeDefines.ServiceError;
-                    Response.Msg = "error info：" + e.ToString();
+                    Response.Msg = "error info：" + e.Message;
                     Logger.Error("GetUserHighOrStandardParam : " + Response.Msg);
                 }
             }

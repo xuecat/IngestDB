@@ -17,7 +17,7 @@ namespace IngestGlobalPlugin.Stores
         #region global
         Task<TResult> GetGlobalAsync<TResult>(Func<IQueryable<DbpGlobal>, IQueryable<TResult>> query, bool notrack = false);
         //Task<string> GetGlobalValueStringAsync(string strKey);
-        Task UpdateGlobalValueAsync(string strKey, string strValue);
+        Task<bool> UpdateGlobalValueAsync(string strKey, string strValue);
         #endregion
 
         #region globalstate interface

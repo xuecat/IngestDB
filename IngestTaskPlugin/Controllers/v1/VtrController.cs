@@ -71,7 +71,7 @@
                 }
                 else
                 {
-                    response.message = $"{System.Reflection.MethodBase.GetCurrentMethod().DeclaringType.FullName}：error info:{e}";
+                    response.message = $"{System.Reflection.MethodBase.GetCurrentMethod().DeclaringType.FullName}：error info:{e.Message}";
                     Logger.Error(response.message);
                 }
             }
@@ -101,7 +101,7 @@
                 }
                 else
                 {
-                    response.message = $"{System.Reflection.MethodBase.GetCurrentMethod().DeclaringType.FullName}：error info:{e}";
+                    response.message = $"{System.Reflection.MethodBase.GetCurrentMethod().DeclaringType.FullName}：error info:{e.Message}";
                     Logger.Error(response.message);
                 }
             }
@@ -133,7 +133,7 @@
                 }
                 else
                 {
-                    response.message = $"{System.Reflection.MethodBase.GetCurrentMethod().DeclaringType.FullName}：error info:{e}";
+                    response.message = $"{System.Reflection.MethodBase.GetCurrentMethod().DeclaringType.FullName}：error info:{e.Message}";
                     Logger.Error(response.message);
                 }
             }
@@ -162,7 +162,7 @@
                 }
                 else
                 {
-                    response.message = $"{System.Reflection.MethodBase.GetCurrentMethod().DeclaringType.FullName}：error info:{e}";
+                    response.message = $"{System.Reflection.MethodBase.GetCurrentMethod().DeclaringType.FullName}：error info:{e.Message}";
                     Logger.Error(response.message);
                 }
             }
@@ -196,7 +196,7 @@
                 }
                 else
                 {
-                    response.message = $"{System.Reflection.MethodBase.GetCurrentMethod().DeclaringType.FullName}：error info:{e}";
+                    response.message = $"{System.Reflection.MethodBase.GetCurrentMethod().DeclaringType.FullName}：error info:{e.Message}";
                     Logger.Error(response.message);
                 }
             }
@@ -235,13 +235,14 @@
             catch (Exception e)//其他未知的异常，写异常日志
             {
                 response.nCode = 0;
+                response.extention = -1;
                 if (e is SobeyRecException se)//sobeyexcep会自动打印错误
                 {
                     response.message = se.ErrorCode.ToString();
                 }
                 else
                 {
-                    response.message = $"{System.Reflection.MethodBase.GetCurrentMethod().DeclaringType.FullName}：error info:{e}";
+                    response.message = $"{System.Reflection.MethodBase.GetCurrentMethod().DeclaringType.FullName}：error info:{e.Message}";
                     Logger.Error(response.message);
                 }
             }
@@ -286,7 +287,7 @@
                 }
                 else
                 {
-                    response.message = $"{System.Reflection.MethodBase.GetCurrentMethod().DeclaringType.FullName}：error info:{e}";
+                    response.message = $"{System.Reflection.MethodBase.GetCurrentMethod().DeclaringType.FullName}：error info:{e.Message}";
                     Logger.Error(response.message);
                 }
             }
@@ -321,7 +322,7 @@
                 }
                 else
                 {
-                    response.message = $"{System.Reflection.MethodBase.GetCurrentMethod().DeclaringType.FullName}：error info:{e}";
+                    response.message = $"{System.Reflection.MethodBase.GetCurrentMethod().DeclaringType.FullName}：error info:{e.Message}";
                     Logger.Error(response.message);
                 }
             }
@@ -365,7 +366,7 @@
                 }
                 else
                 {
-                    response.message = $"{System.Reflection.MethodBase.GetCurrentMethod().DeclaringType.FullName}：error info:{e}";
+                    response.message = $"{System.Reflection.MethodBase.GetCurrentMethod().DeclaringType.FullName}：error info:{e.Message}";
                     Logger.Error(response.message);
                 }
             }
@@ -394,7 +395,7 @@
                 }
                 else
                 {
-                    response.message = $"{System.Reflection.MethodBase.GetCurrentMethod().DeclaringType.FullName}：error info:{e}";
+                    response.message = $"{System.Reflection.MethodBase.GetCurrentMethod().DeclaringType.FullName}：error info:{e.Message}";
                     Logger.Error(response.message);
                 }
             }
@@ -429,7 +430,7 @@
                 }
                 else
                 {
-                    response.message = $"{System.Reflection.MethodBase.GetCurrentMethod().DeclaringType.FullName}：error info:{e}";
+                    response.message = $"{System.Reflection.MethodBase.GetCurrentMethod().DeclaringType.FullName}：error info:{e.Message}";
                     Logger.Error(response.message);
                 }
             }
@@ -471,7 +472,7 @@
                 }
                 else
                 {
-                    response.message = $"{System.Reflection.MethodBase.GetCurrentMethod().DeclaringType.FullName}：error info:{e}";
+                    response.message = $"{System.Reflection.MethodBase.GetCurrentMethod().DeclaringType.FullName}：error info:{e.Message}";
                     Logger.Error(response.message);
                 }
             }
@@ -499,7 +500,7 @@
                 }
                 else
                 {
-                    response.message = $"{System.Reflection.MethodBase.GetCurrentMethod().DeclaringType.FullName}：error info:{e}";
+                    response.message = $"{System.Reflection.MethodBase.GetCurrentMethod().DeclaringType.FullName}：error info:{e.Message}";
                     Logger.Error(response.message);
                 }
             }
@@ -527,7 +528,7 @@
                 }
                 else
                 {
-                    response.message = $"{System.Reflection.MethodBase.GetCurrentMethod().DeclaringType.FullName}：error info:{e}";
+                    response.message = $"{System.Reflection.MethodBase.GetCurrentMethod().DeclaringType.FullName}：error info:{e.Message}";
                     Logger.Error(response.message);
                 }
             }
@@ -568,7 +569,7 @@
                 }
                 else
                 {
-                    response.message = $"{System.Reflection.MethodBase.GetCurrentMethod().DeclaringType.FullName}：error info:{e}";
+                    response.message = $"{System.Reflection.MethodBase.GetCurrentMethod().DeclaringType.FullName}：error info:{e.Message}";
                     Logger.Error(response.message);
                 }
             }
@@ -597,7 +598,7 @@
                 }
                 else
                 {
-                    response.message = $"{System.Reflection.MethodBase.GetCurrentMethod().DeclaringType.FullName}：error info:{e}";
+                    response.message = $"{System.Reflection.MethodBase.GetCurrentMethod().DeclaringType.FullName}：error info:{e.Message}";
                     Logger.Error(response.message);
                 }
             }
@@ -644,7 +645,7 @@
                 }
                 else
                 {
-                    response.message = $"{System.Reflection.MethodBase.GetCurrentMethod().DeclaringType.FullName}：error info:{e}";
+                    response.message = $"{System.Reflection.MethodBase.GetCurrentMethod().DeclaringType.FullName}：error info:{e.Message}";
                     Logger.Error(response.message);
                 }
             }
@@ -753,8 +754,7 @@
         /// </summary>
         /// <param name="nTaskID"></param>
         /// <returns>extention 为 VTRUploadTaskInfo</returns>
-        [HttpGet]
-        [Route("GetUploadTaskInfoByID")]
+        [HttpGet("GetUploadTaskInfoByID")]
         public async Task<TaskOldResponseMessage<VTRUploadTaskInfo>> GetUploadTaskInfoByID([FromQuery] int nTaskID)
         {
             TaskOldResponseMessage<VTRUploadTaskInfo> res = new TaskOldResponseMessage<VTRUploadTaskInfo>();
@@ -779,8 +779,7 @@
         /// </summary>
         /// <param name="taskId"></param>
         /// <returns> 扩展字段枚举VTR_BUT_ErrorCode的整数形式 </returns>
-        [HttpGet]
-        [Route("CommitVTRUploadTask")]
+        [HttpGet("CommitVTRUploadTask")]
         public async Task<TaskOldResponseMessage<int>> CommitVTRUploadTask([FromQuery] int taskId)
         {
             TaskOldResponseMessage<int> res = new TaskOldResponseMessage<int>();
@@ -831,8 +830,7 @@
         /// </summary>
         /// <param name="param"></param>
         /// <returns>extention为整数，对应枚举 VTR_BUT_ErrorCode </returns>
-        [HttpPost]
-        [Route("api/vtr/CommitVTRBatchUploadTasks")]
+        [HttpPost("api/vtr/CommitVTRBatchUploadTasks")]
         public async Task<TaskOldResponseMessage<int>> CommitVTRBatchUploadTasks([FromBody] CommitParam param)
         {
             TaskOldResponseMessage<int> res = new TaskOldResponseMessage<int>();
@@ -898,6 +896,7 @@
             {
                 res.message = no_err;
                 //VTRACCESS.DelVTRUploadTaskInfo((int)lVtrTaskID);
+                await _VtrManage.DeleteVtrUploadTaskAsync(lVtrTaskID);
 
                 //GLOBALSERVICE.SetGlobalState2(ClientOperLabelName.VTR_UPLOAD_DeleteTask);
                 if (_globalInterface != null)
@@ -1053,5 +1052,7 @@
             }
             return response;
         }
+
+        
     }
 }

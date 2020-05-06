@@ -81,10 +81,12 @@ namespace IngestTaskPlugin.Stores
 
         Task<bool> AddPolicyTask(List<DbpPolicytask> policytasks);
 
-        Task<bool> UpdateTaskSource(DbpTaskSource taskSource);
+        Task<bool> UpdateTaskSource(DbpTaskSource taskSource, bool submitFlag);
 
-        Task<bool> AddTaskSourceList(List<DbpTaskSource> taskSources);
-        Task<bool> AddTaskList(List<DbpTask> tasks);
-        Task UpdateVtrUploadTaskListAsync(List<VtrUploadtask> lst);
+        Task<bool> AddTaskSourceList(List<DbpTaskSource> taskSources, bool submitFlag);
+        Task<bool> AddTaskList(List<DbpTask> tasks, bool submitFlag);
+        Task<bool> AddPolicyTask(List<DbpPolicytask> policytasks, bool submitFlag);
+        Task UpdateTaskListAsync(List<DbpTask> lst, bool submitFlag);
+        Task UpdateVtrUploadTaskListAsync(List<VtrUploadtask> lst, bool submitFlag);
     }
 }
