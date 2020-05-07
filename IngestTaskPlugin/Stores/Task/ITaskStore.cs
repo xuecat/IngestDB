@@ -72,6 +72,7 @@ namespace IngestTaskPlugin.Stores
         Task UnLockAllTask();
         Task LockTask(int taskid);
         Task UnLockTask(int taskid);
+        Task UnLockTask(DbpTask taskid, bool savechange);
         DbpTask DeepClone(DbpTask obj);
         bool GetPerodicTaskNextExectueTime(DateTime tmBegin, DateTime tmEnd, string strPerodicDesc, ref DateTime tmExecuteBegin, ref DateTime tmExecuteEnd);
         List<DateTime> GetDateTimeFromString(string str);

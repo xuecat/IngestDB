@@ -37,14 +37,13 @@ namespace IngestDBCore
 			//ªÒ»°¥ÌŒÛ∂—’ª
 			errorstack = BuildErrorStack(inner);
 
-			newmsg.Append("SobeyRecException Summary \n")
+			newmsg.Append("SobeyRecException Summary")
 				//.Append("---------------------------\n")
 				//.Append(DateTime.Now.ToShortDateString())
 				//.Append(":")
 			    //.Append(DateTime.Now.ToShortTimeString())
 				.Append(" - ")
 				.Append(msg)
-				.Append("\n\n")
 				.Append(errorstack);
 
 			return newmsg.ToString();
@@ -64,12 +63,12 @@ namespace IngestDBCore
 
 				while(inner != null)
 				{
-					stack_builder.Append(num).Append(") ").Append(inner.Message).Append("\n");
+					stack_builder.Append(num).Append(") ").Append(inner.Message);
 					inner = inner.InnerException;
 					num++;
 				}
 
-				stack_builder.Append("Call Stack\n");
+				stack_builder.Append("Call Stack ");
 				stack_builder.Append(chain.StackTrace);
 				error_stack = stack_builder.ToString();
 			}

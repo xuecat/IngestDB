@@ -702,7 +702,7 @@ namespace IngestTaskPlugin.Stores
 
             if (taskinfo.State == (int)taskState.tsComplete)
             {
-                await UnLockTask(taskid);
+                await UnLockTask(taskinfo, true);
                 SobeyRecException.ThrowSelfNoParam(taskid.ToString(), GlobalDictionary.GLOBALDICT_CODE_CAN_NOT_DELETE_THE_COMPLETE_TASK,
                     Logger, null);
                 return 0;
@@ -2631,6 +2631,27 @@ namespace IngestTaskPlugin.Stores
 
         }
 
+        public async Task UnLockTask(int taskid)
+        {
+
+            var item = await Context.DbpTask.Where(x => x.Taskid == taskid).SingleOrDefaultAsync();
+
+            if (item != null)
+            {
+                item.Tasklock = string.Empty;
+                await Context.SaveChangesAsync();
+            }
+        }
+
+        public async Task UnLockTask(DbpTask taskid, bool savechange)
+        {
+            taskid.Tasklock = string.Empty;
+            if (savechange)
+            {
+                await Context.SaveChangesAsync();
+            }
+        }
+
         public async Task LockTask(int taskid)
         {
             
@@ -2663,17 +2684,7 @@ namespace IngestTaskPlugin.Stores
             }
         }
 
-        public async Task UnLockTask(int taskid)
-        {
-          
-            var item = await Context.DbpTask.Where(x => x.Taskid == taskid).SingleOrDefaultAsync();
-
-            if (item != null)
-            {
-                item.Tasklock = string.Empty;
-                await Context.SaveChangesAsync();
-            }
-        }
+        
         public int GetNextValId(string value)
         {
             return Context.DbpTask.Select(x => IngestTaskDBContext.next_val(value)).FirstOrDefault();
