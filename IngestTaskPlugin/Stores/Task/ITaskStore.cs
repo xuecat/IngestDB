@@ -89,5 +89,7 @@ namespace IngestTaskPlugin.Stores
         Task<bool> AddPolicyTask(List<DbpPolicytask> policytasks, bool submitFlag);
         Task UpdateTaskListAsync(List<DbpTask> lst, bool submitFlag);
         Task UpdateVtrUploadTaskListAsync(List<VtrUploadtask> lst, bool submitFlag);
+        Task UpdateTaskMetaDataAsync(int taskid, MetaDataType type, string metadata, bool submitFlag);
+        Task UpdateTaskMetaDataListAsync(List<Dto.Request.SubmitMetadata> metadatas);
     }
 }

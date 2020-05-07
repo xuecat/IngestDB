@@ -76,4 +76,11 @@ namespace IngestTaskPlugin.Dto.Request
         public bool ignorewrong { get; set; }
     }
  
+    public class SubmitMetadata
+    {
+        public int taskId { get; set; }
+        public MetaDataType type { get; set; }
+        public string metadata { get; set; }
+    }
+
 }
