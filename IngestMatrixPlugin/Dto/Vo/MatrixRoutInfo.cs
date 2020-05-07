@@ -8,11 +8,11 @@ namespace IngestMatrixPlugin.Dto.Vo
 {
 	public class MatrixRoutInfo
 	{
-		public long lMatrixID;
-		public long lInPort;
-		public long lOutPort;
-		public long lVirtualOutPort;
-		public long lVirtualInPort;
-		public long lState;
-	}
+		public long lMatrixID { get; set; }
+		public long lInPort { get; set; }
+        public long lOutPort { get; set; }
+        public long lVirtualOutPort { get; set; }
+        public long lVirtualInPort { get; set; }
+        public long lState { get; set; }
+    }
 }

@@ -42,7 +42,7 @@ namespace IngestMatrixPlugin.Stores
         /// <summary>删除矩阵路由</summary>
         Task<int> DeleteMatrixrout(Func<IQueryable<DbpMatrixrout>, IQueryable<DbpMatrixrout>> query);
         /// <summary>添加或更新矩阵路由</summary>
-        Task<int> AddOrUpdateMatrixrout(IEnumerable<DbpMatrixrout> saveList);
+        Task<int> AddOrUpdateMatrixrout(IEnumerable<DbpMatrixrout> saveList, bool savechange);
         /// <summary>添加矩阵路由</summary>
         Task<int> UpdateRangeMatrixrout(List<DbpMatrixrout> dbps, bool savechange);
         /// <summary>添加矩阵路由</summary>
@@ -89,6 +89,6 @@ namespace IngestMatrixPlugin.Stores
         #endregion
 
         /// <summary>更新端口信息 ture:1, false:0</summary>
-        Task<bool> UpdatePortInfo(long lInPort, long lOutPort, int bState);
+        Task<bool> UpdatePortInfo(long lInPort, long lOutPort, int bState, bool savechange);
     }
 }

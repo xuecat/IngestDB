@@ -106,6 +106,8 @@ namespace IngestMatrixPlugin.Managers
                     }
                     return false;
                 }
+                //matrixinfo.Comportbaud pbaud  pserialport comport
+
                 // 根据矩阵类型ID获得矩阵类型名称
                 Logger.Info("Get the matrix name from matrix type id!! ");
                 var strMatrixTypeName = await Store.QueryMatrixtypeinfo(a => a.Where(x => x.Matrixtypeid == matrixinfo.Matrixtypeid)
@@ -133,10 +135,7 @@ namespace IngestMatrixPlugin.Managers
                 Logger.Info(JsonConvert.SerializeObject(param));
 
                 MatrixOldResponseMessage msg = await MatrixSwitch(param);
-
-                Logger.Info($"matrix service return is :{msg.nCode}");
-                Logger.Info($"matrix service return is :{msg.message}");
-                if (msg.nCode == 0)
+                if (msg == null|| msg.nCode == 0)
                 {
                     Logger.Error("切换矩阵失败，直接return");
                     if (!await RecoverReleasedRoutAndPort(releasedVirtualPortList, releasedRoutList))//切换失败时，要恢复原来的链接状态
@@ -145,12 +144,15 @@ namespace IngestMatrixPlugin.Managers
                     }
                     return false;//切换失败，直接返回
                 }
+
+                Logger.Info($"matrix service return is :{msg.nCode}");
+                Logger.Info($"matrix service return is :{msg.message}");
             }
             //离开循环之后，已完成矩阵切换，开始更新路由表
             Logger.Info("switching successfully,so updating relative database...");
             Logger.Info("begin to update rout infomation...");
 
-            if (await Store.AddOrUpdateMatrixrout(_mapper.Map<List<Models.DB.DbpMatrixrout>>(routList)) <= 0)
+            if (await Store.AddOrUpdateMatrixrout(_mapper.Map<List<Models.DB.DbpMatrixrout>>(routList), false) <= 0)
             {
                 Logger.Error("In module MatrixService!call CIVirtualMatrix::SwitchInOut(),update rout information failed");
                 if (!await RecoverReleasedRoutAndPort(releasedVirtualPortList, releasedRoutList))
@@ -161,7 +163,7 @@ namespace IngestMatrixPlugin.Managers
             }
 
             // 更新连接状态表
-            if (await Store.UpdatePortInfo(inPort, outPort, 1))
+            if (await Store.UpdatePortInfo(inPort, outPort, 1, true))
             {
                 Logger.Info("in module MatrixService!call CIVirtualMatrix::SwitchInOut(),update Port state information successfully");
                 return true;
@@ -194,7 +196,7 @@ namespace IngestMatrixPlugin.Managers
             //await Store.DeleteMatrixrout(a => a.Where(x => !(x.Virtualinport == inPort && x.Virtualoutport == outPort)));
 
             // 更新连接状态表
-            await Store.UpdatePortInfo((int)inPort, (int)outPort, 0);
+            await Store.UpdatePortInfo((int)inPort, (int)outPort, 0, true);
             return true;
         }
 
@@ -289,27 +291,28 @@ namespace IngestMatrixPlugin.Managers
         async Task<List<MatrixRoutInfo>> TryRout(long virtualInPort, long matrixID, long realOutPort, long virtualOutPort)
         {
             List<MatrixRoutInfo> routList = new List<MatrixRoutInfo>();
-            List<LevelInfo> levelList = _mapper.Map<List<LevelInfo>>(await Store.QueryLevelrelation(a => a.Where(x => x.Matrixid == matrixID), true));
+            var levelList = await Store.QueryLevelrelation(a => a.Where(x => x.Matrixid == matrixID), true);
+
             if (levelList == null || levelList.Count == 0)
                 Logger.Error("in TryCount：length is 0！");
 
-            foreach (LevelInfo info in levelList)
+            foreach (var info in levelList)
             {
                 //构造路由信息
                 MatrixRoutInfo RoutInfo = new MatrixRoutInfo()
                 {
                     lMatrixID = matrixID,
-                    lInPort = info.lRealInPort,
+                    lInPort = info.Inport,
                     lOutPort = realOutPort,
                     lVirtualOutPort = virtualOutPort,
                     lVirtualInPort = virtualInPort,
                     lState = 1
                 };
 
-                if (info.lParentMatrixID == -1)  //如果没有父矩阵
+                if (info.Parentmatrixid == -1)  //如果没有父矩阵
                 {
                     //查找输入端口映射表,得到输入端口对应的虚拟输入端口
-                    var matrixinport = await Store.QueryMapinport(a => a.SingleOrDefaultAsync(x => x.Matrixid == matrixID && x.Inport == info.lRealInPort), true);
+                    var matrixinport = await Store.QueryMapinport(a => a.SingleOrDefaultAsync(x => x.Matrixid == matrixID && x.Inport == info.Inport), true);
                     if (matrixinport != null)
                     {
                         return routList;
@@ -323,15 +326,23 @@ namespace IngestMatrixPlugin.Managers
                 else//如果有父矩阵
                 {
                     // 检查当前输入端口是否有信号通过
-                    var matrixrout = await Store.QueryMatrixrout(a => a.SingleOrDefaultAsync(x => x.Matrixid == matrixID && x.Inport == info.lRealInPort), true);
+                    var matrixrout = await Store.QueryMatrixrout(a => a.SingleOrDefaultAsync(x => x.Matrixid == matrixID && x.Inport == info.Inport), true);
+
+
                     if (matrixrout == null || virtualInPort == matrixrout.Virtualinport)//如果无信号通过 ,或者 与当前任务的信号相同
                     {
-                        var childrenList = await TryRout(virtualInPort, info.lParentMatrixID, info.lRealParentOutPort, virtualOutPort);
+                        routList.Add(RoutInfo);
+
+                        var childrenList = await TryRout(virtualInPort, info.Parentmatrixid, info.Parentoutport, virtualOutPort);
                         if (childrenList != null && childrenList.Count > 0)
                         {
-                            routList.Add(RoutInfo);
                             routList.AddRange(childrenList);
                             return routList;
+                        }
+                        else
+                        {
+                            routList.RemoveAt(routList.Count -1);
+                            continue;
                         }
                     }
                 }
@@ -345,7 +356,7 @@ namespace IngestMatrixPlugin.Managers
         /// <returns>标准调用提示信息</returns>
         public async Task<MatrixOldResponseMessage> MatrixSwitch(MatrixParam param)
         {
-            string uri = $"{ApplicationContext.Current.CMServerUrl}/api/G2MatrixWebCtrl/MatrixSwitch";
+            string uri = $"{ApplicationContext.Current.IngestMatrixUrl}/api/G2MatrixWebCtrl/MatrixSwitch";
             Logger.Info("matrix service url is:" + uri);
 
             return await _restClient.Post<MatrixOldResponseMessage>(uri, param);

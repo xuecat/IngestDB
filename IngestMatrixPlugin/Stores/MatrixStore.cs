@@ -117,22 +117,42 @@ namespace IngestMatrixPlugin.Stores
             Context.DbpMatrixrout.RemoveRange(deleteList);
             return await Context.SaveChangesAsync();
         }
-        public async Task<int> AddOrUpdateMatrixrout(IEnumerable<DbpMatrixrout> saveList)
+        public async Task<int> AddOrUpdateMatrixrout(IEnumerable<DbpMatrixrout> saveList, bool savechange)
         {
-            List<DbpMatrixrout> addList = new List<DbpMatrixrout>();
             foreach (var matrixRout in saveList)
             {
-                var matrix = await Context.DbpMatrixrout.FirstOrDefaultAsync(a => a.Matrixid == matrixRout.Matrixid && a.Virtualoutport == matrixRout.Virtualoutport);
+                var matrix = await Context.DbpMatrixrout.SingleOrDefaultAsync(a => a.Matrixid == matrixRout.Matrixid && a.Virtualoutport == matrixRout.Virtualoutport);
                 if (matrix != null)
-                    matrix = matrixRout;
+                {
+                    //matrix = matrixRout;
+
+                    matrix.Inport = matrixRout.Inport;
+                    matrix.Matrixid = matrixRout.Matrixid;
+                    matrix.Outport = matrixRout.Outport;
+                    matrix.State = matrixRout.State;
+                    matrix.Virtualinport = matrixRout.Virtualinport;
+                    matrix.Virtualoutport = matrixRout.Virtualoutport;
+                    matrix.Begintime = matrixRout.Begintime;
+                    matrix.Endtime = matrixRout.Endtime;
+                }
                 else
-                    addList.Add(matrixRout);
+                    Context.DbpMatrixrout.Add(matrixRout);
             }
-            if (addList.Count > 0)
+
+            if (savechange)
             {
-                await Context.DbpMatrixrout.AddRangeAsync(addList);
+                try
+                {
+                    return await Context.SaveChangesAsync();
+                }
+                catch (Exception e)
+                {
+
+                    throw e;
+                }
+               
             }
-            return await Context.SaveChangesAsync();
+            return 1;
         }
         public async Task<int> UpdateRangeMatrixrout(List<DbpMatrixrout> dbps, bool savechange)
         {
@@ -156,10 +176,19 @@ namespace IngestMatrixPlugin.Stores
                 }
             }
 
-            if (savechange)
+            try
             {
-                return await Context.SaveChangesAsync();
+                if (savechange)
+                {
+                    return await Context.SaveChangesAsync();
+                }
             }
+            catch (Exception e)
+            {
+
+                throw e;
+            }
+
             return dbps.Count;
         }
         public async Task<int> AddMatrixrout(DbpMatrixrout dbps)
@@ -254,7 +283,7 @@ namespace IngestMatrixPlugin.Stores
         }
         #endregion
 
-        public async Task<bool> UpdatePortInfo(long lInPort, long lOutPort, int bState)
+        public async Task<bool> UpdatePortInfo(long lInPort, long lOutPort, int bState, bool savechange)
         {
             var matrixId = await Context.DbpMatrixinfo.AsNoTracking().Where(a => a.Matrixtypeid == 1).Select(a => a.Matrixid).SingleAsync();
             var hasData = await Context.DbpVirtualmatrixportstate.Where(a => a.Virtualinport == lInPort && a.Virtualoutport == lOutPort).SingleOrDefaultAsync();
@@ -277,15 +306,19 @@ namespace IngestMatrixPlugin.Stores
                 });
             }
 
-            try
+            if (savechange)
             {
-                await Context.SaveChangesAsync();
+                try
+                {
+                    await Context.SaveChangesAsync();
+                }
+                catch (Exception e)
+                {
+
+                    throw e;
+                }
             }
-            catch (Exception e)
-            {
-                 
-                throw e;
-            }
+           
             return true;
         }
 
