@@ -44,7 +44,7 @@ namespace IngestMatrixPlugin.Stores
         /// <summary>添加或更新矩阵路由</summary>
         Task<int> AddOrUpdateMatrixrout(IEnumerable<DbpMatrixrout> saveList);
         /// <summary>添加矩阵路由</summary>
-        Task<int> AddRangeMatrixrout(List<DbpMatrixrout> dbps);
+        Task<int> UpdateRangeMatrixrout(List<DbpMatrixrout> dbps, bool savechange);
         /// <summary>添加矩阵路由</summary>
         Task<int> AddMatrixrout(DbpMatrixrout dbps);
         #endregion
@@ -85,7 +85,7 @@ namespace IngestMatrixPlugin.Stores
         /// <summary>添加矩阵rout</summary>
         Task<int> AddRangeVirtualmatrixportstate(List<DbpVirtualmatrixportstate> dbps);
         /// <summary>添加矩阵rout</summary>
-        Task<int> AddVirtualmatrixportstate(DbpVirtualmatrixportstate dbps);
+        Task<int> UpdateVirtualmatrixportstate(DbpVirtualmatrixportstate dbps , bool savechange);
         #endregion
 
         /// <summary>更新端口信息 ture:1, false:0</summary>

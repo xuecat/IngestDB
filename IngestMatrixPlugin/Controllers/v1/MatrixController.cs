@@ -33,7 +33,7 @@ namespace IngestMatrixPlugin.Controllers.v1
         /// <returns></returns>
         [HttpGet("SwitchInOut"), MapToApiVersion("1.0")]
         [ApiExplorerSettings(GroupName = "v1")]
-        public IngestMatrixPlugin.Dto.Response.v1.MatrixOldResponseMessage SwitchInOut([FromQuery]int lInPort,
+        public async Task<IngestMatrixPlugin.Dto.Response.v1.MatrixOldResponseMessage> SwitchInOut([FromQuery]int lInPort,
                                                                                        [FromQuery]int lOutPort,
                                                                                        [FromQuery]int lTimeOut)
         {
@@ -44,12 +44,8 @@ namespace IngestMatrixPlugin.Controllers.v1
                 {
                     throw new Exception("Switch failed！ param is invailed");
                 }
-                IngestMatrixPlugin.Controllers.v2.MatrixController.m_MatrixMt.WaitOne();
-                lock (IngestMatrixPlugin.Controllers.v2.MatrixController.lockObj)  //保证只有一个切换在进行
-                {
-                    response.nCode = _matrixManage.SwitchInOutAsync(lInPort, lOutPort).Result ? 1 : 0;
-                }
-                IngestMatrixPlugin.Controllers.v2.MatrixController.m_MatrixMt.ReleaseMutex();
+                
+                response.nCode = await _matrixManage.SwitchInOutAsync(lInPort, lOutPort) ? 1 : 0;
             }
             catch (Exception e)
             {
@@ -59,7 +55,7 @@ namespace IngestMatrixPlugin.Controllers.v1
                 }
                 else
                 {
-                    response.message = $"{System.Reflection.MethodBase.GetCurrentMethod().DeclaringType.FullName}：error info:{e}";
+                    response.message = $"{System.Reflection.MethodBase.GetCurrentMethod().DeclaringType.FullName}：error info:{e.Message}";
                     Logger.Error(response.message);
                 }
                 response.nCode = 0;
@@ -92,7 +88,7 @@ namespace IngestMatrixPlugin.Controllers.v1
                     response.message = se.Message;
                 } else
                 {
-                    response.message = $"{System.Reflection.MethodBase.GetCurrentMethod().DeclaringType.FullName}：error info:{e}";
+                    response.message = $"{System.Reflection.MethodBase.GetCurrentMethod().DeclaringType.FullName}：error info:{e.Message}";
                     Logger.Error(response.message);
                 }
                 response.nCode = 0;
@@ -124,7 +120,7 @@ namespace IngestMatrixPlugin.Controllers.v1
                     res.message = se.Message;
                 } else
                 {
-                    res.message = $"{System.Reflection.MethodBase.GetCurrentMethod().DeclaringType.FullName}：error info:{e}";
+                    res.message = $"{System.Reflection.MethodBase.GetCurrentMethod().DeclaringType.FullName}：error info:{e.Message}";
                     Logger.Error(res.message);
                 }
                 res.nCode = 0;

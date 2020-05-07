@@ -16,10 +16,10 @@ namespace IngestMatrixPlugin.Controllers.v2
     [ApiController]
     public partial class MatrixController : ControllerBase
     {
-        /// <summary>锁</summary>
-        public static object lockObj = new object();
-        /// <summary>互斥锁</summary>
-        public static Mutex m_MatrixMt = new Mutex();
+        ///// <summary>锁</summary>
+        //public static object lockObj = new object();
+        ///// <summary>互斥锁</summary>
+        //public static Mutex m_MatrixMt = new Mutex();
         private readonly MatrixManager _matrixManage;
         private readonly ILogger Logger = LoggerManager.GetLogger("DeviceInfo");
         //private readonly RestClient _restClient;
@@ -35,7 +35,7 @@ namespace IngestMatrixPlugin.Controllers.v2
         /// <returns>是否切换成功</returns>
         [HttpGet("switch"), MapToApiVersion("2.0")]
         [ApiExplorerSettings(GroupName = "v2")]
-        public ResponseMessage<bool> SwitchInOut([FromQuery, BindRequired]int inport,
+        public async Task<ResponseMessage<bool>> SwitchInOut([FromQuery, BindRequired]int inport,
                                                  [FromQuery, BindRequired]int outport)
         {
             ResponseMessage<bool> response = new ResponseMessage<bool>();
@@ -45,12 +45,9 @@ namespace IngestMatrixPlugin.Controllers.v2
                 {
                     throw new Exception("Switch failed！ param is invailed");
                 }
-                m_MatrixMt.WaitOne();
-                lock (lockObj)  //保证只有一个切换在进行
-                {
-                    response.Ext = _matrixManage.SwitchInOutAsync(inport, outport).Result;
-                }
-                m_MatrixMt.ReleaseMutex();
+               
+                response.Ext = await _matrixManage.SwitchInOutAsync(inport, outport);
+
             }
             catch (Exception e)
             {
@@ -61,7 +58,7 @@ namespace IngestMatrixPlugin.Controllers.v2
                 }
                 else
                 {
-                    response.Msg = $"{System.Reflection.MethodBase.GetCurrentMethod().DeclaringType.FullName}：error info:{e}";
+                    response.Msg = $"{System.Reflection.MethodBase.GetCurrentMethod().DeclaringType.FullName}：error info:{e.Message}";
                     response.Code = ResponseCodeDefines.ServiceError;
                     Logger.Error(response.Msg);
                 }
@@ -97,7 +94,7 @@ namespace IngestMatrixPlugin.Controllers.v2
                 }
                 else
                 {
-                    response.Msg = $"{System.Reflection.MethodBase.GetCurrentMethod().DeclaringType.FullName}：error info:{e}";
+                    response.Msg = $"{System.Reflection.MethodBase.GetCurrentMethod().DeclaringType.FullName}：error info:{e.Message}";
                     response.Code = ResponseCodeDefines.ServiceError;
                     Logger.Error(response.Msg);
                 }
@@ -132,7 +129,7 @@ namespace IngestMatrixPlugin.Controllers.v2
                 }
                 else
                 {
-                    response.Msg = $"{System.Reflection.MethodBase.GetCurrentMethod().DeclaringType.FullName}：error info:{e}";
+                    response.Msg = $"{System.Reflection.MethodBase.GetCurrentMethod().DeclaringType.FullName}：error info:{e.Message}";
                     response.Code = ResponseCodeDefines.ServiceError;
                     Logger.Error(response.Msg);
                 }

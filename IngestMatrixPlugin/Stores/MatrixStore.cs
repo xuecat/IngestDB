@@ -134,10 +134,33 @@ namespace IngestMatrixPlugin.Stores
             }
             return await Context.SaveChangesAsync();
         }
-        public async Task<int> AddRangeMatrixrout(List<DbpMatrixrout> dbps)
+        public async Task<int> UpdateRangeMatrixrout(List<DbpMatrixrout> dbps, bool savechange)
         {
-            Context.DbpMatrixrout.AddRange(dbps);
-            return await Context.SaveChangesAsync();
+            foreach (var item in dbps)
+            {
+                var itm = await Context.DbpMatrixrout.Where(x => x.Matrixid == item.Matrixid && x.Virtualoutport == item.Virtualoutport).SingleOrDefaultAsync();
+                if (itm != null)
+                {
+                    itm.Inport = item.Inport;
+                    itm.Matrixid = item.Matrixid;
+                    itm.Outport = item.Outport;
+                    itm.State = item.State;
+                    itm.Virtualinport = item.Virtualinport;
+                    itm.Virtualoutport = item.Virtualoutport;
+                    itm.Begintime = item.Begintime;
+                    itm.Endtime = item.Endtime;
+                }
+                else
+                {
+                    Context.DbpMatrixrout.Add(item);
+                }
+            }
+
+            if (savechange)
+            {
+                return await Context.SaveChangesAsync();
+            }
+            return dbps.Count;
         }
         public async Task<int> AddMatrixrout(DbpMatrixrout dbps)
         {
@@ -204,32 +227,64 @@ namespace IngestMatrixPlugin.Stores
             Context.DbpVirtualmatrixportstate.AddRange(dbps);
             return await Context.SaveChangesAsync();
         }
-        public async Task<int> AddVirtualmatrixportstate(DbpVirtualmatrixportstate dbps)
+        public async Task<int> UpdateVirtualmatrixportstate(DbpVirtualmatrixportstate dbps, bool savechange)
         {
-            Context.DbpVirtualmatrixportstate.AddRange(dbps);
-            return await Context.SaveChangesAsync();
+            if (dbps == null)
+            {
+                return 0;
+            }
+
+            var item = await Context.DbpVirtualmatrixportstate.Where(x => x.Virtualinport == dbps.Virtualinport && x.Virtualoutport == dbps.Virtualoutport).SingleOrDefaultAsync();
+            if (item == null)
+            {
+                Context.DbpVirtualmatrixportstate.Add(dbps);
+            }
+            else
+            {
+                item.Virtualinport = dbps.Virtualinport;
+                item.Virtualoutport = dbps.Virtualoutport;
+                item.State = dbps.State;
+                item.Matrixid = dbps.Matrixid;
+            }
+            if (savechange)
+            {
+                return await Context.SaveChangesAsync();
+            }
+            return 1;    
         }
         #endregion
 
         public async Task<bool> UpdatePortInfo(long lInPort, long lOutPort, int bState)
         {
-            var matrixId = await Context.DbpMatrixinfo.Where(a => a.Matrixtypeid == 1).Select(a => a.Matrixid).SingleAsync();
-            var hasData = await Context.DbpVirtualmatrixportstate.Where(a => a.Virtualinport == lInPort && a.Virtualoutport == lOutPort).ToListAsync();
-            if (hasData.Count > 0)
+            var matrixId = await Context.DbpMatrixinfo.AsNoTracking().Where(a => a.Matrixtypeid == 1).Select(a => a.Matrixid).SingleAsync();
+            var hasData = await Context.DbpVirtualmatrixportstate.Where(a => a.Virtualinport == lInPort && a.Virtualoutport == lOutPort).SingleOrDefaultAsync();
+
+            if (hasData != null)
             {
-                hasData.ForEach(a => a.State = bState);
-                await Context.SaveChangesAsync();
+                hasData.State = bState;
+                hasData.Lastoprtime = DateTime.Now;
+                hasData.Virtualinport = (int)lInPort;
+                hasData.Virtualoutport = (int)lOutPort;
             }
             else
             {
-                var addData = new DbpVirtualmatrixportstate
-                {
+                Context.DbpVirtualmatrixportstate.Add(new DbpVirtualmatrixportstate() {
                     Virtualinport = (int)lInPort,
                     Virtualoutport = (int)lOutPort,
-                    State = bState,
+                    Lastoprtime = DateTime.Now,
                     Matrixid = matrixId,
-                    Lastoprtime = DateTime.Now
-                };
+                    State = bState
+                });
+            }
+
+            try
+            {
+                await Context.SaveChangesAsync();
+            }
+            catch (Exception e)
+            {
+                 
+                throw e;
             }
             return true;
         }

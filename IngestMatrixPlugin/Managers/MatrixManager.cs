@@ -6,6 +6,7 @@ using AutoMapper;
 using IngestDBCore;
 using IngestDBCore.Tool;
 using IngestMatrixPlugin.Dto.Vo;
+using IngestMatrixPlugin.Models.DB;
 using IngestMatrixPlugin.Stores;
 using Microsoft.EntityFrameworkCore;
 using Newtonsoft.Json;
@@ -38,15 +39,23 @@ namespace IngestMatrixPlugin.Managers
             string strlog = string.Format("Begin to switch in[{0}]-and -out[{1}] Port...", inPort, outPort);
             Logger.Info(strlog);
 
-            var releasedRoutList = new List<MatrixRoutInfo>();
-            var releasedVirtualPortList = new List<MatrixVirtualPortInfo>();
+            var releasedRoutList = new List<DbpMatrixrout>();
+            var releasedVirtualPortList = new List<DbpVirtualmatrixportstate>();
 
-            var infoList = _mapper.Map<List<MatrixVirtualPortInfo>>(await Store.QueryVirtualmatrixportstate(a => a.Where(x => x.Virtualinport == inPort && x.Virtualoutport == outPort && x.State == 1)));
+            var infoList = await Store.QueryVirtualmatrixportstate(a => 
+            a.Where(x => x.Virtualoutport == outPort && x.State == 1), true);
+
             if (infoList.Count > 0)
             {
                 foreach (var info in infoList)
                 {
-                    await ReleaseWhenSwitch(info.lVirtualInPort, outPort, releasedRoutList);
+                    if (info.Virtualinport != inPort)
+                    {
+                        info.State = 1;
+                        releasedVirtualPortList.Add(info);
+
+                        await ReleaseWhenSwitch(info.Virtualinport, outPort, releasedRoutList);
+                    }
                 }
             }
             else
@@ -168,28 +177,34 @@ namespace IngestMatrixPlugin.Managers
             }
         }
 
-        private async Task<bool> ReleaseWhenSwitch(long inPort, long outPort, List<MatrixRoutInfo> matrixRouts)
+        private async Task<bool> ReleaseWhenSwitch(long inPort, long outPort, List<DbpMatrixrout> matrixRouts)
         {
-            var matrixroutList = _mapper.Map<List<MatrixRoutInfo>>(await Store.QueryMatrixrout(a => a, true));
-            matrixroutList.ForEach(a => a.lState = 0);
+            var matrixroutList = await Store.QueryMatrixrout(a => a.Where(b => b.Virtualinport == inPort && b.Virtualoutport == outPort), true);
 
-            var matrixList = _mapper.Map<List<MatrixRoutInfo>>(await Store.QueryMatrixrout(a => a, true));
-            matrixRouts.AddRange(matrixList);
+            if (matrixroutList == null || matrixroutList.Count < 1)
+            {
+                Logger.Error("ReleaseWhenSwitch matrixroutList empty");
+            }
 
-            await Store.DeleteMatrixrout(a => a.Where(x => !(x.Virtualinport == inPort && x.Virtualoutport == outPort)));
+            matrixRouts.AddRange(matrixroutList);
+
+            //var matrixList = _mapper.Map<List<MatrixRoutInfo>>(await Store.QueryMatrixrout(a => a, true));
+            //matrixRouts.AddRange(matrixList);
+
+            //await Store.DeleteMatrixrout(a => a.Where(x => !(x.Virtualinport == inPort && x.Virtualoutport == outPort)));
 
             // 更新连接状态表
             await Store.UpdatePortInfo((int)inPort, (int)outPort, 0);
             return true;
         }
 
-        public async Task<bool> RecoverReleasedRoutAndPort(List<MatrixVirtualPortInfo> matrixVirtuals, List<MatrixRoutInfo> matrixRouts)
+        public async Task<bool> RecoverReleasedRoutAndPort(List<DbpVirtualmatrixportstate> matrixVirtuals, List<DbpMatrixrout> matrixRouts)
         {
             if (matrixVirtuals.Count == 0 || matrixRouts.Count == 0)
             {
                 return true;
             }
-            if (await Store.AddRangeMatrixrout(_mapper.Map<List<Models.DB.DbpMatrixrout>>(matrixVirtuals)) <= 0)
+            if (await Store.UpdateRangeMatrixrout(matrixRouts, false) <= 0)
             {
                 return false;
             }
@@ -197,7 +212,7 @@ namespace IngestMatrixPlugin.Managers
             {
                 return false;
             }
-            if (await Store.AddVirtualmatrixportstate(_mapper.Map<Models.DB.DbpVirtualmatrixportstate>(matrixRouts.Single())) <= 0)
+            if (await Store.UpdateVirtualmatrixportstate(matrixVirtuals.FirstOrDefault(), true) <= 0)
             {
                 return false;
             }
