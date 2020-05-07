@@ -2846,5 +2846,62 @@ namespace IngestTaskPlugin.Stores
                 }
             }
         }
+
+        public async Task UpdateTaskMetaDataAsync(int taskid, MetaDataType type, string metadata, bool submitFlag)
+        {
+            var item = await Context.DbpTaskMetadata.Where(x => x.Taskid == taskid && x.Metadatatype == (int)type).SingleAsync();
+            if (item == null)
+            {
+                await Context.DbpTaskMetadata.AddAsync(new DbpTaskMetadata()
+                {
+                    Taskid = taskid,
+                    Metadatatype = (int)type,
+                    Metadatalong = metadata
+                });
+            }
+            else
+                item.Metadatalong = metadata;
+
+            try
+            {
+                if (submitFlag)
+                {
+                    await Context.SaveChangesAsync();
+                }
+            }
+            catch (DbUpdateException e)
+            {
+                throw e;
+            }
+        }
+
+        public async Task UpdateTaskMetaDataListAsync(List<Dto.Request.SubmitMetadata> metadatas)
+        {
+            foreach (var metadata in metadatas)
+            {
+                var item = await Context.DbpTaskMetadata.Where(x => x.Taskid == metadata.taskId && x.Metadatatype == (int)metadata.type).SingleAsync();
+                if (item == null)
+                {
+                    await Context.DbpTaskMetadata.AddAsync(new DbpTaskMetadata()
+                    {
+                        Taskid = metadata.taskId,
+                        Metadatatype = (int)metadata.type,
+                        Metadatalong = metadata.metadata
+                    });
+                }
+                else
+                    item.Metadatalong = metadata.metadata;
+            }
+
+            try
+            {
+                await Context.SaveChangesAsync();
+            }
+            catch (DbUpdateException e)
+            {
+                throw e;
+            }
+        }
+
     }
 }

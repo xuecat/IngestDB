@@ -126,7 +126,7 @@ namespace IngestTaskPlugin
                .ForMember(a => a.UserToken, (map) => map.MapFrom(b => b.Usertoken ?? "Sobey"))
                .ForMember(a => a.TrimInCTL, (map) => map.MapFrom(b => b.Triminctl))
                .ForMember(a => a.TrimOutCTL, (map) => map.MapFrom(b => b.Trimoutctl))
-               .ForMember(a => a.VtrTaskType, (map) => map.MapFrom(b => b.Vtrtasktype));
+               .ForMember(a => a.VtrTaskType, (map) => map.MapFrom(b => b.Vtrtasktype)).ReverseMap();
             //V1
             CreateMap<VtrUploadtask, VTRUploadTaskContent>()
                .ForMember(a => a.nTaskId, (map) => map.MapFrom(b => b.Taskid))
@@ -176,7 +176,7 @@ namespace IngestTaskPlugin
                .ForMember(a => a.emTaskType, (map) => map.MapFrom(b => b.TaskType))
                .ForMember(a => a.emCooperantType, (map) => map.MapFrom(b => b.CooperantType))
                .ForMember(a => a.emState, (map) => map.MapFrom(b => b.State))
-               .ForMember(a => a.strStampImage, (map) => map.MapFrom(b => b.StampImage));
+               .ForMember(a => a.strStampImage, (map) => map.MapFrom(b => b.StampImage)).ReverseMap();
             #endregion
 
             #region VTRUploadCondition To VTRUploadConditionRequest
@@ -225,6 +225,10 @@ namespace IngestTaskPlugin
                .ForMember(a => a.nTaskID, (map) => map.MapFrom(b => b.TaskId))
                .ForMember(a => a.strMetadata, (map) => map.MapFrom(b => b.Metadata))
                .ForMember(a => a.emType, (map) => map.MapFrom(b => b.Type));
+
+            CreateMap<AddVTRUploadTask_out, AddVTRUploadTaskResponse>()
+               .ForMember(a => a.VtrTask, (map) => map.MapFrom(b => b.vtrTask))
+               .ForMember(a => a.ErrorCode, (map) => map.MapFrom(b => b.errorCode));
 
             //CreateMap<AddVTRUploadTask_out, VTRUploadTaskContentResponse>()
             //   .ForMember(a => a, (map) => map.MapFrom(b => b.vtrTask));

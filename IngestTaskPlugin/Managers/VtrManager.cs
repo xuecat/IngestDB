@@ -786,7 +786,7 @@
 
             //判断vtr任务当前状态，如果是正在采集时，不能改变长度
             VTRUploadConditionRequest Condition = new VTRUploadConditionRequest() {  TaskId = vtrTask.nTaskId };
-            List<VTRUploadTaskContentResponse> vtrUploadTasks = await VtrStore.GetUploadTaskContent(Condition);
+            List<VTRUploadTaskContentResponse> vtrUploadTasks = await VtrStore.GetUploadTaskContent(Condition);//id是主键，理论上只能查出一条
 
             // 新增从普通任务转换为VTR任务 VTR表中无法查询到任务，该任务原本可能是一个普通任务
             if (vtrUploadTasks == null || vtrUploadTasks.Count <= 0)
@@ -795,7 +795,7 @@
                 {
                     throw new Exception("Can not find the task.TaskId = " + vtrTask.nTaskId);
                 }
-
+                
                 var dbpTask = await TaskStore.GetTaskAsync(a => a.Where(x => x.Taskid == vtrTask.nTaskId));
                 if (dbpTask == null)
                 {
@@ -815,15 +815,14 @@
                 try
                 {
                     Logger.Info("In SetVTRUploadTask.Before ModifyNormalTaskToVTRUploadTask");
-                    var metada = Mapper.Map<List<VTR_UPLOAD_MetadataPair>>(metadatas);
-                    await ModifyNormalTaskToVTRUploadTaskAsync(vtrTask, metada, dbpTask);
+                    await ModifyNormalTaskToVTRUploadTaskAsync(vtrTask, metadatas, dbpTask);
 
 
                     return Mapper.Map<TResult>(vtrTask);
                 }
                 catch (System.Exception ex)
                 {
-                    throw;
+                    throw ex;
                 }
             }
 
@@ -947,13 +946,6 @@
                 vtrTask.strEnd = DateTimeFormat.DateTimeToString(vtrTaskNow.EndTime);
             }
 
-            var vtrUploadtaskResult = await TaskStore.GetVtrUploadTaskAsync(a => a.Where(x => x.Taskid == vtrTask.nTaskId));
-
-            if (vtrUploadtaskResult == null)
-            {
-                throw new Exception("Can not find the row in VTR_UPLOADTASK table,TaskId = " + vtrTask.nTaskId.ToString());
-            }
-
             var dbptask = (await TaskStore.GetTaskListAsync(a => a.Where(x => x.Taskid == vtrTask.nTaskId))).FirstOrDefault();
 
             if (dbptask == null)
@@ -962,6 +954,7 @@
             }
 
             dbptask = VTRUploadTaskContent2Dbptask(false, vtrTask, dbptask,  lMask);
+            VtrUploadtask vtrUploadtaskResult = Mapper.Map<VtrUploadtask>(vtrTaskNow);
             vtrUploadtaskResult = VTRUploadTaskContent2VTRUPLOADTASK(vtrTask, vtrUploadtaskResult, lMask);
 
             await TaskStore.UpdateTaskListAsync(new List<DbpTask> { dbptask }, false);
@@ -969,10 +962,11 @@
 
             if (metadatas != null && metadatas.Count > 0)
             {
-                foreach (var meta in metadatas)
-                {
-                    await SetVBUTasksMetadatasAsync(vtrTask.nTaskId, (MetaDataType)meta.emType, meta.strMetadata);
-                }
+                //foreach (var meta in metadatas)
+                //{
+                //    await SetVBUTasksMetadatasAsync(vtrTask.nTaskId, (MetaDataType)meta.emType, meta.strMetadata);
+                //}
+                await UpdateTasksMetadatas(metadatas, vtrTask.nTaskId);
             }
 
             return Mapper.Map<TResult>(vtrTask);
@@ -982,7 +976,54 @@
         {
             if (lMask <= 0)
             {
-                vtrUploadtask = Mapper.Map<VtrUploadtask>(task);
+                //vtrUploadtask = Mapper.Map<VtrUploadtask>(task);
+                //VTR任务ID
+                vtrUploadtask.Taskid = task.nTaskId;
+
+                //占位上载任务ID
+                vtrUploadtask.Vtrtaskid = task.nBlankTaskId;
+
+                //上载VTRID
+                vtrUploadtask.Vtrid = task.nVtrId;
+
+                //收录通道ID
+                vtrUploadtask.Recchannelid = task.nChannelId;
+
+                //磁带入点
+                vtrUploadtask.Trimin = task.nTrimIn;
+
+                //磁带出点
+                vtrUploadtask.Trimout = task.nTrimOut;
+
+                //信号源ID
+                vtrUploadtask.Signalid = task.nSignalId;
+
+                //磁带状态
+                vtrUploadtask.Taskstate = Convert.ToInt32(task.emTaskState);
+
+                //上载用户编码
+                vtrUploadtask.Usercode = task.strUserCode;
+
+                //提交时间
+                vtrUploadtask.Committime = DateTimeFormat.DateTimeFromString(task.strCommitTime);
+
+                //上载时序
+                vtrUploadtask.Uploadorder = task.nOrder;
+
+                //TASKGUID
+                vtrUploadtask.Taskguid = task.strTaskGUID;
+
+                vtrUploadtask.Taskname = task.strTaskName;
+                //UserToken
+                vtrUploadtask.Usertoken = task.strUserToken;
+
+                vtrUploadtask.Tapeid = task.nTapeId;
+
+                vtrUploadtask.Triminctl = task.nTrimInCTL;
+
+                vtrUploadtask.Trimoutctl = task.nTrimOutCTL;
+                //zmj2010-05-17
+                vtrUploadtask.Vtrtasktype = (int)task.emVtrTaskType;
             }
             else
             {
@@ -1365,23 +1406,16 @@
                 throw new Exception("No Channel");
             }
             #endregion
-            //更新DBP_TASK
-            //Logger.Info("In ModifyNormalTaskToVTRUploadTask.Before Updating DBP_TASK");
-            //if (dbpTask != null)
-            //{
-            //    vtrTask.strUserToken = "VTRBATCHUPLOAD_ERROR_OK";
-            //    dbpTask.Tasklock = string.Empty;
-            //}
-            //else
-            //{
-            //    throw new Exception("In ModifyNormalTaskToVTRUploadTask.Can not find the task in DBP_TASK.TaskId = " + vtrTask.nTaskId.ToString());
-            //}
 
-            dbpTask = VTRUploadTaskContent2Dbptask(true, vtrTask,dbpTask, -1);
+            dbpTask.Usercode = "VTRBATCHUPLOAD_ERROR_OK";
+            dbpTask.Tasklock = string.Empty;
+            dbpTask = VTRUploadTaskContent2Dbptask(true, vtrTask, dbpTask, -1);
             await TaskStore.UpdateTaskListAsync( new List<DbpTask> { dbpTask }, false);
             //添加VTR_UPLOADTASK
             Logger.Info("In ModifyNormalTaskToVTRUploadTask.Before Adding VTR_UPLOADTASK");
-            VtrUploadtask vtrUploadtask = Mapper.Map<VtrUploadtask>(vtrTask);
+            //VtrUploadtask vtrUploadtask = Mapper.Map<VtrUploadtask>(vtrTask);
+            VtrUploadtask vtrUploadtask = new VtrUploadtask();
+            vtrUploadtask = VTRUploadTaskContent2VTRUPLOADTASK(vtrTask, vtrUploadtask, -1);
             await VtrStore.AddUploadtask(vtrUploadtask, false);
 
             //更新任务来源表
@@ -1393,15 +1427,91 @@
             if (metadatas != null)
             {
                 Logger.Info("In ModifyNormalTaskToVTRUploadTask.Before Updating metadatas");
-                foreach (VTR_UPLOAD_MetadataPair metadata in metadatas)
-                {
-                    await SetVBUTasksMetadatasAsync(vtrTask.nTaskId, (MetaDataType)metadata.emType, metadata.strMetadata);
-                }
+                //foreach (VTR_UPLOAD_MetadataPair metadata in metadatas)
+                //{ 
+                //    await SetVBUTasksMetadatasAsync(vtrTask.nTaskId, (MetaDataType)metadata.emType, metadata.strMetadata);
+                //}
+                await UpdateTasksMetadatas(metadatas, vtrTask.nTaskId);
             }
             Logger.Info("In ModifyNormalTaskToVTRUploadTask.Fin");
             return true;
         }
-        
+
+        public async Task UpdateTasksMetadatas(List<VTR_UPLOAD_MetadataPair> metadatas,int taskid)
+        {
+            List<SubmitMetadata> list = new List<SubmitMetadata>();
+            Logger.Info("In ModifyNormalTaskToVTRUploadTask.Before Updating metadatas");
+            foreach (VTR_UPLOAD_MetadataPair metadata in metadatas)
+            {
+                list.AddRange(GetVBUTasksMetadatas(taskid, (MetaDataType)metadata.emType, metadata.strMetadata));
+                //await SetVBUTasksMetadatasAsync(vtrTask.nTaskId, (MetaDataType)metadata.emType, metadata.strMetadata);
+            }
+
+            await TaskStore.UpdateTaskMetaDataListAsync(list);
+        }
+
+        public List<SubmitMetadata> GetVBUTasksMetadatas(int taskId, MetaDataType type, string metadata)
+        {
+            List<SubmitMetadata> list = new List<SubmitMetadata>();
+            //需要将其中的三个字符串提取出来
+            if (type == MetaDataType.emContentMetaData)
+            {
+                string materialMeta = string.Empty;
+                string planningMeta = string.Empty;
+                string originalMeta = string.Empty;
+                XElement xElement = XElement.Parse(metadata);
+                //xElement.LoadXml(metadata);
+                //XmlNode taskContentNode = doc.SelectSingleNode("/TaskContentMetaData");
+                var taskContentNode = xElement.Elements("TaskContentMetaData").FirstOrDefault();
+                if (taskContentNode != null)
+                {
+                    if (taskContentNode.HasElements)
+                    {
+                        //XmlNode materialNode = doc.SelectSingleNode("/TaskContentMetaData/MetaMaterial");
+                        var materialNode = taskContentNode.Element("MetaMaterial");
+                        if (materialNode != null)
+                        {
+                            materialMeta = materialNode.Value;
+                            //taskContentNode.RemoveChild(materialNode);
+                            materialNode.Remove();
+                        }
+
+                        //XmlNode planningNode = doc.SelectSingleNode("/TaskContentMetaData/MetaPlanning");
+                        var planningNode = taskContentNode.Element("MetaPlanning");
+                        if (planningNode != null)
+                        {
+                            planningMeta = planningNode.Value;
+                            //taskContentNode.RemoveChild(planningNode);
+                            planningNode.Remove();
+                        }
+
+                        //XmlNode originalNode = doc.SelectSingleNode("/TaskContentMetaData/MetaOriginal");
+                        var originalNode = taskContentNode.Element("MetaOriginal");
+                        if (originalNode != null)
+                        {
+                            originalMeta = originalNode.Value;
+                            //taskContentNode.RemoveChild(originalNode);
+                            originalNode.Remove();
+                        }
+                    }
+                }
+
+                list.Add(new SubmitMetadata() { taskId = taskId, type = MetaDataType.emStoreMetaData, metadata = materialMeta });
+                list.Add(new SubmitMetadata() { taskId = taskId, type = MetaDataType.emPlanMetaData, metadata = planningMeta });
+                list.Add(new SubmitMetadata() { taskId = taskId, type = MetaDataType.emOriginalMetaData, metadata = originalMeta });
+                list.Add(new SubmitMetadata() { taskId = taskId, type = MetaDataType.emContentMetaData, metadata = xElement.Value });
+                //await TaskStore.UpdateTaskMetaDataAsync(taskId, MetaDataType.emStoreMetaData, materialMeta);
+                //await TaskStore.UpdateTaskMetaDataAsync(taskId, MetaDataType.emPlanMetaData, planningMeta);
+                //await TaskStore.UpdateTaskMetaDataAsync(taskId, MetaDataType.emOriginalMetaData, originalMeta);
+                //await TaskStore.UpdateTaskMetaDataAsync(taskId, MetaDataType.emContentMetaData, xElement.Value);//doc.OuterXml);
+            }
+            else
+            {
+                //await TaskStore.UpdateTaskMetaDataAsync(taskId, type, metadata);
+                list.Add(new SubmitMetadata() { taskId = taskId, type = type, metadata = metadata });
+            }
+            return list;
+        }
 
         private ChannelTimePeriods MergeVTRAndChannelFreeTimePeriods(VTRTimePeriods vtrFreeTP, ChannelTimePeriods channelFreeTP)
         {
@@ -2384,7 +2494,7 @@
             return Mapper.Map<TResult>(task);
         }
 
-        public async Task<string> GetVtrTaskMetaData(int taskId, int type)
+        public async Task<string> GetVtrTaskMetaDataAsync(int taskId, int type)
         {
             var metadata = await TaskStore.GetTaskMetaDataAsync(a => a.Where(x => x.Taskid == taskId && x.Metadatatype == type), true);
             var result = string.IsNullOrWhiteSpace(metadata?.Metadata) ? metadata?.Metadatalong : metadata?.Metadata;
@@ -2423,5 +2533,7 @@
             await SetVBUT2DataSetAsync(tempSaveTasks, metadatas, true, new List<int>());
             return true;
         }
+        
+
     }
 }

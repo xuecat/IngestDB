@@ -709,45 +709,6 @@
 
         }
         
-
-        //public bool SetVTRUploadTask(ref VTRUploadTaskContent vtrTask, List<VTRUPLOADMetadataPairRequest> metadatas, long lMask, VTRUploadTaskMask uploadTaskMask/*此参数，只是用来导出代理，没有实际作用*/, out string errStr)
-        ////public bool SetVTRUploadTask(ref VTRUploadTaskContent vtrTask, List<VTRUPLOADMetadataPairRequest> metadatas, long lMask, VTRUploadTaskMask uploadTaskMask/*此参数，只是用来导出代理，没有实际作用*/, out string errStr)
-        //{
-        //    errStr = no_err;
-        //    try
-        //    {
-        //        errStr = no_err;
-
-        //        if (vtrTask.nTaskId <= 0)
-        //        {
-        //            errStr = "TaskId Invalid.";
-        //            return false;
-        //        }
-        //        //var pin = new SetVTRUploadTask_in { vtrTask = vtrTask, metadatas = metadatas, lMask = lMask, uploadTaskMask = uploadTaskMask };
-        //        //vtrTask = _VtrManage.SetVTRUploadTask<VTRUploadTaskContent, SetVTRUploadTask_in>(pin).Result;
-        //        vtrTask = _VtrManage.SetVTRUploadTaskAsync<VTRUploadTaskContent>(vtrTask, metadatas, lMask).Result;
-
-        //        var _globalinterface = ApplicationContext.Current.ServiceProvider.GetRequiredService<IIngestGlobalInterface>();
-        //        if (_globalinterface != null)
-        //        {
-        //            GlobalInternals re = new GlobalInternals() { funtype = IngestDBCore.GlobalInternals.FunctionType.SetGlobalState, State = ClientOperLabelName.VTR_UPLOAD_ModifyTask };
-        //            var response1 =  _globalinterface.SubmitGlobalCallBack(re).Result;
-        //            if (response1.Code != ResponseCodeDefines.SuccessCode)
-        //            {
-        //                Logger.Error("SetGlobalState modtask error");
-        //            }
-        //        }
-        //        //GLOBALSERVICE.SetGlobalState2(ClientOperLabelName.VTR_UPLOAD_ModifyTask);
-        //        return vtrTask != null? true:false;
-        //    }
-        //    catch (Exception ex)//其他未知的异常，写异常日志
-        //    {
-        //        Logger.Error("SetVTRUploadTask2 :" + ex.ToString());
-        //        errStr = ex.Message;
-        //        return false;
-        //    }
-        //}
-    
         
         /// <summary>
         /// 通过ID获得上载任务信息
@@ -965,57 +926,13 @@
                 }
                 else
                 {
-                    response.message = $"{System.Reflection.MethodBase.GetCurrentMethod().DeclaringType.FullName}：error info:{e}";
+                    response.message = $"{System.Reflection.MethodBase.GetCurrentMethod().DeclaringType.FullName}：error info:{e.Message}";
                     Logger.Error(response.message);
                 }
             }
             return response;
         }
-
-        //TODO:疑似重复
-        ////设置VTR任务元数据MetaDataType
-        //[HttpPost("SetVtrTaskMetaData")]
-        //public async Task<TaskOldResponseMessage> SetVtrTaskMetaData11([FromQuery] int lVtrTaskID, [FromQuery] int Type, [FromBody] string strMetaData)
-        //{
-        //    TaskOldResponseMessage response = new TaskOldResponseMessage();
-        //    if (lVtrTaskID <= 0)
-        //    {
-        //        response.message = "VtrTaskID is Invaild ";
-        //        response.nCode = 0;
-        //        return response;
-        //    }
-        //    if (strMetaData == null)
-        //    {
-        //        response.message = "VtrMetaData is Invaild ";
-        //        response.nCode = 0;
-        //        return response;
-        //    }
-        //    if (strMetaData.Length <= 0)
-        //    {
-        //        response.message = "VtrMetaData is Invaild ";
-        //        response.nCode = 0;
-        //        return response;
-        //    }
-        //    try
-        //    {
-        //        await _VtrManage.SetVtrTaskMetaData(lVtrTaskID, (MetaDataType)Type, strMetaData);
-        //    }
-        //    catch (Exception e)//其他未知的异常，写异常日志
-        //    {
-        //        response.nCode = 0;
-        //        if (e is SobeyRecException se)//sobeyexcep会自动打印错误
-        //        {
-        //            response.message = se.ErrorCode.ToString();
-        //        }
-        //        else
-        //        {
-        //            response.message = $"{System.Reflection.MethodBase.GetCurrentMethod().DeclaringType.FullName}：error info:{e}";
-        //            Logger.Error(response.message);
-        //        }
-        //    }
-        //    return response;
-        //}
-
+        
         /// <summary>
         /// 获取VTR任务元数据
         /// </summary>
@@ -1035,7 +952,7 @@
             }
             try
             {
-                response.extention = await _VtrManage.GetVtrTaskMetaData(lVtrTaskID, Type);
+                response.extention = await _VtrManage.GetVtrTaskMetaDataAsync(lVtrTaskID, Type);
             }
             catch (Exception e)//其他未知的异常，写异常日志
             {
@@ -1046,13 +963,53 @@
                 }
                 else
                 {
-                    response.message = $"{System.Reflection.MethodBase.GetCurrentMethod().DeclaringType.FullName}：error info:{e}";
+                    response.message = $"{System.Reflection.MethodBase.GetCurrentMethod().DeclaringType.FullName}：error info:{e.Message}";
                     Logger.Error(response.message);
                 }
             }
             return response;
         }
 
-        
+        /// <summary>
+        /// 增加一系列VTR批量上载任务
+        /// </summary>
+        /// <param name="pIn">见声明</param>
+        /// <returns>见声明</returns>
+        [HttpPost]
+        [Route("api/vtr/AddVTRBatchUploadTasks")]
+        public async Task<TaskOldResponseMessage<VtrBatchUploadTaskResponse>> AddVTRBatchUploadTasks([FromBody] AddVTRBatchUploadTasks_in pIn)
+        {
+            TaskOldResponseMessage<VtrBatchUploadTaskResponse> res = new TaskOldResponseMessage<VtrBatchUploadTaskResponse>();
+            res.extention = new VtrBatchUploadTaskResponse();
+            res.message = no_err;
+            res.extention.errorCode = VTR_BUT_ErrorCode.emNormal;
+            res.extention.taskIds = null;
+            if (pIn == null)
+            {
+                res.message = "ths param is null";
+                return res;
+            }
+            try
+            {
+                res.message = no_err;
+                if (pIn.vtrTasks == null || pIn.vtrTasks.Count <= 0)
+                {
+                    res.message = "vtrTasks is null";
+                    res.nCode = 0;
+                    return res;
+                }
+
+                res.extention = await _VtrManage.AddVTRBatchUploadTasksAsync<VTRUploadTaskContent, VTR_UPLOAD_MetadataPair>(pIn.vtrTasks, pIn.metadatas, pIn.ignoreWrong);
+                res.nCode = res.extention.errorCode == VTR_BUT_ErrorCode.emNormal ? 1 : 0;
+            }
+            catch (Exception ex)//其他未知的异常，写异常日志
+            {
+                Logger.Error(ex.ToString());
+                res.message = ex.Message;
+                res.nCode = 0;
+            }
+
+            return res;
+        }
     }
 }
