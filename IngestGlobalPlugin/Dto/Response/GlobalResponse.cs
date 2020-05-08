@@ -65,7 +65,7 @@ namespace IngestGlobalPlugin.Dto
         public string LastTime  { get; set; }//DateTime.MinValue.ToString("yyyy-MM-dd HH:mm:ss");
     }
 
-    public class DtoSetUserSetting_IN
+    public class DtoSetUserSettingRequest
     {
         /// <summary>用户Code</summary>
         /// <example>06c70a52172d4393beb1bb6743ca6944</example>
