@@ -104,7 +104,22 @@ namespace IngestGlobalPlugin.Stores
             DbpObjectstateinfo objectstateinfo = null;
             try
             {
-                objectstateinfo = await GetObjectstateinfoAsync(a => a.Where(x => ((param_In.ObjectID >= 0 && x.Objectid == param_In.ObjectID) || param_In.ObjectID < 0) && (((int)param_In.ObjectTypeID >= 0 && x.Objecttypeid == (int)param_In.ObjectTypeID) || (int)param_In.ObjectTypeID < 0) && ((!string.IsNullOrEmpty(param_In.userName) && x.Username == param_In.userName) || string.IsNullOrEmpty(param_In.userName)) && (string.IsNullOrEmpty(x.Locklock) || x.Begintime < DateTime.Now.AddMilliseconds(param_In.TimeOut * (-1)))), true);
+                //objectstateinfo = await GetObjectstateinfoAsync(a => a.Where(x => ((param_In.ObjectID >= 0 && x.Objectid == param_In.ObjectID) || param_In.ObjectID < 0) && (((int)param_In.ObjectTypeID >= 0 && x.Objecttypeid == (int)param_In.ObjectTypeID) || (int)param_In.ObjectTypeID < 0) && ((!string.IsNullOrEmpty(param_In.userName) && x.Username == param_In.userName) || string.IsNullOrEmpty(param_In.userName)) && (string.IsNullOrEmpty(x.Locklock) || x.Begintime < DateTime.Now.AddMilliseconds(param_In.TimeOut * (-1)))), true);
+                IQueryable <DbpObjectstateinfo> query = Context.DbpObjectstateinfo.Where(x=>string.IsNullOrEmpty(x.Locklock) || x.Begintime < DateTime.Now.AddMilliseconds(param_In.TimeOut * (-1)));
+                if (param_In.ObjectID > 0)
+                {
+                    query = query.Where(x => x.Objectid == param_In.ObjectID);
+                }
+                if(param_In.ObjectTypeID >= 0)
+                {
+                    query = query.Where(x => x.Objecttypeid == (int)param_In.ObjectTypeID);
+                }
+                if (!string.IsNullOrEmpty(param_In.userName))
+                {
+                    query = query.Where(x => x.Username == param_In.userName);
+                }
+
+                objectstateinfo = await query.FirstOrDefaultAsync();
 
                 if (objectstateinfo != null)
                 {
@@ -690,7 +705,7 @@ namespace IngestGlobalPlugin.Stores
             try
             {
 
-                var dbpCapParam = await GetCaptureparamtemplateAsync(a => a.Where(x => x.Captureparamid == nParamTemplateID), true);
+                var dbpCapParam = await GetCaptureparamtemplateAsync(a => a.Where(x => x.Captureparamid == nParamTemplateID));
                 if (dbpCapParam == null)
                 {
                     //add
@@ -705,15 +720,18 @@ namespace IngestGlobalPlugin.Stores
                 else
                 {
                     //update
-                    var dbpCapTemplate = new DbpCaptureparamtemplate()
-                    {
-                        Captureparamid = nParamTemplateID,
-                        Captureparam = strUserCaptureParam,
-                        Captemplatename = strTemplateName
-                    };
-                    Context.Attach(dbpCapTemplate);
-                    Context.Entry(dbpCapTemplate).Property(x => x.Captemplatename).IsModified = true;
-                    Context.Entry(dbpCapTemplate).Property(x => x.Captureparam).IsModified = true;
+                    //var dbpCapTemplate = new DbpCaptureparamtemplate()
+                    //{
+                    //    Captureparamid = nParamTemplateID,
+                    //    Captureparam = strUserCaptureParam,
+                    //    Captemplatename = strTemplateName
+                    //};
+                    //Context.Attach(dbpCapTemplate);
+                    //Context.Entry(dbpCapTemplate).Property(x => x.Captemplatename).IsModified = true;
+                    //Context.Entry(dbpCapTemplate).Property(x => x.Captureparam).IsModified = true;
+                    dbpCapParam.Captureparamid = nParamTemplateID;
+                    dbpCapParam.Captureparam = strUserCaptureParam;
+                    dbpCapParam.Captemplatename = strTemplateName;
                 }
                 await Context.SaveChangesAsync();
             }
@@ -829,40 +847,65 @@ namespace IngestGlobalPlugin.Stores
 
         }
 
-        public async Task UpdateUserTempalteAsync(int templateID,string userCode, string templateContent, string newTemplateName)
+        //public async Task UpdateUserTempalteAsync(int templateID,string userCode, string templateContent, string newTemplateName)
+        //{
+        //    try
+        //    {
+        //        var userTemplate = new DbpUsertemplate()
+        //        {
+        //            Templateid = templateID,
+        //            Usercode = userCode
+        //        };
+
+        //        if (newTemplateName != null && templateContent!=null)
+        //        {
+        //            userTemplate.Templatename = newTemplateName;
+        //            userTemplate.Templatecontent = templateContent;
+        //            Context.Attach(userTemplate);
+        //            Context.Entry(userTemplate).Property(x => x.Templatename).IsModified = true;
+        //            Context.Entry(userTemplate).Property(x => x.Templatecontent).IsModified = true;
+        //            await Context.SaveChangesAsync();
+        //        }
+        //        else if (newTemplateName != null && templateContent== null)
+        //        {
+        //            userTemplate.Templatecontent = templateContent;
+        //            Context.Attach(userTemplate);
+        //            Context.Entry(userTemplate).Property(x => x.Templatecontent).IsModified = true;
+        //            await Context.SaveChangesAsync();
+        //        }
+        //        else if (templateContent != null && newTemplateName == null)
+        //        {
+        //            userTemplate.Templatename = newTemplateName;
+        //            Context.Attach(userTemplate);
+        //            Context.Entry(userTemplate).Property(x => x.Templatename).IsModified = true;
+        //            await Context.SaveChangesAsync();
+        //        }
+                
+        //    }
+        //    catch (Exception ex)
+        //    {
+        //        Logger.Error("ModifyUserTempalteContent : " + ex.ToString());
+        //        throw ex;
+        //    }
+        //}
+
+        public async Task UpdateDbpUserTempalteAsync(DbpUsertemplate usertemplate, string templateContent, string newTemplateName)
         {
             try
             {
-                var userTemplate = new DbpUsertemplate()
+                if (usertemplate != null)
                 {
-                    Templateid = templateID,
-                    Usercode = userCode
-                };
+                    if (!string.IsNullOrWhiteSpace(templateContent))
+                    {
+                        usertemplate.Templatecontent = templateContent;
+                    }
+                    if (!string.IsNullOrWhiteSpace(newTemplateName))
+                    {
+                        usertemplate.Templatename = newTemplateName;
+                    }
 
-                if (!string.IsNullOrWhiteSpace(newTemplateName) && !string.IsNullOrWhiteSpace(templateContent))
-                {
-                    userTemplate.Templatename = newTemplateName;
-                    userTemplate.Templatecontent = templateContent;
-                    Context.Attach(userTemplate);
-                    Context.Entry(userTemplate).Property(x => x.Templatename).IsModified = true;
-                    Context.Entry(userTemplate).Property(x => x.Templatecontent).IsModified = true;
                     await Context.SaveChangesAsync();
                 }
-                else if (!string.IsNullOrWhiteSpace(newTemplateName) && string.IsNullOrWhiteSpace(templateContent))
-                {
-                    userTemplate.Templatecontent = templateContent;
-                    Context.Attach(userTemplate);
-                    Context.Entry(userTemplate).Property(x => x.Templatecontent).IsModified = true;
-                    await Context.SaveChangesAsync();
-                }
-                else if (!string.IsNullOrWhiteSpace(templateContent) && string.IsNullOrWhiteSpace(newTemplateName))
-                {
-                    userTemplate.Templatename = newTemplateName;
-                    Context.Attach(userTemplate);
-                    Context.Entry(userTemplate).Property(x => x.Templatename).IsModified = true;
-                    await Context.SaveChangesAsync();
-                }
-                
             }
             catch (Exception ex)
             {

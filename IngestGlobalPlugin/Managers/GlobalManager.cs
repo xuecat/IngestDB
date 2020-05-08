@@ -439,7 +439,7 @@ namespace IngestGlobalPlugin.Managers
         //modify
         public async Task ModifyUserTemplateAsync(int TemplateID, string TemplateContent, string NewTemplateName)
         {
-            DbpUsertemplate userTemplate = await Store.GetUsertemplateAsync(a => a.Where(x => x.Templateid == TemplateID), true);
+            DbpUsertemplate userTemplate = await Store.GetUsertemplateAsync(a => a.Where(x => x.Templateid == TemplateID));
 
             if (userTemplate == null || userTemplate.Templateid <= 0)
             {
@@ -447,25 +447,23 @@ namespace IngestGlobalPlugin.Managers
                 return;
             }
 
-            string userCode = userTemplate.Usercode;
-
             if (!string.IsNullOrWhiteSpace(NewTemplateName))
             {
-                userTemplate = await Store.GetUsertemplateAsync(a => a.Where(x => x.Usercode == userTemplate.Usercode && x.Templatename == NewTemplateName && x.Templateid != TemplateID), true);
-                if (userTemplate != null && userTemplate.Templateid > 0)
+                var userTemplateOther = await Store.GetUsertemplateAsync(a => a.Where(x => x.Usercode == userTemplate.Usercode && x.Templatename == NewTemplateName && x.Templateid != TemplateID), true);
+                if (userTemplateOther != null && userTemplateOther.Templateid > 0)
                 {
                     SobeyRecException.ThrowSelfOneParam("user template name is exist", GlobalDictionary.GLOBALDICT_CODE_THE_USER_TEMPLATE_HAS_EXISTS_ONEPARAM, Logger, TemplateID, null);
                     return;
                 }
             }
-
-            await Store.UpdateUserTempalteAsync(TemplateID, userCode, TemplateContent, NewTemplateName);
+            
+            await Store.UpdateDbpUserTempalteAsync(userTemplate, TemplateContent, NewTemplateName);
 
         }
 
         public async Task UpdateUserTempalteContent(int nTemplateID, string strTemplateContent)
         {
-            DbpUsertemplate userTemplate = await Store.GetUsertemplateAsync(a => a.Where(x => x.Templateid == nTemplateID), true);
+            DbpUsertemplate userTemplate = await Store.GetUsertemplateAsync(a => a.Where(x => x.Templateid == nTemplateID));
             if (userTemplate == null || userTemplate.Templateid <= 0)
             {
                 SobeyRecException.ThrowSelfOneParam(nTemplateID.ToString(), GlobalDictionary.GLOBALDICT_CODE_CAN_NOT_FIND_THE_TEMPLATE_ID_IS_ONEPARAM, null, string.Format(GlobalDictionary.Instance.GetMessageByCode(GlobalDictionary.GLOBALDICT_CODE_CAN_NOT_FIND_THE_TEMPLATE_ID_IS_ONEPARAM),
@@ -473,12 +471,12 @@ namespace IngestGlobalPlugin.Managers
                 return;
             }
 
-            await Store.UpdateUserTempalteAsync(nTemplateID, userTemplate.Usercode, strTemplateContent, null);
+            await Store.UpdateDbpUserTempalteAsync(userTemplate, strTemplateContent, null);
         }
 
         public async Task ModifyUserTemplateNameAsync(int nTemplateID, string strNewTemplateName)
         {
-            DbpUsertemplate userTemplate = await Store.GetUsertemplateAsync(a => a.Where(x => x.Templateid == nTemplateID), true);
+            DbpUsertemplate userTemplate = await Store.GetUsertemplateAsync(a => a.Where(x => x.Templateid == nTemplateID));
 
             if (userTemplate == null || userTemplate.Templateid <= 0)
             {
@@ -487,15 +485,15 @@ namespace IngestGlobalPlugin.Managers
                 return;
             }
 
-            string userCode = userTemplate.Usercode;
+            //string userCode = userTemplate.Usercode;
 
-            userTemplate = await Store.GetUsertemplateAsync(a => a.Where(x => x.Usercode == userTemplate.Usercode && x.Templatename == strNewTemplateName && x.Templateid != nTemplateID), true);
-            if (userTemplate != null && userTemplate.Templateid > 0)
+            var userTemplateOther = await Store.GetUsertemplateAsync(a => a.Where(x => x.Usercode == userTemplate.Usercode && x.Templatename == strNewTemplateName && x.Templateid != nTemplateID), true);
+            if (userTemplateOther != null && userTemplateOther.Templateid > 0)
             {
                 SobeyRecException.ThrowSelfOneParam("user template name is exist", GlobalDictionary.GLOBALDICT_CODE_THE_USER_TEMPLATE_HAS_EXISTS_ONEPARAM, Logger, nTemplateID, null);
                 return;
             }
-            await Store.UpdateUserTempalteAsync(nTemplateID, userCode, null, strNewTemplateName);
+            await Store.UpdateDbpUserTempalteAsync(userTemplate, null, strNewTemplateName);
 
         }
 
