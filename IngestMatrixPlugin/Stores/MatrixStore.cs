@@ -121,7 +121,9 @@ namespace IngestMatrixPlugin.Stores
         {
             foreach (var matrixRout in saveList)
             {
-                var matrix = await Context.DbpMatrixrout.SingleOrDefaultAsync(a => a.Matrixid == matrixRout.Matrixid && a.Virtualoutport == matrixRout.Virtualoutport);
+                var matrix = await Context.DbpMatrixrout.SingleOrDefaultAsync(a => a.Matrixid == matrixRout.Matrixid &&
+                a.Virtualoutport == matrixRout.Virtualoutport);
+
                 if (matrix != null)
                 {
                     //matrix = matrixRout;

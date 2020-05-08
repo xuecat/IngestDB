@@ -2,6 +2,7 @@
 using IngestDBCore.Plugin;
 using IngestTaskPlugin.Managers;
 using IngestTaskPlugin.Stores;
+using IngestTaskPlugin.Stores.Policy;
 using IngestTaskPlugin.Stores.VTR;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
@@ -44,7 +45,9 @@ namespace IngestTaskPlugin
             context.Services.AddScoped<ITaskStore, TaskInfoStore>();
             context.Services.AddScoped<TaskManager>();
             context.Services.AddScoped<IVtrStore, VtrStore>();
+            context.Services.AddScoped<IPolicyStore, PolicyStore>();
             context.Services.AddScoped<VtrManager>();
+            context.Services.AddScoped<PolicyManager>();
 
             return base.Init(context);
         }

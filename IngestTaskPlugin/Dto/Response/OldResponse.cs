@@ -758,5 +758,21 @@ namespace IngestTaskPlugin.Dto
         CHN_EXT_MLforTVB,
         CHN_EXT_PreviewVideo,   //当前正在采集的最后以后分段的低质量文件名
     }
+
+    public class GetPolicyByTaskID_OUT
+    {
+        public List<MetaDataPolicy> arDataPolicyList;
+        public int nVaildDataCount;
+        public string errStr;
+        public bool bRet;
+    }
+
+    public class GetAllMetaDataPolicy_OUT
+    {
+        public List<MetaDataPolicy> arDataPolicyList;
+        public int nVaildDataCount;
+        public string errStr;
+        public bool bRet;
+    }
 }
 

@@ -23,8 +23,12 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <Folder Include="Dto\Enums\" />
-    <Folder Include="Dto\Request\" />
+    <Compile Remove="Dto\Enums\**" />
+    <Compile Remove="Dto\Request\**" />
+    <EmbeddedResource Remove="Dto\Enums\**" />
+    <EmbeddedResource Remove="Dto\Request\**" />
+    <None Remove="Dto\Enums\**" />
+    <None Remove="Dto\Request\**" />
   </ItemGroup>
 
   <ItemGroup>

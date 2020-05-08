@@ -8,6 +8,7 @@ using AutoMapper;
 using IngestDBCore;
 using IngestDBCore.Basic;
 using IngestDBCore.Plugin;
+using IngestDBCore.Tool;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Mvc;
@@ -46,7 +47,6 @@ namespace IngestDB
                 .AddJsonOptions(options => { options.SerializerSettings.ContractResolver = new DefaultContractResolver(); });
             //.AddJsonOptions(options =>//为swagger加的
             //options.SerializerSettings.Converters.Add(new StringEnumConverter()));
-
             string path = AppDomain.CurrentDomain.BaseDirectory.Replace("\\", "/") + "/publicsetting.xml";
             if (File.Exists(path))
             {
@@ -65,6 +65,8 @@ namespace IngestDB
                 applicationContext.CMServerUrl = CreateConfigURI(sys.Element("CMServer").Value);
                 applicationContext.CMServerWindowsUrl = CreateConfigURI(sys.Element("CMserver_windows").Value);
                 applicationContext.ConnectionString = CreateDBConnect(ps, applicationContext.VIP);
+
+                Sobey.Core.Log.LoggerManager.GetLogger("Startup").Info(path + sys.ToString());
             }
 
             //services.AddDbContext<CoreDbContext>(options =>
@@ -165,6 +167,7 @@ namespace IngestDB
                 });
             }
 
+           
             //插件加载之后引用
             services.AddAutoMapper(applicationContext.AdditionalAssembly);
         }
@@ -188,7 +191,7 @@ namespace IngestDB
                 if (item.Attribute("module").Value.CompareTo("INGESTDB") == 0)
                 {
                     return string.Format(
-                "Server={0};Port={4};Database={1};Uid={2};Pwd={3};Pooling=true;minpoolsize=1;MaximumPoolSize=30;SslMode=none;",
+                "Server={0};Port={4};Database={1};Uid={2};Pwd={3};Pooling=true;minpoolsize=0;MaximumPoolSize=40;SslMode=none;",
                 vip, item.Element("Instance").Value,
                 item.Element("Username").Value,
                 IngestDBCore.Tool.Base64SQL.Base64_Decode(item.Element("Password").Value),

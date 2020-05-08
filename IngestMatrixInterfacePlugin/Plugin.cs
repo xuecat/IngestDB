@@ -10,13 +10,15 @@ namespace IngestMatrixInterfacePlugin
 {
     public class Plugin : PluginBase
     {
+        // {CA2B1067-CAEB-47D3-AE0C-D045116EDEA8}
+     
 
-        public override string Description => "IngestGlobalInterfaceManager";
+        public override string Description => "IngestMatrixInterfaceManager";
 
-        public override string PluginID => "1C8D6D59-0304-4FA6-94E6-2453ECD325B1";
+        public override string PluginID => "CA2B1067-CAEB-47D3-AE0C-D045116EDEA8";
         // {}
 
-        public override string PluginName => "IngestGlobalInterface";
+        public override string PluginName => "IngestMatrixInterface";
 
 
         public override Task<ResponseMessage> Init(ApplicationContext context)

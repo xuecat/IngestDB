@@ -10,25 +10,18 @@ using System.Threading.Tasks;
 
 namespace IngestDBCore
 {
-    public class ApplicationContext
+    public class ApplicationContext : ApplicationConfig
     {
         public List<Assembly> AdditionalAssembly { get; set; }
 
         public IServiceCollection Services { get; protected set; }
         public static ApplicationContext Current { get; private set; }
-        public ApplicationConfig Config { get; protected set; }
+        //public ApplicationConfig Config { get; protected set; }
         //public IServiceProvider ServiceProvider { get; set; }
         public IServiceProvider AppServiceProvider { get; set; }
         public IPluginFactory PluginFactory { get; set; }
         public IApplicationBuilder ApplicationBuilder { get; set; }
-        public bool UseSwagger { get; set; }
-        public string ConnectionString { get; set; }
-        public string IngestDBUrl { get; set; }
-        public string IngestMatrixUrl { get; set; }
-        public string IngestVtrUrl { get; set; }
-        public string VIP { get; set; }
-        public string CMServerUrl { get; set; }
-        public string CMServerWindowsUrl { get; set; }
+        
         public NotifyClock NotifyClock { get; set;}
         public ApplicationContext(IServiceCollection serviceContainer)
         {
