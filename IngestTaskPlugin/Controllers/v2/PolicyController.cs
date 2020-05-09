@@ -37,7 +37,7 @@ namespace IngestTaskPlugin.Controllers.v2
         /// </remarks>
         /// <param name="taskid">任务id</param>
         /// <returns>素材任务元数据结构体</returns>     
-        [HttpGet("policy/{taskid}")]
+        [HttpGet("{taskid}")]
         [ApiExplorerSettings(GroupName = "v2")]
         public async Task<ResponseMessage<List<MetaDataPolicyResponse>>> GetTaskMaterialMetaData([FromRoute, BindRequired]int taskid)
         {

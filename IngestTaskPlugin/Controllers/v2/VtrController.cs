@@ -1039,7 +1039,11 @@
             return response;
         }
 
-        //增加一个VTR上载任务
+        /// <summary>
+        /// 添加一个vtrupload任务
+        /// </summary>
+        /// <param name="vtrtask">任务结构体</param>
+        /// <returns> 任务新的结构体 </returns>
         [HttpPost("vtruploadtask")]
         public async Task<ResponseMessage<AddVTRUploadTaskResponse>> AddVTRUploadTask(VTRUploadTaskRequest vtrtask)
         {
