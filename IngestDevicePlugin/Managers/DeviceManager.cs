@@ -897,5 +897,18 @@ namespace IngestDevicePlugin.Managers
         {
             return _mapper.Map<RecUnitMap>(await Store.GetChannelUnitMap(channel));
         }
+
+
+
+        #region xdcamdevice
+
+        public async Task<List<TResult>> GetAllXDCAMDeviceAsync<TResult>()
+        {
+            var dbpXdcams = await Store.GetXdcamDeviceListAsync(a => a, true);
+            return _mapper.Map<List<TResult>>(dbpXdcams);
+        }
+
+        #endregion
+
     }
 }

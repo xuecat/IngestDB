@@ -676,5 +676,12 @@ namespace IngestDevicePlugin.Stores
         {
             throw new NotImplementedException();
         }
+
+
+        public async Task<List<TResult>> GetXdcamDeviceListAsync<TResult>(Func<IQueryable<DbpXdcamDevice>, IQueryable<TResult>> query, bool notrack = false)
+        {
+            return await QueryListAsync(Context.DbpXdcamDevice, query, notrack);
+        }
+
     }
 }

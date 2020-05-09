@@ -2,6 +2,7 @@
 {
     using System;
     using System.Collections.Generic;
+    using System.ComponentModel;
     using System.Linq;
     using System.Threading.Tasks;
     using IngestDBCore;
@@ -716,7 +717,7 @@
         /// <param name="nTaskID"></param>
         /// <returns>extention 为 VTRUploadTaskInfo</returns>
         [HttpGet("GetUploadTaskInfoByID")]
-        public async Task<TaskOldResponseMessage<VTRUploadTaskInfo>> GetUploadTaskInfoByID([FromQuery] int nTaskID)
+        public async Task<TaskOldResponseMessage<VTRUploadTaskInfo>> GetUploadTaskInfoByID([FromQuery, DefaultValue(313)] int nTaskID)
         {
             TaskOldResponseMessage<VTRUploadTaskInfo> res = new TaskOldResponseMessage<VTRUploadTaskInfo>();
             res.message = no_err;
