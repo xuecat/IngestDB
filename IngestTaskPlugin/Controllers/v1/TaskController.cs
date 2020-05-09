@@ -133,8 +133,12 @@ namespace IngestTaskPlugin.Controllers.v1
             try
             {
                 var ret = await _taskManage.GetCustomMetadataAsync<GetTaskCustomMetadata_OUT>(nTaskID);
-                ret.bRet = true;
-                ret.errStr = "OK";
+                if (ret != null)
+                {
+                    ret.bRet = true;
+                    ret.errStr = "OK";
+                }
+                
                 return ret;
             }
             catch (Exception e)
@@ -836,7 +840,12 @@ namespace IngestTaskPlugin.Controllers.v1
             try
             {
                 Response.taskCon = await _taskManage.QueryTaskContent<TaskContent>(nUnitID, DateTimeFormat.DateTimeFromString(strDay), (TimeLineType)timeMode);
-                Response.nVaildDataCount = Response.taskCon.Count;
+
+                if (Response.taskCon != null)
+                {
+                    Response.nVaildDataCount = Response.taskCon.Count;
+                }
+
                 return Response;
             }
             catch (Exception e)
@@ -1053,7 +1062,11 @@ namespace IngestTaskPlugin.Controllers.v1
             try
             {
                 Response.synTasks = await _taskManage.GetNeedSynTasksNew<TaskFullInfo>();
-                Response.nValidDataCount = Response.synTasks.Count;
+                if (Response.synTasks != null)
+                {
+                    Response.nValidDataCount = Response.synTasks.Count;
+                }
+                
             }
             catch (Exception e)//其他未知的异常，写异常日志
             {
@@ -1133,7 +1146,10 @@ namespace IngestTaskPlugin.Controllers.v1
             try
             {
                 Response.rescheduleTasks = await _taskManage.GetScheduleFailedTasks<TaskFullInfo>();
-                Response.nValidDataCount = Response.rescheduleTasks.Count;
+                if (Response.rescheduleTasks != null)
+                {
+                    Response.nValidDataCount = Response.rescheduleTasks.Count;
+                }
             }
             catch (Exception e)//其他未知的异常，写异常日志
             {
@@ -1233,7 +1249,10 @@ namespace IngestTaskPlugin.Controllers.v1
             try
             {
                 Response.taskInfoRescheduled = await _taskManage.RescheduleTasks<TaskInfoRescheduled>();
-                Response.nValidDataCount = Response.taskInfoRescheduled.Count;
+                if (Response.taskInfoRescheduled != null)
+                {
+                    Response.nValidDataCount = Response.taskInfoRescheduled.Count;
+                }
 
                 return Response;
             }

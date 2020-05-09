@@ -285,7 +285,8 @@ namespace IngestGlobalPlugin.Stores
                 var state = new DbpGlobal()
                 {
                     GlobalKey = strKey,
-                    GlobalValue = strValue
+                    GlobalValue = strValue,
+                    Changetime = DateTime.Now,
                 };
                 if (!Context.DbpGlobal.AsNoTracking().Any(a => a.GlobalKey == strKey))
                 {

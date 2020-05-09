@@ -263,16 +263,19 @@ namespace IngestGlobalPlugin.Stores
 
         public async Task AddMsgFailedRecord(DbpMsgFailedrecord pin)
         {
-            Context.DbpMsgFailedrecord.Add(pin);
-
-            try
+            if (!Context.DbpMsgFailedrecord.AsNoTracking().Any(x => x.MsgGuid == pin.MsgGuid))
             {
-                await Context.SaveChangesAsync();
-            }
-            catch (Exception e)
-            {
+                Context.DbpMsgFailedrecord.Add(pin);
 
-                throw e;
+                try
+                {
+                    await Context.SaveChangesAsync();
+                }
+                catch (Exception e)
+                {
+
+                    throw e;
+                }
             }
         }
 
@@ -308,7 +311,7 @@ namespace IngestGlobalPlugin.Stores
             }
             else
             {
-                Context.DbpFileformatinfo.Update(file);
+                item.Formatinfo = file.Formatinfo;
             }
 
             try

@@ -224,7 +224,7 @@
         /// </summary>
         /// <param name="request">上传任务信息. <see cref="VTRUploadTaskInfoRequest"/></param>
         /// <returns>The 影响的Vtr任务Id<see cref="Task{ResponseMessage{int}}"/>.</returns>
-        [HttpPost("vtruploadtask")]
+        [HttpPut("vtruploadtask")]
         public async Task<ResponseMessage<int>> SetVTRUploadTaskInfo([FromBody, BindRequired] VTRUploadTaskInfoRequest request)
         {
             ResponseMessage<int> response = new ResponseMessage<int>();
