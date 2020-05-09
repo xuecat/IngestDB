@@ -220,7 +220,7 @@
         }
 
         /// <summary>
-        /// The 设置VTR任务信息，VTRTaskID不存在则添加,否则则修改.
+        /// The 设置VTR任务信息，VTRTaskID不存在则添加,否则则修改.和add冲突，暂时改为put，但是该方法不仅有添加，也有修改
         /// </summary>
         /// <param name="request">上传任务信息. <see cref="VTRUploadTaskInfoRequest"/></param>
         /// <returns>The 影响的Vtr任务Id<see cref="Task{ResponseMessage{int}}"/>.</returns>
@@ -362,7 +362,7 @@
         /// <param name="taskid">The 任务Id<see cref="int"/>.</param>
         /// <returns>The VTR上载任务 及 内容<see cref="Task{ResponseMessage{VTRUploadTaskContentResponse}}"/>.</returns>
         [HttpGet("vtruploadtaskcontent/{taskid}")]
-        public async Task<ResponseMessage<VTRUploadTaskContentResponse>> GetVTRUploadTaskById([FromQuery, BindRequired, DefaultValue(312)] int taskid)
+        public async Task<ResponseMessage<VTRUploadTaskContentResponse>> GetVTRUploadTaskById([FromRoute, BindRequired, DefaultValue(312)] int taskid)
         {
             ResponseMessage<VTRUploadTaskContentResponse> response = new ResponseMessage<VTRUploadTaskContentResponse>();
             try
@@ -695,10 +695,14 @@
         /// <summary>
         /// 通过ID获得上载任务信息
         /// </summary>
+        /// <remarks>
+        /// example:
+        /// Get api/v2/vtr/uploadtaskinfo/{taskid}
+        /// </remarks>
         /// <param name="taskid">任务Id</param>
         /// <returns>extention 为 VTRUploadTaskInfo</returns>
-        [HttpGet("uploadtaskinfo/{taskid}")]
-        public async Task<ResponseMessage<VTRUploadTaskInfoResponse>> GetUploadTaskInfoByID([FromRoute, BindRequired, DefaultValue(1)] int taskid)
+        [HttpGet("vtruploadtask/{taskid}")]
+        public async Task<ResponseMessage<VTRUploadTaskInfoResponse>> GetUploadTaskInfoByID([FromRoute, BindRequired, DefaultValue(313)] int taskid)
         {
             ResponseMessage<VTRUploadTaskInfoResponse> response = new ResponseMessage<VTRUploadTaskInfoResponse>();
             try
@@ -726,7 +730,10 @@
         /// <summary>
         /// 修改一个VTR上载任务
         /// </summary>
-        /// 
+        /// <remarks>
+        /// example:
+        /// Get api/v2/vtr/vtruploadtask/modify
+        /// </remarks> 
         /// <param name="vtrtaskrequest">见定义<see cref="VTRUploadTaskRequest"/>.</param>
         /// <returns>The 是否修改成功<see cref="Task{ResponseMessage{VTRUploadTaskContentResponse}}"/>.</returns>
         [HttpPost("vtruploadtask/modify")]

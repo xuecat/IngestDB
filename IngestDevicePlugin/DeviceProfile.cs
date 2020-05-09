@@ -406,6 +406,39 @@ namespace IngestDevicePlugin
                 .ForMember(a => a.UnitID, (map) => map.MapFrom(b => b.Recid));
 
             //ReverseMap
+
+            #region XdcamDevice , dbpxdcamdevice
+            //v1
+            CreateMap<DbpXdcamDevice, XDCAMDeviceInfo>()
+                .ForMember(a => a.nDeviceID, (map) => map.MapFrom(b => b.Deviceid))
+                .ForMember(a => a.nDeviceType, (map) => map.MapFrom(b => b.Devicetype))
+                .ForMember(a => a.strDeviceName, (map) => map.MapFrom(b => b.Devicename))
+                .ForMember(a => a.strDeviceDesc, (map) => map.MapFrom(b => b.Devicedesc))
+                .ForMember(a => a.strDeviceAddr, (map) => map.MapFrom(b => b.Ftpaddress))
+                .ForMember(a => a.strLoginName, (map) => map.MapFrom(b => b.Loginname))
+                .ForMember(a => a.strLoginPwd, (map) => map.MapFrom(b => b.Password))
+                .ForMember(a => a.strStoragePath, (map) => map.MapFrom(b => b.Storagepath))
+                .ForMember(a => a.nWorkMode, (map) => map.MapFrom(b => (XDCAMWorkMode)Convert.ToInt32(b.Workmode)))
+                .ForMember(a => a.nDiscID, (map) => map.MapFrom(b => b.Discid))
+                .ForMember(a => a.strServerIP, (map) => map.MapFrom(b => b.Serverip))
+                .ForMember(a => a.nDeviceState, (map) => map.MapFrom(b => (XDCAMDeviceState)Convert.ToInt32(b.Devicestate)));
+            //v2
+            CreateMap<DbpXdcamDevice, XDCAMDeviceResponse>()
+                .ForMember(a => a.DeviceID, (map) => map.MapFrom(b => b.Deviceid))
+                .ForMember(a => a.DeviceType, (map) => map.MapFrom(b => b.Devicetype))
+                .ForMember(a => a.DeviceName, (map) => map.MapFrom(b => b.Devicename))
+                .ForMember(a => a.DeviceDesc, (map) => map.MapFrom(b => b.Devicedesc))
+                .ForMember(a => a.DeviceAddr, (map) => map.MapFrom(b => b.Ftpaddress))
+                .ForMember(a => a.LoginName, (map) => map.MapFrom(b => b.Loginname))
+                .ForMember(a => a.LoginPwd, (map) => map.MapFrom(b => b.Password))
+                .ForMember(a => a.StoragePath, (map) => map.MapFrom(b => b.Storagepath))
+                .ForMember(a => a.WorkMode, (map) => map.MapFrom(b => (XDCAMWorkMode)Convert.ToInt32(b.Workmode)))
+                .ForMember(a => a.DiscID, (map) => map.MapFrom(b => b.Discid))
+                .ForMember(a => a.ServerIP, (map) => map.MapFrom(b => b.Serverip))
+                .ForMember(a => a.DeviceState, (map) => map.MapFrom(b => (XDCAMDeviceState)Convert.ToInt32(b.Devicestate)));
+
+            #endregion
+
         }
 
         public string MergeTSPgmInfoMultiIPAndPort(int? pgmIndex, string multiIP, int? multiPort, string desc, string extendParams)

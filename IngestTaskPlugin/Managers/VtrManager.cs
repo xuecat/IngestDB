@@ -1443,7 +1443,10 @@
             Logger.Info("In ModifyNormalTaskToVTRUploadTask.Before Updating metadatas");
             foreach (VTR_UPLOAD_MetadataPair metadata in metadatas)
             {
-                list.AddRange(GetVBUTasksMetadatas(taskid, (MetaDataType)metadata.emType, metadata.strMetadata));
+                if (!string.IsNullOrEmpty(metadata.strMetadata))
+                {
+                    list.AddRange(GetVBUTasksMetadatas(taskid, (MetaDataType)metadata.emType, metadata.strMetadata));
+                }
                 //await SetVBUTasksMetadatasAsync(vtrTask.nTaskId, (MetaDataType)metadata.emType, metadata.strMetadata);
             }
 
