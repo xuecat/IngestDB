@@ -766,7 +766,19 @@ namespace IngestTaskPlugin.Stores
                 if (isNeedDelFromDB)
                 {
                     Context.DbpTask.Remove(taskinfo);
-                    Context.DbpTaskMetadata.Remove(new DbpTaskMetadata() { Taskid = taskinfo.Taskid });
+
+                    
+                    Context.DbpTaskMetadata.RemoveRange(Context.DbpTaskMetadata.Where(x =>x.Taskid == taskinfo.Taskid).ToList());
+
+                    try
+                    {
+                        await Context.SaveChangesAsync();
+                    }
+                    catch (Exception e)
+                    {
+
+                        throw e; 
+                    }
                 }
                 else
                 {

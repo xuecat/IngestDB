@@ -334,6 +334,12 @@ namespace IngestTaskPlugin.Controllers.v2
                     {
                         Logger.Error("SetGlobalState modtask error");
                     }
+
+                    foreach (var item in Response.Ext)
+                    {
+                        await Task.Run(() => { _clock.InvokeNotify(GlobalStateName.MODTASK, NotifyPlugin.Kafka, NotifyAction.STOPGROUPTASK, item); });
+                    }
+
                 }
             }
             catch (Exception e)
@@ -385,6 +391,11 @@ namespace IngestTaskPlugin.Controllers.v2
                     if (response1.Code != ResponseCodeDefines.SuccessCode)
                     {
                         Logger.Error("SetGlobalState modtask error");
+                    }
+
+                    foreach (var item in Response.Ext)
+                    {
+                        await Task.Run(() => { _clock.InvokeNotify(GlobalStateName.MODTASK, NotifyPlugin.Kafka, NotifyAction.STOPGROUPTASK, item); });
                     }
                 }
             }
@@ -448,6 +459,8 @@ namespace IngestTaskPlugin.Controllers.v2
                     {
                         Logger.Error("SetGlobalState modtask error");
                     }
+
+                    await Task.Run(() => { _clock.InvokeNotify(GlobalStateName.ADDTASK, NotifyPlugin.Kafka, NotifyAction.ADDTASK, Response.Ext.TaskID); });
                 }
 
                 //SetGTMTaskInfo
@@ -523,6 +536,8 @@ namespace IngestTaskPlugin.Controllers.v2
                     {
                         Logger.Error("SetGlobalState modtask error");
                     }
+
+                    await Task.Run(() => { _clock.InvokeNotify(GlobalStateName.ADDTASK, NotifyPlugin.Kafka, NotifyAction.ADDTASK, Response.Ext.TaskID); });
                 }
                 //SetGTMTaskInfo
                 //添加后如果开始时间在2分钟以内，需要调度一次
@@ -703,6 +718,8 @@ namespace IngestTaskPlugin.Controllers.v2
                     {
                         Logger.Error("SetGlobalState modtask error");
                     }
+
+                    await Task.Run(() => { _clock.InvokeNotify(GlobalStateName.MODTASK, NotifyPlugin.Kafka, NotifyAction.MODIFYTASK, Response.Ext.TaskID); });
                 }
             }
             catch (Exception e)
@@ -748,8 +765,6 @@ namespace IngestTaskPlugin.Controllers.v2
             {
                 Response.Ext = await _taskManage.GetTaskInfoByID<TaskContentResponse>(taskid, changestate);
 
-                //await Task.Run(() => { _clock.InvokeNotify("relocate", "pi", 23, "data"); });
-                
             }
             catch (Exception e)
             {
@@ -853,6 +868,8 @@ namespace IngestTaskPlugin.Controllers.v2
                     {
                         Logger.Error("SetGlobalState modtask error");
                     }
+
+                    await Task.Run(() => { _clock.InvokeNotify(GlobalStateName.MODTASK, NotifyPlugin.Kafka, NotifyAction.STOPTASK, Response.Ext); });
                 }
             }
             catch (Exception e)
@@ -917,6 +934,8 @@ namespace IngestTaskPlugin.Controllers.v2
                     {
                         Logger.Error("SetGlobalState modtask error");
                     }
+
+                    await Task.Run(() => { _clock.InvokeNotify(GlobalStateName.MODTASK, NotifyPlugin.Kafka, NotifyAction.STOPTASK, Response.Ext); });
                 }
             }
             catch (Exception e)
@@ -1117,6 +1136,8 @@ namespace IngestTaskPlugin.Controllers.v2
             try
             {
                 Response.Ext = await _taskManage.DeleteTask(taskid);
+
+                await Task.Run(() => { _clock.InvokeNotify(GlobalStateName.DELTASK, NotifyPlugin.Kafka, NotifyAction.DELETETASK, taskid); });
             }
             catch (Exception e)
             {
@@ -1697,6 +1718,8 @@ namespace IngestTaskPlugin.Controllers.v2
                     {
                         Logger.Error("SetGlobalState modtask error");
                     }
+
+                    await Task.Run(() => { _clock.InvokeNotify(GlobalStateName.MODTASK, NotifyPlugin.Kafka, NotifyAction.MODIFYTASK, taskid); });
                 }
                 //await _taskManage.
             }
@@ -1781,6 +1804,8 @@ namespace IngestTaskPlugin.Controllers.v2
                     {
                         Logger.Error("SetGlobalState modtask error");
                     }
+
+                    await Task.Run(() => { _clock.InvokeNotify(GlobalStateName.MODTASK, NotifyPlugin.Kafka, NotifyAction.MODIFYTASK, taskid); });
                 }
             }
             catch (Exception e)
@@ -1831,6 +1856,8 @@ namespace IngestTaskPlugin.Controllers.v2
                     {
                         Logger.Error("SetGlobalState modtask error");
                     }
+
+                    await Task.Run(() => { _clock.InvokeNotify(GlobalStateName.MODTASK, NotifyPlugin.Kafka, NotifyAction.MODIFYPERIODCTASK, Response.Ext); });
                 }
             }
             catch (Exception e)
@@ -2059,6 +2086,9 @@ namespace IngestTaskPlugin.Controllers.v2
                     {
                         Logger.Error("SetGlobalState modtask error");
                     }
+
+                    await Task.Run(() => { _clock.InvokeNotify(GlobalStateName.MODTASK, NotifyPlugin.Kafka, NotifyAction.MODIFYTASK, oldtaskid); });
+                    await Task.Run(() => { _clock.InvokeNotify(GlobalStateName.ADDTASK, NotifyPlugin.Kafka, NotifyAction.ADDTASK, Response.Ext.TaskID); });
                 }
             }
             catch (Exception e)

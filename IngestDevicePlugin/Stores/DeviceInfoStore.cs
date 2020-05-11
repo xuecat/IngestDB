@@ -110,9 +110,14 @@ namespace IngestDevicePlugin.Stores
 
         public async Task<bool> HaveMatirxAsync()
         {
-            return await Context.DbpMatrixinfo.AsNoTracking().AnyAsync(a => a.Matrixid == 2 && a.Matrixtypeid != 2);//老版本NULL MATRIX是6，现在是2，难道老版本一直返回的是有矩阵？
+            return await Context.DbpMatrixinfo.AsNoTracking().AnyAsync(a => a.Matrixid == 2 && a.Matrixtypeid != 6);//老版本NULL MATRIX是6，现在是2，难道老版本一直返回的是有矩阵？
         }
         
+        public async Task<bool> TrueHaveMatirxAsync()
+        {
+            return await Context.DbpMatrixinfo.AsNoTracking().AnyAsync(a => a.Matrixid == 2 && a.Matrixtypeid != 2);//老版本NULL MATRIX是6，现在是2，难道老版本一直返回的是有矩阵？
+
+        }
 
         //老版本 GetProgrammeInfoById
         public async Task<ProgrammeInfoDto> GetSignalInfoAsync(int srcid)

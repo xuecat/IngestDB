@@ -6,16 +6,16 @@ namespace IngestDBCore.Notify
 {
     public class NotifyArgs: EventArgs
     {
-        public NotifyArgs(string type, string intent, int port, string data)
+        public NotifyArgs(string type, int intent, string action, int id)
         {
             Type = type;
             Intent = intent;
-            Port = port;
-            Data = data;
+            Action = action;
+            ID = id;
         }
         public string Type { get; set; }
-        public string Intent { get; set; }
-        public int Port { get; set; }
-        public string Data { get; set; }
+        public int Intent { get; set; }
+        public string Action { get; set; }
+        public int ID { get; set; }
     }
 }

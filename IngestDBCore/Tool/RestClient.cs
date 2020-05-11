@@ -373,6 +373,35 @@ namespace IngestDBCore.Tool
         }
 
         #region cmapi接口统一管理，方便后面修改
+        public async Task<string> GetGlobalParam(bool usetokencode, string userTokenOrCode, string key)
+        {
+            if (usetokencode)
+                UseTokenHeader(userTokenOrCode);
+            else
+                UseCodeHeader(userTokenOrCode);
+
+            var back = await AutoRetry.Run<ResponseMessage<CmParam>>(() =>
+            {
+                DefaultParameter param = new DefaultParameter()
+                {
+                    tool = "DEFAULT",
+                    paramname = key,
+                    system = "INGEST"
+                };
+                return Post<ResponseMessage<CmParam>>(
+                string.Format("{0}/CMApi/api/basic/config/getsysparam", ApplicationContext.Current.CMServerUrl),
+                param);
+
+            });
+
+            if (back != null)
+            {
+                return back.Ext?.paramvalue;
+            }
+            return string.Empty;
+        }
+
+
         public async Task<int> GetUserParamTemplateID(bool usetokencode, string userTokenOrCode)
         {
             if (usetokencode)

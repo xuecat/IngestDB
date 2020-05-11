@@ -188,6 +188,7 @@ namespace IngestDevicePlugin.Stores
 
         /// <summary> 是否矩阵 </summary>
         Task<bool> HaveMatirxAsync();
+        Task<bool> TrueHaveMatirxAsync();
 
         /// <summary>获取XDCamDevice列表</summary>
         Task<List<TResult>> GetXdcamDeviceListAsync<TResult>(Func<IQueryable<DbpXdcamDevice>, IQueryable<TResult>> query, bool notrack = false);
