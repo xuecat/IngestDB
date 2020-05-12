@@ -303,7 +303,7 @@ namespace IngestGlobalPlugin.Stores
         public async Task UpdateFormateInfo(DbpFileformatinfo file)
         {
             var item = await Context.DbpFileformatinfo
-                .Where(x=> x.Key.Equals(file.Key, StringComparison.OrdinalIgnoreCase))
+                .Where(x=> x.Key==file.Key)
                 .SingleOrDefaultAsync();
             if (item == null)
             {

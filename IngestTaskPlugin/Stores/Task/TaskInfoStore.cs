@@ -165,50 +165,81 @@ namespace IngestTaskPlugin.Stores
         /// <returns></returns>
         public async Task<List<DbpTask>> GetTaskListAsync(TaskCondition condition, bool Track, bool uselock)
         {
+            IQueryable<DbpTask> lst = null;
             if (!Track)
             {
-                return await Context.DbpTask.AsNoTracking().Where(x =>
-                (condition.ChannelID <= 0 || x.Channelid == condition.ChannelID)
-                && (condition.RecUnit <= 0 || x.Recunitid == condition.RecUnit)
-                && (condition.SignalID <= 0 || x.Signalid == condition.SignalID)
-                && (condition.StateIncludeLst == null || condition.StateIncludeLst.Count <= 0 || condition.StateIncludeLst.Contains(x.State.GetValueOrDefault()))
-                && (condition.TaskTypeIncludeLst == null || condition.TaskTypeIncludeLst.Count <= 0 || condition.TaskTypeIncludeLst.Contains(x.Tasktype.GetValueOrDefault()))
-                && (string.IsNullOrEmpty(condition.LockStr) || x.Tasklock == condition.LockStr)
-                && (condition.SyncStateIncludeLst == null || condition.SyncStateIncludeLst.Count <= 0 || condition.SyncStateIncludeLst.Contains(x.SyncState.GetValueOrDefault()))
-                && (condition.DispatchStateIncludeLst == null || condition.DispatchStateIncludeLst.Count <= 0 || condition.DispatchStateIncludeLst.Contains(x.DispatchState.GetValueOrDefault()))
-                && (condition.MaxBeginTime == DateTime.MinValue || x.Starttime < condition.MaxBeginTime)
-                && (condition.MinBeginTime == DateTime.MinValue || x.Starttime > condition.MinBeginTime)
-                && (condition.MaxEndTime == DateTime.MinValue || x.Endtime < condition.MaxEndTime)
-                && (condition.MinEndTime == DateTime.MinValue || x.Endtime > condition.MinEndTime)
-                && (condition.MaxNewBeginTime == DateTime.MinValue || x.NewBegintime < condition.MaxNewBeginTime)
-                && (condition.MinNewBeginTime == DateTime.MinValue || x.NewBegintime > condition.MinNewBeginTime)
-                && (condition.MaxNewEndTime == DateTime.MinValue || x.NewEndtime < condition.MaxNewEndTime)
-                && (condition.MinNewEndTime == DateTime.MinValue || x.NewEndtime > condition.MinNewEndTime)
-                ).ToListAsync();
+                lst = Context.DbpTask.AsNoTracking();
+                
             }
             else
             {
-                return await Context.DbpTask.Where(x =>
-                (condition.ChannelID <= 0 || x.Channelid == condition.ChannelID)
-                && (condition.RecUnit <= 0 || x.Recunitid == condition.RecUnit)
-                && (condition.SignalID <= 0 || x.Signalid == condition.SignalID)
-                && (condition.StateIncludeLst == null || condition.StateIncludeLst.Count <= 0 || condition.StateIncludeLst.Contains(x.State.GetValueOrDefault()))
-                && (condition.TaskTypeIncludeLst == null || condition.TaskTypeIncludeLst.Count <= 0 || condition.TaskTypeIncludeLst.Contains(x.Tasktype.GetValueOrDefault()))
-                && (string.IsNullOrEmpty(condition.LockStr) || x.Tasklock == condition.LockStr)
-                && (condition.SyncStateIncludeLst == null || condition.SyncStateIncludeLst.Count <= 0 || condition.SyncStateIncludeLst.Contains(x.SyncState.GetValueOrDefault()))
-                && (condition.DispatchStateIncludeLst == null || condition.DispatchStateIncludeLst.Count <= 0 || condition.DispatchStateIncludeLst.Contains(x.DispatchState.GetValueOrDefault()))
-                && (condition.MaxBeginTime == DateTime.MinValue || x.Starttime < condition.MaxBeginTime)
-                && (condition.MinBeginTime == DateTime.MinValue || x.Starttime > condition.MinBeginTime)
-                && (condition.MaxEndTime == DateTime.MinValue || x.Endtime < condition.MaxEndTime)
-                && (condition.MinEndTime == DateTime.MinValue || x.Endtime > condition.MinEndTime)
-                && (condition.MaxNewBeginTime == DateTime.MinValue || x.NewBegintime < condition.MaxNewBeginTime)
-                && (condition.MinNewBeginTime == DateTime.MinValue || x.NewBegintime > condition.MinNewBeginTime)
-                && (condition.MaxNewEndTime == DateTime.MinValue || x.NewEndtime < condition.MaxNewEndTime)
-                && (condition.MinNewEndTime == DateTime.MinValue || x.NewEndtime > condition.MinNewEndTime)
-                ).ToListAsync();
+                lst = Context.DbpTask;
             }
-
-
+            if (condition.ChannelID > 0)
+            {
+                lst = lst.Where(x => x.Channelid == condition.ChannelID);
+            }
+            if (condition.RecUnit > 0)
+            {
+                lst = lst.Where(x => x.Recunitid == condition.RecUnit);
+            }
+            if (condition.SignalID > 0)
+            {
+                lst = lst.Where(x => x.Signalid == condition.SignalID);
+            }
+            if (!string.IsNullOrEmpty(condition.LockStr))
+            {
+                lst = lst.Where(x => x.Tasklock == condition.LockStr);
+            }
+            if (condition.StateIncludeLst != null && condition.StateIncludeLst.Count > 0)
+            {
+                lst = lst.Where(x => condition.StateIncludeLst.Contains(x.State.GetValueOrDefault()));
+            }
+            if (condition.TaskTypeIncludeLst != null && condition.TaskTypeIncludeLst.Count > 0)
+            {
+                lst = lst.Where(x => condition.TaskTypeIncludeLst.Contains(x.Tasktype.GetValueOrDefault()));
+            }
+            if (condition.SyncStateIncludeLst != null && condition.SyncStateIncludeLst.Count > 0)
+            {
+                lst = lst.Where(x => condition.SyncStateIncludeLst.Contains(x.SyncState.GetValueOrDefault()));
+            }
+            if (condition.DispatchStateIncludeLst != null && condition.DispatchStateIncludeLst.Count > 0)
+            {
+                lst = lst.Where(x => condition.DispatchStateIncludeLst.Contains(x.DispatchState.GetValueOrDefault()));
+            }
+            if (condition.MaxBeginTime > DateTime.MinValue)
+            {
+                lst = lst.Where(x => x.Starttime < condition.MaxBeginTime);
+            }
+            if (condition.MinBeginTime > DateTime.MinValue)
+            {
+                lst = lst.Where(x => x.Starttime > condition.MinBeginTime);
+            }
+            if (condition.MaxEndTime > DateTime.MinValue)
+            {
+                lst = lst.Where(x => x.Endtime < condition.MaxEndTime);
+            }
+            if (condition.MinEndTime > DateTime.MinValue)
+            {
+                lst = lst.Where(x => x.Endtime > condition.MinEndTime);
+            }
+            if (condition.MaxNewBeginTime > DateTime.MinValue)
+            {
+                lst = lst.Where(x => x.NewBegintime < condition.MaxNewBeginTime);
+            }
+            if (condition.MinNewBeginTime > DateTime.MinValue)
+            {
+                lst = lst.Where(x => x.NewBegintime > condition.MinNewBeginTime);
+            }
+            if (condition.MaxNewEndTime > DateTime.MinValue)
+            {
+                lst = lst.Where(x => x.NewEndtime < condition.MaxNewEndTime);
+            }
+            if (condition.MinNewEndTime > DateTime.MinValue)
+            {
+                lst = lst.Where(x => x.NewEndtime > condition.MinNewEndTime);
+            }
+            return await lst.ToListAsync();
         }
 
         public async Task<List<TimePeriod>> GetTimePeriodsByScheduleVBUTasks(int vtrid, int extaskid)
@@ -231,6 +262,8 @@ namespace IngestTaskPlugin.Stores
         {
             var date = DateTime.Now.AddSeconds(600);
 
+            var fdate = date.AddSeconds(-86400);
+
             return await Context.DbpTask.AsNoTracking().Where(a => string.IsNullOrEmpty(a.Tasklock)
             && ((a.NewEndtime < date
                 && ((a.DispatchState == (int)dispatchState.dpsDispatched && a.SyncState == (int)syncState.ssSync && a.State == (int)taskState.tsExecuting && (a.Tasktype != (int)TaskType.TT_MANUTASK && a.Tasktype != (int)TaskType.TT_TIEUP && a.Tasktype != (int)TaskType.TT_PERIODIC))
@@ -239,21 +272,21 @@ namespace IngestTaskPlugin.Stores
                    )
                 && a.State != (int)taskState.tsDelete
                 && a.Starttime != a.Endtime)
-               || (a.State == (int)taskState.tsExecuting && a.Tasktype == (int)TaskType.TT_OPENEND && a.Starttime.AddSeconds(86400) > date))
+               || (a.State == (int)taskState.tsExecuting && a.Tasktype == (int)TaskType.TT_OPENEND && a.Starttime > fdate))//这里本来是starttime..AddSeconds(86400) 怕翻译问题
                 ).ToListAsync();
         }
 
         public async Task<List<DbpTask>> GetNeedUnSynTasks()
         {
             var date = DateTime.Now.AddSeconds(600);
-
+            var fdate = date.AddDays(-1);
             return await Context.DbpTask.AsNoTracking().Where(x => string.IsNullOrEmpty(x.Tasklock)
                 && x.DispatchState == (int)dispatchState.dpsDispatched
                 && x.SyncState == (int)syncState.ssNot
                 && x.Tasktype != (int)TaskType.TT_VTRUPLOAD
                 && x.State != (int)taskState.tsDelete
                 && ((x.State != (int)taskState.tsExecuting && x.State != (int)taskState.tsManuexecuting) || x.Backtype != (int)CooperantType.emKamataki)
-                && (x.NewBegintime > date.AddDays(-1) && x.NewBegintime < date)).ToListAsync();
+                && (x.NewBegintime > fdate && x.NewBegintime < date)).ToListAsync();
         }
 
         public async Task UpdateTaskMetaDataAsync(int taskid, MetaDataType type, string metadata)
@@ -766,7 +799,19 @@ namespace IngestTaskPlugin.Stores
                 if (isNeedDelFromDB)
                 {
                     Context.DbpTask.Remove(taskinfo);
-                    Context.DbpTaskMetadata.Remove(new DbpTaskMetadata() { Taskid = taskinfo.Taskid });
+
+                    
+                    Context.DbpTaskMetadata.RemoveRange(Context.DbpTaskMetadata.Where(x =>x.Taskid == taskinfo.Taskid).ToList());
+
+                    try
+                    {
+                        await Context.SaveChangesAsync();
+                    }
+                    catch (Exception e)
+                    {
+
+                        throw e; 
+                    }
                 }
                 else
                 {
@@ -1711,18 +1756,26 @@ namespace IngestTaskPlugin.Stores
             dtNowBegin = dtNowBegin.AddSeconds(1);
             dtNowEnd = dtNowEnd.AddSeconds(-1);
 
-            var lsttask = await Context.DbpTask.AsNoTracking().Where(x =>
+            var query = Context.DbpTask.AsNoTracking().Where(x =>
             //我也不知道老代码这些部分啥意思
             //(x.Starttime >= dtNowBegin.AddDays(-1) && x.Starttime<= dtNowEnd)
             //&& (x.Endtime >=dtNowBegin && x.Endtime <= dtNowEnd.AddDays(1))
             ((x.Starttime >= dtNowBegin && x.Starttime <= dtNowEnd)
              || (x.Endtime >= dtNowBegin && x.Endtime <= dtNowEnd) || (x.Starttime < dtNowBegin && x.Endtime > dtNowEnd))
             && (x.State != (int)taskState.tsDelete /*|| x.State == (int)taskState.tsExecuting*/)
-            && (x.DispatchState == (int)dispatchState.dpsDispatched || x.DispatchState == (int)dispatchState.dpsNotDispatch)
-            && (nChannelID <= 0 || (nChannelID > 0 && x.Channelid == nChannelID))
-            && (nUnitID <= 0 || (nUnitID > 0 && x.Recunitid == nUnitID))
-            //&& (bIncludePerodic || (!bIncludePerodic && x.Tasktype != (int)TaskType.TT_PERIODIC))
-            ).ToListAsync();
+            && (x.DispatchState == (int)dispatchState.dpsDispatched || x.DispatchState == (int)dispatchState.dpsNotDispatch));
+
+            if (nChannelID >0)
+            {
+                query = query.Where(x => x.Channelid == nChannelID);
+            }
+
+            if (nUnitID > 0)
+            {
+                query = query.Where(x => x.Recunitid == nUnitID);
+            }
+
+            var lsttask = await query.ToListAsync();
 
             if (lsttask != null && lsttask.Count > 0)
             {

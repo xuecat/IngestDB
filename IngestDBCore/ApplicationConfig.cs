@@ -15,5 +15,6 @@ namespace IngestDBCore
         public string VIP { get; set; }
         public string CMServerUrl { get; set; }
         public string CMServerWindowsUrl { get; set; }
+        public string KafkaUrl { get; set; }
     }
 }

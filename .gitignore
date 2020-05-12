@@ -58,6 +58,9 @@ IngestGlobalPlugin/obj/
 IngestTaskPlugin/Properties/
 IngestGlobalInterfacePlugin/bin/
 
+KafKaNotifyPlugin/obj/
+KafKaNotifyPlugin/bin/
+
 /IngestVtrInterfacePlugin/obj
 
 /IngestVtrPlugin/obj

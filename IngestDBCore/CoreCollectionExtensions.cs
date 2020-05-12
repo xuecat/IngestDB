@@ -15,8 +15,10 @@ namespace IngestDBCore
             {
                 throw new ArgumentNullException(nameof(services));
             }
-            services.AddSingleton<RestClient>();
+            var client = new RestClient();
+            ApplicationContext.Current.KafkaUrl = client.GetGlobalParam(false, "admin", "KafkaAddress").Result;
 
+            services.AddSingleton<RestClient>(client);
            
             ApplicationContext.Current.NotifyClock = new NotifyClock();
             services.AddSingleton<NotifyClock>(ApplicationContext.Current.NotifyClock);

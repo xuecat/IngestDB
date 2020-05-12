@@ -368,14 +368,16 @@
         /// <returns>The <see cref="Task{List{VTRUploadTaskContentResponse}}"/>.</returns>
         public async Task<List<VTRUploadTaskContentResponse>> GetNeedScheduleExecuteVTRUploadTasks(DateTime dtBegin)
         {
+            var dt1 = dtBegin.AddSeconds(5);
+            var dt2 = dtBegin.AddDays(-1);
             IQueryable<VtrUploadtask> uploadQuery = Context.VtrUploadtask.AsNoTracking();
             uploadQuery.Where(a => a.Vtrtasktype == 1 && a.Taskstate == 2);
             IQueryable<DbpTask> taskQeruy = Context.DbpTask.AsNoTracking();
             taskQeruy.Where(a => a.Tasktype == 6 &&
                                  a.Tasklock == "" &&
                                  a.SyncState == 0 &&
-                                 a.Starttime < dtBegin.AddSeconds(5) &&
-                                 a.Starttime > dtBegin.AddDays(-1));
+                                 a.Starttime < dt1 &&
+                                 a.Starttime > dt2);
 
             return await GetUploadTaskContent(uploadQuery, taskQeruy);
         }
@@ -388,14 +390,16 @@
         public async Task<List<VTRUploadTaskContentResponse>> GetWillExecuteVTRUploadTasks(int minute)
         {
             DateTime dtNow = DateTime.Now;
+            var dt1 = dtNow.AddMinutes(minute);
+            var dt2 = dtNow.AddDays(-1);
             IQueryable<VtrUploadtask> uploadQuery = Context.VtrUploadtask.AsNoTracking();
             uploadQuery.Where(a => a.Vtrtasktype == 1 && a.Taskstate == 2);
             IQueryable<DbpTask> taskQeruy = Context.DbpTask.AsNoTracking();
             taskQeruy.Where(a => a.Tasktype == 6 &&
                                  a.Tasklock == null &&
                                  a.SyncState == 0 &&
-                                 a.Starttime < dtNow.AddMinutes(minute) &&
-                                 a.Starttime > dtNow.AddDays(-1));
+                                 a.Starttime < dt1 &&
+                                 a.Starttime > dt2);
 
             return await GetUploadTaskContent(uploadQuery, taskQeruy);
         }

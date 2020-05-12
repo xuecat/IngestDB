@@ -262,10 +262,12 @@ namespace IngestTaskPlugin.Managers
 
         public async Task<List<TResult>> GetScheduleFailedTasks<TResult>()
         {
+            var now = DateTime.Now;
+            var dt = now.AddDays(1);
             return _mapper.Map<List<TResult>>(await Store.GetTaskListAsync(a => a.Where(b =>
                         (b.DispatchState == (int)dispatchState.dpsDispatchFailed || b.DispatchState == (int)dispatchState.dpsRedispatch)
                         && b.State != (int)taskState.tsDelete
-                        && (b.Endtime > DateTime.Now && b.Endtime < DateTime.Now.AddDays(1))
+                        && (b.Endtime > now && b.Endtime < dt)
                         && (b.Tasktype != (int)TaskType.TT_OPENEND && b.Tasktype != (int)TaskType.TT_OPENENDEX)), true));
         }
 
@@ -278,9 +280,12 @@ namespace IngestTaskPlugin.Managers
 
         public async Task<List<T>> GetAutoManuConflict<T>(int channel)
         {
+            
+            var now = DateTime.Now;
+            var dt = now.AddMinutes(3);
             var findtask = await Store.GetTaskListAsync(x => x.Where(y => y.Channelid == channel && y.Tasktype == (int)TaskType.TT_MANUTASK 
                                 && (y.State == (int)taskState.tsExecuting 
-                                    || (y.State == (int)taskState.tsReady && y.NewBegintime>DateTime.Now && y.NewBegintime<DateTime.Now.AddMinutes(3)))), true);
+                                    || (y.State == (int)taskState.tsReady && y.NewBegintime>now && y.NewBegintime<dt))), true);
 
             List<WarningInfoResponse> lstback = new List<WarningInfoResponse>();
             if (findtask != null)
@@ -338,8 +343,10 @@ namespace IngestTaskPlugin.Managers
         }
         public async Task<List<T>> GetBadChannelTask<T>(int channel)
         {
+            var now = DateTime.Now;
+            var dt = now.AddMinutes(3);
             var findtask = await Store.GetTaskListAsync(x => x.Where(y => y.Channelid == channel 
-                                    && (y.State == (int)taskState.tsReady && y.NewBegintime > DateTime.Now && y.NewBegintime < DateTime.Now.AddMinutes(3))), true);
+                                    && (y.State == (int)taskState.tsReady && y.NewBegintime > now && y.NewBegintime < dt)), true);
 
             List<WarningInfoResponse> lstback = new List<WarningInfoResponse>();
             if (findtask != null)
@@ -512,11 +519,13 @@ namespace IngestTaskPlugin.Managers
             //抄GetScheduleFailedTasks
 
             List<T> lstback = new List<T>();
+            var now = DateTime.Now;
+            var dt = now.AddDays(1);
 
             var lsttask = await Store.GetTaskListAsync(a => a.Where(b =>
                         (b.DispatchState == (int)dispatchState.dpsDispatchFailed || b.DispatchState == (int)dispatchState.dpsRedispatch)
                         && b.State != (int)taskState.tsDelete
-                        && (b.Endtime > DateTime.Now && b.Endtime < DateTime.Now.AddDays(1))
+                        && (b.Endtime > now && b.Endtime < dt)
                         && (b.Tasktype != (int)TaskType.TT_OPENEND && b.Tasktype != (int)TaskType.TT_OPENENDEX)));
 
             
@@ -1625,10 +1634,10 @@ namespace IngestTaskPlugin.Managers
 
         public async Task<int> GetTaskIDByTaskGUID(string taskguid)
         {
-            var task = await Store.GetTaskAsync(a => a.Where(b => b.Taskguid.Equals(taskguid, StringComparison.OrdinalIgnoreCase)).Select(f => f.Taskid), true);
+            var task = await Store.GetTaskAsync(a => a.Where(b => b.Taskguid==taskguid).Select(f => f.Taskid), true);
             if (task <= 0)
             {
-                return await Store.GetTaskBackupAsync(a => a.Where(b => b.Taskguid.Equals(taskguid, StringComparison.OrdinalIgnoreCase)).Select(f => f.Taskid), true);
+                return await Store.GetTaskBackupAsync(a => a.Where(b => b.Taskguid==taskguid).Select(f => f.Taskid), true);
             }
             else
                 return task;
@@ -2374,9 +2383,10 @@ namespace IngestTaskPlugin.Managers
 
         public async Task<bool> SetPeriodTaskToNextTime()
         {
+            var dt = DateTime.Now;
             var lsttask = await Store.GetTaskListAsync(a => a.Where(b => b.Tasktype == (int)TaskType.TT_PERIODIC && b.OldChannelid == 0
             && (b.State<4 || b.State>4)
-            && b.NewBegintime<= DateTime.Now
+            && b.NewBegintime<= dt
             && b.Starttime < b.Endtime));
 
             if (lsttask == null || lsttask.Count <= 0)
@@ -2400,11 +2410,13 @@ namespace IngestTaskPlugin.Managers
 
         public async Task<int> UpdateComingTasks()
         {
+            var date= DateTime.Now.AddDays(-1);
+            var dt = DateTime.Now.AddHours(1);
             TaskCondition condition = new TaskCondition();
-            var lst = await Store.GetTaskListAsync(c => c.Where(f => f.State == (int)syncState.ssSync
+            var lst = await Store.GetTaskListAsync(c => c.Where(f => f.SyncState == (int)syncState.ssSync
             && f.DispatchState == (int)dispatchState.dpsNotDispatch
             && (f.State != (int)taskState.tsDelete && f.State != (int)taskState.tsConflict && f.State != (int)taskState.tsInvaild)
-            && (f.Starttime > DateTime.Now.AddHours(-24) && f.Starttime < DateTime.Now.AddHours(1))));
+            && (f.Starttime > date && f.Starttime < dt)));
 
 
             if (lst != null && lst.Count > 0)
@@ -3377,7 +3389,9 @@ namespace IngestTaskPlugin.Managers
 
         private async Task<List<TSource>> GetWillBeginTasksInLast2Hours<TSource>()
         {
-            var tasks = await Store.GetTaskListAsync(a => a.Where(x => x.State == (int)taskState.tsReady && x.NewBegintime > DateTime.Now && x.NewBegintime < DateTime.Now.AddHours(2))
+            var now = DateTime.Now;
+            var dt = now.AddHours(2);
+            var tasks = await Store.GetTaskListAsync(a => a.Where(x => x.State == (int)taskState.tsReady && x.NewBegintime > now && x.NewBegintime < dt)
                                                            .GroupBy(x => x.Channelid), true);
             if (tasks.Count > 0)
             {
@@ -3388,8 +3402,9 @@ namespace IngestTaskPlugin.Managers
 
         public async Task<List<TSource>> GetCurrentTasksAsync<TSource>()
         {
+            var now = DateTime.Now;
             return _mapper.Map<List<TSource>>(await Store.GetTaskListAsync(
-                a => a.Where(x => x.State == (int)taskState.tsReady && x.NewBegintime < DateTime.MaxValue && x.NewEndtime > DateTime.Now), true));
+                a => a.Where(x => x.State == (int)taskState.tsReady && x.NewBegintime < DateTime.MaxValue && x.NewEndtime > now), true));
         }
 
     }
