@@ -2422,7 +2422,7 @@ namespace IngestTaskPlugin.Managers
             if (lst != null && lst.Count > 0)
             {
                 string log = string.Empty;
-                lst.ForEach(a => { a.SyncState = (int)syncState.ssNot; a.DispatchState = (int)dispatchState.dpsDisabled; a.Tasklock = string.Empty; log += "," + a.Taskid; });
+                lst.ForEach(a => { a.SyncState = (int)syncState.ssNot; a.DispatchState = (int)dispatchState.dpsDispatched; a.Tasklock = string.Empty; log += "," + a.Taskid; });
 
                 Logger.Info("UpdateComingTasks {0} ", string.Join(",", log));
 

@@ -458,7 +458,7 @@ namespace IngestGlobalPlugin.Controllers.v1
         //    return false;
         //}
 
-        [HttpPost("UpdateMqMsgStatus"), MapToApiVersion("1.0")]
+        [HttpPost("PostUpdateMqMsgStatus"), MapToApiVersion("1.0")]
         [ApiExplorerSettings(GroupName = "v1")]
         public async Task<bool> PostUpdateMqMsgStatus([FromQuery] string msgId, [FromQuery] int nActionID, [FromQuery] int nFailedCount, [FromBody] MqmsgStatus msgStatus)
         {
@@ -476,7 +476,7 @@ namespace IngestGlobalPlugin.Controllers.v1
         /// <summary>
         /// 新的添加素材接口
         /// </summary>
-        [HttpPost("AddMaterialNew"), MapToApiVersion("1.0")]
+        [HttpPost("PostAddMaterialNew"), MapToApiVersion("1.0")]
         [ApiExplorerSettings(GroupName = "v1")]
         public async Task<AddMaterialNew_OUT> PostAddMaterialNew([FromBody]MaterialInfo Info)
         {
