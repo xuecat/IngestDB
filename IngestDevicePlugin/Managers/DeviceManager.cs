@@ -625,7 +625,7 @@ namespace IngestDevicePlugin.Managers
                 TaskInternals re = new TaskInternals() { funtype = IngestDBCore.TaskInternals.FunctionType.WillBeginAndCapturingTasks };
                 var taskResponse = await _taskInterface.Value.GetTaskCallBack(re);
                 var taskContents = (taskResponse as IngestDBCore.ResponseMessage<List<TaskContentInterface>>).Ext;
-
+                //需进行测试
                 var tempList = captureChannels.Where(a => (a.nDeviceTypeID == (int)CaptureChannelType.emMsvChannel ||
                                                             a.nDeviceTypeID == (int)CaptureChannelType.emDefualtChannel) &&
                                               IsDeviceOk(a.nID, arrMsvChannelState) &&

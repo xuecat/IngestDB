@@ -83,7 +83,24 @@ namespace IngestGlobalPlugin.Stores
             DbpObjectstateinfo objectstateinfo = null;
             try
             {
-                objectstateinfo = await Context.DbpObjectstateinfo.SingleOrDefaultAsync(x => ((objectID >= 0 && x.Objectid == objectID) || objectID < 0) && (((int)objectTypeID >= 0 && x.Objecttypeid == (int)objectTypeID) || (int)objectTypeID < 0) && ((!string.IsNullOrEmpty(userName) && x.Username == userName) || string.IsNullOrEmpty(userName)) && (x.Locklock == "" || x.Locklock == null || x.Begintime < DateTime.Now.AddMilliseconds(TimeOut * (-1))));
+                //objectstateinfo = await Context.DbpObjectstateinfo.SingleOrDefaultAsync(x => ((objectID >= 0 && x.Objectid == objectID) || objectID < 0) && (((int)objectTypeID >= 0 && x.Objecttypeid == (int)objectTypeID) || (int)objectTypeID < 0) && ((!string.IsNullOrEmpty(userName) && x.Username == userName) || string.IsNullOrEmpty(userName)) && (x.Locklock == "" || x.Locklock == null || x.Begintime < DateTime.Now.AddMilliseconds(TimeOut * (-1))));
+
+                DateTime time = DateTime.Now.AddMilliseconds(TimeOut * (-1));
+                IQueryable<DbpObjectstateinfo> query = Context.DbpObjectstateinfo.Where(x => string.IsNullOrEmpty(x.Locklock) || x.Begintime < time);
+                if (objectID > 0)
+                {
+                    query = query.Where(x => x.Objectid == objectID);
+                }
+                if ((int)objectTypeID >= 0)
+                {
+                    query = query.Where(x => x.Objecttypeid == (int)objectTypeID);
+                }
+                if (!string.IsNullOrEmpty(userName))
+                {
+                    query = query.Where(x => x.Username == userName);
+                }
+
+                objectstateinfo = await query.FirstOrDefaultAsync();
 
                 if (objectstateinfo != null)
                 {
@@ -105,7 +122,8 @@ namespace IngestGlobalPlugin.Stores
             try
             {
                 //objectstateinfo = await GetObjectstateinfoAsync(a => a.Where(x => ((param_In.ObjectID >= 0 && x.Objectid == param_In.ObjectID) || param_In.ObjectID < 0) && (((int)param_In.ObjectTypeID >= 0 && x.Objecttypeid == (int)param_In.ObjectTypeID) || (int)param_In.ObjectTypeID < 0) && ((!string.IsNullOrEmpty(param_In.userName) && x.Username == param_In.userName) || string.IsNullOrEmpty(param_In.userName)) && (string.IsNullOrEmpty(x.Locklock) || x.Begintime < DateTime.Now.AddMilliseconds(param_In.TimeOut * (-1)))), true);
-                IQueryable <DbpObjectstateinfo> query = Context.DbpObjectstateinfo.Where(x=>string.IsNullOrEmpty(x.Locklock) || x.Begintime < DateTime.Now.AddMilliseconds(param_In.TimeOut * (-1)));
+                DateTime time = DateTime.Now.AddMilliseconds(param_In.TimeOut * (-1));
+                IQueryable <DbpObjectstateinfo> query = Context.DbpObjectstateinfo.Where(x=>string.IsNullOrEmpty(x.Locklock) || x.Begintime < time);
                 if (param_In.ObjectID > 0)
                 {
                     query = query.Where(x => x.Objectid == param_In.ObjectID);
@@ -555,7 +573,8 @@ namespace IngestGlobalPlugin.Stores
             int nEffectRow = 0;
             string strTempLock = Guid.NewGuid().ToString();
 
-            var selectResult = Context.DbpObjectstateinfo.FirstOrDefault(x => x.Objectid == objectID && x.Objecttypeid == (int)objectTypeID && x.Username == userName && (x.Locklock == "" || x.Locklock == null || x.Begintime < DateTime.Now.AddMilliseconds(TimeOut * (-1))));
+            DateTime time = DateTime.Now.AddMilliseconds(TimeOut * (-1));
+            var selectResult = Context.DbpObjectstateinfo.FirstOrDefault(x => x.Objectid == objectID && x.Objecttypeid == (int)objectTypeID && x.Username == userName && (x.Locklock == "" || x.Locklock == null || x.Begintime < time));
 
             try
             {

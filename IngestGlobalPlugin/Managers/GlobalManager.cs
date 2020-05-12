@@ -158,7 +158,8 @@ namespace IngestGlobalPlugin.Managers
         //GetAllUnlockObjects
         public async Task<List<ObjectContent>> GetVTRUnlockObjectsAsync()
         {
-            return await Store.GetObjectstateinfoListAsync<ObjectContent>(x => x.Where(a => a.Objecttypeid == (int)OTID.OTID_VTR && string.IsNullOrEmpty(a.Locklock) && a.Begintime.AddMilliseconds(Convert.ToInt32(a.Timeout)) > DateTime.Now)
+            DateTime time = DateTime.Now;
+            return await Store.GetObjectstateinfoListAsync<ObjectContent>(x => x.Where(a => a.Objecttypeid == (int)OTID.OTID_VTR && string.IsNullOrEmpty(a.Locklock) && a.Begintime.AddMilliseconds(Convert.ToInt32(a.Timeout)) > time)
             .Select(res => new ObjectContent
             {
                 ObjectID = res.Objectid,
@@ -175,7 +176,8 @@ namespace IngestGlobalPlugin.Managers
             bool ret = false;
             try
             {
-                var objectsateinfo = await Store.GetObjectstateinfoAsync(a => a.Where(x => x.Objectid == nChannel && x.Objecttypeid == (int)OTID.OTID_CHANNEL && x.Begintime.AddMilliseconds(x.Timeout) > DateTime.Now));
+                DateTime time = DateTime.Now;
+                var objectsateinfo = await Store.GetObjectstateinfoAsync(a => a.Where(x => x.Objectid == nChannel && x.Objecttypeid == (int)OTID.OTID_CHANNEL && x.Begintime.AddMilliseconds(x.Timeout) > time));
 
                 ret = objectsateinfo == null ? true : false;//true 无锁
             }
