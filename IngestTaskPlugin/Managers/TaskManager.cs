@@ -16,7 +16,6 @@ using Microsoft.Extensions.DependencyInjection;
 using IngestTaskPlugin.Models;
 using TaskInfoRequest = IngestTaskPlugin.Dto.Response.TaskInfoResponse;
 using TaskContentRequest = IngestTaskPlugin.Dto.Response.TaskContentResponse;
-using TaskInfoRescheduledRequest = IngestTaskPlugin.Dto.Response.TaskInfoRescheduledResponse;
 using CooperantType = IngestTaskPlugin.Dto.OldResponse.CooperantType;
 using IngestTaskPlugin.Extend;
 using IngestTaskPlugin.Dto.Response;
@@ -265,7 +264,7 @@ namespace IngestTaskPlugin.Managers
         public async Task<List<TResult>> GetScheduleFailedTasks<TResult>()
         {
             var now = DateTime.Now;
-            var dt = now.AddDays(1);
+            var dt = now.AddDays(1).AddMinutes(1);
             return _mapper.Map<List<TResult>>(await Store.GetTaskListAsync(a => a.Where(b =>
                         (b.DispatchState == (int)dispatchState.dpsDispatchFailed || b.DispatchState == (int)dispatchState.dpsRedispatch)
                         && b.State != (int)taskState.tsDelete
@@ -2925,7 +2924,19 @@ namespace IngestTaskPlugin.Managers
             {
                 if (taskinfo.TaskContent.TaskType == TaskType.TT_PERIODIC)
                 {
-                    DateTime EndTime = DateTimeFormat.DateTimeFromString(taskinfo.ContentMeta.PeriodParam.EndDate);
+                    DateTime EndTime = DateTime.Now;
+                    if (taskinfo.ContentMeta == null || taskinfo.ContentMeta.PeriodParam == null)
+                    {
+                        var root = XDocument.Parse(ContentMeta);
+                        var material = root.Element("TaskContentMetaData");
+                        var period = material?.Element("PERIODPARAM");
+                        EndTime = DateTimeFormat.DateTimeFromString(period?.Element("ENDDATE").Value);
+                    }
+                    else
+                    {
+                        EndTime = DateTimeFormat.DateTimeFromString(taskinfo.ContentMeta.PeriodParam.EndDate);
+                    }
+
                     DateTime TaskEnd = DateTimeFormat.DateTimeFromString(taskinfo.TaskContent.End);
                     DateTime RealEnd = new DateTime(EndTime.Year, EndTime.Month, EndTime.Day, TaskEnd.Hour, TaskEnd.Minute, TaskEnd.Second);
                     taskinfo.TaskContent.End = DateTimeFormat.DateTimeToString(RealEnd);
@@ -3112,7 +3123,19 @@ namespace IngestTaskPlugin.Managers
             {
                 if (taskinfo.TaskContent.TaskType == TaskType.TT_PERIODIC)
                 {
-                    DateTime EndTime = DateTimeFormat.DateTimeFromString(taskinfo.ContentMeta.PeriodParam.EndDate);
+                    DateTime EndTime = DateTime.Now;
+                    if (taskinfo.ContentMeta == null || taskinfo.ContentMeta.PeriodParam == null)
+                    {
+                        var root = XDocument.Parse(ContentMeta);
+                        var material = root.Element("TaskContentMetaData");
+                        var period = material?.Element("PERIODPARAM");
+                        EndTime = DateTimeFormat.DateTimeFromString(period?.Element("ENDDATE").Value);
+                    }
+                    else
+                    {
+                        EndTime = DateTimeFormat.DateTimeFromString(taskinfo.ContentMeta.PeriodParam.EndDate);
+                    }
+
                     DateTime TaskEnd = DateTimeFormat.DateTimeFromString(taskinfo.TaskContent.End);
                     DateTime RealEnd = new DateTime(EndTime.Year, EndTime.Month, EndTime.Day, TaskEnd.Hour, TaskEnd.Minute, TaskEnd.Second);
                     taskinfo.TaskContent.End = DateTimeFormat.DateTimeToString(RealEnd);

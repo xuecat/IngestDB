@@ -11,6 +11,7 @@ using IngestTaskPlugin.Dto.Response.OldVtr;
 using IngestTaskPlugin.Dto.OldResponse.OldVtr;
 using IngestTaskPlugin.Extend;
 using IngestTaskPlugin.Models;
+using IngestTaskPlugin.Dto.OldVtr;
 
 namespace IngestTaskPlugin
 {

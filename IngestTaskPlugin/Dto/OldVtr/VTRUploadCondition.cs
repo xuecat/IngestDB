@@ -1,8 +1,9 @@
-﻿namespace IngestTaskPlugin.Dto.Request
-{
-    using System;
-    using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 
+namespace IngestTaskPlugin.Dto.OldVtr
+{
+    
     /// <summary>
     /// 录像机上载任务查询条件.
     /// </summary>

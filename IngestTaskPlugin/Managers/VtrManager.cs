@@ -1,31 +1,30 @@
-﻿namespace IngestTaskPlugin.Managers
+﻿using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Threading.Tasks;
+using System.Xml.Linq;
+using AutoMapper;
+using IngestDBCore;
+using IngestDBCore.Interface;
+using IngestDBCore.Tool;
+using IngestTaskPlugin.Dto;
+using IngestTaskPlugin.Dto.OldResponse;
+using IngestTaskPlugin.Dto.Request;
+using IngestTaskPlugin.Dto.Response;
+using IngestTaskPlugin.Dto.Response.OldVtr;
+using IngestTaskPlugin.Dto.OldResponse.OldVtr;
+using IngestTaskPlugin.Extend;
+using IngestTaskPlugin.Models;
+using IngestTaskPlugin.Stores;
+using IngestTaskPlugin.Stores.VTR;
+using Microsoft.EntityFrameworkCore;
+using Sobey.Core.Log;
+
+using IngestTaskPlugin.Dto.OldVtr;
+
+namespace IngestTaskPlugin.Managers
 {
-    using System;
-    using System.Collections.Generic;
-    using System.Linq;
-    using System.Threading.Tasks;
-    using System.Xml;
-    using System.Xml.Linq;
-    using AutoMapper;
-    using IngestDBCore;
-    using IngestDBCore.Interface;
-    using IngestDBCore.Tool;
-    using IngestTaskPlugin.Dto;
-    using IngestTaskPlugin.Dto.OldResponse;
-    using IngestTaskPlugin.Dto.Request;
-    using IngestTaskPlugin.Dto.Response;
-    using IngestTaskPlugin.Dto.Response.OldVtr;
-    using IngestTaskPlugin.Dto.OldResponse.OldVtr;
-    using IngestTaskPlugin.Extend;
-    using IngestTaskPlugin.Models;
-    using IngestTaskPlugin.Stores;
-    using IngestTaskPlugin.Stores.VTR;
-    using Microsoft.EntityFrameworkCore;
-    using Microsoft.Extensions.DependencyInjection;
-    using Sobey.Core.Log;
-
-    using VTRUploadTaskContentRequest = Dto.Response.VTRUploadTaskContentResponse;
-
+    
     /// <summary>
     /// VTR磁带管理.
     /// </summary>

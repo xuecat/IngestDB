@@ -1,8 +1,10 @@
-﻿namespace IngestTaskPlugin.Dto.Request
-{
-    using System.Collections.Generic;
-    using IngestTaskPlugin.Dto.OldResponse.OldVtr;
+﻿using System.Collections.Generic;
+using IngestTaskPlugin.Dto.OldResponse.OldVtr;
+using IngestTaskPlugin.Dto.Request;
 
+namespace IngestTaskPlugin.Dto.OldVtr
+{
+    
     /// <summary>
     /// Defines the <see cref="AddVTRUploadTask_in" />.
     /// </summary>

@@ -5,7 +5,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace IngestTaskPlugin.Dto.Request
+namespace IngestTaskPlugin.Dto.OldVtr
 {
     /// <summary>
     /// VTR上传任务信息

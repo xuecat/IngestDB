@@ -17,6 +17,7 @@
     using Microsoft.AspNetCore.Mvc;
     using Microsoft.Extensions.DependencyInjection;
     using Sobey.Core.Log;
+    using IngestTaskPlugin.Dto.OldVtr;
 
     /// <summary>
     /// VTR磁带.
