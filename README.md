@@ -20,3 +20,4 @@
   * 老数据结构的`Arrayy`一律改成`List`
   * 调内部函数注意`SaveChangesAsync` 尽量避免多次提交
   * `Post`->新加和修改，`Post`->新加；`Put`->修改
+  * 由于存在json返回匹配, 请严格按照目录新建结构体
