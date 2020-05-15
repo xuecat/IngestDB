@@ -2,7 +2,7 @@
 using IngestDBCore.Basic;
 using IngestDBCore.Interface;
 using IngestDBCore.Tool;
-using IngestTaskPlugin.Dto;
+using IngestTaskPlugin.Dto.Response;
 using IngestTaskPlugin.Managers;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.DependencyInjection;
@@ -13,15 +13,17 @@ using System.Text;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc.ModelBinding;
 
-using TaskMaterialMetaRequest = IngestTaskPlugin.Dto.TaskMaterialMetaResponse;
-using TaskContentMetaRequest = IngestTaskPlugin.Dto.TaskContentMetaResponse;
-using TaskPlanningRequest = IngestTaskPlugin.Dto.TaskPlanningResponse;
-using TaskSplitRequest = IngestTaskPlugin.Dto.TaskSplitResponse;
-using PropertyRequest = IngestTaskPlugin.Dto.PropertyResponse;
-using TaskInfoRequest = IngestTaskPlugin.Dto.TaskInfoResponse;
-using TaskContentRequest = IngestTaskPlugin.Dto.TaskContentResponse;
-using TaskCustomMetadataRequest = IngestTaskPlugin.Dto.TaskCustomMetadataResponse;
+using TaskMaterialMetaRequest = IngestTaskPlugin.Dto.Response.TaskMaterialMetaResponse;
+using TaskContentMetaRequest = IngestTaskPlugin.Dto.Response.TaskContentMetaResponse;
+using TaskPlanningRequest = IngestTaskPlugin.Dto.Response.TaskPlanningResponse;
+using TaskSplitRequest = IngestTaskPlugin.Dto.Response.TaskSplitResponse;
+using PropertyRequest = IngestTaskPlugin.Dto.Response.PropertyResponse;
+using TaskInfoRequest = IngestTaskPlugin.Dto.Response.TaskInfoResponse;
+using TaskContentRequest = IngestTaskPlugin.Dto.Response.TaskContentResponse;
+using TaskCustomMetadataRequest = IngestTaskPlugin.Dto.Response.TaskCustomMetadataResponse;
 using IngestDBCore.Notify;
+using IngestTaskPlugin.Dto;
+using IngestTaskPlugin.Dto.OldResponse;
 
 /// 
 ///MADEBYINGEST没更新完
@@ -1473,13 +1475,13 @@ namespace IngestTaskPlugin.Controllers.v2
         /// <returns>所有重新调度的任务列表</returns>
         [HttpGet("rescheduletask")]
         [ApiExplorerSettings(GroupName = "v2")]
-        public async Task<ResponseMessage<List<RescheduledTaskInfo>>> RescheduleTasks()
+        public async Task<ResponseMessage<List<RescheduledTaskInfoResponse>>> RescheduleTasks()
         {
-            var Response = new ResponseMessage<List<RescheduledTaskInfo>>();
+            var Response = new ResponseMessage<List<RescheduledTaskInfoResponse>>();
 
             try
             {
-                Response.Ext = await _taskManage.RescheduleTasks<RescheduledTaskInfo>();
+                Response.Ext = await _taskManage.RescheduleTasks<RescheduledTaskInfoResponse>();
             }
             catch (Exception e)
             {

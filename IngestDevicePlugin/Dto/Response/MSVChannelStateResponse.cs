@@ -5,7 +5,7 @@ using System.Text;
 using System.Threading.Tasks;
 using IngestDevicePlugin.Dto.Enum;
 
-namespace IngestDevicePlugin.Dto
+namespace IngestDevicePlugin.Dto.Response
 {
     /// <summary>MSV设备状态信息</summary>
     public class MSVChannelStateResponse

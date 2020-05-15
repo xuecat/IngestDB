@@ -3,7 +3,7 @@ using IngestDBCore.Basic;
 using IngestDBCore.Interface;
 using IngestDBCore.Notify;
 using IngestDBCore.Tool;
-using IngestTaskPlugin.Dto;
+using IngestTaskPlugin.Dto.OldResponse;
 using IngestTaskPlugin.Managers;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.DependencyInjection;
@@ -1395,7 +1395,7 @@ namespace IngestTaskPlugin.Controllers.v1
             {
                 Response.newTask = await _taskManage.CreateNewTaskFromPeriodicTask<TaskFullInfo>(periodicTaskId);
 
-                var custom = await _taskManage.GetCustomMetadataAsync<TaskCustomMetadataResponse>(periodicTaskId);
+                var custom = await _taskManage.GetCustomMetadataAsync<GetTaskCustomMetadata_OUT>(periodicTaskId);
                 await _taskManage.UpdateCustomMetadataAsync(Response.newTask.taskContent.nTaskID, custom.Metadata);
                 return Response;
             }

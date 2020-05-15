@@ -1,4 +1,5 @@
 ﻿using IngestTaskPlugin.Dto;
+using IngestTaskPlugin.Dto.OldResponse;
 using IngestTaskPlugin.Managers;
 using Microsoft.AspNetCore.Mvc;
 using Sobey.Core.Log;

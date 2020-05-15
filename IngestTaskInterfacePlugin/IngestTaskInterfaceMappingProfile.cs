@@ -1,6 +1,7 @@
 ﻿using AutoMapper;
 using IngestDBCore;
 using IngestTaskPlugin.Dto;
+using IngestTaskPlugin.Dto.OldResponse;
 using System;
 using System.Collections.Generic;
 using System.Text;

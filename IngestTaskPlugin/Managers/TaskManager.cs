@@ -1,7 +1,6 @@
 ﻿using AutoMapper;
 using IngestDBCore;
 using IngestDBCore.Tool;
-using IngestTaskPlugin.Dto;
 using IngestTaskPlugin.Stores;
 using Sobey.Core.Log;
 using System;
@@ -10,16 +9,19 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using System.Xml.Linq;
-using TaskType = IngestTaskPlugin.Dto.TaskType;
-using taskState = IngestTaskPlugin.Dto.taskState;
+using TaskType = IngestTaskPlugin.Dto.OldResponse.TaskType;
+using taskState = IngestTaskPlugin.Dto.OldResponse.taskState;
 using IngestDBCore.Interface;
 using Microsoft.Extensions.DependencyInjection;
 using IngestTaskPlugin.Models;
-using TaskInfoRequest = IngestTaskPlugin.Dto.TaskInfoResponse;
-using TaskContentRequest = IngestTaskPlugin.Dto.TaskContentResponse;
+using TaskInfoRequest = IngestTaskPlugin.Dto.Response.TaskInfoResponse;
+using TaskContentRequest = IngestTaskPlugin.Dto.Response.TaskContentResponse;
 using TaskInfoRescheduledRequest = IngestTaskPlugin.Dto.Response.TaskInfoRescheduledResponse;
-using CooperantType = IngestTaskPlugin.Dto.CooperantType;
+using CooperantType = IngestTaskPlugin.Dto.OldResponse.CooperantType;
 using IngestTaskPlugin.Extend;
+using IngestTaskPlugin.Dto.Response;
+using IngestTaskPlugin.Dto.OldResponse;
+using IngestTaskPlugin.Dto;
 
 namespace IngestTaskPlugin.Managers
 {

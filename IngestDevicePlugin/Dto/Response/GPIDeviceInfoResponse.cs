@@ -4,7 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace IngestDevicePlugin.Dto
+namespace IngestDevicePlugin.Dto.Response
 {
     /// <summary>GPI设备信息</summary>
     public class GPIDeviceInfoResponse

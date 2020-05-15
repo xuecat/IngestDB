@@ -8,6 +8,7 @@ using System.Text;
 using System.Xml;
 using IngestDevicePlugin.Dto.Enum;
 using IngestDevicePlugin.Dto.Response;
+using IngestDevicePlugin.Dto.OldResponse;
 
 namespace IngestDevicePlugin
 {

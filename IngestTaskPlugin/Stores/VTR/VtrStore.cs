@@ -6,6 +6,7 @@
     using System.Threading.Tasks;
     using IngestDBCore;
     using IngestTaskPlugin.Dto;
+    using IngestTaskPlugin.Dto.OldResponse;
     using IngestTaskPlugin.Dto.Request;
     using IngestTaskPlugin.Dto.Response;
     using IngestTaskPlugin.Models;

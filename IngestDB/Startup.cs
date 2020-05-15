@@ -44,7 +44,7 @@ namespace IngestDB
             services.AddSingleton<IConfigurationRoot>(cfg);
             services.AddMvc(option => { option.Filters.Add(typeof(IngestAuthentication)); })
                 .SetCompatibilityVersion(CompatibilityVersion.Version_2_1)
-                .AddJsonOptions(options => { options.SerializerSettings.ContractResolver = new DefaultContractResolver(); });
+                .AddJsonOptions(options => { options.SerializerSettings.ContractResolver = new ShouldSerializeContractResolver(); });
             //.AddJsonOptions(options =>//为swagger加的
             //options.SerializerSettings.Converters.Add(new StringEnumConverter()));
             string path = AppDomain.CurrentDomain.BaseDirectory.Replace("\\", "/") + "/publicsetting.xml";

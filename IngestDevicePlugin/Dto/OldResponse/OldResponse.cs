@@ -1,13 +1,10 @@
 ﻿using System;
 using System.Collections.Generic;
 using IngestDevicePlugin.Dto.Enum;
-using IngestDevicePlugin.Dto.Response;
 
-namespace IngestDevicePlugin.Dto
+namespace IngestDevicePlugin.Dto.OldResponse
 {
-    public class OldResponse
-    {
-    }
+    
     
     #region DescModel
 

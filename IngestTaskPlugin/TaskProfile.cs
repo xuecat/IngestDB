@@ -1,6 +1,8 @@
 ﻿using AutoMapper;
 using IngestDBCore.Tool;
 using IngestTaskPlugin.Dto;
+using IngestTaskPlugin.Dto.OldResponse;
+using IngestTaskPlugin.Dto.Response;
 using IngestTaskPlugin.Models;
 using System;
 using System.Collections.Generic;
@@ -132,7 +134,7 @@ namespace IngestTaskPlugin
                 .ForMember(d => d.nPreviousChannelID, y => y.MapFrom(s => s.OldChannelid))
                 .ForMember(d => d.nCurrentChannelID, y => y.MapFrom(s => s.Channelid));
 
-            CreateMap<DbpTask, RescheduledTaskInfo>()
+            CreateMap<DbpTask, RescheduledTaskInfoResponse>()
                 .ForMember(d => d.TaskID, y => y.MapFrom(s => s.Taskid))
                 .ForMember(d => d.TaskName, y => y.MapFrom(s => s.Taskname))
                 .ForMember(d => d.PreviousChannelID, y => y.MapFrom(s => s.OldChannelid))

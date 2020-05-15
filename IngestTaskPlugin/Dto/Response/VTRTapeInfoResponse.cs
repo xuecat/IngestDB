@@ -1,19 +1,16 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
 using System.Text;
-using System.Threading.Tasks;
 
 namespace IngestTaskPlugin.Dto.Response
 {
-    /// <summary>磁带信息</summary>
-    public class VTRTapeInfo
+    public class VTRTapeInfoResponse
     {
         /// <summary>磁带ID</summary>
-        public int nTapeID;
+        public int TapeID;
         /// <summary>磁带名称</summary>
-        public string strTapeName;
+        public string TapeName;
         /// <summary>磁带描述</summary>
-        public string strTapeDesc;
+        public string TapeDesc;
     }
 }

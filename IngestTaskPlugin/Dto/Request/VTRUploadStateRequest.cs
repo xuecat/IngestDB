@@ -1,4 +1,6 @@
-﻿namespace IngestTaskPlugin.Dto.Request
+﻿using IngestTaskPlugin.Dto.OldResponse;
+
+namespace IngestTaskPlugin.Dto.Request
 {
     /// <summary>
     /// Defines the 更新Vtr上传任务状态请求 <see cref="VTRUploadStateRequest" />.

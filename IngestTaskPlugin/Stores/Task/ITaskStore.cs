@@ -1,4 +1,5 @@
 ﻿using IngestTaskPlugin.Dto;
+using IngestTaskPlugin.Dto.OldResponse;
 using IngestTaskPlugin.Models;
 using System;
 using System.Collections.Generic;

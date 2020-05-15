@@ -2,6 +2,7 @@
 using IngestDBCore.Basic;
 using IngestDevicePlugin.Dto;
 using IngestDevicePlugin.Dto.Enum;
+using IngestDevicePlugin.Dto.OldResponse;
 using IngestDevicePlugin.Managers;
 using Microsoft.AspNetCore.Mvc;
 using Sobey.Core.Log;
