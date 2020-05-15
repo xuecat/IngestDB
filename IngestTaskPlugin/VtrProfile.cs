@@ -4,6 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using AutoMapper;
+using IngestTaskPlugin.Dto.OldResponse;
 using IngestTaskPlugin.Dto.Request;
 using IngestTaskPlugin.Dto.Response;
 using IngestTaskPlugin.Dto.Response.OldVtr;
@@ -19,11 +20,18 @@ namespace IngestTaskPlugin
             #region VtrTapelist To VTRTapeInfo
             //V2
 
+            CreateMap<VtrBatchUploadTaskResponse, VtrBatchUploadTask>().ReverseMap();
+
             //V1
             CreateMap<VtrTapelist, VTRTapeInfo>()
                .ForMember(a => a.nTapeID, (map) => map.MapFrom(b => b.Tapeid))
                .ForMember(a => a.strTapeName, (map) => map.MapFrom(b => b.Tapename))
                .ForMember(a => a.strTapeDesc, (map) => map.MapFrom(b => b.Tapedesc));
+
+            CreateMap<VtrTapelist, VTRTapeInfoResponse>()
+               .ForMember(a => a.TapeID, (map) => map.MapFrom(b => b.Tapeid))
+               .ForMember(a => a.TapeName, (map) => map.MapFrom(b => b.Tapename))
+               .ForMember(a => a.TapeDesc, (map) => map.MapFrom(b => b.Tapedesc));
             #endregion
 
             #region VtrUploadtask To VTRUploadTaskInfo、 VTRUploadTaskInfoResponse

@@ -5,7 +5,7 @@ using System.Text;
 namespace IngestTaskPlugin.Dto
 {
     /// <summary>调度任务信息</summary>
-    public class RescheduledTaskInfo
+    public class RescheduledTaskInfoResponse
     {
         /// <summary>Id</summary>
         public int TaskID { get; set; }

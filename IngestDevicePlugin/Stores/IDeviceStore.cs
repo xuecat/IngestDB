@@ -5,9 +5,10 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
-using ProgrammeInfoDto = IngestDevicePlugin.Dto.ProgrammeInfoResponse;
-using CaptureChannelInfoDto = IngestDevicePlugin.Dto.CaptureChannelInfoResponse;
+using ProgrammeInfoDto = IngestDevicePlugin.Dto.Response.ProgrammeInfoResponse;
+using CaptureChannelInfoDto = IngestDevicePlugin.Dto.Response.CaptureChannelInfoResponse;
 using IngestDevicePlugin.Dto.Response;
+using IngestDevicePlugin.Dto.OldResponse;
 
 namespace IngestDevicePlugin.Stores
 {

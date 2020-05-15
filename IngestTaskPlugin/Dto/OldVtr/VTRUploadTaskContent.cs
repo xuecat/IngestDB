@@ -1,5 +1,6 @@
 ﻿namespace IngestTaskPlugin.Dto.Response.OldVtr
 {
+    using IngestTaskPlugin.Dto.OldResponse;
     using System;
 
     /// <summary>

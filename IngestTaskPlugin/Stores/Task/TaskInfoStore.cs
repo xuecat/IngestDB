@@ -6,12 +6,14 @@ using System.Threading.Tasks;
 using IngestDBCore;
 using IngestDBCore.Tool;
 using IngestTaskPlugin.Dto;
+using IngestTaskPlugin.Dto.OldResponse;
+using IngestTaskPlugin.Dto.Response;
 using IngestTaskPlugin.Models;
 using Microsoft.EntityFrameworkCore;
 using Sobey.Core.Log;
-using CooperantType = IngestTaskPlugin.Dto.CooperantType;
-using taskState = IngestTaskPlugin.Dto.taskState;
-using TaskType = IngestTaskPlugin.Dto.TaskType;
+using CooperantType = IngestTaskPlugin.Dto.OldResponse.CooperantType;
+using taskState = IngestTaskPlugin.Dto.OldResponse.taskState;
+using TaskType = IngestTaskPlugin.Dto.OldResponse.TaskType;
 
 namespace IngestTaskPlugin.Stores
 {

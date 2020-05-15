@@ -8,6 +8,7 @@
     using IngestDBCore.Basic;
     using IngestDBCore.Interface;
     using IngestTaskPlugin.Dto;
+    using IngestTaskPlugin.Dto.OldResponse;
     using IngestTaskPlugin.Dto.Request;
     using IngestTaskPlugin.Dto.Response;
     using IngestTaskPlugin.Dto.Response.OldVtr;
@@ -124,17 +125,17 @@
         /// <summary>
         /// 获得所有的磁带信息.
         /// </summary>
-        /// <returns>所有的磁带信息<see cref="Task{ResponseMessage{List{VTRTapeInfo}}}"/>.</returns>
+        /// <returns>所有的磁带信息<see cref="Task{ResponseMessage{List{VTRTapeInfoResponse}}}"/>.</returns>
         [HttpGet("vtrtapeinfo/all")]
-        public async Task<ResponseMessage<List<VTRTapeInfo>>> GetAllTapeInfo()
+        public async Task<ResponseMessage<List<VTRTapeInfoResponse>>> GetAllTapeInfo()
         {
-            ResponseMessage<List<VTRTapeInfo>> response = new ResponseMessage<List<VTRTapeInfo>>();
+            ResponseMessage<List<VTRTapeInfoResponse>> response = new ResponseMessage<List<VTRTapeInfoResponse>>();
             try
             {
-                response.Ext = await _VtrManage.GetAllTapeInfoAsync();
+                response.Ext = await _VtrManage.GetAllTapeInfoAsync<VTRTapeInfoResponse>();
                 if (response.Ext == null || response.Ext.Count == 0)
                 {
-                    response.Ext = (new VTRTapeInfo[1]).ToList();
+                    response.Ext = (new VTRTapeInfoResponse[1]).ToList();
                 }
             }
             catch (Exception e)//其他未知的异常，写异常日志
@@ -190,12 +191,12 @@
         /// <param name="tapeid">磁带Id<see cref="int"/>.</param>
         /// <returns>The 磁带信息<see cref="Task{ResponseMessage{VTRTapeInfo}}"/>.</returns>
         [HttpGet("vtrtapeinfo/{tapeid}")]
-        public async Task<ResponseMessage<VTRTapeInfo>> GetTapeInfoByID([FromRoute, BindRequired, DefaultValue(1)]int tapeid)
+        public async Task<ResponseMessage<VTRTapeInfoResponse>> GetTapeInfoByID([FromRoute, BindRequired, DefaultValue(1)]int tapeid)
         {
-            ResponseMessage<VTRTapeInfo> response = new ResponseMessage<VTRTapeInfo>();
+            ResponseMessage<VTRTapeInfoResponse> response = new ResponseMessage<VTRTapeInfoResponse>();
             try
             {
-                response.Ext = await _VtrManage.GetTapeInfoByIDAsync(tapeid);
+                response.Ext = await _VtrManage.GetTapeInfoByIDAsync<VTRTapeInfoResponse>(tapeid);
                 if (response.Ext == null)
                 {
                     response.Msg = string.Format("Can not find the tape.");
@@ -926,7 +927,7 @@
                     response.Code = ResponseCodeDefines.ArgumentNullError;
                 }
 
-                response.Ext = await _VtrManage.AddVTRBatchUploadTasksAsync<VTRUploadTaskContentResponse, VTRUploadMetadataPair>(pin.VtrTasks, pin.Metadatas, pin.IgnoreWrong);
+                response.Ext = await _VtrManage.AddVTRBatchUploadTasksAsync<VtrBatchUploadTaskResponse,VTRUploadTaskContentResponse, VTRUploadMetadataPair>(pin.VtrTasks, pin.Metadatas, pin.IgnoreWrong);
                 
                 response.Code = response.Ext.errorCode == VTR_BUT_ErrorCode.emNormal ? ResponseCodeDefines.SuccessCode : ResponseCodeDefines.ServiceError;
             }

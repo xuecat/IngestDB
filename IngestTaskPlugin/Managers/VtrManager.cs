@@ -11,6 +11,7 @@
     using IngestDBCore.Interface;
     using IngestDBCore.Tool;
     using IngestTaskPlugin.Dto;
+    using IngestTaskPlugin.Dto.OldResponse;
     using IngestTaskPlugin.Dto.Request;
     using IngestTaskPlugin.Dto.Response;
     using IngestTaskPlugin.Dto.Response.OldVtr;
@@ -100,9 +101,9 @@
         /// The 获得所有的磁带信息.
         /// </summary>
         /// <returns>The 所有的磁带信息<see cref="Task{List{VTRTapeInfo}}"/>.</returns>
-        public async Task<List<VTRTapeInfo>> GetAllTapeInfoAsync()
+        public async Task<List<T>> GetAllTapeInfoAsync<T>()
         {
-            return Mapper.Map<List<VTRTapeInfo>>(await VtrStore.GetTapelist(a => a.OrderByDescending(x => x.Tapeid)
+            return Mapper.Map<List<T>>(await VtrStore.GetTapelist(a => a.OrderByDescending(x => x.Tapeid)
                 .Take(50)));
         }
 
@@ -123,9 +124,9 @@
         /// </summary>
         /// <param name="tapeId">The 磁带ID<see cref="int"/>.</param>
         /// <returns>磁带信息.</returns>
-        public async Task<VTRTapeInfo> GetTapeInfoByIDAsync(int tapeId)
+        public async Task<T> GetTapeInfoByIDAsync<T>(int tapeId)
         {
-            return Mapper.Map<VTRTapeInfo>(await VtrStore.GetTapelist(a => a.FirstOrDefaultAsync(x => x.Tapeid == tapeId)));
+            return Mapper.Map<T>(await VtrStore.GetTapelist(a => a.FirstOrDefaultAsync(x => x.Tapeid == tapeId)));
         }
 
         /// <summary>
@@ -2248,7 +2249,7 @@
             return taskIds;
         }
 
-        public async Task<VtrBatchUploadTaskResponse> AddVTRBatchUploadTasksAsync<TPOne, TPTwo>(List<TPOne> vtrTasksp, List<TPTwo> metadatasp, bool ignoreWrong)
+        public async Task<TResult> AddVTRBatchUploadTasksAsync<TResult,TPOne, TPTwo>(List<TPOne> vtrTasksp, List<TPTwo> metadatasp, bool ignoreWrong)
         {
             var vtrTasks = Mapper.Map<List<VTRUploadTaskContent>>(vtrTasksp);
             var metada = Mapper.Map<List<VTR_UPLOAD_MetadataPair>>(metadatasp);
@@ -2336,7 +2337,7 @@
                 throw new Exception(msg);
             }
 
-            return response;
+            return Mapper.Map< TResult >(response);
         }
 
         private async Task<List<int>> AddTempSaveVTRBUTasksAsync(List<VTRUploadTaskContent> tempSaveTasks, List<VTR_UPLOAD_MetadataPair> metadatas, List<int> taskIds)

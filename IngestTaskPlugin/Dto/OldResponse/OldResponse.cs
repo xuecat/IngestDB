@@ -1,12 +1,11 @@
-﻿using System;
+﻿using IngestTaskPlugin.Dto.Request;
+using System;
 using System.Collections.Generic;
 using System.Text;
 
-namespace IngestTaskPlugin.Dto
+namespace IngestTaskPlugin.Dto.OldResponse
 {
-    public class OldResponse
-    {
-    }
+    
     public enum MetaDataType
     {
         /// <summary>
@@ -773,6 +772,13 @@ namespace IngestTaskPlugin.Dto
         public int nVaildDataCount;
         public string errStr;
         public bool bRet;
+    }
+
+    public class VtrBatchUploadTask
+    { 
+        //VTR_BUT_ErrorCode 类型的枚举
+        public VTR_BUT_ErrorCode errorCode { get; set; }
+        public List<int> taskIds { get; set; }
     }
 }
 

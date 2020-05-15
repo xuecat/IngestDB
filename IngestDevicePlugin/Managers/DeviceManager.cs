@@ -17,6 +17,8 @@ using Remotion.Linq.Parsing;
 using Sobey.Core.Log;
 using taskState = IngestDevicePlugin.Dto.Enum.taskState;
 using emSignalSource = IngestDevicePlugin.Dto.Enum.emSignalSource;
+using IngestDevicePlugin.Dto.OldResponse;
+
 namespace IngestDevicePlugin.Managers
 {
     public class DeviceManager

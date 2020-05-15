@@ -8,6 +8,7 @@
     using IngestDBCore;
     using IngestDBCore.Interface;
     using IngestTaskPlugin.Dto;
+    using IngestTaskPlugin.Dto.OldResponse;
     using IngestTaskPlugin.Dto.Request;
     using IngestTaskPlugin.Dto.Response;
     using IngestTaskPlugin.Dto.Response.OldVtr;
@@ -119,7 +120,7 @@
             TaskOldResponseMessage<List<VTRTapeInfo>> response = new TaskOldResponseMessage<List<VTRTapeInfo>>();
             try
             {
-                response.extention = await _VtrManage.GetAllTapeInfoAsync();
+                response.extention = await _VtrManage.GetAllTapeInfoAsync<VTRTapeInfo>();
                 if (response.extention == null || response.extention.Count == 0)
                 {
                     response.extention = (new VTRTapeInfo[1]).ToList();
@@ -181,7 +182,7 @@
             TaskOldResponseMessage<VTRTapeInfo> response = new TaskOldResponseMessage<VTRTapeInfo>();
             try
             {
-                response.extention = await _VtrManage.GetTapeInfoByIDAsync(nTapeID);
+                response.extention = await _VtrManage.GetTapeInfoByIDAsync<VTRTapeInfo>(nTapeID);
                 if (response.extention == null)
                 {
                     response.message = string.Format("Can not find the tape.");
@@ -978,10 +979,10 @@
         /// <returns>见声明</returns>
         [HttpPost]
         [Route("api/vtr/AddVTRBatchUploadTasks")]
-        public async Task<TaskOldResponseMessage<VtrBatchUploadTaskResponse>> AddVTRBatchUploadTasks([FromBody] AddVTRBatchUploadTasks_in pIn)
+        public async Task<TaskOldResponseMessage<VtrBatchUploadTask>> AddVTRBatchUploadTasks([FromBody] AddVTRBatchUploadTasks_in pIn)
         {
-            TaskOldResponseMessage<VtrBatchUploadTaskResponse> res = new TaskOldResponseMessage<VtrBatchUploadTaskResponse>();
-            res.extention = new VtrBatchUploadTaskResponse();
+            TaskOldResponseMessage<VtrBatchUploadTask> res = new TaskOldResponseMessage<VtrBatchUploadTask>();
+            res.extention = new VtrBatchUploadTask();
             res.message = no_err;
             res.extention.errorCode = VTR_BUT_ErrorCode.emNormal;
             res.extention.taskIds = null;
@@ -1000,7 +1001,7 @@
                     return res;
                 }
 
-                res.extention = await _VtrManage.AddVTRBatchUploadTasksAsync<VTRUploadTaskContent, VTR_UPLOAD_MetadataPair>(pIn.vtrTasks, pIn.metadatas, pIn.ignoreWrong);
+                res.extention = await _VtrManage.AddVTRBatchUploadTasksAsync<VtrBatchUploadTask,VTRUploadTaskContent, VTR_UPLOAD_MetadataPair>(pIn.vtrTasks, pIn.metadatas, pIn.ignoreWrong);
                 res.nCode = res.extention.errorCode == VTR_BUT_ErrorCode.emNormal ? 1 : 0;
             }
             catch (Exception ex)//其他未知的异常，写异常日志

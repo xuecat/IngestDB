@@ -6,13 +6,14 @@ using System.Threading.Tasks;
 using IngestDevicePlugin.Dto;
 using IngestDevicePlugin.Models;
 using Microsoft.EntityFrameworkCore;
-using ProgrammeInfoDto = IngestDevicePlugin.Dto.ProgrammeInfoResponse;
-using CaptureChannelInfoDto = IngestDevicePlugin.Dto.CaptureChannelInfoResponse;
+using ProgrammeInfoDto = IngestDevicePlugin.Dto.Response.ProgrammeInfoResponse;
+using CaptureChannelInfoDto = IngestDevicePlugin.Dto.Response.CaptureChannelInfoResponse;
 using IngestDBCore;
 using IngestDevicePlugin.Dto.Enum;
 using IngestDevicePlugin.Dto.Response;
 using Sobey.Core.Log;
 using emSignalSource = IngestDevicePlugin.Dto.Enum.emSignalSource;
+using IngestDevicePlugin.Dto.OldResponse;
 
 namespace IngestDevicePlugin.Stores
 {

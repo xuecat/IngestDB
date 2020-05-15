@@ -1,6 +1,7 @@
 ﻿using AutoMapper;
 using IngestDBCore;
 using IngestDevicePlugin.Dto;
+using IngestDevicePlugin.Dto.Response;
 using System;
 using System.Collections.Generic;
 using System.Text;

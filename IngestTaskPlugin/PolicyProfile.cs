@@ -5,6 +5,7 @@ using System.Text;
 using System.Threading.Tasks;
 using AutoMapper;
 using IngestTaskPlugin.Dto;
+using IngestTaskPlugin.Dto.OldResponse;
 using IngestTaskPlugin.Dto.Request;
 using IngestTaskPlugin.Dto.Response;
 using IngestTaskPlugin.Extend;

@@ -4,6 +4,7 @@ using System.Threading.Tasks;
 using IngestDBCore;
 using IngestDBCore.Basic;
 using IngestDevicePlugin.Dto;
+using IngestDevicePlugin.Dto.OldResponse;
 using IngestDevicePlugin.Dto.Request;
 using IngestDevicePlugin.Dto.Response;
 using IngestDevicePlugin.Managers;
@@ -11,7 +12,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.ModelBinding;
 using Sobey.Core.Log;
 using SignalDeviceRequest = IngestDevicePlugin.Dto.Response.SignalDeviceMapResponse;
-using TsDeviceInfoResponse = IngestDevicePlugin.Dto.TSDeviceInfo;
+using TsDeviceInfoResponse = IngestDevicePlugin.Dto.OldResponse.TSDeviceInfo;
 
 namespace IngestDevicePlugin.Controllers.v2
 {

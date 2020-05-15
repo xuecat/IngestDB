@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using System.Text;
 
-namespace IngestDevicePlugin.Dto
+namespace IngestDevicePlugin.Dto.Response
 {
     public class RecUnitMap
     {

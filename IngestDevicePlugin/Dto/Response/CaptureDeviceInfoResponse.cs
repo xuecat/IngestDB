@@ -4,7 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace IngestDevicePlugin.Dto
+namespace IngestDevicePlugin.Dto.Response
 {
     /// <summary>采集设备详情</summary>
     public class CaptureDeviceInfoResponse
