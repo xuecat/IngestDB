@@ -1249,6 +1249,8 @@ namespace IngestTaskPlugin.Controllers.v2
 
             try
             {
+                await _taskManage.UpdateComingTasks();
+
                 Response.Ext = await _taskManage.GetNeedSynTasksNew<TaskContentResponse>();
             }
             catch (Exception e)

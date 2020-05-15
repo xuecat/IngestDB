@@ -124,7 +124,7 @@ namespace IngestDB
                     {
                         Version = "v2",
                         Title = "> 收录新版本网关接口文档",
-                        Description = "**Ingest Web API**(接口设计原则: `Post`->新加和修改，`Post`->新加；`Put`->修改, 所有路由和参数均是小写)",
+                        Description = "**Ingest Web API**(接口设计原则: `Post`->新加和修改，`Post`->新加；`Put`->修改, 所有路由和参数均是小写, 所有返回值均是驼峰(注释的是大写, 实际返回驼峰))",
                         Contact = new OpenApiContact { Name = "XueCat", Email = "", Url = new Uri("http://xuecat.com") },
                         License = new OpenApiLicense { Name = "Sobey", Url = new Uri("http://www.sobey.com") }
                         //TermsOfService = new Uri("None"),

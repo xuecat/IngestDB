@@ -1089,6 +1089,8 @@ namespace IngestTaskPlugin.Controllers.v1
 
             try
             {
+                await _taskManage.UpdateComingTasks();
+
                 Response.synTasks = await _taskManage.GetNeedSynTasksNew<TaskFullInfo>();
                 if (Response.synTasks != null)
                 {
