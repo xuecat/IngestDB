@@ -4,7 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace IngestMatrixPlugin.Dto.Response.v1
+namespace IngestMatrixPlugin.Dto.OldResponse.v1
 {
 	/// <summary>
 	/// V1 对象返回

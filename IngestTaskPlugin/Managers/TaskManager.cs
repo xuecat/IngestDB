@@ -3379,14 +3379,14 @@ namespace IngestTaskPlugin.Managers
 
             return null;
         }
+        
 
-
-        public async Task<List<TaskContent>> GetWillBeginAndCapturingTasksAsync()
+        public async Task<List<TResult>> GetWillBeginAndCapturingTasksAsync<TResult>()
         {
             List<TaskContent> capturingTasks = await GetAllChannelCapturingTask<TaskContent>();//获得所有通道正在采集的任务.
             List<TaskContent> willBeginTasks = await GetWillBeginTasksInLast2Hours<TaskContent>();
             capturingTasks.AddRange(willBeginTasks);
-            return capturingTasks;
+            return _mapper.Map<List<TResult>>( capturingTasks);
         }
 
         private async Task<List<TSource>> GetWillBeginTasksInLast2Hours<TSource>()

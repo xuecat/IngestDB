@@ -15,6 +15,7 @@
     using IngestTaskPlugin.Dto.Request;
     using IngestTaskPlugin.Dto.Response;
     using IngestTaskPlugin.Dto.Response.OldVtr;
+    using IngestTaskPlugin.Dto.OldResponse.OldVtr;
     using IngestTaskPlugin.Extend;
     using IngestTaskPlugin.Models;
     using IngestTaskPlugin.Stores;

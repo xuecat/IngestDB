@@ -1,5 +1,6 @@
 ﻿using IngestDBCore;
 using IngestGlobalPlugin.Dto;
+using IngestGlobalPlugin.Dto.OldResponse;
 using IngestGlobalPlugin.Models;
 using Microsoft.EntityFrameworkCore;
 using MySql.Data.MySqlClient;

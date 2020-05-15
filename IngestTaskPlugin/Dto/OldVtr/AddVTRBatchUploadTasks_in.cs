@@ -1,4 +1,5 @@
-﻿using IngestTaskPlugin.Dto.Request;
+﻿using IngestTaskPlugin.Dto.OldResponse.OldVtr;
+using IngestTaskPlugin.Dto.Request;
 using System;
 using System.Collections.Generic;
 using System.Text;

@@ -13,6 +13,8 @@ using System.Xml;
 using IngestDBCore.Tool;
 using System.Collections.Specialized;
 using Sobey.Core.Log;
+using IngestGlobalPlugin.Dto.OldResponse;
+using IngestGlobalPlugin.Dto.Response;
 
 namespace IngestGlobalPlugin.Managers
 {

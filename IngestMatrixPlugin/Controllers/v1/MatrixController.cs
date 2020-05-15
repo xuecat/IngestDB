@@ -33,11 +33,11 @@ namespace IngestMatrixPlugin.Controllers.v1
         /// <returns></returns>
         [HttpGet("SwitchInOut"), MapToApiVersion("1.0")]
         [ApiExplorerSettings(GroupName = "v1")]
-        public async Task<IngestMatrixPlugin.Dto.Response.v1.MatrixOldResponseMessage> SwitchInOut([FromQuery]int lInPort,
+        public async Task<IngestMatrixPlugin.Dto.OldResponse.v1.MatrixOldResponseMessage> SwitchInOut([FromQuery]int lInPort,
                                                                                        [FromQuery]int lOutPort,
                                                                                        [FromQuery]int lTimeOut)
         {
-            IngestMatrixPlugin.Dto.Response.v1.MatrixOldResponseMessage response = new IngestMatrixPlugin.Dto.Response.v1.MatrixOldResponseMessage();
+            IngestMatrixPlugin.Dto.OldResponse.v1.MatrixOldResponseMessage response = new IngestMatrixPlugin.Dto.OldResponse.v1.MatrixOldResponseMessage();
             try
             {
                 if (lInPort <= 0 || lOutPort <= 0)
@@ -70,9 +70,9 @@ namespace IngestMatrixPlugin.Controllers.v1
         /// <returns>nCode,message,扩展字段为inPort</returns>
         [HttpGet("GetInPortFromOutPort"), MapToApiVersion("1.0")]
         [ApiExplorerSettings(GroupName = "v1")]
-        public async Task<Dto.Response.v1.MatrixOldResponseMessage<long>> GetInPortFromOutPort([FromQuery]long OutPort)
+        public async Task<Dto.OldResponse.v1.MatrixOldResponseMessage<long>> GetInPortFromOutPort([FromQuery]long OutPort)
         {
-            Dto.Response.v1.MatrixOldResponseMessage<long> response = new Dto.Response.v1.MatrixOldResponseMessage<long>();
+            Dto.OldResponse.v1.MatrixOldResponseMessage<long> response = new Dto.OldResponse.v1.MatrixOldResponseMessage<long>();
             try
             {
                 response.extention = await _matrixManage.GetInPortFromOutPortAsync(OutPort);
@@ -102,9 +102,9 @@ namespace IngestMatrixPlugin.Controllers.v1
         /// <returns></returns>
         [HttpGet("QueryLinkState"), MapToApiVersion("1.0")]
         [ApiExplorerSettings(GroupName = "v1")]
-        public async Task<Dto.Response.v1.MatrixOldResponseMessage<string>> QueryLinkState()
+        public async Task<Dto.OldResponse.v1.MatrixOldResponseMessage<string>> QueryLinkState()
         {
-            Dto.Response.v1.MatrixOldResponseMessage<string> res = new Dto.Response.v1.MatrixOldResponseMessage<string>();
+            Dto.OldResponse.v1.MatrixOldResponseMessage<string> res = new Dto.OldResponse.v1.MatrixOldResponseMessage<string>();
             try
             {
                 res.extention = await _matrixManage.QueryLinkStateAsync();

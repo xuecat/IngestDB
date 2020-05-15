@@ -1,4 +1,5 @@
 ﻿using IngestGlobalPlugin.Dto;
+using IngestGlobalPlugin.Dto.OldResponse;
 using IngestGlobalPlugin.Models;
 using System;
 using System.Collections.Generic;

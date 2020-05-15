@@ -1,6 +1,8 @@
 ﻿using AutoMapper;
 using IngestDBCore.Tool;
 using IngestGlobalPlugin.Dto;
+using IngestGlobalPlugin.Dto.OldResponse;
+using IngestGlobalPlugin.Dto.Response;
 using IngestGlobalPlugin.Models;
 using IngestGlobalPlugin.Stores;
 using Microsoft.EntityFrameworkCore;
@@ -11,7 +13,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using System.Xml.Linq;
-using FileFormateInfoRequest = IngestGlobalPlugin.Dto.FileFormateInfoResponse;
+using FileFormateInfoRequest = IngestGlobalPlugin.Dto.Response.FileFormateInfoResponse;
 
 namespace IngestGlobalPlugin.Managers
 {
@@ -70,9 +72,9 @@ namespace IngestGlobalPlugin.Managers
             return _mapper.Map<TR>(info);
         }
 
-        public async Task<List<FailedMessageParam>> GetMsgContentByTaskid(int taskid)
+        public async Task<List<TResult>> GetMsgContentByTaskid<TResult>(int taskid)
         {
-            return await Store.GetMsgContentByTaskid(taskid);
+            return _mapper.Map<List<TResult>>(await Store.GetMsgContentByTaskid(taskid));
         }
         
         public async Task<int> CountFailedRecordTask(int taskid)
@@ -96,10 +98,10 @@ namespace IngestGlobalPlugin.Managers
             return (int)dpb.TaskID;
         }
 
-        public async Task<List<MsgFailedRecord>> GetMsgFailedRecordList(List<int> red)
+        public async Task<List<TResult>> GetMsgFailedRecordList<TResult>(List<int> red)
         {
             var lst = await Store.GetMsgFailedRecordListAsync(a => a.Where(b => red.Contains(b.TaskId)), true);
-            return _mapper.Map<List<MsgFailedRecord>>(lst);
+            return _mapper.Map<List<TResult>>(lst);
         }
 
         public async Task<List<T>> GetNeedProcessMsg<T>()

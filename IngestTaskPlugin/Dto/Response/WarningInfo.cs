@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using System.Text;
 
-namespace IngestTaskPlugin.Dto
+namespace IngestTaskPlugin.Dto.Response
 {
     public class WarningInfoResponse
     {

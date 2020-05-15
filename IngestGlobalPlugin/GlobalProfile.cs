@@ -2,6 +2,8 @@
 using IngestDBCore.Dto;
 using IngestDBCore.Tool;
 using IngestGlobalPlugin.Dto;
+using IngestGlobalPlugin.Dto.OldResponse;
+using IngestGlobalPlugin.Dto.Response;
 using IngestGlobalPlugin.Models;
 using System;
 using System.Collections.Generic;
@@ -39,7 +41,7 @@ namespace IngestGlobalPlugin
                 .ForMember(a => a.strLabel, (map) => map.MapFrom(b => b.Label))
                 .ForMember(a => a.dtLastTime, (map) => map.MapFrom(b => b.Lasttime));
 
-            CreateMap<DbpGlobalState, DtoGlobalState>()
+            CreateMap<DbpGlobalState, DtoGlobalStateResponse>()
                 .ForMember(a => a.Label, (map) => map.MapFrom(b => b.Label))
                 .ForMember(a => a.LastTime, (map) => map.MapFrom(b => b.Lasttime));
 
@@ -131,6 +133,10 @@ namespace IngestGlobalPlugin
                 .ForMember(a => a.SectionId, (map) => map.MapFrom(b => b.SectionID))
                 .ForMember(a => a.DealTime, (map) => map.MapFrom(b => b.DealTime)).ReverseMap();
 
+            CreateMap<MsgFailedRecordResponse, DbpMsgFailedrecord>()
+                .ForMember(a => a.TaskId, (map) => map.MapFrom(b => b.TaskID))
+                .ForMember(a => a.SectionId, (map) => map.MapFrom(b => b.SectionID))
+                .ForMember(a => a.DealTime, (map) => map.MapFrom(b => b.DealTime)).ReverseMap();
 
             CreateMap<DbpMetadatapolicy, MetaDataPolicy>()
                 .ForMember(a => a.nID, (map) => map.MapFrom(b => b.Policyid))
@@ -162,6 +168,11 @@ namespace IngestGlobalPlugin
             CreateMap<DbpMaterialAudio, AudioInfoResponse>()
                 .ForMember(a => a.Filename, (map) => map.MapFrom(b => b.Audiofilename)).ReverseMap();
             //ReverseMap
+
+            CreateMap<FailedMessageParam, FailedMessageParamResponse>()
+                .ForMember(a => a.TaskID, (map) => map.MapFrom(b => b.TaskID))
+                .ForMember(a => a.SectionID, (map) => map.MapFrom(b => b.SectionID))
+                .ForMember(a => a.MsgContent, (map) => map.MapFrom(b => b.MsgContent)).ReverseMap();
         }
 
     }

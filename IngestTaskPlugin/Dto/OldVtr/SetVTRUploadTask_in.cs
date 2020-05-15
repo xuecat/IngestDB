@@ -3,7 +3,7 @@ using System;
 using System.Collections.Generic;
 using System.Text;
 
-namespace IngestTaskPlugin.Dto.Response.OldVtr
+namespace IngestTaskPlugin.Dto.OldResponse.OldVtr
 {
     public class SetVTRUploadTask_in
     {

@@ -1629,13 +1629,13 @@ namespace IngestTaskPlugin.Controllers.v2
         /// <returns>当前任务</returns>
         [HttpPost("currenttasks")]
         [ApiExplorerSettings(GroupName = "v2")]
-        public async Task<ResponseMessage<List<TaskContent>>> GetCurrentTasks()
+        public async Task<ResponseMessage<List<TaskContentResponse>>> GetCurrentTasks()
         {
-            var Response = new ResponseMessage<List<TaskContent>>();
+            var Response = new ResponseMessage<List<TaskContentResponse>>();
 
             try
             {
-                Response.Ext = await _taskManage.GetCurrentTasksAsync<TaskContent>();
+                Response.Ext = await _taskManage.GetCurrentTasksAsync<TaskContentResponse>();
             }
             catch (Exception e)
             {
@@ -2116,12 +2116,12 @@ namespace IngestTaskPlugin.Controllers.v2
         /// <returns>将要和正在执行的任务</returns>
         [HttpGet("willbeginandcapturing")]
         [ApiExplorerSettings(GroupName = "v2")]
-        public async Task<ResponseMessage<List<TaskContent>>> GetWillBeginAndCapturingTasks()
+        public async Task<ResponseMessage<List<TaskContentResponse>>> GetWillBeginAndCapturingTasks()
         {
-            var Response = new ResponseMessage<List<TaskContent>>();
+            var Response = new ResponseMessage<List<TaskContentResponse>>();
             try
             {
-                Response.Ext = await _taskManage.GetWillBeginAndCapturingTasksAsync();
+                Response.Ext = await _taskManage.GetWillBeginAndCapturingTasksAsync<TaskContentResponse>();
             }
             catch (Exception e)
             {

@@ -11,7 +11,7 @@ using IngestMatrixPlugin.Stores;
 using Microsoft.EntityFrameworkCore;
 using Newtonsoft.Json;
 using Sobey.Core.Log;
-using MatrixOldResponseMessage = IngestMatrixPlugin.Dto.Response.v1.MatrixOldResponseMessage;
+using MatrixOldResponseMessage = IngestMatrixPlugin.Dto.OldResponse.v1.MatrixOldResponseMessage;
 
 namespace IngestMatrixPlugin.Managers
 {

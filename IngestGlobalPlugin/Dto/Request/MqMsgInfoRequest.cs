@@ -1,8 +1,9 @@
-﻿using System;
+﻿using IngestGlobalPlugin.Dto.OldResponse;
+using System;
 using System.Collections.Generic;
 using System.Text;
 
-namespace IngestGlobalPlugin.Dto
+namespace IngestGlobalPlugin.Dto.Response
 {
     public class MqMsgInfoRequest
     {

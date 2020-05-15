@@ -2,6 +2,7 @@
 using IngestDBCore.Basic;
 using IngestDBCore.Dto;
 using IngestGlobalPlugin.Dto;
+using IngestGlobalPlugin.Dto.OldResponse;
 using IngestGlobalPlugin.Managers;
 using Microsoft.AspNetCore.Mvc;
 using Sobey.Core.Log;

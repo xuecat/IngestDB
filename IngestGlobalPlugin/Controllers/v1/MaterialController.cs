@@ -1,6 +1,7 @@
 ﻿using IngestDBCore;
 using IngestDBCore.Basic;
 using IngestGlobalPlugin.Dto;
+using IngestGlobalPlugin.Dto.OldResponse;
 using IngestGlobalPlugin.Managers;
 using Microsoft.AspNetCore.Mvc;
 using Sobey.Core.Log;
@@ -138,7 +139,7 @@ namespace IngestGlobalPlugin.Controllers.v1
             var Response = new OldResponseMessage<List<MsgFailedRecord>>();
             try
             {
-                Response.extention = await _materialManage.GetMsgFailedRecordList(taskids);
+                Response.extention = await _materialManage.GetMsgFailedRecordList<MsgFailedRecord>(taskids);
                 Response.nCode = 1;
                 return Response;
             }
@@ -321,7 +322,7 @@ namespace IngestGlobalPlugin.Controllers.v1
             var Response = new OldResponseMessage<List<FailedMessageParam>>();
             try
             {
-                var f = await _materialManage.GetMsgContentByTaskid(taskID);
+                var f = await _materialManage.GetMsgContentByTaskid<FailedMessageParam>(taskID);
                 Response.extention = f;
                 return Response;
             }

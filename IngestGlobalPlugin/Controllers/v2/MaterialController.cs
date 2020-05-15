@@ -1,6 +1,8 @@
 ﻿using IngestDBCore;
 using IngestDBCore.Basic;
 using IngestGlobalPlugin.Dto;
+using IngestGlobalPlugin.Dto.OldResponse;
+using IngestGlobalPlugin.Dto.Response;
 using IngestGlobalPlugin.Managers;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.ModelBinding;
@@ -10,8 +12,8 @@ using System.Collections.Generic;
 using System.Text;
 using System.Threading.Tasks;
 
-using FileFormateInfoRequest = IngestGlobalPlugin.Dto.FileFormateInfoResponse;
-using MqMsgInfoResponse = IngestGlobalPlugin.Dto.MqMsgInfoRequest;
+using FileFormateInfoRequest = IngestGlobalPlugin.Dto.Response.FileFormateInfoResponse;
+using MqMsgInfoResponse = IngestGlobalPlugin.Dto.Response.MqMsgInfoRequest;
 
 namespace IngestGlobalPlugin.Controllers.v2
 {
@@ -42,9 +44,9 @@ namespace IngestGlobalPlugin.Controllers.v2
         /// </remarks>
         /// <param name="taskid"> taskid </param>
         /// <returns>消息组</returns>     
-        [HttpPost("material/{taskid}")]
+        [HttpGet("material/{taskid}")]
         [ApiExplorerSettings(GroupName = "v2")]
-        public async Task<ResponseMessage<List<MaterialInfoResponse>>> GetMaterailInfo([FromRoute]int taskid)
+        public async Task<ResponseMessage<List<MaterialInfoResponse>>> GetMaterailInfo([FromRoute,DefaultValue(9)]int taskid)
         {
             var Response = new ResponseMessage<List<MaterialInfoResponse>>();
 
@@ -115,11 +117,11 @@ namespace IngestGlobalPlugin.Controllers.v2
         /// </remarks>
         /// <param name="taskid"> 待查询的taskid数组 </param>
         /// <returns>id</returns>     
-        [HttpGet("failedrecord")]
+        [HttpPost("failedrecord")]
         [ApiExplorerSettings(GroupName = "v2")]
-        public async Task<ResponseMessage<List<MsgFailedRecord>>> GetMsgFailedRecord([FromBody, BindRequired] List<int> taskid)
+        public async Task<ResponseMessage<List<MsgFailedRecordResponse>>> GetMsgFailedRecord([FromBody, BindRequired] List<int> taskid)
         {
-            var Response = new ResponseMessage<List<MsgFailedRecord>>();
+            var Response = new ResponseMessage<List<MsgFailedRecordResponse>>();
             if (taskid == null)
             {
                 Response.Code = ResponseCodeDefines.ModelStateInvalid;
@@ -127,7 +129,7 @@ namespace IngestGlobalPlugin.Controllers.v2
             }
             try
             {
-                Response.Ext = await _materialManage.GetMsgFailedRecordList(taskid);
+                Response.Ext = await _materialManage.GetMsgFailedRecordList<MsgFailedRecordResponse>(taskid);
             }
             catch (Exception e)
             {
@@ -282,9 +284,9 @@ namespace IngestGlobalPlugin.Controllers.v2
         /// <returns>文件格式元数据</returns>     
         [HttpGet("mqmsgcontent/{taskid}")]
         [ApiExplorerSettings(GroupName = "v2")]
-        public async Task<ResponseMessage<List<FailedMessageParam>>> GetMsgContentByTaskID([FromRoute, BindRequired]int taskid)
+        public async Task<ResponseMessage<List<FailedMessageParamResponse>>> GetMsgContentByTaskID([FromRoute, BindRequired, DefaultValue(2121)]int taskid)
         {
-            var Response = new ResponseMessage<List<FailedMessageParam>>();
+            var Response = new ResponseMessage<List<FailedMessageParamResponse>>();
             if (taskid <1)
             {
                 Response.Code = ResponseCodeDefines.ModelStateInvalid;
@@ -292,7 +294,7 @@ namespace IngestGlobalPlugin.Controllers.v2
             }
             try
             {
-                Response.Ext = await _materialManage.GetMsgContentByTaskid(taskid);
+                Response.Ext = await _materialManage.GetMsgContentByTaskid<FailedMessageParamResponse>(taskid);
             }
             catch (Exception e)
             {

@@ -1,8 +1,9 @@
-﻿using System;
+﻿using IngestGlobalPlugin.Dto.OldResponse;
+using System;
 using System.Collections.Generic;
 using System.Text;
 
-namespace IngestGlobalPlugin.Dto
+namespace IngestGlobalPlugin.Dto.Response
 {
     public class VideoInfoResponse
     {
@@ -32,5 +33,21 @@ namespace IngestGlobalPlugin.Dto
         public List<AudioInfoResponse> Audios { get; set; }  //音频文件列表
         public List<int> ArchivePolicys { get; set; }    //入库策略列表
         public int DeleteState { get; set; } = (int)DELETED_STATE.NOTDELETED;
+    }
+
+    public class MsgFailedRecordResponse
+    {
+        public string MsgGuid { get; set; }
+        public uint TaskID { get; set; }
+        public uint SectionID { get; set; }
+        public string DealTime { get; set; }
+        public string DealMsg { get; set; }
+    }
+
+    public class FailedMessageParamResponse
+    {
+        public int TaskID { get; set; }
+        public int SectionID { get; set; }
+        public string MsgContent { get; set; }
     }
 }

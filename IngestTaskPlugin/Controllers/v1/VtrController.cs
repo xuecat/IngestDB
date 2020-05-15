@@ -12,6 +12,7 @@
     using IngestTaskPlugin.Dto.Request;
     using IngestTaskPlugin.Dto.Response;
     using IngestTaskPlugin.Dto.Response.OldVtr;
+    using IngestTaskPlugin.Dto.OldResponse.OldVtr;
     using IngestTaskPlugin.Managers;
     using Microsoft.AspNetCore.Mvc;
     using Microsoft.Extensions.DependencyInjection;
@@ -886,7 +887,7 @@
 
         //增加一个VTR上载任务
         [HttpPost("AddVTRUploadTask")]
-        public async Task<TaskOldResponseMessage<Dto.Response.OldVtr.AddVTRUploadTask_out>> AddVTRUploadTask([FromBody]AddVTRUploadTask_in pIn)
+        public async Task<TaskOldResponseMessage<Dto.OldResponse.OldVtr.AddVTRUploadTask_out>> AddVTRUploadTask([FromBody]AddVTRUploadTask_in pIn)
         {
             TaskOldResponseMessage<AddVTRUploadTask_out> response = new TaskOldResponseMessage<AddVTRUploadTask_out>();
             response.extention.errorCode = (int)VTR_BUT_ErrorCode.emNormal;

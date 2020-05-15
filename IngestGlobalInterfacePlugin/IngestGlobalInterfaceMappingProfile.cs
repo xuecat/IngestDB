@@ -1,13 +1,11 @@
 ﻿using AutoMapper;
 using IngestDBCore;
-using IngestGlobalPlugin.Dto;
-using System;
+using IngestGlobalPlugin.Dto.Response;
 using System.Collections.Generic;
-using System.Text;
 
 namespace IngestTaskInterfacePlugin
 {
-    
+
     public class IngestGlobalInterfaceMappingProfile : Profile
     {
         public IngestGlobalInterfaceMappingProfile()

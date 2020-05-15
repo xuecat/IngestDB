@@ -1,20 +1,19 @@
 ﻿using IngestDBCore;
 using IngestDBCore.Basic;
-using IngestGlobalPlugin.Dto;
+using IngestGlobalPlugin.Dto.Response;
 using IngestGlobalPlugin.Managers;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.ModelBinding;
 using Sobey.Core.Log;
 using System;
 using System.Collections.Generic;
-using System.Text;
 using System.Threading.Tasks;
 
-using EditUserTemplateRequest = IngestGlobalPlugin.Dto.EditUserTemplate;
+using EditUserTemplateRequest = IngestGlobalPlugin.Dto.Response.EditUserTemplate;
 
 namespace IngestGlobalPlugin.Controllers.v2
 {
-    
+
     [Route("api/v{version:apiVersion}/[controller]")]
     [ApiVersion("2.0")]
     [ApiController]

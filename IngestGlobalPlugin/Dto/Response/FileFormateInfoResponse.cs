@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using System.Text;
 
-namespace IngestGlobalPlugin.Dto
+namespace IngestGlobalPlugin.Dto.Response
 {
     public class FileFormateInfoResponse
     {

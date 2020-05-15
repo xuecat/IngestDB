@@ -2,6 +2,8 @@
 using IngestDBCore.Basic;
 using IngestDBCore.Tool;
 using IngestGlobalPlugin.Dto;
+using IngestGlobalPlugin.Dto.OldResponse;
+using IngestGlobalPlugin.Dto.Response;
 using IngestGlobalPlugin.Managers;
 using IngestGlobalPlugin.Models;
 using Microsoft.AspNetCore.Mvc;
@@ -373,13 +375,13 @@ namespace IngestGlobalPlugin.Controllers.v2
         /// </remarks>
         [HttpGet("globalstate/all")]
         [ApiExplorerSettings(GroupName = "v2")]
-        public async Task<ResponseMessage<List<DtoGlobalState>>> GetAllGlobalState()
+        public async Task<ResponseMessage<List<DtoGlobalStateResponse>>> GetAllGlobalState()
         {
-            ResponseMessage<List<DtoGlobalState>> Response = new ResponseMessage<List<DtoGlobalState>>();
+            ResponseMessage<List<DtoGlobalStateResponse>> Response = new ResponseMessage<List<DtoGlobalStateResponse>>();
 
             try
             {
-                Response.Ext = await _GlobalManager.GetAllGlobalStateAsync<DtoGlobalState>();
+                Response.Ext = await _GlobalManager.GetAllGlobalStateAsync<DtoGlobalStateResponse>();
                 if(Response.Ext.Count < 1)
                 {
                     Response.Code = ResponseCodeDefines.PartialFailure;

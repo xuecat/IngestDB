@@ -1,8 +1,9 @@
-﻿using System;
+﻿using IngestGlobalPlugin.Dto.OldResponse;
+using System;
 using System.Collections.Generic;
 using System.Text;
 
-namespace IngestGlobalPlugin.Dto
+namespace IngestGlobalPlugin.Dto.Response
 {
     class GlobalResponse
     {
@@ -14,6 +15,12 @@ namespace IngestGlobalPlugin.Dto
         public TC_TYPE TcType { get; set; }
 
         public int TC { get; set; }
+    }
+
+    public class DtoGlobalStateResponse
+    {
+        public string Label { get; set; }// = string.Empty;
+        public string LastTime { get; set; }//DateTime.MinValue.ToString("yyyy-MM-dd HH:mm:ss");
     }
 
     public class DtoUserTemplate
@@ -57,12 +64,6 @@ namespace IngestGlobalPlugin.Dto
         public int ID { get; set; }
         public string TemplateName { get; set; }//采集参数模板
         public string ParamTemplate { get; set; }//参数模板内容采集
-    }
-
-    public class DtoGlobalState
-    {
-        public string Label { get; set; }// = string.Empty;
-        public string LastTime  { get; set; }//DateTime.MinValue.ToString("yyyy-MM-dd HH:mm:ss");
     }
 
     public class DtoSetUserSettingRequest

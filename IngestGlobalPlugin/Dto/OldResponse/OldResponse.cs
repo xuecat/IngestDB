@@ -3,7 +3,7 @@ using System;
 using System.Collections.Generic;
 using System.Text;
 
-namespace IngestGlobalPlugin.Dto
+namespace IngestGlobalPlugin.Dto.OldResponse
 {
     class OldResponse
     {

@@ -1,4 +1,6 @@
-﻿namespace IngestTaskPlugin.Dto.Response.OldVtr
+﻿using IngestTaskPlugin.Dto.Response.OldVtr;
+
+namespace IngestTaskPlugin.Dto.OldResponse.OldVtr
 {
     /// <summary>
     /// 录像机详细信息 <see cref="VTRDetailInfo" />.

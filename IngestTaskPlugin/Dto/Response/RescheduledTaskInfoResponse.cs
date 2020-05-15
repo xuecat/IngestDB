@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using System.Text;
 
-namespace IngestTaskPlugin.Dto
+namespace IngestTaskPlugin.Dto.Response
 {
     /// <summary>调度任务信息</summary>
     public class RescheduledTaskInfoResponse
