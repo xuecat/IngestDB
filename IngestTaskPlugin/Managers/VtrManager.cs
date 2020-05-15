@@ -1572,8 +1572,10 @@
 
         public async Task<TResult> GetUploadTaskInfoByIDAsync<TResult>(int taskID)
         {
-            VTRUploadConditionRequest condition = new VTRUploadConditionRequest() {  TaskId = taskID };
-            var result = await VtrStore.GetUploadtaskInfo(condition, true);
+            //VTRUploadConditionRequest condition = new VTRUploadConditionRequest() {  TaskId = taskID };
+            //var result = await VtrStore.GetUploadtaskInfo(condition, false);
+            var result = await VtrStore.GetUploadtask(a => a.Where(x => x.Taskid == taskID), true);
+
             return Mapper.Map<TResult>(result.FirstOrDefault());
         }
 

@@ -461,7 +461,7 @@
         {
             IQueryable<VtrUploadtask> query = Context.VtrUploadtask.AsNoTracking();
             if (Condition.BlankTaskId > 0) query = query.Where(a => a.Vtrtaskid == Condition.BlankTaskId);
-            if (string.IsNullOrEmpty(Condition.TaskName)) query = query.Where(a => a.Taskname.Contains(Condition.TaskName));
+            if (!string.IsNullOrEmpty(Condition.TaskName)) query = query.Where(a => a.Taskname.Contains(Condition.TaskName));
             if (!bTaskMoreThanZero && Condition.TaskId >= 0) query = query.Where(a => a.Taskid == Condition.TaskId);
             if (bTaskMoreThanZero && Condition.TaskId > 0) query = query.Where(a => a.Taskid == Condition.TaskId);
             if (Condition.VtrId > 0) query = query.Where(a => a.Vtrid == Condition.VtrId);
