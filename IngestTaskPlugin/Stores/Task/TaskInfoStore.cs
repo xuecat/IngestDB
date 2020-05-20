@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using System.Xml.Linq;
 using IngestDBCore;
 using IngestDBCore.Tool;
 using IngestTaskPlugin.Dto;
@@ -818,7 +819,7 @@ namespace IngestTaskPlugin.Stores
                 else
                 {
                     Logger.Info("Before TASKOPER.ModifyTask");
-                    await ModifyTask(taskinfo, true, string.Empty, string.Empty, string.Empty, string.Empty);
+                    await ModifyTask(taskinfo, false, true, true, string.Empty, string.Empty, string.Empty, string.Empty);
                 }
             }
             return taskid;
@@ -1794,7 +1795,7 @@ namespace IngestTaskPlugin.Stores
                         var addlist = GetDayList(Category, ref addflag);
                         var complist = GetDayList(item.Category, ref compflag);
 
-                        if (addflag > 0 && compflag > 0)
+                        if (addflag >= 0 && compflag >= 0)
                         {
                             //zmj2008-10-10修改周期任务与周期任务之前的冲突判断
                             var addExcludeList = GetDateTimeFromString(Category);
@@ -1928,7 +1929,7 @@ namespace IngestTaskPlugin.Stores
             return lst;
         }
 
-        public async Task<DbpTask> ModifyTask(DbpTask task, bool bPerodic2Next, string CaptureMeta, string ContentMeta, string MatiralMeta, string PlanningMeta)
+        public async Task<DbpTask> ModifyTask(DbpTask task, bool bPerodic2Next, bool autoupdate, bool savechange, string CaptureMeta, string ContentMeta, string MatiralMeta, string PlanningMeta)
         {
             if (task.Tasktype != (int)TaskType.TT_PERIODIC)
             {
@@ -1999,40 +2000,132 @@ namespace IngestTaskPlugin.Stores
             }
             if (!string.IsNullOrEmpty(MatiralMeta))
             {
-                var itm = new DbpTaskMetadata() { Taskid = task.Taskid, Metadatatype = (int)MetaDataType.emStoreMetaData, Metadatalong = MatiralMeta };
-                Context.Attach(itm);
-                Context.Entry(itm).Property(x => x.Metadatalong).IsModified = true;
+                //var itm = new DbpTaskMetadata() { Taskid = task.Taskid, Metadatatype = (int)MetaDataType.emStoreMetaData, Metadatalong = MatiralMeta };
+                //Context.Attach(itm);
+                //Context.Entry(itm).Property(x => x.Metadatalong).IsModified = true;
 
+                var item = Context.DbpTaskMetadata.Where(x => x.Taskid == task.Taskid && x.Metadatatype == (int)MetaDataType.emStoreMetaData).SingleOrDefault();
+                if (item != null)
+                {
+
+                    if (autoupdate)
+                    {
+                        var org = XDocument.Parse(item.Metadatalong);
+                        var modify = XDocument.Parse(MatiralMeta);
+
+                        foreach (var m in modify.Element("MATERIAL").Elements())
+                        {
+                            var f = org.Element("MATERIAL").Elements().FirstOrDefault(x => x.Name == m.Name);
+                            if (f != null)
+                            {
+                                f.Value = m.Value;
+                            }
+                            else
+                            {
+                                org.Element("MATERIAL").Add(m);
+                            }
+                        }
+
+                        item.Metadatalong = org.ToString();
+                    }
+                    else
+                    {
+                        item.Metadatalong = MatiralMeta;
+                    }
+
+                }
                 //Context.DbpTaskMetadata.Update(itm);
             }
             if (!string.IsNullOrEmpty(ContentMeta))
             {
-                var itm = new DbpTaskMetadata() { Taskid = task.Taskid, Metadatatype = (int)MetaDataType.emContentMetaData, Metadatalong = ContentMeta };
-                Context.Attach(itm);
-                Context.Entry(itm).Property(x => x.Metadatalong).IsModified = true;
+                //var itm = new DbpTaskMetadata() { Taskid = task.Taskid, Metadatatype = (int)MetaDataType.emContentMetaData, Metadatalong = ContentMeta };
+                //Context.Attach(itm);
+                //Context.Entry(itm).Property(x => x.Metadatalong).IsModified = true;
 
-                //Context.DbpTaskMetadata.Update(itm);
+                var item = Context.DbpTaskMetadata.Where(x => x.Taskid == task.Taskid && x.Metadatatype == (int)MetaDataType.emContentMetaData).SingleOrDefault();
+                if (item != null)
+                {
+
+                    if (autoupdate)
+                    {
+                        var org = XDocument.Parse(item.Metadatalong);
+                        var modify = XDocument.Parse(ContentMeta);
+
+                        foreach (var m in modify.Element("TaskContentMetaData").Elements())
+                        {
+                            var f = org.Element("TaskContentMetaData").Elements().FirstOrDefault(x => x.Name == m.Name);
+                            if (f != null)
+                            {
+                                f.Value = m.Value;
+                            }
+                            else
+                            {
+                                org.Element("TaskContentMetaData").Add(m);
+                            }
+                        }
+
+                        item.Metadatalong = org.ToString();
+                    }
+                    else
+                    {
+                        item.Metadatalong = ContentMeta;
+                    }
+
+                }
             }
             
             if (!string.IsNullOrEmpty(PlanningMeta))
             {
-                var itm = new DbpTaskMetadata() { Taskid = task.Taskid, Metadatatype = (int)MetaDataType.emPlanMetaData, Metadatalong = PlanningMeta };
-                Context.Attach(itm);
-                Context.Entry(itm).Property(x => x.Metadatalong).IsModified = true;
-                //Context.DbpTaskMetadata.Update(itm);
+                //var itm = new DbpTaskMetadata() { Taskid = task.Taskid, Metadatatype = (int)MetaDataType.emPlanMetaData, Metadatalong = PlanningMeta };
+                //Context.Attach(itm);
+                //Context.Entry(itm).Property(x => x.Metadatalong).IsModified = true;
+
+                var item = Context.DbpTaskMetadata.Where(x => x.Taskid == task.Taskid && x.Metadatatype == (int)MetaDataType.emPlanMetaData).SingleOrDefault();
+                if (item != null)
+                {
+
+                    if (autoupdate)
+                    {
+                        var org = XDocument.Parse(item.Metadatalong);
+                        var modify = XDocument.Parse(PlanningMeta);
+
+                        foreach (var m in modify.Element("Planning").Elements())
+                        {
+                            var f = org.Element("Planning").Elements().FirstOrDefault(x => x.Name == m.Name);
+                            if (f != null)
+                            {
+                                f.Value = m.Value;
+                            }
+                            else
+                            {
+                                org.Element("Planning").Add(m);
+                            }
+                        }
+
+                        item.Metadatalong = org.ToString();
+                    }
+                    else
+                    {
+                        item.Metadatalong = PlanningMeta;
+                    }
+
+                }
             }
 
-
-            try
+            if (savechange)
             {
-                await Context.SaveChangesAsync();
-                return task;
-            }
-            catch (DbUpdateException e)
-            {
-                throw e;
+                try
+                {
+                    await Context.SaveChangesAsync();
+                    return task;
+                }
+                catch (DbUpdateException e)
+                {
+                    throw e;
+                }
             }
 
+            return task;
         }
 
         public async Task<DbpTask> AddTaskWithPolicys(DbpTask task, bool bAddForInDB, TaskSource taskSrc, string CaptureMeta, string ContentMeta, string MatiralMeta, string PlanningMeta, int[] arrPolicys)

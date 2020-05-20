@@ -397,7 +397,7 @@
             uploadQuery.Where(a => a.Vtrtasktype == 1 && a.Taskstate == 2);
             IQueryable<DbpTask> taskQeruy = Context.DbpTask.AsNoTracking();
             taskQeruy.Where(a => a.Tasktype == 6 &&
-                                 a.Tasklock == null &&
+                                 string.IsNullOrEmpty(a.Tasklock) &&
                                  a.SyncState == 0 &&
                                  a.Starttime < dt1 &&
                                  a.Starttime > dt2);

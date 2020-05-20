@@ -54,77 +54,227 @@ namespace IngestTaskPlugin.Managers
 
         public string ConverTaskMaterialMetaString(TaskMaterialMetaResponse re)
         {
-            XDocument xdoc = new XDocument(
-                new XElement("MATERIAL",
-                 new XElement("TITLE", re.Title),
-                 new XElement("MATERIALID", re.MaterialID),
-                 new XElement("RIGHTS", re.Rights),
-                 new XElement("COMMENTS", re.Comments),
-                 new XElement("DESTINATION", re.Destination),
-                 new XElement("FOLDERID", re.FolderID),
-                 new XElement("ITEMNAME", re.ItemName),
-                 new XElement("JOURNALIST", re.JournaList),
-                 new XElement("CATEGORY", re.CateGory),
-                 new XElement("PROGRAMNAME", re.ProgramName),
-                 new XElement("DATEFOLDER", re.Datefolder))
-                );
+            XDocument xdoc = new XDocument(new XElement("MATERIAL"));
+            var root = xdoc.Root;
+
+            if (!string.IsNullOrEmpty(re.Title))
+            {
+                root.Add(new XElement("TITLE", re.Title));
+            }
+            if (!string.IsNullOrEmpty(re.MaterialID))
+            {
+                root.Add(new XElement("MATERIALID", re.MaterialID));
+            }
+            if (!string.IsNullOrEmpty(re.Rights))
+            {
+                root.Add(new XElement("RIGHTS", re.Rights));
+            }
+            if (!string.IsNullOrEmpty(re.Comments))
+            {
+                root.Add(new XElement("COMMENTS", re.Comments));
+            }
+            if (!string.IsNullOrEmpty(re.Destination))
+            {
+                root.Add(new XElement("DESTINATION", re.Destination));
+            }
+            if (re.FolderID >= 0)
+            {
+                root.Add(new XElement("FOLDERID", re.FolderID));
+            }
+            if (!string.IsNullOrEmpty(re.Destination))
+            {
+                root.Add(new XElement("DESTINATION", re.Destination));
+            }
+            if (!string.IsNullOrEmpty(re.ItemName))
+            {
+                root.Add(new XElement("ITEMNAME", re.ItemName));
+            }
+            if (!string.IsNullOrEmpty(re.JournaList))
+            {
+                root.Add(new XElement("JOURNALIST", re.JournaList));
+            }
+            if (!string.IsNullOrEmpty(re.CateGory))
+            {
+                root.Add(new XElement("CATEGORY", re.CateGory));
+            }
+            if (!string.IsNullOrEmpty(re.ProgramName))
+            {
+                root.Add(new XElement("PROGRAMNAME", re.ProgramName));
+            }
+            if (re.Datefolder >= 0)
+            {
+                root.Add(new XElement("DATEFOLDER", re.Datefolder));
+            }
+
             return xdoc.ToString();
         }
         public string ConverTaskContentMetaString(TaskContentMetaResponse re)
         {
-            var par = new XElement("PARAMS");
-            foreach (var item in re.PeriodParam.Params)
+            
+            XDocument xdoc = new XDocument(new XElement("TaskContentMetaData"));
+            var root = xdoc.Root;
+
+            if (re.HouseTC >= 0)
             {
-                par.Add(new XElement("DAY", item));
+                root.Add(new XElement("HOUSETC", re.HouseTC));
             }
-            XDocument xdoc = new XDocument(
-                new XElement("TaskContentMetaData",
-                 new XElement("HOUSETC", re.HouseTC),
-                 new XElement("PRESETSTAMP", re.Presetstamp),
-                 new XElement("SIXTEENTONINE", re.SixteenToNine),
-                 new XElement("SOURCETAPEID", re.SourceTapeID),
-                 new XElement("DELETEFLAG", re.DeleteFlag),
-                 new XElement("SOURCETAPEBARCODE", re.SourceTapeBarcode),
-                 new XElement("BACKTAPEID", re.BackTapeID),
-                 new XElement("USERMEDIAID", re.UserMediaID),
-                 new XElement("UserToken", re.UserToken),
-                 new XElement("VTRSTART", re.VtrStart),
-                 new XElement("TCMODE", re.TcMode),
-                 new XElement("ClipSum", re.ClipSum),
-                 new XElement("TransState", re.TransState),
-                 new XElement("PERIODPARAM",
-                    new XElement("BEGINDATE", re.PeriodParam.BeginDate),
-                    new XElement("ENDDATE", re.PeriodParam.EndDate),
-                    new XElement("APPDATE", re.PeriodParam.AppDate),
-                    new XElement("APPDATEFORMAT", re.PeriodParam.AppDateFormat),
-                    new XElement("MODE", re.PeriodParam.Mode),
-                    par
-                    ))
-                );
+            if (re.Presetstamp >= 0)
+            {
+                root.Add(new XElement("PRESETSTAMP", re.Presetstamp));
+            }
+            if (re.SixteenToNine >= 0)
+            {
+                root.Add(new XElement("SIXTEENTONINE", re.SixteenToNine));
+            }
+            if (re.SourceTapeID >= 0)
+            {
+                root.Add(new XElement("SOURCETAPEID", re.SourceTapeID));
+            }
+            if (re.DeleteFlag >= 0)
+            {
+                root.Add(new XElement("DELETEFLAG", re.DeleteFlag));
+            }
+            if (re.SourceTapeBarcode >= 0)
+            {
+                root.Add(new XElement("SOURCETAPEBARCODE", re.SourceTapeBarcode));
+            }
+            if (re.BackTapeID >= 0)
+            {
+                root.Add(new XElement("BACKTAPEID", re.BackTapeID));
+            }
+            if (re.UserMediaID >= 0)
+            {
+                root.Add(new XElement("USERMEDIAID", re.UserMediaID));
+            }
+            if (!string.IsNullOrEmpty(re.UserToken))
+            {
+                root.Add(new XElement("UserToken", re.UserToken));
+            }
+            if (!string.IsNullOrEmpty(re.VtrStart))
+            {
+                root.Add(new XElement("VTRSTART", re.VtrStart));
+            }
+            if (re.TcMode >= 0)
+            {
+                root.Add(new XElement("TCMODE", re.TcMode));
+            }
+            if (re.ClipSum >= 0)
+            {
+                root.Add(new XElement("ClipSum", re.ClipSum));
+            }
+            if (re.TransState >= 0)
+            {
+                root.Add(new XElement("TransState", re.TransState));
+            }
+
+            if (re.PeriodParam != null)
+            {
+                var per = new XElement("PERIODPARAM");
+                if (!string.IsNullOrEmpty(re.PeriodParam.BeginDate))
+                {
+                    per.Add(new XElement("BEGINDATE", re.PeriodParam.BeginDate));
+                }
+                if (!string.IsNullOrEmpty(re.PeriodParam.EndDate))
+                {
+                    per.Add(new XElement("ENDDATE", re.PeriodParam.EndDate));
+                }
+                if (re.PeriodParam.AppDate >= 0)
+                {
+                    per.Add(new XElement("APPDATE", re.PeriodParam.AppDate));
+                }
+                if (!string.IsNullOrEmpty(re.PeriodParam.AppDateFormat))
+                {
+                    per.Add(new XElement("APPDATEFORMAT", re.PeriodParam.AppDateFormat));
+                }
+                if (re.PeriodParam.Mode >= 0)
+                {
+                    per.Add(new XElement("MODE", re.PeriodParam.Mode));
+                }
+
+                if (re.PeriodParam.Params.Count > 0)
+                {
+                    var par = new XElement("PARAMS");
+                    foreach (var item in re.PeriodParam.Params)
+                    {
+                        par.Add(new XElement("DAY", item));
+                    }
+                    per.Add(par);
+                }
+                root.Add(per);
+            }
 
             return xdoc.ToString();
         }
         public string ConverTaskPlanningMetaString(TaskPlanningResponse re)
         {
-            XDocument xdoc = new XDocument(
-                new XElement("Planning",
-                 new XElement("PLANGUID", re.PlanGuid),
-                 new XElement("PLANNAME", re.PlanName),
-                 new XElement("CREATORNAME", re.CreaToRName),
-                 new XElement("CREATEDATE", re.CreateDate),
-                 new XElement("MODIFYNAME", re.ModifyName),
-                 new XElement("MODIFYDATE", re.ModifyDate),
-                 new XElement("VERSION", re.Version),
-                 new XElement("PLACE", re.Place),
-                 new XElement("PLANNINGDATE", re.PlanningDate),
-                 new XElement("DIRECTOR", re.Director),
-                 new XElement("PHOTOGRAPHER", re.Photographer),
-                 new XElement("REPORTER", re.Reporter),
-                 new XElement("OTHER", re.Other),
-                 new XElement("EQUIPMENT", re.Equipment),
-                 new XElement("CONTACTINFO", re.ContactInfo),
-                 new XElement("PLANNINGXML", re.PlanningXml))
-                );
+            XDocument xdoc = new XDocument(new XElement("Planning"));
+            var root = xdoc.Root;
+
+            if (!string.IsNullOrEmpty(re.PlanGuid))
+            {
+                root.Add(new XElement("PLANGUID", re.PlanGuid));
+            }
+            if (!string.IsNullOrEmpty(re.PlanName))
+            {
+                root.Add(new XElement("PLANNAME", re.PlanName));
+            }
+            if (!string.IsNullOrEmpty(re.CreaToRName))
+            {
+                root.Add(new XElement("CREATORNAME", re.CreaToRName));
+            }
+            if (!string.IsNullOrEmpty(re.CreateDate))
+            {
+                root.Add(new XElement("CREATEDATE", re.CreateDate));
+            }
+            if (!string.IsNullOrEmpty(re.ModifyName))
+            {
+                root.Add(new XElement("MODIFYNAME", re.ModifyName));
+            }
+            if (!string.IsNullOrEmpty(re.ModifyDate))
+            {
+                root.Add(new XElement("MODIFYDATE", re.ModifyDate));
+            }
+            if (re.Version >= 0)
+            {
+                root.Add(new XElement("VERSION", re.Version));
+            }
+            if (!string.IsNullOrEmpty(re.Place))
+            {
+                root.Add(new XElement("PLACE", re.Place));
+            }
+            if (!string.IsNullOrEmpty(re.PlanningDate))
+            {
+                root.Add(new XElement("PLANNINGDATE", re.PlanningDate));
+            }
+            if (!string.IsNullOrEmpty(re.Director))
+            {
+                root.Add(new XElement("DIRECTOR", re.Director));
+            }
+            if (!string.IsNullOrEmpty(re.Photographer))
+            {
+                root.Add(new XElement("PHOTOGRAPHER", re.Photographer));
+            }
+            if (!string.IsNullOrEmpty(re.Reporter))
+            {
+                root.Add(new XElement("REPORTER", re.Reporter));
+            }
+            if (!string.IsNullOrEmpty(re.Other))
+            {
+                root.Add(new XElement("OTHER", re.Other));
+            }
+            if (!string.IsNullOrEmpty(re.Equipment))
+            {
+                root.Add(new XElement("EQUIPMENT", re.Equipment));
+            }
+            if (!string.IsNullOrEmpty(re.ContactInfo))
+            {
+                root.Add(new XElement("CONTACTINFO", re.ContactInfo));
+            }
+            if (!string.IsNullOrEmpty(re.PlanningXml))
+            {
+                root.Add(new XElement("PLANNINGXML", re.PlanningXml));
+            }
+            
             return xdoc.ToString();
         }
 
@@ -2012,7 +2162,7 @@ namespace IngestTaskPlugin.Managers
 
             try
             {
-                return _mapper.Map<TaskContentResponse>(await Store.ModifyTask(findtask, false, CaptureMeta, ContentMeta, MatiralMeta, PlanningMeta));
+                return _mapper.Map<TaskContentResponse>(await Store.ModifyTask(findtask, false, true, true,CaptureMeta, ContentMeta, MatiralMeta, PlanningMeta));
             }
             catch (Exception e)
             {
@@ -2246,8 +2396,9 @@ namespace IngestTaskPlugin.Managers
             var findtask = await Store.GetTaskAsync(a => a.Where(b => b.Taskid == periodicTaskId), true);
             TaskSource src = await GetTaskSource(periodicTaskId);
 
-            findtask.Taskid = -1;
             string strmetadata = await IsNeedModPeriodicTaskName(periodicTaskId);
+
+            var addtask = Store.DeepClone(findtask);
 
             string newTaskName = findtask.Taskname;
             if (!string.IsNullOrEmpty(strmetadata))
@@ -2255,23 +2406,24 @@ namespace IngestTaskPlugin.Managers
                 string strContentMetadata = "";
                 strContentMetadata = strmetadata;//QueryTaskMetaData(periodicTaskId, MetaDataType.emContentMetaData,  strContentMetadata).Result;
                 GetPeriodTaskNewName(ref newTaskName, findtask.NewBegintime, true, ref strContentMetadata);
-                findtask.Taskname = newTaskName;
+                addtask.Taskname = newTaskName;
             }
 
-            findtask.OldChannelid = findtask.Taskid;
-            findtask.Taskguid = Guid.NewGuid().ToString("N"); //GUID
-            findtask.Description = string.Empty;
+            addtask.OldChannelid = findtask.Taskid;
+            addtask.Taskid = -1;
+            addtask.Taskguid = Guid.NewGuid().ToString("N"); //GUID
+            addtask.Description = string.Empty;
 
             string Category = findtask.Category;
 
-            findtask.Category = "D";
+            addtask.Category = "D";
             //有效期只有当前执行的这一天
-            findtask.Starttime = findtask.NewBegintime;
-            findtask.Endtime = findtask.NewEndtime;
+            addtask.Starttime = findtask.NewBegintime;
+            addtask.Endtime = findtask.NewEndtime;
             //如果这天已经被禁用，就成为一个被删除的任务
             if (Store.IsInvalidPerodicTask(Category, findtask.Starttime))
             {
-                findtask.State = (int)taskState.tsDelete;
+                addtask.State = (int)taskState.tsDelete;
             }
 
             //如果当天任务已经被分过了，不要分出下面一天的来，这里以1分钟为界
@@ -2284,8 +2436,8 @@ namespace IngestTaskPlugin.Managers
             //如果今天日期已经超过当前新任务的结束日期，把任务状态设置成taskState.tsInvaild
             if (DateTime.Now > findtask.NewEndtime)
             {
-                findtask.State = (int)taskState.tsInvaild;
-                findtask.SyncState = (int)syncState.ssSync;//过期的任务置为已同步						
+                addtask.State = (int)taskState.tsInvaild;
+                addtask.SyncState = (int)syncState.ssSync;//过期的任务置为已同步						
                 isTaskInvaild = true;
             }
             //int[] policyids = null;
@@ -2377,9 +2529,11 @@ namespace IngestTaskPlugin.Managers
                 }
             }
 
+            findtask.Tasklock = string.Empty;
+            await Store.ModifyTask(findtask, true, false, false, string.Empty, string.Empty, string.Empty, string.Empty);
             
-            await Store.AddTaskWithPolicys(findtask, true, src, strCapatureMetaData, strContentMetaData, strStoreMetaData, strPlanMetaData, null);
-            return _mapper.Map<TResult>(findtask);
+            await Store.AddTaskWithPolicys(addtask, true, src, strCapatureMetaData, strContentMetaData, strStoreMetaData, strPlanMetaData, null);
+            return _mapper.Map<TResult>(addtask);
         }
 
         public async Task<bool> SetPeriodTaskToNextTime()
@@ -2998,11 +3152,11 @@ namespace IngestTaskPlugin.Managers
                 {
                     if (taskinfo.TaskContent.ChannelID > 0)
                     {
-                        SobeyRecException.ThrowSelfNoParam("AddTaskWithoutPolicy GLOBALDICT_CODE_SELECTED_CHANNEL_IS_BUSY_OR_CAN_NOT_BE_SUITED_TO_PROGRAMME", GlobalDictionary.GLOBALDICT_CODE_SELECTED_CHANNEL_IS_BUSY_OR_CAN_NOT_BE_SUITED_TO_PROGRAMME, Logger, null);
+                        SobeyRecException.ThrowSelfNoParam("AddTaskWithoutPolicy ", GlobalDictionary.GLOBALDICT_CODE_SELECTED_CHANNEL_IS_BUSY_OR_CAN_NOT_BE_SUITED_TO_PROGRAMME, Logger, null);
                     }
                     else
                     {
-                        SobeyRecException.ThrowSelfNoParam("AddTaskWithoutPolicy GLOBALDICT_CODE_ALL_USEABLE_CHANNELS_ARE_BUSY", GlobalDictionary.GLOBALDICT_CODE_ALL_USEABLE_CHANNELS_ARE_BUSY, Logger, null);
+                        SobeyRecException.ThrowSelfNoParam("AddTaskWithoutPolicy ", GlobalDictionary.GLOBALDICT_CODE_ALL_USEABLE_CHANNELS_ARE_BUSY, Logger, null);
                     }
                 }
                 else
@@ -3193,11 +3347,11 @@ namespace IngestTaskPlugin.Managers
                 {
                     if (taskinfo.TaskContent.ChannelID > 0)
                     {
-                        SobeyRecException.ThrowSelfNoParam("AddTaskWithoutPolicy GLOBALDICT_CODE_SELECTED_CHANNEL_IS_BUSY_OR_CAN_NOT_BE_SUITED_TO_PROGRAMME", GlobalDictionary.GLOBALDICT_CODE_SELECTED_CHANNEL_IS_BUSY_OR_CAN_NOT_BE_SUITED_TO_PROGRAMME, Logger, null);
+                        SobeyRecException.ThrowSelfNoParam("AddTaskWithoutPolicy ", GlobalDictionary.GLOBALDICT_CODE_SELECTED_CHANNEL_IS_BUSY_OR_CAN_NOT_BE_SUITED_TO_PROGRAMME, Logger, null);
                     }
                     else
                     {
-                        SobeyRecException.ThrowSelfNoParam("AddTaskWithoutPolicy GLOBALDICT_CODE_ALL_USEABLE_CHANNELS_ARE_BUSY", GlobalDictionary.GLOBALDICT_CODE_ALL_USEABLE_CHANNELS_ARE_BUSY, Logger, null);
+                        SobeyRecException.ThrowSelfNoParam("AddTaskWithoutPolicy ", GlobalDictionary.GLOBALDICT_CODE_ALL_USEABLE_CHANNELS_ARE_BUSY, Logger, null);
                     }
                 }
                 else

@@ -68,7 +68,7 @@ namespace IngestTaskPlugin.Stores
         Task<List<int>> GetFreeChannels(List<int> lst, int nTaskID, DateTime begin, DateTime end, bool choosefilter = false);
         Task<List<int>> GetFreePerodiChannels(List<int> lst, int nTaskID, int nUnitID, int nSigID, int nChannelID, string Category, DateTime begin, DateTime end);
         Task<DbpTask> AddTaskWithPolicys(DbpTask task, bool bAddForInDB, TaskSource taskSrc, string CaptureMeta, string ContentMeta, string MatiralMeta, string PlanningMeta, int[] arrPolicys);
-        Task<DbpTask> ModifyTask(DbpTask task, bool bPerodic2Next, string CaptureMeta, string ContentMeta, string MatiralMeta, string PlanningMeta);
+        Task<DbpTask> ModifyTask(DbpTask task, bool bPerodic2Next, bool autoupdate, bool savechange, string CaptureMeta, string ContentMeta, string MatiralMeta, string PlanningMeta);
 
         Task UnLockAllTask();
         Task LockTask(int taskid);

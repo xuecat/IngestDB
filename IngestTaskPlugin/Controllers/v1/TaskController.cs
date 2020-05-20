@@ -1398,7 +1398,11 @@ namespace IngestTaskPlugin.Controllers.v1
                 Response.newTask = await _taskManage.CreateNewTaskFromPeriodicTask<TaskFullInfo>(periodicTaskId);
 
                 var custom = await _taskManage.GetCustomMetadataAsync<GetTaskCustomMetadata_OUT>(periodicTaskId);
-                await _taskManage.UpdateCustomMetadataAsync(Response.newTask.taskContent.nTaskID, custom.Metadata);
+                if (custom != null)
+                {
+                    await _taskManage.UpdateCustomMetadataAsync(Response.newTask.taskContent.nTaskID, custom.Metadata);
+                }
+                
                 return Response;
             }
             catch (Exception e)//其他未知的异常，写异常日志

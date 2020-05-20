@@ -163,6 +163,7 @@ namespace IngestTaskPlugin
                 .ForPath(d => d.strNewBeginTime, y => y.MapFrom(s => s.NewBegintime))
                 .ForPath(d => d.strNewEndTime, y => y.MapFrom(s => s.NewEndtime))
                 .ForPath(d => d.strTaskLock, y => y.MapFrom(s => s.Tasklock));
+
             CreateMap<DbpTaskMetadata, MetadataPair>()
                 .ForMember(x => x.emtype, (y) => y.MapFrom(z => z.Metadatatype))
                 .ForMember(x => x.nTaskID, (y) => y.MapFrom(z => z.Taskid))

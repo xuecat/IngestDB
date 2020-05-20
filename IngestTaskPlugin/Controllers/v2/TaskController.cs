@@ -243,6 +243,11 @@ namespace IngestTaskPlugin.Controllers.v2
             try
             {
                 Response.Ext = await _taskManage.GetCustomMetadataAsync<TaskCustomMetadataResponse>(taskid);
+                if (Response.Ext == null)
+                {
+                    Response.Code = ResponseCodeDefines.NotFound;
+                    Response.Msg = "not find metadata"
+                }
             }
             catch (Exception e)
             {
@@ -736,6 +741,68 @@ namespace IngestTaskPlugin.Controllers.v2
                 {
                     Response.Code = ResponseCodeDefines.ServiceError;
                     Response.Msg = "TaskIDByTaskGUID error info：" +e.Message;
+                    Logger.Error(Response.Msg);
+                }
+            }
+            return Response;
+        }
+
+        /// <summary>
+        /// 修改任务所有的全元数据，包括任务metadata数据（注意metadata传入的数据要做判断空处理，当成员属性为空时，就不会更新进去， 注意:采集参数还是全更新）
+        /// </summary>
+        /// <remarks>
+        /// 例子:
+        ///
+        /// </remarks>
+        /// <param name="taskid">任务id，给不给值无所谓只是为了好看</param>
+        /// <param name="req">修改请求体，请填入taskid信息</param>
+        /// <returns>任务元数据信息</returns>
+        [HttpPut("taskinfo/{taskid}")]
+        [ApiExplorerSettings(GroupName = "v2")]
+        public async Task<ResponseMessage<TaskContentResponse>> ModifyAllTask([FromRoute, BindRequired]int taskid, [FromBody, BindRequired]TaskInfoRequest req)
+        {
+            var Response = new ResponseMessage<TaskContentResponse>();
+            if (req == null)
+            {
+                Response.Code = ResponseCodeDefines.ModelStateInvalid;
+                Response.Msg = "请求参数不正确";
+            }
+
+            try
+            {
+                Response.Ext = await _taskManage.ModifyTask<TaskContentResponse>(req.TaskContent, req.CaptureMeta,
+                    _taskManage.ConverTaskContentMetaString(req.ContentMeta),
+                    _taskManage.ConverTaskMaterialMetaString(req.MaterialMeta),
+                    _taskManage.ConverTaskPlanningMetaString(req.PlanningMeta));
+
+                //添加后如果开始时间在2分钟以内，需要调度一次
+                if ((DateTimeFormat.DateTimeFromString(req.TaskContent.Begin) - DateTime.Now).TotalSeconds < 120)
+                    await _taskManage.UpdateComingTasks();
+
+                if (_globalInterface != null)
+                {
+                    GlobalInternals re = new GlobalInternals() { Funtype = IngestDBCore.GlobalInternals.FunctionType.SetGlobalState, State = GlobalStateName.MODTASK };
+                    var response1 = await _globalInterface.Value.SubmitGlobalCallBack(re);
+                    if (response1.Code != ResponseCodeDefines.SuccessCode)
+                    {
+                        Logger.Error("SetGlobalState modtask error");
+                    }
+
+                    await Task.Run(() => { _clock.InvokeNotify(GlobalStateName.MODTASK, NotifyPlugin.Kafka, NotifyAction.MODIFYTASK, Response.Ext.TaskID); });
+                }
+            }
+            catch (Exception e)
+            {
+                if (e.GetType() == typeof(SobeyRecException))//sobeyexcep会自动打印错误
+                {
+                    SobeyRecException se = e as SobeyRecException;
+                    Response.Code = se.ErrorCode.ToString();
+                    Response.Msg = se.Message;
+                }
+                else
+                {
+                    Response.Code = ResponseCodeDefines.ServiceError;
+                    Response.Msg = "TaskIDByTaskGUID error info：" + e.Message;
                     Logger.Error(Response.Msg);
                 }
             }
@@ -1592,7 +1659,7 @@ namespace IngestTaskPlugin.Controllers.v2
         /// <param name="newguid">新id</param>
         /// <param name="newname">新名字</param>
         /// <returns>任务信息元数据</returns>
-        [HttpPost("splittask/{taskid}")]
+        [HttpPost("split/{taskid}")]
         [ApiExplorerSettings(GroupName = "v2")]
         public async Task<ResponseMessage<TaskContentResponse>> SplitTaskInfo([FromRoute, BindRequired]int taskid, [FromQuery, BindRequired]string newguid, [FromQuery, BindRequired]string newname)
         {
@@ -1676,7 +1743,11 @@ namespace IngestTaskPlugin.Controllers.v2
                 Response.Ext = await _taskManage.CreateNewTaskFromPeriodicTask<TaskContentResponse>(taskid);
 
                 var custom = await _taskManage.GetCustomMetadataAsync<TaskCustomMetadataResponse>(taskid);
-                await _taskManage.UpdateCustomMetadataAsync(Response.Ext.TaskID, custom.Metadata);
+                if (custom != null)
+                {
+                    await _taskManage.UpdateCustomMetadataAsync(Response.Ext.TaskID, custom.Metadata);
+                }
+                
                 //await _taskManage.
             }
             catch (Exception e)
