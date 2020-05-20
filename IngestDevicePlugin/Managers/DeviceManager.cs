@@ -18,6 +18,7 @@ using Sobey.Core.Log;
 using taskState = IngestDevicePlugin.Dto.Enum.taskState;
 using emSignalSource = IngestDevicePlugin.Dto.Enum.emSignalSource;
 using IngestDevicePlugin.Dto.OldResponse;
+using IngestDBCore.Tool;
 
 namespace IngestDevicePlugin.Managers
 {
@@ -469,7 +470,7 @@ namespace IngestDevicePlugin.Managers
                     if (task != null)
                     {
                         bIsExist = true;
-                        double totalSeconds = (task.strBegin.ToDateTime() - dtNow).TotalSeconds;
+                        double totalSeconds = (DateTimeFormat.DateTimeFromString(task.strBegin) - dtNow).TotalSeconds;
                         if (totalSeconds <= 10)//最近10s钟要运行的任务，那么将分值设置为负值
                         {
                             channel.Score = -1;
@@ -579,7 +580,7 @@ namespace IngestDevicePlugin.Managers
                     settingText = !string.IsNullOrWhiteSpace(userSetting.Settingtext) ? userSetting.Settingtext : userSetting.Settingtextlong;
                 }
                 var userHiddenChannels = settingText.Split('|');
-                return userHiddenChannels.Where(a => !string.IsNullOrWhiteSpace(a)).Select(a => a.ToInt32()).ToList();
+                return userHiddenChannels.Where(a => !string.IsNullOrWhiteSpace(a)).Select(a => Convert.ToInt32(a)).ToList();
             }
             catch (Exception ex)
             {
@@ -644,7 +645,7 @@ namespace IngestDevicePlugin.Managers
                     {
                         tasks.ForEach(t =>
                         {
-                            item.Score = (t.strBegin.ToDateTime() - DateTime.Now).TotalSeconds;
+                            item.Score = (DateTimeFormat.DateTimeFromString(t.strBegin) - DateTime.Now).TotalSeconds;
                         });
                     }
                     else
@@ -670,7 +671,7 @@ namespace IngestDevicePlugin.Managers
 
         public async Task<int> GetSignalCaptureTemplateAsync(int signalID)
         {
-            return (await Store.GetProgramparamMapAsync(a => a.Where(x => x.Programid == signalID).Select(x => x.Paramid).SingleOrDefaultAsync(), true)).ToInt32();
+            return (await Store.GetProgramparamMapAsync(a => a.Where(x => x.Programid == signalID).Select(x => x.Paramid).SingleOrDefaultAsync(), true)).GetValueOrDefault();
         }
 
         /// <summary>

@@ -730,8 +730,8 @@ namespace IngestTaskPlugin.Managers
                 var ctp = chsTimePeriods.FirstOrDefault(a => a.ChannelId == task.nChannelID);
                 if (ctp != null)
                 {
-                    DateTime dtBegin = task.strBegin.ToDateTime();
-                    DateTime dtEnd = task.strEnd.ToDateTime();
+                    DateTime dtBegin = DateTimeFormat.DateTimeFromString(task.strBegin);
+                    DateTime dtEnd = DateTimeFormat.DateTimeFromString(task.strEnd);
                     if ((task.emTaskType == TaskType.TT_MANUTASK || task.emTaskType == TaskType.TT_OPENEND) &&
                         task.emState == taskState.tsExecuting)
                     {

@@ -92,7 +92,11 @@ namespace IngestDevicePlugin
                 .ForMember(a => a.TypeId, (map) => map.MapFrom(b => b.Signaltypeid))
                 .ForMember(a => a.emPgmType, (map) => map.MapFrom(b => ProgrammeType.PT_SDI))
                 .ForMember(a => a.emImageType, (map) => map.MapFrom(b => b.Imagetype))
-                .ForMember(a => a.nPureAudio, (map) => map.MapFrom(b => b.Pureaudio));
+                .ForMember(a => a.nPureAudio, (map) => map.MapFrom(b => b.Pureaudio))
+                .AfterMap((b, a) =>
+                {
+                    a.emPgmType = ProgrammeType.PT_SDI;
+                }); ;
             #endregion
 
             #region DbpCapturechannels To CaptureChannelInfo、CaptureChannelInfoResponse
@@ -350,12 +354,14 @@ namespace IngestDevicePlugin
             CreateMap<DbpIpProgramme, ProgrammeInfo>()
                 .ForMember(a => a.ProgrammeId, (map) => map.MapFrom(b => b.Programmeid))
                 .ForMember(a => a.ProgrammeName, (map) => map.MapFrom(b => b.Programmename))
-                .ForMember(a => a.ProgrammeDesc, (map) => map.MapFrom(b => MergeTSPgmInfoMultiIPAndPort(b.Programmeindex, b.Multicastip, b.Multicastport, b.Programmedesc, b.Extendparams)))
                 .ForMember(a => a.TypeId, (map) => map.MapFrom(b => b.Programmetype))
-                .ForMember(a => a.emPgmType, (map) => map.MapFrom(b => ProgrammeType.PT_IPTS))
                 .ForMember(a => a.emImageType, (map) => map.MapFrom(b => b.Imagetype))
-                .ForMember(a => a.emSignalSourceType, (map) => map.MapFrom(b => emSignalSource.emIPTS))
-                .ForMember(a => a.nPureAudio, (map) => map.MapFrom(b => b.Pureaudio));
+                .ForMember(a => a.nPureAudio, (map) => map.MapFrom(b => b.Pureaudio))
+                .AfterMap((b, a) => {
+                    a.ProgrammeDesc = MergeTSPgmInfoMultiIPAndPort(b.Programmeindex, b.Multicastip, b.Multicastport, b.Programmedesc, b.Extendparams);
+                    a.emPgmType = ProgrammeType.PT_IPTS;
+                    a.emSignalSourceType = emSignalSource.emIPTS;
+                });
             #endregion
 
             #region DbpStreammedia To ProgrammeInfo
@@ -367,11 +373,15 @@ namespace IngestDevicePlugin
                 .ForMember(a => a.ProgrammeName, (map) => map.MapFrom(b => b.Streammedianame))
                 .ForMember(a => a.ProgrammeDesc, (map) => map.MapFrom(b => MergeStreamMediaURLAndDesc(b.Streammediaurl, b.Urltype, b.Streammediadesc)))
                 .ForMember(a => a.TypeId, (map) => map.MapFrom(b => b.Streammediatype))
-                .ForMember(a => a.emPgmType, (map) => map.MapFrom(b => ProgrammeType.PT_StreamMedia))
                 .ForMember(a => a.emImageType, (map) => map.MapFrom(b => b.Imagetype))
-                .ForMember(a => a.emSignalSourceType, (map) => map.MapFrom(b => emSignalSource.emStreamMedia))
                 .ForMember(a => a.nPureAudio, (map) => map.MapFrom(b => b.Pureaudio))
-                .ForMember(a => a.nCarrierID, (map) => map.MapFrom(b => b.Carrierid));
+                .ForMember(a => a.nCarrierID, (map) => map.MapFrom(b => b.Carrierid))
+                .AfterMap((b, a) =>
+                {
+                    a.ProgrammeDesc = MergeStreamMediaURLAndDesc(b.Streammediaurl, b.Urltype, b.Streammediadesc);
+                    a.emPgmType = ProgrammeType.PT_StreamMedia;
+                    a.emSignalSourceType = emSignalSource.emStreamMedia;
+                });
             #endregion
 
             #region SignalGroupState

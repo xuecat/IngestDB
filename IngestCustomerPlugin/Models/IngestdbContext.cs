@@ -81,9 +81,6 @@ namespace IngestCustomerPlugin.Models
         public virtual DbSet<DbpTransferPolicy> DbpTransferPolicy { get; set; }
         public virtual DbSet<DbpTransferTemplate> DbpTransferTemplate { get; set; }
         public virtual DbSet<DbpUserparamlog> DbpUserparamlog { get; set; }
-        public virtual DbSet<DbpUserparamMap> DbpUserparamMap { get; set; }
-        public virtual DbSet<DbpUsersettings> DbpUsersettings { get; set; }
-        public virtual DbSet<DbpUsertemplate> DbpUsertemplate { get; set; }
         public virtual DbSet<DbpVidoetype> DbpVidoetype { get; set; }
         
         public virtual DbSet<DbpXdcamXmploitPlan> DbpXdcamXmploitPlan { get; set; }
@@ -1155,69 +1152,9 @@ namespace IngestCustomerPlugin.Models
                     .HasDefaultValueSql("'0'");
             });
 
-            modelBuilder.Entity<DbpUserparamMap>(entity =>
-            {
-                entity.HasKey(e => e.Usercode);
+        
 
-                entity.ToTable("dbp_userparam_map");
-
-                entity.Property(e => e.Usercode)
-                    .HasColumnName("USERCODE")
-                    .HasColumnType("varchar(255)");
-
-                entity.Property(e => e.Captureparamid)
-                    .HasColumnName("CAPTUREPARAMID")
-                    .HasColumnType("int(11)");
-            });
-
-            modelBuilder.Entity<DbpUsersettings>(entity =>
-            {
-                entity.HasKey(e => new { e.Usercode, e.Settingtype });
-
-                entity.ToTable("dbp_usersettings");
-
-                entity.Property(e => e.Usercode)
-                    .HasColumnName("USERCODE")
-                    .HasColumnType("varchar(255)");
-
-                entity.Property(e => e.Settingtype)
-                    .HasColumnName("SETTINGTYPE")
-                    .HasColumnType("varchar(128)");
-
-                entity.Property(e => e.Settingtext)
-                    .HasColumnName("SETTINGTEXT")
-                    .HasColumnType("varchar(4000)")
-                    .HasDefaultValueSql("''");
-
-                entity.Property(e => e.Settingtextlong)
-                    .HasColumnName("SETTINGTEXTLONG")
-                    .HasColumnType("text");
-            });
-
-            modelBuilder.Entity<DbpUsertemplate>(entity =>
-            {
-                entity.HasKey(e => e.Templateid);
-
-                entity.ToTable("dbp_usertemplate");
-
-                entity.Property(e => e.Templateid)
-                    .HasColumnName("TEMPLATEID")
-                    .HasColumnType("int(11)");
-
-                entity.Property(e => e.Templatecontent)
-                    .HasColumnName("TEMPLATECONTENT")
-                    .HasColumnType("text");
-
-                entity.Property(e => e.Templatename)
-                    .IsRequired()
-                    .HasColumnName("TEMPLATENAME")
-                    .HasColumnType("varchar(256)");
-
-                entity.Property(e => e.Usercode)
-                    .IsRequired()
-                    .HasColumnName("USERCODE")
-                    .HasColumnType("varchar(256)");
-            });
+            
 
             modelBuilder.Entity<DbpVidoetype>(entity =>
             {
