@@ -246,7 +246,7 @@ namespace IngestTaskPlugin.Controllers.v2
                 if (Response.Ext == null)
                 {
                     Response.Code = ResponseCodeDefines.NotFound;
-                    Response.Msg = "not find metadata"
+                    Response.Msg = "not find metadata";
                 }
             }
             catch (Exception e)
