@@ -65,6 +65,9 @@ namespace IngestTaskPlugin.Stores
         Task<List<int>> StopCapturingListChannelAsync(List<int> lstChaneel);
         Task<int> DeleteCapturingChannelAsync(int Channel);
         Task<List<int>> DeleteCapturingListChannelAsync(List<int> lstChaneel);
+
+        string GetConfictTaskInfo();
+
         Task<List<int>> GetFreeChannels(List<int> lst, int nTaskID, DateTime begin, DateTime end, bool choosefilter = false);
         Task<List<int>> GetFreePerodiChannels(List<int> lst, int nTaskID, int nUnitID, int nSigID, int nChannelID, string Category, DateTime begin, DateTime end);
         Task<DbpTask> AddTaskWithPolicys(DbpTask task, bool bAddForInDB, TaskSource taskSrc, string CaptureMeta, string ContentMeta, string MatiralMeta, string PlanningMeta, int[] arrPolicys);

@@ -27,6 +27,7 @@ namespace IngestTaskPlugin.Stores
             Context = baseDataDbContext;
         }
 
+        protected string ConfictTaskInfo { get; set; }
         protected IngestTaskDBContext Context { get; }
         private readonly ILogger Logger = LoggerManager.GetLogger("TaskInfo");
         public async Task<TResult> GetTaskAsync<TResult>(Func<IQueryable<DbpTask>, IQueryable<TResult>> query, bool notrack = false)
@@ -1275,6 +1276,8 @@ namespace IngestTaskPlugin.Stores
                                                                         && (x.Tasktype != (int)TaskType.TT_PERIODIC && x.Tasktype != (int)TaskType.TT_OPENEND && x.Tasktype != (int)TaskType.TT_OPENENDEX))
                                                                         .ToListAsync();
 
+            ConfictTaskInfo = string.Empty;
+
             List<DbpTask> lstfiltertask = new List<DbpTask>();
             /*
              * @brief 这是ChooseUseableChannels里面的，加了层过滤，估计以后要用到
@@ -1361,7 +1364,8 @@ namespace IngestTaskPlugin.Stores
 
             var lstchn = lsttask.Select(x => x.Channelid).ToList();
 
-            Logger.Info("GetFreeChannels normal " + string.Join(",", lstchn));
+            ConfictTaskInfo += "conficttask normal " + string.Join(",", lstchn);
+            Logger.Info(ConfictTaskInfo);
 
             bool overday = false;
             if (begin.Date != end.Date)
@@ -1409,12 +1413,7 @@ namespace IngestTaskPlugin.Stores
                 ).ToListAsync();
 
             }
-
-            if (lstperiod != null && lstperiod.Count > 0)
-            {
-                Logger.Info("GetFreeChannels period " + string.Join(",", lstperiod.Select(y => y.Taskid).ToList()));
-            }
-
+            
             List<DbpTask> filtertask = new List<DbpTask>();
             foreach (var item in lstperiod)
             {
@@ -1443,6 +1442,11 @@ namespace IngestTaskPlugin.Stores
 
                 if (filtertask.Count > 0)
                 {
+                    string info = "GetFreeChannels period conficttask " + string.Join(",", filtertask.Select(y => y.Taskid).ToList());
+                    Logger.Info(info);
+                   
+                    ConfictTaskInfo += info;
+
                     var periodch = filtertask.Select(x => x.Channelid).ToList();
                     lst.RemoveAll(z => periodch.Contains(z));
                 }
@@ -1746,6 +1750,10 @@ namespace IngestTaskPlugin.Stores
             return retlst;
         }
 
+        public string GetConfictTaskInfo()
+        {
+            return ConfictTaskInfo;
+        }
         //需要比较和普通任务的冲突，以及和周期任务的冲突
         public async Task<List<int>> GetFreePerodiChannels(List<int> lst, int nTaskID, int nUnitID, int nSigID, int nChannelID, string Category, DateTime begin, DateTime end)
         {
@@ -1785,6 +1793,8 @@ namespace IngestTaskPlugin.Stores
             }
 
             var lsttask = await query.ToListAsync();
+
+            ConfictTaskInfo = string.Empty;
 
             if (lsttask != null && lsttask.Count > 0)
             {
@@ -1872,9 +1882,11 @@ namespace IngestTaskPlugin.Stores
                                     if ((dtend > dtnewitembegin && dtend < dtnewitemend)
                                             || (dtbegin < dtnewitembegin && dtend > dtnewitemend)
                                             || (dtbegin > dtnewitembegin && dtend < dtnewitemend)
-                                            || (dtbegin > dtnewitembegin && begin < dtnewitemend))
+                                            || (dtbegin > dtnewitembegin && dtbegin < dtnewitemend))
                                     {
                                         filterconficttasklst.Add(item);
+
+                                        ConfictTaskInfo += $"{item.Taskid} {dtStartCheck}";
                                         break;
                                     }
                                     else
@@ -1902,6 +1914,7 @@ namespace IngestTaskPlugin.Stores
                                     Logger.Error($"GetFreePerodiChannels error {ex.Message}");
 
                                     filterconficttasklst.Add(item);
+                                    ConfictTaskInfo += $"{item.Taskid} {dtStartCheck}";
                                     break;
                                     //return false;
                                 }
@@ -1925,6 +1938,7 @@ namespace IngestTaskPlugin.Stores
                             || (y.Begin > item.Starttime && y.Begin < item.Endtime)))
                             {
                                 filterconficttasklst.Add(item);
+                                ConfictTaskInfo += $"{item.Taskid} ";
                             }
 
                             //var lsttaskfilter = lsttask.FindAll(x =>
