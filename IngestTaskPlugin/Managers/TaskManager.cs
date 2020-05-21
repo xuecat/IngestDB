@@ -3152,11 +3152,11 @@ namespace IngestTaskPlugin.Managers
                 {
                     if (taskinfo.TaskContent.ChannelID > 0)
                     {
-                        SobeyRecException.ThrowSelfNoParam("AddTaskWithoutPolicy ", GlobalDictionary.GLOBALDICT_CODE_SELECTED_CHANNEL_IS_BUSY_OR_CAN_NOT_BE_SUITED_TO_PROGRAMME, Logger, null);
+                        SobeyRecException.ThrowSelfNoParam(Store.GetConfictTaskInfo(), GlobalDictionary.GLOBALDICT_CODE_SELECTED_CHANNEL_IS_BUSY_OR_CAN_NOT_BE_SUITED_TO_PROGRAMME, Logger, null);
                     }
                     else
                     {
-                        SobeyRecException.ThrowSelfNoParam("AddTaskWithoutPolicy ", GlobalDictionary.GLOBALDICT_CODE_ALL_USEABLE_CHANNELS_ARE_BUSY, Logger, null);
+                        SobeyRecException.ThrowSelfNoParam(Store.GetConfictTaskInfo(), GlobalDictionary.GLOBALDICT_CODE_ALL_USEABLE_CHANNELS_ARE_BUSY, Logger, null);
                     }
                 }
                 else
@@ -3347,11 +3347,11 @@ namespace IngestTaskPlugin.Managers
                 {
                     if (taskinfo.TaskContent.ChannelID > 0)
                     {
-                        SobeyRecException.ThrowSelfNoParam("AddTaskWithoutPolicy ", GlobalDictionary.GLOBALDICT_CODE_SELECTED_CHANNEL_IS_BUSY_OR_CAN_NOT_BE_SUITED_TO_PROGRAMME, Logger, null);
+                        SobeyRecException.ThrowSelfNoParam(Store.GetConfictTaskInfo(), GlobalDictionary.GLOBALDICT_CODE_SELECTED_CHANNEL_IS_BUSY_OR_CAN_NOT_BE_SUITED_TO_PROGRAMME, Logger, null);
                     }
                     else
                     {
-                        SobeyRecException.ThrowSelfNoParam("AddTaskWithoutPolicy ", GlobalDictionary.GLOBALDICT_CODE_ALL_USEABLE_CHANNELS_ARE_BUSY, Logger, null);
+                        SobeyRecException.ThrowSelfNoParam(Store.GetConfictTaskInfo(), GlobalDictionary.GLOBALDICT_CODE_ALL_USEABLE_CHANNELS_ARE_BUSY, Logger, null);
                     }
                 }
                 else
