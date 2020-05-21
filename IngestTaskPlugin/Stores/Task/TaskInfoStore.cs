@@ -269,7 +269,8 @@ namespace IngestTaskPlugin.Stores
 
             return await Context.DbpTask.AsNoTracking().Where(a => string.IsNullOrEmpty(a.Tasklock)
             && ((a.NewEndtime < date
-                && ((a.DispatchState == (int)dispatchState.dpsDispatched && a.SyncState == (int)syncState.ssSync && a.State == (int)taskState.tsExecuting && (a.Tasktype != (int)TaskType.TT_MANUTASK && a.Tasktype != (int)TaskType.TT_TIEUP && a.Tasktype != (int)TaskType.TT_PERIODIC))
+                && (
+                     (a.DispatchState == (int)dispatchState.dpsDispatched && a.SyncState == (int)syncState.ssSync && a.State == (int)taskState.tsExecuting && (a.Tasktype != (int)TaskType.TT_MANUTASK && a.Tasktype != (int)TaskType.TT_TIEUP && a.Tasktype != (int)TaskType.TT_VTRUPLOAD))
                      || (a.Backtype == (int)CooperantType.emKamataki && a.SyncState == (int)syncState.ssSync)
                      || (a.Backtype == (int)CooperantType.emVTRBackup && a.SyncState == (int)syncState.ssSync && (a.Tasktype != (int)TaskType.TT_PERIODIC || (a.Tasktype == (int)TaskType.TT_PERIODIC && a.OldChannelid > 0)))
                    )
@@ -1514,7 +1515,7 @@ namespace IngestTaskPlugin.Stores
 
                         if (lst == null || lst.Count <= 0)
                         {
-                            backlst = await Context.DbpTaskBackup.AsNoTracking().Where(a =>
+                            lst = await Context.DbpTaskBackup.AsNoTracking().Where(a =>
                                (a.Starttime >= dtDayBegin && a.Starttime <= dtDayEnd)
                                || (a.Endtime >= dtDayBegin && a.Endtime <= dtDayEnd)
                                || (a.Starttime <= dtDayBegin && a.Endtime >= dtDayEnd)
@@ -1526,36 +1527,36 @@ namespace IngestTaskPlugin.Stores
                            /*
                             * @breif 老版本会对手动任务，open任务，tsExecuting附加上，不明白为啥，直接全部返回，我这里
                             */
-                           ).ToListAsync();
+                           ).Select(x => new DbpTask
+                           {
+                               Taskid = x.Taskid,
+                               Taskname = x.Taskname,
+                               Recunitid = x.Recunitid,
+                               Usercode = x.Usercode,
+                               Signalid = x.Signalid,
+                               Channelid = x.Channelid,
+                               OldChannelid = x.OldChannelid,
+                               State = x.State,
+                               Starttime = x.Starttime,
+                               Endtime = x.Endtime,
+                               NewBegintime = x.NewBegintime,
+                               NewEndtime = x.NewEndtime,
+                               Category = x.Category,
+                               Description = x.Description,
+                               Tasktype = x.Tasktype,
+                               Backtype = x.Backtype,
+                               DispatchState = x.DispatchState,
+                               SyncState = x.SyncState,
+                               OpType = x.OpType,
+                               Tasklock = x.Tasklock,
+                               Taskguid = x.Taskguid,
+                               Backupvtrid = x.Backupvtrid,
+                               Taskpriority = x.Taskpriority,
+                               Stamptitleindex = x.Stamptitleindex,
+                               Stampimagetype = x.Stampimagetype
+                           }).ToListAsync();
 
-                            lst = backlst.Select(x => new DbpTask
-                            {
-                                Taskid = x.Taskid,
-                                Taskname = x.Taskname,
-                                Recunitid = x.Recunitid,
-                                Usercode = x.Usercode,
-                                Signalid = x.Signalid,
-                                Channelid = x.Channelid,
-                                OldChannelid = x.OldChannelid,
-                                State = x.State,
-                                Starttime = x.Starttime,
-                                Endtime = x.Endtime,
-                                NewBegintime = x.NewBegintime,
-                                NewEndtime = x.NewEndtime,
-                                Category = x.Category,
-                                Description = x.Description,
-                                Tasktype = x.Tasktype,
-                                Backtype = x.Backtype,
-                                DispatchState = x.DispatchState,
-                                SyncState = x.SyncState,
-                                OpType = x.OpType,
-                                Tasklock = x.Tasklock,
-                                Taskguid = x.Taskguid,
-                                Backupvtrid = x.Backupvtrid,
-                                Taskpriority = x.Taskpriority,
-                                Stamptitleindex = x.Stamptitleindex,
-                                Stampimagetype = x.Stampimagetype
-                            }).ToList();
+                            // = backlst.ToList();
                         }
 
                         //Context.DbpTaskBackup;
@@ -1583,7 +1584,7 @@ namespace IngestTaskPlugin.Stores
 
                         if (lst == null || lst.Count <= 0)
                         {
-                            backlst = await Context.DbpTaskBackup.AsNoTracking().Where(a =>
+                            lst = await Context.DbpTaskBackup.AsNoTracking().Where(a =>
                                (a.Starttime >= dtDayBegin && a.Starttime <= dtDayEnd)
                                || (a.Endtime >= dtDayBegin && a.Endtime <= dtDayEnd)
                                || (a.Starttime <= dtDayBegin && a.Endtime >= dtDayEnd)
@@ -1595,36 +1596,36 @@ namespace IngestTaskPlugin.Stores
                            /*
                             * @breif 老版本会对手动任务，open任务，tsExecuting附加上，不明白为啥，直接全部返回，我这里
                             */
-                           ).ToListAsync();
+                           ).Select(x => new DbpTask
+                           {
+                               Taskid = x.Taskid,
+                               Taskname = x.Taskname,
+                               Recunitid = x.Recunitid,
+                               Usercode = x.Usercode,
+                               Signalid = x.Signalid,
+                               Channelid = x.Channelid,
+                               OldChannelid = x.OldChannelid,
+                               State = x.State,
+                               Starttime = x.Starttime,
+                               Endtime = x.Endtime,
+                               NewBegintime = x.NewBegintime,
+                               NewEndtime = x.NewEndtime,
+                               Category = x.Category,
+                               Description = x.Description,
+                               Tasktype = x.Tasktype,
+                               Backtype = x.Backtype,
+                               DispatchState = x.DispatchState,
+                               SyncState = x.SyncState,
+                               OpType = x.OpType,
+                               Tasklock = x.Tasklock,
+                               Taskguid = x.Taskguid,
+                               Backupvtrid = x.Backupvtrid,
+                               Taskpriority = x.Taskpriority,
+                               Stamptitleindex = x.Stamptitleindex,
+                               Stampimagetype = x.Stampimagetype
+                           }).ToListAsync();
 
-                            lst = backlst.Select(x => new DbpTask
-                            {
-                                Taskid = x.Taskid,
-                                Taskname = x.Taskname,
-                                Recunitid = x.Recunitid,
-                                Usercode = x.Usercode,
-                                Signalid = x.Signalid,
-                                Channelid = x.Channelid,
-                                OldChannelid = x.OldChannelid,
-                                State = x.State,
-                                Starttime = x.Starttime,
-                                Endtime = x.Endtime,
-                                NewBegintime = x.NewBegintime,
-                                NewEndtime = x.NewEndtime,
-                                Category = x.Category,
-                                Description = x.Description,
-                                Tasktype = x.Tasktype,
-                                Backtype = x.Backtype,
-                                DispatchState = x.DispatchState,
-                                SyncState = x.SyncState,
-                                OpType = x.OpType,
-                                Tasklock = x.Tasklock,
-                                Taskguid = x.Taskguid,
-                                Backupvtrid = x.Backupvtrid,
-                                Taskpriority = x.Taskpriority,
-                                Stamptitleindex = x.Stamptitleindex,
-                                Stampimagetype = x.Stampimagetype
-                            }).ToList();
+                            //lst = backlst.ToList();
                         }
                     }
                     break;
@@ -1778,6 +1779,11 @@ namespace IngestTaskPlugin.Stores
                 query = query.Where(x => x.Recunitid == nUnitID);
             }
 
+            if (nTaskID > 0)
+            {
+                query = query.Where(x => x.Taskid != nTaskID);
+            }
+
             var lsttask = await query.ToListAsync();
 
             if (lsttask != null && lsttask.Count > 0)
@@ -1801,8 +1807,12 @@ namespace IngestTaskPlugin.Stores
                             var addExcludeList = GetDateTimeFromString(Category);
                             var cmpExcludeList = GetDateTimeFromString(item.Category);
 
+                            
                             while (dtStartCheck.Date <= dtEndCheck.Date)
                             {
+                                bool exita = false;
+                                bool exitb = false;
+
                                 int m = 0; //判断nAddFlag是否不为0.1.2
                                 int n = 0;//判断nCmpFlag是否不为0.1.2
                                 bool isExistInaddArray = addExcludeList.Any(x => dtStartCheck.Date == x.Date);
@@ -1810,6 +1820,7 @@ namespace IngestTaskPlugin.Stores
 
                                 if (addflag == 0 && !isExistInaddArray)
                                 {
+                                    exita = true;
                                     m = 1;
                                 }
                                 else if (addflag == 1)
@@ -1829,7 +1840,10 @@ namespace IngestTaskPlugin.Stores
                                 }
 
                                 if (compflag == 0 && !isExistIncmpArray)
+                                {
+                                    exitb = true;
                                     n = 1;
+                                }
                                 else if (compflag == 1)
                                 {
                                     if (complist.IndexOf((int)dtStartCheck.DayOfWeek) >= 0 && !isExistIncmpArray)
@@ -1844,12 +1858,43 @@ namespace IngestTaskPlugin.Stores
                                 {
                                     //outCheckContent = checkContent;
                                     //outCheckContent.strBegin = dtStartCheck.ToString();
-                                    filterconficttasklst.Add(item);
-                                    //return false;
-                                    break;
+
+                                    DateTime dtnewitembegin = new DateTime(dtStartCheck.Year, dtStartCheck.Month, dtStartCheck.Day, 
+                                        item.Starttime.Hour, item.Starttime.Minute, item.Starttime.Second);
+                                    DateTime dtnewitemend = new DateTime(dtStartCheck.Year, dtStartCheck.Month, dtStartCheck.Day,
+                                        item.Endtime.Hour, item.Endtime.Minute, item.Endtime.Second);
+
+                                    DateTime dtbegin = new DateTime(dtStartCheck.Year, dtStartCheck.Month, dtStartCheck.Day,
+                                        begin.Hour, begin.Minute, begin.Second);
+                                    DateTime dtend = new DateTime(dtStartCheck.Year, dtStartCheck.Month, dtStartCheck.Day,
+                                        end.Hour, end.Minute, end.Second);
+
+                                    if ((dtend > dtnewitembegin && dtend < dtnewitemend)
+                                            || (dtbegin < dtnewitembegin && dtend > dtnewitemend)
+                                            || (dtbegin > dtnewitembegin && dtend < dtnewitemend)
+                                            || (dtbegin > dtnewitembegin && begin < dtnewitemend))
+                                    {
+                                        filterconficttasklst.Add(item);
+                                        break;
+                                    }
+                                    else
+                                    {
+                                        dtStartCheck = dtStartCheck.AddDays(1);
+                                        //return false;
+                                        if (exita && exitb)
+                                        {
+                                            break;
+                                        }
+                                        continue;
+                                    }
                                 }
                                 try
                                 {
+                                    if (exita && exitb)
+                                    {
+                                        break;
+                                    }
+
                                     dtStartCheck = dtStartCheck.AddDays(1);
                                 }
                                 catch (Exception ex)
@@ -1911,14 +1956,8 @@ namespace IngestTaskPlugin.Stores
                 if (filterconficttasklst != null && filterconficttasklst.Count > 0)
                 {
                     Logger.Info("GetFreePerodiChannels period filterconficttasklst" + string.Join(",", filterconficttasklst));
-
-                    if (nTaskID > 0)//本任务排除
-                    {
-
-                        lst.RemoveAll(z => filterconficttasklst.Any(h => h.Channelid == z && h.Taskid != nTaskID));
-                    }
-                    else
-                        lst.RemoveAll(z => filterconficttasklst.Any(h => h.Channelid == z));
+                   
+                    lst.RemoveAll(z => filterconficttasklst.Any(h => h.Channelid == z));
                 }
 
             }
