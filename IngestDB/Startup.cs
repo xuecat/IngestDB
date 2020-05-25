@@ -47,7 +47,19 @@ namespace IngestDB
                 .AddJsonOptions(options => { options.SerializerSettings.ContractResolver = new ShouldSerializeContractResolver(); });
             //.AddJsonOptions(options =>//为swagger加的
             //options.SerializerSettings.Converters.Add(new StringEnumConverter()));
-            string path = AppDomain.CurrentDomain.BaseDirectory.Replace("\\", "/") + "/publicsetting.xml";
+            string fileName = "publicsetting.xml";
+            string path = string.Empty;
+            if ((Environment.OSVersion.Platform == PlatformID.Unix) || (Environment.OSVersion.Platform == PlatformID.MacOSX))
+            {
+                //str = string.Format(@"{0}/{1}", System.AppDomain.CurrentDomain.SetupInformation.ApplicationBase, fileName);
+                path = '/' + fileName;
+            }
+            else
+            {
+                path = AppDomain.CurrentDomain.BaseDirectory.Replace("\\", "/") +"/"+ fileName;
+            }
+
+           
             if (File.Exists(path))
             {
                 XDocument xd = new XDocument();
@@ -67,6 +79,10 @@ namespace IngestDB
                 applicationContext.ConnectionString = CreateDBConnect(ps, applicationContext.VIP);
 
                 Sobey.Core.Log.LoggerManager.GetLogger("Startup").Info(path + sys.ToString());
+            }
+            else
+            { //此处加日志
+                return;
             }
 
             //services.AddDbContext<CoreDbContext>(options =>

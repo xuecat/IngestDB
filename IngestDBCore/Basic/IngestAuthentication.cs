@@ -58,7 +58,7 @@ namespace IngestDBCore.Basic
             //"sobeyhive-ingest-signature", out signature);
             if (Microsoft.Extensions.Primitives.StringValues.IsNullOrEmpty(headerExists) || headerExists.Count <= 0) return false;
 
-            if (headerExists.First() == "ingest_admin")
+            if (ApplicationContext.Current.UseSwagger && headerExists.First() == "ingest_admin")
             {
                 return true;
             }
