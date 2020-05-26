@@ -1,4 +1,5 @@
 ﻿using IngestDBCore.Dto;
+using Sobey.Core.Log;
 using Sobey.Ingest.CommonHelper;
 using System;
 using System.Collections.Generic;
@@ -14,7 +15,7 @@ namespace IngestDBCore.Tool
 {
     public class RestClient
     {
-        //ILogger Logger = LoggerManager.GetLogger("ApiClient");
+        ILogger Logger = LoggerManager.GetLogger("ApiClient");
 
         private static HttpClient _httpClient = null;
 
@@ -81,7 +82,7 @@ namespace IngestDBCore.Tool
                 var res = await client.PostAsync(url, sc);
                 byte[] rData = await res.Content.ReadAsByteArrayAsync();
                 string rJson = Encoding.UTF8.GetString(rData);
-                //Logger.Debug("应答：\r\n{0}", rJson);
+                Logger.Debug("url body response：\r\n{0} {1} {2}", url, json, rJson);
                 response = JsonHelper.ToObject<TResponse>(rJson);
                 return response;
             }
@@ -150,7 +151,7 @@ namespace IngestDBCore.Tool
                 //Logger.Debug("请求：{0} {1}", "GET", url);
                 byte[] rData = await client.GetByteArrayAsync(url);
                 string rJson = Encoding.UTF8.GetString(rData);
-                //Logger.Debug("应答：\r\n{0}", rJson);
+                Logger.Debug("url response：\r\n{0}", url, rJson);
                 response = JsonHelper.ToObject<TResponse>(rJson);
             }
             catch (System.Exception e)
