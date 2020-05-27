@@ -546,7 +546,7 @@ namespace IngestTaskPlugin.Controllers.v1
 
         [HttpGet("GetChannelCapturingTask"), MapToApiVersion("1.0")]
         [ApiExplorerSettings(GroupName = "v1")]
-        public async Task<GetChannelCapturingTask_out> GetChannelCapturingTask([FromQuery]int nChannelID)
+        public async Task<GetChannelCapturingTask_out> GetChannelCapturingTask([FromQuery]int nChannelID, [FromQuery]int newest)
         {
             var Response = new GetChannelCapturingTask_out
             {
@@ -557,7 +557,7 @@ namespace IngestTaskPlugin.Controllers.v1
 
             try
             {
-                Response.content = await _taskManage.GetChannelCapturingTask<TaskContent>(nChannelID);
+                Response.content = await _taskManage.GetChannelCapturingTask<TaskContent>(nChannelID, newest);
                 return Response;
             }
             catch (Exception e)

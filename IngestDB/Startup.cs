@@ -41,6 +41,7 @@ namespace IngestDB
                 .AddEnvironmentVariables()
                 .Build();
 
+            var logger = Sobey.Core.Log.LoggerManager.GetLogger("Startup");
             services.AddSingleton<IConfigurationRoot>(cfg);
             services.AddMvc(option => { option.Filters.Add(typeof(IngestAuthentication)); })
                 .SetCompatibilityVersion(CompatibilityVersion.Version_2_1)
@@ -59,7 +60,7 @@ namespace IngestDB
                 path = AppDomain.CurrentDomain.BaseDirectory.Replace("\\", "/") +"/"+ fileName;
             }
 
-           
+            logger.Info(path);
             if (File.Exists(path))
             {
                 XDocument xd = new XDocument();
@@ -78,10 +79,11 @@ namespace IngestDB
                 applicationContext.CMServerWindowsUrl = CreateConfigURI(sys.Element("CMserver_windows").Value);
                 applicationContext.ConnectionString = CreateDBConnect(ps, applicationContext.VIP);
 
-                Sobey.Core.Log.LoggerManager.GetLogger("Startup").Info(path + sys.ToString());
+               logger.Info(path + sys.ToString());
             }
             else
             { //此处加日志
+                logger.Error("no file xml");
                 return;
             }
 

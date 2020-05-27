@@ -658,7 +658,7 @@ namespace IngestTaskPlugin.Controllers.v2
         /// <returns>当前正在采集的任务</returns>
         [HttpGet("capturing/{channelid}")]
         [ApiExplorerSettings(GroupName = "v2")]
-        public async Task<ResponseMessage<TaskContentResponse>> GetChannelCapturingTaskInfo([FromRoute, BindRequired]int channelid)
+        public async Task<ResponseMessage<TaskContentResponse>> GetChannelCapturingTaskInfo([FromRoute, BindRequired]int channelid, [FromQuery]int newest)
         {
             var Response = new ResponseMessage<TaskContentResponse>();
             if (channelid < 0)
@@ -668,7 +668,7 @@ namespace IngestTaskPlugin.Controllers.v2
             }
             try
             {
-                Response.Ext = await _taskManage.GetChannelCapturingTask<TaskContentResponse>(channelid);
+                Response.Ext = await _taskManage.GetChannelCapturingTask<TaskContentResponse>(channelid, newest);
             }
             catch (Exception e)
             {

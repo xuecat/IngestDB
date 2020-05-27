@@ -82,7 +82,7 @@ namespace IngestDBCore.Tool
                 var res = await client.PostAsync(url, sc);
                 byte[] rData = await res.Content.ReadAsByteArrayAsync();
                 string rJson = Encoding.UTF8.GetString(rData);
-                Logger.Debug("url body response：\r\n{0} {1} {2}", url, json, rJson);
+                Logger.Info("url body response：\r\n{0} {1} {2}", url, json, rJson);
                 response = JsonHelper.ToObject<TResponse>(rJson);
                 return response;
             }
@@ -151,7 +151,7 @@ namespace IngestDBCore.Tool
                 //Logger.Debug("请求：{0} {1}", "GET", url);
                 byte[] rData = await client.GetByteArrayAsync(url);
                 string rJson = Encoding.UTF8.GetString(rData);
-                Logger.Debug("url response：\r\n{0} {1}", url, rJson);
+                Logger.Info("url response：\r\n{0} {1}", url, rJson);
                 response = JsonHelper.ToObject<TResponse>(rJson);
             }
             catch (System.Exception e)

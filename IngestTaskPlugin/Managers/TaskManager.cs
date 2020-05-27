@@ -562,7 +562,7 @@ namespace IngestTaskPlugin.Managers
                     return fresponse.Ext;
                 }
 
-                var findtask = await GetChannelCapturingTask<TaskContentResponse>(channelid);
+                var findtask = await GetChannelCapturingTask<TaskContentResponse>(channelid, 1);
                 if (findtask != null)
                 {
                     if (global != null)
@@ -1800,10 +1800,22 @@ namespace IngestTaskPlugin.Managers
 
         }
 
-        public async Task<TResult> GetChannelCapturingTask<TResult>(int channelid)
+        public async Task<TResult> GetChannelCapturingTask<TResult>(int channelid, int newest)
         {
-            return _mapper.Map<TResult>(await Store.GetTaskAsync(a =>
-            a.Where(b => b.Channelid == channelid && (b.State == (int)taskState.tsExecuting || b.State == (int)taskState.tsManuexecuting)), true));
+            var lst = await Store.GetTaskListAsync(a =>
+            a.Where(b => b.Channelid == channelid && (b.State == (int)taskState.tsExecuting || b.State == (int)taskState.tsManuexecuting)).OrderBy(b => b.Taskid), true);
+
+            if (lst != null && lst.Count >0)
+            {
+                if (newest > 0)
+                {
+                    return _mapper.Map<TResult>(lst.Last());
+                }
+                else
+                    return _mapper.Map<TResult>(lst.First());
+            }
+
+            return default(TResult);
         }
         public async Task ModifyTaskName(int taskid, string taskname)
         {
