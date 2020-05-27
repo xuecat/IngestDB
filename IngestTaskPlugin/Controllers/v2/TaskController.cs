@@ -1347,7 +1347,7 @@ namespace IngestTaskPlugin.Controllers.v2
         /// </remarks>
         /// <param name="req">请求结构体</param>
         /// <returns></returns>
-        [HttpGet("completesyn")]
+        [HttpGet("completesync")]
         [ApiExplorerSettings(GroupName = "v2")]
         public async Task<ResponseMessage> CompleteSynTasks([FromBody, BindRequired]CompleteSyncTaskRequest req)
         {
@@ -1389,7 +1389,7 @@ namespace IngestTaskPlugin.Controllers.v2
         /// <param name="newguid">新分裂的素材guid</param>
         /// <param name="index">新分裂的段号</param>
         /// <returns>任务guid</returns>
-        [HttpPost("splittaskwithclip/{taskid}")]
+        [HttpPost("splitwithclip/{taskid}")]
         [ApiExplorerSettings(GroupName = "v2")]
         public async Task<ResponseMessage<string>> SplitClip(
             [FromRoute, BindRequired]int taskid,
