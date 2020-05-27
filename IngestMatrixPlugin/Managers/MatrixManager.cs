@@ -77,7 +77,7 @@ namespace IngestMatrixPlugin.Managers
             #endregion
 
             #region 获取路由表
-            var routList = await TryRout(inPort, lMatrixID, lRealOutPort, outPort);
+            var routList = await TrySimpleRout(inPort, lMatrixID, lRealOutPort, outPort);
             if (routList.Count <= 0)
             {
                 Logger.Warn($"In module MatrixService!call CIVirtualMatrix::SwitchInOut(),can not find rout {inPort} to {outPort}(tryrout)");
@@ -346,6 +346,45 @@ namespace IngestMatrixPlugin.Managers
                         }
                     }
                 }
+            }
+            return routList;
+        }
+
+        async Task<List<MatrixRoutInfo>> TrySimpleRout(long virtualInPort, long matrixID, long realOutPort, long virtualOutPort)
+        {
+            Logger.Info("enter TrySimpleRout");
+            List<MatrixRoutInfo> routList = new List<MatrixRoutInfo>();
+            try
+            {
+                long _lRealInPort = -1, _lCurMatrixID = -1;
+                var mapInport = (await Store.QueryMapinport(a => a.Where(x => x.Virtualinport == virtualInPort), true)).FirstOrDefault();
+                if(mapInport == null)
+                {
+                    return routList;
+                }
+
+                _lRealInPort = mapInport.Inport;
+                _lCurMatrixID = mapInport.Matrixid;
+
+                if (_lCurMatrixID != matrixID)
+                {
+                    Logger.Error("error MatrixService! MultiRouter is not supported.");
+                    return routList;
+                }
+
+                MatrixRoutInfo RoutInfo = new MatrixRoutInfo();
+                RoutInfo.lMatrixID = matrixID;
+                RoutInfo.lInPort = _lRealInPort;
+                RoutInfo.lOutPort = realOutPort;
+                RoutInfo.lVirtualOutPort = virtualOutPort;
+                RoutInfo.lVirtualInPort = virtualInPort;
+                RoutInfo.lState = 1;
+
+                routList.Add(RoutInfo);
+            }
+            catch (Exception ex)
+            {
+                Logger.Error("catch!error module MatrixService!call CIVirtualMatrix::TrySimpleRout : " + ex.Message);
             }
             return routList;
         }
