@@ -17,6 +17,8 @@ namespace KafKaNotifyPlugin
         public KafKaNotify()
         {
             _config = new ProducerConfig() { BootstrapServers = ApplicationContext.Current.KafkaUrl};
+
+            
         }
         public override void ActionNotify(object theClock, NotifyArgs ti)
         {
@@ -28,12 +30,11 @@ namespace KafKaNotifyPlugin
                     try
                     {
                         var f = p.ProduceAsync("ingestdbnotify", new Message<Null, string> { Value = JsonHelper.ToJson(ti) }).Result;
-                        
                     }
                     catch (Exception e)
                     {
 
-                        Logger.Error("KafKaNotify " + ti.Type + e.Message);
+                        Logger.Error("KafKaNotify error " + ti.Type + e.Message);
                     }
                 }
             }

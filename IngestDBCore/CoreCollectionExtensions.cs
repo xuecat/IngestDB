@@ -18,6 +18,8 @@ namespace IngestDBCore
             var client = new RestClient();
             ApplicationContext.Current.KafkaUrl = client.GetGlobalParam(false, "admin", "KafkaAddress").Result;
 
+            ApplicationContext.Current.KafkaUrl = ApplicationContext.Current.KafkaUrl.Replace(";", ",");
+
             services.AddSingleton<RestClient>(client);
            
             ApplicationContext.Current.NotifyClock = new NotifyClock();
