@@ -38,6 +38,15 @@ namespace IngestDBCore.Tool
                 _httpClient.DefaultRequestHeaders.Remove("sobeyhive-http-token");
             }
 
+            if (_httpClient.DefaultRequestHeaders.Contains("sobeyhive-http-secret"))
+            {
+                _httpClient.DefaultRequestHeaders.Remove("sobeyhive-http-secret");
+            }
+            if (_httpClient.DefaultRequestHeaders.Contains("current-user-code"))
+            {
+                _httpClient.DefaultRequestHeaders.Remove("current-user-code");
+            }
+
             _httpClient.DefaultRequestHeaders.Add("sobeyhive-http-secret", RSAHelper.RSAstr());
             _httpClient.DefaultRequestHeaders.Add("current-user-code", usercode);
         }
@@ -52,7 +61,12 @@ namespace IngestDBCore.Tool
             {
                 _httpClient.DefaultRequestHeaders.Remove("current-user-code");
             }
-            
+
+            if (_httpClient.DefaultRequestHeaders.Contains("sobeyhive-http-token"))
+            {
+                _httpClient.DefaultRequestHeaders.Remove("sobeyhive-http-token");
+            }
+
             _httpClient.DefaultRequestHeaders.Add("sobeyhive-http-token", usertoken);
         }
 
@@ -78,6 +92,15 @@ namespace IngestDBCore.Tool
                 MemoryStream ms = new MemoryStream(strData);
                 StreamContent sc = new StreamContent(ms);
                 sc.Headers.ContentType = new MediaTypeWithQualityHeaderValue("application/json");
+
+                //foreach (var item in _httpClient.DefaultRequestHeaders)
+                //{
+                //    Logger.Error("header :  " + item.Key + ":" + item.Value.FirstOrDefault());
+                //    foreach(var test in item.Value)
+                //    {
+                //        Logger.Error("test :  " + test);
+                //    }
+                //}
 
                 var res = await client.PostAsync(url, sc);
                 byte[] rData = await res.Content.ReadAsByteArrayAsync();
@@ -265,7 +288,7 @@ namespace IngestDBCore.Tool
                 throw;
             }
         }
-        
+
         public async Task<TResult> PostWithToken<TResult>(string url, object body, string token, string userId = null, string method = "Post")
         {
             //Stopwatch sw = new Stopwatch();
@@ -320,7 +343,7 @@ namespace IngestDBCore.Tool
                 throw;
             }
         }
-        
+
         public async Task<TResult> SubmitForm<TResult>(string url, Dictionary<string, string> formData, string method = "Post")
         {
             HttpMethod hm = new HttpMethod(method);
@@ -409,7 +432,7 @@ namespace IngestDBCore.Tool
                 UseTokenHeader(userTokenOrCode);
             else
                 UseCodeHeader(userTokenOrCode);
-            
+
             var back = await AutoRetry.Run<ResponseMessage<CmParam>>(() =>
                 {
                     DefaultParameter param = new DefaultParameter()
@@ -438,7 +461,7 @@ namespace IngestDBCore.Tool
             else
                 UseCodeHeader(userTokenOrCode);
 
-           
+
             var back = await AutoRetry.Run<ResponseMessage<ExtParam>>(() =>
             {
 
@@ -446,7 +469,7 @@ namespace IngestDBCore.Tool
                 v.Add("storagetype", storagetype);
                 v.Add("storagemark", storagemark);
                 return Get<ResponseMessage<ExtParam>>(
-                    string.Format("{0}/CMApi/api/basic/user/getcurrentusercanwritepathbycondition",ApplicationContext.Current.CMServerUrl),
+                    string.Format("{0}/CMApi/api/basic/user/getcurrentusercanwritepathbycondition", ApplicationContext.Current.CMServerUrl),
                     v);
 
             });
@@ -465,7 +488,7 @@ namespace IngestDBCore.Tool
             else
                 UseCodeHeader(userTokenOrCode);
 
-           
+
             var back = await AutoRetry.Run<ResponseMessage<CMUserInfo>>(() =>
             {
 
@@ -483,7 +506,7 @@ namespace IngestDBCore.Tool
             return null;
         }
 
-       
+
         #endregion
     }
 }
