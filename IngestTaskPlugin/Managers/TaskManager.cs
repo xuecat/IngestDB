@@ -3224,7 +3224,7 @@ namespace IngestTaskPlugin.Managers
         public async Task<TaskContentResponse> AddTaskWithoutPolicy<TResult>(TResult info, string CaptureMeta, string ContentMeta, string MatiralMeta, string PlanningMeta)
         {
             var taskinfo = _mapper.Map<TaskInfoRequest>(info);
-            if (default(TResult).GetType() == typeof(AddTaskExDb_in))
+            if (info.GetType() == typeof(AddTaskExDb_in))
             {
                 taskinfo.TaskSource = TaskSource.emMSVUploadTask;
             }
@@ -3282,6 +3282,7 @@ namespace IngestTaskPlugin.Managers
                         string.IsNullOrEmpty(MatiralMeta) ? ConverTaskMaterialMetaString(taskinfo.MaterialMeta) : MatiralMeta,
                         string.IsNullOrEmpty(PlanningMeta) ? ConverTaskPlanningMetaString(taskinfo.PlanningMeta) : PlanningMeta,
                         null);
+                        return _mapper.Map<TaskContentResponse>(back);
                     }
                 }
             }
