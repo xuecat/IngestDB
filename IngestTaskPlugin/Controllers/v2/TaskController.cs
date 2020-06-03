@@ -1066,7 +1066,10 @@ namespace IngestTaskPlugin.Controllers.v2
                 {
                     Response.Code = ResponseCodeDefines.NotFound;
                     Response.Msg = "not found task";
+                    return Response;
                 }
+
+                Task.Run(() => { _clock.InvokeNotify(GlobalStateName.MODTASK, NotifyPlugin.Kafka, NotifyAction.MODIFYTASKSTATE, taskid, state); });
             }
             catch (Exception e)
             {
@@ -1181,6 +1184,11 @@ namespace IngestTaskPlugin.Controllers.v2
             try
             {
                 Response.Ext = await _taskManage.TrimTaskBeginTime(taskid, starttime);
+
+                if(Response.Ext > 0) //任务id大于0更新成功
+                {
+                    Task.Run(() => { _clock.InvokeNotify(GlobalStateName.MODTASK, NotifyPlugin.Kafka, NotifyAction.MODIFYTASKSTARTTIME, taskid, starttime); });
+                }
             }
             catch (Exception e)
             {

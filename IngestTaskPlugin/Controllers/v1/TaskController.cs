@@ -840,7 +840,11 @@ namespace IngestTaskPlugin.Controllers.v1
 
             try
             {
-                await _taskManage.SetTaskState(nTaskID, nState);
+                int result = await _taskManage.SetTaskState(nTaskID, nState);
+                if(result > 0)
+                {
+                    Task.Run(() => { _clock.InvokeNotify(GlobalStateName.MODTASK, NotifyPlugin.Kafka, NotifyAction.MODIFYTASKSTATE, nTaskID, nState); });
+                }
                 return Response;
             }
             catch (Exception e)
@@ -924,7 +928,11 @@ namespace IngestTaskPlugin.Controllers.v1
                 {
                     return false;
                 }
-                await _taskManage.TrimTaskBeginTime(nTaskID, strStartTime);
+                int result = await _taskManage.TrimTaskBeginTime(nTaskID, strStartTime);
+                if(result > 0)
+                {
+                    Task.Run(() => { _clock.InvokeNotify(GlobalStateName.MODTASK, NotifyPlugin.Kafka, NotifyAction.MODIFYTASKSTARTTIME, nTaskID, strStartTime); });
+                }
             }
             catch (Exception e)//其他未知的异常，写异常日志
             {
