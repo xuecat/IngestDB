@@ -1847,13 +1847,14 @@ namespace IngestTaskPlugin.Managers
             await Store.SaveChangeAsync();
         }
 
-        public async Task<int> ModifyPeriodTask<TResult>(TResult taskmodify, bool isall)
+        public async Task<DbpTask> ModifyPeriodTask<TResult>(TResult taskmodify, bool isall)
         {
             
             if (isall)
             {
                 var f = await ModifyTask<TResult>(taskmodify, string.Empty, string.Empty, string.Empty, string.Empty);
-                return f.TaskID;
+                //return f.TaskID;
+                return f;
             }
             else
             {
@@ -1873,7 +1874,8 @@ namespace IngestTaskPlugin.Managers
                 string newTaskName = modifyinfo.TaskName;
                 if (DateTimeFormat.DateTimeFromString(modifyinfo.Begin) == DateTime.MinValue)
                 {
-                    return 0;
+                    //return 0;
+                    return null;
                 }
 
                 var f = await Store.GetTaskMetaDataListAsync(a => a.Where(b => b.Taskid == modifyinfo.TaskID), true);
@@ -1932,7 +1934,8 @@ namespace IngestTaskPlugin.Managers
                     addinfo.TaskSource = TaskSource.emUnknowTask;
                     addinfo.TaskContent = modifyinfo;
                     var backinfo = await AddTaskWithPolicy(addinfo, false, strCapatureMetaData, strContentMetaData, strStoreMetaData, strPlanMetaData);
-                    return backinfo.TaskID;
+                    //return backinfo.TaskID;
+                    return backinfo;
                 }
                 catch (SobeyRecException e)
                 {
@@ -1945,9 +1948,9 @@ namespace IngestTaskPlugin.Managers
                 }
 
             }
-            return 0;
+            //return 0;
         }
-        public async Task<TaskContentResponse> ModifyTask<TResult>(TResult task, string CaptureMeta, string ContentMeta, string MatiralMeta, string PlanningMeta)
+        public async Task<DbpTask> ModifyTask<TResult>(TResult task, string CaptureMeta, string ContentMeta, string MatiralMeta, string PlanningMeta)
         {
             var taskModify = _mapper.Map<TaskContentRequest>(task);
 
@@ -2174,7 +2177,8 @@ namespace IngestTaskPlugin.Managers
 
             try
             {
-                return _mapper.Map<TaskContentResponse>(await Store.ModifyTask(findtask, false, true, true,CaptureMeta, ContentMeta, MatiralMeta, PlanningMeta));
+                //return _mapper.Map<TaskContentResponse>(await Store.ModifyTask(findtask, false, true, true,CaptureMeta, ContentMeta, MatiralMeta, PlanningMeta));
+                return await Store.ModifyTask(findtask, false, true, true, CaptureMeta, ContentMeta, MatiralMeta, PlanningMeta);
             }
             catch (Exception e)
             {
@@ -2659,13 +2663,14 @@ namespace IngestTaskPlugin.Managers
             return vtrFreeTimePeriods;
         }
 
-        public async Task<bool> StartTieupTask(int taskid)
+        public async Task<DbpTask> StartTieupTask(int taskid)
         {
             var findtask = await Store.GetTaskAsync(a => a.Where(b => b.Taskid == taskid));
 
             if (findtask.Tasktype != (int)TaskType.TT_TIEUP)
             {
-                return false;
+                //return false;
+                return null;
             }
 
             findtask.Tasktype = (int)TaskType.TT_NORMAL;
@@ -2673,7 +2678,8 @@ namespace IngestTaskPlugin.Managers
             findtask.DispatchState = (int)dispatchState.dpsDispatched;
 
             await Store.SaveChangeAsync();
-            return true;
+            //return true;
+            return findtask;
         }
 
         /// <summary>
@@ -2728,12 +2734,12 @@ namespace IngestTaskPlugin.Managers
             return freeTimePeriods;
         }
 
-        public TaskContent ConvertTaskResponse(TaskContentResponse task)
+        public TaskContent ConvertTaskResponse(DbpTask task)
         {
             return _mapper.Map<TaskContent>(task);
         }
 
-        public async Task<TaskContentResponse> AutoAddTaskByOldTask(int oldtask, DateTime starttime , IIngestGlobalInterface global)
+        public async Task<DbpTask> AutoAddTaskByOldTask(int oldtask, DateTime starttime , IIngestGlobalInterface global)
         {
             var findtask = await Store.GetTaskAsync(a => a.Where(b => b.Taskid == oldtask));
             var newtaskinfo = Store.DeepClone(findtask);
@@ -2890,13 +2896,14 @@ namespace IngestTaskPlugin.Managers
                                                         strStoreMetaData,
                                                         strPlanMetaData, null);
 
-            return _mapper.Map<TaskContentResponse>(info);
+            //return _mapper.Map<TaskContentResponse>(info);
+            return info;
         }
 
         
        
 
-        public async Task<TaskContentResponse> AddTaskWithPolicy<TResult>(TResult info, bool backup, string CaptureMeta, string ContentMeta, string MatiralMeta, string PlanningMeta)
+        public async Task<DbpTask> AddTaskWithPolicy<TResult>(TResult info, bool backup, string CaptureMeta, string ContentMeta, string MatiralMeta, string PlanningMeta)
         {
             var taskinfo = _mapper.Map<TaskInfoRequest>(info);
 
@@ -3064,7 +3071,8 @@ namespace IngestTaskPlugin.Managers
 
                         //await Store.SaveChangeAsync();
                         await Store.UpdateTaskMetaDataAsync(taskinfo.TaskContent.TaskID, MetaDataType.emCapatureMetaData, string.IsNullOrEmpty(ContentMeta) ? taskinfo.CaptureMeta : CaptureMeta);
-                        return _mapper.Map<TaskContentResponse>(lst[0]);
+                        //return _mapper.Map<TaskContentResponse>(lst[0]);
+                        return lst[0];
                     }
                     else
                     {
@@ -3083,6 +3091,7 @@ namespace IngestTaskPlugin.Managers
                         string.IsNullOrEmpty(MatiralMeta) ? ConverTaskMaterialMetaString(taskinfo.MaterialMeta) : MatiralMeta,
                         string.IsNullOrEmpty(PlanningMeta) ? ConverTaskPlanningMetaString(taskinfo.PlanningMeta) : PlanningMeta,
                         null);
+                        return back;
                     }
                 }
             }
@@ -3215,13 +3224,14 @@ namespace IngestTaskPlugin.Managers
                     //存metadata
                 }
 
-                return _mapper.Map<TaskContentResponse>(back);
+                //return _mapper.Map<TaskContentResponse>(back);
+                return back;
             }
 
             return null;
         }
 
-        public async Task<TaskContentResponse> AddTaskWithoutPolicy<TResult>(TResult info, string CaptureMeta, string ContentMeta, string MatiralMeta, string PlanningMeta)
+        public async Task<DbpTask> AddTaskWithoutPolicy<TResult>(TResult info, string CaptureMeta, string ContentMeta, string MatiralMeta, string PlanningMeta)
         {
             var taskinfo = _mapper.Map<TaskInfoRequest>(info);
             if (info.GetType() == typeof(AddTaskExDb_in))
@@ -3263,7 +3273,8 @@ namespace IngestTaskPlugin.Managers
 
                         //await Store.SaveChangeAsync();
                         await Store.UpdateTaskMetaDataAsync(taskinfo.TaskContent.TaskID, MetaDataType.emCapatureMetaData, string.IsNullOrEmpty(ContentMeta) ? taskinfo.CaptureMeta : CaptureMeta);
-                        return _mapper.Map<TaskContentResponse>(lst[0]);
+                        //return _mapper.Map<TaskContentResponse>(lst[0]);
+                        return lst[0];
                     }
                     else
                     {
@@ -3282,7 +3293,8 @@ namespace IngestTaskPlugin.Managers
                         string.IsNullOrEmpty(MatiralMeta) ? ConverTaskMaterialMetaString(taskinfo.MaterialMeta) : MatiralMeta,
                         string.IsNullOrEmpty(PlanningMeta) ? ConverTaskPlanningMetaString(taskinfo.PlanningMeta) : PlanningMeta,
                         null);
-                        return _mapper.Map<TaskContentResponse>(back);
+                        //return _mapper.Map<TaskContentResponse>(back);
+                        return back;
                     }
                 }
             }
@@ -3415,7 +3427,8 @@ namespace IngestTaskPlugin.Managers
                     //存metadata
                 }
 
-                return _mapper.Map<TaskContentResponse>(back);
+                //return _mapper.Map<TaskContentResponse>(back);
+                return back;
             }
 
             return null;

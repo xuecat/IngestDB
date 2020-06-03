@@ -24,6 +24,7 @@ using TaskCustomMetadataRequest = IngestTaskPlugin.Dto.Response.TaskCustomMetada
 using IngestDBCore.Notify;
 using IngestTaskPlugin.Dto;
 using IngestTaskPlugin.Dto.OldResponse;
+using AutoMapper;
 
 /// 
 ///MADEBYINGEST没更新完
@@ -44,14 +45,14 @@ namespace IngestTaskPlugin.Controllers.v2
         private readonly TaskManager _taskManage;
         private readonly NotifyClock _clock;
         private readonly Lazy<IIngestGlobalInterface> _globalInterface;
-        //private readonly IMapper _mapper;
+        private readonly IMapper _mapper;
 
-        public TaskController( TaskManager task, IServiceProvider services, NotifyClock clock/*, IMapper mapper*/)
+        public TaskController( TaskManager task, IServiceProvider services, NotifyClock clock, IMapper mapper)
         {
             _taskManage = task;
             _clock = clock;
             _globalInterface = new Lazy<IIngestGlobalInterface>(() => services.GetRequiredService<IIngestGlobalInterface>());
-            //_mapper = mapper ?? throw new ArgumentNullException(nameof(mapper));
+            _mapper = mapper ?? throw new ArgumentNullException(nameof(mapper));
         }
 
         /// <summary>
@@ -452,7 +453,9 @@ namespace IngestTaskPlugin.Controllers.v2
             }
             try
             {
-                Response.Ext = await _taskManage.AddTaskWithoutPolicy(task, string.Empty, string.Empty, string.Empty, string.Empty);
+                //Response.Ext = await _taskManage.AddTaskWithoutPolicy(task, string.Empty, string.Empty, string.Empty, string.Empty);
+                var addTask = await _taskManage.AddTaskWithoutPolicy(task, string.Empty, string.Empty, string.Empty, string.Empty);
+                Response.Ext = _mapper.Map<TaskContentResponse>(addTask);
 
                 //添加后如果开始时间在2分钟以内，需要调度一次
                 if ((DateTimeFormat.DateTimeFromString(task.TaskContent.Begin) - DateTime.Now).TotalSeconds < 120)
@@ -467,7 +470,7 @@ namespace IngestTaskPlugin.Controllers.v2
                         Logger.Error("SetGlobalState modtask error");
                     }
 
-                    Task.Run(() => { _clock.InvokeNotify(GlobalStateName.ADDTASK, NotifyPlugin.Kafka, NotifyAction.ADDTASK, Response.Ext.TaskID); });
+                    Task.Run(() => { _clock.InvokeNotify(GlobalStateName.ADDTASK, NotifyPlugin.Kafka, NotifyAction.ADDTASK, Response.Ext.TaskID, addTask); });
                 }
 
                 //SetGTMTaskInfo
@@ -523,7 +526,9 @@ namespace IngestTaskPlugin.Controllers.v2
             }
             try
             {
-                Response.Ext = await _taskManage.AddTaskWithPolicy(task, false, string.Empty, string.Empty, string.Empty, string.Empty);
+                //Response.Ext = await _taskManage.AddTaskWithPolicy(task, false, string.Empty, string.Empty, string.Empty, string.Empty);
+                var addTask = await _taskManage.AddTaskWithPolicy(task, false, string.Empty, string.Empty, string.Empty, string.Empty);
+                Response.Ext = _mapper.Map<TaskContentResponse>(addTask);
 
                 if (task.BackUpTask)
                 {
@@ -544,7 +549,7 @@ namespace IngestTaskPlugin.Controllers.v2
                         Logger.Error("SetGlobalState modtask error");
                     }
 
-                    Task.Run(() => { _clock.InvokeNotify(GlobalStateName.ADDTASK, NotifyPlugin.Kafka, NotifyAction.ADDTASK, Response.Ext.TaskID); });
+                    Task.Run(() => { _clock.InvokeNotify(GlobalStateName.ADDTASK, NotifyPlugin.Kafka, NotifyAction.ADDTASK, Response.Ext.TaskID, addTask); });
                 }
                 //SetGTMTaskInfo
                 //添加后如果开始时间在2分钟以内，需要调度一次
@@ -711,7 +716,9 @@ namespace IngestTaskPlugin.Controllers.v2
 
             try
             {
-                Response.Ext = await _taskManage.ModifyTask<TaskContentResponse>(req, string.Empty, string.Empty, string.Empty, string.Empty);
+                //Response.Ext = await _taskManage.ModifyTask<TaskContentResponse>(req, string.Empty, string.Empty, string.Empty, string.Empty);
+                var modifyTask = await _taskManage.ModifyTask<TaskContentResponse>(req, string.Empty, string.Empty, string.Empty, string.Empty);
+                Response.Ext = _mapper.Map<TaskContentResponse>(modifyTask);
 
                 //添加后如果开始时间在2分钟以内，需要调度一次
                 if ((DateTimeFormat.DateTimeFromString(req.Begin) - DateTime.Now).TotalSeconds < 120)
@@ -726,7 +733,7 @@ namespace IngestTaskPlugin.Controllers.v2
                         Logger.Error("SetGlobalState modtask error");
                     }
 
-                    Task.Run(() => { _clock.InvokeNotify(GlobalStateName.MODTASK, NotifyPlugin.Kafka, NotifyAction.MODIFYTASK, Response.Ext.TaskID); });
+                    Task.Run(() => { _clock.InvokeNotify(GlobalStateName.MODTASK, NotifyPlugin.Kafka, NotifyAction.MODIFYTASK, Response.Ext.TaskID, modifyTask); });
                 }
             }
             catch (Exception e)
@@ -770,10 +777,16 @@ namespace IngestTaskPlugin.Controllers.v2
 
             try
             {
-                Response.Ext = await _taskManage.ModifyTask<TaskContentResponse>(req.TaskContent, req.CaptureMeta,
+                //Response.Ext = await _taskManage.ModifyTask<TaskContentResponse>(req.TaskContent, req.CaptureMeta,
+                //    _taskManage.ConverTaskContentMetaString(req.ContentMeta),
+                //    _taskManage.ConverTaskMaterialMetaString(req.MaterialMeta),
+                //    _taskManage.ConverTaskPlanningMetaString(req.PlanningMeta));
+
+                var modifyTask = await _taskManage.ModifyTask<TaskContentResponse>(req.TaskContent, req.CaptureMeta,
                     _taskManage.ConverTaskContentMetaString(req.ContentMeta),
                     _taskManage.ConverTaskMaterialMetaString(req.MaterialMeta),
                     _taskManage.ConverTaskPlanningMetaString(req.PlanningMeta));
+                Response.Ext = _mapper.Map<TaskContentResponse>(modifyTask);
 
                 //添加后如果开始时间在2分钟以内，需要调度一次
                 if ((DateTimeFormat.DateTimeFromString(req.TaskContent.Begin) - DateTime.Now).TotalSeconds < 120)
@@ -788,7 +801,7 @@ namespace IngestTaskPlugin.Controllers.v2
                         Logger.Error("SetGlobalState modtask error");
                     }
 
-                    Task.Run(() => { _clock.InvokeNotify(GlobalStateName.MODTASK, NotifyPlugin.Kafka, NotifyAction.MODIFYTASK, Response.Ext.TaskID); });
+                    Task.Run(() => { _clock.InvokeNotify(GlobalStateName.MODTASK, NotifyPlugin.Kafka, NotifyAction.MODIFYTASK, Response.Ext.TaskID, modifyTask); });
                 }
             }
             catch (Exception e)
@@ -1783,8 +1796,10 @@ namespace IngestTaskPlugin.Controllers.v2
 
             try
             {
-                Response.Ext = await _taskManage.StartTieupTask(taskid);
-                
+                //Response.Ext = await _taskManage.StartTieupTask(taskid);
+                var tieupTask = await _taskManage.StartTieupTask(taskid);
+                Response.Ext = (tieupTask != null && tieupTask.Tasktype == (int)TaskType.TT_TIEUP) ? true : false;
+
                 if (_globalInterface != null)
                 {
                     GlobalInternals re = new GlobalInternals() { Funtype = IngestDBCore.GlobalInternals.FunctionType.SetGlobalState, State = GlobalStateName.MODTASK };
@@ -1794,7 +1809,7 @@ namespace IngestTaskPlugin.Controllers.v2
                         Logger.Error("SetGlobalState modtask error");
                     }
 
-                    Task.Run(() => { _clock.InvokeNotify(GlobalStateName.MODTASK, NotifyPlugin.Kafka, NotifyAction.MODIFYTASK, taskid); });
+                    Task.Run(() => { _clock.InvokeNotify(GlobalStateName.MODTASK, NotifyPlugin.Kafka, NotifyAction.MODIFYTASK, taskid, tieupTask); });
                 }
                 //await _taskManage.
             }
@@ -1880,7 +1895,7 @@ namespace IngestTaskPlugin.Controllers.v2
                         Logger.Error("SetGlobalState modtask error");
                     }
 
-                    Task.Run(() => { _clock.InvokeNotify(GlobalStateName.MODTASK, NotifyPlugin.Kafka, NotifyAction.MODIFYTASK, taskid); });
+                    Task.Run(() => { _clock.InvokeNotify(GlobalStateName.MODTASK, NotifyPlugin.Kafka, NotifyAction.MODIFYTASKNAME, taskid , taskname); });
                 }
             }
             catch (Exception e)
@@ -1917,7 +1932,9 @@ namespace IngestTaskPlugin.Controllers.v2
 
             try
             {
-                Response.Ext = await _taskManage.ModifyPeriodTask<TaskContentRequest>(req, isall == 1 ? true : false);
+                //Response.Ext = await _taskManage.ModifyPeriodTask<TaskContentRequest>(req, isall == 1 ? true : false);
+                var modifyTask = await _taskManage.ModifyPeriodTask<TaskContentRequest>(req, isall == 1 ? true : false);
+                Response.Ext = modifyTask != null ? modifyTask.Taskid : 0;
 
                 //添加后如果开始时间在2分钟以内，需要调度一次
                 if ((DateTimeFormat.DateTimeFromString(req.Begin) - DateTime.Now).TotalSeconds < 120)
@@ -1932,7 +1949,7 @@ namespace IngestTaskPlugin.Controllers.v2
                         Logger.Error("SetGlobalState modtask error");
                     }
 
-                    Task.Run(() => { _clock.InvokeNotify(GlobalStateName.MODTASK, NotifyPlugin.Kafka, NotifyAction.MODIFYPERIODCTASK, Response.Ext); });
+                    Task.Run(() => { _clock.InvokeNotify(GlobalStateName.MODTASK, NotifyPlugin.Kafka, NotifyAction.MODIFYPERIODCTASK, Response.Ext, modifyTask); });
                 }
             }
             catch (Exception e)
@@ -2151,8 +2168,10 @@ namespace IngestTaskPlugin.Controllers.v2
 
             try
             {
-                Response.Ext = await _taskManage.AutoAddTaskByOldTask(oldtaskid, DateTimeFormat.DateTimeFromString(starttime), _globalInterface.Value);
-                
+                //Response.Ext = await _taskManage.AutoAddTaskByOldTask(oldtaskid, DateTimeFormat.DateTimeFromString(starttime), _globalInterface.Value);
+                var task = await _taskManage.AutoAddTaskByOldTask(oldtaskid, DateTimeFormat.DateTimeFromString(starttime), _globalInterface.Value);
+                Response.Ext = _mapper.Map<TaskContentResponse>(task);
+
                 if (_globalInterface != null)
                 {
                     GlobalInternals re = new GlobalInternals() { Funtype = IngestDBCore.GlobalInternals.FunctionType.SetGlobalState, State = GlobalStateName.ADDTASK };
@@ -2162,8 +2181,8 @@ namespace IngestTaskPlugin.Controllers.v2
                         Logger.Error("SetGlobalState modtask error");
                     }
 
-                    Task.Run(() => { _clock.InvokeNotify(GlobalStateName.MODTASK, NotifyPlugin.Kafka, NotifyAction.MODIFYTASK, oldtaskid); });
-                    Task.Run(() => { _clock.InvokeNotify(GlobalStateName.ADDTASK, NotifyPlugin.Kafka, NotifyAction.ADDTASK, Response.Ext.TaskID); });
+                    Task.Run(() => { _clock.InvokeNotify(GlobalStateName.MODTASK, NotifyPlugin.Kafka, NotifyAction.STOPTASK, oldtaskid); });
+                    Task.Run(() => { _clock.InvokeNotify(GlobalStateName.ADDTASK, NotifyPlugin.Kafka, NotifyAction.ADDTASK, Response.Ext.TaskID, task); });
                 }
             }
             catch (Exception e)

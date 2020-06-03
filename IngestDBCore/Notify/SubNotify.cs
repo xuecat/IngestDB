@@ -22,6 +22,8 @@ namespace IngestDBCore.Notify
         static public string MODIFYTASK { get { return "MODIFYTASK"; } }
         static public string MODIFYCOOPERTASK { get { return "MODIFYCOOPERTASK"; } }
         static public string MODIFYPERIODCTASK { get { return "MODIFYPERIODCTASK"; } }
+        static public string MODIFYTASKCOOPTYPE { get { return "MODIFYTASKCOOPTYPE"; } }
+        static public string MODIFYTASKNAME { get { return "MODIFYTASKNAME"; } }
     }
 
     public class SubNotify
