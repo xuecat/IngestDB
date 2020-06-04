@@ -5,6 +5,7 @@ using IngestDBCore.Notify;
 using IngestDBCore.Tool;
 using IngestTaskPlugin.Dto.OldResponse;
 using IngestTaskPlugin.Managers;
+using IngestTaskPlugin.Models;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.DependencyInjection;
 using Sobey.Core.Log;
@@ -224,7 +225,7 @@ namespace IngestTaskPlugin.Controllers.v1
 
                     foreach (var item in Response.taskResults)
                     {
-                        Task.Run(() => { _clock.InvokeNotify(GlobalStateName.MODTASK, NotifyPlugin.Kafka, NotifyAction.STOPGROUPTASK, item); });
+                        Task.Run(() => { _clock.InvokeNotify(GlobalStateName.MODTASK, NotifyPlugin.Kafka, NotifyAction.STOPGROUPTASK, new DbpTask { Taskid = item } ); });
                     }
                     
                 }
@@ -274,7 +275,7 @@ namespace IngestTaskPlugin.Controllers.v1
 
                     foreach (var item in Response.taskResults)
                     {
-                        Task.Run(() => { _clock.InvokeNotify(GlobalStateName.MODTASK, NotifyPlugin.Kafka, NotifyAction.DELETEGROUPTASK, item); });
+                        Task.Run(() => { _clock.InvokeNotify(GlobalStateName.MODTASK, NotifyPlugin.Kafka, NotifyAction.DELETEGROUPTASK, new DbpTask() { Taskid = item }); });
                     }
                 }
 
@@ -325,7 +326,7 @@ namespace IngestTaskPlugin.Controllers.v1
                         Logger.Error("SetGlobalState modtask error");
                     }
 
-                    Task.Run(() => { _clock.InvokeNotify(GlobalStateName.ADDTASK, NotifyPlugin.Kafka, NotifyAction.ADDTASK, f.Taskid, f); });
+                    Task.Run(() => { _clock.InvokeNotify(GlobalStateName.ADDTASK, NotifyPlugin.Kafka, NotifyAction.ADDTASK, f); });
                 }
 
                 return Response;
@@ -394,7 +395,7 @@ namespace IngestTaskPlugin.Controllers.v1
                         Logger.Error("SetGlobalState modtask error");
                     }
 
-                    Task.Run(() => { _clock.InvokeNotify(GlobalStateName.ADDTASK, NotifyPlugin.Kafka, NotifyAction.ADDTASK, f.Taskid, f); });
+                    Task.Run(() => { _clock.InvokeNotify(GlobalStateName.ADDTASK, NotifyPlugin.Kafka, NotifyAction.ADDTASK, f); });
                 }
 
                 return Response;
@@ -472,7 +473,7 @@ namespace IngestTaskPlugin.Controllers.v1
                         Logger.Error("SetGlobalState modtask error");
                     }
 
-                    Task.Run(() => { _clock.InvokeNotify(GlobalStateName.ADDTASK, NotifyPlugin.Kafka, NotifyAction.ADDTASK, f.Taskid, f); });
+                    Task.Run(() => { _clock.InvokeNotify(GlobalStateName.ADDTASK, NotifyPlugin.Kafka, NotifyAction.ADDTASK, f); });
                 }
 
 
@@ -596,7 +597,7 @@ namespace IngestTaskPlugin.Controllers.v1
                         Logger.Error("SetGlobalState modtask error");
                     }
 
-                    Task.Run(() => { _clock.InvokeNotify(GlobalStateName.MODTASK, NotifyPlugin.Kafka, NotifyAction.MODIFYTASK, pIn.taskModify.nTaskID, modifyTask); });
+                    Task.Run(() => { _clock.InvokeNotify(GlobalStateName.MODTASK, NotifyPlugin.Kafka, NotifyAction.MODIFYTASK, modifyTask); });
                 }
 
                 return Response;
@@ -662,7 +663,7 @@ namespace IngestTaskPlugin.Controllers.v1
                         Logger.Error("SetGlobalState modtask error");
                     }
 
-                    Task.Run(() => { _clock.InvokeNotify(GlobalStateName.MODTASK, NotifyPlugin.Kafka, NotifyAction.MODIFYTASK, pIn.taskModify.nTaskID, modifyTask); });
+                    Task.Run(() => { _clock.InvokeNotify(GlobalStateName.MODTASK, NotifyPlugin.Kafka, NotifyAction.MODIFYTASK,modifyTask); });
                 }
 
                 return Response;
@@ -773,7 +774,7 @@ namespace IngestTaskPlugin.Controllers.v1
                         Logger.Error("SetGlobalState modtask error");
                     }
 
-                    Task.Run(() => { _clock.InvokeNotify(GlobalStateName.MODTASK, NotifyPlugin.Kafka, NotifyAction.STOPTASK, nTaskID); });
+                    Task.Run(() => { _clock.InvokeNotify(GlobalStateName.MODTASK, NotifyPlugin.Kafka, NotifyAction.STOPTASK, new DbpTask() { Taskid = nTaskID }); });
                 }
                 return Response;
             }
@@ -815,7 +816,7 @@ namespace IngestTaskPlugin.Controllers.v1
                         Logger.Error("SetGlobalState modtask error");
                     }
 
-                    Task.Run(() => { _clock.InvokeNotify(GlobalStateName.MODTASK, NotifyPlugin.Kafka, NotifyAction.STOPTASK, nTaskID); });
+                    Task.Run(() => { _clock.InvokeNotify(GlobalStateName.MODTASK, NotifyPlugin.Kafka, NotifyAction.STOPTASK, new DbpTask() { Taskid = nTaskID } ); });
                 }
                 return Response;
             }
@@ -843,7 +844,8 @@ namespace IngestTaskPlugin.Controllers.v1
                 int result = await _taskManage.SetTaskState(nTaskID, nState);
                 if(result > 0)
                 {
-                    Task.Run(() => { _clock.InvokeNotify(GlobalStateName.MODTASK, NotifyPlugin.Kafka, NotifyAction.MODIFYTASKSTATE, nTaskID, nState); });
+                    Task.Run(() => { _clock.InvokeNotify(GlobalStateName.MODTASK, NotifyPlugin.Kafka, NotifyAction.MODIFYTASKSTATE, new DbpTask() { Taskid = nTaskID, State = nState } ); });
+
                 }
                 return Response;
             }
@@ -931,7 +933,7 @@ namespace IngestTaskPlugin.Controllers.v1
                 int result = await _taskManage.TrimTaskBeginTime(nTaskID, strStartTime);
                 if(result > 0)
                 {
-                    Task.Run(() => { _clock.InvokeNotify(GlobalStateName.MODTASK, NotifyPlugin.Kafka, NotifyAction.MODIFYTASKSTARTTIME, nTaskID, strStartTime); });
+                    Task.Run(() => { _clock.InvokeNotify(GlobalStateName.MODTASK, NotifyPlugin.Kafka, NotifyAction.MODIFYTASKSTARTTIME, new DbpTask() { Taskid = nTaskID, Starttime = DateTimeFormat.DateTimeFromString(strStartTime) } ); });
                 }
             }
             catch (Exception e)//其他未知的异常，写异常日志
@@ -995,7 +997,7 @@ namespace IngestTaskPlugin.Controllers.v1
                 }
                 await _taskManage.DeleteTask(nTaskID);
 
-                Task.Run(() => { _clock.InvokeNotify(GlobalStateName.DELTASK, NotifyPlugin.Kafka, NotifyAction.DELETETASK, nTaskID); });
+                Task.Run(() => { _clock.InvokeNotify(GlobalStateName.DELTASK, NotifyPlugin.Kafka, NotifyAction.DELETETASK, new DbpTask() { Taskid = nTaskID }); });
             }
             catch (Exception e)//其他未知的异常，写异常日志
             {
@@ -1261,7 +1263,7 @@ namespace IngestTaskPlugin.Controllers.v1
                         Logger.Error("SetGlobalState modtask error");
                     }
 
-                    Task.Run(() => { _clock.InvokeNotify(GlobalStateName.MODTASK, NotifyPlugin.Kafka, NotifyAction.MODIFYTASKCOOPTYPE, nTaskID, emCoopType); });
+                    Task.Run(() => { _clock.InvokeNotify(GlobalStateName.MODTASK, NotifyPlugin.Kafka, NotifyAction.MODIFYTASKCOOPTYPE, new DbpTask() { Taskid = nTaskID, Backtype = emCoopType } ); });
                 }
                 return back;
             }
@@ -1450,7 +1452,7 @@ namespace IngestTaskPlugin.Controllers.v1
                         Logger.Error("SetGlobalState modtask error");
                     }
 
-                    Task.Run(() => { _clock.InvokeNotify(GlobalStateName.MODTASK, NotifyPlugin.Kafka, NotifyAction.MODIFYTASK, iTaskID, tieupTask); });
+                    Task.Run(() => { _clock.InvokeNotify(GlobalStateName.MODTASK, NotifyPlugin.Kafka, NotifyAction.MODIFYTASK, tieupTask); });
                 }
                 return Response;
             }
@@ -1551,7 +1553,7 @@ namespace IngestTaskPlugin.Controllers.v1
                         Logger.Error("SetGlobalState modtask error");
                     }
 
-                    Task.Run(() => { _clock.InvokeNotify(GlobalStateName.MODTASK, NotifyPlugin.Kafka, NotifyAction.MODIFYPERIODCTASK, taskModify.nTaskID, newTask); });
+                    Task.Run(() => { _clock.InvokeNotify(GlobalStateName.MODTASK, NotifyPlugin.Kafka, NotifyAction.MODIFYPERIODCTASK,newTask); });
                 }
                 return Response;
             }
@@ -1749,8 +1751,8 @@ namespace IngestTaskPlugin.Controllers.v1
                         Logger.Error("SetGlobalState modtask error");
                     }
 
-                    Task.Run(() => { _clock.InvokeNotify(GlobalStateName.MODTASK, NotifyPlugin.Kafka, NotifyAction.STOPTASK, nOldTaskID); });
-                    Task.Run(() => { _clock.InvokeNotify(GlobalStateName.ADDTASK, NotifyPlugin.Kafka, NotifyAction.ADDTASK, task.Taskid, task); });
+                    Task.Run(() => { _clock.InvokeNotify(GlobalStateName.MODTASK, NotifyPlugin.Kafka, NotifyAction.STOPTASK, new DbpTask() { Taskid = nOldTaskID, Endtime = DateTimeFormat.DateTimeFromString(strStartTime) } ); });
+                    Task.Run(() => { _clock.InvokeNotify(GlobalStateName.ADDTASK, NotifyPlugin.Kafka, NotifyAction.ADDTASK, task); });
                 }
                 return Response;
             }
@@ -1817,7 +1819,7 @@ namespace IngestTaskPlugin.Controllers.v1
                         Logger.Error("SetGlobalState modtask error");
                     }
 
-                    Task.Run(() => { _clock.InvokeNotify(GlobalStateName.ADDTASK, NotifyPlugin.Kafka, NotifyAction.ADDTASK, f.Taskid, f); });
+                    Task.Run(() => { _clock.InvokeNotify(GlobalStateName.ADDTASK, NotifyPlugin.Kafka, NotifyAction.ADDTASK, f); });
                 }
                 Response.extention = f.Taskid;
                 return Response;
