@@ -9,14 +9,9 @@ namespace IngestDBCore.Notify
         public delegate void NotifyChangeHandler(object clock, NotifyArgs arg);
         public event NotifyChangeHandler NotifyChange;
 
-        public void InvokeNotify(string type, int intent, string action, int id)
+        public void InvokeNotify(string type, int intent, string action, object param)
         {
-            NotifyChange(this, new NotifyArgs(type, intent, action, id, null));
-        }
-
-        public void InvokeNotify(string type, int intent, string action, int id, object param)
-        {
-            NotifyChange(this, new NotifyArgs(type, intent, action, id, param));
+            NotifyChange(this, new NotifyArgs(type, intent, action, param));
         }
     }
 }
