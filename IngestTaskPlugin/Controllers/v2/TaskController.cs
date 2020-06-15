@@ -1688,7 +1688,7 @@ namespace IngestTaskPlugin.Controllers.v2
 
             try
             {
-                Response.Ext = await _taskManage.SplitTask(taskid, newguid, newname);
+                Response.Ext = await _taskManage.SplitTask<TaskContentResponse>(taskid, newguid, newname);
             }
             catch (Exception e)
             {

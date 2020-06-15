@@ -1206,7 +1206,7 @@ namespace IngestTaskPlugin.Managers
         }
         
 
-        public async Task<TaskContentResponse> SplitTask(int taskid, string newguid, string newname)
+        public async Task<TResult> SplitTask<TResult>(int taskid, string newguid, string newname)
         {
             var findtask = await Store.GetTaskAsync(a => a.Where(b => b.Taskid == taskid), true);
 
@@ -1319,7 +1319,52 @@ namespace IngestTaskPlugin.Managers
                         item.Value = strOldTaskName;
                         strSplitMetaData = sroot.ToString();
                     }
+                    else
+                    {
+                        item = sroot.Element("SplitMetaData");
+                        item.Add(new XElement("ORGTITLE", strOldTaskName));
+                        strSplitMetaData = sroot.ToString();
+
+                        if (string.IsNullOrEmpty(newname))
+                        {
+                            findtask.Taskname = strOldTaskName + "-1";
+                        }
+                        else
+                            findtask.Taskname = newname;
+                    }
                 }
+                
+                if (string.IsNullOrEmpty(newname))
+                {
+                    var lst = strOldTaskName.Split('-');
+                    if (lst.Length > 1)
+                    {
+                        int outlen = 0;
+                        if (Int32.TryParse(lst[lst.Length - 1], out outlen))
+                        {
+                            findtask.Taskname = string.Empty;
+                            for (int i = 0; i < lst.Length; i++)
+                            {
+                                if (i < lst.Length - 1)
+                                {
+                                    findtask.Taskname += lst[i];
+                                }
+                                else
+                                {
+                                    findtask.Taskname += "-";
+                                    findtask.Taskname += ++outlen;
+                                }
+                            }
+                        }
+                    }
+                    else
+                        findtask.Taskname = strOldTaskName + "-1";
+                }
+                else
+                {
+                    findtask.Taskname = newname;
+                }
+                
 
                 if (!string.IsNullOrEmpty(strStoreMetaData))
                 {
@@ -1327,7 +1372,7 @@ namespace IngestTaskPlugin.Managers
                     var item = mroot.Descendants("TITLE").FirstOrDefault();
                     if (item != null)
                     {
-                        item.Value = newname;
+                        item.Value = findtask.Taskname;
                     }
                     item = mroot.Descendants("MATERIALID").FirstOrDefault();
                     if (item != null)
@@ -1353,9 +1398,25 @@ namespace IngestTaskPlugin.Managers
                 addinfo.TaskSource = taskSrc;
                 addinfo.TaskContent = _mapper.Map<TaskContentRequest>(findtask);
                 var backinfo = await AddTaskWithoutPolicy(addinfo, strCapatureMetaData, strContentMetaData, strStoreMetaData, strPlanMetaData);
-                return _mapper.Map<TaskContentRequest>(backinfo);
+
+                Logger.Info("SplitTask {0}", addinfo.TaskContent.TaskID);
+
+                if (typeof(TResult) == typeof(SplitTask_OUT))
+                {
+                    var retinfo = new SplitTask_OUT();
+                    retinfo.taskSplit = _mapper.Map<TaskContent>(backinfo);
+                    retinfo.metaDataPairs = new List<MetadataPair>() {
+                        new MetadataPair() {nTaskID = addinfo.TaskContent.TaskID, emtype = MetaDataType.emCapatureMetaData, strMetadata = strCapatureMetaData},
+                        new MetadataPair() {nTaskID = addinfo.TaskContent.TaskID, emtype = MetaDataType.emStoreMetaData, strMetadata = strStoreMetaData},
+                        new MetadataPair() {nTaskID = addinfo.TaskContent.TaskID, emtype = MetaDataType.emContentMetaData, strMetadata = strContentMetaData},
+                        new MetadataPair() {nTaskID = addinfo.TaskContent.TaskID, emtype = MetaDataType.emSplitData, strMetadata = strSplitMetaData},
+                    };
+                    return _mapper.Map<TResult>(retinfo);
+                }
+
+                return _mapper.Map<TResult>(backinfo);
             }
-            return null;
+            return default(TResult);
         }
 
 

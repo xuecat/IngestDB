@@ -634,7 +634,8 @@ namespace IngestTaskPlugin.Dto.OldResponse
     }
     public class SplitTask_OUT
     {
-        public int nNewTaskID;
+        public TaskContent taskSplit;
+        public List<MetadataPair> metaDataPairs;
         public string errStr;
         public bool bRet;
     }

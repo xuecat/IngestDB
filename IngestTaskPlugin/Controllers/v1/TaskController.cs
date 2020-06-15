@@ -1375,9 +1375,12 @@ namespace IngestTaskPlugin.Controllers.v1
 
             try
             {
-                var rep = await _taskManage.SplitTask(pIn.nTaskID, pIn.strNewGUID, pIn.strNewName);
-                Response.nNewTaskID = rep.TaskID;
-                return Response;
+                var ret = await _taskManage.SplitTask<SplitTask_OUT>(pIn.nTaskID, pIn.strNewGUID, pIn.strNewName);
+
+                ret.bRet = true;
+                ret.errStr = "ok";
+                
+                return ret;
             }
             catch (Exception e)//其他未知的异常，写异常日志
             {
