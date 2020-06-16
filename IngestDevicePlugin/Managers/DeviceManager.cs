@@ -19,6 +19,7 @@ using taskState = IngestDevicePlugin.Dto.Enum.taskState;
 using emSignalSource = IngestDevicePlugin.Dto.Enum.emSignalSource;
 using IngestDevicePlugin.Dto.OldResponse;
 using IngestDBCore.Tool;
+using System.Text.RegularExpressions;
 
 namespace IngestDevicePlugin.Managers
 {
@@ -91,8 +92,9 @@ namespace IngestDevicePlugin.Managers
         /// <summary> 获取所有信号源 </summary>
         public virtual async Task<List<TResult>> GetAllSignalSrcsAsync<TResult>()
         {
-            return _mapper.Map<List<TResult>>(await Store.GetAllSignalsrcForRcdinAsync(true));
+            return _mapper.Map<List<TResult>>((await Store.GetAllSignalsrcForRcdinAsync(true)).CustomSort().ToList());
         }
+
 
         /// <summary> 获取所有信号源的扩展信息 </summary>
         public virtual async Task<List<TResult>> GetAllSignalSrcExsAsync<TResult>()
@@ -912,6 +914,23 @@ namespace IngestDevicePlugin.Managers
         }
 
         #endregion
+
+    }
+
+    public static class MyDbpSignalsrcExtensions
+    {
+        public static IEnumerable<DbpSignalsrc> CustomSort(this IEnumerable<DbpSignalsrc> list)
+        {
+            int maxLen = list.Select(s => s.Name.Length).Max();
+
+            return list.Select(s => new
+            {
+                OrgStr = s,
+                SortStr = Regex.Replace(s.Name, @"(\d+)|(\D+)", m => m.Value.PadLeft(maxLen, char.IsDigit(m.Value[0]) ? ' ' : '\xffff'))
+            })
+            .OrderBy(x => x.SortStr)
+            .Select(x => x.OrgStr);
+        }
 
     }
 }
