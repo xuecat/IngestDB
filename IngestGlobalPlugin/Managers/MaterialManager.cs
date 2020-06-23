@@ -201,7 +201,7 @@ namespace IngestGlobalPlugin.Managers
                 //
                 int id = Store.GetNextValId("DBP_SQ_MATERIALID");
                 //添加素材
-                string strGUID = Guid.NewGuid().ToString();
+                string strGUID = Guid.NewGuid().ToString("N");
                 int nClipState = (state == SAVE_IN_DB_STATE.SECOND_END || state == SAVE_IN_DB_STATE.SECOND_READY) ? 1 : 0;
 
                 bool bRet = (strResult == "1") ? true : false;
@@ -216,7 +216,7 @@ namespace IngestGlobalPlugin.Managers
                     Createtime = DateTime.Now,
                     Taskid = nTaskID,
                     Sectionid = nSectionID,
-                    Guid = Guid.NewGuid().ToString(),
+                    Guid = Guid.NewGuid().ToString("N"),
                     Clipstate = nClipState
                 }, false);
 
@@ -469,7 +469,7 @@ namespace IngestGlobalPlugin.Managers
             int nId = await Store.GetMaterial(a => a.MaxAsync(x => x.Materialid)) + 1;
 
             //添加素材
-            mtrl.strGUID = Guid.NewGuid().ToString();
+            mtrl.strGUID = Guid.NewGuid().ToString("N");
             
             mtrl.nID = nId;
             await Store.AddMaterial(_mapper.Map<DbpMaterial>(mtrl));

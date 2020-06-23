@@ -175,7 +175,7 @@ namespace IngestTaskPlugin.Managers
 
                 if (string.IsNullOrEmpty(info.TaskGUID))
                 {
-                    info.TaskGUID = Guid.NewGuid().ToString();
+                    info.TaskGUID = Guid.NewGuid().ToString("N");
                 }
 
                 var upload = Mapper.Map<VtrUploadtask>(info);
@@ -372,7 +372,7 @@ namespace IngestTaskPlugin.Managers
                 if (vtrTaskState == VTRUPLOADTASKSTATE.VTR_UPLOAD_COMMIT &&
                     (upload.Taskstate == (int)VTRUPLOADTASKSTATE.VTR_UPLOAD_COMPLETE))
                 {//已入库素材重新上载是，改变GUID以保证再次入库时不会覆盖前面的素材
-                    upload.Taskguid = Guid.NewGuid().ToString();
+                    upload.Taskguid = Guid.NewGuid().ToString("N");
                 }
 
                 upload.Taskstate = (int)vtrTaskState;
@@ -2182,7 +2182,7 @@ namespace IngestTaskPlugin.Managers
 
                 if (string.IsNullOrEmpty(task.strTaskGUID))
                 {
-                    task.strTaskGUID = Guid.NewGuid().ToString();
+                    task.strTaskGUID = Guid.NewGuid().ToString("N");
                 }
                 //task.emTaskState = VTRUPLOADTASKSTATE.VTR_UPLOAD_COMMIT;
 

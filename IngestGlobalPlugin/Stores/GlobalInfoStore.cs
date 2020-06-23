@@ -105,7 +105,7 @@ namespace IngestGlobalPlugin.Stores
 
                 if (objectstateinfo != null)
                 {
-                    objectstateinfo.Locklock = Guid.NewGuid().ToString();
+                    objectstateinfo.Locklock = Guid.NewGuid().ToString("N");
                     await Context.SaveChangesAsync();
                 }
             }
@@ -142,7 +142,7 @@ namespace IngestGlobalPlugin.Stores
 
                 if (objectstateinfo != null)
                 {
-                    objectstateinfo.Locklock = Guid.NewGuid().ToString();
+                    objectstateinfo.Locklock = Guid.NewGuid().ToString("N");
                     await Context.SaveChangesAsync();
                 }
             }
@@ -572,7 +572,7 @@ namespace IngestGlobalPlugin.Stores
         {
 
             int nEffectRow = 0;
-            string strTempLock = Guid.NewGuid().ToString();
+            string strTempLock = Guid.NewGuid().ToString("N");
 
             DateTime time = DateTime.Now.AddMilliseconds(TimeOut * (-1));
             var selectResult = Context.DbpObjectstateinfo.FirstOrDefault(x => x.Objectid == objectID && x.Objecttypeid == (int)objectTypeID && x.Username == userName && (x.Locklock == "" || x.Locklock == null || x.Begintime < time));

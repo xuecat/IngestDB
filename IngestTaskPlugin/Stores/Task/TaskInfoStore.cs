@@ -504,7 +504,7 @@ namespace IngestTaskPlugin.Stores
                 if (tasklst.Taskstate == (int)VTRUPLOADTASKSTATE.VTR_UPLOAD_COMPLETE
                     && vtrTaskState == VTRUPLOADTASKSTATE.VTR_UPLOAD_COMMIT)//已入库素材重新上载是，改变GUID以保证再次入库时不会覆盖前面的素材
                 {
-                    tasklst.Taskguid = Guid.NewGuid().ToString();
+                    tasklst.Taskguid = Guid.NewGuid().ToString("N");
                 }
                 //else
 
@@ -545,7 +545,7 @@ namespace IngestTaskPlugin.Stores
                 if ((vtrstate == VTRUPLOADTASKSTATE.VTR_UPLOAD_COMMIT)
                         && (itm.Taskstate == (Decimal)VTRUPLOADTASKSTATE.VTR_UPLOAD_COMPLETE))
                 {
-                    itm.Taskguid = Guid.NewGuid().ToString();
+                    itm.Taskguid = Guid.NewGuid().ToString("N");
                 }
 
                 itm.Taskstate = (int)vtrstate;
@@ -587,7 +587,7 @@ namespace IngestTaskPlugin.Stores
             if ((vtrstate == VTRUPLOADTASKSTATE.VTR_UPLOAD_COMMIT)
                     && (itm.Taskstate == (Decimal)VTRUPLOADTASKSTATE.VTR_UPLOAD_COMPLETE))
             {
-                itm.Taskguid = Guid.NewGuid().ToString();
+                itm.Taskguid = Guid.NewGuid().ToString("N");
             }
 
             itm.Taskstate = (int)vtrstate;
@@ -2860,7 +2860,7 @@ namespace IngestTaskPlugin.Stores
 
             if (item != null)
             {
-                item.Tasklock = Guid.NewGuid().ToString();
+                item.Tasklock = Guid.NewGuid().ToString("N");
                 await Context.SaveChangesAsync();
             }
             //Context.Entry(await Context.DbpTask.FirstOrDefaultAsync(x => x.Taskid == taskid)).CurrentValues.SetValues();

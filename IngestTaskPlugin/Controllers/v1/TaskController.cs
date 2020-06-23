@@ -98,7 +98,7 @@ namespace IngestTaskPlugin.Controllers.v1
                 }
 
                 if (pIn.Type == MetaDataType.emAmfsData)
-                    pIn.MateData = System.Guid.NewGuid().ToString();
+                    pIn.MateData = System.Guid.NewGuid().ToString("N");
 
                 await _taskManage.UpdateTaskMetaDataAsync(pIn.nTaskID, pIn.Type, pIn.MateData);
 
