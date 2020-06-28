@@ -223,7 +223,8 @@ namespace IngestTaskPlugin.Managers
         /// <param name="taskId">The 任务Id<see cref="int"/>.</param>
         /// <param name="type">The 元数据类型<see cref="MetaDataType"/>.</param>
         /// <param name="metadata">The 元数据<see cref="string"/>.</param>
-        public async Task SetVBUTasksMetadatasAsync(int taskId, MetaDataType type, string metadata)
+        /// <param name="isSubmit">是否需要提交<see cref="bool"/>.</param>
+        public async Task SetVBUTasksMetadatasAsync(int taskId, MetaDataType type, string metadata, bool isSubmit = true)
         {
             //需要将其中的三个字符串提取出来
             if (type == MetaDataType.emContentMetaData)
@@ -234,13 +235,13 @@ namespace IngestTaskPlugin.Managers
                 XElement xElement = XElement.Parse(metadata);
                 //xElement.LoadXml(metadata);
                 //XmlNode taskContentNode = doc.SelectSingleNode("/TaskContentMetaData");
-                var taskContentNode = xElement.Elements("TaskContentMetaData").FirstOrDefault();
-                if (taskContentNode != null)
+                //var taskContentNode = xElement.Elements("TaskContentMetaData").FirstOrDefault();
+                if (xElement != null && xElement.Name == "TaskContentMetaData")
                 {
-                    if (taskContentNode.HasElements)
+                    if (xElement.HasElements)
                     {
                         //XmlNode materialNode = doc.SelectSingleNode("/TaskContentMetaData/MetaMaterial");
-                        var materialNode = taskContentNode.Element("MetaMaterial");
+                        var materialNode = xElement.Element("MetaMaterial");
                         if (materialNode != null)
                         {
                             materialMeta = materialNode.Value;
@@ -249,7 +250,7 @@ namespace IngestTaskPlugin.Managers
                         }
 
                         //XmlNode planningNode = doc.SelectSingleNode("/TaskContentMetaData/MetaPlanning");
-                        var planningNode = taskContentNode.Element("MetaPlanning");
+                        var planningNode = xElement.Element("MetaPlanning");
                         if (planningNode != null)
                         {
                             planningMeta = planningNode.Value ;
@@ -258,7 +259,7 @@ namespace IngestTaskPlugin.Managers
                         }
 
                         //XmlNode originalNode = doc.SelectSingleNode("/TaskContentMetaData/MetaOriginal");
-                        var originalNode = taskContentNode.Element("MetaOriginal");
+                        var originalNode = xElement.Element("MetaOriginal");
                         if (originalNode != null)
                         {
                             originalMeta = originalNode.Value;
@@ -268,15 +269,21 @@ namespace IngestTaskPlugin.Managers
                     }
                 }
 
-                await TaskStore.UpdateTaskMetaDataAsync(taskId, MetaDataType.emStoreMetaData, materialMeta);
-                await TaskStore.UpdateTaskMetaDataAsync(taskId, MetaDataType.emPlanMetaData, planningMeta);
-                await TaskStore.UpdateTaskMetaDataAsync(taskId, MetaDataType.emOriginalMetaData, originalMeta);
-                await TaskStore.UpdateTaskMetaDataAsync(taskId, MetaDataType.emContentMetaData, xElement.Value);//doc.OuterXml);
+                await TaskStore.UpdateTaskMetaDataAsync(taskId, MetaDataType.emStoreMetaData, materialMeta,false);
+                await TaskStore.UpdateTaskMetaDataAsync(taskId, MetaDataType.emPlanMetaData, planningMeta, false);
+                await TaskStore.UpdateTaskMetaDataAsync(taskId, MetaDataType.emOriginalMetaData, originalMeta, false);
+                await TaskStore.UpdateTaskMetaDataAsync(taskId, MetaDataType.emContentMetaData, xElement.ToString(),false);//doc.OuterXml);
             }
             else
             {
-                await TaskStore.UpdateTaskMetaDataAsync(taskId, type, metadata);
+                await TaskStore.UpdateTaskMetaDataAsync(taskId, type, metadata,false);
             }
+
+            if (isSubmit)
+            {
+                await TaskStore.SaveChangeAsync();
+            }
+
         }
 
         /// <summary>
@@ -1408,6 +1415,14 @@ namespace IngestTaskPlugin.Managers
             }
             #endregion
 
+            if (metadatas != null)
+            {
+                foreach (VTR_UPLOAD_MetadataPair metadata in metadatas)
+                {
+                    await SetVBUTasksMetadatasAsync(vtrTask.nTaskId, (MetaDataType)metadata.emType, metadata.strMetadata, false);
+                }
+            }
+
             dbpTask.Usercode = "VTRBATCHUPLOAD_ERROR_OK";
             dbpTask.Tasklock = string.Empty;
             dbpTask = VTRUploadTaskContent2Dbptask(true, vtrTask, dbpTask, -1);
@@ -1425,15 +1440,15 @@ namespace IngestTaskPlugin.Managers
 
             Logger.Info("In ModifyNormalTaskToVTRUploadTask.Before Updating dataset");
             // 更新MetaData
-            if (metadatas != null)
-            {
-                Logger.Info("In ModifyNormalTaskToVTRUploadTask.Before Updating metadatas");
-                //foreach (VTR_UPLOAD_MetadataPair metadata in metadatas)
-                //{ 
-                //    await SetVBUTasksMetadatasAsync(vtrTask.nTaskId, (MetaDataType)metadata.emType, metadata.strMetadata);
-                //}
-                await UpdateTasksMetadatas(metadatas, vtrTask.nTaskId);
-            }
+            //if (metadatas != null)
+            //{
+            //    Logger.Info("In ModifyNormalTaskToVTRUploadTask.Before Updating metadatas");
+            //    //foreach (VTR_UPLOAD_MetadataPair metadata in metadatas)
+            //    //{ 
+            //    //    await SetVBUTasksMetadatasAsync(vtrTask.nTaskId, (MetaDataType)metadata.emType, metadata.strMetadata);
+            //    //}
+            //    await UpdateTasksMetadatas(metadatas, vtrTask.nTaskId);
+            //}
             Logger.Info("In ModifyNormalTaskToVTRUploadTask.Fin");
             return true;
         }
@@ -2176,7 +2191,7 @@ namespace IngestTaskPlugin.Managers
                 int tempId = task.nTaskId;
                 if (tempId < 0)
                 {
-                    task.nTaskId = IngestTaskDBContext.next_val("DBP_SQ_TASKID");
+                    task.nTaskId = TaskStore.GetNextValId("DBP_SQ_TASKID") ;//IngestTaskDBContext.next_val("DBP_SQ_TASKID");
                     taskIds.Add(task.nTaskId);
                 }
 
@@ -2192,7 +2207,7 @@ namespace IngestTaskPlugin.Managers
                     {
                         if (metadata.nTaskID == tempId)
                         {
-                            await SetVBUTasksMetadatasAsync(task.nTaskId, (MetaDataType)metadata.emType, metadata.strMetadata);
+                            await SetVBUTasksMetadatasAsync(task.nTaskId, (MetaDataType)metadata.emType, metadata.strMetadata, false);
                         }
                     }
                 }

@@ -891,6 +891,7 @@
         public async Task<TaskOldResponseMessage<Dto.OldResponse.OldVtr.AddVTRUploadTask_out>> AddVTRUploadTask([FromBody]AddVTRUploadTask_in pIn)
         {
             TaskOldResponseMessage<AddVTRUploadTask_out> response = new TaskOldResponseMessage<AddVTRUploadTask_out>();
+            response.extention = new AddVTRUploadTask_out();
             response.extention.errorCode = (int)VTR_BUT_ErrorCode.emNormal;
             if (pIn.vtrTask == null)
             {

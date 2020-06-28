@@ -538,13 +538,13 @@
             if (task != null)
             {
                 await Context.VtrUploadtask.AddAsync(task);
-                if (submitFlag)
-                {
-                    return await Context.SaveChangesAsync() > 0;
-                }
-                return true;
             }
-            return false;
+
+            if (submitFlag)
+            {
+                return await Context.SaveChangesAsync() > 0;
+            }
+            return true;
         }
 
         public async Task DeleteVtrUploadTask(VtrUploadtask task, bool submitFlag)

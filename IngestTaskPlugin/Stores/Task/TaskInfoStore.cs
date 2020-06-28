@@ -173,7 +173,7 @@ namespace IngestTaskPlugin.Stores
             if (!Track)
             {
                 lst = Context.DbpTask.AsNoTracking();
-                
+
             }
             else
             {
@@ -296,7 +296,7 @@ namespace IngestTaskPlugin.Stores
 
         public async Task UpdateTaskMetaDataAsync(int taskid, MetaDataType type, string metadata)
         {
-            var item = await Context.DbpTaskMetadata.Where(x => x.Taskid == taskid && x.Metadatatype == (int)type).SingleAsync();
+            var item = await Context.DbpTaskMetadata.Where(x => x.Taskid == taskid && x.Metadatatype == (int)type).FirstOrDefaultAsync();
             if (item == null)
             {
                 await Context.DbpTaskMetadata.AddAsync(new DbpTaskMetadata()
@@ -805,8 +805,8 @@ namespace IngestTaskPlugin.Stores
                 {
                     Context.DbpTask.Remove(taskinfo);
 
-                    
-                    Context.DbpTaskMetadata.RemoveRange(Context.DbpTaskMetadata.Where(x =>x.Taskid == taskinfo.Taskid).ToList());
+
+                    Context.DbpTaskMetadata.RemoveRange(Context.DbpTaskMetadata.Where(x => x.Taskid == taskinfo.Taskid).ToList());
 
                     try
                     {
@@ -815,7 +815,7 @@ namespace IngestTaskPlugin.Stores
                     catch (Exception e)
                     {
 
-                        throw e; 
+                        throw e;
                     }
                 }
                 else
@@ -1413,7 +1413,7 @@ namespace IngestTaskPlugin.Stores
                 ).ToListAsync();
 
             }
-            
+
             List<DbpTask> filtertask = new List<DbpTask>();
             foreach (var item in lstperiod)
             {
@@ -1438,13 +1438,13 @@ namespace IngestTaskPlugin.Stores
 
             if (filtertask != null && filtertask.Count > 0)
             {
-                filtertask.RemoveAll(x => (!IsConflict(x.Starttime, x.Endtime, begin, end)) || (nTaskID>0&&x.Taskid == nTaskID));
+                filtertask.RemoveAll(x => (!IsConflict(x.Starttime, x.Endtime, begin, end)) || (nTaskID > 0 && x.Taskid == nTaskID));
 
                 if (filtertask.Count > 0)
                 {
                     string info = "GetFreeChannels period conficttask " + string.Join(",", filtertask.Select(y => y.Taskid).ToList());
                     Logger.Info(info);
-                   
+
                     ConfictTaskInfo += info;
 
                     var periodch = filtertask.Select(x => x.Channelid).ToList();
@@ -1452,11 +1452,11 @@ namespace IngestTaskPlugin.Stores
                 }
             }
 
-            if (lstchn != null&& lstchn.Count > 0)
+            if (lstchn != null && lstchn.Count > 0)
             {
                 lst.RemoveAll(z => lstchn.Contains(z));
             }
-            
+
             return lst;
         }
 
@@ -1777,7 +1777,7 @@ namespace IngestTaskPlugin.Stores
             && (x.State != (int)taskState.tsDelete /*|| x.State == (int)taskState.tsExecuting*/)
             && (x.DispatchState == (int)dispatchState.dpsDispatched || x.DispatchState == (int)dispatchState.dpsNotDispatch));
 
-            if (nChannelID >0)
+            if (nChannelID > 0)
             {
                 query = query.Where(x => x.Channelid == nChannelID);
             }
@@ -1817,7 +1817,7 @@ namespace IngestTaskPlugin.Stores
                             var addExcludeList = GetDateTimeFromString(Category);
                             var cmpExcludeList = GetDateTimeFromString(item.Category);
 
-                            
+
                             while (dtStartCheck.Date <= dtEndCheck.Date)
                             {
                                 bool exita = false;
@@ -1869,7 +1869,7 @@ namespace IngestTaskPlugin.Stores
                                     //outCheckContent = checkContent;
                                     //outCheckContent.strBegin = dtStartCheck.ToString();
 
-                                    DateTime dtnewitembegin = new DateTime(dtStartCheck.Year, dtStartCheck.Month, dtStartCheck.Day, 
+                                    DateTime dtnewitembegin = new DateTime(dtStartCheck.Year, dtStartCheck.Month, dtStartCheck.Day,
                                         item.Starttime.Hour, item.Starttime.Minute, item.Starttime.Second);
                                     DateTime dtnewitemend = new DateTime(dtStartCheck.Year, dtStartCheck.Month, dtStartCheck.Day,
                                         item.Endtime.Hour, item.Endtime.Minute, item.Endtime.Second);
@@ -1970,7 +1970,7 @@ namespace IngestTaskPlugin.Stores
                 if (filterconficttasklst != null && filterconficttasklst.Count > 0)
                 {
                     Logger.Info("GetFreePerodiChannels period filterconficttasklst" + string.Join(",", filterconficttasklst));
-                   
+
                     lst.RemoveAll(z => filterconficttasklst.Any(h => h.Channelid == z));
                 }
 
@@ -2126,7 +2126,7 @@ namespace IngestTaskPlugin.Stores
 
                 }
             }
-            
+
             if (!string.IsNullOrEmpty(PlanningMeta))
             {
                 //var itm = new DbpTaskMetadata() { Taskid = task.Taskid, Metadatatype = (int)MetaDataType.emPlanMetaData, Metadatalong = PlanningMeta };
@@ -2855,7 +2855,7 @@ namespace IngestTaskPlugin.Stores
 
         public async Task LockTask(int taskid)
         {
-            
+
             var item = await Context.DbpTask.Where(x => x.Taskid == taskid).SingleOrDefaultAsync();
 
             if (item != null)
@@ -2885,7 +2885,7 @@ namespace IngestTaskPlugin.Stores
             }
         }
 
-        
+
         public int GetNextValId(string value)
         {
             return Context.DbpTask.Select(x => IngestTaskDBContext.next_val(value)).FirstOrDefault();
@@ -3009,16 +3009,14 @@ namespace IngestTaskPlugin.Stores
             if (policytasks != null && policytasks.Count > 0)
             {
                 await Context.DbpPolicytask.AddRangeAsync(policytasks);
-
-                if (submitFlag)
-                {
-                    return await Context.SaveChangesAsync() > 0;
-                }
-
-                return true;
             }
 
-            return false;
+            if (submitFlag)
+            {
+                return await Context.SaveChangesAsync() > 0;
+            }
+
+            return true;
         }
 
         public async Task UpdateTaskListAsync(List<DbpTask> lst, bool submitFlag)
@@ -3026,16 +3024,17 @@ namespace IngestTaskPlugin.Stores
             if (lst != null && lst.Count > 0)
             {
                 Context.DbpTask.UpdateRange(lst);
-                if (submitFlag)
+            }
+
+            if (submitFlag)
+            {
+                try
                 {
-                    try
-                    {
-                        await Context.SaveChangesAsync();
-                    }
-                    catch (DbUpdateException e)
-                    {
-                        throw e;
-                    }
+                    await Context.SaveChangesAsync();
+                }
+                catch (DbUpdateException e)
+                {
+                    throw e;
                 }
             }
         }
@@ -3061,7 +3060,11 @@ namespace IngestTaskPlugin.Stores
 
         public async Task UpdateTaskMetaDataAsync(int taskid, MetaDataType type, string metadata, bool submitFlag)
         {
-            var item = await Context.DbpTaskMetadata.Where(x => x.Taskid == taskid && x.Metadatatype == (int)type).SingleAsync();
+            if (string.IsNullOrEmpty(metadata))
+            {
+                return;
+            }
+            var item = await Context.DbpTaskMetadata.Where(x => x.Taskid == taskid && x.Metadatatype == (int)type).FirstOrDefaultAsync();
             if (item == null)
             {
                 await Context.DbpTaskMetadata.AddAsync(new DbpTaskMetadata()
