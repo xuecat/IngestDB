@@ -400,15 +400,19 @@ namespace IngestTaskPlugin.Managers
         public async Task<TResult> GetTaskInfoByID<TResult>(int taskid, int change)
         {
             var item = await Store.GetTaskAsync(a => a.Where(b => b.Taskid == taskid), true);
-            if (item.DispatchState == (int)dispatchState.dpsInvalid)
+            if (item != null)
             {
-                item.State = (int)taskState.tsDelete;
+                if (item.DispatchState == (int)dispatchState.dpsInvalid)
+                {
+                    item.State = (int)taskState.tsDelete;
+                }
+                else if (item.DispatchState == (int)dispatchState.dpsRedispatch)
+                {
+                    item.State = (int)taskState.tsInvaild;
+                }
+                return _mapper.Map<TResult>(item);
             }
-            else if (item.DispatchState == (int)dispatchState.dpsRedispatch)
-            {
-                item.State = (int)taskState.tsInvaild;
-            }
-            return _mapper.Map<TResult>(item);
+            return default(TResult);
         }
 
         public async Task<List<TResult>> GetScheduleFailedTasks<TResult>()
