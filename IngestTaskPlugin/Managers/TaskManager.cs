@@ -543,7 +543,7 @@ namespace IngestTaskPlugin.Managers
             return null;
         }
 
-        public async Task<string> GetChannelCapturingLowMaterial(int channelid, IIngestGlobalInterface global)
+        public async ValueTask<string> GetChannelCapturingLowMaterial(int channelid, IIngestGlobalInterface global)
         {
             if (_deviceInterface != null)
             {
@@ -655,7 +655,7 @@ namespace IngestTaskPlugin.Managers
             return null;
         }
 
-        private async Task<int> GetRescheduleChannel(DbpTask taskinfo, List<MSVChannelStateInterface> lstmsvstate)
+        private async ValueTask<int> GetRescheduleChannel(DbpTask taskinfo, List<MSVChannelStateInterface> lstmsvstate)
         {
             var lstchn = await TryDispatchTask(taskinfo, true);
 
@@ -814,7 +814,7 @@ namespace IngestTaskPlugin.Managers
 
         
 
-        public async virtual Task<string> UpdateMetadataPropertyAsync(int taskid, int type, List<PropertyResponse> lst)
+        public async virtual ValueTask<string> UpdateMetadataPropertyAsync(int taskid, int type, List<PropertyResponse> lst)
         {
             var f = await Store.GetTaskMetaDataAsync(a => a
             .Where(b => b.Taskid == taskid && b.Metadatatype == type));
@@ -865,7 +865,7 @@ namespace IngestTaskPlugin.Managers
             //return _mapper.Map<TResult>(f);
         }
 
-        public async Task<bool> SetTaskCooperType(int taskid, CooperantType ct)
+        public async ValueTask<bool> SetTaskCooperType(int taskid, CooperantType ct)
         {
             var findtask = await Store.GetTaskAsync(a => a.Where(b => b.Taskid == taskid));
             findtask.Backtype = (int)ct;
@@ -884,7 +884,7 @@ namespace IngestTaskPlugin.Managers
         /// <remarks>
         /// Add by chenzhi 2013-07-30
         /// </remarks>
-        public async Task<string> GetCaptureTemplateBySignalIdAndUserCode(int SignalId, bool usetokencode, string userCode, IIngestGlobalInterface global)
+        public async ValueTask<string> GetCaptureTemplateBySignalIdAndUserCode(int SignalId, bool usetokencode, string userCode, IIngestGlobalInterface global)
         {
             string strCaptureTemplate = string.Empty;
 
@@ -993,7 +993,7 @@ namespace IngestTaskPlugin.Managers
         }
 
 
-        public async Task<string> ModifyCaptureParamPath(bool busetokencode, string userToken, string strCaptureParam)
+        public async ValueTask<string> ModifyCaptureParamPath(bool busetokencode, string userToken, string strCaptureParam)
         {
             try
             {
@@ -1120,7 +1120,7 @@ namespace IngestTaskPlugin.Managers
             return string.Empty;
         }
 
-        public async Task<string> Update24HoursTask(int ntaskid, long oldlen, int oldclipnum, string newname, string newguid, int index)
+        public async ValueTask<string> Update24HoursTask(int ntaskid, long oldlen, int oldclipnum, string newname, string newguid, int index)
         {
             Logger.Info(string.Format("Update24HoursTask {0} {1} {2} {3}", ntaskid, newname, oldlen, newguid));
 
@@ -1424,7 +1424,7 @@ namespace IngestTaskPlugin.Managers
         }
 
 
-        public async Task<int> ChooseUsealbeChannel(List<int> lstchannelid, DateTime dtbegin, DateTime dtend)
+        public async ValueTask<int> ChooseUsealbeChannel(List<int> lstchannelid, DateTime dtbegin, DateTime dtend)
         {
             
             if (_deviceInterface != null)
@@ -1462,7 +1462,7 @@ namespace IngestTaskPlugin.Managers
 
         
 
-        public async Task<bool> LockTask(int taskid)
+        public async ValueTask<bool> LockTask(int taskid)
         {
             await Store.LockTask(taskid);
             return true;
@@ -1470,7 +1470,7 @@ namespace IngestTaskPlugin.Managers
 
         
 
-        public async Task<bool> CompleteRescheduleTasks<T>(T re)
+        public async ValueTask<bool> CompleteRescheduleTasks<T>(T re)
         {
             var taskinfo = _mapper.Map<TaskContentRequest>(re);
 
@@ -1517,18 +1517,18 @@ namespace IngestTaskPlugin.Managers
             return _mapper.Map<TResult>(f);
         }
 
-        public async Task<int> StopTask(int taskid, DateTime dt)
+        public ValueTask<int> StopTask(int taskid, DateTime dt)
         {
-            return await Store.StopTask(taskid, dt);
+            return Store.StopTask(taskid, dt);
         }
 
-        public async Task<int> DeleteTask(int taskid)
+        public ValueTask<int> DeleteTask(int taskid)
         {
             Logger.Info("DeleteTask " + taskid);
-            return await Store.DeleteTask(taskid);
+            return Store.DeleteTask(taskid);
         }
 
-        public async Task<int> SetTaskClassify(int taskid, string classify)
+        public async ValueTask<int> SetTaskClassify(int taskid, string classify)
         {
             var taskinf = await Store.GetTaskAsync(a => a.Where(b => b.Taskid == taskid));
             taskinf.Category = classify;
@@ -1536,7 +1536,7 @@ namespace IngestTaskPlugin.Managers
             return taskid;
         }
 
-        public async Task<int> SetTaskState(int taskid, int state)
+        public async ValueTask<int> SetTaskState(int taskid, int state)
         {
             var taskinfo = await Store.GetTaskAsync(a => a.Where(b => b.Taskid == taskid));
 
@@ -1579,7 +1579,7 @@ namespace IngestTaskPlugin.Managers
             return taskid;
         }
 
-        public async Task<int> TrimTaskBeginTime(int taskid, string StartTime)
+        public async ValueTask<int> TrimTaskBeginTime(int taskid, string StartTime)
         {
             var taskinfo = await Store.GetTaskAsync(a => a.Where(b => b.Taskid == taskid));
 
@@ -1848,7 +1848,7 @@ namespace IngestTaskPlugin.Managers
             return null;
         }
 
-        public async Task<int> GetTaskIDByTaskGUID(string taskguid)
+        public async ValueTask<int> GetTaskIDByTaskGUID(string taskguid)
         {
             var task = await Store.GetTaskAsync(a => a.Where(b => b.Taskguid==taskguid).Select(f => f.Taskid), true);
             if (task <= 0)
@@ -2390,7 +2390,7 @@ namespace IngestTaskPlugin.Managers
             return false;
         }
 
-        public async Task<bool> UnlockAllTasks()
+        public async ValueTask<bool> UnlockAllTasks()
         {
             await Store.UnLockAllTask();
             return await SetPeriodTaskToNextTime();
@@ -2617,7 +2617,7 @@ namespace IngestTaskPlugin.Managers
             return _mapper.Map<TResult>(addtask);
         }
 
-        public async Task<bool> SetPeriodTaskToNextTime()
+        public async ValueTask<bool> SetPeriodTaskToNextTime()
         {
             var dt = DateTime.Now;
             var lsttask = await Store.GetTaskListAsync(a => a.Where(b => b.Tasktype == (int)TaskType.TT_PERIODIC && b.OldChannelid == 0
@@ -2644,7 +2644,7 @@ namespace IngestTaskPlugin.Managers
             return true;
         }
 
-        public async Task<int> UpdateComingTasks()
+        public async ValueTask<int> UpdateComingTasks()
         {
             var date= DateTime.Now.AddDays(-1);
             var dt = DateTime.Now.AddHours(1);
@@ -3499,7 +3499,7 @@ namespace IngestTaskPlugin.Managers
             return null;
         }
 
-        public async Task<int> CHSelectForNormalTask(TaskContentRequest request, CHSelCondition condition)
+        public async ValueTask<int> CHSelectForNormalTask(TaskContentRequest request, CHSelCondition condition)
         {
             Logger.Info((string.Format("###Begin to Select channel for Normal task:{0}, signalid:{1}, channelid:{2}, bBackupCH:{3}, bCheckState:{4}, nBaseCH:{5}, OnlyLocal:{6},bExcuting:{7}",
             request.TaskID, request.SignalID, request.ChannelID,
@@ -3539,7 +3539,7 @@ namespace IngestTaskPlugin.Managers
             return -1;
         }
 
-        public async Task<int> CHSelectForPeriodicTask(TaskContentRequest request, CHSelCondition condition)
+        public async ValueTask<int> CHSelectForPeriodicTask(TaskContentRequest request, CHSelCondition condition)
         {
             Logger.Info((string.Format("###Begin to Select channel for Normal task:{0}, signalid:{1}, channelid:{2}, bBackupCH:{3}, bCheckState:{4}, nBaseCH:{5}, OnlyLocal:{6},bExcuting:{7}",
             request.TaskID, request.SignalID, request.ChannelID,
