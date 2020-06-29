@@ -398,14 +398,14 @@ namespace IngestGlobalPlugin.Managers
 
             return strResult;
         }
-        public async Task<bool> UpdateMqMsgStatus(string msgId, int nActionID, MqmsgStatus msgStatus, int nFailedCount)
+        public Task<bool> UpdateMqMsgStatus(string msgId, int nActionID, MqmsgStatus msgStatus, int nFailedCount)
         {
-            return await Store.UpdateMqMsgStatusAsync(msgId, nActionID, msgStatus, nFailedCount);
+            return Store.UpdateMqMsgStatusAsync(msgId, nActionID, msgStatus, nFailedCount);
         }
 
-        public async Task<bool> DeleteMqMsgStatus(DateTime dt)
+        public Task<bool> DeleteMqMsgStatus(DateTime dt)
         {
-            return await Store.DeleteMqMsgStatusAsync(dt);
+            return Store.DeleteMqMsgStatusAsync(dt);
         }
 
 

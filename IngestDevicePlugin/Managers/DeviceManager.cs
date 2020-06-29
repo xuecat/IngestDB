@@ -97,7 +97,7 @@ namespace IngestDevicePlugin.Managers
 
 
         /// <summary> 获取所有信号源的扩展信息 </summary>
-        public virtual async Task<List<TResult>> GetAllSignalSrcExsAsync<TResult>()
+        public async Task<List<TResult>> GetAllSignalSrcExsAsync<TResult>()
         {
             var allSignalSrcExs = _mapper.Map<List<SignalSrcExResponse>>(await Store.GetSignalSrcExsAsync(a => a, true));
             if (allSignalSrcExs.Count > 0)
@@ -202,9 +202,9 @@ namespace IngestDevicePlugin.Managers
 
         /// <summary> 查询信号源是否是备份信号源 </summary>
         /// <param name="signalID">信号Id</param>
-        public virtual async Task<bool> IsBackupSignalSrcByIdAsync(int signalID)
+        public virtual Task<bool> IsBackupSignalSrcByIdAsync(int signalID)
         {
-            return await Store.GetSignalSrcExsAsync(async a => await a.AnyAsync(x => x.Signalsrcid == signalID && x.Ismastersrc == 0), true);
+            return Store.GetSignalSrcExsAsync(async a => await a.AnyAsync(x => x.Signalsrcid == signalID && x.Ismastersrc == 0), true);
         }
 
         /// <summary>
@@ -749,9 +749,9 @@ namespace IngestDevicePlugin.Managers
             return _mapper.Map<List<TResult>>(lstchn);
         }
 
-        public virtual async Task<bool> HaveMatrixAsync()
+        public virtual Task<bool> HaveMatrixAsync()
         {
-            return await Store.HaveMatirxAsync();
+            return Store.HaveMatirxAsync();
         }
 
 

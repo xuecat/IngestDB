@@ -45,9 +45,9 @@ namespace IngestGlobalPlugin.Managers
         }
 
         //add or update global value
-        public async Task<bool> UpdateGlobalValueAsync(string strKey, string strValue)
+        public Task<bool> UpdateGlobalValueAsync(string strKey, string strValue)
         {
-            return await Store.UpdateGlobalValueAsync(strKey, strValue);
+            return Store.UpdateGlobalValueAsync(strKey, strValue);
         }
 
         public async Task<TResult> GetDefaultSTCAsync<TResult>(TC_MODE tcMode)
@@ -510,9 +510,9 @@ namespace IngestGlobalPlugin.Managers
         }
 
         //delete by templateId
-        public async Task DeleteUserTemplateAsync(int TemplateID)
+        public Task DeleteUserTemplateAsync(int TemplateID)
         {
-            await Store.DeleteUserTemplateAsync(TemplateID);
+            return Store.DeleteUserTemplateAsync(TemplateID);
         }
 
         //delete user param map

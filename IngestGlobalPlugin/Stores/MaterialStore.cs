@@ -19,11 +19,11 @@ namespace IngestGlobalPlugin.Stores
             Context = baseDataDbContext;
         }
         #region Base
-        public async Task<int> DbContextSaveChange()
+        public Task<int> DbContextSaveChange()
         {
-            return await Context.SaveChangesAsync();
+            return Context.SaveChangesAsync();
         }
-        public async Task<List<TResult>> QueryList<TModel, TResult>(Func<IQueryable<TModel>, IQueryable<TResult>> query, bool notrack = false)
+        public Task<List<TResult>> QueryList<TModel, TResult>(Func<IQueryable<TModel>, IQueryable<TResult>> query, bool notrack = false)
             where TModel : class
         {
             if (query == null)
@@ -32,11 +32,11 @@ namespace IngestGlobalPlugin.Stores
             }
             if (notrack)
             {
-                return await query.Invoke(Context.Set<TModel>().AsNoTracking()).ToListAsync();
+                return query.Invoke(Context.Set<TModel>().AsNoTracking()).ToListAsync();
             }
-            return await query.Invoke(Context.Set<TModel>()).ToListAsync();
+            return query.Invoke(Context.Set<TModel>()).ToListAsync();
         }
-        public async Task<TResult> QueryModel<TModel, TResult>(Func<IQueryable<TModel>, Task<TResult>> query, bool notrack = false)
+        public Task<TResult> QueryModel<TModel, TResult>(Func<IQueryable<TModel>, Task<TResult>> query, bool notrack = false)
             where TModel : class
         {
             if (query == null)
@@ -45,9 +45,9 @@ namespace IngestGlobalPlugin.Stores
             }
             if (notrack)
             {
-                return await query.Invoke(Context.Set<TModel>().AsNoTracking());
+                return query.Invoke(Context.Set<TModel>().AsNoTracking());
             }
-            return await query.Invoke(Context.Set<TModel>());
+            return query.Invoke(Context.Set<TModel>());
         }
         #endregion
 
@@ -85,7 +85,7 @@ namespace IngestGlobalPlugin.Stores
             return await query.Invoke(Context.DbpMsmqmsg).FirstOrDefaultAsync();
         }
 
-        public async Task<TResult> GetFormateInfoAsync<TResult>(Func<IQueryable<DbpFileformatinfo>, IQueryable<TResult>> query, bool notrack = false)
+        public Task<TResult> GetFormateInfoAsync<TResult>(Func<IQueryable<DbpFileformatinfo>, IQueryable<TResult>> query, bool notrack = false)
         {
             if (query == null)
             {
@@ -93,9 +93,9 @@ namespace IngestGlobalPlugin.Stores
             }
             if (notrack)
             {
-                return await query.Invoke(Context.DbpFileformatinfo.AsNoTracking()).FirstOrDefaultAsync();
+                return query.Invoke(Context.DbpFileformatinfo.AsNoTracking()).FirstOrDefaultAsync();
             }
-            return await query.Invoke(Context.DbpFileformatinfo).FirstOrDefaultAsync();
+            return query.Invoke(Context.DbpFileformatinfo).FirstOrDefaultAsync();
         }
 
         public async Task<TResult> GetMsgFailedRecordAsync<TResult>(Func<IQueryable<DbpMsgFailedrecord>, IQueryable<TResult>> query, bool notrack = false)
@@ -136,7 +136,7 @@ namespace IngestGlobalPlugin.Stores
             }
             return await query.Invoke(Context.DbpMaterial).FirstOrDefaultAsync();
         }
-        public async Task<List<TResult>> GetMaterialArchiveListAsync<TResult>(Func<IQueryable<DbpMaterialArchive>, IQueryable<TResult>> query, bool notrack = false)
+        public Task<List<TResult>> GetMaterialArchiveListAsync<TResult>(Func<IQueryable<DbpMaterialArchive>, IQueryable<TResult>> query, bool notrack = false)
         {
             if (query == null)
             {
@@ -144,11 +144,11 @@ namespace IngestGlobalPlugin.Stores
             }
             if (notrack)
             {
-                return await query.Invoke(Context.DbpMaterialArchive.AsNoTracking()).ToListAsync();
+                return query.Invoke(Context.DbpMaterialArchive.AsNoTracking()).ToListAsync();
             }
-            return await query.Invoke(Context.DbpMaterialArchive).ToListAsync();
+            return query.Invoke(Context.DbpMaterialArchive).ToListAsync();
         }
-        public async Task<List<TResult>> GetMaterialListAsync<TResult>(Func<IQueryable<DbpMaterial>, IQueryable<TResult>> query, bool notrack = false)
+        public Task<List<TResult>> GetMaterialListAsync<TResult>(Func<IQueryable<DbpMaterial>, IQueryable<TResult>> query, bool notrack = false)
         {
             if (query == null)
             {
@@ -156,12 +156,12 @@ namespace IngestGlobalPlugin.Stores
             }
             if (notrack)
             {
-                return await query.Invoke(Context.DbpMaterial.AsNoTracking()).ToListAsync();
+                return query.Invoke(Context.DbpMaterial.AsNoTracking()).ToListAsync();
             }
-            return await query.Invoke(Context.DbpMaterial).ToListAsync();
+            return query.Invoke(Context.DbpMaterial).ToListAsync();
         }
 
-        public async Task<List<TResult>> GetMsgFailedRecordListAsync<TResult>(Func<IQueryable<DbpMsgFailedrecord>, IQueryable<TResult>> query, bool notrack = false)
+        public Task<List<TResult>> GetMsgFailedRecordListAsync<TResult>(Func<IQueryable<DbpMsgFailedrecord>, IQueryable<TResult>> query, bool notrack = false)
         {
             if (query == null)
             {
@@ -169,19 +169,19 @@ namespace IngestGlobalPlugin.Stores
             }
             if (notrack)
             {
-                return await query.Invoke(Context.DbpMsgFailedrecord.AsNoTracking()).ToListAsync();
+                return query.Invoke(Context.DbpMsgFailedrecord.AsNoTracking()).ToListAsync();
             }
-            return await query.Invoke(Context.DbpMsgFailedrecord).ToListAsync();
+            return query.Invoke(Context.DbpMsgFailedrecord).ToListAsync();
         }
 
-        public async Task<List<DbpMsmqmsg>> GetNeedProcessMsg(int statu, DateTime dtnext)
+        public Task<List<DbpMsmqmsg>> GetNeedProcessMsg(int statu, DateTime dtnext)
         {
-            return await Context.DbpMsmqmsg.AsNoTracking().Where(a => a.Msgstatus == statu && a.Nextretry < dtnext).ToListAsync();
+            return Context.DbpMsmqmsg.AsNoTracking().Where(a => a.Msgstatus == statu && a.Nextretry < dtnext).ToListAsync();
         }
 
-        public async Task<List<FailedMessageParam>> GetMsgContentByTaskid(int taskid)
+        public Task<List<FailedMessageParam>> GetMsgContentByTaskid(int taskid)
         {
-            return await (from mq in Context.DbpMsgFailedrecord.AsNoTracking()
+            return (from mq in Context.DbpMsgFailedrecord.AsNoTracking()
                                join fail in Context.DbpMsmqmsg.AsNoTracking() on mq.MsgGuid equals fail.Msgid  into ps
                                from p in ps.DefaultIfEmpty()
                                where mq.TaskId == taskid
@@ -193,14 +193,14 @@ namespace IngestGlobalPlugin.Stores
                                }).ToListAsync();
         }
 
-        public async Task<int> CountFailedRecordTask(int taskid)
+        public Task<int> CountFailedRecordTask(int taskid)
         {
-            return await Context.DbpMsgFailedrecord.AsNoTracking().CountAsync(a => a.TaskId == taskid);
+            return Context.DbpMsgFailedrecord.AsNoTracking().CountAsync(a => a.TaskId == taskid);
         }
 
-        public async Task<int> CountFailedRecordTaskAndSection(int taskid, int section)
+        public Task<int> CountFailedRecordTaskAndSection(int taskid, int section)
         {
-            return await Context.DbpMsgFailedrecord.AsNoTracking().CountAsync(a => a.TaskId == taskid&&a.SectionId != section);
+            return Context.DbpMsgFailedrecord.AsNoTracking().CountAsync(a => a.TaskId == taskid&&a.SectionId != section);
         }
 
         public async Task AddMaterial(DbpMaterial pin, bool savechange)
@@ -381,13 +381,13 @@ namespace IngestGlobalPlugin.Stores
         }
 
         #region DbpMaterial
-        public async Task<List<TResult>> GetMaterial<TResult>(Func<IQueryable<DbpMaterial>, IQueryable<TResult>> query, bool notrack = false)
+        public Task<List<TResult>> GetMaterial<TResult>(Func<IQueryable<DbpMaterial>, IQueryable<TResult>> query, bool notrack = false)
         {
-            return await QueryList(query, notrack);
+            return QueryList(query, notrack);
         }
-        public async Task<TResult> GetMaterial<TResult>(Func<IQueryable<DbpMaterial>, Task<TResult>> query, bool notrack = false)
+        public Task<TResult> GetMaterial<TResult>(Func<IQueryable<DbpMaterial>, Task<TResult>> query, bool notrack = false)
         {
-            return await QueryModel(query, notrack);
+            return QueryModel(query, notrack);
         }
         public async Task<bool> AddMaterial(DbpMaterial material)
         {
@@ -426,9 +426,9 @@ namespace IngestGlobalPlugin.Stores
         {
             return await QueryList(query, notrack);
         }
-        public async Task<TResult> GetMaterialArchive<TResult>(Func<IQueryable<DbpMaterialArchive>, Task<TResult>> query, bool notrack = false)
+        public Task<TResult> GetMaterialArchive<TResult>(Func<IQueryable<DbpMaterialArchive>, Task<TResult>> query, bool notrack = false)
         {
-            return await QueryModel(query, notrack);
+            return QueryModel(query, notrack);
         }
         public async Task<bool> AddOrUpdateMaterialArchive(List<DbpMaterialArchive> materialArchives)
         {
@@ -566,9 +566,9 @@ namespace IngestGlobalPlugin.Stores
         #endregion
 
         #region DbpPolicytask
-        public async Task<List<TResult>> GetPolicyTask<TResult>(Func<IQueryable<DbpPolicytask>, IQueryable<TResult>> query, bool notrack = false)
+        public Task<List<TResult>> GetPolicyTask<TResult>(Func<IQueryable<DbpPolicytask>, IQueryable<TResult>> query, bool notrack = false)
         {
-            return await QueryList(query, notrack);
+            return QueryList(query, notrack);
         }
         public async Task<TResult> GetPolicyTask<TResult>(Func<IQueryable<DbpPolicytask>, Task<TResult>> query, bool notrack = false)
         {

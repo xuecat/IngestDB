@@ -23,9 +23,8 @@ namespace IngestGlobalPlugin.Stores
             Context = baseDataDbContext;
         }
 
-        #region Objectstateinfo
-        //get objinfo
-        public async Task<TResult> GetObjectstateinfoAsync<TResult>(Func<IQueryable<DbpObjectstateinfo>, IQueryable<TResult>> query, bool notrack = false)
+        protected Task<List<TResult>> QueryListAsync<TDbp, TResult>(DbSet<TDbp> contextSet, Func<IQueryable<TDbp>, IQueryable<TResult>> query, bool notrack = false)
+            where TDbp : class
         {
             if (query == null)
             {
@@ -33,9 +32,25 @@ namespace IngestGlobalPlugin.Stores
             }
             if (notrack)
             {
-                return await query.Invoke(Context.DbpObjectstateinfo.AsNoTracking()).FirstOrDefaultAsync();
+                return query(contextSet.AsNoTracking()).ToListAsync();
             }
-            return await query.Invoke(Context.DbpObjectstateinfo).FirstOrDefaultAsync();
+            return query(contextSet).ToListAsync();
+        }
+
+
+        #region Objectstateinfo
+        //get objinfo
+        public Task<TResult> GetObjectstateinfoAsync<TResult>(Func<IQueryable<DbpObjectstateinfo>, IQueryable<TResult>> query, bool notrack = false)
+        {
+            if (query == null)
+            {
+                throw new ArgumentNullException(nameof(query));
+            }
+            if (notrack)
+            {
+                return query.Invoke(Context.DbpObjectstateinfo.AsNoTracking()).FirstOrDefaultAsync();
+            }
+            return query.Invoke(Context.DbpObjectstateinfo).FirstOrDefaultAsync();
         }
 
         //get objinfo list
@@ -257,7 +272,7 @@ namespace IngestGlobalPlugin.Stores
 
         #region global method
         //excute global
-        public async Task<TResult> GetGlobalAsync<TResult>(Func<IQueryable<DbpGlobal>, IQueryable<TResult>> query, bool notrack = false)
+        public Task<TResult> GetGlobalAsync<TResult>(Func<IQueryable<DbpGlobal>, IQueryable<TResult>> query, bool notrack = false)
         {
 
             //var result = Context.DbpUsertemplate.FromSql("select next_val('DBP_SQ_UESRTEMPLATEID')");// .ExecuteSqlCommand("select next_val('DBP_SQ_UESRTEMPLATEID')");
@@ -270,9 +285,9 @@ namespace IngestGlobalPlugin.Stores
             }
             if (notrack)
             {
-                return await query.Invoke(Context.DbpGlobal.AsNoTracking()).FirstOrDefaultAsync();
+                return query.Invoke(Context.DbpGlobal.AsNoTracking()).FirstOrDefaultAsync();
             }
-            return await query.Invoke(Context.DbpGlobal).FirstOrDefaultAsync();
+            return query.Invoke(Context.DbpGlobal).FirstOrDefaultAsync();
         }
 
         public async Task<string> GetGlobalValueStringAsync(string strKey)
@@ -344,7 +359,7 @@ namespace IngestGlobalPlugin.Stores
             return await query.Invoke(Context.DbpGlobalState).FirstOrDefaultAsync();
         }
 
-        public async Task<List<TResult>> GetGlobalStateListAsync<TResult>(Func<IQueryable<DbpGlobalState>, IQueryable<TResult>> query, bool notrack = false)
+        public Task<List<TResult>> GetGlobalStateListAsync<TResult>(Func<IQueryable<DbpGlobalState>, IQueryable<TResult>> query, bool notrack = false)
         {
             if (query == null)
             {
@@ -352,9 +367,9 @@ namespace IngestGlobalPlugin.Stores
             }
             if (notrack)
             {
-                return await query.Invoke(Context.DbpGlobalState.AsNoTracking()).ToListAsync();
+                return query.Invoke(Context.DbpGlobalState.AsNoTracking()).ToListAsync();
             }
-            return await query.Invoke(Context.DbpGlobalState).ToListAsync();
+            return query.Invoke(Context.DbpGlobalState).ToListAsync();
         }
 
         public async Task<List<DbpGlobalState>> GetAllGlobalStateAsync()
@@ -648,7 +663,7 @@ namespace IngestGlobalPlugin.Stores
         #endregion
 
         #region User
-        public async Task<TResult> GetUserSettingAsync<TResult>(Func<IQueryable<DbpUsersettings>, IQueryable<TResult>> query, bool notrack = false)
+        public Task<TResult> GetUserSettingAsync<TResult>(Func<IQueryable<DbpUsersettings>, IQueryable<TResult>> query, bool notrack = false)
         {
             if (query == null)
             {
@@ -656,9 +671,9 @@ namespace IngestGlobalPlugin.Stores
             }
             if (notrack)
             {
-                return await query.Invoke(Context.DbpUsersetting.AsNoTracking()).FirstOrDefaultAsync();
+                return query.Invoke(Context.DbpUsersetting.AsNoTracking()).FirstOrDefaultAsync();
             }
-            return await query.Invoke(Context.DbpUsersetting).FirstOrDefaultAsync();
+            return query.Invoke(Context.DbpUsersetting).FirstOrDefaultAsync();
         }
 
         //add or update
@@ -695,7 +710,7 @@ namespace IngestGlobalPlugin.Stores
         #region CaptureTemplate
 
 
-        public async Task<TResult> GetCaptureparamtemplateAsync<TResult>(Func<IQueryable<DbpCaptureparamtemplate>, IQueryable<TResult>> query, bool notrack = false)
+        public Task<TResult> GetCaptureparamtemplateAsync<TResult>(Func<IQueryable<DbpCaptureparamtemplate>, IQueryable<TResult>> query, bool notrack = false)
         {
             if (query == null)
             {
@@ -703,9 +718,9 @@ namespace IngestGlobalPlugin.Stores
             }
             if (notrack)
             {
-                return await query.Invoke(Context.DbpCaptureparamtemplate.AsNoTracking()).SingleOrDefaultAsync();
+                return query.Invoke(Context.DbpCaptureparamtemplate.AsNoTracking()).SingleOrDefaultAsync();
             }
-            return await query.Invoke(Context.DbpCaptureparamtemplate).SingleOrDefaultAsync();
+            return query.Invoke(Context.DbpCaptureparamtemplate).SingleOrDefaultAsync();
         }
 
         public async Task<List<TResult>> GetCaptureparamtemplateListAsync<TResult>(Func<IQueryable<DbpCaptureparamtemplate>, IQueryable<TResult>> query, bool notrack = false)
@@ -821,7 +836,7 @@ namespace IngestGlobalPlugin.Stores
 
         #region UserTemplate
 
-        public async Task<TResult> GetUsertemplateAsync<TResult>(Func<IQueryable<DbpUsertemplate>, IQueryable<TResult>> query, bool notrack = false)
+        public Task<TResult> GetUsertemplateAsync<TResult>(Func<IQueryable<DbpUsertemplate>, IQueryable<TResult>> query, bool notrack = false)
         {
             if (query == null)
             {
@@ -829,12 +844,12 @@ namespace IngestGlobalPlugin.Stores
             }
             if (notrack)
             {
-                return await query.Invoke(Context.DbpUsertemplate.AsNoTracking()).FirstOrDefaultAsync();
+                return query.Invoke(Context.DbpUsertemplate.AsNoTracking()).FirstOrDefaultAsync();
             }
-            return await query.Invoke(Context.DbpUsertemplate).FirstOrDefaultAsync();
+            return query.Invoke(Context.DbpUsertemplate).FirstOrDefaultAsync();
         }
 
-        public async Task<List<TResult>> GetUsertemplateLstAsync<TResult>(Func<IQueryable<DbpUsertemplate>, IQueryable<TResult>> query, bool notrack = false)
+        public Task<List<TResult>> GetUsertemplateLstAsync<TResult>(Func<IQueryable<DbpUsertemplate>, IQueryable<TResult>> query, bool notrack = false)
         {
             if (query == null)
             {
@@ -842,9 +857,9 @@ namespace IngestGlobalPlugin.Stores
             }
             if (notrack)
             {
-                return await query.Invoke(Context.DbpUsertemplate.AsNoTracking()).ToListAsync();
+                return query.Invoke(Context.DbpUsertemplate.AsNoTracking()).ToListAsync();
             }
-            return await query.Invoke(Context.DbpUsertemplate).ToListAsync();
+            return query.Invoke(Context.DbpUsertemplate).ToListAsync();
         }
 
         public async Task InsertUserTemplateAsync(int templateID, string userCode, string templateName, string templateContent)
@@ -935,7 +950,7 @@ namespace IngestGlobalPlugin.Stores
             }
         }
 
-        public async Task<TResult> GetUserParamMapAsync<TResult>(Func<IQueryable<DbpUserparamMap>, IQueryable<TResult>> query, bool notrack = false)
+        public Task<TResult> GetUserParamMapAsync<TResult>(Func<IQueryable<DbpUserparamMap>, IQueryable<TResult>> query, bool notrack = false)
         {
             if (query == null)
             {
@@ -943,9 +958,9 @@ namespace IngestGlobalPlugin.Stores
             }
             if (notrack)
             {
-                return await query.Invoke(Context.DbpUserparamMap.AsNoTracking()).FirstOrDefaultAsync();
+                return query.Invoke(Context.DbpUserparamMap.AsNoTracking()).FirstOrDefaultAsync();
             }
-            return await query.Invoke(Context.DbpUserparamMap).FirstOrDefaultAsync();
+            return query.Invoke(Context.DbpUserparamMap).FirstOrDefaultAsync();
         }
 
         public async Task<List<TResult>> GetUserParamMapListAsync<TResult>(Func<IQueryable<DbpUserparamMap>, IQueryable<TResult>> query, bool notrack = false)
