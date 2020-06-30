@@ -81,7 +81,7 @@ namespace IngestTaskPlugin.Managers
         /// <param name="tapeName">The 磁带名称<see cref="string"/>.</param>
         /// <param name="tapeDesc">The 磁带描述<see cref="string"/>.</param>
         /// <returns>The 磁带Id <see cref="Task{int}"/>.</returns>
-        public async Task<int> SetTapeInfoAsync(int tapeId, string tapeName, string tapeDesc)
+        public async ValueTask<int> SetTapeInfoAsync(int tapeId, string tapeName, string tapeDesc)
         {
             var newTapeId = await VtrStore.SaveTaplist(new VtrTapelist
             { Tapeid = tapeId, Tapename = tapeName, Tapedesc = tapeDesc });
@@ -94,8 +94,8 @@ namespace IngestTaskPlugin.Managers
         /// <param name="vtrId">The VtrId <see cref="int"/>.</param>
         /// <param name="tapeId">The 磁带Id <see cref="int"/>.</param>
         /// <returns>The 是否成功<see cref="Task"/>.</returns>
-        public async Task<bool> SetVtrTapeMapAsync(int vtrId, int tapeId)
-        { return await VtrStore.SaveTapeVtrMap(new VtrTapeVtrMap { Vtrid = vtrId, Tapeid = tapeId }); }
+        public ValueTask<bool> SetVtrTapeMapAsync(int vtrId, int tapeId)
+        { return VtrStore.SaveTapeVtrMap(new VtrTapeVtrMap { Vtrid = vtrId, Tapeid = tapeId }); }
 
         /// <summary>
         /// The 获得所有的磁带信息.
@@ -112,7 +112,7 @@ namespace IngestTaskPlugin.Managers
         /// </summary>
         /// <param name="vtrId">The vtrId<see cref="int"/>.</param>
         /// <returns>The 默认磁带ID<see cref="Task{int}"/>.</returns>
-        public async Task<int> GetVtrTapeItemAsync(int vtrId)
+        public async ValueTask<int> GetVtrTapeItemAsync(int vtrId)
         {
             return await VtrStore.GetTapeVtrMap(a => a.Where(x => x.Vtrid == vtrId)
                 .Select(x => x.Tapeid)
@@ -134,7 +134,7 @@ namespace IngestTaskPlugin.Managers
         /// </summary>
         /// <param name="uploadTaskInfo">The VTR任务信息<see cref="VTRUploadTaskInfo"/>.</param>
         /// <returns>The 影响的Vtr任务Id<see cref="Task{int}"/>.</returns>
-        public async Task<int> SetVTRUploadTaskInfoAsync<TRequest>(TRequest uploadTaskInfo)
+        public async ValueTask<int> SetVTRUploadTaskInfoAsync<TRequest>(TRequest uploadTaskInfo)
         {
             VTRUploadTaskInfoResponse info = Mapper.Map<VTRUploadTaskInfoResponse>(uploadTaskInfo);
 
@@ -358,8 +358,8 @@ namespace IngestTaskPlugin.Managers
         /// <param name="taskId">The taskId<see cref="int"/>.</param>
         /// <param name="taskState">The vtr任务状态<see cref="int"/>.</param>
         /// <returns>The 是否更新成功<see cref="Task{bool}"/>.</returns>
-        public async Task<bool> UpdateUploadTaskStateAsync(int taskId, VTRUPLOADTASKSTATE taskState)
-        { return await SetVTRUploadTaskStateAsync(taskId, taskState, string.Empty); }
+        public ValueTask<bool> UpdateUploadTaskStateAsync(int taskId, VTRUPLOADTASKSTATE taskState)
+        { return SetVTRUploadTaskStateAsync(taskId, taskState, string.Empty); }
 
         /// <summary>
         /// The 根据taskId 更新 Vtr上传任务状态..
@@ -368,7 +368,7 @@ namespace IngestTaskPlugin.Managers
         /// <param name="vtrTaskState">The vtr任务状态<see cref="VTRUPLOADTASKSTATE"/>.</param>
         /// <param name="errorContent">The 错误内容<see cref="string"/>.</param>
         /// <returns>The 是否更新成功 <see cref="Task{bool}"/>.</returns>
-        public async Task<bool> SetVTRUploadTaskStateAsync(int taskId,
+        public async ValueTask<bool> SetVTRUploadTaskStateAsync(int taskId,
                                                            VTRUPLOADTASKSTATE vtrTaskState,
                                                            string errorContent)
         {
@@ -511,7 +511,7 @@ namespace IngestTaskPlugin.Managers
         /// <param name="userCode">The userCode<see cref="string"/>.</param>
         /// <param name="vtrTaskId">The vtrTaskId<see cref="int"/>.</param>
         /// <returns>The 是否添加成功<see cref="Task"/>.</returns>
-        private async Task<bool> AddPolicyTaskByUserCode(string userCode, int vtrTaskId)
+        private async ValueTask<bool> AddPolicyTaskByUserCode(string userCode, int vtrTaskId)
         {
             List<DbpPolicytask> tasks = new List<DbpPolicytask>();
             //首先根据User ID查找Policy ID
@@ -538,7 +538,7 @@ namespace IngestTaskPlugin.Managers
         /// <param name="vtrId">The vtrId<see cref="int"/>.</param>
         /// <param name="exTaskId">The exTaskId<see cref="int"/>.</param>
         /// <returns>The 是否可用<see cref="Task{bool}"/>.</returns>
-        private async Task<bool> IsTimePeriodUsable(TimePeriod tp, int channelId, int vtrId, int exTaskId)
+        private async ValueTask<bool> IsTimePeriodUsable(TimePeriod tp, int channelId, int vtrId, int exTaskId)
         {
             //对进行修改的任务的开始与结束时间段，判断其通道和vtr是否可用
             VTRTimePeriods vtrFreeTimePeriods = new VTRTimePeriods(vtrId);
@@ -1247,7 +1247,7 @@ namespace IngestTaskPlugin.Managers
         //! @return true 成功执行
         //!
         //----------------------------------------------------------------
-        public async Task<bool> ModifyNormalTaskToVTRUploadTaskAsync(VTRUploadTaskContent vtrTask, List<VTR_UPLOAD_MetadataPair> metadatas, DbpTask dbpTask)
+        public async ValueTask<bool> ModifyNormalTaskToVTRUploadTaskAsync(VTRUploadTaskContent vtrTask, List<VTR_UPLOAD_MetadataPair> metadatas, DbpTask dbpTask)
         {
             Logger.Info("ModifyNormalTaskToVTRUploadTask  In ModifyNormalTaskToVTRUploadTask");
             if (vtrTask == null)
@@ -1594,7 +1594,7 @@ namespace IngestTaskPlugin.Managers
             return Mapper.Map<TResult>(result.FirstOrDefault());
         }
 
-        public async Task<int> CommitVTRBatchUploadTasksAsync(List<int> taskIds, bool ignoreWrong)
+        public async ValueTask<int> CommitVTRBatchUploadTasksAsync(List<int> taskIds, bool ignoreWrong)
         {
             //如果是暂存的任务，将它分配通道，
             //如果是执行失败的任务，可以重新分配通道进行（素材方面不好处理）
@@ -2515,7 +2515,7 @@ namespace IngestTaskPlugin.Managers
             return Mapper.Map<TResult>(task);
         }
 
-        public async Task<string> GetVtrTaskMetaDataAsync(int taskId, int type)
+        public async ValueTask<string> GetVtrTaskMetaDataAsync(int taskId, int type)
         {
             var metadata = await TaskStore.GetTaskMetaDataAsync(a => a.Where(x => x.Taskid == taskId && x.Metadatatype == type), true);
             var result = string.IsNullOrWhiteSpace(metadata?.Metadata) ? metadata?.Metadatalong : metadata?.Metadata;
@@ -2527,7 +2527,7 @@ namespace IngestTaskPlugin.Managers
             return result;
         }
 
-        private async Task<bool> AddTempSaveVTRBUTasks(List<VTRUploadTaskContent> tempSaveTasks, List<VTR_UPLOAD_MetadataPair> metadatas)
+        private async ValueTask<bool> AddTempSaveVTRBUTasks(List<VTRUploadTaskContent> tempSaveTasks, List<VTR_UPLOAD_MetadataPair> metadatas)
         {
             if (tempSaveTasks.Count <= 0)
             {

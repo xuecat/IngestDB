@@ -254,7 +254,7 @@
         /// </summary>
         /// <param name="tapeMap">The tapeMap<see cref="VtrTapeVtrMap"/>.</param>
         /// <returns>The <see cref="Task{bool}"/>.</returns>
-        public async Task<bool> SaveTapeVtrMap(VtrTapeVtrMap tapeMap)
+        public async ValueTask<bool> SaveTapeVtrMap(VtrTapeVtrMap tapeMap)
         {
             var oldMap = await Context.VtrTapeVtrMap.FirstOrDefaultAsync(a => a.Vtrid == tapeMap.Vtrid);
             if (oldMap != null)

@@ -130,7 +130,7 @@
         /// </summary>
         /// <param name="tapeMap">The 保存的磁带映射<see cref="VtrTapeVtrMap"/>.</param>
         /// <returns>The 是否成功<see cref="Task{bool}"/>.</returns>
-        Task<bool> SaveTapeVtrMap(VtrTapeVtrMap tapeMap);
+        ValueTask<bool> SaveTapeVtrMap(VtrTapeVtrMap tapeMap);
 
         /// <summary>
         /// The 查询Task任务.

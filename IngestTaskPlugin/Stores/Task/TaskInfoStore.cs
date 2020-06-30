@@ -727,7 +727,7 @@ namespace IngestTaskPlugin.Stores
             return taskid;
         }
 
-        public async Task<int> DeleteTask(int taskid)
+        public async ValueTask<int> DeleteTask(int taskid)
         {
             var taskinfo = await GetTaskAsync(a => a.Where(b => b.Taskid == taskid));
             if (taskinfo == null)
@@ -857,7 +857,7 @@ namespace IngestTaskPlugin.Stores
             return taskinfo.Taskid;
         }
 
-        public async Task<int> StopTask(int taskid, DateTime dt)
+        public async ValueTask<int> StopTask(int taskid, DateTime dt)
         {
             var taskinfo = await GetTaskAsync(a => a.Where(b => b.Taskid == taskid));
             if (taskinfo == null)
