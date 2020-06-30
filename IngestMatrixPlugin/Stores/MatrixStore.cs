@@ -19,7 +19,7 @@ namespace IngestMatrixPlugin.Stores
         private readonly ILogger Logger = LoggerManager.GetLogger("MatrixStore");
         protected IngestMatrixDBContext Context { get; }
 
-        public async Task<List<TResult>> QueryList<TEntity, TResult>(Func<IQueryable<TEntity>, IQueryable<TResult>> query, bool notrack = false) where TEntity : class
+        public Task<List<TResult>> QueryList<TEntity, TResult>(Func<IQueryable<TEntity>, IQueryable<TResult>> query, bool notrack = false) where TEntity : class
         {
             if (query == null)
             {
@@ -27,9 +27,9 @@ namespace IngestMatrixPlugin.Stores
             }
             if (notrack)
             {
-                return await query(Context.Set<TEntity>().AsNoTracking()).ToListAsync();
+                return query(Context.Set<TEntity>().AsNoTracking()).ToListAsync();
             }
-            return await query(Context.Set<TEntity>()).ToListAsync();
+            return query(Context.Set<TEntity>()).ToListAsync();
         }
 
         public async Task<TResult> QueryModel<TEntity, TResult>(Func<IQueryable<TEntity>, Task<TResult>> query, bool notrack = false) where TEntity : class
@@ -223,9 +223,9 @@ namespace IngestMatrixPlugin.Stores
         #endregion
 
         #region DbpRcdindesc
-        public async Task<List<TResult>> QueryRcdindesc<TResult>(Func<IQueryable<DbpRcdindesc>, IQueryable<TResult>> query, bool notrack = false)
+        public Task<List<TResult>> QueryRcdindesc<TResult>(Func<IQueryable<DbpRcdindesc>, IQueryable<TResult>> query, bool notrack = false)
         {
-            return await QueryList(query, notrack);
+            return QueryList(query, notrack);
         }
         public async Task<TResult> QueryRcdindesc<TResult>(Func<IQueryable<DbpRcdindesc>, Task<TResult>> query, bool notrack = false)
         {

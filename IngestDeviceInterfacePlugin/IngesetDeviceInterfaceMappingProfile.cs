@@ -26,6 +26,7 @@ namespace IngestDeviceInterfacePlugin
             CreateMap<ResponseMessage<ProgrammeInfoResponse>, ResponseMessage<ProgrammeInfoInterface>>().ReverseMap();
 
             CreateMap<ResponseMessage<List<MSVChannelStateResponse>>, ResponseMessage<List<MSVChannelStateInterface>>>().ReverseMap();
+            CreateMap<ResponseMessage<List<CaptureDeviceInfoResponse>>, ResponseMessage<List<CaptureDeviceInfoInterface>>>().ReverseMap();
 
         }
     }

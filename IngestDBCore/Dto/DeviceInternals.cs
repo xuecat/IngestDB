@@ -20,7 +20,8 @@ namespace IngestDBCore
             AllChannelState,
             ChannelExtendData,
             AllCaptureChannels,
-            AllRouterInPort
+            AllRouterInPort,
+            AllCaptureDevice
             /////////////////////////////set信息//
         }
 
@@ -237,6 +238,24 @@ namespace IngestDBCore
         public int RCInportIdx { get; set; }
         public int SignalSrcID { get; set; }
         public emSignalSource SignalSource { get; set; } = emSignalSource.emSatlitlleSource;//信号来源， 0:卫星 1:总控矩阵 2 视频服务器 3: VTR 4: MSV  5 蓝光  其他以后再扩展
+    }
+
+    public class CaptureDeviceInfoInterface
+    {
+        /// <summary>Id</summary>
+        public int ID { get; set; }
+
+        /// <summary>设备类型 当前为0</summary>
+        public int DeviceTypeID { get; set; }
+
+        /// <summary>设备名称</summary>
+        public string DeviceName { get; set; }
+
+        /// <summary>IP</summary>
+        public string IP { get; set; }
+
+        /// <summary>序号</summary>
+        public int OrderCode { get; set; }
     }
 
 }

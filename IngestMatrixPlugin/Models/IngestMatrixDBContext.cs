@@ -206,6 +206,10 @@ namespace IngestMatrixPlugin.Models
                     .HasColumnName("SIGNALSOURCE")
                     .HasColumnType("int(11)")
                     .HasDefaultValueSql("'0'");
+
+                entity.Property(e => e.Ipaddress)
+                    .HasColumnName("IPADDRESS")
+                    .HasColumnType("varchar(255)");
             });
 
             modelBuilder.Entity<DbpRcdoutdesc>(entity =>

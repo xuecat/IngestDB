@@ -9,5 +9,6 @@ namespace IngestMatrixPlugin.Models.DB
         public int Rcdeviceid { get; set; }
         public int Recinidx { get; set; }
         public int? Signalsource { get; set; }
+        public string Ipaddress { get; set; }
     }
 }

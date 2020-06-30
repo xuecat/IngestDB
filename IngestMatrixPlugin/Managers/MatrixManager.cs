@@ -4,6 +4,7 @@ using System.Linq;
 using System.Threading.Tasks;
 using AutoMapper;
 using IngestDBCore;
+using IngestDBCore.Interface;
 using IngestDBCore.Tool;
 using IngestMatrixPlugin.Dto.Vo;
 using IngestMatrixPlugin.Models.DB;
@@ -17,11 +18,12 @@ namespace IngestMatrixPlugin.Managers
 {
     public class MatrixManager
     {
-        public MatrixManager(IMatrixStore store, IMapper mapper, RestClient client)
+        public MatrixManager(IMatrixStore store, IMapper mapper, RestClient client, IIngestDeviceInterface device)
         {
             _restClient = client;
             Store = store;
             _mapper = mapper ?? throw new ArgumentNullException(nameof(mapper));
+            _deviceInterface = device;
         }
 
         private readonly ILogger Logger = LoggerManager.GetLogger("MatrixStoreManager");
@@ -32,6 +34,8 @@ namespace IngestMatrixPlugin.Managers
         protected IMatrixStore Store { get; }
         /// <summary> 数据映射器 </summary>
         protected IMapper _mapper { get; }
+
+        private IIngestDeviceInterface _deviceInterface { get; }
 
         public async Task<bool> SwitchInOutAsync(long inPort, long outPort)
         {
@@ -134,7 +138,77 @@ namespace IngestMatrixPlugin.Managers
                 //把切换的日志全部打出来
                 Logger.Info(JsonConvert.SerializeObject(param));
 
-                MatrixOldResponseMessage msg = await MatrixSwitch(param);
+                //MatrixOldResponseMessage msg = await MatrixSwitch(param);
+                var dbpRcdindesc = (await Store.QueryRcdindesc(a => a.Where(x => x.Recinidx == inPort))).FirstOrDefault();
+                if (dbpRcdindesc == null)
+                {
+                    Logger.Error($"call DBAccessMatrixInfo::SwitchInOutByArea(), no inport {inPort} .");
+                    if (!await RecoverReleasedRoutAndPort(releasedVirtualPortList, releasedRoutList))
+                    {
+                        Logger.Error("In module MatrixService!call CIVirtualMatrix::SwitchInOut(),recover the released rout and port failed!");
+                    }
+                    return false;
+                }
+
+                var dbpRcdoutdesc = (await Store.QueryRcdoutdesc(a => a.Where(x => x.Recoutidx == outPort))).FirstOrDefault();
+                if (dbpRcdoutdesc == null)
+                {
+                    Logger.Error($"call DBAccessMatrixInfo::SwitchInOutByArea(), no outport {outPort} .");
+                    if (!await RecoverReleasedRoutAndPort(releasedVirtualPortList, releasedRoutList))
+                    {
+                        Logger.Error("In module MatrixService!call CIVirtualMatrix::SwitchInOut(),recover the released rout and port failed!");
+                    }
+                    return false;
+                }
+
+                MatrixOldResponseMessage msg = null;
+                if (dbpRcdindesc.Signalsource == 7)
+                {
+                    string msvip = string.Empty;
+                    int msvport = -1;
+                    if (_deviceInterface != null)
+                    {
+                        var response = await _deviceInterface.GetDeviceCallBack(new DeviceInternals()
+                        {
+                            funtype = IngestDBCore.DeviceInternals.FunctionType.AllCaptureDevice
+                        });
+
+                        var deviceInfos = response as ResponseMessage<List<CaptureDeviceInfoInterface>>;
+
+                        msvip = deviceInfos.Ext?.FirstOrDefault(x=>x.DeviceTypeID == dbpRcdoutdesc.Recoutidx)?.IP;
+
+                        response = await _deviceInterface.GetDeviceCallBack(new DeviceInternals()
+                        {
+                            funtype = IngestDBCore.DeviceInternals.FunctionType.AllCaptureChannels
+                        });
+
+                        var channelsInfos = response as ResponseMessage<List<CaptureChannelInfoInterface>>;
+                        msvport = (int)channelsInfos.Ext?.FirstOrDefault(x => x.CPDeviceID == dbpRcdoutdesc.Recoutidx)?.ChannelIndex;
+
+                    }
+
+                    Logger.Error($"call SwitchInOutAsync, msvip: {msvip},msvport:{msvport}, dbpRcdindesc.Ipaddress:{dbpRcdindesc.Ipaddress}.");
+
+                    if (!ApplicationContext.Current.CtrlSDK.Relecate(msvip, msvport, dbpRcdindesc.Ipaddress))
+                    {
+                        Logger.Error($"切换rtmp矩阵失败，直接return");
+                        if (!await RecoverReleasedRoutAndPort(releasedVirtualPortList, releasedRoutList))
+                        {
+                            Logger.Error("In module MatrixService!call CIVirtualMatrix::SwitchInOut(),recover the released rout and port failed!");
+                        }
+                        //切换失败，直接返回
+                        return false;
+                    }
+
+                    msg = new MatrixOldResponseMessage();
+                    msg.nCode = 1;
+                    msg.message = "ok";
+                }
+                else
+                {
+                    msg = await MatrixSwitch(param);
+                }
+
                 if (msg == null|| msg.nCode == 0)
                 {
                     Logger.Error("切换矩阵失败，直接return");

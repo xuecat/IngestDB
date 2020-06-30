@@ -27,9 +27,10 @@ namespace IngestTaskInterfacePlugin
             {
                 case FunctionType.ChannelInfoBySrc:
                     {
-                        return _mapper.Map< ResponseMessage <List< CaptureChannelInfoInterface >>>(
+                        return _mapper.Map<ResponseMessage<List<CaptureChannelInfoInterface>>>(
                             await _controller.ChannelsByProgrammeId(examineResponse.SrcId, examineResponse.Status));
-                    } break;
+                    }
+                    break;
 
                 case FunctionType.SingnalIDByChannel:
                     {
@@ -38,7 +39,7 @@ namespace IngestTaskInterfacePlugin
 
                 case FunctionType.ChannelUnitMap:
                     {
-                            return await _controller.GetChannelUnitMapID(examineResponse.ChannelId);
+                        return await _controller.GetChannelUnitMapID(examineResponse.ChannelId);
                     }
 
                 case FunctionType.BackSignalByID:
@@ -51,7 +52,7 @@ namespace IngestTaskInterfacePlugin
                 case FunctionType.CaptureTemplateIDBySignal:
                     {
                         return await _controller.CaptureTemplateId(examineResponse.SrcId);
-                    } 
+                    }
 
                 case FunctionType.AllChannelState:
                     {
@@ -71,38 +72,42 @@ namespace IngestTaskInterfacePlugin
                         return _mapper.Map<ResponseMessage<ProgrammeInfoInterface>>(
                             await _controller.GetProgramInfoBySrgid(examineResponse.SrcId)
                             );
-                    } break;
+                    }
+                    break;
                 case FunctionType.AllCaptureChannels:
                     {
                         return _mapper.Map<ResponseMessage<List<CaptureChannelInfoInterface>>>(
                             await _controller.AllCaptureChannels()
                             );
-                    } break;
+                    }
+                    break;
                 case FunctionType.AllRouterInPort:
                     return _mapper.Map<ResponseMessage<List<RouterInInterface>>>(
                             await _controller.AllRouterInPortInfos()
                             );
+                case FunctionType.AllCaptureDevice:
+                    return _mapper.Map<ResponseMessage<List<CaptureDeviceInfoInterface>>>(await _controller.AllCaptureDevices());
                 default:
-                        break;
-                }
-                //var response = await scope.ServiceProvider.GetRequiredService<GlobalController>()
-                //    .SubmitGlobalCallback();
-
-                //return Mapper.Map<ResponseMessage>(response);
-            
+                    break;
+            }
             //var response = await scope.ServiceProvider.GetRequiredService<GlobalController>()
             //    .SubmitGlobalCallback();
 
             //return Mapper.Map<ResponseMessage>(response);
-            
+
+            //var response = await scope.ServiceProvider.GetRequiredService<GlobalController>()
+            //    .SubmitGlobalCallback();
+
+            //return Mapper.Map<ResponseMessage>(response);
+
 
             return null;
         }
-        
+
         public async Task<ResponseMessage> SubmitDeviceCallBack(DeviceInternals examineResponse)
         {
             throw new NotImplementedException();
         }
-        
+
     }
 }
