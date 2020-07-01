@@ -21,7 +21,7 @@ namespace IngestDevicePlugin
             //V2
             CreateMap<DbpRcdindesc, RouterInResponse>()
                //.ForMember(a => a.RCDeviceID, (map) => map.MapFrom(b => b.Rcdeviceid))
-               .ForMember(a => a.RCInportIdx, (map) => map.MapFrom(b => b.Recinidx));
+               .ForMember(a => a.RcInportIdx, (map) => map.MapFrom(b => b.Recinidx));
             //.ForMember(a => a.SignalSource, (map) => map.MapFrom(b => b.Signalsource))
             //.ForMember(a => a.SignalSrcID, (map) => map.MapFrom(b => b.Signalsrcid));
             //V1
@@ -35,9 +35,9 @@ namespace IngestDevicePlugin
             #region DbpRcdoutdesc To RoterOutDesc、RoterOutResponse
             //V2
             CreateMap<DbpRcdoutdesc, RoterOutResponse>()
-                .ForMember(a => a.RCDeviceID, (map) => map.MapFrom(b => b.Rcdeviceid))
-                .ForMember(a => a.RCOutportIdx, (map) => map.MapFrom(b => b.Recoutidx))
-                .ForMember(a => a.ChannelID, (map) => map.MapFrom(b => b.Channelid))
+                .ForMember(a => a.RcDeviceId, (map) => map.MapFrom(b => b.Rcdeviceid))
+                .ForMember(a => a.RcOutportIdx, (map) => map.MapFrom(b => b.Recoutidx))
+                .ForMember(a => a.ChannelId, (map) => map.MapFrom(b => b.Channelid))
                 .ForMember(a => a.DeviceType, (map) => map.MapFrom(b => b.Devicetype));
             //V1
             CreateMap<DbpRcdoutdesc, RoterOutDesc>()
@@ -50,8 +50,8 @@ namespace IngestDevicePlugin
             #region DbpSignalDeviceMap To SignalDeviceMap
             //V2
             CreateMap<DbpSignalDeviceMap, SignalDeviceMapResponse>()
-                .ForMember(a => a.SignalID, (map) => map.MapFrom(b => b.Signalsrcid))
-                .ForMember(a => a.DeviceID, (map) => map.MapFrom(b => b.Deviceid))
+                .ForMember(a => a.SignalId, (map) => map.MapFrom(b => b.Signalsrcid))
+                .ForMember(a => a.DeviceId, (map) => map.MapFrom(b => b.Deviceid))
                 .ForMember(a => a.OutPortIdx, (map) => map.MapFrom(b => b.Deviceoutportidx))
                 .ForMember(a => a.SignalSource, (map) => map.MapFrom(b => b.Signalsource));
             //V1
@@ -65,10 +65,10 @@ namespace IngestDevicePlugin
             #region DbpSignalsrc To SignalSrcInfo
             //V2
             CreateMap<DbpSignalsrc, SignalSrcResponse>()
-                .ForMember(a => a.ID, (map) => map.MapFrom(b => b.Signalsrcid))
+                .ForMember(a => a.Id, (map) => map.MapFrom(b => b.Signalsrcid))
                 .ForMember(a => a.Name, (map) => map.MapFrom(b => b.Name))
                 .ForMember(a => a.Desc, (map) => map.MapFrom(b => b.Signaldesc))
-                .ForMember(a => a.TypeID, (map) => map.MapFrom(b => b.Signaltypeid))
+                .ForMember(a => a.TypeId, (map) => map.MapFrom(b => b.Signaltypeid))
                 .ForMember(a => a.ImageType, (map) => map.MapFrom(b => b.Imagetype))
                 .ForMember(a => a.PureAudio, (map) => map.MapFrom(b => b.Pureaudio));
             //V1
@@ -102,30 +102,30 @@ namespace IngestDevicePlugin
             #region DbpCapturechannels To CaptureChannelInfo、CaptureChannelInfoResponse
             //V2
             CreateMap<DbpIpVirtualchannel, CaptureChannelInfoResponse>()
-                .ForMember(a => a.ID, (map) => map.MapFrom(b => b.Channelid))
+                .ForMember(a => a.Id, (map) => map.MapFrom(b => b.Channelid))
                 .ForMember(a => a.Name, (map) => map.MapFrom(b => b.Channelname))
                 .ForMember(a => a.Desc, (map) => map.MapFrom(b => b.Channeldesc))
-                .ForMember(a => a.CPDeviceID, (map) => map.MapFrom(b => b.Deviceid))
+                .ForMember(a => a.CpDeviceId, (map) => map.MapFrom(b => b.Deviceid))
                 .ForMember(a => a.ChannelIndex, (map) => map.MapFrom(b => b.Deviceindex))
-                .ForMember(a => a.DeviceTypeID, (map) => map.MapFrom(b => b.Channeltype))
+                .ForMember(a => a.DeviceTypeId, (map) => map.MapFrom(b => b.Channeltype))
                 .ForMember(a => a.BackState, (map) => map.MapFrom(b => b.Backuptype))
                 //.ForMember(a => a.CarrierID, (map) => map.MapFrom(b => b.nCarrierID))
                 //.ForMember(a => a.OrderCode, (map) => map.MapFrom(b => b.orderCode))
                 //.ForMember(a => a.GroupID, (map) => map.MapFrom(b => b.nGroupID))
-                .ForMember(a => a.CPSignalType, (map) => map.MapFrom(b => b.Cpsignaltype));
+                .ForMember(a => a.CpSignalType, (map) => map.MapFrom(b => b.Cpsignaltype));
 
             CreateMap<DbpCapturechannels, CaptureChannelInfoResponse>()
-                .ForMember(a => a.ID, (map) => map.MapFrom(b => b.Channelid))
+                .ForMember(a => a.Id, (map) => map.MapFrom(b => b.Channelid))
                 .ForMember(a => a.Name, (map) => map.MapFrom(b => b.Channelname))
                 .ForMember(a => a.Desc, (map) => map.MapFrom(b => b.Channeldesc))
-                .ForMember(a => a.CPDeviceID, (map) => map.MapFrom(b => b.Cpdeviceid))
+                .ForMember(a => a.CpDeviceId, (map) => map.MapFrom(b => b.Cpdeviceid))
                 .ForMember(a => a.ChannelIndex, (map) => map.MapFrom(b => b.Channelindex))
-                .ForMember(a => a.DeviceTypeID, (map) => map.MapFrom(b => b.Devicetypeid))
+                .ForMember(a => a.DeviceTypeId, (map) => map.MapFrom(b => b.Devicetypeid))
                 .ForMember(a => a.BackState, (map) => map.MapFrom(b => b.Backupflag))
                 //.ForMember(a => a.CarrierID, (map) => map.MapFrom(b => b.nCarrierID))
                 //.ForMember(a => a.OrderCode, (map) => map.MapFrom(b => b.orderCode))
                 //.ForMember(a => a.GroupID, (map) => map.MapFrom(b => b.nGroupID))
-                .ForMember(a => a.CPSignalType, (map) => map.MapFrom(b => b.Cpsignaltype));
+                .ForMember(a => a.CpSignalType, (map) => map.MapFrom(b => b.Cpsignaltype));
             //V1
             CreateMap<DbpCapturechannels, CaptureChannelInfo>()
                 .ForMember(a => a.nID, (map) => map.MapFrom(b => b.Channelid))
@@ -140,26 +140,26 @@ namespace IngestDevicePlugin
                 //.ForMember(a => a.nGroupID, (map) => map.MapFrom(b => b.nGroupID))
                 .ForMember(a => a.nCPSignalType, (map) => map.MapFrom(b => b.Cpsignaltype));
             CreateMap<CaptureChannelInfoResponse, CaptureChannelInfo>()
-                .ForMember(a => a.nID, (map) => map.MapFrom(b => b.ID))
+                .ForMember(a => a.nID, (map) => map.MapFrom(b => b.Id))
                 .ForMember(a => a.strName, (map) => map.MapFrom(b => b.Name))
                 .ForMember(a => a.strDesc, (map) => map.MapFrom(b => b.Desc))
-                .ForMember(a => a.nCPDeviceID, (map) => map.MapFrom(b => b.CPDeviceID))
+                .ForMember(a => a.nCPDeviceID, (map) => map.MapFrom(b => b.CpDeviceId))
                 .ForMember(a => a.nChannelIndex, (map) => map.MapFrom(b => b.ChannelIndex))
-                .ForMember(a => a.nDeviceTypeID, (map) => map.MapFrom(b => b.DeviceTypeID))
+                .ForMember(a => a.nDeviceTypeID, (map) => map.MapFrom(b => b.DeviceTypeId))
                 .ForMember(a => a.BackState, (map) => map.MapFrom(b => b.BackState))
-                .ForMember(a => a.nCarrierID, (map) => map.MapFrom(b => b.CarrierID))
+                .ForMember(a => a.nCarrierID, (map) => map.MapFrom(b => b.CarrierId))
                 .ForMember(a => a.orderCode, (map) => map.MapFrom(b => b.OrderCode))
-                .ForMember(a => a.nGroupID, (map) => map.MapFrom(b => b.GroupID))
-                .ForMember(a => a.nCPSignalType, (map) => map.MapFrom(b => b.CPSignalType));
+                .ForMember(a => a.nGroupID, (map) => map.MapFrom(b => b.GroupId))
+                .ForMember(a => a.nCPSignalType, (map) => map.MapFrom(b => b.CpSignalType));
             #endregion
 
             #region DbpCapturedevice To CaptureDeviceInfo、CaptureDeviceInfoResponse
             //V2
             CreateMap<DbpCapturedevice, CaptureDeviceInfoResponse>()
-                .ForMember(a => a.ID, (map) => map.MapFrom(b => b.Cpdeviceid))
-                .ForMember(a => a.DeviceTypeID, (map) => map.MapFrom(b => b.Devicetypeid))
+                .ForMember(a => a.Id, (map) => map.MapFrom(b => b.Cpdeviceid))
+                .ForMember(a => a.DeviceTypeId, (map) => map.MapFrom(b => b.Devicetypeid))
                 .ForMember(a => a.DeviceName, (map) => map.MapFrom(b => b.Devicename))
-                .ForMember(a => a.IP, (map) => map.MapFrom(b => b.Ipaddress))
+                .ForMember(a => a.Ip, (map) => map.MapFrom(b => b.Ipaddress))
                 .ForMember(a => a.OrderCode, (map) => map.MapFrom(b => b.Ordercode));            
             //V1
             CreateMap<DbpCapturedevice, CaptureDeviceInfo>()
@@ -239,13 +239,13 @@ namespace IngestDevicePlugin
             #region DbpSignalsrcMasterbackup To SignalSrcExInfo
             //V2
             CreateMap<DbpSignalsrcMasterbackup, SignalSrcExResponse>()
-                .ForMember(a => a.ID, (map) => map.MapFrom(b => b.Signalsrcid))
+                .ForMember(a => a.Id, (map) => map.MapFrom(b => b.Signalsrcid))
                 .ForMember(a => a.SignalSrcType, (map) => map.MapFrom(b => b.Signalsrctype))
                 .ForMember(a => a.IsMainSignalSrc, (map) => map.MapFrom(b => b.Ismastersrc == 1))
                 .ForMember(a => a.MainSignalSrcId, (map) => map.MapFrom(b => b.Mastersignalsrcid));
             //V1
             CreateMap<SignalSrcExResponse, SignalSrcExInfo>()
-                .ForMember(a => a.nID, (map) => map.MapFrom(b => b.ID))
+                .ForMember(a => a.nID, (map) => map.MapFrom(b => b.Id))
                 .ForMember(a => a.nSignalSrcType, (map) => map.MapFrom(b => b.SignalSrcType))
                 .ForMember(a => a.bIsMainSignalSrc, (map) => map.MapFrom(b => b.IsMainSignalSrc))
                 .ForMember(a => a.nMainSignalSrcId, (map) => map.MapFrom(b => b.MainSignalSrcId));            
@@ -268,7 +268,7 @@ namespace IngestDevicePlugin
             #region DbpSignalgroup To AllSignalGroup
             //V2
             CreateMap<DbpSignalgroup, SignalGroupResponse>()
-                .ForMember(a => a.GroupID, (map) => map.MapFrom(b => b.Groupid))
+                .ForMember(a => a.GroupId, (map) => map.MapFrom(b => b.Groupid))
                 .ForMember(a => a.GroupName, (map) => map.MapFrom(b => b.Groupname))
                 .ForMember(a => a.GroupDesc, (map) => map.MapFrom(b => b.Groupdesc));
             //V1
@@ -281,8 +281,8 @@ namespace IngestDevicePlugin
             #region DbpGpiMap To GPIDeviceInfo、GpiDeviceInfoResponse
             //V2
             CreateMap<DbpGpiInfo, GPIDeviceInfoResponse>()
-                .ForMember(a => a.GPIID, (map) => map.MapFrom(b => b.Gpiid))
-                .ForMember(a => a.GPIName, (map) => map.MapFrom(b => b.Gpiname))
+                .ForMember(a => a.GpiId, (map) => map.MapFrom(b => b.Gpiid))
+                .ForMember(a => a.GpiName, (map) => map.MapFrom(b => b.Gpiname))
                 .ForMember(a => a.ComPort, (map) => map.MapFrom(b => b.Comport))
                 .ForMember(a => a.OutputPortCount, (map) => map.MapFrom(b => b.Outputportcount))
                 .ForMember(a => a.Description, (map) => map.MapFrom(b => b.Description));
@@ -298,9 +298,9 @@ namespace IngestDevicePlugin
             #region DbpGpiMap To GPIDeviceMapInfo
             //V2
             CreateMap<DbpGpiMap, GPIDeviceMapInfoResponse>()
-                .ForMember(a => a.GPIID, (map) => map.MapFrom(b => b.Gpiid))
-                .ForMember(a => a.GPIOutputPort, (map) => map.MapFrom(b => b.Gpioutputport))
-                .ForMember(a => a.AVOutputPort, (map) => map.MapFrom(b => b.Avoutputport))
+                .ForMember(a => a.GpiId, (map) => map.MapFrom(b => b.Gpiid))
+                .ForMember(a => a.GpiOutputPort, (map) => map.MapFrom(b => b.Gpioutputport))
+                .ForMember(a => a.AvOutputPort, (map) => map.MapFrom(b => b.Avoutputport))
                 .ForMember(a => a.CaptureParamID, (map) => map.MapFrom(b => b.Captureparamid));
             //V1
             CreateMap<DbpGpiMap, GPIDeviceMapInfo>()
@@ -410,11 +410,11 @@ namespace IngestDevicePlugin
                 .ForMember(a => a.TypeId, (map) => map.MapFrom(b => b.TypeId))
                 .ForMember(a => a.emImageType, (map) => map.MapFrom(b => b.ImageType))
                 .ForMember(a => a.nPureAudio, (map) => map.MapFrom(b => b.PureAudio))
-                .ForMember(a => a.nCarrierID, (map) => map.MapFrom(b => b.CarrierID))
+                .ForMember(a => a.nCarrierID, (map) => map.MapFrom(b => b.CarrierId))
                 .ForMember(a => a.ProgrammeDesc, (map) => map.MapFrom(b => b.ProgrammeDesc))
                 .ForMember(a => a.emPgmType, (map) => map.MapFrom(b => b.PgmType))
                 .ForMember(a => a.emSignalSourceType, (map) => map.MapFrom(b => b.SignalSourceType))
-                .ForMember(a => a.nGroupID, (map) => map.MapFrom(b => b.GroupID));
+                .ForMember(a => a.nGroupID, (map) => map.MapFrom(b => b.GroupId));
 
             //V2
 
@@ -425,7 +425,7 @@ namespace IngestDevicePlugin
                 .ForMember(a => a.TypeId, (map) => map.MapFrom(b => b.Streammediatype))
                 .ForMember(a => a.ImageType, (map) => map.MapFrom(b => b.Imagetype))
                 .ForMember(a => a.PureAudio, (map) => map.MapFrom(b => b.Pureaudio))
-                .ForMember(a => a.CarrierID, (map) => map.MapFrom(b => b.Carrierid))
+                .ForMember(a => a.CarrierId, (map) => map.MapFrom(b => b.Carrierid))
                 .AfterMap((b, a) =>
                 {
                     a.ProgrammeDesc = MergeStreamMediaURLAndDesc(b.Streammediaurl, b.Urltype, b.Streammediadesc);
@@ -434,8 +434,8 @@ namespace IngestDevicePlugin
                 });
 
             CreateMap<SignalGroupStateResponse, SignalGroupState>()
-                .ForMember(a => a.signalsrcid, (map) => map.MapFrom(b => b.SignalSrcID))
-                .ForMember(a => a.groupid, (map) => map.MapFrom(b => b.GroupID))
+                .ForMember(a => a.signalsrcid, (map) => map.MapFrom(b => b.SignalSrcId))
+                .ForMember(a => a.groupid, (map) => map.MapFrom(b => b.GroupId))
                 .ForMember(a => a.groupname, (map) => map.MapFrom(b => b.GroupName))
                 .ForMember(a => a.groupdesc, (map) => map.MapFrom(b => b.GroupDesc));
 
@@ -455,13 +455,13 @@ namespace IngestDevicePlugin
             //    .ForMember(a => a.Metadata, (map) => map.MapFrom(b => b.Metadatalong));
 
             CreateMap<RecUnitMap, DbpChannelRecmap>()
-                .ForMember(a => a.Channelid, (map) => map.MapFrom(b => b.ConnectorID))
-                .ForMember(a => a.Recid, (map) => map.MapFrom(b => b.UnitID));
+                .ForMember(a => a.Channelid, (map) => map.MapFrom(b => b.ConnectorId))
+                .ForMember(a => a.Recid, (map) => map.MapFrom(b => b.UnitId));
 
 
             CreateMap<DbpChannelRecmap, RecUnitMap>()
-                .ForMember(a => a.ConnectorID, (map) => map.MapFrom(b => b.Channelid))
-                .ForMember(a => a.UnitID, (map) => map.MapFrom(b => b.Recid));
+                .ForMember(a => a.ConnectorId, (map) => map.MapFrom(b => b.Channelid))
+                .ForMember(a => a.UnitId, (map) => map.MapFrom(b => b.Recid));
 
             //ReverseMap
 
@@ -482,7 +482,7 @@ namespace IngestDevicePlugin
                 .ForMember(a => a.nDeviceState, (map) => map.MapFrom(b => b.Devicestate));
             //v2
             CreateMap<DbpXdcamDevice, XDCAMDeviceResponse>()
-                .ForMember(a => a.DeviceID, (map) => map.MapFrom(b => b.Deviceid))
+                .ForMember(a => a.DeviceId, (map) => map.MapFrom(b => b.Deviceid))
                 .ForMember(a => a.DeviceType, (map) => map.MapFrom(b => b.Devicetype))
                 .ForMember(a => a.DeviceName, (map) => map.MapFrom(b => b.Devicename))
                 .ForMember(a => a.DeviceDesc, (map) => map.MapFrom(b => b.Devicedesc))
@@ -491,8 +491,8 @@ namespace IngestDevicePlugin
                 .ForMember(a => a.LoginPwd, (map) => map.MapFrom(b => b.Password))
                 .ForMember(a => a.StoragePath, (map) => map.MapFrom(b => b.Storagepath))
                 .ForMember(a => a.WorkMode, (map) => map.MapFrom(b => b.Workmode))
-                .ForMember(a => a.DiscID, (map) => map.MapFrom(b => b.Discid))
-                .ForMember(a => a.ServerIP, (map) => map.MapFrom(b => b.Serverip))
+                .ForMember(a => a.DiscId, (map) => map.MapFrom(b => b.Discid))
+                .ForMember(a => a.ServerIp, (map) => map.MapFrom(b => b.Serverip))
                 .ForMember(a => a.DeviceState, (map) => map.MapFrom(b => b.Devicestate));
 
             #endregion

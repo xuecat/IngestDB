@@ -886,8 +886,8 @@ namespace IngestDevicePlugin.Controllers.v2
             ResponseMessage<bool> response = new ResponseMessage<bool>();
             try
             {
-                response.Ext = await _deviceManage.SaveSignalDeviceMapAsync(data.SignalID,
-                                                                            data.DeviceID,
+                response.Ext = await _deviceManage.SaveSignalDeviceMapAsync(data.SignalId,
+                                                                            data.DeviceId,
                                                                             data.OutPortIdx,
                                                                             data.SignalSource);
             } catch(Exception e)
@@ -1202,7 +1202,7 @@ namespace IngestDevicePlugin.Controllers.v2
                 var f = await _deviceManage.GetChannelUnitMap(channel);
                 if(f != null)
                 {
-                    response.Ext = f.UnitID;
+                    response.Ext = f.UnitId;
                 } else
                     response.Ext = -1;
             } catch(Exception e)

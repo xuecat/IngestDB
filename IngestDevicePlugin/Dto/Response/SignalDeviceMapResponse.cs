@@ -12,11 +12,11 @@ namespace IngestDevicePlugin.Dto.Response
     {
         /// <summary>信号源ID</summary>
         /// <example>1086</example>
-        public int SignalID { get; set; }
+        public int SignalId { get; set; }
 
         /// <summary>设备ID</summary>
         /// <example>86</example>
-        public int DeviceID { get; set; }
+        public int DeviceId { get; set; }
 
         /// <summary>信号设备输出通道索引</summary>
         /// <example>68</example>

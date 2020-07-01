@@ -107,10 +107,10 @@ namespace IngestDevicePlugin.Managers
                 allSignalSrcExs.Where(a => a.IsMainSignalSrc).ToList().ForEach(a =>
                 {
                     //找到上级Id为当前nId的，说明此信号为当前的下级
-                    var signalSrcEx = allSignalSrcExs.FirstOrDefault(x => x.MainSignalSrcId == a.ID);
+                    var signalSrcEx = allSignalSrcExs.FirstOrDefault(x => x.MainSignalSrcId == a.Id);
                     if (signalSrcEx != null)
                     {
-                        a.BackupSignalSrcId = signalSrcEx.ID;
+                        a.BackupSignalSrcId = signalSrcEx.Id;
                     }
                 });
             }
@@ -293,7 +293,7 @@ namespace IngestDevicePlugin.Managers
         public virtual async Task<List<TResult>> GetProgrammeInfosByChannelIdAsync<TResult>(int channelId)
         {
             var channelInfo = await GetCaptureChannelByIDAsync<CaptureChannelInfoDto>(channelId);
-            if ((channelInfo.DeviceTypeID == (int)CaptureChannelType.emMsvChannel || channelInfo.DeviceTypeID == (int)CaptureChannelType.emDefualtChannel)
+            if ((channelInfo.DeviceTypeId == (int)CaptureChannelType.emMsvChannel || channelInfo.DeviceTypeId == (int)CaptureChannelType.emDefualtChannel)
                 && !await HaveMatrixAsync())
             {
                 var signalIds = await Store.GetSignalIdsByChannelIdForNotMatrix(channelId);
@@ -307,9 +307,9 @@ namespace IngestDevicePlugin.Managers
             else
             {
                 int signalId = 0;
-                if ((channelInfo.DeviceTypeID == (int)CaptureChannelType.emMsvChannel || channelInfo.DeviceTypeID == (int)CaptureChannelType.emDefualtChannel))
+                if ((channelInfo.DeviceTypeId == (int)CaptureChannelType.emMsvChannel || channelInfo.DeviceTypeId == (int)CaptureChannelType.emDefualtChannel))
                 {
-                    signalId = await GetChannelSignalSrcAsync(channelInfo.ID);
+                    signalId = await GetChannelSignalSrcAsync(channelInfo.Id);
                 }
                 return _mapper.Map<List<TResult>>(GetProgrammeInfoListMatrix(channelInfo, signalId, await Store.GetAllProgrammeInfoAsync()));
             }
@@ -322,27 +322,27 @@ namespace IngestDevicePlugin.Managers
             foreach (var item in programmeInfos)
             {
                 //首先判断高标清
-                if (channelInfo.CPSignalType > 0)//不是Auto
+                if (channelInfo.CpSignalType > 0)//不是Auto
                 {
-                    if (channelInfo.CPSignalType == 1)//SD
+                    if (channelInfo.CpSignalType == 1)//SD
                     {
                         if (item.TypeId == 1)//排除HD，Auto和SD可以匹配
                             continue;
                     }
-                    else if (channelInfo.CPSignalType == 2)//HD
+                    else if (channelInfo.CpSignalType == 2)//HD
                     {
                         if (item.TypeId == 0)//排除SD，保留HD和Auto
                             continue;
                     }
                 }
 
-                if (channelInfo.GroupID > 0 && item.GroupID > 0 && channelInfo.GroupID != item.GroupID)
+                if (channelInfo.GroupId > 0 && item.GroupId > 0 && channelInfo.GroupId != item.GroupId)
                 {
                     continue;
                 }
 
-                if (channelInfo.DeviceTypeID == (int)CaptureChannelType.emMsvChannel
-                    || channelInfo.DeviceTypeID == (int)CaptureChannelType.emDefualtChannel)
+                if (channelInfo.DeviceTypeId == (int)CaptureChannelType.emMsvChannel
+                    || channelInfo.DeviceTypeId == (int)CaptureChannelType.emDefualtChannel)
                 {
                     if (item.PgmType == ProgrammeType.PT_SDI /* && signalId == info.ProgrammeId */)
                     {
@@ -361,14 +361,14 @@ namespace IngestDevicePlugin.Managers
                         // ----------------------- The End 2013-08-21 -----------------------
                     }
                 }
-                else if (channelInfo.DeviceTypeID == (int)CaptureChannelType.emIPTSChannel)
+                else if (channelInfo.DeviceTypeId == (int)CaptureChannelType.emIPTSChannel)
                 {
                     if (item.PgmType == ProgrammeType.PT_IPTS/* || info.emPgmType == ProgrammeType.PT_StreamMedia*/)
                     {
                         lstback.Add(item);
                     }
                 }
-                else if (channelInfo.DeviceTypeID == (int)CaptureChannelType.emStreamChannel)
+                else if (channelInfo.DeviceTypeId == (int)CaptureChannelType.emStreamChannel)
                 {
                     // Delete by chenzhi 2013-07-09
                     // TODO: 运营商的概念已经被分组所取代，故移除该部分代码
@@ -392,8 +392,8 @@ namespace IngestDevicePlugin.Managers
             {
                 CaptureChannelInfoDto channelInfo = await GetCaptureChannelByIDAsync<CaptureChannelInfoDto>(channelid);
 
-                if (channelInfo.DeviceTypeID == (int)CaptureChannelType.emMsvChannel
-                    || channelInfo.DeviceTypeID == (int)CaptureChannelType.emDefualtChannel)
+                if (channelInfo.DeviceTypeId == (int)CaptureChannelType.emMsvChannel
+                    || channelInfo.DeviceTypeId == (int)CaptureChannelType.emDefualtChannel)
                 {
                     var signalIds = await Store.GetSignalIdsByChannelIdForNotMatrix(channelid);
 
@@ -444,13 +444,13 @@ namespace IngestDevicePlugin.Managers
                 //获得当前通道与信号源的映射
                 var channel2SignalSrcMaps = await Store.GetAllChannel2SignalSrcMapAsync();//获得当前通道与信号源的映射
 
-                var captureChannelInfos = captureChannels.Where(a => channelIds.Contains(a.ID) &&
-                                                                     arrMsvChannelState.Any(s => s.nChannelID == a.ID &&
+                var captureChannelInfos = captureChannels.Where(a => channelIds.Contains(a.Id) &&
+                                                                     arrMsvChannelState.Any(s => s.nChannelID == a.Id &&
                                                                                                  s.emMSVMode == MSV_Mode.NETWORK &&
                                                                                                  s.emDevState != Device_State.DISCONNECTTED &&
                                                                                                  string.IsNullOrEmpty(s.kamatakiInfo)) &&
-                                                                                                 curIds.Contains(a.ID))
-                                                         .Select(a => new ChannelScore { Id = a.ID }).ToList();
+                                                                                                 curIds.Contains(a.Id))
+                                                         .Select(a => new ChannelScore { Id = a.Id }).ToList();
                 if (captureChannelInfos.Count > 0)
                     return 0;
                 foreach (var channel in captureChannelInfos)
@@ -680,29 +680,29 @@ namespace IngestDevicePlugin.Managers
             foreach (var item in channelInfos)
             {
                 ////类型匹配
-                if (!((programme.PgmType == ProgrammeType.PT_SDI && (item.DeviceTypeID == (int)CaptureChannelType.emMsvChannel || item.DeviceTypeID == (int)CaptureChannelType.emDefualtChannel))
-                     || ((programme.PgmType == ProgrammeType.PT_IPTS) && (item.DeviceTypeID == (int)CaptureChannelType.emIPTSChannel))
-                     || ((programme.PgmType == ProgrammeType.PT_StreamMedia) && (item.DeviceTypeID == (int)CaptureChannelType.emStreamChannel))))
+                if (!((programme.PgmType == ProgrammeType.PT_SDI && (item.DeviceTypeId == (int)CaptureChannelType.emMsvChannel || item.DeviceTypeId == (int)CaptureChannelType.emDefualtChannel))
+                     || ((programme.PgmType == ProgrammeType.PT_IPTS) && (item.DeviceTypeId == (int)CaptureChannelType.emIPTSChannel))
+                     || ((programme.PgmType == ProgrammeType.PT_StreamMedia) && (item.DeviceTypeId == (int)CaptureChannelType.emStreamChannel))))
                 {
                     continue;
                 }
 
                 //高标清匹配
-                if (item.CPSignalType > 0)//0表示Auto，可以任意匹配，不需要处理,1:SD, 2:HD
+                if (item.CpSignalType > 0)//0表示Auto，可以任意匹配，不需要处理,1:SD, 2:HD
                 {
-                    if (item.CPSignalType == 1)//SD
+                    if (item.CpSignalType == 1)//SD
                     {
                         if (programme.TypeId == 1)//排除HD，Auto和SD可以匹配
                             continue;
                     }
-                    else if (item.CPSignalType == 2)//HD
+                    else if (item.CpSignalType == 2)//HD
                     {
                         if (programme.TypeId == 0)//排除SD，保留HD和Auto
                             continue;
                     }
                 }
 
-                if (programme.GroupID > 0 && item.GroupID >0 && item.GroupID != programme.GroupID)
+                if (programme.GroupId > 0 && item.GroupId >0 && item.GroupId != programme.GroupId)
                 {
                     continue;
                 }
@@ -733,7 +733,7 @@ namespace IngestDevicePlugin.Managers
             }
             // Add by chenzhi 2013-07-09
             // TODO: 通道需要排序，同一个分组的排在前面，无分组的排在后面
-            lstchn.OrderBy(x => x.GroupID);
+            lstchn.OrderBy(x => x.GroupId);
             return _mapper.Map<List<TResult>>(lstchn);
         }
 
@@ -835,22 +835,22 @@ namespace IngestDevicePlugin.Managers
             foreach (var item in channels)
             {
                 ////类型匹配
-                if (!((programinfo.PgmType == ProgrammeType.PT_SDI && ((item.DeviceTypeID == (int)CaptureChannelType.emMsvChannel || item.DeviceTypeID == (int)CaptureChannelType.emDefualtChannel)))
-                     || ((programinfo.PgmType == ProgrammeType.PT_IPTS) && (item.DeviceTypeID == (int)CaptureChannelType.emIPTSChannel))
-                     || ((programinfo.PgmType == ProgrammeType.PT_StreamMedia) && (item.DeviceTypeID == (int)CaptureChannelType.emStreamChannel))))
+                if (!((programinfo.PgmType == ProgrammeType.PT_SDI && ((item.DeviceTypeId == (int)CaptureChannelType.emMsvChannel || item.DeviceTypeId == (int)CaptureChannelType.emDefualtChannel)))
+                     || ((programinfo.PgmType == ProgrammeType.PT_IPTS) && (item.DeviceTypeId == (int)CaptureChannelType.emIPTSChannel))
+                     || ((programinfo.PgmType == ProgrammeType.PT_StreamMedia) && (item.DeviceTypeId == (int)CaptureChannelType.emStreamChannel))))
                 {
                     continue;
                 }
 
                 //高标清匹配
-                if (item.CPSignalType > 0)//0表示Auto，可以任意匹配，不需要处理,1:SD, 2:HD
+                if (item.CpSignalType > 0)//0表示Auto，可以任意匹配，不需要处理,1:SD, 2:HD
                 {
-                    if (item.CPSignalType == 1)//SD
+                    if (item.CpSignalType == 1)//SD
                     {
                         if (programinfo.TypeId == 1)//排除HD，Auto和SD可以匹配
                             continue;
                     }
-                    else if (item.CPSignalType == 2)//HD
+                    else if (item.CpSignalType == 2)//HD
                     {
                         if (programinfo.TypeId == 0)//排除SD，保留HD和Auto
                             continue;
@@ -866,7 +866,7 @@ namespace IngestDevicePlugin.Managers
                         var channelIdListInNotMatrix = await Store.GetChannelIdsBySignalIdForNotMatrix(programmid);
 
                         isNeedAdd = false;
-                        if (channelIdListInNotMatrix.Any(x => x == item.ID))
+                        if (channelIdListInNotMatrix.Any(x => x == item.Id))
                         {
                             isNeedAdd = true;
                         }

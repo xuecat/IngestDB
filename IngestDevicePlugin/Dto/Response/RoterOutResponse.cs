@@ -11,13 +11,13 @@ namespace IngestDevicePlugin.Dto.Response
     public class RoterOutResponse
     {
         /// <summary>设备ID</summary>
-        public int RCDeviceID { get; set; }
+        public int RcDeviceId { get; set; }
 
         /// <summary> 输出通道索引</summary>
-        public int RCOutportIdx { get; set; }
+        public int RcOutportIdx { get; set; }
 
         /// <summary>通道Id</summary>
-        public int ChannelID { get; set; }
+        public int ChannelId { get; set; }
 
         /// <summary>设备类型</summary>
         public emDeviceType DeviceType { get; set; } = emDeviceType.emDeviceMSV;

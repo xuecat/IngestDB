@@ -10,17 +10,17 @@ namespace IngestDevicePlugin.Dto.Response
     /// <summary>MSV设备状态信息</summary>
     public class MSVChannelStateResponse
     {
-        /// <summary>通道ID</summary>
-        public int ChannelID { get; set; }
+        /// <summary>通道Id</summary>
+        public int ChannelId { get; set; }
 
         /// <summary>设备状态</summary>
         public Device_State DevState { get; set; } = Device_State.DISCONNECTTED;
 
         /// <summary>MSV模式</summary>
-        public MSV_Mode MSVMode { get; set; } = MSV_Mode.LOCAL;
+        public MSV_Mode MsvMode { get; set; } = MSV_Mode.LOCAL;
 
-        /// <summary>vtrID</summary>
-        public int VtrID { get; set; } = -1;
+        /// <summary>vtrId</summary>
+        public int VtrId { get; set; } = -1;
 
         /// <summary>当前用户Code</summary>
         public string UserCode { get; set; } = string.Empty;

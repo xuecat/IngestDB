@@ -138,7 +138,7 @@ namespace IngestDevicePlugin.Stores
                                    ImageType = (ImageType)sig.Imagetype,
                                    PureAudio = sig.Pureaudio ?? 0,
                                    SignalSourceType = p == null ? 0 : (emSignalSource)p.Signalsource.GetValueOrDefault(),
-                                   GroupID = g == null ? 0 : g.Groupid,
+                                   GroupId = g == null ? 0 : g.Groupid,
                                }).ToListAsync();
             if (query == null)
             {
@@ -186,7 +186,7 @@ namespace IngestDevicePlugin.Stores
                                    ImageType = (ImageType)sig.Imagetype,
                                    PureAudio = sig.Pureaudio ?? 0,
                                    SignalSourceType = p == null ? 0 : (emSignalSource)p.Signalsource.GetValueOrDefault(),
-                                   GroupID = g == null ? 0 : g.Groupid,
+                                   GroupId = g == null ? 0 : g.Groupid,
                                }).ToListAsync();
             if (query == null)
             {
@@ -238,7 +238,7 @@ namespace IngestDevicePlugin.Stores
                                    ImageType = (ImageType)sig.Imagetype,
                                    PureAudio = sig.Pureaudio ?? 0,
                                    SignalSourceType = p == null ? 0 : (emSignalSource)p.Signalsource.GetValueOrDefault(),
-                                   GroupID = g == null ? 0 : g.Groupid,
+                                   GroupId = g == null ? 0 : g.Groupid,
                                }).SingleOrDefaultAsync();
             if (query == null)
             {
@@ -324,32 +324,32 @@ namespace IngestDevicePlugin.Stores
                              where ps1 !=null && channel.Channelid == channelid
                              select new CaptureChannelInfoDto
                              {
-                                 ID = channel.Channelid,
+                                 Id = channel.Channelid,
                                  Name = channel.Channelname,
                                  Desc = channel.Channeldesc,
-                                 CPDeviceID = channel.Cpdeviceid,
+                                 CpDeviceId = channel.Cpdeviceid,
                                  ChannelIndex = channel.Channelindex ?? 0,
-                                 DeviceTypeID = (int)CaptureChannelType.emMsvChannel,
+                                 DeviceTypeId = (int)CaptureChannelType.emMsvChannel,
                                  BackState = (emBackupFlag)channel.Backupflag,
-                                 CPSignalType = channel.Cpsignaltype ?? 0,
+                                 CpSignalType = channel.Cpsignaltype ?? 0,
                                  OrderCode = p1 != null ? p1.Ordercode.GetValueOrDefault() : -1,
-                                 GroupID = p3 != null ? p3.Groupid : -1
+                                 GroupId = p3 != null ? p3.Groupid : -1
                              }).SingleOrDefaultAsync();
 
             if (lst == null)
             {
                 lst = await Context.DbpIpVirtualchannel.AsNoTracking().Where(x => x.Channelid == channelid).Select(x => new CaptureChannelInfoDto
                 {
-                    ID = x.Channelid,
+                    Id = x.Channelid,
                     Name = x.Channelname,
                     Desc = x.Ipaddress,
-                    CPDeviceID = x.Deviceid,
+                    CpDeviceId = x.Deviceid,
                     ChannelIndex = x.Ctrlport ?? 0,
-                    DeviceTypeID = x.Channeltype ?? (int)CaptureChannelType.emMsvChannel,
+                    DeviceTypeId = x.Channeltype ?? (int)CaptureChannelType.emMsvChannel,
                     BackState = (emBackupFlag)x.Backuptype.GetValueOrDefault(),
-                    CarrierID = x.Carrierid ?? 0,
+                    CarrierId = x.Carrierid ?? 0,
                     OrderCode = x.Deviceindex ?? -1,
-                    CPSignalType = x.Cpsignaltype ?? 0
+                    CpSignalType = x.Cpsignaltype ?? 0
                 }).SingleOrDefaultAsync();
             }
 
@@ -375,16 +375,16 @@ namespace IngestDevicePlugin.Stores
                              where p2 != null
                              select new CaptureChannelInfoDto
                              {
-                                 ID = channel.Channelid,
+                                 Id = channel.Channelid,
                                  Name = channel.Channelname,
                                  Desc = channel.Channeldesc,
-                                 CPDeviceID = channel.Cpdeviceid,
+                                 CpDeviceId = channel.Cpdeviceid,
                                  ChannelIndex = channel.Channelindex ?? 0,
-                                 DeviceTypeID = (int)CaptureChannelType.emMsvChannel,
+                                 DeviceTypeId = (int)CaptureChannelType.emMsvChannel,
                                  BackState = (emBackupFlag)channel.Backupflag,
-                                 CPSignalType = channel.Cpsignaltype ?? 0,
+                                 CpSignalType = channel.Cpsignaltype ?? 0,
                                  OrderCode = p1 != null ? p1.Ordercode.GetValueOrDefault() : -1,
-                                 GroupID = p3 != null ? p3.Groupid : -1
+                                 GroupId = p3 != null ? p3.Groupid : -1
                              }).ToListAsync();
             }
             else
@@ -400,16 +400,16 @@ namespace IngestDevicePlugin.Stores
                              where psc!=null && p2 != null && p2.Devstate != (int)Device_State.DISCONNECTTED && p2.Msvmode != (int)MSV_Mode.LOCAL
                              select new CaptureChannelInfoDto
                              {
-                                 ID = channel.Channelid,
+                                 Id = channel.Channelid,
                                  Name = channel.Channelname,
                                  Desc = channel.Channeldesc,
-                                 CPDeviceID = channel.Cpdeviceid,
+                                 CpDeviceId = channel.Cpdeviceid,
                                  ChannelIndex = channel.Channelindex ?? 0,
-                                 DeviceTypeID = (int)CaptureChannelType.emMsvChannel,
+                                 DeviceTypeId = (int)CaptureChannelType.emMsvChannel,
                                  BackState = (emBackupFlag)channel.Backupflag,
-                                 CPSignalType = channel.Cpsignaltype ?? 0,
+                                 CpSignalType = channel.Cpsignaltype ?? 0,
                                  OrderCode = p1 != null ? p1.Ordercode.GetValueOrDefault() : -1,
-                                 GroupID = p3 != null ? p3.Groupid : -1
+                                 GroupId = p3 != null ? p3.Groupid : -1
                              }).ToListAsync();
             }
 
@@ -417,16 +417,16 @@ namespace IngestDevicePlugin.Stores
             //DBP_IP_VIRTUALCHANNEL 现在应该是没有用了
             var iplst = await Context.DbpIpVirtualchannel.AsNoTracking().Select(x => new CaptureChannelInfoDto
             {
-                ID = x.Channelid,
+                Id = x.Channelid,
                 Name = x.Channelname,
                 Desc = x.Ipaddress,
-                CPDeviceID = x.Deviceid,
+                CpDeviceId = x.Deviceid,
                 ChannelIndex = x.Ctrlport ?? 0,
-                DeviceTypeID = x.Channeltype ?? (int)CaptureChannelType.emMsvChannel,
+                DeviceTypeId = x.Channeltype ?? (int)CaptureChannelType.emMsvChannel,
                 BackState = (emBackupFlag)x.Backuptype.GetValueOrDefault(),
-                CarrierID = x.Carrierid ?? 0,
+                CarrierId = x.Carrierid ?? 0,
                 OrderCode = x.Deviceindex ?? -1,
-                CPSignalType = x.Cpsignaltype ?? 0
+                CpSignalType = x.Cpsignaltype ?? 0
             }).ToListAsync();
 
             if (lst == null || lst.Count < 1)
@@ -724,8 +724,8 @@ namespace IngestDevicePlugin.Stores
                                                      group => group.Groupid,
                                                      (map, group) => new SignalGroupStateResponse
                                                      {
-                                                         SignalSrcID = map.Signalsrcid,
-                                                         GroupID = group.Groupid,
+                                                         SignalSrcId = map.Signalsrcid,
+                                                         GroupId = group.Groupid,
                                                          GroupName = group.Groupname,
                                                          GroupDesc = group.Groupdesc
                                                      }).ToListAsync();

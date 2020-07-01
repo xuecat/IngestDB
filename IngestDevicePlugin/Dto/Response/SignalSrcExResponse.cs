@@ -10,7 +10,7 @@ namespace IngestDevicePlugin.Dto.Response
     public class SignalSrcExResponse
     {
         /// <summary>信号源ID</summary>
-        public int ID;
+        public int Id;
 
         /// <summary>类型</summary>
         public int SignalSrcType;

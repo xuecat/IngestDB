@@ -1339,7 +1339,7 @@ namespace IngestTaskPlugin.Managers
 
                     foreach (CaptureChannelInfoInterface info in channelInfos.Ext)
                     {
-                        channelIds.Add(info.ID);
+                        channelIds.Add(info.Id);
                     }
                 }
             }
@@ -1816,7 +1816,7 @@ namespace IngestTaskPlugin.Managers
 
                         foreach (CaptureChannelInfoInterface info in channelInfos.Ext)
                         {
-                            channelIds.Add(info.ID);
+                            channelIds.Add(info.Id);
                         }
                     }
                 }
@@ -1937,7 +1937,7 @@ namespace IngestTaskPlugin.Managers
 
                     foreach (CaptureChannelInfoInterface info in channelInfos.Ext)
                     {
-                        channelIds.Add(info.ID);
+                        channelIds.Add(info.Id);
                     }
                 }
 

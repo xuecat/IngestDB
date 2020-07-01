@@ -10,7 +10,7 @@ namespace IngestDevicePlugin.Dto.Response
     public class SignalSrcResponse
     {
         /// <summary>Id</summary>
-        public int ID;
+        public int Id;
 
         /// <summary>名称</summary>
         public string Name;
@@ -19,7 +19,7 @@ namespace IngestDevicePlugin.Dto.Response
         public string Desc;
 
         /// <summary>信号源类型Id（高标清）</summary>
-        public int TypeID;
+        public int TypeId;
 
         /// <summary>图像类型;0、为素材原始比例，1、图像为4:3的方式，2：图像为16:9的方式</summary>
         public int ImageType;

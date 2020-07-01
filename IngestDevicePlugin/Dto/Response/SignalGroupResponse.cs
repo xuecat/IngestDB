@@ -10,7 +10,7 @@ namespace IngestDevicePlugin.Dto.Response
     public class SignalGroupResponse
     {
         /// <summary>信号源对应的分组ID</summary>
-        public int GroupID;
+        public int GroupId;
         /// <summary>信号源的名称</summary>
         public string GroupName;
         /// <summary>信号源的描述</summary>

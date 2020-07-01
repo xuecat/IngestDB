@@ -6,7 +6,7 @@ namespace IngestDevicePlugin.Dto.Response
 {
     public class RecUnitMap
     {
-        public int UnitID { get; set; }
-        public int ConnectorID { get; set; }
+        public int UnitId { get; set; }
+        public int ConnectorId { get; set; }
     }
 }

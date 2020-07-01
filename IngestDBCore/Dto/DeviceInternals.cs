@@ -34,8 +34,8 @@ namespace IngestDBCore
     }
     public class RecUnitMapInterface
     {
-        public int UnitID { get; set; }
-        public int ConnectorID { get; set; }
+        public int UnitId { get; set; }
+        public int ConnectorId { get; set; }
     }
     //采集通道类型
     public enum CaptureChannelTypeInterface
@@ -74,19 +74,19 @@ namespace IngestDBCore
 
     public class CaptureChannelInfoInterface
     {
-        public int ID { get; set; }
+        public int Id { get; set; }
         public string Name { get; set; }
         public string Desc { get; set; }
-        public int CPDeviceID { get; set; }
+        public int CpDeviceId { get; set; }
         public int ChannelIndex { get; set; }
-        public int DeviceTypeID { get; set; } = (int)CaptureChannelTypeInterface.emMsvChannel;//当前sdi，只会为1。2表示是IPTS通道
+        public int DeviceTypeId { get; set; } = (int)CaptureChannelTypeInterface.emMsvChannel;//当前sdi，只会为1。2表示是IPTS通道
         public BackupFlagInterface BackState { get; set; } = BackupFlagInterface.emNoAllowBackUp;
-        public int CarrierID { get; set; }//运营商ID
+        public int CarrierId { get; set; }//运营商ID
         public int OrderCode { get; set; } = -1;//序号
-        public int CPSignalType { get; set; }//可以采集的信号源类型，0：Auto，1：SD，2：HD
+        public int CpSignalType { get; set; }//可以采集的信号源类型，0：Auto，1：SD，2：HD
 
         // 分组ID
-        public int GroupID { get; set; }    // Add by chenzhi 2103-07-04
+        public int GroupId { get; set; }    // Add by chenzhi 2103-07-04
     }
     public enum ProgrammeTypeInterface
     {
@@ -136,8 +136,8 @@ namespace IngestDBCore
         public ImageTypeInterface ImageType { set; get; }
         public emSignalSourceInterface SignalSourceType { set; get; }
         public int PureAudio { set; get; }
-        public int CarrierID { set; get; }//运营商的ID
-        public int GroupID { set; get; } // Add by chenzhi 2013-07-08 分组ID
+        public int CarrierId { set; get; }//运营商的ID
+        public int GroupId { set; get; } // Add by chenzhi 2013-07-08 分组ID
     }
 
     /// <summary>设备状态</summary>
@@ -180,16 +180,16 @@ namespace IngestDBCore
     public class MSVChannelStateInterface
     {
         /// <summary>通道ID</summary>
-        public int ChannelID { get; set; }
+        public int ChannelId { get; set; }
 
         /// <summary>设备状态</summary>
         public Device_StateInterface DevState { get; set; }
 
         /// <summary>MSV模式</summary>
-        public MSV_ModeInterface MSVMode { get; set; }
+        public MSV_ModeInterface MsvMode { get; set; }
 
         /// <summary>vtrID</summary>
-        public int VtrID { get; set; } = -1;
+        public int VtrId { get; set; } = -1;
 
         /// <summary>当前用户Code</summary>
         public string UserCode { get; set; }
@@ -243,16 +243,16 @@ namespace IngestDBCore
     public class CaptureDeviceInfoInterface
     {
         /// <summary>Id</summary>
-        public int ID { get; set; }
+        public int Id { get; set; }
 
         /// <summary>设备类型 当前为0</summary>
-        public int DeviceTypeID { get; set; }
+        public int DeviceTypeId { get; set; }
 
         /// <summary>设备名称</summary>
         public string DeviceName { get; set; }
 
         /// <summary>IP</summary>
-        public string IP { get; set; }
+        public string Ip { get; set; }
 
         /// <summary>序号</summary>
         public int OrderCode { get; set; }

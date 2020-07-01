@@ -10,11 +10,11 @@ namespace IngestDevicePlugin.Dto.Response
     public class GPIDeviceMapInfoResponse
     {
         /// <summary>GPI编号</summary>
-        public int GPIID { get; set; } = -1;
+        public int GpiId { get; set; } = -1;
         /// <summary>GPI输出的端口</summary>
-        public int GPIOutputPort { get; set; } = -1;
+        public int GpiOutputPort { get; set; } = -1;
         /// <summary>GPI对应的端口</summary>
-        public int AVOutputPort { get; set; } = -1;
+        public int AvOutputPort { get; set; } = -1;
         /// <summary>GPI对应的采集参数ID</summary>
         public int CaptureParamID { get; set; } = -1;
     }

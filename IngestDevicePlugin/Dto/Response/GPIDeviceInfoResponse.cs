@@ -10,9 +10,9 @@ namespace IngestDevicePlugin.Dto.Response
     public class GPIDeviceInfoResponse
     {
         /// <summary>GPI编号</summary>
-        public int GPIID { get; set; } = -1;
+        public int GpiId { get; set; } = -1;
         /// <summary>GPI名字</summary>
-        public string GPIName { get; set; } = string.Empty;
+        public string GpiName { get; set; } = string.Empty;
         /// <summary>GPI位于哪个Com端口上</summary>
         public int ComPort { get; set; } = -1;
         /// <summary>GPI总的出口数</summary>

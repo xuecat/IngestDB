@@ -629,7 +629,7 @@ namespace IngestTaskPlugin.Managers
                     if (rep != null && rep.Ext != null)
                     {
                         var lstchn = await Store.GetFreeChannels(
-                            rep.Ext.Where(b => b.BackState != BackupFlagInterface.emNoAllowBackUp).Select(a => a.ID).ToList(),
+                            rep.Ext.Where(b => b.BackState != BackupFlagInterface.emNoAllowBackUp).Select(a => a.Id).ToList(),
                             taskinfo.Taskid,
                             taskinfo.Starttime, taskinfo.Endtime);
 
@@ -642,7 +642,7 @@ namespace IngestTaskPlugin.Managers
                 }
                 else
                 {
-                    var lstchn = await Store.GetFreePerodiChannels(rep.Ext.Where(b => b.BackState != BackupFlagInterface.emNoAllowBackUp).Select(a => a.ID).ToList(),
+                    var lstchn = await Store.GetFreePerodiChannels(rep.Ext.Where(b => b.BackState != BackupFlagInterface.emNoAllowBackUp).Select(a => a.Id).ToList(),
                                                 taskinfo.Taskid, taskinfo.Recunitid.GetValueOrDefault(), taskinfo.Signalid.GetValueOrDefault(), -1, taskinfo.Category, taskinfo.Starttime, taskinfo.Endtime);
                     if (lstchn.Count > 0)
                     {
@@ -659,7 +659,7 @@ namespace IngestTaskPlugin.Managers
         {
             var lstchn = await TryDispatchTask(taskinfo, true);
 
-            var backlst = lstchn.FindAll(a => lstmsvstate.Any(b => b.ChannelID == a && b.DevState != Device_StateInterface.DISCONNECTTED && b.MSVMode != MSV_ModeInterface.LOCAL));
+            var backlst = lstchn.FindAll(a => lstmsvstate.Any(b => b.ChannelId == a && b.DevState != Device_StateInterface.DISCONNECTTED && b.MsvMode != MSV_ModeInterface.LOCAL));
 
             /*
              * @brief 正常代码有ChooseChannelForPeriod 有ChooseChannel，疯了，晕。直接用这个，我认为通过过滤应该在getfree就做好
@@ -711,9 +711,9 @@ namespace IngestTaskPlugin.Managers
                         }
 
                         //zmj2009-01-05 将重调度的顺序改变，先在原通道试验一下，若不成功再去备用通道进行选择
-                        if (fresponse.Ext.Any(a => a.ChannelID == item.Channelid 
+                        if (fresponse.Ext.Any(a => a.ChannelId == item.Channelid 
                                 && a.DevState != Device_StateInterface.DISCONNECTTED
-                                && a.MSVMode != MSV_ModeInterface.LOCAL))
+                                && a.MsvMode != MSV_ModeInterface.LOCAL))
                         {
                             item.SyncState = (int)syncState.ssNot;
                             item.DispatchState = (int)dispatchState.dpsDispatched;
@@ -1444,9 +1444,9 @@ namespace IngestTaskPlugin.Managers
                 {
                     foreach (var item in lstchannelid)
                     { 
-                        if (fresponse.Ext.Any(a => a.ChannelID == item
+                        if (fresponse.Ext.Any(a => a.ChannelId == item
                                 && a.DevState != Device_StateInterface.DISCONNECTTED
-                                && a.MSVMode != MSV_ModeInterface.LOCAL))
+                                && a.MsvMode != MSV_ModeInterface.LOCAL))
                         {
                             var backlst = await Store.GetFreeChannels(new List<int>() { item }, 0, dtbegin, dtend);
                             if (backlst != null && backlst.Count > 0)
@@ -2064,7 +2064,7 @@ namespace IngestTaskPlugin.Managers
                     var fresponse = response1 as ResponseMessage<List<CaptureChannelInfoInterface>>;
                     if (fresponse != null && fresponse.Ext?.Count > 0)
                     {
-                        if (fresponse.Ext.Any(x => x.ID == taskModify.ChannelID))
+                        if (fresponse.Ext.Any(x => x.Id == taskModify.ChannelID))
                             match = true;
                     }
                 }
@@ -3638,10 +3638,10 @@ namespace IngestTaskPlugin.Managers
                 var fresponse = response1 as ResponseMessage<List<CaptureChannelInfoInterface>>;
                 if (fresponse != null && fresponse.Ext?.Count > 0)
                 {
-                    fresponse.Ext.RemoveAll(x => ChID != x.ID && (x.BackState == BackupFlagInterface.emAllowBackUp && ChID != -1));
+                    fresponse.Ext.RemoveAll(x => ChID != x.Id && (x.BackState == BackupFlagInterface.emAllowBackUp && ChID != -1));
 
                     /// 如果存在onlybackup属性的通道，优先考虑
-                    return fresponse.Ext.OrderByDescending(x => x.BackState).Select(y => y.ID).ToList();/// 如果存在onlybackup属性的通道，优先考虑
+                    return fresponse.Ext.OrderByDescending(x => x.BackState).Select(y => y.Id).ToList();/// 如果存在onlybackup属性的通道，优先考虑
                 }
             }
 

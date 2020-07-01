@@ -18,7 +18,7 @@ namespace IngestDevicePlugin.Dto.Response
         public ImageType ImageType { set; get; }
         public emSignalSource SignalSourceType { set; get; }
         public int PureAudio { set; get; }
-        public int CarrierID { set; get; }//运营商的ID
-        public int GroupID { set; get; } // Add by chenzhi 2013-07-08 分组ID
+        public int CarrierId { set; get; }//运营商的ID
+        public int GroupId { set; get; } // Add by chenzhi 2013-07-08 分组ID
     }
 }

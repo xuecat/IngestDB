@@ -10,16 +10,16 @@ namespace IngestDevicePlugin.Dto.Response
     public class CaptureDeviceInfoResponse
     {
         /// <summary>Id</summary>
-        public int ID { get; set; }
+        public int Id { get; set; }
 
         /// <summary>设备类型 当前为0</summary>
-        public int DeviceTypeID { get; set; }
+        public int DeviceTypeId { get; set; }
 
         /// <summary>设备名称</summary>
         public string DeviceName { get; set; }
 
         /// <summary>IP</summary>
-        public string IP { get; set; }
+        public string Ip { get; set; }
 
         /// <summary>序号</summary>
         public int OrderCode { get; set; }

@@ -180,7 +180,7 @@ namespace IngestMatrixPlugin.Managers
 
                         var deviceInfos = response as ResponseMessage<List<CaptureDeviceInfoInterface>>;
 
-                        msvip = deviceInfos.Ext?.FirstOrDefault(x=>x.ID == dbpRcdoutdesc.Rcdeviceid)?.IP;
+                        msvip = deviceInfos.Ext?.FirstOrDefault(x=>x.Id == dbpRcdoutdesc.Rcdeviceid)?.Ip;
 
                         response = await _deviceInterface.GetDeviceCallBack(new DeviceInternals()
                         {
@@ -188,7 +188,7 @@ namespace IngestMatrixPlugin.Managers
                         });
 
                         var channelsInfos = response as ResponseMessage<List<CaptureChannelInfoInterface>>;
-                        msvport = (int)channelsInfos.Ext?.FirstOrDefault(x => x.CPDeviceID == dbpRcdoutdesc.Rcdeviceid)?.ChannelIndex;
+                        msvport = (int)channelsInfos.Ext?.FirstOrDefault(x => x.CpDeviceId == dbpRcdoutdesc.Rcdeviceid)?.ChannelIndex;
 
                     }
 

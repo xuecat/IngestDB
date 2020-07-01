@@ -7,7 +7,7 @@ namespace IngestDevicePlugin.Dto.Response
     public class XDCAMDeviceResponse
     {
         /// <summary> 设备ID </summary>
-        public int DeviceID { get; set; }             //设备ID
+        public int DeviceId { get; set; }             //设备ID
         /// <summary> 设备类型 </summary>
         public int DeviceType { get; set; }           //设备类型
         /// <summary> 设备名称 </summary>
@@ -25,9 +25,9 @@ namespace IngestDevicePlugin.Dto.Response
         /// <summary> 工作模式 </summary>
         public XDCAMWorkMode WorkMode { get; set; } = XDCAMWorkMode.XDCAM_MANUUPLOAD;
         /// <summary> 控制设备的xdcam server的ip </summary>
-        public string ServerIP { get; set; }      //控制设备的xdcam server的ip
+        public string ServerIp { get; set; }      //控制设备的xdcam server的ip
         /// <summary> 设备的当前disc的id，无disc即为-1 </summary>
-        public int DiscID { get; set; }         //设备的当前disc的id，无disc即为-1
+        public int DiscId { get; set; }         //设备的当前disc的id，无disc即为-1
         /// <summary> 设备状态 </summary>
         public XDCAMDeviceState DeviceState { get; set; } = XDCAMDeviceState.DS_DISCONNECTED; //设备状态
 
