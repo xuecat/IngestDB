@@ -1,4 +1,5 @@
 ﻿using IngestDBCore;
+using IngestDBCore.Dto;
 using IngestDBCore.Notify;
 using Microsoft.Extensions.DependencyInjection;
 using MsvClientSDK;
@@ -19,6 +20,13 @@ namespace MSVNotifyPlugin
             {
                 //var imp = ApplicationContext.Current.ServiceProvider.GetRequiredService<CClientTaskSDKImp>();
                 // imp.MSV_RelocateRTMP(ti.Intent, ti.Port, ti.Data);
+                var imp = new CClientTaskSDKImp();
+                if(ti.Param is MatrixMsvNotifyInfo)
+                {
+                    var notifyInfo = ti.Param as MatrixMsvNotifyInfo;
+                    imp.MSV_RelocateRTMP(notifyInfo.MsvIp, notifyInfo.Port, notifyInfo.LocalIP);
+                }
+
             }
         }
     }

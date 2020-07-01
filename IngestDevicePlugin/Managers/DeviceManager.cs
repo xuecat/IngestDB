@@ -215,7 +215,7 @@ namespace IngestDevicePlugin.Managers
         /// <param name="deviceOutPortIdx">设备输出端口索引</param>
         /// <param name="signalSource">信号源</param>
         /// <returns></returns>
-        public virtual async Task<bool> SaveSignalDeviceMapAsync(int signalID, int deviceID, int deviceOutPortIdx, emSignalSource signalSource)
+        public virtual async ValueTask<bool> SaveSignalDeviceMapAsync(int signalID, int deviceID, int deviceOutPortIdx, emSignalSource signalSource)
         {
             await Store.SaveSignalDeviceMapAsync(new IngestDevicePlugin.Models.DbpSignalDeviceMap
             {
@@ -228,14 +228,14 @@ namespace IngestDevicePlugin.Managers
         }
 
         /// <summary> 根据 通道ID 获取高清还是标清 nType:0标清,1高清 </summary>
-        public virtual async Task<int> GetParamTypeByChannelIDAsync(int channelID)
+        public virtual async ValueTask<int> GetParamTypeByChannelIDAsync(int channelID)
         {
             var nType = await Store.GetParamTypeByChannelIDAsync(channelID);
             return nType ?? -1;
         }
 
         /// <summary>根据信号源获取是高清还是标清</summary>
-        public virtual async Task<int> GetParamTypeBySignalIDAsync(int signalID)
+        public virtual async ValueTask<int> GetParamTypeBySignalIDAsync(int signalID)
         {
             var id = await Store.GetParamTypeBySignalIDAsync(signalID);
             return id ?? -1;
