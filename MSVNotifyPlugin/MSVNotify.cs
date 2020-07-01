@@ -25,7 +25,11 @@ namespace MSVNotifyPlugin
             //发送通知
             if ((ti.Intent & NotifyPlugin.Msv) > 0)
             {
-                _sDKImp.MSV_RelocateRTMP(ti.Action, ti.Port, ti.Type);
+                if (ti.Action == NotifyAction.MSVRELOCATE)
+                {
+                    _sDKImp.MSV_RelocateRTMP(ti.Type, ti.Port, ti.Param as string);
+                }
+                
 
                 //var imp = ApplicationContext.Current.ServiceProvider.GetRequiredService<CClientTaskSDKImp>();
                 // imp.MSV_RelocateRTMP(ti.Intent, ti.Port, ti.Data);

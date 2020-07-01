@@ -21,6 +21,7 @@ namespace IngestDBCore
         static public string VTR_UPLOAD_AddTask = "VTR_UPLOAD_AddTask";
         static public string VTR_UPLOAD_DeleteTask = "VTR_UPLOAD_DeleteTask";
         static public string VTR_UPLOAD_ModifyTask = "VTR_UPLOAD_ModifyTask";
+        
     }
 
     public class GlobalInternals
