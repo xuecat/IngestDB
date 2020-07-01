@@ -7,7 +7,7 @@ namespace IngestTaskPlugin.Dto.Response
     public class VTRTapeInfoResponse
     {
         /// <summary>磁带ID</summary>
-        public int TapeID;
+        public int TapeId;
         /// <summary>磁带名称</summary>
         public string TapeName;
         /// <summary>磁带描述</summary>

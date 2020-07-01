@@ -63,7 +63,7 @@ namespace IngestTaskPlugin.Dto.Response
         /// <summary>
         /// 任务GUID
         /// </summary>
-        public string TaskGUID { get; set; } = string.Empty;
+        public string TaskGuid { get; set; } = string.Empty;
         /// <summary>
         /// 磁带ID
         /// </summary>
@@ -79,11 +79,11 @@ namespace IngestTaskPlugin.Dto.Response
         /// <summary>
         /// 磁带CTL入点
         /// </summary>
-        public int TrimInCTL { get; set; } = 0;
+        public int TrimInCtl { get; set; } = 0;
         /// <summary>
         /// 磁带CTL出点
         /// </summary>
-        public int TrimOutCTL { get; set; } = 0;
+        public int TrimOutCtl { get; set; } = 0;
     }
 
 }

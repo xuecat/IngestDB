@@ -9,7 +9,7 @@ namespace IngestTaskPlugin.Dto.Response
     {
         /// <summary>任务id</summary>
         /// <example>1</example>
-        public int TaskID { get; set; }
+        public int TaskId { get; set; }
         /// <summary>任务来源</summary>
         /// <example>任务源数据</example>
         public string Metadata { get; set; }
@@ -22,7 +22,7 @@ namespace IngestTaskPlugin.Dto.Response
         public string Title { get; set; }
         /// <summary>生成素材materialid</summary>
         /// <example>string</example>
-        public string MaterialID { get; set; }
+        public string MaterialId { get; set; }
         /// <summary>权限</summary>
         /// <example>string</example>
         public string Rights { get; set; }
@@ -34,7 +34,7 @@ namespace IngestTaskPlugin.Dto.Response
         public string Destination { get; set; }
         /// <summary>生成素材目录类型</summary>
         /// <example>0</example>
-        public int FolderID { get; set; }
+        public int FolderId { get; set; }
         /// <summary>暂时无</summary>
         /// <example>string</example>
         public string ItemName { get; set; }
@@ -56,10 +56,10 @@ namespace IngestTaskPlugin.Dto.Response
     {
         /// <summary>暂时无</summary>
         /// <example>0</example>
-        public int HouseTC { get; set; }
+        public int HouseTc { get; set; }
         /// <summary>暂时无</summary>
         /// <example>0</example>
-        public int Presetstamp { get; set; }
+        public int PresetStamp { get; set; }
         /// <summary>暂时无</summary>
         public PeriodParamResponse PeriodParam { get; set; }
         /// <summary>暂时无</summary>
@@ -76,10 +76,10 @@ namespace IngestTaskPlugin.Dto.Response
         public int SourceTapeBarcode {get;set;}
         /// <summary>暂时无</summary>
         /// <example>0</example>
-        public int BackTapeID { get; set; }
+        public int BackTapeId { get; set; }
         /// <summary>暂时无</summary>
         /// <example>0</example>
-        public int UserMediaID { get; set; }
+        public int UserMediaId { get; set; }
         /// <summary>暂时无</summary>
         /// <example>string</example>
         public string UserToken { get; set; }

@@ -431,7 +431,7 @@
                     StampImage = a.task.Description,
                     TaskType = (TaskType)a.task.Tasktype,
                     CooperantType = (CooperantType)a.task.Backtype,
-                    TaskGUID = a.task.Taskguid,
+                    TaskGuid = a.task.Taskguid,
 
                     VtrId = (int)a.vtr.Vtrid,
                     BlankTaskId = (int)a.vtr.Vtrtaskid,
@@ -443,8 +443,8 @@
                     Order = (int)a.vtr.Uploadorder,
                     TapeId = (int)a.vtr.Tapeid,
                     UserToken = a.vtr.Usertoken,
-                    TrimInCTL = (int)a.vtr.Triminctl,
-                    TrimOutCTL = (int)a.vtr.Trimoutctl,
+                    TrimInCtl = (int)a.vtr.Triminctl,
+                    TrimOutCtl = (int)a.vtr.Trimoutctl,
                     VtrTaskType = (VTRUPLOADTASKTYPE)a.vtr.Vtrtasktype,
                 }).ToList();
             }

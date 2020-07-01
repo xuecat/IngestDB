@@ -63,7 +63,7 @@ namespace IngestGlobalPlugin.Managers
             {
                 string tcType = await GetValueStringAsync(strKey);
                 global.TcType = (TC_TYPE)Convert.ToInt32(tcType);
-                global.TC = Convert.ToInt32(await GetValueStringAsync("PRESET_STC"));
+                global.Tc = Convert.ToInt32(await GetValueStringAsync("PRESET_STC"));
             }
             catch (Exception ex)
             {

@@ -99,22 +99,22 @@ namespace IngestTaskPlugin
                 .ForMember(a => a.nSGroupColor, (y) => y.MapFrom(b => b.Sgroupcolor));
 
             CreateMap<TaskContent, TaskContentResponse>()
-                .ForMember(x => x.TaskID, (y) => y.MapFrom(z => z.nTaskID))
+                .ForMember(x => x.TaskId, (y) => y.MapFrom(z => z.nTaskID))
                 .ForMember(x => x.TaskName, (y) => y.MapFrom(z => z.strTaskName))
                 .ForMember(x => x.TaskDesc, (y) => y.MapFrom(z => z.strTaskDesc))
                 .ForMember(x => x.Classify, (y) => y.MapFrom(z => z.strClassify))
-                .ForMember(x => x.ChannelID, (y) => y.MapFrom(z => z.nChannelID))
+                .ForMember(x => x.ChannelId, (y) => y.MapFrom(z => z.nChannelID))
                 .ForMember(x => x.Unit, (y) => y.MapFrom(z => z.nUnit))
                 .ForMember(x => x.UserCode, (y) => y.MapFrom(z => z.strUserCode))
-                .ForMember(x => x.SignalID, (y) => y.MapFrom(z => z.nSignalID))
+                .ForMember(x => x.SignalId, (y) => y.MapFrom(z => z.nSignalID))
                 .ForMember(x => x.Begin, (y) => y.MapFrom(z => z.strBegin))
                 .ForMember(x => x.End, (y) => y.MapFrom(z => z.strEnd))
                 .ForMember(x => x.TaskType, (y) => y.MapFrom(z => z.emTaskType))
                 .ForMember(x => x.CooperantType, (y) => y.MapFrom(z => z.emCooperantType))
                 .ForMember(x => x.State, (y) => y.MapFrom(z => z.emState))
                 .ForMember(x => x.StampImage, (y) => y.MapFrom(z => z.strStampImage))
-                .ForMember(x => x.TaskGUID, (y) => y.MapFrom(z => z.strTaskGUID))
-                .ForMember(x => x.BackupVTRID, (y) => y.MapFrom(z => z.nBackupVTRID))
+                .ForMember(x => x.TaskGuid, (y) => y.MapFrom(z => z.strTaskGUID))
+                .ForMember(x => x.BackupVtrId, (y) => y.MapFrom(z => z.nBackupVTRID))
                 .ForMember(x => x.Priority, (y) => y.MapFrom(z => z.emPriority))
                 .ForMember(x => x.StampTitleIndex, (y) => y.MapFrom(z => z.nStampTitleIndex))
                 .ForMember(x => x.StampImageType, (y) => y.MapFrom(z => z.nStampImageType))
@@ -135,10 +135,10 @@ namespace IngestTaskPlugin
                 .ForMember(d => d.nCurrentChannelID, y => y.MapFrom(s => s.Channelid));
 
             CreateMap<DbpTask, RescheduledTaskInfoResponse>()
-                .ForMember(d => d.TaskID, y => y.MapFrom(s => s.Taskid))
+                .ForMember(d => d.TaskId, y => y.MapFrom(s => s.Taskid))
                 .ForMember(d => d.TaskName, y => y.MapFrom(s => s.Taskname))
-                .ForMember(d => d.PreviousChannelID, y => y.MapFrom(s => s.OldChannelid))
-                .ForMember(d => d.CurrentChannelID, y => y.MapFrom(s => s.Channelid));
+                .ForMember(d => d.PreviousChannelId, y => y.MapFrom(s => s.OldChannelid))
+                .ForMember(d => d.CurrentChannelId, y => y.MapFrom(s => s.Channelid));
 
             CreateMap<AddTaskSvr_IN, TaskInfoResponse>() 
                 .ForMember(d => d.TaskContent, y => y.MapFrom(s => s.taskAdd))
@@ -178,8 +178,8 @@ namespace IngestTaskPlugin
                 .ForMember(x => x.SynState, (y) => y.MapFrom(z => z.nSynState)).ReverseMap();
 
             CreateMap<WarningInfo, WarningInfoResponse>()
-                .ForMember(x => x.RelatedID, (y) => y.MapFrom(z => z.nRelatedID))
-                .ForMember(x => x.TaskID, (y) => y.MapFrom(z => z.nTaskID))
+                .ForMember(x => x.RelatedId, (y) => y.MapFrom(z => z.nRelatedID))
+                .ForMember(x => x.TaskId, (y) => y.MapFrom(z => z.nTaskID))
                 .ForMember(x => x.WarningLevel, (y) => y.MapFrom(z => z.nWarningLevel))
                 .ForMember(x => x.WarningMessage, (y) => y.MapFrom(z => z.strWarningMessage)).ReverseMap();
             //ReverseMap

@@ -50,7 +50,7 @@ namespace IngestTaskPlugin.Dto.Response
         /// <summary>
         /// VTR服务IP
         /// </summary>
-        public string ServerIP { get; set; } = "";
+        public string ServerIp { get; set; } = "";
 
         /// <summary>
         /// 上载预卷帧数

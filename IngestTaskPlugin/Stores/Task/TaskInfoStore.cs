@@ -179,17 +179,17 @@ namespace IngestTaskPlugin.Stores
             {
                 lst = Context.DbpTask;
             }
-            if (condition.ChannelID > 0)
+            if (condition.ChannelId > 0)
             {
-                lst = lst.Where(x => x.Channelid == condition.ChannelID);
+                lst = lst.Where(x => x.Channelid == condition.ChannelId);
             }
             if (condition.RecUnit > 0)
             {
                 lst = lst.Where(x => x.Recunitid == condition.RecUnit);
             }
-            if (condition.SignalID > 0)
+            if (condition.SignalId > 0)
             {
-                lst = lst.Where(x => x.Signalid == condition.SignalID);
+                lst = lst.Where(x => x.Signalid == condition.SignalId);
             }
             if (!string.IsNullOrEmpty(condition.LockStr))
             {

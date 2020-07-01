@@ -35,7 +35,7 @@ namespace IngestGlobalPlugin
 
             CreateMap<GlobalTcResponse, GetDefaultSTC_param>()
                 .ForMember(a => a.tcType, (map) => map.MapFrom(b => b.TcType))
-                .ForMember(a => a.nTC, (map) => map.MapFrom(b => b.TC));
+                .ForMember(a => a.nTC, (map) => map.MapFrom(b => b.Tc));
 
             CreateMap<DbpGlobalState, GlobalState>()
                 .ForMember(a => a.strLabel, (map) => map.MapFrom(b => b.Label))
@@ -72,7 +72,7 @@ namespace IngestGlobalPlugin
                 .ForMember(a => a.strParamTemplate, (map) => map.MapFrom(b => b.Captureparam));
 
             CreateMap<DbpCaptureparamtemplate, CapParamTemplate>()
-                .ForMember(a => a.ID, (map) => map.MapFrom(b => b.Captureparamid))
+                .ForMember(a => a.Id, (map) => map.MapFrom(b => b.Captureparamid))
                 .ForMember(a => a.TemplateName, (map) => map.MapFrom(b => b.Captemplatename))
                 .ForMember(a => a.ParamTemplate, (map) => map.MapFrom(b => b.Captureparam));
 
@@ -89,7 +89,7 @@ namespace IngestGlobalPlugin
                 .ForMember(a => a.type, (map) => map.MapFrom(b => b.Type))
                 .ForMember(a => a.sNextRetry, (map) => map.MapFrom(b => b.NextRetry))
                 .ForMember(a => a.strLock, (map) => map.MapFrom(b => b.Lock))
-                .ForMember(a => a.nActionID, (map) => map.MapFrom(b => b.ActionID)).ReverseMap();
+                .ForMember(a => a.nActionID, (map) => map.MapFrom(b => b.ActionId)).ReverseMap();
             CreateMap<DbpMsmqmsg, MqMsgInfoRequest>()
                 .ForMember(a => a.MsgSendTime, (map) => map.MapFrom(b => b.Msgsendtime))
                 .ForMember(a => a.MsgRevTime, (map) => map.MapFrom(b => b.Msgrevtime))
@@ -109,24 +109,24 @@ namespace IngestGlobalPlugin
 
             CreateMap<VideoInfoResponse, VideoInfo>()
                 .ForMember(a => a.nVideoSource, (map) => map.MapFrom(b => b.VideoSource))
-                .ForMember(a => a.nVideoTypeID, (map) => map.MapFrom(b => b.VideoTypeID))
+                .ForMember(a => a.nVideoTypeID, (map) => map.MapFrom(b => b.VideoTypeId))
                 .ForMember(a => a.strFilename, (map) => map.MapFrom(b => b.Filename)).ReverseMap();
 
             CreateMap<FileFormateInfoResponse, FileFormatInfo_in>()
                 .ForMember(a => a.extrainfo, (map) => map.MapFrom(b => b.ExtraInfo))
                 .ForMember(a => a.key, (map) => map.MapFrom(b => b.Key))
-                .ForMember(a => a.nformatid, (map) => map.MapFrom(b => b.FormatID))
+                .ForMember(a => a.nformatid, (map) => map.MapFrom(b => b.FormatId))
                 .ForMember(a => a.videostrandguid, (map) => map.MapFrom(b => b.VideoStrandGuid))
-                .ForMember(a => a.videostrandid, (map) => map.MapFrom(b => b.VideoStrandID))
+                .ForMember(a => a.videostrandid, (map) => map.MapFrom(b => b.VideoStrandId))
                 .ReverseMap();
 
             CreateMap<FileFormatInfo_in, FileFormatInfo_out>().ReverseMap();
             CreateMap<FileFormateInfoResponse, FileFormatInfo_out>()
                 .ForMember(a => a.extrainfo, (map) => map.MapFrom(b => b.ExtraInfo))
                 .ForMember(a => a.key, (map) => map.MapFrom(b => b.Key))
-                .ForMember(a => a.nformatid, (map) => map.MapFrom(b => b.FormatID))
+                .ForMember(a => a.nformatid, (map) => map.MapFrom(b => b.FormatId))
                 .ForMember(a => a.videostrandguid, (map) => map.MapFrom(b => b.VideoStrandGuid))
-                .ForMember(a => a.videostrandid, (map) => map.MapFrom(b => b.VideoStrandID));
+                .ForMember(a => a.videostrandid, (map) => map.MapFrom(b => b.VideoStrandId));
 
             CreateMap<MsgFailedRecord, DbpMsgFailedrecord>()
                 .ForMember(a => a.TaskId, (map) => map.MapFrom(b => b.TaskID))
@@ -134,8 +134,8 @@ namespace IngestGlobalPlugin
                 .ForMember(a => a.DealTime, (map) => map.MapFrom(b => b.DealTime)).ReverseMap();
 
             CreateMap<MsgFailedRecordResponse, DbpMsgFailedrecord>()
-                .ForMember(a => a.TaskId, (map) => map.MapFrom(b => b.TaskID))
-                .ForMember(a => a.SectionId, (map) => map.MapFrom(b => b.SectionID))
+                .ForMember(a => a.TaskId, (map) => map.MapFrom(b => b.TaskId))
+                .ForMember(a => a.SectionId, (map) => map.MapFrom(b => b.SectionId))
                 .ForMember(a => a.DealTime, (map) => map.MapFrom(b => b.DealTime)).ReverseMap();
 
             CreateMap<DbpMetadatapolicy, MetaDataPolicy>()
@@ -158,7 +158,7 @@ namespace IngestGlobalPlugin
                 .ForMember(a => a.Deletedstate, (map) => map.MapFrom(b => b.nDeleteState));
 
             CreateMap<DbpMaterial, MaterialInfoResponse>()
-                .ForMember(a => a.ID, (map) => map.MapFrom(b => b.Materialid))
+                .ForMember(a => a.Id, (map) => map.MapFrom(b => b.Materialid))
                 .ForMember(a => a.CreateTime, (map) => map.MapFrom(b => b.Createtime))
                 .ForMember(a => a.DeleteState, (map) => map.MapFrom(b => b.Deletedstate));
 
@@ -170,8 +170,8 @@ namespace IngestGlobalPlugin
             //ReverseMap
 
             CreateMap<FailedMessageParam, FailedMessageParamResponse>()
-                .ForMember(a => a.TaskID, (map) => map.MapFrom(b => b.TaskID))
-                .ForMember(a => a.SectionID, (map) => map.MapFrom(b => b.SectionID))
+                .ForMember(a => a.TaskId, (map) => map.MapFrom(b => b.TaskID))
+                .ForMember(a => a.SectionId, (map) => map.MapFrom(b => b.SectionID))
                 .ForMember(a => a.MsgContent, (map) => map.MapFrom(b => b.MsgContent)).ReverseMap();
         }
 

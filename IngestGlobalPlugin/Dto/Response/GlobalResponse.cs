@@ -14,7 +14,7 @@ namespace IngestGlobalPlugin.Dto.Response
     {
         public TC_TYPE TcType { get; set; }
 
-        public int TC { get; set; }
+        public int Tc { get; set; }
     }
 
     public class DtoGlobalStateResponse
@@ -27,7 +27,7 @@ namespace IngestGlobalPlugin.Dto.Response
     {
         /// <summary>模板ID</summary>
         /// <example>-1</example>
-        public int TemplateID { get; set; }//= -1;                    //模板ID
+        public int TemplateId { get; set; }//= -1;                    //模板ID
         /// <summary>用户名</summary>
         /// <example>8de083d45c614628b99516740d628e91</example>
         public string UserCode { get; set; }//= string.Empty;       //用户名
@@ -61,7 +61,7 @@ namespace IngestGlobalPlugin.Dto.Response
 
     public class CapParamTemplate
     {
-        public int ID { get; set; }
+        public int Id { get; set; }
         public string TemplateName { get; set; }//采集参数模板
         public string ParamTemplate { get; set; }//参数模板内容采集
     }
@@ -83,10 +83,10 @@ namespace IngestGlobalPlugin.Dto.Response
     {
         /// <summary>对象Id</summary>
         /// <example>3538</example>
-        public int ObjectID { get; set; }
+        public int ObjectId { get; set; }
         /// <summary>对象类型Id</summary>
         /// <example>3</example>
-        public OTID ObjectTypeID { get; set; }
+        public OTID ObjectTypeId { get; set; }
         /// <summary>用户名</summary>
         /// <example>RecMQServer</example>
         public string UserName { get; set; }

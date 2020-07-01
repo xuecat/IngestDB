@@ -8,7 +8,7 @@ namespace IngestTaskPlugin.Dto.Response
     {
         /// <summary>任务id</summary>
         /// <example>1</example>
-        public int TaskID { get; set; }
+        public int TaskId { get; set; }
         /// <summary>任务元数据</summary>
         /// <example>任务元数据</example>
         public string Metadata { get; set; }

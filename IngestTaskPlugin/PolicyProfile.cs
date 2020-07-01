@@ -19,7 +19,7 @@ namespace IngestTaskPlugin
         {
 
             CreateMap<MetaDataPolicyResponse, MetaDataPolicy>()
-               .ForMember(a => a.nID, (map) => map.MapFrom(b => b.ID))
+               .ForMember(a => a.nID, (map) => map.MapFrom(b => b.Id))
                .ForMember(a => a.nDefaultPolicy, (map) => map.MapFrom(b => b.DefaultPolicy))
                .ForMember(a => a.strArchiveType, (map) => map.MapFrom(b => b.ArchiveType))
                .ForMember(a => a.strDesc, (map) => map.MapFrom(b => b.Desc))
@@ -33,7 +33,7 @@ namespace IngestTaskPlugin
                .ForMember(a => a.strName, (map) => map.MapFrom(b => b.Policyname)).ReverseMap();
 
             CreateMap<DbpMetadatapolicy, MetaDataPolicyResponse>()
-               .ForMember(a => a.ID, (map) => map.MapFrom(b => b.Policyid))
+               .ForMember(a => a.Id, (map) => map.MapFrom(b => b.Policyid))
                .ForMember(a => a.DefaultPolicy, (map) => map.MapFrom(b => b.Defaultpolicy))
                .ForMember(a => a.ArchiveType, (map) => map.MapFrom(b => b.Archivetype))
                .ForMember(a => a.Desc, (map) => map.MapFrom(b => b.Policydesc))

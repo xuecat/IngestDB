@@ -61,9 +61,9 @@ namespace IngestTaskPlugin.Managers
             {
                 root.Add(new XElement("TITLE", re.Title));
             }
-            if (!string.IsNullOrEmpty(re.MaterialID))
+            if (!string.IsNullOrEmpty(re.MaterialId))
             {
-                root.Add(new XElement("MATERIALID", re.MaterialID));
+                root.Add(new XElement("MATERIALID", re.MaterialId));
             }
             if (!string.IsNullOrEmpty(re.Rights))
             {
@@ -77,9 +77,9 @@ namespace IngestTaskPlugin.Managers
             {
                 root.Add(new XElement("DESTINATION", re.Destination));
             }
-            if (re.FolderID >= 0)
+            if (re.FolderId >= 0)
             {
-                root.Add(new XElement("FOLDERID", re.FolderID));
+                root.Add(new XElement("FOLDERID", re.FolderId));
             }
             if (!string.IsNullOrEmpty(re.Destination))
             {
@@ -114,13 +114,13 @@ namespace IngestTaskPlugin.Managers
             XDocument xdoc = new XDocument(new XElement("TaskContentMetaData"));
             var root = xdoc.Root;
 
-            if (re.HouseTC >= 0)
+            if (re.HouseTc >= 0)
             {
-                root.Add(new XElement("HOUSETC", re.HouseTC));
+                root.Add(new XElement("HOUSETC", re.HouseTc));
             }
-            if (re.Presetstamp >= 0)
+            if (re.PresetStamp >= 0)
             {
-                root.Add(new XElement("PRESETSTAMP", re.Presetstamp));
+                root.Add(new XElement("PRESETSTAMP", re.PresetStamp));
             }
             if (re.SixteenToNine >= 0)
             {
@@ -138,13 +138,13 @@ namespace IngestTaskPlugin.Managers
             {
                 root.Add(new XElement("SOURCETAPEBARCODE", re.SourceTapeBarcode));
             }
-            if (re.BackTapeID >= 0)
+            if (re.BackTapeId >= 0)
             {
-                root.Add(new XElement("BACKTAPEID", re.BackTapeID));
+                root.Add(new XElement("BACKTAPEID", re.BackTapeId));
             }
-            if (re.UserMediaID >= 0)
+            if (re.UserMediaId >= 0)
             {
-                root.Add(new XElement("USERMEDIAID", re.UserMediaID));
+                root.Add(new XElement("USERMEDIAID", re.UserMediaId));
             }
             if (!string.IsNullOrEmpty(re.UserToken))
             {
@@ -291,11 +291,11 @@ namespace IngestTaskPlugin.Managers
 
                 TaskMaterialMetaResponse ret = new TaskMaterialMetaResponse();
                 ret.Title = material?.Element("TITLE")?.Value;
-                ret.MaterialID = material?.Element("MATERIALID")?.Value;
+                ret.MaterialId = material?.Element("MATERIALID")?.Value;
                 ret.Rights = material?.Element("RIGHTS")?.Value;
                 ret.Comments = material?.Element("COMMENTS")?.Value;
                 ret.Destination = material?.Element("DESTINATION")?.Value;
-                ret.FolderID = int.Parse(material?.Element("FOLDERID")?.Value);
+                ret.FolderId = int.Parse(material?.Element("FOLDERID")?.Value);
                 ret.ItemName = material?.Element("ITEMNAME")?.Value;
                 ret.JournaList = material?.Element("JOURNALIST")?.Value;
                 ret.CateGory = material?.Element("CATEGORY")?.Value;
@@ -324,14 +324,14 @@ namespace IngestTaskPlugin.Managers
                 var material = root.Element("TaskContentMetaData");
 
                 TaskContentMetaResponse ret = new TaskContentMetaResponse();
-                ret.HouseTC = int.Parse(material?.Element("HOUSETC")?.Value);
-                ret.Presetstamp = int.Parse(material?.Element("PRESETSTAMP")?.Value);
+                ret.HouseTc = int.Parse(material?.Element("HOUSETC")?.Value);
+                ret.PresetStamp = int.Parse(material?.Element("PRESETSTAMP")?.Value);
                 ret.SixteenToNine = int.Parse(material?.Element("SIXTEENTONINE")?.Value);
                 ret.SourceTapeID = int.Parse(material?.Element("SOURCETAPEID")?.Value);
                 ret.DeleteFlag = int.Parse(material?.Element("DELETEFLAG")?.Value);
                 ret.SourceTapeBarcode = int.Parse(material?.Element("SOURCETAPEBARCODE")?.Value);
-                ret.BackTapeID = int.Parse(material?.Element("BACKTAPEID")?.Value);
-                ret.UserMediaID = int.Parse(material?.Element("USERMEDIAID")?.Value);
+                ret.BackTapeId = int.Parse(material?.Element("BACKTAPEID")?.Value);
+                ret.UserMediaId = int.Parse(material?.Element("USERMEDIAID")?.Value);
                 ret.UserToken = material?.Element("UserToken")?.Value;
                 ret.VtrStart = material?.Element("VTRSTART")?.Value;
                 ret.TcMode = int.Parse(material?.Element("TCMODE")?.Value);
@@ -474,8 +474,8 @@ namespace IngestTaskPlugin.Managers
 
                         lstback.Add(new WarningInfoResponse()
                         {
-                            TaskID = item.Taskid,
-                            RelatedID = channel,
+                            TaskId = item.Taskid,
+                            RelatedId = channel,
                             WarningLevel = 0,
                             WarningMessage = string.Format(GlobalDictionary.Instance.GetMessageByCode(GlobalDictionary.GLOBALDICT_CODE_SCHEDULED_TASK_WILL_BEGIN_AT_TWOPARAM), item.Taskname, item.NewBegintime.ToString())
                         });
@@ -489,7 +489,7 @@ namespace IngestTaskPlugin.Managers
 
                 if (findexcuting)
                 {
-                    lstback.ForEach(a => a.RelatedID = manTaskID);
+                    lstback.ForEach(a => a.RelatedId = manTaskID);
                     return _mapper.Map<List<T>>(lstback);
 
                 }
@@ -531,8 +531,8 @@ namespace IngestTaskPlugin.Managers
 
                     lstback.Add( new WarningInfoResponse()
                         {
-                            TaskID = item.Taskid,
-                            RelatedID = channel,
+                            TaskId = item.Taskid,
+                            RelatedId = channel,
                             WarningLevel = 0,
                             WarningMessage = string.Format(GlobalDictionary.Instance.GetMessageByCode(GlobalDictionary.GLOBALDICT_CODE_SCHEDULED_TASK_WILL_BEGIN_AT_TWOPARAM), item.Taskname, item.NewBegintime.ToString())
                         });
@@ -573,7 +573,7 @@ namespace IngestTaskPlugin.Managers
                     {
                         var rep = await global.GetGlobalCallBack(new GlobalInternals() {
                             Funtype = GlobalInternals.FunctionType.MaterialInfo,
-                            TaskID = findtask.TaskID
+                            TaskID = findtask.TaskId
                         });
 
                         var reps = rep as ResponseMessage<List<MaterialInfoInterface>>;
@@ -1403,17 +1403,17 @@ namespace IngestTaskPlugin.Managers
                 addinfo.TaskContent = _mapper.Map<TaskContentRequest>(findtask);
                 var backinfo = await AddTaskWithoutPolicy(addinfo, strCapatureMetaData, strContentMetaData, strStoreMetaData, strPlanMetaData);
 
-                Logger.Info("SplitTask {0}", addinfo.TaskContent.TaskID);
+                Logger.Info("SplitTask {0}", addinfo.TaskContent.TaskId);
 
                 if (typeof(TResult) == typeof(SplitTask_OUT))
                 {
                     var retinfo = new SplitTask_OUT();
                     retinfo.taskSplit = _mapper.Map<TaskContent>(backinfo);
                     retinfo.metaDataPairs = new List<MetadataPair>() {
-                        new MetadataPair() {nTaskID = addinfo.TaskContent.TaskID, emtype = MetaDataType.emCapatureMetaData, strMetadata = strCapatureMetaData},
-                        new MetadataPair() {nTaskID = addinfo.TaskContent.TaskID, emtype = MetaDataType.emStoreMetaData, strMetadata = strStoreMetaData},
-                        new MetadataPair() {nTaskID = addinfo.TaskContent.TaskID, emtype = MetaDataType.emContentMetaData, strMetadata = strContentMetaData},
-                        new MetadataPair() {nTaskID = addinfo.TaskContent.TaskID, emtype = MetaDataType.emSplitData, strMetadata = strSplitMetaData},
+                        new MetadataPair() {nTaskID = addinfo.TaskContent.TaskId, emtype = MetaDataType.emCapatureMetaData, strMetadata = strCapatureMetaData},
+                        new MetadataPair() {nTaskID = addinfo.TaskContent.TaskId, emtype = MetaDataType.emStoreMetaData, strMetadata = strStoreMetaData},
+                        new MetadataPair() {nTaskID = addinfo.TaskContent.TaskId, emtype = MetaDataType.emContentMetaData, strMetadata = strContentMetaData},
+                        new MetadataPair() {nTaskID = addinfo.TaskContent.TaskId, emtype = MetaDataType.emSplitData, strMetadata = strSplitMetaData},
                     };
                     return _mapper.Map<TResult>(retinfo);
                 }
@@ -1474,9 +1474,9 @@ namespace IngestTaskPlugin.Managers
         {
             var taskinfo = _mapper.Map<TaskContentRequest>(re);
 
-            if (taskinfo.ChannelID > 0)
+            if (taskinfo.ChannelId > 0)
             {
-                var findtask = await Store.GetTaskAsync(a => a.Where(b => b.Taskid == taskinfo.TaskID));
+                var findtask = await Store.GetTaskAsync(a => a.Where(b => b.Taskid == taskinfo.TaskId));
                 findtask.SyncState = (int)syncState.ssNot;
                 findtask.DispatchState = (int)dispatchState.dpsDispatched;
 
@@ -1928,11 +1928,11 @@ namespace IngestTaskPlugin.Managers
 
                 //分出任务
                 string strOldTaskClassify = modifyinfo.Classify;
-                int nOrignalTaskID = modifyinfo.TaskID;
+                int nOrignalTaskID = modifyinfo.TaskId;
                 string taskClassify = strOldTaskClassify;
                 taskClassify += string.Format("[{0}]", modifyinfo.Begin);
 
-                await Store.SetTaskClassify(modifyinfo.TaskID, modifyinfo.Classify, false);
+                await Store.SetTaskClassify(modifyinfo.TaskId, modifyinfo.Classify, false);
 
                 //添加新任务
                 bool isNeedAppDate = false;
@@ -1943,7 +1943,7 @@ namespace IngestTaskPlugin.Managers
                     return null;
                 }
 
-                var f = await Store.GetTaskMetaDataListAsync(a => a.Where(b => b.Taskid == modifyinfo.TaskID), true);
+                var f = await Store.GetTaskMetaDataListAsync(a => a.Where(b => b.Taskid == modifyinfo.TaskId), true);
                 string strCapatureMetaData = string.Empty, strStoreMetaData = string.Empty, strContentMetaData = string.Empty, strPlanMetaData = string.Empty, strSplitMetaData = string.Empty;
                 foreach (var item in f)
                 {
@@ -1982,12 +1982,12 @@ namespace IngestTaskPlugin.Managers
                     }
                 }
 
-                modifyinfo.TaskID = -1;
+                modifyinfo.TaskId = -1;
                 modifyinfo.TaskName = newTaskName;
                 modifyinfo.Classify = "A";
                 modifyinfo.State = (int)taskState.tsReady;
                 modifyinfo.TaskType = (int)TaskType.TT_NORMAL;
-                modifyinfo.TaskGUID = string.Empty;
+                modifyinfo.TaskGuid = string.Empty;
                 modifyinfo.TaskDesc = string.Empty;
 
                 //这里自己处理异常，如果添加新任务失败了，那么之前的修改要复原
@@ -2024,7 +2024,7 @@ namespace IngestTaskPlugin.Managers
                 SobeyRecException.ThrowSelfNoParam("ModifyTask time empty", GlobalDictionary.GLOBALDICT_CODE_TASK_END_TIME_IS_SMALLER_THAN_BEING_TIME, Logger, null);
             }
 
-            var findtask = await Store.GetTaskAsync(a => a.Where(b => b.Taskid == taskModify.TaskID));
+            var findtask = await Store.GetTaskAsync(a => a.Where(b => b.Taskid == taskModify.TaskId));
 
             if (findtask == null)
             {
@@ -2032,7 +2032,7 @@ namespace IngestTaskPlugin.Managers
             }
 
             //如果是已分发、已同步的任务，不允许改变通道
-            if (findtask.Channelid != taskModify.ChannelID
+            if (findtask.Channelid != taskModify.ChannelId
                 && findtask.DispatchState == (int)dispatchState.dpsDispatched
                 && findtask.SyncState == (int)syncState.ssSync)
             {
@@ -2042,7 +2042,7 @@ namespace IngestTaskPlugin.Managers
 
             //如果是改变了信号源或者通道，判断一下信号源和通道是不是匹配的
             bool match = false;
-            if (findtask.Channelid != taskModify.ChannelID || findtask.Signalid != taskModify.SignalID)
+            if (findtask.Channelid != taskModify.ChannelId || findtask.Signalid != taskModify.SignalId)
             {
                 
                 if (_deviceInterface != null)
@@ -2051,7 +2051,7 @@ namespace IngestTaskPlugin.Managers
                     var response1 = await _deviceInterface.Value.GetDeviceCallBack(new DeviceInternals()
                     {
                         funtype = IngestDBCore.DeviceInternals.FunctionType.ChannelInfoBySrc,
-                        SrcId = taskModify.SignalID,
+                        SrcId = taskModify.SignalId,
                         Status = 1
                     });
 
@@ -2064,7 +2064,7 @@ namespace IngestTaskPlugin.Managers
                     var fresponse = response1 as ResponseMessage<List<CaptureChannelInfoInterface>>;
                     if (fresponse != null && fresponse.Ext?.Count > 0)
                     {
-                        if (fresponse.Ext.Any(x => x.ID == taskModify.ChannelID))
+                        if (fresponse.Ext.Any(x => x.ID == taskModify.ChannelId))
                             match = true;
                     }
                 }
@@ -2127,13 +2127,13 @@ namespace IngestTaskPlugin.Managers
                 //    SobeyRecException.ThrowSelf(string.Format(GlobalDictionary.Instance.GetMessageByCode(GlobalDictionary.GLOBALDICT_CODE_CAN_NOT_MODIFY_TIME_CONFLICT_TASKS),
                 //                GetTaskDesc(conflictContent)), GlobalDictionary.GLOBALDICT_CODE_CAN_NOT_MODIFY_TIME_CONFLICT_TASKS);
                 //}
-                List<int> chl = new List<int>() { taskModify.ChannelID };
-                var freelst = await Store.GetFreeChannels(chl, taskModify.TaskID, modifybegin, modifyend);
+                List<int> chl = new List<int>() { taskModify.ChannelId };
+                var freelst = await Store.GetFreeChannels(chl, taskModify.TaskId, modifybegin, modifyend);
                 if (freelst == null || freelst.Count < 1)
                 {
                     await Store.UnLockTask(findtask, true);
                     SobeyRecException.ThrowSelfOneParam("ModifyTask GetFreeChannels empty",
-                        GlobalDictionary.GLOBALDICT_CODE_CAN_NOT_MODIFY_TIME_CONFLICT_TASKS_ONEPARAM, Logger, taskModify.TaskID, null);
+                        GlobalDictionary.GLOBALDICT_CODE_CAN_NOT_MODIFY_TIME_CONFLICT_TASKS_ONEPARAM, Logger, taskModify.TaskId, null);
 
                 }
             }
@@ -2149,21 +2149,21 @@ namespace IngestTaskPlugin.Managers
                     {
                     }
 
-                    List<int> chl = new List<int>() { taskModify.ChannelID };
+                    List<int> chl = new List<int>() { taskModify.ChannelId };
 
                     DateTime dtTmpModiStart = new DateTime(findtask.Starttime.Year, findtask.Starttime.Month, findtask.Starttime.Day,
                             modifybegin.Hour, modifybegin.Minute, modifybegin.Second);
                     DateTime dtTmpModiEnd = new DateTime(findtask.Endtime.Year, findtask.Endtime.Month, findtask.Endtime.Day,
                         modifyend.Hour, modifyend.Minute, modifyend.Second);
 
-                    var freelst = await Store.GetFreePerodiChannels(chl, taskModify.TaskID, taskModify.Unit, taskModify.SignalID,
-                        taskModify.ChannelID, taskModify.Classify, dtTmpModiStart, dtTmpModiEnd);
+                    var freelst = await Store.GetFreePerodiChannels(chl, taskModify.TaskId, taskModify.Unit, taskModify.SignalId,
+                        taskModify.ChannelId, taskModify.Classify, dtTmpModiStart, dtTmpModiEnd);
 
                     if (freelst == null || freelst.Count < 1)
                     {
                         await Store.UnLockTask(findtask, true);
                         SobeyRecException.ThrowSelfOneParam("ModifyTask GetFreePerodiChannels1 empty",
-                            GlobalDictionary.GLOBALDICT_CODE_CAN_NOT_MODIFY_TIME_CONFLICT_TASKS_ONEPARAM, Logger, taskModify.TaskID, null);
+                            GlobalDictionary.GLOBALDICT_CODE_CAN_NOT_MODIFY_TIME_CONFLICT_TASKS_ONEPARAM, Logger, taskModify.TaskId, null);
 
                     }
                 }
@@ -2177,15 +2177,15 @@ namespace IngestTaskPlugin.Managers
 
                     }
 
-                    List<int> chl = new List<int>() { taskModify.ChannelID };
-                    var freelst = await Store.GetFreePerodiChannels(chl, taskModify.TaskID, taskModify.Unit, taskModify.SignalID,
-                        taskModify.ChannelID, taskModify.Classify, modifybegin, modifyend);
+                    List<int> chl = new List<int>() { taskModify.ChannelId };
+                    var freelst = await Store.GetFreePerodiChannels(chl, taskModify.TaskId, taskModify.Unit, taskModify.SignalId,
+                        taskModify.ChannelId, taskModify.Classify, modifybegin, modifyend);
 
                     if (freelst == null || freelst.Count < 1)
                     {
                         await Store.UnLockTask(findtask, true);
                         SobeyRecException.ThrowSelfOneParam("ModifyTask GetFreePerodiChannels2 empty",
-                            GlobalDictionary.GLOBALDICT_CODE_CAN_NOT_MODIFY_TIME_CONFLICT_TASKS_ONEPARAM, Logger, taskModify.TaskID, null);
+                            GlobalDictionary.GLOBALDICT_CODE_CAN_NOT_MODIFY_TIME_CONFLICT_TASKS_ONEPARAM, Logger, taskModify.TaskId, null);
 
                     }
                 }
@@ -2194,8 +2194,8 @@ namespace IngestTaskPlugin.Managers
             findtask.Recunitid = taskModify.Unit;
             findtask.Taskname = taskModify.TaskName;
             findtask.Description = taskModify.TaskDesc;
-            findtask.Channelid = taskModify.ChannelID;
-            findtask.Signalid = taskModify.SignalID;
+            findtask.Channelid = taskModify.ChannelId;
+            findtask.Signalid = taskModify.SignalId;
 
 
             //对于周期任务，不允许改变任务日期
@@ -2235,7 +2235,7 @@ namespace IngestTaskPlugin.Managers
             }
 
             findtask.Tasktype = (int)taskModify.TaskType;
-            findtask.Backupvtrid = taskModify.BackupVTRID;
+            findtask.Backupvtrid = taskModify.BackupVtrId;
             findtask.Backtype = (int)taskModify.CooperantType;
             findtask.Stampimagetype = taskModify.StampImageType;
             findtask.Tasklock = string.Empty;
@@ -2348,7 +2348,7 @@ namespace IngestTaskPlugin.Managers
             if (_deviceInterface != null)
             {
                 var response1 = await _deviceInterface.Value.GetDeviceCallBack(new DeviceInternals() {
-                    funtype = IngestDBCore.DeviceInternals.FunctionType.ChannelUnitMap, ChannelId = taskinfo.ChannelID
+                    funtype = IngestDBCore.DeviceInternals.FunctionType.ChannelUnitMap, ChannelId = taskinfo.ChannelId
                 });
 
                 if (response1.Code != ResponseCodeDefines.SuccessCode)
@@ -2360,7 +2360,7 @@ namespace IngestTaskPlugin.Managers
 
                 taskinfo.Unit = fr.Ext;
 
-                await Store.DeleteTaskDB(taskinfo.TaskID, false);
+                await Store.DeleteTaskDB(taskinfo.TaskId, false);
 
                 await Store.AddTaskWithPolicys(_mapper.Map<TaskContentRequest, DbpTask>(taskinfo, opt =>
                 opt.AfterMap((src, des) =>
@@ -2982,7 +2982,7 @@ namespace IngestTaskPlugin.Managers
                 {
                     // 获得备份信号源信息
                     var response1 = await _deviceInterface.Value.GetDeviceCallBack(new DeviceInternals() {
-                        funtype = IngestDBCore.DeviceInternals.FunctionType.BackSignalByID, SrcId = taskinfo.TaskContent.SignalID
+                        funtype = IngestDBCore.DeviceInternals.FunctionType.BackSignalByID, SrcId = taskinfo.TaskContent.SignalId
                     });
 
                     if (response1.Code != ResponseCodeDefines.SuccessCode)
@@ -2995,7 +2995,7 @@ namespace IngestTaskPlugin.Managers
                     if (fr.Ext != null)
                     {
                         // 将信号源ID修改为备份信号源的ID
-                        taskinfo.TaskContent.SignalID = fr.Ext.ProgrammeId;
+                        taskinfo.TaskContent.SignalId = fr.Ext.ProgrammeId;
                         switch (fr.Ext.PgmType)
                         {
                             case ProgrammeTypeInterface.PT_Null:
@@ -3019,7 +3019,7 @@ namespace IngestTaskPlugin.Managers
                 }
                 taskinfo.TaskSource = ts;
                 taskinfo.TaskContent.TaskName = "BK_" + taskinfo.TaskContent.TaskName;
-                taskinfo.TaskContent.TaskGUID = Guid.NewGuid().ToString("N");
+                taskinfo.TaskContent.TaskGuid = Guid.NewGuid().ToString("N");
 
                 MatiralMeta = ConverTaskMaterialMetaString(taskinfo.MaterialMeta);
                 if (!string.IsNullOrEmpty(MatiralMeta))
@@ -3033,7 +3033,7 @@ namespace IngestTaskPlugin.Managers
                     f = mroot.Element("MATERIAL")?.Element("MATERIALID");
                     if (f != null)
                     {
-                        f.Value = taskinfo.TaskContent.TaskGUID;
+                        f.Value = taskinfo.TaskContent.TaskGuid;
                     }
                     MatiralMeta = mroot.ToString();
                 }
@@ -3045,10 +3045,10 @@ namespace IngestTaskPlugin.Managers
                     var f = mroot.Element("TaskContentMetaData")?.Element("BACKUP");
                     if (f != null)
                     {
-                        f.Value = taskinfo.TaskContent.SignalID.ToString();
+                        f.Value = taskinfo.TaskContent.SignalId.ToString();
                     }
                     else
-                        mroot.Element("TaskContentMetaData").Add(new XElement("BACKUP", taskinfo.TaskContent.SignalID));
+                        mroot.Element("TaskContentMetaData").Add(new XElement("BACKUP", taskinfo.TaskContent.SignalId));
 
                     if (taskinfo.TaskContent.GroupColor > 0)
                     {
@@ -3063,7 +3063,7 @@ namespace IngestTaskPlugin.Managers
                 if (_deviceInterface != null)
                 {
                     var response1 = await _deviceInterface.Value.GetDeviceCallBack(new DeviceInternals() {
-                        funtype = IngestDBCore.DeviceInternals.FunctionType.SignalInfoByID, SrcId = taskinfo.TaskContent.SignalID
+                        funtype = IngestDBCore.DeviceInternals.FunctionType.SignalInfoByID, SrcId = taskinfo.TaskContent.SignalId
                     });
 
                     if (response1.Code != ResponseCodeDefines.SuccessCode)
@@ -3076,7 +3076,7 @@ namespace IngestTaskPlugin.Managers
                     if (fr.Ext != null)
                     {
                         // 将信号源ID修改为备份信号源的ID
-                        taskinfo.TaskContent.SignalID = fr.Ext.ProgrammeId;
+                        taskinfo.TaskContent.SignalId = fr.Ext.ProgrammeId;
                         switch (fr.Ext.PgmType)
                         {
                             case ProgrammeTypeInterface.PT_Null:
@@ -3106,7 +3106,7 @@ namespace IngestTaskPlugin.Managers
                 if (_deviceInterface != null)
                 {
                     DeviceInternals re = new DeviceInternals() {
-                        funtype = IngestDBCore.DeviceInternals.FunctionType.ChannelUnitMap, ChannelId = taskinfo.TaskContent.ChannelID
+                        funtype = IngestDBCore.DeviceInternals.FunctionType.ChannelUnitMap, ChannelId = taskinfo.TaskContent.ChannelId
                     };
 
                     var response1 = await _deviceInterface.Value.GetDeviceCallBack(re);
@@ -3124,7 +3124,7 @@ namespace IngestTaskPlugin.Managers
                         StateIncludeLst = new List<int>() { ((int)taskState.tsReady), },
                         MaxBeginTime = DateTime.Now,
                         MinEndTime = DateTime.Now,
-                        ChannelID = taskinfo.TaskContent.ChannelID,
+                        ChannelId = taskinfo.TaskContent.ChannelId,
                         TaskTypeIncludeLst = new List<int>() { ((int)TaskType.TT_TIEUP) }
                     }, true, false);
                     if (lst != null && lst.Count > 0)
@@ -3132,10 +3132,10 @@ namespace IngestTaskPlugin.Managers
                         lst[0].Tasktype = (int)TaskType.TT_NORMAL;
                         lst[0].SyncState = (int)syncState.ssNot;
                         lst[0].DispatchState = (int)dispatchState.dpsDispatched;
-                        lst[0].Taskguid = taskinfo.TaskContent.TaskGUID;
+                        lst[0].Taskguid = taskinfo.TaskContent.TaskGuid;
 
                         //await Store.SaveChangeAsync();
-                        await Store.UpdateTaskMetaDataAsync(taskinfo.TaskContent.TaskID, MetaDataType.emCapatureMetaData, string.IsNullOrEmpty(ContentMeta) ? taskinfo.CaptureMeta : CaptureMeta);
+                        await Store.UpdateTaskMetaDataAsync(taskinfo.TaskContent.TaskId, MetaDataType.emCapatureMetaData, string.IsNullOrEmpty(ContentMeta) ? taskinfo.CaptureMeta : CaptureMeta);
                         //return _mapper.Map<TaskContentResponse>(lst[0]);
                         return lst[0];
                     }
@@ -3210,7 +3210,7 @@ namespace IngestTaskPlugin.Managers
                     SobeyRecException.ThrowSelfNoParam("AddTaskWithoutPolicy CaptureMeta empty", GlobalDictionary.GLOBALDICT_CODE_NO_CAPTURE_PARAM, Logger, null);
                 }
 
-                bool bLockChannel = taskinfo.TaskContent.ChannelID > 0 ? false : true;
+                bool bLockChannel = taskinfo.TaskContent.ChannelId > 0 ? false : true;
                 CHSelCondition condition = new CHSelCondition();
                 condition.BackupCHSel = backup;
                 condition.CheckCHCurState = true;//检查当前通道状态
@@ -3220,7 +3220,7 @@ namespace IngestTaskPlugin.Managers
                  */
                 condition.MoveExcutingOpenTask = false;
                 condition.OnlyLocalChannel = true;
-                condition.BaseCHID = -1;
+                condition.BaseChId = -1;
                 //condition. = true;
 
                 int nSelCH = -1;
@@ -3236,7 +3236,7 @@ namespace IngestTaskPlugin.Managers
 
                 if (nSelCH <= 0)
                 {
-                    if (taskinfo.TaskContent.ChannelID > 0)
+                    if (taskinfo.TaskContent.ChannelId > 0)
                     {
                         SobeyRecException.ThrowSelfNoParam(Store.GetConfictTaskInfo(), GlobalDictionary.GLOBALDICT_CODE_SELECTED_CHANNEL_IS_BUSY_OR_CAN_NOT_BE_SUITED_TO_PROGRAMME, Logger, null);
                     }
@@ -3247,14 +3247,14 @@ namespace IngestTaskPlugin.Managers
                 }
                 else
                 {
-                    taskinfo.TaskContent.ChannelID = nSelCH;
+                    taskinfo.TaskContent.ChannelId = nSelCH;
                 }
 
                 if (taskinfo.TaskContent.GroupColor > 0)
                 {
                     if (_deviceInterface != null)
                     {
-                        DeviceInternals re = new DeviceInternals() { funtype = IngestDBCore.DeviceInternals.FunctionType.SingnalIDByChannel, ChannelId = taskinfo.TaskContent.ChannelID };
+                        DeviceInternals re = new DeviceInternals() { funtype = IngestDBCore.DeviceInternals.FunctionType.SingnalIDByChannel, ChannelId = taskinfo.TaskContent.ChannelId };
                         var response1 = await _deviceInterface.Value.GetDeviceCallBack(re);
                         if (response1.Code != ResponseCodeDefines.SuccessCode)
                         {
@@ -3262,7 +3262,7 @@ namespace IngestTaskPlugin.Managers
                             return null;
                         }
                         var fr = response1 as ResponseMessage<int>;
-                        taskinfo.TaskContent.SignalID = fr.Ext;
+                        taskinfo.TaskContent.SignalId = fr.Ext;
                     }
 
                 }
@@ -3310,7 +3310,7 @@ namespace IngestTaskPlugin.Managers
                 if (_deviceInterface != null)
                 {
                     var response1 = await _deviceInterface.Value.GetDeviceCallBack(new DeviceInternals() {
-                        funtype = IngestDBCore.DeviceInternals.FunctionType.ChannelUnitMap, ChannelId = taskinfo.TaskContent.ChannelID
+                        funtype = IngestDBCore.DeviceInternals.FunctionType.ChannelUnitMap, ChannelId = taskinfo.TaskContent.ChannelId
                     });
 
                     if (response1.Code != ResponseCodeDefines.SuccessCode)
@@ -3326,7 +3326,7 @@ namespace IngestTaskPlugin.Managers
                         StateIncludeLst = new List<int>() { ((int)taskState.tsReady), },
                         MaxBeginTime = DateTime.Now,
                         MinEndTime = DateTime.Now,
-                        ChannelID = taskinfo.TaskContent.ChannelID,
+                        ChannelId = taskinfo.TaskContent.ChannelId,
                         TaskTypeIncludeLst = new List<int>() { ((int)TaskType.TT_TIEUP) }
                     }, true, false);
                     if (lst != null && lst.Count > 0)
@@ -3334,10 +3334,10 @@ namespace IngestTaskPlugin.Managers
                         lst[0].Tasktype = (int)TaskType.TT_NORMAL;
                         lst[0].SyncState = (int)syncState.ssNot;
                         lst[0].DispatchState = (int)dispatchState.dpsDispatched;
-                        lst[0].Taskguid = taskinfo.TaskContent.TaskGUID;
+                        lst[0].Taskguid = taskinfo.TaskContent.TaskGuid;
 
                         //await Store.SaveChangeAsync();
-                        await Store.UpdateTaskMetaDataAsync(taskinfo.TaskContent.TaskID, MetaDataType.emCapatureMetaData, string.IsNullOrEmpty(ContentMeta) ? taskinfo.CaptureMeta : CaptureMeta);
+                        await Store.UpdateTaskMetaDataAsync(taskinfo.TaskContent.TaskId, MetaDataType.emCapatureMetaData, string.IsNullOrEmpty(ContentMeta) ? taskinfo.CaptureMeta : CaptureMeta);
                         //return _mapper.Map<TaskContentResponse>(lst[0]);
                         return lst[0];
                     }
@@ -3413,13 +3413,13 @@ namespace IngestTaskPlugin.Managers
                     SobeyRecException.ThrowSelfNoParam("AddTaskWithoutPolicy CaptureMeta empty", GlobalDictionary.GLOBALDICT_CODE_NO_CAPTURE_PARAM, Logger, null);
                 }
 
-                bool bLockChannel = taskinfo.TaskContent.ChannelID > 0 ? false : true;
+                bool bLockChannel = taskinfo.TaskContent.ChannelId > 0 ? false : true;
                 CHSelCondition condition = new CHSelCondition();
                 condition.BackupCHSel = false;
                 condition.CheckCHCurState = true;//检查当前通道状态
                 condition.MoveExcutingOpenTask = false;
                 condition.OnlyLocalChannel = true;
-                condition.BaseCHID = -1;
+                condition.BaseChId = -1;
                 //condition. = true;
 
                 int nSelCH = -1;
@@ -3435,7 +3435,7 @@ namespace IngestTaskPlugin.Managers
 
                 if (nSelCH <= 0)
                 {
-                    if (taskinfo.TaskContent.ChannelID > 0)
+                    if (taskinfo.TaskContent.ChannelId > 0)
                     {
                         SobeyRecException.ThrowSelfNoParam(Store.GetConfictTaskInfo(), GlobalDictionary.GLOBALDICT_CODE_SELECTED_CHANNEL_IS_BUSY_OR_CAN_NOT_BE_SUITED_TO_PROGRAMME, Logger, null);
                     }
@@ -3446,7 +3446,7 @@ namespace IngestTaskPlugin.Managers
                 }
                 else
                 {
-                    taskinfo.TaskContent.ChannelID = nSelCH;
+                    taskinfo.TaskContent.ChannelId = nSelCH;
                 }
 
                 if (taskinfo.TaskContent.GroupColor > 0)
@@ -3456,7 +3456,7 @@ namespace IngestTaskPlugin.Managers
                     {
                         var response1 = await _deviceInterface.Value.GetDeviceCallBack(new DeviceInternals() {
                             funtype = IngestDBCore.DeviceInternals.FunctionType.SingnalIDByChannel,
-                            ChannelId = taskinfo.TaskContent.ChannelID
+                            ChannelId = taskinfo.TaskContent.ChannelId
                         });
 
                         if (response1.Code != ResponseCodeDefines.SuccessCode)
@@ -3465,7 +3465,7 @@ namespace IngestTaskPlugin.Managers
                             return null;
                         }
                         var fr = response1 as ResponseMessage<int>;
-                        taskinfo.TaskContent.SignalID = fr.Ext;
+                        taskinfo.TaskContent.SignalId = fr.Ext;
                     }
 
                 }
@@ -3502,24 +3502,24 @@ namespace IngestTaskPlugin.Managers
         public async ValueTask<int> CHSelectForNormalTask(TaskContentRequest request, CHSelCondition condition)
         {
             Logger.Info((string.Format("###Begin to Select channel for Normal task:{0}, signalid:{1}, channelid:{2}, bBackupCH:{3}, bCheckState:{4}, nBaseCH:{5}, OnlyLocal:{6},bExcuting:{7}",
-            request.TaskID, request.SignalID, request.ChannelID,
-            condition.BackupCHSel, condition.CheckCHCurState, condition.BaseCHID, condition.OnlyLocalChannel, condition.MoveExcutingOpenTask)));
+            request.TaskId, request.SignalId, request.ChannelId,
+            condition.BackupCHSel, condition.CheckCHCurState, condition.BaseChId, condition.OnlyLocalChannel, condition.MoveExcutingOpenTask)));
 
-            if (request.SignalID <= 0)
+            if (request.SignalId <= 0)
             {
                 return -1;
             }
 
             //1. 为信号源选择所有匹配的通道
             //2. 根据条件筛选通道，这些条件是固定属性，放在前面筛选掉，不用互斥
-            var matchlst = await GetMatchedChannelForSignal(request.SignalID, request.ChannelID, condition);
+            var matchlst = await GetMatchedChannelForSignal(request.SignalId, request.ChannelId, condition);
             if (matchlst != null && matchlst.Count > 0)
             {
                 Logger.Info("CHSelectForNormalTask matchcount {0}", matchlst.Count);
 
                 DateTime Begin = DateTimeFormat.DateTimeFromString(request.Begin);
                 DateTime End = DateTimeFormat.DateTimeFromString(request.End);
-                List<int> freeChannelIdList = await Store.GetFreeChannels(matchlst, request.TaskID, Begin, End);
+                List<int> freeChannelIdList = await Store.GetFreeChannels(matchlst, request.TaskId, Begin, End);
 
                 Logger.Info("GetFreeChannels freeChannelIdList {0}", freeChannelIdList.Count);
 
@@ -3542,24 +3542,24 @@ namespace IngestTaskPlugin.Managers
         public async ValueTask<int> CHSelectForPeriodicTask(TaskContentRequest request, CHSelCondition condition)
         {
             Logger.Info((string.Format("###Begin to Select channel for Normal task:{0}, signalid:{1}, channelid:{2}, bBackupCH:{3}, bCheckState:{4}, nBaseCH:{5}, OnlyLocal:{6},bExcuting:{7}",
-            request.TaskID, request.SignalID, request.ChannelID,
-            condition.BackupCHSel, condition.CheckCHCurState, condition.BaseCHID, condition.OnlyLocalChannel, condition.MoveExcutingOpenTask)));
+            request.TaskId, request.SignalId, request.ChannelId,
+            condition.BackupCHSel, condition.CheckCHCurState, condition.BaseChId, condition.OnlyLocalChannel, condition.MoveExcutingOpenTask)));
 
-            if (request.SignalID <= 0)
+            if (request.SignalId <= 0)
             {
                 return -1;
             }
 
             //1. 为信号源选择所有匹配的通道
             //2. 根据条件筛选通道，这些条件是固定属性，放在前面筛选掉，不用互斥
-            var matchlst = await GetMatchedChannelForSignal(request.SignalID, request.ChannelID, condition);
+            var matchlst = await GetMatchedChannelForSignal(request.SignalId, request.ChannelId, condition);
             if (matchlst != null && matchlst.Count > 0)
             {
                 Logger.Info("CHSelectForNormalTask matchcount {0}", matchlst.Count);
 
                 DateTime Begin = DateTimeFormat.DateTimeFromString(request.Begin);
                 DateTime End = DateTimeFormat.DateTimeFromString(request.End);
-                List<int> freeChannelIdList = await Store.GetFreePerodiChannels(matchlst, -1, request.Unit, request.SignalID, request.ChannelID, request.Classify, Begin, End);
+                List<int> freeChannelIdList = await Store.GetFreePerodiChannels(matchlst, -1, request.Unit, request.SignalId, request.ChannelId, request.Classify, Begin, End);
 
                 Logger.Info("GetFreeChannels freeChannelIdList {0}", freeChannelIdList.Count);
 
@@ -3585,16 +3585,16 @@ namespace IngestTaskPlugin.Managers
              * @ 我擦还要通过ip排序nBaseCHID，有没有天理啊，艹，随便排了，不管了
              */
 
-            Logger.Info("ChooseBestChannel {0} {1} {2}", request.ChannelID, string.Join(",", freeChannelIdList), condition.OnlyLocalChannel);
+            Logger.Info("ChooseBestChannel {0} {1} {2}", request.ChannelId, string.Join(",", freeChannelIdList), condition.OnlyLocalChannel);
             int nSelCH = -1;
             //如果只能在指定通道创建任务，那么这里单独判断
-            if (request.ChannelID > 0 && condition.OnlyLocalChannel)
+            if (request.ChannelId > 0 && condition.OnlyLocalChannel)
             {
                 for (int i = 0; i < freeChannelIdList.Count; i++)
                 {
-                    if (request.ChannelID == freeChannelIdList[i])
+                    if (request.ChannelId == freeChannelIdList[i])
                     {
-                        nSelCH = request.ChannelID;
+                        nSelCH = request.ChannelId;
                         break;
                     }
                 }
@@ -3603,7 +3603,7 @@ namespace IngestTaskPlugin.Managers
                 if (nSelCH > 0)
                 {
                     //return nSelCH;
-                    Logger.Info(string.Format("The OnlyLocalChannel taskAdd.nChannelID:{0} is useable", request.ChannelID));
+                    Logger.Info(string.Format("The OnlyLocalChannel taskAdd.nChannelID:{0} is useable", request.ChannelId));
                 }
                 else
                 {
@@ -3633,7 +3633,7 @@ namespace IngestTaskPlugin.Managers
                     return null;
                 }
 
-                Logger.Info(string.Format("GetMatchedChannelForSignal match {0}  {1}  {2}", condition.BaseCHID, condition.BackupCHSel, ChID));
+                Logger.Info(string.Format("GetMatchedChannelForSignal match {0}  {1}  {2}", condition.BaseChId, condition.BackupCHSel, ChID));
 
                 var fresponse = response1 as ResponseMessage<List<CaptureChannelInfoInterface>>;
                 if (fresponse != null && fresponse.Ext?.Count > 0)

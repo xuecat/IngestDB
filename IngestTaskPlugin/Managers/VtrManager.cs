@@ -147,13 +147,13 @@ namespace IngestTaskPlugin.Managers
             TimeSpan tsDuration = new TimeSpan();
             if (info.BlankTaskId > 0)//入点加长度
             {
-                tsDuration = new TimeSpan(0, 0, info.TrimOutCTL / info.BlankTaskId);
+                tsDuration = new TimeSpan(0, 0, info.TrimOutCtl / info.BlankTaskId);
             }
             else
             {
-                SB_TimeCode tcIn = new SB_TimeCode((uint)info.TrimInCTL);
-                SB_TimeCode tcOut = new SB_TimeCode((uint)info.TrimOutCTL);
-                if ((uint)info.TrimOutCTL < (uint)info.TrimInCTL)
+                SB_TimeCode tcIn = new SB_TimeCode((uint)info.TrimInCtl);
+                SB_TimeCode tcOut = new SB_TimeCode((uint)info.TrimOutCtl);
+                if ((uint)info.TrimOutCtl < (uint)info.TrimInCtl)
                 {
                     tcOut.Hour += 24;
                 }
@@ -173,9 +173,9 @@ namespace IngestTaskPlugin.Managers
                     info.CommitTime = DateTime.Now;
                 }
 
-                if (string.IsNullOrEmpty(info.TaskGUID))
+                if (string.IsNullOrEmpty(info.TaskGuid))
                 {
-                    info.TaskGUID = Guid.NewGuid().ToString("N");
+                    info.TaskGuid = Guid.NewGuid().ToString("N");
                 }
 
                 var upload = Mapper.Map<VtrUploadtask>(info);
@@ -853,9 +853,9 @@ namespace IngestTaskPlugin.Managers
 
                     if (dt1 != dt2 || dt3 != dt4 ||
                         vtrTaskNow.TrimIn != vtrTask.nTrimIn ||
-                        vtrTaskNow.TrimInCTL != vtrTask.nTrimInCTL ||
+                        vtrTaskNow.TrimInCtl != vtrTask.nTrimInCTL ||
                         vtrTaskNow.TrimOut != vtrTask.nTrimOut ||
-                        vtrTaskNow.TrimOutCTL != vtrTask.nTrimOutCTL)
+                        vtrTaskNow.TrimOutCtl != vtrTask.nTrimOutCTL)
                     {
                         Logger.Info(string.Format("1Can not modify the duration where the task is running.TaskId = {0},TaskName = {1}", vtrTaskNow.TaskId, vtrTaskNow.TaskName));
                         SobeyRecException.ThrowSelfNoParam(vtrTaskNow.TaskId.ToString(), GlobalDictionary.GLOBALDICT_CODE_CANNOTMODIFYTASK_WHERE_FILING, Logger, null);

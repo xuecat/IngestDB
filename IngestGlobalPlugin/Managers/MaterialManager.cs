@@ -117,12 +117,12 @@ namespace IngestGlobalPlugin.Managers
             {
                 foreach (var item in items)
                 {
-                    var lstpolicy = await Store.GetMaterialArchiveListAsync(a => a.Where(b => b.Materialid == item.ID).Select(z => z.Policyid), true);
+                    var lstpolicy = await Store.GetMaterialArchiveListAsync(a => a.Where(b => b.Materialid == item.Id).Select(z => z.Policyid), true);
 
                     item.ArchivePolicys = lstpolicy;
 
-                    item.Audios = _mapper.Map<List<AudioInfoResponse>>(await Store.GetMaterialAudioListAsync(a => a.Where(b => b.Materialid == item.ID), true));
-                    item.Videos = _mapper.Map<List<VideoInfoResponse>>(await Store.GetMaterialVideoListAsync(a => a.Where(b => b.Materialid == item.ID), true));
+                    item.Audios = _mapper.Map<List<AudioInfoResponse>>(await Store.GetMaterialAudioListAsync(a => a.Where(b => b.Materialid == item.Id), true));
+                    item.Videos = _mapper.Map<List<VideoInfoResponse>>(await Store.GetMaterialVideoListAsync(a => a.Where(b => b.Materialid == item.Id), true));
                 }
 
                 return items;

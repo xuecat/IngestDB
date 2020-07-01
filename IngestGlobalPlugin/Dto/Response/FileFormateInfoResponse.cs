@@ -11,10 +11,10 @@ namespace IngestGlobalPlugin.Dto.Response
         public string Key { get; set; }
         /// <summary>文件格式</summary>
         /// <example>1</example>
-        public long FormatID { get; set; }
+        public long FormatId { get; set; }
         /// <summary>视频格式</summary>
         /// <example>1</example>
-        public long VideoStrandID { get; set; }
+        public long VideoStrandId { get; set; }
         /// <summary>视频格式guid</summary>
         /// <example>123345</example>
         public string VideoStrandGuid { get; set; }

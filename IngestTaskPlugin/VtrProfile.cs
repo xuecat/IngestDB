@@ -31,7 +31,7 @@ namespace IngestTaskPlugin
                .ForMember(a => a.strTapeDesc, (map) => map.MapFrom(b => b.Tapedesc));
 
             CreateMap<VtrTapelist, VTRTapeInfoResponse>()
-               .ForMember(a => a.TapeID, (map) => map.MapFrom(b => b.Tapeid))
+               .ForMember(a => a.TapeId, (map) => map.MapFrom(b => b.Tapeid))
                .ForMember(a => a.TapeName, (map) => map.MapFrom(b => b.Tapename))
                .ForMember(a => a.TapeDesc, (map) => map.MapFrom(b => b.Tapedesc));
             #endregion
@@ -50,12 +50,12 @@ namespace IngestTaskPlugin
                .ForMember(a => a.UserCode, (map) => map.MapFrom(b => b.Usercode))
                .ForMember(a => a.CommitTime, (map) => map.MapFrom(b => b.Committime))
                .ForMember(a => a.Order, (map) => map.MapFrom(b => b.Uploadorder))
-               .ForMember(a => a.TaskGUID, (map) => map.MapFrom(b => b.Taskguid))
+               .ForMember(a => a.TaskGuid, (map) => map.MapFrom(b => b.Taskguid))
                .ForMember(a => a.TaskName, (map) => map.MapFrom(b => b.Taskname))
                .ForMember(a => a.UserToken, (map) => map.MapFrom(b => b.Usertoken))
                .ForMember(a => a.TapeId, (map) => map.MapFrom(b => b.Tapeid))
-               .ForMember(a => a.TrimInCTL, (map) => map.MapFrom(b => b.Triminctl))
-               .ForMember(a => a.TrimOutCTL, (map) => map.MapFrom(b => b.Trimoutctl))
+               .ForMember(a => a.TrimInCtl, (map) => map.MapFrom(b => b.Triminctl))
+               .ForMember(a => a.TrimOutCtl, (map) => map.MapFrom(b => b.Trimoutctl))
                .ForMember(a => a.VtrTaskType, (map) => map.MapFrom(b => b.Vtrtasktype)).ReverseMap();
             //V1
             CreateMap<VtrUploadtask, VTRUploadTaskInfo>()
@@ -89,7 +89,7 @@ namespace IngestTaskPlugin
                .ForMember(a => a.VtrDetailDesc, (map) => map.MapFrom(b => b.Vtrddescribe))
                .ForMember(a => a.VtrVComPortIdx, (map) => map.MapFrom(b => b.Vtrcomport))
                .ForMember(a => a.LoopFlag, (map) => map.MapFrom(b => b.Looprecord))
-               .ForMember(a => a.ServerIP, (map) => map.MapFrom(b => b.Vtrserverip))
+               .ForMember(a => a.ServerIp, (map) => map.MapFrom(b => b.Vtrserverip))
                .ForMember(a => a.PreRolFrame, (map) => map.MapFrom(b => b.Prerolframenum))
                .ForMember(a => a.BaudRate, (map) => map.MapFrom(b => b.Baudrate))
                .ForMember(a => a.BackUpType, (map) => map.MapFrom(b => b.Backuptype))
@@ -132,10 +132,10 @@ namespace IngestTaskPlugin
                .ForMember(a => a.UserCode, (map) => map.MapFrom(b => b.Usercode))
                .ForMember(a => a.CommitTime, (map) => map.MapFrom(b => b.Committime))
                .ForMember(a => a.Order, (map) => map.MapFrom(b => b.Uploadorder))
-               .ForMember(a => a.TaskGUID, (map) => map.MapFrom(b => b.Taskguid ))
+               .ForMember(a => a.TaskGuid, (map) => map.MapFrom(b => b.Taskguid ))
                .ForMember(a => a.UserToken, (map) => map.MapFrom(b => b.Usertoken ))
-               .ForMember(a => a.TrimInCTL, (map) => map.MapFrom(b => b.Triminctl))
-               .ForMember(a => a.TrimOutCTL, (map) => map.MapFrom(b => b.Trimoutctl))
+               .ForMember(a => a.TrimInCtl, (map) => map.MapFrom(b => b.Triminctl))
+               .ForMember(a => a.TrimOutCtl, (map) => map.MapFrom(b => b.Trimoutctl))
                .ForMember(a => a.VtrTaskType, (map) => map.MapFrom(b => b.Vtrtasktype)).ReverseMap();
 
             CreateMap<VTRUploadTaskContentResponse, VtrUploadtask>()
@@ -152,10 +152,10 @@ namespace IngestTaskPlugin
                .ForMember(a => a.Usercode, (map) => map.MapFrom(b => b.UserCode))
                .ForMember(a => a.Committime, (map) => map.MapFrom(b => b.CommitTime))
                .ForMember(a => a.Uploadorder, (map) => map.MapFrom(b => b.Order))
-               .ForMember(a => a.Taskguid, (map) => map.MapFrom(b => b.TaskGUID))
+               .ForMember(a => a.Taskguid, (map) => map.MapFrom(b => b.TaskGuid))
                .ForMember(a => a.Usertoken, (map) => map.MapFrom(b => b.UserCode))
-               .ForMember(a => a.Triminctl, (map) => map.MapFrom(b => b.TrimInCTL))
-               .ForMember(a => a.Trimoutctl, (map) => map.MapFrom(b => b.TrimOutCTL))
+               .ForMember(a => a.Triminctl, (map) => map.MapFrom(b => b.TrimInCtl))
+               .ForMember(a => a.Trimoutctl, (map) => map.MapFrom(b => b.TrimOutCtl))
                .ForMember(a => a.Vtrtasktype, (map) => map.MapFrom(b => b.VtrTaskType));
             //V1
             CreateMap<VtrUploadtask, VTRUploadTaskContent>()
@@ -193,11 +193,11 @@ namespace IngestTaskPlugin
                .ForMember(a => a.strUserCode, (map) => map.MapFrom(b => b.UserCode ))
                .ForMember(a => a.strCommitTime, (map) => map.MapFrom(b => b.CommitTime))
                .ForMember(a => a.nOrder, (map) => map.MapFrom(b => b.Order))
-               .ForMember(a => a.strTaskGUID, (map) => map.MapFrom(b => b.TaskGUID ))
+               .ForMember(a => a.strTaskGUID, (map) => map.MapFrom(b => b.TaskGuid ))
                .ForMember(a => a.nTapeId, (map) => map.MapFrom(b => b.TapeId))
                .ForMember(a => a.strTaskName, (map) => map.MapFrom(b => b.TaskName))
                .ForMember(a => a.strUserToken, (map) => map.MapFrom(b => b.UserToken ))
-               .ForMember(a => a.nTrimInCTL, (map) => map.MapFrom(b => b.TrimInCTL))
+               .ForMember(a => a.nTrimInCTL, (map) => map.MapFrom(b => b.TrimInCtl))
                .ForMember(a => a.strTaskDesc, (map) => map.MapFrom(b => b.TaskDesc))
                .ForMember(a => a.strClassify, (map) => map.MapFrom(b => b.Classify))
                .ForMember(a => a.nUnit, (map) => map.MapFrom(b => b.Unit))
@@ -236,12 +236,12 @@ namespace IngestTaskPlugin
                .ForMember(a => a.UserCode, (map) => map.MapFrom(b => b.strUserCode))
                .ForMember(a => a.CommitTime, (map) => map.MapFrom(b => b.strCommitTime))
                .ForMember(a => a.Order, (map) => map.MapFrom(b => b.nOrder))
-               .ForMember(a => a.TaskGUID, (map) => map.MapFrom(b => b.strTaskGUID))
+               .ForMember(a => a.TaskGuid, (map) => map.MapFrom(b => b.strTaskGUID))
                .ForMember(a => a.TaskName, (map) => map.MapFrom(b => b.strTaskName))
                .ForMember(a => a.UserToken, (map) => map.MapFrom(b => b.strUserToken ))
                .ForMember(a => a.TapeId, (map) => map.MapFrom(b => b.nTapeID))
-               .ForMember(a => a.TrimInCTL, (map) => map.MapFrom(b => b.nTrimInCTL))
-               .ForMember(a => a.TrimOutCTL, (map) => map.MapFrom(b => b.nTrimOutCTL))
+               .ForMember(a => a.TrimInCtl, (map) => map.MapFrom(b => b.nTrimInCTL))
+               .ForMember(a => a.TrimOutCtl, (map) => map.MapFrom(b => b.nTrimOutCTL))
                .ForMember(a => a.VtrTaskType, (map) => map.MapFrom(b => b.emVtrTaskType)).ReverseMap();
             #endregion
 
