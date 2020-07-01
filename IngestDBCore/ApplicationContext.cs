@@ -1,5 +1,4 @@
 ﻿using IngestDBCore.Interface;
-using IngestDBCore.MSVSDK;
 using IngestDBCore.Notify;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.Extensions.DependencyInjection;
@@ -23,14 +22,12 @@ namespace IngestDBCore
         public IPluginFactory PluginFactory { get; set; }
         public IApplicationBuilder ApplicationBuilder { get; set; }
 
-        public MsvClientCtrlSDK CtrlSDK{ get; set; }
 
         public NotifyClock NotifyClock { get; set;}
         public ApplicationContext(IServiceCollection serviceContainer)
         {
             Current = this;
             Services = serviceContainer;
-            CtrlSDK = new MsvClientCtrlSDK();
         }
 
         public async virtual Task<bool> Init()
