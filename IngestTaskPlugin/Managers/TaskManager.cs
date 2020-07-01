@@ -2955,7 +2955,7 @@ namespace IngestTaskPlugin.Managers
                 root.Descendants("PERIODPARAM").Remove();
             }
 
-            var info = await Store.AddTaskWithPolicys(findtask, true, src,
+            var info = await Store.AddTaskWithPolicys(newtaskinfo, true, src,
                                                         strCapatureMetaData,
                                                         strContentMetaData,
                                                         strStoreMetaData,
