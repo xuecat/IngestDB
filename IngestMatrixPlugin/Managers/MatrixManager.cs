@@ -180,7 +180,7 @@ namespace IngestMatrixPlugin.Managers
 
                         var deviceInfos = response as ResponseMessage<List<CaptureDeviceInfoInterface>>;
 
-                        msvip = deviceInfos.Ext?.FirstOrDefault(x=>x.DeviceTypeID == dbpRcdoutdesc.Recoutidx)?.IP;
+                        msvip = deviceInfos.Ext?.FirstOrDefault(x=>x.ID == dbpRcdoutdesc.Rcdeviceid)?.IP;
 
                         response = await _deviceInterface.GetDeviceCallBack(new DeviceInternals()
                         {
@@ -188,13 +188,13 @@ namespace IngestMatrixPlugin.Managers
                         });
 
                         var channelsInfos = response as ResponseMessage<List<CaptureChannelInfoInterface>>;
-                        msvport = (int)channelsInfos.Ext?.FirstOrDefault(x => x.CPDeviceID == dbpRcdoutdesc.Recoutidx)?.ChannelIndex;
+                        msvport = (int)channelsInfos.Ext?.FirstOrDefault(x => x.CPDeviceID == dbpRcdoutdesc.Rcdeviceid)?.ChannelIndex;
 
                     }
 
                     Logger.Error($"call SwitchInOutAsync, msvip: {msvip},msvport:{msvport}, dbpRcdindesc.Ipaddress:{dbpRcdindesc.Ipaddress}.");
 
-                    Task.Run(() => { _clock.InvokeNotify(null, NotifyPlugin.Msv, null, new MatrixMsvNotifyInfo {  MsvIp = msvip, Port=msvport, LocalIP = dbpRcdindesc.Ipaddress }); });
+                    Task.Run(() => { _clock.InvokeNotify(msvip, NotifyPlugin.Msv, dbpRcdindesc.Ipaddress, null, msvport); });
 
                     //if (!ApplicationContext.Current.CtrlSDK.Relecate(msvip, msvport, dbpRcdindesc.Ipaddress))
                     //{
