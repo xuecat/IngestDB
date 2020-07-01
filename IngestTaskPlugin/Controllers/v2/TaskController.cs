@@ -868,6 +868,49 @@ namespace IngestTaskPlugin.Controllers.v2
         }
 
         /// <summary>
+        /// 获取任务全部的元数据
+        /// </summary>
+        /// <remarks>
+        /// 例子:
+        ///
+        /// </remarks>
+        /// <param name="taskid">任务id，</param>
+        /// <returns>任务内容全部信息包含元数据</returns>
+        [HttpGet("taskinfo/{taskid}/all")]
+        [ApiExplorerSettings(GroupName = "v2")]
+        public async Task<ResponseMessage<TaskInfoResponse>> GetTaskInfoAllByID([FromRoute, BindRequired]int taskid)
+        {
+            var Response = new ResponseMessage<TaskInfoResponse>();
+            if (taskid <= 0)
+            {
+                Response.Code = ResponseCodeDefines.ModelStateInvalid;
+                Response.Msg = "请求参数不正确";
+            }
+
+            try
+            {
+                Response.Ext = await _taskManage.GetTaskInfoAll(taskid);
+
+            }
+            catch (Exception e)
+            {
+                if (e.GetType() == typeof(SobeyRecException))//sobeyexcep会自动打印错误
+                {
+                    SobeyRecException se = e as SobeyRecException;
+                    Response.Code = se.ErrorCode.ToString();
+                    Response.Msg = se.Message;
+                }
+                else
+                {
+                    Response.Code = ResponseCodeDefines.ServiceError;
+                    Response.Msg = "GetTaskInfoAllByID error info：" + e.Message;
+                    Logger.Error(Response.Msg);
+                }
+            }
+            return Response;
+        }
+
+        /// <summary>
         /// 获取当前时间段此通道的占位任务id
         /// </summary>
         /// <remarks>

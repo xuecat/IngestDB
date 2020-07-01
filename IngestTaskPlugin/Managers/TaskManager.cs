@@ -52,6 +52,44 @@ namespace IngestTaskPlugin.Managers
             return _mapper.Map<List<TResult>>(f);
         }
 
+        public TaskMaterialMetaResponse ConverTaskMaterialMetaString(string data)
+        {
+            try
+            {
+                var root = XDocument.Parse(data);
+                var material = root.Element("MATERIAL");
+
+                TaskMaterialMetaResponse ret = new TaskMaterialMetaResponse();
+                ret.Title = material?.Element("TITLE")?.Value;
+                ret.MaterialId = material?.Element("MATERIALID")?.Value;
+                ret.Rights = material?.Element("RIGHTS")?.Value;
+                ret.Comments = material?.Element("COMMENTS")?.Value;
+                ret.Destination = material?.Element("DESTINATION")?.Value;
+
+                int temp = 0;
+                if (int.TryParse(material?.Element("FOLDERID")?.Value, out temp))
+                {
+                    ret.FolderId = temp;
+                }
+
+                ret.ItemName = material?.Element("ITEMNAME")?.Value;
+                ret.JournaList = material?.Element("JOURNALIST")?.Value;
+                ret.CateGory = material?.Element("CATEGORY")?.Value;
+                ret.ProgramName = material?.Element("PROGRAMNAME")?.Value;
+
+                if (int.TryParse(material?.Element("DATEFOLDER")?.Value, out temp))
+                {
+                    ret.Datefolder = temp;
+                }
+
+                return ret;
+            }
+            catch (Exception e)
+            {
+                SobeyRecException.ThrowSelfNoParam("ConverTaskMaterialMetaString", GlobalDictionary.GLOBALDICT_CODE_FILL_GETTASKMETADATA_EXCEPTION, Logger, e);
+            }
+            return null;
+        }
         public string ConverTaskMaterialMetaString(TaskMaterialMetaResponse re)
         {
             XDocument xdoc = new XDocument(new XElement("MATERIAL"));
@@ -107,6 +145,93 @@ namespace IngestTaskPlugin.Managers
             }
 
             return xdoc.ToString();
+        }
+        public TaskContentMetaResponse ConverTaskContentMetaString(string data)
+        {
+            try
+            {
+                var root = XDocument.Parse(data);
+                var material = root.Element("TaskContentMetaData");
+
+                TaskContentMetaResponse ret = new TaskContentMetaResponse();
+                int temp = 0;
+                if (int.TryParse(material?.Element("HOUSETC")?.Value, out temp))
+                {
+                    ret.HouseTc = temp;
+                }
+                if (int.TryParse(material?.Element("PRESETSTAMP")?.Value, out temp))
+                {
+                    ret.PresetStamp = temp;
+                }
+                if (int.TryParse(material?.Element("SIXTEENTONINE")?.Value, out temp))
+                {
+                    ret.SixteenToNine = temp;
+                }
+                if (int.TryParse(material?.Element("SOURCETAPEID")?.Value, out temp))
+                {
+                    ret.SourceTapeID = temp;
+                }
+                if (int.TryParse(material?.Element("DELETEFLAG")?.Value, out temp))
+                {
+                    ret.DeleteFlag = temp;
+                }
+                if (int.TryParse(material?.Element("SOURCETAPEBARCODE")?.Value, out temp))
+                {
+                    ret.SourceTapeBarcode = temp;
+                }
+                ret.UserToken = material?.Element("UserToken")?.Value;
+                ret.VtrStart = material?.Element("VTRSTART")?.Value;
+                if (int.TryParse(material?.Element("BACKTAPEID")?.Value, out temp))
+                {
+                    ret.BackTapeId = temp;
+                }
+                if (int.TryParse(material?.Element("USERMEDIAID")?.Value, out temp))
+                {
+                    ret.UserMediaId = temp;
+                }
+                if (int.TryParse(material?.Element("BACKTAPEID")?.Value, out temp))
+                {
+                    ret.BackTapeId = temp;
+                }
+                if (int.TryParse(material?.Element("TCMODE")?.Value, out temp))
+                {
+                    ret.TcMode = temp;
+                }
+                if (int.TryParse(material?.Element("ClipSum")?.Value, out temp))
+                {
+                    ret.ClipSum = temp;
+                }
+                if (int.TryParse(material?.Element("TransState")?.Value, out temp))
+                {
+                    ret.TransState = temp;
+                }
+
+                var period = material?.Element("PERIODPARAM");
+                if (period != null)
+                {
+                    ret.PeriodParam = new PeriodParamResponse();
+                    ret.PeriodParam.BeginDate = period?.Element("BEGINDATE").Value;
+                    ret.PeriodParam.EndDate = period?.Element("ENDDATE").Value;
+                    if (int.TryParse(period?.Element("APPDATE")?.Value, out temp))
+                    {
+                        ret.PeriodParam.AppDate = temp;
+                    }
+                    ret.PeriodParam.AppDateFormat = period?.Element("APPDATEFORMAT").Value;
+                    if (int.TryParse(period?.Element("MODE")?.Value, out temp))
+                    {
+                        ret.PeriodParam.Mode = temp;
+                    }
+
+                    ret.PeriodParam.Params = period.Descendants("DAY").Select(x => int.Parse(x.Value)).ToList();
+                }
+
+                return ret;
+            }
+            catch (Exception e)
+            {
+                SobeyRecException.ThrowSelfNoParam("ConverTaskContentMetaString", GlobalDictionary.GLOBALDICT_CODE_FILL_GETTASKMETADATA_EXCEPTION, Logger, e);
+            }
+            return null;
         }
         public string ConverTaskContentMetaString(TaskContentMetaResponse re)
         {
@@ -205,6 +330,46 @@ namespace IngestTaskPlugin.Managers
 
             return xdoc.ToString();
         }
+
+        public TaskPlanningResponse ConverTaskPlanningMetaString(string data)
+        {
+            try
+            {
+                var root = XDocument.Parse(data);
+                var material = root.Element("Planning");
+
+                TaskPlanningResponse ret = new TaskPlanningResponse();
+                ret.PlanGuid = material?.Element("PLANGUID")?.Value;
+                ret.PlanName = material?.Element("PLANNAME")?.Value;
+                ret.CreaToRName = material?.Element("CREATORNAME")?.Value;
+                ret.CreateDate = material?.Element("CREATEDATE")?.Value;
+                ret.ModifyName = material?.Element("MODIFYNAME")?.Value;
+                ret.ModifyDate = material?.Element("MODIFYDATE")?.Value;
+
+                int temp = 0;
+                if (int.TryParse(material?.Element("VERSION")?.Value, out temp))
+                {
+                    ret.Version = temp;
+                }
+
+                ret.Place = material?.Element("PLACE")?.Value;
+                ret.PlanningDate = material?.Element("PLANNINGDATE")?.Value;
+                ret.Director = material?.Element("DIRECTOR")?.Value;
+                ret.Photographer = material?.Element("PHOTOGRAPHER")?.Value;
+                ret.Reporter = material?.Element("REPORTER")?.Value;
+                ret.Other = material?.Element("OTHER")?.Value;
+                ret.Equipment = material?.Element("EQUIPMENT")?.Value;
+                ret.ContactInfo = material?.Element("CONTACTINFO")?.Value;
+                ret.PlanningXml = material?.Element("PLANNINGXML")?.Value;
+
+                return ret;
+            }
+            catch (Exception e)
+            {
+                SobeyRecException.ThrowSelfNoParam("ConverTaskPlanningMetaString", GlobalDictionary.GLOBALDICT_CODE_FILL_GETTASKMETADATA_EXCEPTION, Logger, e);
+            }
+            return null;
+        }
         public string ConverTaskPlanningMetaString(TaskPlanningResponse re)
         {
             XDocument xdoc = new XDocument(new XElement("Planning"));
@@ -278,6 +443,24 @@ namespace IngestTaskPlugin.Managers
             return xdoc.ToString();
         }
 
+        public TaskSplitResponse ConverTaskSplitMetaString(string data)
+        {
+            try
+            {
+                var root = XDocument.Parse(data);
+                var material = root.Element("SplitMetaData");
+
+                TaskSplitResponse ret = new TaskSplitResponse();
+                ret.VtrStart = material?.Element("VTRSTART")?.Value;
+
+                return ret;
+            }
+            catch (Exception e)
+            {
+                SobeyRecException.ThrowSelfNoParam("ConverTaskSplitMetaString", GlobalDictionary.GLOBALDICT_CODE_FILL_GETTASKMETADATA_EXCEPTION, Logger, e);
+            }
+            return null;
+        }
         public async virtual Task<TaskMaterialMetaResponse> GetTaskMaterialMetadataAsync(int taskid)
         {
             var f = await Store.GetTaskMetaDataAsync(a => a
@@ -295,12 +478,22 @@ namespace IngestTaskPlugin.Managers
                 ret.Rights = material?.Element("RIGHTS")?.Value;
                 ret.Comments = material?.Element("COMMENTS")?.Value;
                 ret.Destination = material?.Element("DESTINATION")?.Value;
-                ret.FolderId = int.Parse(material?.Element("FOLDERID")?.Value);
+
+                int temp = 0;
+                if (int.TryParse(material?.Element("FOLDERID")?.Value, out temp))
+                {
+                    ret.FolderId = temp;
+                }
+
                 ret.ItemName = material?.Element("ITEMNAME")?.Value;
                 ret.JournaList = material?.Element("JOURNALIST")?.Value;
                 ret.CateGory = material?.Element("CATEGORY")?.Value;
                 ret.ProgramName = material?.Element("PROGRAMNAME")?.Value;
-                ret.Datefolder = int.Parse(material?.Element("DATEFOLDER")?.Value);
+
+                if (int.TryParse(material?.Element("DATEFOLDER")?.Value, out temp))
+                {
+                    ret.Datefolder = temp;
+                }
 
                 return ret;
             }
@@ -324,30 +517,76 @@ namespace IngestTaskPlugin.Managers
                 var material = root.Element("TaskContentMetaData");
 
                 TaskContentMetaResponse ret = new TaskContentMetaResponse();
-                ret.HouseTc = int.Parse(material?.Element("HOUSETC")?.Value);
-                ret.PresetStamp = int.Parse(material?.Element("PRESETSTAMP")?.Value);
-                ret.SixteenToNine = int.Parse(material?.Element("SIXTEENTONINE")?.Value);
-                ret.SourceTapeID = int.Parse(material?.Element("SOURCETAPEID")?.Value);
-                ret.DeleteFlag = int.Parse(material?.Element("DELETEFLAG")?.Value);
-                ret.SourceTapeBarcode = int.Parse(material?.Element("SOURCETAPEBARCODE")?.Value);
-                ret.BackTapeId = int.Parse(material?.Element("BACKTAPEID")?.Value);
-                ret.UserMediaId = int.Parse(material?.Element("USERMEDIAID")?.Value);
+                int temp = 0;
+                if (int.TryParse(material?.Element("HOUSETC")?.Value, out temp))
+                {
+                    ret.HouseTc = temp;
+                }
+                if (int.TryParse(material?.Element("PRESETSTAMP")?.Value, out temp))
+                {
+                    ret.PresetStamp = temp;
+                }
+                if (int.TryParse(material?.Element("SIXTEENTONINE")?.Value, out temp))
+                {
+                    ret.SixteenToNine = temp;
+                }
+                if (int.TryParse(material?.Element("SOURCETAPEID")?.Value, out temp))
+                {
+                    ret.SourceTapeID = temp;
+                }
+                if (int.TryParse(material?.Element("DELETEFLAG")?.Value, out temp))
+                {
+                    ret.DeleteFlag = temp;
+                }
+                if (int.TryParse(material?.Element("SOURCETAPEBARCODE")?.Value, out temp))
+                {
+                    ret.SourceTapeBarcode = temp;
+                }
                 ret.UserToken = material?.Element("UserToken")?.Value;
                 ret.VtrStart = material?.Element("VTRSTART")?.Value;
-                ret.TcMode = int.Parse(material?.Element("TCMODE")?.Value);
-                ret.ClipSum = int.Parse(material?.Element("ClipSum")?.Value);
-                ret.TransState = int.Parse(material?.Element("TransState")?.Value);
+                if (int.TryParse(material?.Element("BACKTAPEID")?.Value, out temp))
+                {
+                    ret.BackTapeId = temp;
+                }
+                if (int.TryParse(material?.Element("USERMEDIAID")?.Value, out temp))
+                {
+                    ret.UserMediaId = temp;
+                }
+                if (int.TryParse(material?.Element("BACKTAPEID")?.Value, out temp))
+                {
+                    ret.BackTapeId = temp;
+                }
+                if (int.TryParse(material?.Element("TCMODE")?.Value, out temp))
+                {
+                    ret.TcMode = temp;
+                }
+                if (int.TryParse(material?.Element("ClipSum")?.Value, out temp))
+                {
+                    ret.ClipSum = temp;
+                }
+                if (int.TryParse(material?.Element("TransState")?.Value, out temp))
+                {
+                    ret.TransState = temp;
+                }
 
                 var period = material?.Element("PERIODPARAM");
-                ret.PeriodParam = new PeriodParamResponse();
-                ret.PeriodParam.BeginDate = period?.Element("BEGINDATE").Value;
-                ret.PeriodParam.EndDate = period?.Element("ENDDATE").Value;
-                ret.PeriodParam.AppDate = int.Parse(period?.Element("APPDATE").Value);
-                ret.PeriodParam.AppDateFormat = period?.Element("APPDATEFORMAT").Value;
-                ret.PeriodParam.Mode = int.Parse(period?.Element("MODE").Value);
+                if (period != null)
+                {
+                    ret.PeriodParam = new PeriodParamResponse();
+                    ret.PeriodParam.BeginDate = period?.Element("BEGINDATE").Value;
+                    ret.PeriodParam.EndDate = period?.Element("ENDDATE").Value;
+                    if (int.TryParse(period?.Element("APPDATE")?.Value, out temp))
+                    {
+                        ret.PeriodParam.AppDate = temp;
+                    }
+                    ret.PeriodParam.AppDateFormat = period?.Element("APPDATEFORMAT").Value;
+                    if (int.TryParse(period?.Element("MODE")?.Value, out temp))
+                    {
+                        ret.PeriodParam.Mode = temp;
+                    }
 
-                ret.PeriodParam.Params = period.Descendants("DAY").Select(x => int.Parse(x.Value)).ToList();
-
+                    ret.PeriodParam.Params = period.Descendants("DAY").Select(x => int.Parse(x.Value)).ToList();
+                }
                 return ret;
             }
             catch (Exception e)
@@ -376,7 +615,13 @@ namespace IngestTaskPlugin.Managers
                 ret.CreateDate = material?.Element("CREATEDATE")?.Value;
                 ret.ModifyName = material?.Element("MODIFYNAME")?.Value;
                 ret.ModifyDate = material?.Element("MODIFYDATE")?.Value;
-                ret.Version = int.Parse(material?.Element("VERSION")?.Value);
+
+                int temp = 0;
+                if (int.TryParse(material?.Element("VERSION")?.Value, out temp))
+                {
+                    ret.Version = temp;
+                }
+
                 ret.Place = material?.Element("PLACE")?.Value;
                 ret.PlanningDate = material?.Element("PLANNINGDATE")?.Value;
                 ret.Director = material?.Element("DIRECTOR")?.Value;
@@ -413,6 +658,53 @@ namespace IngestTaskPlugin.Managers
                 return _mapper.Map<TResult>(item);
             }
             return default(TResult);
+        }
+
+        public async Task<TaskInfoResponse> GetTaskInfoAll(int taskid)
+        {
+            TaskInfoResponse backobj = new TaskInfoRequest();
+
+            var item = await Store.GetTaskAsync(a => a.Where(b => b.Taskid == taskid), true);
+            if (item != null)
+            {
+                if (item.DispatchState == (int)dispatchState.dpsInvalid)
+                {
+                    item.State = (int)taskState.tsDelete;
+                }
+                else if (item.DispatchState == (int)dispatchState.dpsRedispatch)
+                {
+                    item.State = (int)taskState.tsInvaild;
+                }
+
+                backobj.TaskContent = _mapper.Map<TaskContentResponse>(item);
+
+                var lstmeta = await Store.GetTaskMetaDataListAsync(a => a.Where(b => b.Taskid == taskid), true);
+                foreach (var itm in lstmeta)
+                {
+                    if (itm.Metadatatype == (int)MetaDataType.emCapatureMetaData)
+                    {
+                        backobj.CaptureMeta = itm.Metadatalong;
+                    }
+                    else if (itm.Metadatatype == (int)MetaDataType.emContentMetaData)
+                    {
+                        backobj.ContentMeta = ConverTaskContentMetaString(itm.Metadatalong);
+                    }
+                    else if (itm.Metadatatype == (int)MetaDataType.emStoreMetaData)
+                    {
+                        backobj.MaterialMeta = ConverTaskMaterialMetaString(itm.Metadatalong);
+                    }
+                    else if (itm.Metadatatype == (int)MetaDataType.emPlanMetaData)
+                    {
+                        backobj.PlanningMeta = ConverTaskPlanningMetaString(itm.Metadatalong);
+                    }
+                    else if (itm.Metadatatype == (int)MetaDataType.emSplitData)
+                    {
+                        backobj.SplitMeta = ConverTaskSplitMetaString(itm.Metadatalong);
+                    }
+                }
+            }
+            
+            return backobj;
         }
 
         public async Task<List<TResult>> GetScheduleFailedTasks<TResult>()
