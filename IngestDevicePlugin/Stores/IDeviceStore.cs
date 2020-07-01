@@ -15,9 +15,10 @@ namespace IngestDevicePlugin.Stores
 
     public interface IDeviceStore
     {
-        #region MyRegion
         //IQueryable<TaskInfo> SimpleQuery { get; }
+        Task<List<ProgrammeInfoDto>> GetAllProgrammeInfoAsync();
         Task<ProgrammeInfoDto> GetSignalInfoAsync(int srcid);
+        Task<List<ProgrammeInfoDto>> GetSignalInfoByListAsync(List<int> srcid);
         Task<CaptureChannelInfoDto> GetCaptureChannelByIDAsync(int channelid);
         Task<List<CaptureChannelInfoDto>> GetAllCaptureChannelsAsync(int status);
         /// <summary> 通过 信号Id 获取 通道id（非矩阵） </summary>
@@ -28,7 +29,7 @@ namespace IngestDevicePlugin.Stores
         Task<DbpChannelRecmap> GetChannelUnitMap(int channel);
         Task<int> GetMatrixChannelBySignalAsync(int channelid);
         Task<int> GetBackUpSignalInfoByID(int srgid);
-        #endregion
+        
 
         /// <summary> 获取输入端口与信号源 </summary>
         Task<List<TResult>> GetRcdindescAsync<TResult>(Func<IQueryable<DbpRcdindesc>, IQueryable<TResult>> query, bool notrack = false);

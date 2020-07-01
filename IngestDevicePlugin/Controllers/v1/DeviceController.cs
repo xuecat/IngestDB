@@ -501,7 +501,7 @@ namespace IngestDevicePlugin.Controllers.v1
             GetAllProgrammeInfos_OUT response = new GetAllProgrammeInfos_OUT();
             try
             {
-                response.programmeInfos = await _deviceManage.GetAllProgrammeInfosAsync();
+                response.programmeInfos = await _deviceManage.GetAllProgrammeInfosAsync<ProgrammeInfo>();
                 response.nValidDataCount = response.programmeInfos.Count;
             } catch(Exception e)
             {
@@ -564,7 +564,7 @@ namespace IngestDevicePlugin.Controllers.v1
                     return response;
                 }
 
-                response.programmeInfos = await _deviceManage.GetProgrammeInfosByChannelIdAsync(channelId);
+                response.programmeInfos = await _deviceManage.GetProgrammeInfosByChannelIdAsync<ProgrammeInfo>(channelId);
                 response.validCount = response.programmeInfos.Count;
             } catch(Exception e)
             {

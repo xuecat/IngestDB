@@ -628,12 +628,12 @@ namespace IngestDevicePlugin.Controllers.v2
         /// <returns>节目集合</returns>
         [HttpGet("programmeinfo/{channelid}")]
         [ApiExplorerSettings(GroupName = "v2")]
-        public async Task<ResponseMessage<List<ProgrammeInfo>>> ProgrammeInfos([FromRoute, BindRequired, DefaultValue(14)]int channelid)
+        public async Task<ResponseMessage<List<ProgrammeInfoResponse>>> ProgrammeInfos([FromRoute, BindRequired, DefaultValue(14)]int channelid)
         {
-            ResponseMessage<List<ProgrammeInfo>> response = new ResponseMessage<List<ProgrammeInfo>>();
+            ResponseMessage<List<ProgrammeInfoResponse>> response = new ResponseMessage<List<ProgrammeInfoResponse>>();
             try
             {
-                response.Ext = await _deviceManage.GetProgrammeInfosByChannelIdAsync(channelid);
+                response.Ext = await _deviceManage.GetProgrammeInfosByChannelIdAsync<ProgrammeInfoResponse>(channelid);
             } catch(Exception e)
             {
                 if(e is SobeyRecException se)//sobeyexcep会自动打印错误
@@ -657,12 +657,12 @@ namespace IngestDevicePlugin.Controllers.v2
         /// <returns>节目集合</returns>
         [HttpGet("programme/all")]
         [ApiExplorerSettings(GroupName = "v2")]
-        public async Task<ResponseMessage<List<ProgrammeInfo>>> AllProgrammeInfos()
+        public async Task<ResponseMessage<List<ProgrammeInfoResponse>>> AllProgrammeInfos()
         {
-            ResponseMessage<List<ProgrammeInfo>> response = new ResponseMessage<List<ProgrammeInfo>>();
+            ResponseMessage<List<ProgrammeInfoResponse>> response = new ResponseMessage<List<ProgrammeInfoResponse>>();
             try
             {
-                response.Ext = await _deviceManage.GetAllProgrammeInfosAsync();
+                response.Ext = await _deviceManage.GetAllProgrammeInfosAsync<ProgrammeInfoResponse>();
             } catch(Exception e)
             {
                 if(e is SobeyRecException se)//sobeyexcep会自动打印错误
