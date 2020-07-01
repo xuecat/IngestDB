@@ -2064,7 +2064,7 @@ namespace IngestTaskPlugin.Managers
                     var fresponse = response1 as ResponseMessage<List<CaptureChannelInfoInterface>>;
                     if (fresponse != null && fresponse.Ext?.Count > 0)
                     {
-                        if (fresponse.Ext.Any(x => x.ID == taskModify.ChannelId))
+                        if (fresponse.Ext.Any(x => x.Id == taskModify.ChannelId))
                             match = true;
                     }
                 }
