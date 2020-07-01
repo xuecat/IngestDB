@@ -27,7 +27,7 @@ namespace IngestDevicePlugin.Stores
         protected IngestDeviceDBContext Context { get; }
         #region Base
         /// <summary> 查询任意表集合返回 </summary>
-        protected virtual Task<List<TResult>> QueryListAsync<TDbp, TResult>(DbSet<TDbp> contextSet, Func<IQueryable<TDbp>, IQueryable<TResult>> query, bool notrack = false)
+        protected virtual async Task<List<TResult>> QueryListAsync<TDbp, TResult>(DbSet<TDbp> contextSet, Func<IQueryable<TDbp>, IQueryable<TResult>> query, bool notrack = false)
             where TDbp : class
         {
             if (query == null)
@@ -36,9 +36,9 @@ namespace IngestDevicePlugin.Stores
             }
             if (notrack)
             {
-                return query(contextSet.AsNoTracking()).ToListAsync();
+                return await query(contextSet.AsNoTracking()).ToListAsync();
             }
-            return query(contextSet).ToListAsync();
+            return await query(contextSet).ToListAsync();
         }
 
         /// <summary> 查询任意值返回 </summary>
@@ -119,7 +119,104 @@ namespace IngestDevicePlugin.Stores
             return await Context.DbpMatrixinfo.AsNoTracking().AnyAsync(a => a.Matrixid == 2 && a.Matrixtypeid != 2);//老版本NULL MATRIX是6，现在是2，难道老版本一直返回的是有矩阵？
 
         }
+        
+        public async Task<List<ProgrammeInfoDto>> GetAllProgrammeInfoAsync()
+        {
+            var query = await (from sig in Context.DbpSignalsrc.AsNoTracking()
+                               join recin in Context.DbpRcdindesc.AsNoTracking() on sig.Signalsrcid equals recin.Signalsrcid into ps
+                               join grp in Context.DbpSignalsrcgroupmap.AsNoTracking() on sig.Signalsrcid equals grp.Signalsrcid into pg
+                               from p in ps.DefaultIfEmpty()
+                               from g in pg.DefaultIfEmpty()
+                               where p != null 
+                               select new ProgrammeInfoDto
+                               {
+                                   ProgrammeId = sig.Signalsrcid,
+                                   ProgrammeName = sig.Name,
+                                   ProgrammeDesc = sig.Signaldesc,
+                                   TypeId = sig.Signaltypeid,
+                                   PgmType = ProgrammeType.PT_SDI,
+                                   ImageType = (ImageType)sig.Imagetype,
+                                   PureAudio = sig.Pureaudio ?? 0,
+                                   SignalSourceType = p == null ? 0 : (emSignalSource)p.Signalsource.GetValueOrDefault(),
+                                   GroupID = g == null ? 0 : g.Groupid,
+                               }).ToListAsync();
+            if (query == null)
+            {
+                return null;
+            }
+            foreach (var item in query)
+            {
+                switch (item.PgmType)
+                {
+                    case ProgrammeType.PT_SDI:
+                        { }
+                        break;//上面已经赋值了
+                    case ProgrammeType.PT_IPTS:
+                        {
+                            item.SignalSourceType = emSignalSource.emIPTS;
+                        }
+                        break;
+                    case ProgrammeType.PT_StreamMedia:
+                        {
+                            item.SignalSourceType = emSignalSource.emStreamMedia;
+                        }
+                        break;
+                    default:
+                        break;
+                }
+            }
+            
+            return query;
+        }
+        public async Task<List<ProgrammeInfoDto>> GetSignalInfoByListAsync(List<int> srcid)
+        {
+            var query = await (from sig in Context.DbpSignalsrc.AsNoTracking()
+                               join recin in Context.DbpRcdindesc.AsNoTracking() on sig.Signalsrcid equals recin.Signalsrcid into ps
+                               join grp in Context.DbpSignalsrcgroupmap.AsNoTracking() on sig.Signalsrcid equals grp.Signalsrcid into pg
+                               from p in ps.DefaultIfEmpty()
+                               from g in pg.DefaultIfEmpty()
+                               where p != null && srcid.Contains(sig.Signalsrcid)
+                               select new ProgrammeInfoDto
+                               {
+                                   ProgrammeId = sig.Signalsrcid,
+                                   ProgrammeName = sig.Name,
+                                   ProgrammeDesc = sig.Signaldesc,
+                                   TypeId = sig.Signaltypeid,
+                                   PgmType = ProgrammeType.PT_SDI,
+                                   ImageType = (ImageType)sig.Imagetype,
+                                   PureAudio = sig.Pureaudio ?? 0,
+                                   SignalSourceType = p == null ? 0 : (emSignalSource)p.Signalsource.GetValueOrDefault(),
+                                   GroupID = g == null ? 0 : g.Groupid,
+                               }).ToListAsync();
+            if (query == null)
+            {
+                Logger.Error("GetSignalInfoAsync query error" + srcid.ToString());
+                return null;
+            }
 
+            foreach (var item in query)
+            {
+                switch (item.PgmType)
+                {
+                    case ProgrammeType.PT_SDI:
+                        { }
+                        break;//上面已经赋值了
+                    case ProgrammeType.PT_IPTS:
+                        {
+                            item.SignalSourceType = emSignalSource.emIPTS;
+                        }
+                        break;
+                    case ProgrammeType.PT_StreamMedia:
+                        {
+                            item.SignalSourceType = emSignalSource.emStreamMedia;
+                        }
+                        break;
+                    default:
+                        break;
+                }
+            }
+            return query;
+        }
         //老版本 GetProgrammeInfoById
         public async Task<ProgrammeInfoDto> GetSignalInfoAsync(int srcid)
         {

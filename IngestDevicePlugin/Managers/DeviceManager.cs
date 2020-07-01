@@ -16,6 +16,8 @@ using Microsoft.Extensions.DependencyInjection;
 using Remotion.Linq.Parsing;
 using Sobey.Core.Log;
 using taskState = IngestDevicePlugin.Dto.Enum.taskState;
+using ProgrammeInfoDto = IngestDevicePlugin.Dto.Response.ProgrammeInfoResponse;
+using CaptureChannelInfoDto = IngestDevicePlugin.Dto.Response.CaptureChannelInfoResponse;
 using emSignalSource = IngestDevicePlugin.Dto.Enum.emSignalSource;
 using IngestDevicePlugin.Dto.OldResponse;
 using IngestDBCore.Tool;
@@ -131,7 +133,7 @@ namespace IngestDevicePlugin.Managers
         /// <param name="id">通道Id</param>
         public virtual async Task<TResult> GetCaptureChannelByIDAsync<TResult>(int id)
         {
-            var captureChannel = _mapper.Map<TResult>(await Store.GetCapturechannelsAsync(async a => await a.FirstOrDefaultAsync(x => x.Channelid == id), true));
+            var captureChannel = _mapper.Map<TResult>(await Store.GetCaptureChannelByIDAsync(id));
             if (captureChannel == null)
             {
                 captureChannel = _mapper.Map<TResult>(await Store.GetIpVirtualchannelAsync(async a => await a.FirstOrDefaultAsync(x => x.Channelid == id), true));
@@ -140,6 +142,8 @@ namespace IngestDevicePlugin.Managers
                     SobeyRecException.ThrowSelfNoParam(nameof(GetCaptureChannelByIDAsync), GlobalDictionary.GLOBALDICT_CODE_CHANNEL_ID_DOES_NOT_EXIST, Logger, null);
                 }
             }
+
+            
             return captureChannel;
         }
 
@@ -272,91 +276,75 @@ namespace IngestDevicePlugin.Managers
         }
 
         /// <summary> 获取所有节目 </summary>
-        public virtual async Task<List<ProgrammeInfo>> GetAllProgrammeInfosAsync()
+        public virtual async Task<List<TResult>> GetAllProgrammeInfosAsync<TResult>()
         {
-            var programmeInfos = _mapper.Map<List<ProgrammeInfo>>(await Store.GetAllSignalsrcForRcdinAsync(true));
+            var programmeInfos = _mapper.Map<List<TResult>>( await Store.GetAllProgrammeInfoAsync());
 
-            var inportDescInfos = await Store.GetRcdindescAsync(a => a, true);
-            foreach (var info in programmeInfos)
-            {
-                var inport = inportDescInfos.FirstOrDefault(a => a.Signalsrcid == info.ProgrammeId);
-                if (inport != null)
-                {
-                    info.emSignalSourceType = (emSignalSource)inport.Signalsource;
-                }
-            }
-
-            var allTSPgmInfo = _mapper.Map<List<ProgrammeInfo>>(await Store.GetIpProgrammeAsync(a => a, true));
+            var allTSPgmInfo = _mapper.Map<List<TResult>>(await Store.GetIpProgrammeAsync(a => a, true));
             programmeInfos.AddRange(allTSPgmInfo);
 
-            var allStreamMedia = _mapper.Map<List<ProgrammeInfo>>(await Store.GetStreamMediaAsync(a => a, true));
+            var allStreamMedia = _mapper.Map<List<TResult>>(await Store.GetStreamMediaAsync(a => a, true));
             programmeInfos.AddRange(allStreamMedia);
 
-            var allSignalGroupStates = await Store.GetAllSignalGroupInfoAsync();
-
-            foreach (ProgrammeInfo pgInfo in programmeInfos)
-            {
-                pgInfo.nGroupID = -1;
-                var state = allSignalGroupStates.FirstOrDefault(a => a.SignalSrcID == pgInfo.ProgrammeId);
-                if (state != null)
-                    pgInfo.nGroupID = state.GroupID;
-            }
             return programmeInfos;
         }
 
         /// <summary> 根据通道获取相应的节目 </summary>
-        public virtual async Task<List<ProgrammeInfo>> GetProgrammeInfosByChannelIdAsync(int channelId)
+        public virtual async Task<List<TResult>> GetProgrammeInfosByChannelIdAsync<TResult>(int channelId)
         {
-            CaptureChannelInfo channelInfo = await GetCaptureChannelByIDAsync<CaptureChannelInfo>(channelId);
-            if ((channelInfo.nDeviceTypeID == (int)CaptureChannelType.emMsvChannel || channelInfo.nDeviceTypeID == (int)CaptureChannelType.emDefualtChannel)
+            var channelInfo = await GetCaptureChannelByIDAsync<CaptureChannelInfoDto>(channelId);
+            if ((channelInfo.DeviceTypeID == (int)CaptureChannelType.emMsvChannel || channelInfo.DeviceTypeID == (int)CaptureChannelType.emDefualtChannel)
                 && !await HaveMatrixAsync())
             {
                 var signalIds = await Store.GetSignalIdsByChannelIdForNotMatrix(channelId);
-                var programmeInfoList = _mapper.Map<List<ProgrammeInfo>>(await Store.GetSignalsrcAsync(a => a.Where(x => signalIds.Contains(x.Signalsrcid)), true));
-                await MapSignalSourceForProgramme(programmeInfoList);
-                return programmeInfoList;
+
+                return _mapper.Map<List<TResult>>(await Store.GetSignalInfoByListAsync(signalIds));
+
+                //var programmeInfoList = _mapper.Map<List<ProgrammeInfo>>(await Store.GetSignalsrcAsync(a => a.Where(x => signalIds.Contains(x.Signalsrcid)), true));
+                //await MapSignalSourceForProgramme(programmeInfoList);
+                //return programmeInfoList;
             }
             else
             {
                 int signalId = 0;
-                if ((channelInfo.nDeviceTypeID == (int)CaptureChannelType.emMsvChannel || channelInfo.nDeviceTypeID == (int)CaptureChannelType.emDefualtChannel))
+                if ((channelInfo.DeviceTypeID == (int)CaptureChannelType.emMsvChannel || channelInfo.DeviceTypeID == (int)CaptureChannelType.emDefualtChannel))
                 {
-                    signalId = await GetChannelSignalSrcAsync(channelInfo.nID);
+                    signalId = await GetChannelSignalSrcAsync(channelInfo.ID);
                 }
-                return GetProgrammeInfoListMatrix(channelInfo, signalId, await GetAllProgrammeInfosAsync());
+                return _mapper.Map<List<TResult>>(GetProgrammeInfoListMatrix(channelInfo, signalId, await Store.GetAllProgrammeInfoAsync()));
             }
         }
 
         /// <summary>获取筛选结果</summary>
-        private List<ProgrammeInfo> GetProgrammeInfoListMatrix(CaptureChannelInfo channelInfo, int signalId, IEnumerable<ProgrammeInfo> programmeInfos)
+        private List<ProgrammeInfoDto> GetProgrammeInfoListMatrix(CaptureChannelInfoDto channelInfo, int signalId, List<ProgrammeInfoDto> programmeInfos)
         {
-            List<ProgrammeInfo> lstback = new List<ProgrammeInfo>();
+            List<ProgrammeInfoDto> lstback = new List<ProgrammeInfoDto>();
             foreach (var item in programmeInfos)
             {
                 //首先判断高标清
-                if (channelInfo.nCPSignalType > 0)//不是Auto
+                if (channelInfo.CPSignalType > 0)//不是Auto
                 {
-                    if (channelInfo.nCPSignalType == 1)//SD
+                    if (channelInfo.CPSignalType == 1)//SD
                     {
                         if (item.TypeId == 1)//排除HD，Auto和SD可以匹配
                             continue;
                     }
-                    else if (channelInfo.nCPSignalType == 2)//HD
+                    else if (channelInfo.CPSignalType == 2)//HD
                     {
                         if (item.TypeId == 0)//排除SD，保留HD和Auto
                             continue;
                     }
                 }
 
-                if (channelInfo.nGroupID > 0 && item.nGroupID > 0 && channelInfo.nGroupID != item.nGroupID)
+                if (channelInfo.GroupID > 0 && item.GroupID > 0 && channelInfo.GroupID != item.GroupID)
                 {
                     continue;
                 }
 
-                if (channelInfo.nDeviceTypeID == (int)CaptureChannelType.emMsvChannel
-                    || channelInfo.nDeviceTypeID == (int)CaptureChannelType.emDefualtChannel)
+                if (channelInfo.DeviceTypeID == (int)CaptureChannelType.emMsvChannel
+                    || channelInfo.DeviceTypeID == (int)CaptureChannelType.emDefualtChannel)
                 {
-                    if (item.emPgmType == ProgrammeType.PT_SDI /* && signalId == info.ProgrammeId */)
+                    if (item.PgmType == ProgrammeType.PT_SDI /* && signalId == info.ProgrammeId */)
                     {
                         // Add by chenzhi 2013-08-21
                         // TODO: Fix Bug: snp4100051546
@@ -373,19 +361,19 @@ namespace IngestDevicePlugin.Managers
                         // ----------------------- The End 2013-08-21 -----------------------
                     }
                 }
-                else if (channelInfo.nDeviceTypeID == (int)CaptureChannelType.emIPTSChannel)
+                else if (channelInfo.DeviceTypeID == (int)CaptureChannelType.emIPTSChannel)
                 {
-                    if (item.emPgmType == ProgrammeType.PT_IPTS/* || info.emPgmType == ProgrammeType.PT_StreamMedia*/)
+                    if (item.PgmType == ProgrammeType.PT_IPTS/* || info.emPgmType == ProgrammeType.PT_StreamMedia*/)
                     {
                         lstback.Add(item);
                     }
                 }
-                else if (channelInfo.nDeviceTypeID == (int)CaptureChannelType.emStreamChannel)
+                else if (channelInfo.DeviceTypeID == (int)CaptureChannelType.emStreamChannel)
                 {
                     // Delete by chenzhi 2013-07-09
                     // TODO: 运营商的概念已经被分组所取代，故移除该部分代码
 
-                    if (item.emPgmType == ProgrammeType.PT_StreamMedia /*&& info.nCarrierID == channelInfo.nCarrierID */)//运营商信息也要判断
+                    if (item.PgmType == ProgrammeType.PT_StreamMedia /*&& info.nCarrierID == channelInfo.nCarrierID */)//运营商信息也要判断
                     {
                         lstback.Add(item);
                     }
@@ -402,10 +390,10 @@ namespace IngestDevicePlugin.Managers
         {
             if (!await HaveMatrixAsync())
             {
-                CaptureChannelInfo channelInfo = await GetCaptureChannelByIDAsync<CaptureChannelInfo>(channelid);
+                CaptureChannelInfoDto channelInfo = await GetCaptureChannelByIDAsync<CaptureChannelInfoDto>(channelid);
 
-                if (channelInfo.nDeviceTypeID == (int)CaptureChannelType.emMsvChannel
-                    || channelInfo.nDeviceTypeID == (int)CaptureChannelType.emDefualtChannel)
+                if (channelInfo.DeviceTypeID == (int)CaptureChannelType.emMsvChannel
+                    || channelInfo.DeviceTypeID == (int)CaptureChannelType.emDefualtChannel)
                 {
                     var signalIds = await Store.GetSignalIdsByChannelIdForNotMatrix(channelid);
 

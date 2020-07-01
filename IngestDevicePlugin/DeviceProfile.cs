@@ -101,6 +101,19 @@ namespace IngestDevicePlugin
 
             #region DbpCapturechannels To CaptureChannelInfo、CaptureChannelInfoResponse
             //V2
+            CreateMap<DbpIpVirtualchannel, CaptureChannelInfoResponse>()
+                .ForMember(a => a.ID, (map) => map.MapFrom(b => b.Channelid))
+                .ForMember(a => a.Name, (map) => map.MapFrom(b => b.Channelname))
+                .ForMember(a => a.Desc, (map) => map.MapFrom(b => b.Channeldesc))
+                .ForMember(a => a.CPDeviceID, (map) => map.MapFrom(b => b.Deviceid))
+                .ForMember(a => a.ChannelIndex, (map) => map.MapFrom(b => b.Deviceindex))
+                .ForMember(a => a.DeviceTypeID, (map) => map.MapFrom(b => b.Channeltype))
+                .ForMember(a => a.BackState, (map) => map.MapFrom(b => b.Backuptype))
+                //.ForMember(a => a.CarrierID, (map) => map.MapFrom(b => b.nCarrierID))
+                //.ForMember(a => a.OrderCode, (map) => map.MapFrom(b => b.orderCode))
+                //.ForMember(a => a.GroupID, (map) => map.MapFrom(b => b.nGroupID))
+                .ForMember(a => a.CPSignalType, (map) => map.MapFrom(b => b.Cpsignaltype));
+
             CreateMap<DbpCapturechannels, CaptureChannelInfoResponse>()
                 .ForMember(a => a.ID, (map) => map.MapFrom(b => b.Channelid))
                 .ForMember(a => a.Name, (map) => map.MapFrom(b => b.Channelname))
@@ -347,7 +360,6 @@ namespace IngestDevicePlugin
                 .ForMember(a => a.Pureaudio, (map) => map.MapFrom(b => b.nPureAudio));
             #endregion
 
-            #region DbpIpProgramme To ProgrammeInfo
             //V2
 
             //V1
@@ -362,9 +374,6 @@ namespace IngestDevicePlugin
                     a.emPgmType = ProgrammeType.PT_IPTS;
                     a.emSignalSourceType = emSignalSource.emIPTS;
                 });
-            #endregion
-
-            #region DbpStreammedia To ProgrammeInfo
             //V2
 
             //V1
@@ -381,28 +390,67 @@ namespace IngestDevicePlugin
                     a.emPgmType = ProgrammeType.PT_StreamMedia;
                     a.emSignalSourceType = emSignalSource.emStreamMedia;
                 });
-            #endregion
 
-            #region SignalGroupState
+            CreateMap<DbpIpProgramme, ProgrammeInfoResponse>()
+                .ForMember(a => a.ProgrammeId, (map) => map.MapFrom(b => b.Programmeid))
+                .ForMember(a => a.ProgrammeName, (map) => map.MapFrom(b => b.Programmename))
+                .ForMember(a => a.TypeId, (map) => map.MapFrom(b => b.Programmetype))
+                .ForMember(a => a.ImageType, (map) => map.MapFrom(b => b.Imagetype))
+                .ForMember(a => a.PureAudio, (map) => map.MapFrom(b => b.Pureaudio))
+                .AfterMap((b, a) =>
+                {
+                    a.ProgrammeDesc = MergeTSPgmInfoMultiIPAndPort(b.Programmeindex, b.Multicastip, b.Multicastport, b.Programmedesc, b.Extendparams);
+                    a.PgmType = ProgrammeType.PT_IPTS;
+                    a.SignalSourceType = emSignalSource.emIPTS;
+                });
+
+            CreateMap<ProgrammeInfoResponse, ProgrammeInfo>()
+                .ForMember(a => a.ProgrammeId, (map) => map.MapFrom(b => b.ProgrammeId))
+                .ForMember(a => a.ProgrammeName, (map) => map.MapFrom(b => b.ProgrammeName))
+                .ForMember(a => a.TypeId, (map) => map.MapFrom(b => b.TypeId))
+                .ForMember(a => a.emImageType, (map) => map.MapFrom(b => b.ImageType))
+                .ForMember(a => a.nPureAudio, (map) => map.MapFrom(b => b.PureAudio))
+                .ForMember(a => a.nCarrierID, (map) => map.MapFrom(b => b.CarrierID))
+                .ForMember(a => a.ProgrammeDesc, (map) => map.MapFrom(b => b.ProgrammeDesc))
+                .ForMember(a => a.emPgmType, (map) => map.MapFrom(b => b.PgmType))
+                .ForMember(a => a.emSignalSourceType, (map) => map.MapFrom(b => b.SignalSourceType))
+                .ForMember(a => a.nGroupID, (map) => map.MapFrom(b => b.GroupID));
+
+            //V2
+
+            //V1
+            CreateMap<DbpStreammedia, ProgrammeInfoResponse>()
+                .ForMember(a => a.ProgrammeId, (map) => map.MapFrom(b => b.Streammediaid))
+                .ForMember(a => a.ProgrammeName, (map) => map.MapFrom(b => b.Streammedianame))
+                .ForMember(a => a.TypeId, (map) => map.MapFrom(b => b.Streammediatype))
+                .ForMember(a => a.ImageType, (map) => map.MapFrom(b => b.Imagetype))
+                .ForMember(a => a.PureAudio, (map) => map.MapFrom(b => b.Pureaudio))
+                .ForMember(a => a.CarrierID, (map) => map.MapFrom(b => b.Carrierid))
+                .AfterMap((b, a) =>
+                {
+                    a.ProgrammeDesc = MergeStreamMediaURLAndDesc(b.Streammediaurl, b.Urltype, b.Streammediadesc);
+                    a.PgmType = ProgrammeType.PT_StreamMedia;
+                    a.SignalSourceType = emSignalSource.emStreamMedia;
+                });
+
             CreateMap<SignalGroupStateResponse, SignalGroupState>()
                 .ForMember(a => a.signalsrcid, (map) => map.MapFrom(b => b.SignalSrcID))
                 .ForMember(a => a.groupid, (map) => map.MapFrom(b => b.GroupID))
                 .ForMember(a => a.groupname, (map) => map.MapFrom(b => b.GroupName))
                 .ForMember(a => a.groupdesc, (map) => map.MapFrom(b => b.GroupDesc));
-            #endregion
 
-            CreateMap<CaptureChannelInfoResponse, CaptureChannelInfo>()
-                .ForMember(a => a.nID, (map) => map.MapFrom(b => b.ID))
-                .ForMember(a => a.strName, (map) => map.MapFrom(b => b.Name))
-                .ForMember(a => a.strDesc, (map) => map.MapFrom(b => b.Desc))
-                .ForMember(a => a.nCPDeviceID, (map) => map.MapFrom(b => b.CPDeviceID))
-                .ForMember(a => a.nChannelIndex, (map) => map.MapFrom(b => b.ChannelIndex))
-                .ForMember(a => a.nDeviceTypeID, (map) => map.MapFrom(b => b.DeviceTypeID))
-                .ForMember(a => a.BackState, (map) => map.MapFrom(b => b.BackState))
-                .ForMember(a => a.nCarrierID, (map) => map.MapFrom(b => b.CarrierID))
-                .ForMember(a => a.orderCode, (map) => map.MapFrom(b => b.OrderCode))
-                .ForMember(a => a.nCPSignalType, (map) => map.MapFrom(b => b.CPSignalType))
-                .ForMember(a => a.nGroupID, (map) => map.MapFrom(b => b.GroupID));
+            //CreateMap<CaptureChannelInfoResponse, CaptureChannelInfo>()
+            //    .ForMember(a => a.nID, (map) => map.MapFrom(b => b.ID))
+            //    .ForMember(a => a.strName, (map) => map.MapFrom(b => b.Name))
+            //    .ForMember(a => a.strDesc, (map) => map.MapFrom(b => b.Desc))
+            //    .ForMember(a => a.nCPDeviceID, (map) => map.MapFrom(b => b.CPDeviceID))
+            //    .ForMember(a => a.nChannelIndex, (map) => map.MapFrom(b => b.ChannelIndex))
+            //    .ForMember(a => a.nDeviceTypeID, (map) => map.MapFrom(b => b.DeviceTypeID))
+            //    .ForMember(a => a.BackState, (map) => map.MapFrom(b => b.BackState))
+            //    .ForMember(a => a.nCarrierID, (map) => map.MapFrom(b => b.CarrierID))
+            //    .ForMember(a => a.orderCode, (map) => map.MapFrom(b => b.OrderCode))
+            //    .ForMember(a => a.nCPSignalType, (map) => map.MapFrom(b => b.CPSignalType))
+            //    .ForMember(a => a.nGroupID, (map) => map.MapFrom(b => b.GroupID));
             //CreateMap<DbpTaskMetadata, TaskMetadataResponse>()
             //    .ForMember(a => a.Metadata, (map) => map.MapFrom(b => b.Metadatalong));
 
