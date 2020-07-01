@@ -7,8 +7,8 @@ namespace IngestTaskPlugin.Dto
     public class TaskCondition
     {
         public int RecUnit { get; set; } = -1;  //收录单元
-        public int SignalID { get; set; } = -1; //信号员
-        public int ChannelID { get; set; } = -1; //收录通道ID 
+        public int SignalId { get; set; } = -1; //信号员
+        public int ChannelId { get; set; } = -1; //收录通道ID 
         public List<int> IncludeLst { get; set; } //状态包含
         public List<int> ExcludeLst { get; set; }
         public List<int> StateIncludeLst { get; set; }

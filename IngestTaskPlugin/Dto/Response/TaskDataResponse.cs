@@ -9,7 +9,7 @@ namespace IngestTaskPlugin.Dto.Response
     {
         /// <summary>任务id</summary>
         /// <example>1</example>
-        public int TaskID { get; set; }
+        public int TaskId { get; set; }
         /// <summary>任务名</summary>
         /// <example>name</example>
         public string TaskName { get; set; }
@@ -21,7 +21,7 @@ namespace IngestTaskPlugin.Dto.Response
         public string Classify { get; set; }
         /// <summary>任务通道id</summary>
         /// <example>0</example>
-        public int ChannelID { get; set; }
+        public int ChannelId { get; set; }
         /// <summary>任务</summary>
         /// <example>0</example>
         public int Unit { get; set; }
@@ -30,7 +30,7 @@ namespace IngestTaskPlugin.Dto.Response
         public string UserCode { get; set; }
         /// <summary>信号源id</summary>
         /// <example>0</example>
-        public int SignalID { get; set; }
+        public int SignalId { get; set; }
         /// <summary>任务开始时间</summary>
         /// <example>2020-4-02 16:19:33</example>
         public string Begin { get; set; } = DateTime.MinValue.ToString("yyyy-MM-dd HH:mm:ss");
@@ -51,10 +51,10 @@ namespace IngestTaskPlugin.Dto.Response
         public string StampImage { get; set; }
         /// <summary>任务guid</summary>
         /// <example>guid</example>
-        public string TaskGUID { get; set; }
+        public string TaskGuid { get; set; }
         /// <summary>备份vtrid</summary>
         /// <example>1</example>
-        public int BackupVTRID { get; set; }
+        public int BackupVtrId { get; set; }
         /// <summary>任务调度</summary>
         /// <example>TP_Normal</example>
         public TaskPriority Priority { get; set; } = TaskPriority.TP_Normal;
@@ -98,12 +98,12 @@ namespace IngestTaskPlugin.Dto.Response
         public bool CheckCHCurState { get; set; } = false;
         public bool MoveExcutingOpenTask { get; set; } = false;//是否排除有正在执行手动任务的通道
         public bool OnlyLocalChannel { get; set; } = true;//1:只能在本通道；其他：优先在本通道
-        public int BaseCHID { get; set; } = -1;//这个ID是外面穿进来的，如果>0,那么将跟这个通道在同一个物理机上的通道优先级降低
+        public int BaseChId { get; set; } = -1;//这个ID是外面穿进来的，如果>0,那么将跟这个通道在同一个物理机上的通道优先级降低
     }
 
     public class TaskSimpleTime
     {
-        public int TaskID { get; set; }
+        public int TaskId { get; set; }
         public DateTime Begin { get; set; }
         public DateTime End { get; set; }
     }

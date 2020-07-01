@@ -39,6 +39,6 @@ namespace IngestGlobalPlugin.Dto.Response
         public string Lock { set; get; }//
         /// <summary>对于没有处理过的消息，这个ID是0，失败重试的消息，这个ID是策略ID</summary>
         /// <example>123345</example>
-        public int ActionID { set; get; } = -1;//
+        public int ActionId { set; get; } = -1;//
     }
 }

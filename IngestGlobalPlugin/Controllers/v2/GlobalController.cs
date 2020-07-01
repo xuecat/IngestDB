@@ -49,14 +49,14 @@ namespace IngestGlobalPlugin.Controllers.v2
 
             try
             {
-                if (objectparamin.ObjectID < 0)
+                if (objectparamin.ObjectId < 0)
                 {
                     Logger.Error("PostLockObject : ObjectID < 0 ,参数传递错误");
-                    SobeyRecException.ThrowSelfNoParam(objectparamin.ObjectID.ToString(), GlobalDictionary.GLOBALDICT_CODE_LOCK_OBJECTID_WRONG, Logger, null);
+                    SobeyRecException.ThrowSelfNoParam(objectparamin.ObjectId.ToString(), GlobalDictionary.GLOBALDICT_CODE_LOCK_OBJECTID_WRONG, Logger, null);
                 }
-                if (objectparamin.ObjectTypeID < OTID.OTID_VTR || objectparamin.ObjectTypeID > OTID.OTID_OTHER)
+                if (objectparamin.ObjectTypeId < OTID.OTID_VTR || objectparamin.ObjectTypeId > OTID.OTID_OTHER)
                 {
-                    SobeyRecException.ThrowSelfNoParam(objectparamin.ObjectTypeID.ToString(), GlobalDictionary.GLOBALDICT_CODE_LOCK_OBJECT_TPYEID_IS_NOT_EXIST, Logger, null);
+                    SobeyRecException.ThrowSelfNoParam(objectparamin.ObjectTypeId.ToString(), GlobalDictionary.GLOBALDICT_CODE_LOCK_OBJECT_TPYEID_IS_NOT_EXIST, Logger, null);
                 }
                 if (string.IsNullOrEmpty(objectparamin.UserName))
                 {
@@ -67,7 +67,7 @@ namespace IngestGlobalPlugin.Controllers.v2
                     SobeyRecException.ThrowSelfNoParam(objectparamin.TimeOut.ToString(), GlobalDictionary.GLOBALDICT_CODE_LOCK_OBJECT_TIMEOUT_IS_WRONG, Logger, null);
                 }
 
-                bool ret = await _GlobalManager.SetLockObjectAsync(objectparamin.ObjectID, objectparamin.ObjectTypeID, objectparamin.UserName, objectparamin.TimeOut);
+                bool ret = await _GlobalManager.SetLockObjectAsync(objectparamin.ObjectId, objectparamin.ObjectTypeId, objectparamin.UserName, objectparamin.TimeOut);
 
                 Response.Code = ret ? ResponseCodeDefines.SuccessCode : ResponseCodeDefines.PartialFailure;
             }
@@ -109,20 +109,20 @@ namespace IngestGlobalPlugin.Controllers.v2
 
             try
             {
-                if (objectparamin.ObjectID < -1)
+                if (objectparamin.ObjectId < -1)
                 {
-                    SobeyRecException.ThrowSelfNoParam(objectparamin.ObjectID.ToString(),  GlobalDictionary.GLOBALDICT_CODE_UNLOCK_OBJECTID_IS_WRONG, Logger, null);
+                    SobeyRecException.ThrowSelfNoParam(objectparamin.ObjectId.ToString(),  GlobalDictionary.GLOBALDICT_CODE_UNLOCK_OBJECTID_IS_WRONG, Logger, null);
                 }
-                if (objectparamin.ObjectTypeID < OTID.OTID_ALL || objectparamin.ObjectTypeID > OTID.OTID_OTHER)
+                if (objectparamin.ObjectTypeId < OTID.OTID_ALL || objectparamin.ObjectTypeId > OTID.OTID_OTHER)
                 {
-                    SobeyRecException.ThrowSelfNoParam(objectparamin.ObjectID.ToString(), GlobalDictionary.GLOBALDICT_CODE_UNLOCK_OBJECT_TYPEID_IS_NOT_EXIST, Logger, null);
+                    SobeyRecException.ThrowSelfNoParam(objectparamin.ObjectId.ToString(), GlobalDictionary.GLOBALDICT_CODE_UNLOCK_OBJECT_TYPEID_IS_NOT_EXIST, Logger, null);
                 }
                 if (objectparamin.UserName == "" || objectparamin.UserName == String.Empty)
                 {
                     objectparamin.UserName = "NullUserName";
                 }
 
-                bool bRet = await _GlobalManager.SetUnlockObjectAsync(objectparamin.ObjectID, objectparamin.ObjectTypeID, objectparamin.UserName);
+                bool bRet = await _GlobalManager.SetUnlockObjectAsync(objectparamin.ObjectId, objectparamin.ObjectTypeId, objectparamin.UserName);
 
                 Response.Code = bRet ? ResponseCodeDefines.SuccessCode : ResponseCodeDefines.PartialFailure;
             }

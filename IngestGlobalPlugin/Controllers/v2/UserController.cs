@@ -277,7 +277,7 @@ namespace IngestGlobalPlugin.Controllers.v2
                 Response.Code = ResponseCodeDefines.ArgumentNullError;
                 return Response;
             }
-            if (usertemplate.TemplateID > 0)
+            if (usertemplate.TemplateId > 0)
             {
                 Response.Msg = "Template ID is larger than 0";
                 Response.Code = ResponseCodeDefines.ArgumentNullError;
@@ -292,7 +292,7 @@ namespace IngestGlobalPlugin.Controllers.v2
             }
             try
             {
-                Response.Ext = await _GlobalManager.UserTemplateInsertAsync(usertemplate.TemplateID, usertemplate.UserCode, usertemplate.TemplateName, usertemplate.TemplateContent);
+                Response.Ext = await _GlobalManager.UserTemplateInsertAsync(usertemplate.TemplateId, usertemplate.UserCode, usertemplate.TemplateName, usertemplate.TemplateContent);
                 Response.Code = ResponseCodeDefines.SuccessCode;
             }
             catch (System.Exception e)

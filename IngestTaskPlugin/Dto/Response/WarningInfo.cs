@@ -8,10 +8,10 @@ namespace IngestTaskPlugin.Dto.Response
     {
         /// <summary>任务id</summary>
         /// <example>1</example>
-        public int TaskID { get; set; }
+        public int TaskId { get; set; }
         /// <summary>关联id</summary>
         /// <example>1</example>
-        public int RelatedID { get; set; }
+        public int RelatedId { get; set; }
         /// <summary>警告等级</summary>
         /// <example>string</example>
         public int WarningLevel { get; set; }

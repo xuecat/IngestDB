@@ -1767,7 +1767,7 @@ namespace IngestTaskPlugin.Controllers.v2
                 var custom = await _taskManage.GetCustomMetadataAsync<TaskCustomMetadataResponse>(taskid);
                 if (custom != null)
                 {
-                    await _taskManage.UpdateCustomMetadataAsync(Response.Ext.TaskID, custom.Metadata);
+                    await _taskManage.UpdateCustomMetadataAsync(Response.Ext.TaskId, custom.Metadata);
                 }
                 
                 //await _taskManage.

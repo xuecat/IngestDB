@@ -26,6 +26,9 @@ namespace IngestDBCore.Notify
         static public string MODIFYTASKNAME { get { return "MODIFYTASKNAME"; } }
         static public string MODIFYTASKSTARTTIME { get { return "MODIFYTASKSTARTTIME"; } }
         static public string MODIFYTASKSTATE { get { return "MODIFYTASKSTATE"; } }
+
+
+        static public string MSVRELOCATE { get { return "MSVRELOCATE"; } }
     }
 
     public class SubNotify

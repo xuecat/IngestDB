@@ -88,7 +88,7 @@ namespace IngestTaskPlugin.Dto.Response
         /// Defines the strTaskGUID.
         /// </summary>
         /// <example>40036bd7204b4aa8914ac3bb339d9042</example>
-        public string TaskGUID { get; set; } = string.Empty;
+        public string TaskGuid { get; set; } = string.Empty;
 
         /// <summary>
         /// 磁带ID
@@ -112,13 +112,13 @@ namespace IngestTaskPlugin.Dto.Response
         /// 磁带CTL入点
         /// </summary>
         /// <example>73216</example>
-        public int TrimInCTL { get; set; } = 0;
+        public int TrimInCtl { get; set; } = 0;
 
         /// <summary>
         /// 磁带CTL出点
         /// </summary>
         /// <example>196608</example>
-        public int TrimOutCTL { get; set; } = 0;
+        public int TrimOutCtl { get; set; } = 0;
 
         /// <summary>
         /// 与这个strStampImage一样
