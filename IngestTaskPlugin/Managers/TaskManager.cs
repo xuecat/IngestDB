@@ -210,13 +210,13 @@ namespace IngestTaskPlugin.Managers
                 if (period != null)
                 {
                     ret.PeriodParam = new PeriodParamResponse();
-                    ret.PeriodParam.BeginDate = period?.Element("BEGINDATE").Value;
-                    ret.PeriodParam.EndDate = period?.Element("ENDDATE").Value;
+                    ret.PeriodParam.BeginDate = period?.Element("BEGINDATE")?.Value;
+                    ret.PeriodParam.EndDate = period?.Element("ENDDATE")?.Value;
                     if (int.TryParse(period?.Element("APPDATE")?.Value, out temp))
                     {
                         ret.PeriodParam.AppDate = temp;
                     }
-                    ret.PeriodParam.AppDateFormat = period?.Element("APPDATEFORMAT").Value;
+                    ret.PeriodParam.AppDateFormat = period?.Element("APPDATEFORMAT")?.Value;
                     if (int.TryParse(period?.Element("MODE")?.Value, out temp))
                     {
                         ret.PeriodParam.Mode = temp;
