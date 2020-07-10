@@ -13,6 +13,7 @@ namespace IngestDBCore
         public ResponseMessage()
         {
             Code = ResponseCodeDefines.SuccessCode;
+            Msg = "OK";
         }
 
         public bool IsSuccess()
