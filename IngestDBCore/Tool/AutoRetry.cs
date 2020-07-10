@@ -27,6 +27,7 @@ namespace IngestDBCore.Tool
                     isOk = false;
                     if (i == retryCount)
                     {
+                        Environment.Exit(Environment.ExitCode);//当cm接口调用超过一定次数时，退出程序，先默认所有3次
                         throw;
                     }
                 }
