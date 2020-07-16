@@ -146,7 +146,13 @@ namespace IngestGlobalPlugin.Controllers.v2
                     return Response;
                 }
                 Response.Ext = temp;
-                Response.Code = ResponseCodeDefines.SuccessCode;
+                if (string.IsNullOrEmpty(Response.Ext))
+                {
+                    Response.Code = ResponseCodeDefines.NotFound;
+                    Response.Msg = $"{System.Reflection.MethodBase.GetCurrentMethod().DeclaringType.FullName}：error info: 获取数据为空!";
+                }
+                else
+                    Response.Code = ResponseCodeDefines.SuccessCode;
             }
             catch (Exception e)//其他未知的异常，写异常日志
             {
@@ -191,7 +197,13 @@ namespace IngestGlobalPlugin.Controllers.v2
                     return Response;
                 }
                 Response.Ext = temp;
-                Response.Code = ResponseCodeDefines.SuccessCode;
+                if (string.IsNullOrEmpty(Response.Ext))
+                {
+                    Response.Code = ResponseCodeDefines.NotFound;
+                    Response.Msg = $"{System.Reflection.MethodBase.GetCurrentMethod().DeclaringType.FullName}：error info: 获取数据为空!";
+                }
+                else
+                    Response.Code = ResponseCodeDefines.SuccessCode;
             }
             catch (Exception e)//其他未知的异常，写异常日志
             {

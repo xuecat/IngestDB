@@ -50,6 +50,11 @@ namespace IngestTaskPlugin.Controllers.v2
             try
             {
                 Response.Ext = await _policyManage.GetPolicyByTaskIDAsync<MetaDataPolicyResponse>(taskid);
+                if (Response.Ext == null || Response.Ext.Count <= 0)
+                {
+                    Response.Code = ResponseCodeDefines.NotFound;
+                    Response.Msg = $"{System.Reflection.MethodBase.GetCurrentMethod().DeclaringType.FullName}：error info: 获取数据为空!";
+                }
             }
             catch (Exception e)
             {

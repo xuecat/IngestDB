@@ -8,6 +8,7 @@ using Microsoft.AspNetCore.Mvc;
 using Sobey.Core.Log;
 using System;
 using System.Collections.Generic;
+using System.Net.Http;
 using System.Text;
 using System.Threading.Tasks;
 
@@ -26,7 +27,6 @@ namespace IngestGlobalPlugin.Controllers.v1
         public UserController(GlobalManager global)
         {
             _GlobalManager = global;
-            //_restClient = rsc;
         }
         string no_err = "OK";
 
@@ -368,7 +368,7 @@ namespace IngestGlobalPlugin.Controllers.v1
             try
             {
                 ResponseMessage<CMUserInfo> reres = await _GlobalManager.GetUserInfoByUserCodeAsync<CMUserInfo>(strUserCode);
-                if (reres.Code == ResponseCodeDefines.SuccessCode)
+                if (reres?.Code == ResponseCodeDefines.SuccessCode)
                 {
                     res.extention = reres.Ext;
                     res.message = "OK";
