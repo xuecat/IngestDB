@@ -37,7 +37,7 @@ namespace IngestDB
             #region polly熔断机制
             services.AddHttpClientPolly("ApiClient", options =>
             {
-                options.TimeoutTime = 1;
+                options.TimeoutTime = 10;
                 options.RetryCount = 3;
                 options.CircuitBreakerOpenFallCount = 2;
                 options.CircuitBreakerDownTime = 100;
