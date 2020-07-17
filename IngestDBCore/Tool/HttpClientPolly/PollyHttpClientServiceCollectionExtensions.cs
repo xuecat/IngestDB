@@ -4,6 +4,7 @@ using System.Net.Http;
 using System.Threading.Tasks;
 using Polly;
 using Polly.Timeout;
+using Sobey.Core.Log;
 
 namespace IngestDBCore
 {
@@ -12,6 +13,7 @@ namespace IngestDBCore
     /// </summary>
     public static class PollyHttpClientServiceCollectionExtensions
     {
+        private readonly static ILogger logger = Sobey.Core.Log.LoggerManager.GetLogger("Polly");
         /// <summary>
         /// Httpclient扩展方法
         /// </summary>
@@ -34,8 +36,10 @@ namespace IngestDBCore
                 {
                     // 1、降级打印异常
                     Console.WriteLine($"服务{name}开始降级,异常消息：{b.Exception.Message}");
+                    logger.Warn($"服务{name}开始降级,异常消息：{b.Exception.Message}");
                     // 2、降级后的数据
                     Console.WriteLine($"服务{name}降级内容响应：{options.httpResponseMessage.Content.ReadAsStringAsync().Result}");
+                    logger.Warn($"服务{name}降级内容响应：{options.httpResponseMessage.Content.ReadAsStringAsync().Result}");
                     await Task.CompletedTask;
                 }));
             }
@@ -46,11 +50,15 @@ namespace IngestDBCore
             {
                 Console.WriteLine($"服务{name}断路器开启，异常消息：{ex.Exception.Message}");
                 Console.WriteLine($"服务{name}断路器开启时间：{ts.TotalSeconds}s");
+
+                logger.Warn($"服务{name}断路器开启，异常消息：{ex.Exception.Message} {ts.TotalSeconds}");
             }, () =>
             {
+                logger.Warn($"服务{name}断路器关闭");
                 Console.WriteLine($"服务{name}断路器关闭");
             }, () =>
             {
+                logger.Warn($"服务{name}断路器半开启(时间控制，自动开关)");
                 Console.WriteLine($"服务{name}断路器半开启(时间控制，自动开关)");
             }));
             }
@@ -60,7 +68,8 @@ namespace IngestDBCore
                 httpClientBuilder.AddPolicyHandler(Policy<HttpResponseMessage>.Handle<Exception>().RetryAsync(options.RetryCount, (ex, ts) =>
                 {
                     Console.WriteLine($"服务{name}重试开启，异常消息：{ex.Exception.Message}");
-                    Console.WriteLine($"服务{name}重试第：{ts}次");
+                    Console.WriteLine($"服务{name}重试第：{ts}次"); 
+                    logger.Warn($"服务{name}重试开启，异常消息：{ex.Exception.Message} 重试第：{ts}次");
                 })
                );
             }
