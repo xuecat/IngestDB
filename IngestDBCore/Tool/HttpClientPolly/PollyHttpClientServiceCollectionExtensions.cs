@@ -78,7 +78,12 @@ namespace IngestDBCore
                 // 1.3.2 重试策略  数组(第一次100ms 二次200ms) 
                 httpClientBuilder.AddPolicyHandler(Policy<HttpResponseMessage>
                    .Handle<TimeoutRejectedException>()
-                   .WaitAndRetryAsync(options.RetryTimeoutArray)
+                   .WaitAndRetryAsync(options.RetryTimeoutArray, (ex, ts) =>
+                   {
+                       Console.WriteLine($"服务{name}重试开启，异常消息：{ex.Exception.Message}");
+                       Console.WriteLine($"服务{name} 等待：{ts.TotalMilliseconds}毫秒后重试");
+                       logger.Warn($"服务{name}重试开启，异常消息：{ex.Exception.Message} 等待：{ts.TotalMilliseconds}毫秒后重试");
+                   })
                 );
             }
             if (options.TimeoutTime > 0)
