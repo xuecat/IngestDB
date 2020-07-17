@@ -203,7 +203,7 @@ namespace IngestTaskPlugin.Controllers.v2
             }
             try
             {
-                Response.Ext = await _taskManage.UpdateMetadataPropertyAsync(taskid, tasktype, lst);
+                Response.Ext = await _taskManage.UpdateMetadataPropertyAsync(taskid, (MetaDataType)tasktype, lst);
             }
             catch (Exception e)
             {

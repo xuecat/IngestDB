@@ -1104,12 +1104,12 @@ namespace IngestTaskPlugin.Managers
             await Store.UpdateTaskMetaDataAsync(taskid, type, metadata);
         }
 
-        
 
-        public async virtual ValueTask<string> UpdateMetadataPropertyAsync(int taskid, int type, List<PropertyResponse> lst)
+
+        public async virtual ValueTask<string> UpdateMetadataPropertyAsync(int taskid, MetaDataType type, List<PropertyResponse> lst)
         {
             var f = await Store.GetTaskMetaDataAsync(a => a
-            .Where(b => b.Taskid == taskid && b.Metadatatype == type));
+            .Where(b => b.Taskid == taskid && b.Metadatatype == (int)type));
 
             try
             {
@@ -1118,36 +1118,39 @@ namespace IngestTaskPlugin.Managers
                 XElement material = null;
                 switch (type)
                 {
-                    case (int)MetaDataType.emStoreMetaData:
+                    case MetaDataType.emStoreMetaData:
                         { material = root.Element("MATERIAL"); }
                         break;
-                    case (int)MetaDataType.emContentMetaData:
+                    case MetaDataType.emContentMetaData:
                         { material = root.Element("TaskContentMetaData"); }
                         break;
-                    case (int)MetaDataType.emPlanMetaData:
+                    case MetaDataType.emPlanMetaData:
                         { material = root.Element("Planning"); }
                         break;
-                    case (int)MetaDataType.emSplitData:
+                    case MetaDataType.emSplitData:
                         { material = root.Element("SplitMetaData"); }
                         break;
                     default:
                         break;
                 }
 
-                foreach (var item in lst)
+                if (material != null)
                 {
-                    var pro = material?.Descendants(item.Property).FirstOrDefault();
-                    if (pro == null)
+                    foreach (var item in lst)
                     {
-                        material?.Add(new XElement(item.Property, item.Value));
+                        var pro = material?.Descendants(item.Property).FirstOrDefault();
+                        if (pro == null)
+                        {
+                            material?.Add(new XElement(item.Property, item.Value));
+                        }
+                        else
+                            pro.Value = item.Value;
                     }
-                    else
-                        pro.Value = item.Value;
-                }
 
-                f.Metadatalong = root.ToString();
-                await Store.SaveChangeAsync();
-                return f.Metadatalong;
+                    f.Metadatalong = root.ToString();
+                    await Store.SaveChangeAsync();
+                    return f.Metadatalong;
+                }
             }
             catch (Exception e)
             {

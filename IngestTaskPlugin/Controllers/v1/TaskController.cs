@@ -69,6 +69,57 @@ namespace IngestTaskPlugin.Controllers.v1
             
         }
 
+        [HttpPost("PostAddTaskMetaDataPropety"), MapToApiVersion("1.0")]
+        [ApiExplorerSettings(GroupName = "v1")]
+        public async Task<PostSetTaskMetaData_OUT> PostAddTaskMetaDataPropety([FromBody]PostSetTaskMetaData_IN pIn)
+        {
+            if (pIn == null)
+            {
+                var Response = new PostSetTaskMetaData_OUT
+                {
+                    bRet = false,
+                    errStr = "OK"
+                };
+                return Response;
+            }
+            try
+            {
+                PostSetTaskMetaData_OUT pOut = new PostSetTaskMetaData_OUT();
+                if (pIn.MateData == null)
+                {
+                    pOut.errStr = "MetaData";
+                    pOut.bRet = false;
+                }
+
+                if (pIn.MateData.Length <= 0 && pIn.Type != MetaDataType.emAmfsData)
+                {
+                    pOut.errStr = "MetaData";
+                    pOut.bRet = false;
+                }
+
+                if (pIn.Type == MetaDataType.emAmfsData)
+                    pIn.MateData = System.Guid.NewGuid().ToString("N");
+
+                await _taskManage.UpdateMetadataPropertyAsync(pIn.nTaskID, pIn.Type, 
+                    new List<Dto.Response.PropertyResponse>() { new Dto.Response.PropertyResponse() { Property = pIn.TypeID, Value = pIn.MateData} });
+
+                pOut.bRet = true;
+                return pOut;
+            }
+            catch (Exception e)
+            {
+                var Response = new PostSetTaskMetaData_OUT()
+                {
+                    bRet = false
+                };
+
+                Response.errStr = "PostAddTaskMetaDataPropety error info：" + e.Message;
+                Logger.Error(Response.errStr);
+                return Response;
+            }
+
+        }
+
         [HttpPost("PostSetTaskMetaData"), MapToApiVersion("1.0")]
         [ApiExplorerSettings(GroupName = "v1")]
         public async Task<PostSetTaskMetaData_OUT> PostSetTaskMetaData([FromBody]PostSetTaskMetaData_IN pIn)
