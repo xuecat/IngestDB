@@ -35,12 +35,30 @@ namespace IngestDB
         public void ConfigureServices(IServiceCollection services)
         {
             #region polly熔断机制
+            //通用策略
             services.AddHttpClientPolly("ApiClient", options =>
             {
                 options.TimeoutTime = 10;
                 options.RetryCount = 3;
                 options.CircuitBreakerOpenFallCount = 2;
                 options.CircuitBreakerDownTime = 100;
+                options.httpResponseMessage = new System.Net.Http.HttpResponseMessage()
+                {
+                    Content = new StringContent("系统正在繁忙，请稍后处理....."),
+                    StatusCode = System.Net.HttpStatusCode.GatewayTimeout
+                };
+            });
+            //外部策略
+            services.AddHttpClientPolly("ApiOutClient", options =>
+            {
+                options.TimeoutTime = 2;
+                options.RetryCount = 3;
+                options.RetryCountAction = (p =>
+                {
+                    int rcount = (int)p;
+                    if (rcount == 3)
+                        Environment.Exit(0);//超过三次重试-退出程序
+                });
                 options.httpResponseMessage = new System.Net.Http.HttpResponseMessage()
                 {
                     Content = new StringContent("系统正在繁忙，请稍后处理....."),

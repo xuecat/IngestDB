@@ -20,6 +20,10 @@ namespace IngestDBCore
         /// </summary>
         public int RetryCount { set; get; }
         /// <summary>
+        /// 重试超过次数执行方法
+        /// </summary>
+        public Action<object> RetryCountAction { set; get; }
+        /// <summary>
         /// 失败重试等待时长数组 (RetryTimeoutArray,RetryCount二取一) 
         /// </summary>
         ///  ex:   new[]
@@ -43,6 +47,17 @@ namespace IngestDBCore
         /// 降级处理(将异常消息封装成为正常消息返回，然后进行响应处理，例如：系统正在繁忙，请稍后处理.....)
         /// </summary>
         public HttpResponseMessage httpResponseMessage { set; get; }
+
+        /// <summary>
+        /// 委托Action实现方法
+        /// </summary>
+        /// <typeparam name="T">参数类型</typeparam>
+        /// <param name="ac">执行方法体</param>
+        /// <param name="inputParam">参数</param>
+        public void ActionAchieve<T>(Action<T> ac, T inputParam)
+        {
+            ac(inputParam);
+        }
 
     }
 }

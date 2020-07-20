@@ -70,6 +70,10 @@ namespace IngestDBCore
                     Console.WriteLine($"服务{name}重试开启，异常消息：{ex.Exception.Message}");
                     Console.WriteLine($"服务{name}重试第：{ts}次"); 
                     logger.Warn($"服务{name}重试开启，异常消息：{ex.Exception.Message} 重试第：{ts}次");
+                    if (options.RetryCountAction!=null)//委托方法
+                    {
+                        options.ActionAchieve<object>(options.RetryCountAction, ts);
+                    }
                 })
                );
             }

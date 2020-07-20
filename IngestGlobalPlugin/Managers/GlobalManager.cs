@@ -15,6 +15,8 @@ using System.Collections.Specialized;
 using Sobey.Core.Log;
 using IngestGlobalPlugin.Dto.OldResponse;
 using IngestGlobalPlugin.Dto.Response;
+using Microsoft.Extensions.DependencyInjection;
+using System.Net.Http;
 
 namespace IngestGlobalPlugin.Managers
 {
@@ -26,11 +28,11 @@ namespace IngestGlobalPlugin.Managers
         protected IMapper _mapper { get; }
         protected RestClient _restClient;
 
-        public GlobalManager(IGlobalStore store, IMapper mapper, RestClient rsc)
+        public GlobalManager(IHttpClientFactory httpClientFactory, IGlobalStore store, IMapper mapper, RestClient rsc)
         {
             Store = store;
             _mapper = mapper ?? throw new ArgumentNullException(nameof(mapper));
-            _restClient = rsc;
+            _restClient = new RestClient(httpClientFactory, "ApiOutClient");//rsc;
         }
 
 
@@ -58,7 +60,7 @@ namespace IngestGlobalPlugin.Managers
                 strKey = "DEFAULT_STC_LINE";
             else
                 strKey = "DEFAULT_STC_OTHER";
-            
+
             try
             {
                 string tcType = await GetValueStringAsync(strKey);
@@ -120,11 +122,12 @@ namespace IngestGlobalPlugin.Managers
             }
 
             //设置locklock字段
-            PostLockObject_param_in pTemp = new PostLockObject_param_in() {
-                 ObjectID =  objectID,
-                 ObjectTypeID = objectTypeID,
-                 userName = userName,
-                 TimeOut = 500
+            PostLockObject_param_in pTemp = new PostLockObject_param_in()
+            {
+                ObjectID = objectID,
+                ObjectTypeID = objectTypeID,
+                userName = userName,
+                TimeOut = 500
             };
             DbpObjectstateinfo objectstateinfo = await AutoRetry.RunSync(Store.UpdateObjectInfoLockAsync, pTemp, 3, 100);
             if (objectstateinfo == null)
@@ -255,7 +258,7 @@ namespace IngestGlobalPlugin.Managers
         public async Task<string> GetCapParamTemplateByIDAsync(int nCaptureParamID)
         {
             var capturetemplate = await Store.GetCaptureparamtemplateAsync(a => a.Where(x => x.Captureparamid == nCaptureParamID), true);
-            
+
             if (capturetemplate == null || string.IsNullOrEmpty(capturetemplate.Captureparam))
             {
                 return string.Empty;
@@ -301,7 +304,7 @@ namespace IngestGlobalPlugin.Managers
 
         public async Task<int> ModifyCaptureParamTemplateAsync(int nParamTemplateID, string strTemplateName, string strUserCaptureParam)
         {
-            if(string.IsNullOrEmpty(strTemplateName) || string.IsNullOrEmpty(strUserCaptureParam))
+            if (string.IsNullOrEmpty(strTemplateName) || string.IsNullOrEmpty(strUserCaptureParam))
             {
                 return -1;
             }
@@ -312,7 +315,7 @@ namespace IngestGlobalPlugin.Managers
         public async Task DelCaptureParamTemplateAsync(int nParamTemplateID)
         {
             var dbpCapTemplate = await Store.GetCaptureparamtemplateAsync(a => a.Where(x => x.Captureparamid == nParamTemplateID));
-            
+
             if (dbpCapTemplate == null)
             {
                 SobeyRecException.ThrowSelfNoParam(nParamTemplateID.ToString(), GlobalDictionary.GLOBALDICT_CODE_USER_PARAM_ID_DOES_NOT_EXIST, Logger, null);
@@ -359,14 +362,14 @@ namespace IngestGlobalPlugin.Managers
         public async Task<string> GetCapParamTemplateByUserCodeAsync(string UserCode)
         {
             var dbpUserParamMap = await Store.GetUserParamMapAsync(a => a.Where(x => x.Usercode == UserCode), true);
-            if(dbpUserParamMap == null)
+            if (dbpUserParamMap == null)
             {
-                return string.Empty; 
+                return string.Empty;
             }
 
             var dbpCapParamTemplate = await Store.GetCaptureparamtemplateAsync(a => a.Where(x => x.Captureparamid == dbpUserParamMap.Captureparamid), true);
 
-            if(dbpCapParamTemplate == null)
+            if (dbpCapParamTemplate == null)
             {
                 SobeyRecException.ThrowSelfNoParam(UserCode, GlobalDictionary.GLOBALDICT_CODE_USER_PARAM_ID_DOES_NOT_EXIST, Logger, null);
             }
@@ -376,7 +379,7 @@ namespace IngestGlobalPlugin.Managers
 
         public async Task<CapParamTemplate> GetCapParamTemplateByUserCodeDB2Async(string strUserCode)
         {
-            
+
             var result = await Store.GetUserParamForDB2Async(strUserCode);
             return _mapper.Map<CapParamTemplate>(result);
         }
@@ -384,7 +387,7 @@ namespace IngestGlobalPlugin.Managers
         public async Task<CapParamTemplate> GetCapParamTemplateByUserV2(string strUserCode)
         {
             var dbpUserParamMap = await Store.GetUserParamMapAsync(a => a.Where(x => x.Usercode == strUserCode), true);
-            if(dbpUserParamMap == null)
+            if (dbpUserParamMap == null)
             {
                 SobeyRecException.ThrowSelfNoParam(strUserCode, GlobalDictionary.GLOBALDICT_CODE_USER_PARAM_DOES_NOT_EXIST, Logger, null);
             }
@@ -460,7 +463,7 @@ namespace IngestGlobalPlugin.Managers
                     return;
                 }
             }
-            
+
             await Store.UpdateDbpUserTempalteAsync(userTemplate, TemplateContent, NewTemplateName);
 
         }
@@ -559,7 +562,7 @@ namespace IngestGlobalPlugin.Managers
             var dbpUserTemp = await Store.GetUsertemplateAsync(a => a.Where(x => x.Templateid == templateID));
             return _mapper.Map<TResult>(dbpUserTemp);
         }
-        
+
         #endregion
 
         #region CMapi user
@@ -572,11 +575,11 @@ namespace IngestGlobalPlugin.Managers
         /// <returns></returns>
         public async Task<ResponseMessage<TResponse>> GetUserInfoByUserCodeAsync<TResponse>(string userCode)
         {
-            var userInfo = await _restClient.GetUserInfo(false,"admin", userCode);
+            var userInfo = await _restClient.GetUserInfo(false, "admin", userCode);
 
             return _mapper.Map<ResponseMessage<TResponse>>(userInfo);
         }
-        
+
 
         /// <summary>
         /// 调用cmapi获取paramvalue
@@ -589,7 +592,7 @@ namespace IngestGlobalPlugin.Managers
             return await _restClient.GetUserParamTemplateID(useTokenCode, userCode);
         }
 
-        
+
         #endregion
 
         #endregion
