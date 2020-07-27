@@ -45,7 +45,8 @@
         /// </summary>
         /// <param name="vtrManager">VTR.</param>
         /// <param name="global">VTR.</param>
-        public VtrController(VtrManager vtrManager, IIngestGlobalInterface global) {
+        public VtrController(VtrManager vtrManager, IIngestGlobalInterface global)
+        {
             _VtrManage = vtrManager;
             _globalInterface = global;
         }
@@ -72,6 +73,11 @@
             try
             {
                 response.Ext = await _VtrManage.SetTapeInfoAsync(tapeid, tapename, tapedesc);
+                if (response.Ext <= 0)
+                {
+                    response.Code = ResponseCodeDefines.NotFound;
+                    response.Msg = $"{System.Reflection.MethodBase.GetCurrentMethod().DeclaringType.FullName}：error info: 获取数据为空!";
+                }
             }
             catch (Exception e)//其他未知的异常，写异常日志
             {
@@ -167,6 +173,11 @@
             try
             {
                 response.Ext = await _VtrManage.GetVtrTapeItemAsync(vtrid);
+                if (response.Ext <= 0)
+                {
+                    response.Code = ResponseCodeDefines.NotFound;
+                    response.Msg = $"{System.Reflection.MethodBase.GetCurrentMethod().DeclaringType.FullName}：error info: 获取数据为空!";
+                }
             }
             catch (Exception e)//其他未知的异常，写异常日志
             {
@@ -238,6 +249,11 @@
                     return response;
                 }
                 response.Ext = await _VtrManage.SetVTRUploadTaskInfoAsync(request);
+                if (response.Ext <= 0)
+                {
+                    response.Code = ResponseCodeDefines.NotFound;
+                    response.Msg = $"{System.Reflection.MethodBase.GetCurrentMethod().DeclaringType.FullName}：error info: 获取数据为空!";
+                }
                 if (_globalInterface != null)
                 {
                     GlobalInternals re = new GlobalInternals()
@@ -339,6 +355,11 @@
                     a <= (int)VTRUPLOADTASKSTATE.VTR_UPLOAD_PRE_EXECUTE)
                     .ToList();
                 response.Ext = await _VtrManage.QueryVTRUploadTaskInfoAsync<VTRUploadTaskInfoResponse, VTRUploadConditionRequest>(conditionrequest);
+                if (response.Ext != null || response?.Ext.Count <= 0)
+                {
+                    response.Code = ResponseCodeDefines.NotFound;
+                    response.Msg = $"{System.Reflection.MethodBase.GetCurrentMethod().DeclaringType.FullName}：error info: 获取数据为空!";
+                }
             }
             catch (Exception e)//其他未知的异常，写异常日志
             {
@@ -522,6 +543,11 @@
             try
             {
                 response.Ext = await _VtrManage.GetUsableVtrListAsync<VTRDetailInfoResponse>();
+                if (response.Ext != null || response?.Ext.Count <= 0)
+                {
+                    response.Code = ResponseCodeDefines.NotFound;
+                    response.Msg = $"{System.Reflection.MethodBase.GetCurrentMethod().DeclaringType.FullName}：error info: 获取数据为空!";
+                }
             }
             catch (Exception e)//其他未知的异常，写异常日志
             {
@@ -551,6 +577,11 @@
             try
             {
                 response.Ext = await _VtrManage.GetNeedExecuteVTRUploadTasksAsync<VTRUploadTaskContentResponse>();
+                if (response.Ext != null || response?.Ext.Count <= 0)
+                {
+                    response.Code = ResponseCodeDefines.NotFound;
+                    response.Msg = $"{System.Reflection.MethodBase.GetCurrentMethod().DeclaringType.FullName}：error info: 获取数据为空!";
+                }
             }
             catch (Exception e)//其他未知的异常，写异常日志
             {
@@ -587,6 +618,11 @@
             try
             {
                 response.Ext = await _VtrManage.GetVTRUploadTasksAsync<VTRUploadTaskContentResponse, VTRUploadConditionRequest>(conditionRequest);
+                if (response.Ext != null || response?.Ext.Count <= 0)
+                {
+                    response.Code = ResponseCodeDefines.NotFound;
+                    response.Msg = $"{System.Reflection.MethodBase.GetCurrentMethod().DeclaringType.FullName}：error info: 获取数据为空!";
+                }
             }
             catch (Exception e)//其他未知的异常，写异常日志
             {
@@ -617,6 +653,11 @@
             try
             {
                 response.Ext = await _VtrManage.GetWillExecuteVTRUploadTasksAsync<VTRUploadTaskContentResponse>(minute);
+                if (response.Ext != null || response?.Ext.Count <= 0)
+                {
+                    response.Code = ResponseCodeDefines.NotFound;
+                    response.Msg = $"{System.Reflection.MethodBase.GetCurrentMethod().DeclaringType.FullName}：error info: 获取数据为空!";
+                }
             }
             catch (Exception e)//其他未知的异常，写异常日志
             {
@@ -709,6 +750,11 @@
             try
             {
                 response.Ext = await _VtrManage.GetUploadTaskInfoByIDAsync<VTRUploadTaskInfoResponse>(taskid);
+                if (response.Ext != null)
+                {
+                    response.Code = ResponseCodeDefines.NotFound;
+                    response.Msg = $"{System.Reflection.MethodBase.GetCurrentMethod().DeclaringType.FullName}：error info: 获取数据为空!";
+                }
             }
             catch (Exception e)//其他未知的异常，写异常日志
             {
@@ -738,7 +784,7 @@
         /// <param name="vtrtaskrequest">见定义<see cref="VTRUploadTaskRequest"/>.</param>
         /// <returns>The 是否修改成功<see cref="Task{ResponseMessage{VTRUploadTaskContentResponse}}"/>.</returns>
         [HttpPost("vtruploadtask/modify")]
-        public async  Task<ResponseMessage<VTRUploadTaskContentResponse>> SetVTRUploadTaskAsync([FromBody, BindRequired] VTRUploadTaskRequest vtrtaskrequest)
+        public async Task<ResponseMessage<VTRUploadTaskContentResponse>> SetVTRUploadTaskAsync([FromBody, BindRequired] VTRUploadTaskRequest vtrtaskrequest)
         {
             ResponseMessage<VTRUploadTaskContentResponse> response = new ResponseMessage<VTRUploadTaskContentResponse>();
             try
@@ -751,8 +797,12 @@
                 //bool ret = VTRACCESS.SetVTRUploadTask(ref pIn.vtrTask, pIn.metadatas, pIn.lMask);
                 //res.extention = pIn.vtrTask;  //返回vtr任务，原本传递的引用，这里只能返回
 
-                response.Ext = await _VtrManage.SetVTRUploadTaskAsync<VTRUploadTaskContentResponse,VTRUploadMetadataPair> (vtrtaskrequest.VtrTask, vtrtaskrequest.Metadatas, vtrtaskrequest.Mask);
-
+                response.Ext = await _VtrManage.SetVTRUploadTaskAsync<VTRUploadTaskContentResponse, VTRUploadMetadataPair>(vtrtaskrequest.VtrTask, vtrtaskrequest.Metadatas, vtrtaskrequest.Mask);
+                if (response.Ext != null)
+                {
+                    response.Code = ResponseCodeDefines.NotFound;
+                    response.Msg = $"{System.Reflection.MethodBase.GetCurrentMethod().DeclaringType.FullName}：error info: 获取数据为空!";
+                }
                 //GLOBALSERVICE.SetGlobalState2(ClientOperLabelName.VTR_UPLOAD_ModifyTask);
                 if (_globalInterface != null)
                 {
@@ -797,7 +847,11 @@
         {
             ResponseMessage<int> response = new ResponseMessage<int>();
             response.Ext = (int)VTR_BUT_ErrorCode.emNormal;
-
+            if (response.Ext <= 0)
+            {
+                response.Code = ResponseCodeDefines.NotFound;
+                response.Msg = $"{System.Reflection.MethodBase.GetCurrentMethod().DeclaringType.FullName}：error info: 获取数据为空!";
+            }
             try
             {
                 if (taskid <= 0)
@@ -806,7 +860,7 @@
                     response.Code = ResponseCodeDefines.ArgumentNullError;
                 }
 
-                response.Ext = await _VtrManage.CommitVTRBatchUploadTasksAsync(new List<int>() { taskid }, true );//.CommitVTRUploadTask(taskId);
+                response.Ext = await _VtrManage.CommitVTRBatchUploadTasksAsync(new List<int>() { taskid }, true);//.CommitVTRUploadTask(taskId);
 
                 //GLOBALSERVICE.SetGlobalState2(ClientOperLabelName.VTR_UPLOAD_AddTask);
                 if (_globalInterface != null)
@@ -852,6 +906,11 @@
             ResponseMessage<int> response = new ResponseMessage<int>();
 
             response.Ext = (int)VTR_BUT_ErrorCode.emNormal;
+            if (response.Ext <= 0)
+            {
+                response.Code = ResponseCodeDefines.NotFound;
+                response.Msg = $"{System.Reflection.MethodBase.GetCurrentMethod().DeclaringType.FullName}：error info: 获取数据为空!";
+            }
             if (param == null)
             {
                 response.Msg = "ths param is null";
@@ -927,8 +986,12 @@
                     response.Code = ResponseCodeDefines.ArgumentNullError;
                 }
 
-                response.Ext = await _VtrManage.AddVTRBatchUploadTasksAsync<VtrBatchUploadTaskResponse,VTRUploadTaskContentResponse, VTRUploadMetadataPair>(pin.VtrTasks, pin.Metadatas, pin.IgnoreWrong);
-                
+                response.Ext = await _VtrManage.AddVTRBatchUploadTasksAsync<VtrBatchUploadTaskResponse, VTRUploadTaskContentResponse, VTRUploadMetadataPair>(pin.VtrTasks, pin.Metadatas, pin.IgnoreWrong);
+                if (response.Ext == null)
+                {
+                    response.Code = ResponseCodeDefines.NotFound;
+                    response.Msg = $"{System.Reflection.MethodBase.GetCurrentMethod().DeclaringType.FullName}：error info: 获取数据为空!";
+                }
                 response.Code = response.Ext.errorCode == VTR_BUT_ErrorCode.emNormal ? ResponseCodeDefines.SuccessCode : ResponseCodeDefines.ServiceError;
             }
             catch (Exception e)//其他未知的异常，写异常日志
@@ -1020,7 +1083,13 @@
             {
                 response.Msg = "OK";
                 response.Ext = await _VtrManage.GetVtrTaskMetaDataAsync(vtrtaskid, type);
-                response.Code = ResponseCodeDefines.SuccessCode;
+                if (string.IsNullOrEmpty(response.Ext))
+                {
+                    response.Code = ResponseCodeDefines.NotFound;
+                    response.Msg = $"{System.Reflection.MethodBase.GetCurrentMethod().DeclaringType.FullName}：error info: 获取数据为空!";
+                }
+                else
+                    response.Code = ResponseCodeDefines.SuccessCode;
             }
             catch (Exception e)//其他未知的异常，写异常日志
             {
@@ -1067,8 +1136,13 @@
                     response.Msg = "Trimin or TrimOut is invalid ";
                     response.Code = ResponseCodeDefines.ArgumentNullError;
                 }
-                
+
                 response.Ext = await _VtrManage.AddVTRUploadTask<AddVTRUploadTaskResponse, VTRUploadTaskContentResponse, VTRUploadMetadataPair>(vtrtask.VtrTask, vtrtask.Metadatas);
+                if (response.Ext==null)
+                {
+                    response.Code = ResponseCodeDefines.NotFound;
+                    response.Msg = $"{System.Reflection.MethodBase.GetCurrentMethod().DeclaringType.FullName}：error info: 获取数据为空!";
+                }
                 //GLOBALSERVICE.SetGlobalState2(ClientOperLabelName.VTR_UPLOAD_AddTask);
                 if (_globalInterface != null)
                 {

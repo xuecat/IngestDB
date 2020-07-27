@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using System.Net.Http;
 using System.Threading.Tasks;
 using System.Xml.Linq;
 using AutoMapper;
@@ -33,6 +34,39 @@ namespace IngestDB
         // This method gets called by the runtime. Use this method to add services to the container.
         public void ConfigureServices(IServiceCollection services)
         {
+            #region polly熔断机制
+            //通用策略
+            services.AddHttpClientPolly("ApiClient", options =>
+            {
+                options.TimeoutTime = 10;
+                options.RetryCount = 3;
+                options.CircuitBreakerOpenFallCount = 2;
+                options.CircuitBreakerDownTime = 100;
+                options.httpResponseMessage = new System.Net.Http.HttpResponseMessage()
+                {
+                    Content = new StringContent("系统正在繁忙，请稍后处理....."),
+                    StatusCode = System.Net.HttpStatusCode.GatewayTimeout
+                };
+            });
+            //外部策略
+            services.AddHttpClientPolly("ApiOutClient", options =>
+            {
+                options.TimeoutTime = 2;
+                options.RetryCount = 3;
+                options.RetryCountAction = (p =>
+                {
+                    int rcount = (int)p;
+                    if (rcount == 3)
+                        Environment.Exit(0);//超过三次重试-退出程序
+                });
+                options.httpResponseMessage = new System.Net.Http.HttpResponseMessage()
+                {
+                    Content = new StringContent("系统正在繁忙，请稍后处理....."),
+                    StatusCode = System.Net.HttpStatusCode.GatewayTimeout
+                };
+            });
+            #endregion
+
             //加载字典
             IngestDBCore.GlobalDictionary.Instance.GetType();
 
@@ -57,7 +91,7 @@ namespace IngestDB
             }
             else
             {
-                path = AppDomain.CurrentDomain.BaseDirectory.Replace("\\", "/") +"/"+ fileName;
+                path = AppDomain.CurrentDomain.BaseDirectory.Replace("\\", "/") + "/" + fileName;
             }
 
             logger.Info(path);
@@ -79,7 +113,7 @@ namespace IngestDB
                 applicationContext.CMServerWindowsUrl = CreateConfigURI(sys.Element("CMserver_windows").Value);
                 applicationContext.ConnectionString = CreateDBConnect(ps, applicationContext.VIP);
 
-               logger.Info(path + sys.ToString());
+                logger.Info(path + sys.ToString());
             }
             else
             { //此处加日志
@@ -102,7 +136,8 @@ namespace IngestDB
                     apm.ApplicationParts.Add(new AssemblyPart(a));
                 });
             }
-            services.AddToolDefined();
+            //单例注入RestClient等
+            services.AddToolDefined(services.BuildServiceProvider().GetService<IHttpClientFactory>());
 
             bool InitIsOk = applicationContext.Init().Result;
             services.AddApiVersioning(o =>
@@ -185,7 +220,7 @@ namespace IngestDB
                 });
             }
 
-           
+
             //插件加载之后引用
             services.AddAutoMapper(applicationContext.AdditionalAssembly);
         }

@@ -119,6 +119,11 @@ namespace IngestTaskPlugin.Controllers.v2
             try
             {
                 Response.Ext = await _taskManage.GetTaskContentMetadataAsync(taskid);
+                if (Response.Ext == null)
+                {
+                    Response.Code = ResponseCodeDefines.NotFound;
+                    Response.Msg = $"{System.Reflection.MethodBase.GetCurrentMethod().DeclaringType.FullName}：error info: 获取数据为空!";
+                }
             }
             catch (Exception e)
             {
@@ -160,6 +165,11 @@ namespace IngestTaskPlugin.Controllers.v2
             try
             {
                 Response.Ext = await _taskManage.GetTaskPlanningMetadataAsync(taskid);
+                if (Response.Ext == null)
+                {
+                    Response.Code = ResponseCodeDefines.NotFound;
+                    Response.Msg = $"{System.Reflection.MethodBase.GetCurrentMethod().DeclaringType.FullName}：error info: 获取数据为空!";
+                }
             }
             catch (Exception e)
             {
@@ -204,6 +214,11 @@ namespace IngestTaskPlugin.Controllers.v2
             try
             {
                 Response.Ext = await _taskManage.UpdateMetadataPropertyAsync(taskid, (MetaDataType)tasktype, lst);
+                if (string.IsNullOrEmpty(Response.Ext))
+                {
+                    Response.Code = ResponseCodeDefines.NotFound;
+                    Response.Msg = $"{System.Reflection.MethodBase.GetCurrentMethod().DeclaringType.FullName}：error info: 获取数据为空!";
+                }
             }
             catch (Exception e)
             {
@@ -334,7 +349,11 @@ namespace IngestTaskPlugin.Controllers.v2
             try
             {
                 Response.Ext = await _taskManage.StopGroupTaskAsync(taskid);
-
+                if (Response.Ext == null || Response.Ext.Count <= 0)
+                {
+                    Response.Code = ResponseCodeDefines.NotFound;
+                    Response.Msg = $"{System.Reflection.MethodBase.GetCurrentMethod().DeclaringType.FullName}：error info: 获取数据为空!";
+                }
                 if (_globalInterface != null)
                 {
                     GlobalInternals re = new GlobalInternals() { Funtype = IngestDBCore.GlobalInternals.FunctionType.SetGlobalState, State = GlobalStateName.MODTASK };
@@ -391,8 +410,12 @@ namespace IngestTaskPlugin.Controllers.v2
             try
             {
                 Response.Ext = await _taskManage.DeleteGroupTaskAsync(taskid);
+                if (Response.Ext == null || Response.Ext.Count <= 0)
+                {
+                    Response.Code = ResponseCodeDefines.NotFound;
+                    Response.Msg = $"{System.Reflection.MethodBase.GetCurrentMethod().DeclaringType.FullName}：error info: 获取数据为空!";
+                }
 
-                
                 if (_globalInterface != null)
                 {
                     GlobalInternals re = new GlobalInternals() { Funtype = IngestDBCore.GlobalInternals.FunctionType.SetGlobalState, State = GlobalStateName.MODTASK };
@@ -457,7 +480,11 @@ namespace IngestTaskPlugin.Controllers.v2
                 //Response.Ext = await _taskManage.AddTaskWithoutPolicy(task, string.Empty, string.Empty, string.Empty, string.Empty);
                 var addTask = await _taskManage.AddTaskWithoutPolicy(task, string.Empty, string.Empty, string.Empty, string.Empty);
                 Response.Ext = _mapper.Map<TaskContentResponse>(addTask);
-
+                if (Response.Ext == null)
+                {
+                    Response.Code = ResponseCodeDefines.NotFound;
+                    Response.Msg = $"{System.Reflection.MethodBase.GetCurrentMethod().DeclaringType.FullName}：error info: 获取数据为空!";
+                }
                 //添加后如果开始时间在2分钟以内，需要调度一次
                 if ((DateTimeFormat.DateTimeFromString(task.TaskContent.Begin) - DateTime.Now).TotalSeconds < 120)
                     await _taskManage.UpdateComingTasks();
@@ -530,7 +557,11 @@ namespace IngestTaskPlugin.Controllers.v2
                 //Response.Ext = await _taskManage.AddTaskWithPolicy(task, false, string.Empty, string.Empty, string.Empty, string.Empty);
                 var addTask = await _taskManage.AddTaskWithPolicy(task, false, string.Empty, string.Empty, string.Empty, string.Empty);
                 Response.Ext = _mapper.Map<TaskContentResponse>(addTask);
-
+                if (Response.Ext == null)
+                {
+                    Response.Code = ResponseCodeDefines.NotFound;
+                    Response.Msg = $"{System.Reflection.MethodBase.GetCurrentMethod().DeclaringType.FullName}：error info: 获取数据为空!";
+                }
                 if (task.BackUpTask)
                 {
                     task.TaskContent = Response.Ext;
@@ -598,6 +629,11 @@ namespace IngestTaskPlugin.Controllers.v2
             try
             {
                 Response.Ext = await _taskManage.GetTaskIDByTaskGUID(taskguid);
+                if (Response.Ext <= 0)
+                {
+                    Response.Code = ResponseCodeDefines.NotFound;
+                    Response.Msg = $"{System.Reflection.MethodBase.GetCurrentMethod().DeclaringType.FullName}：error info: 获取数据为空!";
+                }
             }
             catch (Exception e)
             {
@@ -634,6 +670,11 @@ namespace IngestTaskPlugin.Controllers.v2
             try
             {
                 Response.Ext = await _taskManage.GetAllChannelCapturingTask<TaskContentResponse>();
+                if (Response.Ext == null)
+                {
+                    Response.Code = ResponseCodeDefines.NotFound;
+                    Response.Msg = $"{System.Reflection.MethodBase.GetCurrentMethod().DeclaringType.FullName}：error info: 获取数据为空!";
+                }
             }
             catch (Exception e)
             {
@@ -675,6 +716,11 @@ namespace IngestTaskPlugin.Controllers.v2
             try
             {
                 Response.Ext = await _taskManage.GetChannelCapturingTask<TaskContentResponse>(channelid, newest);
+                if (Response.Ext == null)
+                {
+                    Response.Code = ResponseCodeDefines.NotFound;
+                    Response.Msg = $"{System.Reflection.MethodBase.GetCurrentMethod().DeclaringType.FullName}：error info: 获取数据为空!";
+                }
             }
             catch (Exception e)
             {
@@ -720,7 +766,11 @@ namespace IngestTaskPlugin.Controllers.v2
                 //Response.Ext = await _taskManage.ModifyTask<TaskContentResponse>(req, string.Empty, string.Empty, string.Empty, string.Empty);
                 var modifyTask = await _taskManage.ModifyTask<TaskContentResponse>(req, string.Empty, string.Empty, string.Empty, string.Empty);
                 Response.Ext = _mapper.Map<TaskContentResponse>(modifyTask);
-
+                if (Response.Ext == null)
+                {
+                    Response.Code = ResponseCodeDefines.NotFound;
+                    Response.Msg = $"{System.Reflection.MethodBase.GetCurrentMethod().DeclaringType.FullName}：error info: 获取数据为空!";
+                }
                 //添加后如果开始时间在2分钟以内，需要调度一次
                 if ((DateTimeFormat.DateTimeFromString(req.Begin) - DateTime.Now).TotalSeconds < 120)
                     await _taskManage.UpdateComingTasks();
@@ -788,7 +838,11 @@ namespace IngestTaskPlugin.Controllers.v2
                     _taskManage.ConverTaskMaterialMetaString(req.MaterialMeta),
                     _taskManage.ConverTaskPlanningMetaString(req.PlanningMeta));
                 Response.Ext = _mapper.Map<TaskContentResponse>(modifyTask);
-
+                if (Response.Ext == null)
+                {
+                    Response.Code = ResponseCodeDefines.NotFound;
+                    Response.Msg = $"{System.Reflection.MethodBase.GetCurrentMethod().DeclaringType.FullName}：error info: 获取数据为空!";
+                }
                 //添加后如果开始时间在2分钟以内，需要调度一次
                 if ((DateTimeFormat.DateTimeFromString(req.TaskContent.Begin) - DateTime.Now).TotalSeconds < 120)
                     await _taskManage.UpdateComingTasks();
@@ -847,7 +901,11 @@ namespace IngestTaskPlugin.Controllers.v2
             try
             {
                 Response.Ext = await _taskManage.GetTaskInfoByID<TaskContentResponse>(taskid, changestate);
-
+                if (Response.Ext == null)
+                {
+                    Response.Code = ResponseCodeDefines.NotFound;
+                    Response.Msg = $"{System.Reflection.MethodBase.GetCurrentMethod().DeclaringType.FullName}：error info: 获取数据为空!";
+                }
             }
             catch (Exception e)
             {
@@ -890,7 +948,11 @@ namespace IngestTaskPlugin.Controllers.v2
             try
             {
                 Response.Ext = await _taskManage.GetTaskInfoAll(taskid);
-
+                if (Response.Ext == null)
+                {
+                    Response.Code = ResponseCodeDefines.NotFound;
+                    Response.Msg = $"{System.Reflection.MethodBase.GetCurrentMethod().DeclaringType.FullName}：error info: 获取数据为空!";
+                }
             }
             catch (Exception e)
             {
@@ -933,6 +995,11 @@ namespace IngestTaskPlugin.Controllers.v2
             try
             {
                 Response.Ext = await _taskManage.GetTieUpTaskIDByChannelId(channelid);
+                if (Response.Ext<=0)
+                {
+                    Response.Code = ResponseCodeDefines.NotFound;
+                    Response.Msg = $"{System.Reflection.MethodBase.GetCurrentMethod().DeclaringType.FullName}：error info: 获取数据为空!";
+                }
                 if (Response.Ext <= 0)
                 {
                     Response.Code = ResponseCodeDefines.NotFound;
@@ -1153,6 +1220,11 @@ namespace IngestTaskPlugin.Controllers.v2
             try
             {
                 Response.Ext = await _taskManage.QueryTaskContent<TaskContentResponse>(unitid, DateTimeFormat.DateTimeFromString(day), (TimeLineType)timemode);
+                if (Response.Ext == null)
+                {
+                    Response.Code = ResponseCodeDefines.NotFound;
+                    Response.Msg = $"{System.Reflection.MethodBase.GetCurrentMethod().DeclaringType.FullName}：error info: 获取数据为空!";
+                }
             }
             catch (Exception e)
             {
@@ -1505,6 +1577,11 @@ namespace IngestTaskPlugin.Controllers.v2
             try
             {
                 Response.Ext = await _taskManage.GetScheduleFailedTasks<TaskContentResponse>();
+                if (Response.Ext == null)
+                {
+                    Response.Code = ResponseCodeDefines.NotFound;
+                    Response.Msg = $"{System.Reflection.MethodBase.GetCurrentMethod().DeclaringType.FullName}：error info: 获取数据为空!";
+                }
             }
             catch (Exception e)
             {
@@ -1616,6 +1693,11 @@ namespace IngestTaskPlugin.Controllers.v2
             try
             {
                 Response.Ext = await _taskManage.RescheduleTasks<RescheduledTaskInfoResponse>();
+                if (Response.Ext == null || Response.Ext.Count <= 0)
+                {
+                    Response.Code = ResponseCodeDefines.NotFound;
+                    Response.Msg = $"{System.Reflection.MethodBase.GetCurrentMethod().DeclaringType.FullName}：error info: 获取数据为空!";
+                }
             }
             catch (Exception e)
             {
@@ -1657,6 +1739,11 @@ namespace IngestTaskPlugin.Controllers.v2
                     Response.Ext = await _taskManage.GetAutoManuConflict<WarningInfoResponse>(channelid);
                 else
                     Response.Ext = await _taskManage.GetBadChannelTask<WarningInfoResponse>(channelid);
+                if (Response.Ext == null || Response.Ext.Count <= 0)
+                {
+                    Response.Code = ResponseCodeDefines.NotFound;
+                    Response.Msg = $"{System.Reflection.MethodBase.GetCurrentMethod().DeclaringType.FullName}：error info: 获取数据为空!";
+                }
             }
             catch (Exception e)
             {
@@ -1694,6 +1781,11 @@ namespace IngestTaskPlugin.Controllers.v2
             try
             {
                 Response.Ext = await _taskManage.GetChannelCapturingLowMaterial(channelid, _globalInterface.Value);
+                if (string.IsNullOrEmpty(Response.Ext))
+                {
+                    Response.Code = ResponseCodeDefines.NotFound;
+                    Response.Msg = $"{System.Reflection.MethodBase.GetCurrentMethod().DeclaringType.FullName}：error info: 获取数据为空!";
+                }
             }
             catch (Exception e)
             {
@@ -1733,6 +1825,11 @@ namespace IngestTaskPlugin.Controllers.v2
             try
             {
                 Response.Ext = await _taskManage.SplitTask<TaskContentResponse>(taskid, newguid, newname);
+                if (Response.Ext == null)
+                {
+                    Response.Code = ResponseCodeDefines.NotFound;
+                    Response.Msg = $"{System.Reflection.MethodBase.GetCurrentMethod().DeclaringType.FullName}：error info: 获取数据为空!";
+                }
             }
             catch (Exception e)
             {
@@ -1769,7 +1866,12 @@ namespace IngestTaskPlugin.Controllers.v2
 
             try
             {
-                Response.Ext = await _taskManage.GetCurrentTasksAsync<TaskContentResponse>();
+                Response.Ext = await _taskManage.GetCurrentTasksAsync<TaskContentResponse>(); 
+                if (Response.Ext == null)
+                {
+                    Response.Code = ResponseCodeDefines.NotFound;
+                    Response.Msg = $"{System.Reflection.MethodBase.GetCurrentMethod().DeclaringType.FullName}：error info: 获取数据为空!";
+                }
             }
             catch (Exception e)
             {
@@ -1806,7 +1908,11 @@ namespace IngestTaskPlugin.Controllers.v2
             try
             {
                 Response.Ext = await _taskManage.CreateNewTaskFromPeriodicTask<TaskContentResponse>(taskid);
-
+                if (Response.Ext == null)
+                {
+                    Response.Code = ResponseCodeDefines.NotFound;
+                    Response.Msg = $"{System.Reflection.MethodBase.GetCurrentMethod().DeclaringType.FullName}：error info: 获取数据为空!";
+                }
                 var custom = await _taskManage.GetCustomMetadataAsync<TaskCustomMetadataResponse>(taskid);
                 if (custom != null)
                 {
@@ -1901,6 +2007,11 @@ namespace IngestTaskPlugin.Controllers.v2
             try
             {
                 Response.Ext = await _taskManage.ChooseUsealbeChannel(lstchannelid, DateTimeFormat.DateTimeFromString(begin), DateTimeFormat.DateTimeFromString(end));
+                if (Response.Ext<= 0)
+                {
+                    Response.Code = ResponseCodeDefines.NotFound;
+                    Response.Msg = $"{System.Reflection.MethodBase.GetCurrentMethod().DeclaringType.FullName}：error info: 获取数据为空!";
+                }
             }
             catch (Exception e)
             {
@@ -1987,7 +2098,11 @@ namespace IngestTaskPlugin.Controllers.v2
                 //Response.Ext = await _taskManage.ModifyPeriodTask<TaskContentRequest>(req, isall == 1 ? true : false);
                 var modifyTask = await _taskManage.ModifyPeriodTask<TaskContentRequest>(req, isall == 1 ? true : false);
                 Response.Ext = modifyTask != null ? modifyTask.Taskid : 0;
-
+                if (Response.Ext <= 0)
+                {
+                    Response.Code = ResponseCodeDefines.NotFound;
+                    Response.Msg = $"{System.Reflection.MethodBase.GetCurrentMethod().DeclaringType.FullName}：error info: 获取数据为空!";
+                }
                 //添加后如果开始时间在2分钟以内，需要调度一次
                 if ((DateTimeFormat.DateTimeFromString(req.Begin) - DateTime.Now).TotalSeconds < 120)
                     await _taskManage.UpdateComingTasks();
@@ -2147,6 +2262,11 @@ namespace IngestTaskPlugin.Controllers.v2
             try
             {
                 Response.Ext = await _taskManage.GetKamakatiFailTasks<TaskContentResponse>();
+                if (Response.Ext == null)
+                {
+                    Response.Code = ResponseCodeDefines.NotFound;
+                    Response.Msg = $"{System.Reflection.MethodBase.GetCurrentMethod().DeclaringType.FullName}：error info: 获取数据为空!";
+                }
             }
             catch (Exception e)
             {
@@ -2223,7 +2343,11 @@ namespace IngestTaskPlugin.Controllers.v2
                 //Response.Ext = await _taskManage.AutoAddTaskByOldTask(oldtaskid, DateTimeFormat.DateTimeFromString(starttime), _globalInterface.Value);
                 var task = await _taskManage.AutoAddTaskByOldTask(oldtaskid, DateTimeFormat.DateTimeFromString(starttime), _globalInterface.Value);
                 Response.Ext = _mapper.Map<TaskContentResponse>(task);
-
+                if (Response.Ext == null)
+                {
+                    Response.Code = ResponseCodeDefines.NotFound;
+                    Response.Msg = $"{System.Reflection.MethodBase.GetCurrentMethod().DeclaringType.FullName}：error info: 获取数据为空!";
+                }
                 if (_globalInterface != null)
                 {
                     GlobalInternals re = new GlobalInternals() { Funtype = IngestDBCore.GlobalInternals.FunctionType.SetGlobalState, State = GlobalStateName.ADDTASK };
@@ -2266,6 +2390,11 @@ namespace IngestTaskPlugin.Controllers.v2
             try
             {
                 Response.Ext = await _taskManage.GetWillBeginAndCapturingTasksAsync<TaskContentResponse>();
+                if (Response.Ext == null)
+                {
+                    Response.Code = ResponseCodeDefines.NotFound;
+                    Response.Msg = $"{System.Reflection.MethodBase.GetCurrentMethod().DeclaringType.FullName}：error info: 获取数据为空!";
+                }
             }
             catch (Exception e)
             {
