@@ -42,6 +42,11 @@ namespace IngestDevicePlugin.Controllers.v2
             try
             {
                 response.Ext = await _deviceManage.GetAllCaptureChannelsAsync<CaptureChannelInfoResponse>();
+                if (response.Ext==null|| response.Ext.Count==0)
+                {
+                    response.Code = ResponseCodeDefines.NotFound;
+                    response.Msg = $"{System.Reflection.MethodBase.GetCurrentMethod().DeclaringType.FullName}：error info: 获取数据为空!";
+                }
             } catch(Exception e)
             {
                 if(e is SobeyRecException se)//sobeyexcep会自动打印错误
@@ -72,6 +77,11 @@ namespace IngestDevicePlugin.Controllers.v2
             try
             {
                 response.Ext = await _deviceManage.GetCaptureChannelByIDAsync<CaptureChannelInfoResponse>(channelid);
+                if (response.Ext == null)
+                {
+                    response.Code = ResponseCodeDefines.NotFound;
+                    response.Msg = $"{System.Reflection.MethodBase.GetCurrentMethod().DeclaringType.FullName}：error info: 获取数据为空!";
+                }
             } catch(Exception e)
             {
                 if(e is SobeyRecException se)//sobeyexcep会自动打印错误
@@ -101,6 +111,11 @@ namespace IngestDevicePlugin.Controllers.v2
             try
             {
                 response.Ext = await _deviceManage.GetAllCaptureDevicesAsync<CaptureDeviceInfoResponse>();
+                if (response.Ext == null)
+                {
+                    response.Code = ResponseCodeDefines.NotFound;
+                    response.Msg = $"{System.Reflection.MethodBase.GetCurrentMethod().DeclaringType.FullName}：error info: 获取数据为空!";
+                }
             } catch(Exception e)
             {
                 if(e is SobeyRecException se)//sobeyexcep会自动打印错误
@@ -132,6 +147,11 @@ namespace IngestDevicePlugin.Controllers.v2
             try
             {
                 response.Ext = await _deviceManage.GetSignalCaptureTemplateAsync(signalid);
+                if (response.Ext <= 0)
+                {
+                    response.Code = ResponseCodeDefines.NotFound;
+                    response.Msg = $"{System.Reflection.MethodBase.GetCurrentMethod().DeclaringType.FullName}：error info: 获取数据为空!";
+                }
             } catch(Exception e)
             {
                 if(e is SobeyRecException se)//sobeyexcep会自动打印错误
@@ -167,6 +187,11 @@ namespace IngestDevicePlugin.Controllers.v2
             try
             {
                 response.Ext = await _deviceManage.GetBestPreviewChnForSignalAsync(signalid);
+                if (response.Ext <=0)
+                {
+                    response.Code = ResponseCodeDefines.NotFound;
+                    response.Msg = $"{System.Reflection.MethodBase.GetCurrentMethod().DeclaringType.FullName}：error info: 获取数据为空!";
+                }
             } catch(Exception e)
             {
                 if(e is SobeyRecException se)//sobeyexcep会自动打印错误
@@ -229,6 +254,11 @@ namespace IngestDevicePlugin.Controllers.v2
             try
             {
                 response.Ext = await _deviceManage.GetChannelExtendData(channelid, type);
+                if (string.IsNullOrEmpty(response.Ext))
+                {
+                    response.Code = ResponseCodeDefines.NotFound;
+                    response.Msg = $"{System.Reflection.MethodBase.GetCurrentMethod().DeclaringType.FullName}：error info: 获取数据为空!";
+                }
             } catch(Exception e)
             {
                 if(e is SobeyRecException se)//sobeyexcep会自动打印错误
@@ -261,6 +291,11 @@ namespace IngestDevicePlugin.Controllers.v2
             try
             {
                 response.Ext = await _deviceManage.GetBestChannelIdBySignalIDAsync(signalid, usercode);
+                if (response.Ext<=0)
+                {
+                    response.Code = ResponseCodeDefines.NotFound;
+                    response.Msg = $"{System.Reflection.MethodBase.GetCurrentMethod().DeclaringType.FullName}：error info: 获取数据为空!";
+                }
             } catch(Exception e)
             {
                 if(e is SobeyRecException se)//sobeyexcep会自动打印错误
@@ -291,6 +326,11 @@ namespace IngestDevicePlugin.Controllers.v2
             try
             {
                 response.Ext = await _deviceManage.GetChannelsByProgrammeIdAsync<CaptureChannelInfoResponse>(programmeid);
+                if (response.Ext ==null|| response.Ext.Count<= 0)
+                {
+                    response.Code = ResponseCodeDefines.NotFound;
+                    response.Msg = $"{System.Reflection.MethodBase.GetCurrentMethod().DeclaringType.FullName}：error info: 获取数据为空!";
+                }
             } catch(Exception e)
             {
                 if(e is SobeyRecException se)//sobeyexcep会自动打印错误
@@ -320,6 +360,11 @@ namespace IngestDevicePlugin.Controllers.v2
             try
             {
                 response.Ext = await _deviceManage.GetAllChannelStateAsync<MSVChannelStateResponse>();
+                if (response.Ext == null || response.Ext.Count <= 0)
+                {
+                    response.Code = ResponseCodeDefines.NotFound;
+                    response.Msg = $"{System.Reflection.MethodBase.GetCurrentMethod().DeclaringType.FullName}：error info: 获取数据为空!";
+                }
             } catch(Exception e)
             {
                 if(e is SobeyRecException se)//sobeyexcep会自动打印错误
@@ -385,6 +430,11 @@ namespace IngestDevicePlugin.Controllers.v2
             try
             {
                 response.Ext = await _deviceManage.GetAllTSDeviceInfosAsync();
+                if (response.Ext == null || response.Ext.Count <= 0)
+                {
+                    response.Code = ResponseCodeDefines.NotFound;
+                    response.Msg = $"{System.Reflection.MethodBase.GetCurrentMethod().DeclaringType.FullName}：error info: 获取数据为空!";
+                }
             } catch(Exception e)
             {
                 if(e is SobeyRecException se)//sobeyexcep会自动打印错误
@@ -444,6 +494,11 @@ namespace IngestDevicePlugin.Controllers.v2
             try
             {
                 response.Ext = await _deviceManage.GetAllGPIInfoAsync<GPIDeviceInfoResponse>();
+                if (response.Ext == null || response.Ext.Count <= 0)
+                {
+                    response.Code = ResponseCodeDefines.NotFound;
+                    response.Msg = $"{System.Reflection.MethodBase.GetCurrentMethod().DeclaringType.FullName}：error info: 获取数据为空!";
+                }
             } catch(Exception e)
             {
                 if(e is SobeyRecException se)//sobeyexcep会自动打印错误
@@ -474,6 +529,11 @@ namespace IngestDevicePlugin.Controllers.v2
             try
             {
                 response.Ext = await _deviceManage.GetGPIMapInfoByGPIIDAsync<GPIDeviceMapInfoResponse>(gpiid);
+                if (response.Ext == null || response.Ext.Count <= 0)
+                {
+                    response.Code = ResponseCodeDefines.NotFound;
+                    response.Msg = $"{System.Reflection.MethodBase.GetCurrentMethod().DeclaringType.FullName}：error info: 获取数据为空!";
+                }
             } catch(Exception e)
             {
                 if(e is SobeyRecException se)//sobeyexcep会自动打印错误
@@ -504,6 +564,11 @@ namespace IngestDevicePlugin.Controllers.v2
             try
             {
                 response.Ext = await _deviceManage.GetMsvChannelStateAsync<MSVChannelStateResponse>(channelid);
+                if (response.Ext == null)
+                {
+                    response.Code = ResponseCodeDefines.NotFound;
+                    response.Msg = $"{System.Reflection.MethodBase.GetCurrentMethod().DeclaringType.FullName}：error info: 获取数据为空!";
+                }
             } catch(Exception e)
             {
                 if(e is SobeyRecException se)//sobeyexcep会自动打印错误
@@ -570,6 +635,11 @@ namespace IngestDevicePlugin.Controllers.v2
             try
             {
                 response.Ext = await _deviceManage.GetParamTypeByChannelIDAsync(channelid);
+                if (response.Ext <= 0)
+                {
+                    response.Code = ResponseCodeDefines.NotFound;
+                    response.Msg = $"{System.Reflection.MethodBase.GetCurrentMethod().DeclaringType.FullName}：error info: 获取数据为空!";
+                }
             } catch(Exception e)
             {
                 if(e is SobeyRecException se)//sobeyexcep会自动打印错误
@@ -600,6 +670,11 @@ namespace IngestDevicePlugin.Controllers.v2
             try
             {
                 response.Ext = await _deviceManage.GetParamTypeBySignalIDAsync(signalid);
+                if (response.Ext <= 0)
+                {
+                    response.Code = ResponseCodeDefines.NotFound;
+                    response.Msg = $"{System.Reflection.MethodBase.GetCurrentMethod().DeclaringType.FullName}：error info: 获取数据为空!";
+                }
             } catch(Exception e)
             {
                 if(e is SobeyRecException se)//sobeyexcep会自动打印错误
@@ -634,6 +709,11 @@ namespace IngestDevicePlugin.Controllers.v2
             try
             {
                 response.Ext = await _deviceManage.GetProgrammeInfosByChannelIdAsync<ProgrammeInfoResponse>(channelid);
+                if (response.Ext==null||response.Ext?.Count <= 0)
+                {
+                    response.Code = ResponseCodeDefines.NotFound;
+                    response.Msg = $"{System.Reflection.MethodBase.GetCurrentMethod().DeclaringType.FullName}：error info: 获取数据为空!";
+                }
             } catch(Exception e)
             {
                 if(e is SobeyRecException se)//sobeyexcep会自动打印错误
@@ -663,6 +743,11 @@ namespace IngestDevicePlugin.Controllers.v2
             try
             {
                 response.Ext = await _deviceManage.GetAllProgrammeInfosAsync<ProgrammeInfoResponse>();
+                if (response.Ext == null || response.Ext?.Count <= 0)
+                {
+                    response.Code = ResponseCodeDefines.NotFound;
+                    response.Msg = $"{System.Reflection.MethodBase.GetCurrentMethod().DeclaringType.FullName}：error info: 获取数据为空!";
+                }
             } catch(Exception e)
             {
                 if(e is SobeyRecException se)//sobeyexcep会自动打印错误
@@ -696,6 +781,11 @@ namespace IngestDevicePlugin.Controllers.v2
             try
             {
                 Response.Ext = await _deviceManage.GetBackProgramInfoBySrgid(mastersignalid);
+                if (Response.Ext == null)
+                {
+                    Response.Code = ResponseCodeDefines.NotFound;
+                    Response.Msg = $"{System.Reflection.MethodBase.GetCurrentMethod().DeclaringType.FullName}：error info: 获取数据为空!";
+                }
             } catch(Exception e)
             {
                 if(e.GetType() == typeof(SobeyRecException))//sobeyexcep会自动打印错误
@@ -730,6 +820,11 @@ namespace IngestDevicePlugin.Controllers.v2
             try
             {
                 Response.Ext = await _deviceManage.GetProgrammeInfoByIdAsync(signalid);
+                if (Response.Ext == null )
+                {
+                    Response.Code = ResponseCodeDefines.NotFound;
+                    Response.Msg = $"{System.Reflection.MethodBase.GetCurrentMethod().DeclaringType.FullName}：error info: 获取数据为空!";
+                }
             } catch(Exception e)
             {
                 if(e.GetType() == typeof(SobeyRecException))//sobeyexcep会自动打印错误
@@ -765,6 +860,11 @@ namespace IngestDevicePlugin.Controllers.v2
             try
             {
                 response.Ext = await _deviceManage.GetAllRouterInPortAsync<RouterInResponse>();
+                if (response.Ext == null || response.Ext?.Count <= 0)
+                {
+                    response.Code = ResponseCodeDefines.NotFound;
+                    response.Msg = $"{System.Reflection.MethodBase.GetCurrentMethod().DeclaringType.FullName}：error info: 获取数据为空!";
+                }
             } catch(Exception e)
             {
                 if(e is SobeyRecException se)//sobeyexcep会自动打印错误
@@ -794,6 +894,11 @@ namespace IngestDevicePlugin.Controllers.v2
             try
             {
                 response.Ext = await _deviceManage.GetAllRouterOutPortAsync<RoterOutResponse>();
+                if (response.Ext == null || response.Ext?.Count <= 0)
+                {
+                    response.Code = ResponseCodeDefines.NotFound;
+                    response.Msg = $"{System.Reflection.MethodBase.GetCurrentMethod().DeclaringType.FullName}：error info: 获取数据为空!";
+                }
             } catch(Exception e)
             {
                 if(e is SobeyRecException se)//sobeyexcep会自动打印错误
@@ -827,6 +932,11 @@ namespace IngestDevicePlugin.Controllers.v2
             try
             {
                 response.Ext = await _deviceManage.GetAllSignalDeviceMapAsync<SignalDeviceMapResponse>();
+                if (response.Ext == null || response.Ext?.Count <= 0)
+                {
+                    response.Code = ResponseCodeDefines.NotFound;
+                    response.Msg = $"{System.Reflection.MethodBase.GetCurrentMethod().DeclaringType.FullName}：error info: 获取数据为空!";
+                }
             } catch(Exception e)
             {
                 if(e is SobeyRecException se)//sobeyexcep会自动打印错误
@@ -857,6 +967,11 @@ namespace IngestDevicePlugin.Controllers.v2
             try
             {
                 response.Ext = await _deviceManage.GetSignalDeviceMapBySignalID<SignalDeviceMapResponse>(signalid);
+                if (response.Ext == null)
+                {
+                    response.Code = ResponseCodeDefines.NotFound;
+                    response.Msg = $"{System.Reflection.MethodBase.GetCurrentMethod().DeclaringType.FullName}：error info: 获取数据为空!";
+                }
             } catch(Exception e)
             {
                 if(e is SobeyRecException se)//sobeyexcep会自动打印错误
@@ -919,6 +1034,11 @@ namespace IngestDevicePlugin.Controllers.v2
             try
             {
                 response.Ext = await _deviceManage.GetAllSignalGroupAsync<SignalGroupResponse>();
+                if (response.Ext == null || response.Ext?.Count <= 0)
+                {
+                    response.Code = ResponseCodeDefines.NotFound;
+                    response.Msg = $"{System.Reflection.MethodBase.GetCurrentMethod().DeclaringType.FullName}：error info: 获取数据为空!";
+                }
             } catch(Exception e)
             {
                 if(e is SobeyRecException se)//sobeyexcep会自动打印错误
@@ -948,6 +1068,11 @@ namespace IngestDevicePlugin.Controllers.v2
             try
             {
                 response.Ext = await _deviceManage.GetAllSignalGroupInfoAsync<SignalGroupStateResponse>();
+                if (response.Ext == null || response.Ext?.Count <= 0)
+                {
+                    response.Code = ResponseCodeDefines.NotFound;
+                    response.Msg = $"{System.Reflection.MethodBase.GetCurrentMethod().DeclaringType.FullName}：error info: 获取数据为空!";
+                }
             } catch(Exception e)
             {
                 if(e is SobeyRecException se)//sobeyexcep会自动打印错误
@@ -977,6 +1102,11 @@ namespace IngestDevicePlugin.Controllers.v2
             try
             {
                 response.Ext = await _deviceManage.GetAllSignalSrcExsAsync<SignalSrcExResponse>();
+                if (response.Ext == null || response.Ext?.Count <= 0)
+                {
+                    response.Code = ResponseCodeDefines.NotFound;
+                    response.Msg = $"{System.Reflection.MethodBase.GetCurrentMethod().DeclaringType.FullName}：error info: 获取数据为空!";
+                }
             } catch(Exception e)
             {
                 if(e is SobeyRecException se)//sobeyexcep会自动打印错误
@@ -1006,6 +1136,11 @@ namespace IngestDevicePlugin.Controllers.v2
             try
             {
                 response.Ext = await _deviceManage.GetAllSignalSrcsAsync<SignalSrcResponse>();
+                if (response.Ext == null || response.Ext?.Count <= 0)
+                {
+                    response.Code = ResponseCodeDefines.NotFound;
+                    response.Msg = $"{System.Reflection.MethodBase.GetCurrentMethod().DeclaringType.FullName}：error info: 获取数据为空!";
+                }
             } catch(Exception e)
             {
                 if(e is SobeyRecException se)//sobeyexcep会自动打印错误
@@ -1036,6 +1171,11 @@ namespace IngestDevicePlugin.Controllers.v2
             try
             {
                 response.Ext = await _deviceManage.GetBackupSignalSrcIdByIdAsync(signalsrcid);
+                if (response.Ext <= 0)
+                {
+                    response.Code = ResponseCodeDefines.NotFound;
+                    response.Msg = $"{System.Reflection.MethodBase.GetCurrentMethod().DeclaringType.FullName}：error info: 获取数据为空!";
+                }
             } catch(Exception e)
             {
                 if(e is SobeyRecException se)//sobeyexcep会自动打印错误
@@ -1104,6 +1244,11 @@ namespace IngestDevicePlugin.Controllers.v2
             {
                 response.Ext = await _deviceManage.GetChannelsByProgrammeIdAsync<CaptureChannelInfoResponse>(programmeid,
                                                                                                              status);
+                if (response.Ext == null || response.Ext?.Count <= 0)
+                {
+                    response.Code = ResponseCodeDefines.NotFound;
+                    response.Msg = $"{System.Reflection.MethodBase.GetCurrentMethod().DeclaringType.FullName}：error info: 获取数据为空!";
+                }
             } catch(Exception e)
             {
                 if(e is SobeyRecException se)//sobeyexcep会自动打印错误
@@ -1136,6 +1281,11 @@ namespace IngestDevicePlugin.Controllers.v2
             try
             {
                 response.Ext = await _deviceManage.GetChannelSignalSrcAsync(channelid);
+                if (response.Ext <= 0)
+                {
+                    response.Code = ResponseCodeDefines.NotFound;
+                    response.Msg = $"{System.Reflection.MethodBase.GetCurrentMethod().DeclaringType.FullName}：error info: 获取数据为空!";
+                }
             } catch(Exception e)
             {
                 if(e is SobeyRecException se)//sobeyexcep会自动打印错误
@@ -1168,6 +1318,11 @@ namespace IngestDevicePlugin.Controllers.v2
             try
             {
                 response.Ext = await _deviceManage.GetAllChannelUnitMap();
+                if (response.Ext == null || response.Ext?.Count <= 0)
+                {
+                    response.Code = ResponseCodeDefines.NotFound;
+                    response.Msg = $"{System.Reflection.MethodBase.GetCurrentMethod().DeclaringType.FullName}：error info: 获取数据为空!";
+                }
             } catch(Exception e)
             {
                 if(e is SobeyRecException se)//sobeyexcep会自动打印错误
@@ -1205,6 +1360,11 @@ namespace IngestDevicePlugin.Controllers.v2
                     response.Ext = f.UnitId;
                 } else
                     response.Ext = -1;
+                if (response.Ext <= 0)
+                {
+                    response.Code = ResponseCodeDefines.NotFound;
+                    response.Msg = $"{System.Reflection.MethodBase.GetCurrentMethod().DeclaringType.FullName}：error info: 获取数据为空!";
+                }
             } catch(Exception e)
             {
                 if(e is SobeyRecException se)//sobeyexcep会自动打印错误

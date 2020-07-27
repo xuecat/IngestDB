@@ -19,9 +19,9 @@ namespace IngestDBCore.Tool
 
         private static HttpClient _httpClient = null;
 
-        public RestClient()
+        public RestClient(IHttpClientFactory httpClientFactory, string httpClientName="ApiClient")
         {
-            _httpClient = new HttpClient();
+            _httpClient = httpClientFactory!=null?httpClientFactory.CreateClient(httpClientName) :new HttpClient();
             _httpClient.DefaultRequestHeaders.Connection.Clear();
             _httpClient.DefaultRequestHeaders.ConnectionClose = false;
             _httpClient.Timeout = TimeSpan.FromSeconds(15);
