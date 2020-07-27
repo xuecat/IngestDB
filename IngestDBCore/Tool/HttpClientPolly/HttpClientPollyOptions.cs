@@ -34,9 +34,17 @@ namespace IngestDBCore
         //        }
         public TimeSpan[] RetryTimeoutArray { set; get; }
         /// <summary>
-        /// 执行多少次异常，开启短路器（例：失败2次，开启断路器）
+        /// 执行多少次异常，开启断路器（例：失败2次，开启断路器）
         /// </summary>
         public int CircuitBreakerOpenFallCount { set; get; }
+        /// <summary>
+        /// 断路器触发几次，执行操作（例：断路器触发2次，开启断路器触发终止程序）
+        /// </summary>
+        public static int CircuitBreakerOpenTriggerCount{ set; get; }
+        /// <summary>
+        /// 断路生效次数超过执行方法
+        /// </summary>
+        public Action<object> CircuitBreakerAction { set; get; }
 
         /// <summary>
         /// 断路器开启的时间(例如：设置为2秒，短路器两秒后自动由开启到关闭)

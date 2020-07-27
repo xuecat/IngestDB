@@ -35,35 +35,20 @@ namespace IngestDB
         public void ConfigureServices(IServiceCollection services)
         {
             #region polly熔断机制
+            var CircuitBreakerOpenTriggerCount= Convert.ToInt32(Configuration["PollySetting:CircuitBreakerOpenTriggerCount"]);
             //通用策略
             services.AddHttpClientPolly("ApiClient", options =>
             {
-                options.TimeoutTime = 10;
-                options.RetryCount = 3;
-                options.CircuitBreakerOpenFallCount = 2;
-                options.CircuitBreakerDownTime = 100;
-                options.httpResponseMessage = new System.Net.Http.HttpResponseMessage()
-                {
-                    Content = new StringContent("系统正在繁忙，请稍后处理....."),
-                    StatusCode = System.Net.HttpStatusCode.GatewayTimeout
-                };
-            });
-            //外部策略
-            services.AddHttpClientPolly("ApiOutClient", options =>
-            {
-                options.TimeoutTime = 2;
-                options.RetryCount = 3;
-                options.RetryCountAction = (p =>
+                options.TimeoutTime = Convert.ToInt32(Configuration["PollySetting:TimeoutTime"]);
+                options.RetryCount = Convert.ToInt32(Configuration["PollySetting:RetryCount"]);
+                options.CircuitBreakerOpenFallCount = Convert.ToInt32(Configuration["PollySetting:CircuitBreakerOpenFallCount"]);
+                options.CircuitBreakerDownTime = Convert.ToInt32(Configuration["PollySetting:CircuitBreakerDownTime"]);
+                options.CircuitBreakerAction = (p =>
                 {
                     int rcount = (int)p;
-                    if (rcount == 3)
-                        Environment.Exit(0);//超过三次重试-退出程序
+                    if (rcount == CircuitBreakerOpenTriggerCount)
+                        Environment.Exit(0);//断路器触发超过CircuitBreakerOpenTriggerCount次-退出程序
                 });
-                options.httpResponseMessage = new System.Net.Http.HttpResponseMessage()
-                {
-                    Content = new StringContent("系统正在繁忙，请稍后处理....."),
-                    StatusCode = System.Net.HttpStatusCode.GatewayTimeout
-                };
             });
             #endregion
 
