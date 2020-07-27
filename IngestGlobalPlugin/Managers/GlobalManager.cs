@@ -32,7 +32,7 @@ namespace IngestGlobalPlugin.Managers
         {
             Store = store;
             _mapper = mapper ?? throw new ArgumentNullException(nameof(mapper));
-            _restClient = new RestClient(httpClientFactory, "ApiOutClient");//rsc;
+            _restClient = rsc;// new RestClient(httpClientFactory, "ApiOutClient");
         }
 
 

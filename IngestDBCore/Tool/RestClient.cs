@@ -19,9 +19,9 @@ namespace IngestDBCore.Tool
 
         private static HttpClient _httpClient = null;
 
-        public RestClient(IHttpClientFactory httpClientFactory, string httpClientName="ApiClient")
+        public RestClient(IHttpClientFactory httpClientFactory, string httpClientName = "ApiClient")
         {
-            _httpClient = httpClientFactory!=null?httpClientFactory.CreateClient(httpClientName) :new HttpClient();
+            _httpClient = httpClientFactory != null ? httpClientFactory.CreateClient(httpClientName) : new HttpClient();
             _httpClient.DefaultRequestHeaders.Connection.Clear();
             _httpClient.DefaultRequestHeaders.ConnectionClose = false;
             _httpClient.Timeout = TimeSpan.FromSeconds(15);
@@ -397,27 +397,39 @@ namespace IngestDBCore.Tool
         }
 
         #region cmapi接口统一管理，方便后面修改
-        public async Task<string> GetGlobalParam(bool usetokencode, string userTokenOrCode, string key)
+        public string GetGlobalParam(bool usetokencode, string userTokenOrCode, string key)
         {
             if (usetokencode)
                 UseTokenHeader(userTokenOrCode);
             else
                 UseCodeHeader(userTokenOrCode);
+            //var back = await AutoRetry.Run<ResponseMessage<CmParam>>(() =>
+            //{
+            //DefaultParameter param = new DefaultParameter()
+            //{
+            //    tool = "DEFAULT",
+            //    paramname = key,
+            //    system = "INGEST"
+            //};
+            //return Post<ResponseMessage<CmParam>>(
+            //string.Format("{0}/CMApi/api/basic/config/getsysparam", ApplicationContext.Current.CMServerUrl),
+            //param); 
+            //});
 
-            var back = await AutoRetry.Run<ResponseMessage<CmParam>>(() =>
+            //if (back != null)
+            //{
+            //    return back.Ext?.paramvalue;
+            //}
+
+            DefaultParameter param = new DefaultParameter()
             {
-                DefaultParameter param = new DefaultParameter()
-                {
-                    tool = "DEFAULT",
-                    paramname = key,
-                    system = "INGEST"
-                };
-                return Post<ResponseMessage<CmParam>>(
-                string.Format("{0}/CMApi/api/basic/config/getsysparam", ApplicationContext.Current.CMServerUrl),
-                param);
-
-            });
-
+                tool = "DEFAULT",
+                paramname = key,
+                system = "INGEST"
+            };
+            var back = Post<ResponseMessage<CmParam>>(
+            string.Format("{0}/CMApi/api/basic/config/getsysparam", ApplicationContext.Current.CMServerUrl),
+            param).Result;
             if (back != null)
             {
                 return back.Ext?.paramvalue;
