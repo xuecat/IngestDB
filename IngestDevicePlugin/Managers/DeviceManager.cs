@@ -373,7 +373,7 @@ namespace IngestDevicePlugin.Managers
                     // Delete by chenzhi 2013-07-09
                     // TODO: 运营商的概念已经被分组所取代，故移除该部分代码
 
-                    if (item.PgmType == ProgrammeType.PT_StreamMedia /*&& info.nCarrierID == channelInfo.nCarrierID */)//运营商信息也要判断
+                    if (item.PgmType == ProgrammeType.PT_StreamMedia || item.SignalSourceType == emSignalSource.emStreamMedia/*&& info.nCarrierID == channelInfo.nCarrierID */)//运营商信息也要判断
                     {
                         lstback.Add(item);
                     }
@@ -682,7 +682,7 @@ namespace IngestDevicePlugin.Managers
                 ////类型匹配
                 if (!((programme.PgmType == ProgrammeType.PT_SDI && (item.DeviceTypeId == (int)CaptureChannelType.emMsvChannel || item.DeviceTypeId == (int)CaptureChannelType.emDefualtChannel))
                      || ((programme.PgmType == ProgrammeType.PT_IPTS) && (item.DeviceTypeId == (int)CaptureChannelType.emIPTSChannel))
-                     || ((programme.PgmType == ProgrammeType.PT_StreamMedia) && (item.DeviceTypeId == (int)CaptureChannelType.emStreamChannel))))
+                     || ((programme.PgmType == ProgrammeType.PT_StreamMedia || programme.SignalSourceType == emSignalSource.emStreamMedia) && (item.DeviceTypeId == (int)CaptureChannelType.emStreamChannel))) )
                 {
                     continue;
                 }
