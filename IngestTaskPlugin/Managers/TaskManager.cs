@@ -1534,7 +1534,7 @@ namespace IngestTaskPlugin.Managers
                 //这里可以做一个大概的时间
                 if (findtask.Tasktype == (int)TaskType.TT_NORMAL)
                 {
-                    findtask.Starttime = DateTime.Now;
+                    findtask.Starttime = DateTime.Now.AddMilliseconds(1000);//新版本性能太好了比msv都快
                     //zmj2010-02-24 普通任务将它改为准备状态，由消息总控将它改为可执行状态
                     //newTaskInfo.taskContent.emState = taskState.tsReady;
                     //yangchuang20120921如果离结束时间太近了，不允许再分段了
@@ -1549,7 +1549,7 @@ namespace IngestTaskPlugin.Managers
                     || findtask.Tasktype == (int)TaskType.TT_OPENENDEX // Add by chenzhi 2012-07-25
                     )
                 {
-                    findtask.Starttime = DateTime.Now;
+                    findtask.Starttime = DateTime.Now.AddMilliseconds(1000);//新版本性能太好了比msv都快
                     findtask.Endtime = findtask.Starttime;
                 }
 
@@ -1609,30 +1609,31 @@ namespace IngestTaskPlugin.Managers
                     }
                 }
 
-                if (!string.IsNullOrEmpty(strSplitMetaData))
+                if (string.IsNullOrEmpty(strSplitMetaData))
                 {
-                    var sroot = XElement.Parse(strPlanMetaData);
-                    var item = sroot.Descendants("ORGTITLE").FirstOrDefault();
-                    if (item != null)
+                    strSplitMetaData = "<SplitMetaData></SplitMetaData>";
+                }
+
+                var sroot = XElement.Parse(strSplitMetaData);
+                var itemtitle = sroot.Descendants("ORGTITLE").FirstOrDefault();
+                if (itemtitle != null)
+                {
+                    itemtitle.Value = strOldTaskName;
+                    strSplitMetaData = sroot.ToString();
+                }
+                else
+                {
+                    sroot.Add(new XElement("ORGTITLE", strOldTaskName));
+                    strSplitMetaData = sroot.ToString();
+
+                    if (string.IsNullOrEmpty(newname))
                     {
-                        item.Value = strOldTaskName;
-                        strSplitMetaData = sroot.ToString();
+                        findtask.Taskname = strOldTaskName + "-1";
                     }
                     else
-                    {
-                        item = sroot.Element("SplitMetaData");
-                        item.Add(new XElement("ORGTITLE", strOldTaskName));
-                        strSplitMetaData = sroot.ToString();
-
-                        if (string.IsNullOrEmpty(newname))
-                        {
-                            findtask.Taskname = strOldTaskName + "-1";
-                        }
-                        else
-                            findtask.Taskname = newname;
-                    }
+                        findtask.Taskname = newname;
                 }
-                
+
                 if (string.IsNullOrEmpty(newname))
                 {
                     var lst = strOldTaskName.Split('-');
