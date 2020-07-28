@@ -17,7 +17,7 @@ namespace IngestDBCore
                 throw new ArgumentNullException(nameof(services));
             }
             var client = new RestClient(httpClientFactory);
-            ApplicationContext.Current.KafkaUrl = client.GetGlobalParam(false, "admin", "KafkaAddress");
+            ApplicationContext.Current.KafkaUrl = client.GetGlobalParam(false, "admin", "KafkaAddress").Result;
 
             ApplicationContext.Current.KafkaUrl = ApplicationContext.Current.KafkaUrl.Replace(";", ",");
 

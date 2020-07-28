@@ -72,7 +72,8 @@ namespace IngestDBCore
                 {
                     Console.WriteLine($"服务{name}重试开启，异常消息：{ex.Exception.Message}");
                     Console.WriteLine($"服务{name}重试第：{ts}次"); 
-                    logger.Warn($"服务{name}重试开启，异常消息：{ex.Exception.Message} 重试第：{ts}次");
+                    logger.Warn($"服务{name}重试开启，异常消息：{ex.Result.RequestMessage.RequestUri} {ex.Result.StatusCode}" +
+                        $"{ex.Result.Headers.ToString()} {ex.Exception.Message} 重试第：{ts}次");
                     if (options.RetryCountAction!=null)//委托方法
                     {
                         options.ActionAchieve<object>(options.RetryCountAction, ts);
@@ -87,9 +88,9 @@ namespace IngestDBCore
                    .Handle<TimeoutRejectedException>()
                    .WaitAndRetryAsync(options.RetryTimeoutArray, (ex, ts) =>
                    {
-                       Console.WriteLine($"服务{name}重试开启，异常消息：{ex.Exception.Message}");
+                       Console.WriteLine($"服务{name}重试超时开启，异常消息：{ex.Exception.Message}");
                        Console.WriteLine($"服务{name} 等待：{ts.TotalMilliseconds}毫秒后重试");
-                       logger.Warn($"服务{name}重试开启，异常消息：{ex.Exception.Message} 等待：{ts.TotalMilliseconds}毫秒后重试");
+                       logger.Warn($"服务{name}重试超时开启，异常消息：{ex.Exception.Message} 等待：{ts.TotalMilliseconds}毫秒后重试");
                    })
                 );
             }
