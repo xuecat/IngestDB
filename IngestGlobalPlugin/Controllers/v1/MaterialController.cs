@@ -56,7 +56,7 @@ namespace IngestGlobalPlugin.Controllers.v1
         ///     
         /// </remarks>
         /// <returns>消息组</returns>     
-        [HttpGet("PostUpdateSaveInDBStateForTask"), MapToApiVersion("1.0")]
+        [HttpPost("PostUpdateSaveInDBStateForTask"), MapToApiVersion("1.0")]
         [ApiExplorerSettings(GroupName = "v1")]
         public async Task<UpdateSaveInDBStateForTask_OUT> PostUpdateSaveInDBStateForTask([FromBody]UpdateSaveInDBStateForTask_IN pIn)
         {
@@ -65,6 +65,8 @@ namespace IngestGlobalPlugin.Controllers.v1
 
             try
             {
+                Logger.Error("PostUpdateSaveInDBStateForTask error info：" + Newtonsoft.Json.JsonConvert.SerializeObject(pIn));
+
                 await _materialManage.UpdateSaveInDBStateForTask(pIn.nTaskID, pIn.nPolicyID, pIn.nSectionID, (SAVE_IN_DB_STATE)pIn.state, pIn.strResult);
 
                 Response.bRet = true;
