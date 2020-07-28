@@ -3478,6 +3478,11 @@ namespace IngestTaskPlugin.Managers
                     taskinfo.TaskContent.End = DateTimeFormat.DateTimeToString(RealEnd);
 
                     DateTime BeginTime = DateTimeFormat.DateTimeFromString(taskinfo.TaskContent.Begin);
+                    if ((TaskEnd - BeginTime).TotalHours >= 24)
+                    {
+                        throw new Exception("Cannot create the periodic task that exceeds 24H.");
+                    }
+
                     if (BeginTime.TimeOfDay <= RealEnd.TimeOfDay)//是跨天的任务
                     {
                         DateTime dtFirstDayEndTime = new DateTime(BeginTime.Year, BeginTime.Month, BeginTime.Day, RealEnd.Hour, RealEnd.Minute, RealEnd.Second);
