@@ -2195,17 +2195,24 @@ namespace IngestTaskPlugin.Managers
 
             var findtask = await Store.GetTaskAsync(a => a.Where(b => b.Taskid == taskid));
 
-            if (findtask.Tasktype == (int)TaskType.TT_VTRUPLOAD)
+            if (findtask != null)
             {
-                var vtrtask = await Store.GetVtrUploadTaskAsync(a => a.Where(b => b.Taskid == taskid));
-                vtrtask.Taskname = taskname;
+                if (findtask.Tasktype == (int)TaskType.TT_VTRUPLOAD)
+                {
+                    var vtrtask = await Store.GetVtrUploadTaskAsync(a => a.Where(b => b.Taskid == taskid));
+                    vtrtask.Taskname = taskname;
+                }
+                else
+                {
+                    findtask.Taskname = taskname;
+                }
+
+                await Store.SaveChangeAsync();
             }
             else
-            {
-                findtask.Taskname = taskname;
-            }
+                SobeyRecException.ThrowSelfOneParam(taskid.ToString(), GlobalDictionary.GLOBALDICT_CODE_CAN_NOT_FIND_THE_TASK_ONEPARAM, Logger, taskid, null);
 
-            await Store.SaveChangeAsync();
+
         }
 
         public async Task<DbpTask> ModifyPeriodTask<TResult>(TResult taskmodify, bool isall)

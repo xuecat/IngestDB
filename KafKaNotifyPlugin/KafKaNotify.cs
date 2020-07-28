@@ -18,7 +18,7 @@ namespace KafKaNotifyPlugin
         {
             _config = new ProducerConfig() { BootstrapServers = ApplicationContext.Current.KafkaUrl};
 
-            
+            Logger.Info($"kafka init {ApplicationContext.Current.KafkaUrl}");
         }
         public override void ActionNotify(object theClock, NotifyArgs ti)
         {
