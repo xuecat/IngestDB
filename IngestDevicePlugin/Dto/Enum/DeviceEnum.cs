@@ -55,17 +55,30 @@
         emStreamMedia = 7
     }
 
-    /// <summary> 设备类型 </summary>
+    // <summary> 设备类型 </summary>
+    //public enum emDeviceType
+    //{
+    //    /// <summary>MSV</summary>
+    //    emDeviceMSV = 0,
+
+    //    /// <summary>VTR</summary>
+    //    emDeviceVTR = 1,
+
+    //    /// <summary>蓝光</summary>
+    //    emDeviceXDCAM = 2
+    //}
+    /// <summary> 设备类型设备类型-由上面类型进行修改</summary>
     public enum emDeviceType
     {
         /// <summary>MSV</summary>
-        emDeviceMSV = 0,
-
-        /// <summary>VTR</summary>
-        emDeviceVTR = 1,
-
+        emDeviceMSV = 1,
+        //将2预留出来 和通道统一
+        /// <summary>RTMP</summary>
+        emDeviceRTMP = 3,
         /// <summary>蓝光</summary>
-        emDeviceXDCAM = 2
+        emDeviceXDCAM = 4,
+        /// <summary>VTR</summary>
+        emDeviceVTR = 5
     }
 
     /// <summary> 采集通道类型 </summary>
@@ -80,8 +93,8 @@
         emIPTSChannel,
 
         /// <summary> 流媒体通道 </summary>
-        emStreamChannel,
-        emIPSChannel                //IPS2110 
+        emStreamChannel
+        //emIPSChannel                //IPS2110 
     }
 
     /// <summary>通道状态</summary>
