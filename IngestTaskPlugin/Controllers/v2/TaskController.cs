@@ -1048,13 +1048,16 @@ namespace IngestTaskPlugin.Controllers.v2
 
             try
             {
-                Response.Ext = await _taskManage.StopTask(taskid, DateTime.MinValue);
-                if (Response.Ext <= 0)
+                var task = await _taskManage.StopTask(taskid, DateTime.MinValue);
+                
+                if ( task == null || task.Taskid < 1)
                 {
                     Response.Code = ResponseCodeDefines.NotFound;
                     Response.Msg = "not found task";
                 }
-                
+
+                Response.Ext = task.Taskid;
+
                 if (_globalInterface != null)
                 {
                     GlobalInternals re = new GlobalInternals() { Funtype = IngestDBCore.GlobalInternals.FunctionType.SetGlobalState, State = GlobalStateName.MODTASK };
@@ -1064,7 +1067,7 @@ namespace IngestTaskPlugin.Controllers.v2
                         Logger.Error("SetGlobalState modtask error");
                     }
 
-                    Task.Run(() => { _clock.InvokeNotify(GlobalStateName.MODTASK, NotifyPlugin.Kafka, NotifyAction.STOPTASK, new DbpTask() { Taskid = Response.Ext } ); });
+                    Task.Run(() => { _clock.InvokeNotify(GlobalStateName.MODTASK, NotifyPlugin.Kafka, NotifyAction.STOPTASK, task ); });
                 }
             }
             catch (Exception e)
@@ -1108,19 +1111,22 @@ namespace IngestTaskPlugin.Controllers.v2
 
             try
             {
+                DbpTask task = null;
                 if (string.IsNullOrEmpty(endtime))
                 {
-                    Response.Ext = await _taskManage.StopTask(taskid, DateTime.Now);
+                    task = await _taskManage.StopTask(taskid, DateTime.Now);
                 }
                 else
-                    Response.Ext = await _taskManage.StopTask(taskid, DateTimeFormat.DateTimeFromString(endtime));
+                    task = await _taskManage.StopTask(taskid, DateTimeFormat.DateTimeFromString(endtime));
 
-                if (Response.Ext <= 0)
+                if (task == null || task.Taskid < 1)
                 {
                     Response.Code = ResponseCodeDefines.NotFound;
                     Response.Msg = "not found task";
                 }
-                
+
+                Response.Ext = task.Taskid;
+
                 if (_globalInterface != null)
                 {
                     GlobalInternals re = new GlobalInternals() { Funtype = IngestDBCore.GlobalInternals.FunctionType.SetGlobalState, State = GlobalStateName.MODTASK };
@@ -1130,7 +1136,7 @@ namespace IngestTaskPlugin.Controllers.v2
                         Logger.Error("SetGlobalState modtask error");
                     }
 
-                    Task.Run(() => { _clock.InvokeNotify(GlobalStateName.MODTASK, NotifyPlugin.Kafka, NotifyAction.STOPTASK, new DbpTask() { Taskid = Response.Ext } ); });
+                    Task.Run(() => { _clock.InvokeNotify(GlobalStateName.MODTASK, NotifyPlugin.Kafka, NotifyAction.STOPTASK, task ); });
                 }
             }
             catch (Exception e)
@@ -1144,7 +1150,7 @@ namespace IngestTaskPlugin.Controllers.v2
                 else
                 {
                     Response.Code = ResponseCodeDefines.ServiceError;
-                    Response.Msg = "StopTask error info：" +e.Message;
+                    Response.Msg = "StopTask time error info：" +e.Message;
                     Logger.Error(Response.Msg);
                 }
             }
@@ -1195,7 +1201,7 @@ namespace IngestTaskPlugin.Controllers.v2
                 else
                 {
                     Response.Code = ResponseCodeDefines.ServiceError;
-                    Response.Msg = "StopTask error info：" +e.Message;
+                    Response.Msg = "SetTaskState error info：" + e.Message;
                     Logger.Error(Response.Msg);
                 }
             }
@@ -1343,9 +1349,17 @@ namespace IngestTaskPlugin.Controllers.v2
 
             try
             {
-                Response.Ext = await _taskManage.DeleteTask(taskid);
-
-                Task.Run(() => { _clock.InvokeNotify(GlobalStateName.DELTASK, NotifyPlugin.Kafka, NotifyAction.DELETETASK, new DbpTask() { Taskid = taskid } ); });
+                var task = await _taskManage.DeleteTask(taskid);
+                if (task == null)
+                {
+                    Task.Run(() => { _clock.InvokeNotify(GlobalStateName.DELTASK, NotifyPlugin.Kafka, NotifyAction.DELETETASK, new DbpTask() { Taskid = taskid }); });
+                }
+                else
+                {
+                    Task.Run(() => { _clock.InvokeNotify(GlobalStateName.MODTASK, NotifyPlugin.Kafka, NotifyAction.DELETETASK, task); });
+                }
+                Response.Ext = taskid;
+                
             }
             catch (Exception e)
             {

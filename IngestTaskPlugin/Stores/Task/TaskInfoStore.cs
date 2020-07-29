@@ -614,8 +614,10 @@ namespace IngestTaskPlugin.Stores
             }
         }
 
-        public async Task DeleteVtrUploadTaskAsync(int taskid, DbpTask task, bool savechange = true)
+        public async Task<DbpTask> DeleteVtrUploadTaskAsync(int taskid, DbpTask task, bool savechange = true)
         {
+            DbpTask backtask = null;
+
             var itm = await Context.VtrUploadtask.Where(a => taskid == a.Taskid)
                 .Select(item => new VtrUploadtask
                 {
@@ -669,6 +671,7 @@ namespace IngestTaskPlugin.Stores
                 entry.Property(x => x.State).IsModified = true;
                 entry.Property(x => x.OpType).IsModified = true;
                 entry.Property(x => x.DispatchState).IsModified = true;
+                backtask = task;
             }
             else if (itm.Taskstate == (int)VTRUPLOADTASKSTATE.VTR_UPLOAD_EXECUTE)
             {
@@ -691,6 +694,7 @@ namespace IngestTaskPlugin.Stores
                 entry.Property(x => x.State).IsModified = true;
                 entry.Property(x => x.OpType).IsModified = true;
                 entry.Property(x => x.DispatchState).IsModified = true;
+                backtask = task;
             }
 
             if (savechange)
@@ -704,6 +708,8 @@ namespace IngestTaskPlugin.Stores
                     throw e;
                 }
             }
+
+            return backtask;
         }
 
         public async Task<int> DeleteTaskDB(int taskid, bool change)
@@ -727,7 +733,7 @@ namespace IngestTaskPlugin.Stores
             return taskid;
         }
 
-        public async ValueTask<int> DeleteTask(int taskid)
+        public async Task<DbpTask> DeleteTask(int taskid)
         {
             var taskinfo = await GetTaskAsync(a => a.Where(b => b.Taskid == taskid));
             if (taskinfo == null)
@@ -735,7 +741,7 @@ namespace IngestTaskPlugin.Stores
                 Logger.Info("DeleteTask error empty " + taskid);
                 SobeyRecException.ThrowSelfNoParam(taskid.ToString(), GlobalDictionary.GLOBALDICT_CODE_TASK_ID_DOES_NOT_EXIST,
                     Logger, null);
-                return 0;
+                return null;
             }
 
             if (taskinfo.State == (int)taskState.tsComplete)
@@ -743,7 +749,7 @@ namespace IngestTaskPlugin.Stores
                 await UnLockTask(taskinfo, true);
                 SobeyRecException.ThrowSelfNoParam(taskid.ToString(), GlobalDictionary.GLOBALDICT_CODE_CAN_NOT_DELETE_THE_COMPLETE_TASK,
                     Logger, null);
-                return 0;
+                return null;
             }
 
             bool isNeedDelFromDB = false;
@@ -797,14 +803,13 @@ namespace IngestTaskPlugin.Stores
 
             if (taskinfo.Tasktype == (int)TaskType.TT_VTRUPLOAD)
             {
-                await DeleteVtrUploadTaskAsync(taskinfo.Taskid, taskinfo, true);
+                return await DeleteVtrUploadTaskAsync(taskinfo.Taskid, taskinfo, true);
             }
             else
             {
                 if (isNeedDelFromDB)
                 {
                     Context.DbpTask.Remove(taskinfo);
-
 
                     Context.DbpTaskMetadata.RemoveRange(Context.DbpTaskMetadata.Where(x => x.Taskid == taskinfo.Taskid).ToList());
 
@@ -817,14 +822,15 @@ namespace IngestTaskPlugin.Stores
 
                         throw e;
                     }
+                    return null;
                 }
                 else
                 {
-                    Logger.Info("Before TASKOPER.ModifyTask");
+                    Logger.Info("Before deletetask TASKOPER.ModifyTask" + taskid);
                     await ModifyTask(taskinfo, false, true, true, string.Empty, string.Empty, string.Empty, string.Empty);
                 }
             }
-            return taskid;
+            return taskinfo;
         }
 
         public int StopTaskNoChange(DbpTask taskinfo, DateTime dt)
@@ -857,13 +863,13 @@ namespace IngestTaskPlugin.Stores
             return taskinfo.Taskid;
         }
 
-        public async ValueTask<int> StopTask(int taskid, DateTime dt)
+        public async Task<DbpTask> StopTask(int taskid, DateTime dt)
         {
             var taskinfo = await GetTaskAsync(a => a.Where(b => b.Taskid == taskid));
             if (taskinfo == null)
             {
                 Logger.Info("StopTask error empty " + taskid);
-                return 0;
+                return null;
             }
 
             Logger.Info("StopTask " + taskid);
@@ -903,7 +909,7 @@ namespace IngestTaskPlugin.Stores
             try
             {
                 await Context.SaveChangesAsync();
-                return taskinfo.Taskid;
+                return taskinfo;
             }
             catch (DbUpdateException e)
             {

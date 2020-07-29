@@ -1813,12 +1813,12 @@ namespace IngestTaskPlugin.Managers
             return _mapper.Map<TResult>(f);
         }
 
-        public ValueTask<int> StopTask(int taskid, DateTime dt)
+        public Task<DbpTask> StopTask(int taskid, DateTime dt)
         {
             return Store.StopTask(taskid, dt);
         }
 
-        public ValueTask<int> DeleteTask(int taskid)
+        public Task<DbpTask> DeleteTask(int taskid)
         {
             Logger.Info("DeleteTask " + taskid);
             return Store.DeleteTask(taskid);

@@ -56,10 +56,10 @@ namespace IngestTaskPlugin.Stores
         Task UpdateVtrUploadTaskListStateAsync(List<int> lsttaskid, VTRUPLOADTASKSTATE vtrstate, string errinfo, bool savechange = true);
         Task UpdateVtrUploadTaskStateAsync(int taskid, VTRUPLOADTASKSTATE vtrstate, string errinfo, bool savechange = true);
         //Task DeleteVtrUploadTaskListAsync(List<int> lsttaskid, DbpTask task, bool savechange = true);
-        Task DeleteVtrUploadTaskAsync(int taskid, DbpTask task, bool savechange = true);
-        ValueTask<int> StopTask(int taskid, DateTime dt);
+        Task<DbpTask> DeleteVtrUploadTaskAsync(int taskid, DbpTask task, bool savechange = true);
+        Task<DbpTask> StopTask(int taskid, DateTime dt);
         int StopTaskNoChange(DbpTask task, DateTime dt);
-        ValueTask<int> DeleteTask(int taskid);
+        Task<DbpTask> DeleteTask(int taskid);
         Task<int> DeleteTaskDB(int taskid, bool change);
         Task<int> StopCapturingChannelAsync(int Channel);
         Task<List<int>> StopCapturingListChannelAsync(List<int> lstChaneel);
