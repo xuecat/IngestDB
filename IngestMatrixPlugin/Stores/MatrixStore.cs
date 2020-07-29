@@ -134,8 +134,14 @@ namespace IngestMatrixPlugin.Stores
                     matrix.State = matrixRout.State;
                     matrix.Virtualinport = matrixRout.Virtualinport;
                     matrix.Virtualoutport = matrixRout.Virtualoutport;
-                    matrix.Begintime = matrixRout.Begintime;
-                    matrix.Endtime = matrixRout.Endtime;
+                    if(matrixRout.Begintime != DateTime.MinValue)
+                    {
+                        matrix.Begintime = matrixRout.Begintime;
+                    }
+                    if (matrixRout.Endtime != DateTime.MinValue)
+                    {
+                        matrix.Endtime = matrixRout.Endtime;
+                    }
                 }
                 else
                     Context.DbpMatrixrout.Add(matrixRout);
