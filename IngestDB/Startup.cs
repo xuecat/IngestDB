@@ -98,7 +98,7 @@ namespace IngestDB
                 applicationContext.CMServerWindowsUrl = CreateConfigURI(sys.Element("CMserver_windows").Value);
                 applicationContext.ConnectionString = CreateDBConnect(ps, applicationContext.VIP);
 
-                logger.Info(path + sys.ToString());
+                logger.Info(path + sys.ToString() + applicationContext.ConnectionString);
             }
             else
             { //此处加日志

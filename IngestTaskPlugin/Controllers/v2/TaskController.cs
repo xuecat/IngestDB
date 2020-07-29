@@ -206,7 +206,7 @@ namespace IngestTaskPlugin.Controllers.v2
         public async Task<ResponseMessage<string>> UpdateTaskMetaData([FromRoute, BindRequired]int taskid, [FromQuery, BindRequired]int tasktype, [FromBody, BindRequired]List<PropertyResponse> lst)
         {
             var Response = new ResponseMessage<string>();
-            if (taskid < 1)
+            if (taskid < 1 || lst == null || lst.Count < 1)
             {
                 Response.Code = ResponseCodeDefines.ModelStateInvalid;
                 Response.Msg = "请求参数不正确";
@@ -299,7 +299,7 @@ namespace IngestTaskPlugin.Controllers.v2
         public async Task<ResponseMessage<int>> UpdateTaskCustomMetaData([FromRoute, BindRequired]int taskid, [FromBody, BindRequired]TaskCustomMetadataRequest data)
         {
             var Response = new ResponseMessage<int>();
-            if (taskid < 1)
+            if (taskid < 1|| data == null)
             {
                 Response.Code = ResponseCodeDefines.ModelStateInvalid;
                 Response.Msg = "请求参数不正确";
@@ -733,7 +733,7 @@ namespace IngestTaskPlugin.Controllers.v2
                 else
                 {
                     Response.Code = ResponseCodeDefines.ServiceError;
-                    Response.Msg = "TaskIDByTaskGUID error info：" +e.Message;
+                    Response.Msg = "GetChannelCapturingTaskInfo error info：" + e.Message;
                     Logger.Error(Response.Msg);
                 }
             }
@@ -755,7 +755,7 @@ namespace IngestTaskPlugin.Controllers.v2
         public async Task<ResponseMessage<TaskContentResponse>> ModifyTask([FromRoute, BindRequired]int taskid, [FromBody, BindRequired]TaskContentRequest req)
         {
             var Response = new ResponseMessage<TaskContentResponse>();
-            if (req == null)
+            if (req == null || req.TaskId < 1)
             {
                 Response.Code = ResponseCodeDefines.ModelStateInvalid;
                 Response.Msg = "请求参数不正确";
@@ -798,7 +798,7 @@ namespace IngestTaskPlugin.Controllers.v2
                 else
                 {
                     Response.Code = ResponseCodeDefines.ServiceError;
-                    Response.Msg = "TaskIDByTaskGUID error info：" +e.Message;
+                    Response.Msg = "ModifyTask error info：" + e.Message;
                     Logger.Error(Response.Msg);
                 }
             }
@@ -820,7 +820,7 @@ namespace IngestTaskPlugin.Controllers.v2
         public async Task<ResponseMessage<TaskContentResponse>> ModifyAllTask([FromRoute, BindRequired]int taskid, [FromBody, BindRequired]TaskInfoRequest req)
         {
             var Response = new ResponseMessage<TaskContentResponse>();
-            if (req == null)
+            if (req == null || req.TaskContent.TaskId < 1)
             {
                 Response.Code = ResponseCodeDefines.ModelStateInvalid;
                 Response.Msg = "请求参数不正确";
@@ -833,10 +833,12 @@ namespace IngestTaskPlugin.Controllers.v2
                 //    _taskManage.ConverTaskMaterialMetaString(req.MaterialMeta),
                 //    _taskManage.ConverTaskPlanningMetaString(req.PlanningMeta));
 
+                Logger.Info($"ModifyAllTask info {JsonHelper.ToJson(req)}");
+
                 var modifyTask = await _taskManage.ModifyTask<TaskContentResponse>(req.TaskContent, req.CaptureMeta,
-                    _taskManage.ConverTaskContentMetaString(req.ContentMeta),
-                    _taskManage.ConverTaskMaterialMetaString(req.MaterialMeta),
-                    _taskManage.ConverTaskPlanningMetaString(req.PlanningMeta));
+                    req.ContentMeta ==null?string.Empty:_taskManage.ConverTaskContentMetaString(req.ContentMeta),
+                    req.MaterialMeta == null ? string.Empty : _taskManage.ConverTaskMaterialMetaString(req.MaterialMeta),
+                    req.PlanningMeta == null ? string.Empty : _taskManage.ConverTaskPlanningMetaString(req.PlanningMeta));
                 Response.Ext = _mapper.Map<TaskContentResponse>(modifyTask);
                 if (Response.Ext == null)
                 {
@@ -870,7 +872,7 @@ namespace IngestTaskPlugin.Controllers.v2
                 else
                 {
                     Response.Code = ResponseCodeDefines.ServiceError;
-                    Response.Msg = "TaskIDByTaskGUID error info：" + e.Message;
+                    Response.Msg = "ModifyAllTask error info：" + e.Message;
                     Logger.Error(Response.Msg);
                 }
             }
@@ -918,7 +920,7 @@ namespace IngestTaskPlugin.Controllers.v2
                 else
                 {
                     Response.Code = ResponseCodeDefines.ServiceError;
-                    Response.Msg = "TaskIDByTaskGUID error info：" +e.Message;
+                    Response.Msg = "GetTaskInfoByID error info：" + e.Message;
                     Logger.Error(Response.Msg);
                 }
             }
@@ -1017,7 +1019,7 @@ namespace IngestTaskPlugin.Controllers.v2
                 else
                 {
                     Response.Code = ResponseCodeDefines.ServiceError;
-                    Response.Msg = "TaskIDByTaskGUID error info：" +e.Message;
+                    Response.Msg = "TieUpTaskIDByChannelID error info：" + e.Message;
                     Logger.Error(Response.Msg);
                 }
             }
@@ -2048,7 +2050,7 @@ namespace IngestTaskPlugin.Controllers.v2
             try
             {
                 await _taskManage.ModifyTaskName(taskid, taskname);
-                
+
                 if (_globalInterface != null)
                 {
                     GlobalInternals re = new GlobalInternals() { Funtype = IngestDBCore.GlobalInternals.FunctionType.SetGlobalState, State = GlobalStateName.MODTASK };
@@ -2069,9 +2071,9 @@ namespace IngestTaskPlugin.Controllers.v2
                     Response.Msg = se.Message;
                 }
                 else
-                {
+                { 
                     Response.Code = ResponseCodeDefines.ServiceError;
-                    Response.Msg = $"ModifyTaskInfoNmae error info：{e.Message}";
+                    Response.Msg = $"ModifyTaskInfoNmae error info：{e.Message} ";
                     Logger.Error(Response.Msg);
                 }
             }
