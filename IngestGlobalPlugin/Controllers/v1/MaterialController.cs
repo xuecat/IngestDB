@@ -361,9 +361,14 @@ namespace IngestGlobalPlugin.Controllers.v1
             try
             {
                 var f = await _materialManage.FindFormateInfo<FileFormatInfo_out>(strKey);
-                f.errStr = "OK";
-                f.nCode = 1;
-                return f;
+                if (f != null)
+                {
+                    f.errStr = "OK";
+                    f.nCode = 1;
+                    return f;
+                }
+                Response.errStr = "not find";
+                Response.nCode = 0;
             }
             catch (Exception e)
             {
@@ -393,9 +398,14 @@ namespace IngestGlobalPlugin.Controllers.v1
             try
             {
                 var f = await _materialManage.UpdateFormateInfo<FileFormatInfo_out, FileFormatInfo_in>(pIn);
-                f.errStr = "OK";
-                f.nCode = 1;
-                return f;
+                if (f != null)
+                {
+                    f.errStr = "OK";
+                    f.nCode = 1;
+                    return f;
+                }
+                Response.errStr = "not find";
+                Response.nCode = 0;
             }
             catch (Exception e)
             {
@@ -424,9 +434,15 @@ namespace IngestGlobalPlugin.Controllers.v1
             try
             {
                 var f = await _materialManage.UpdateFormateInfo<FileFormatInfo_out, FileFormatInfo_in>(pIn);
-                f.errStr = "OK";
-                f.nCode = 1;
-                return f;
+                if (f != null)
+                {
+                    f.errStr = "OK";
+                    f.nCode = 1;
+                    return f;
+                }
+                Response.errStr = "not find";
+                Response.nCode = 0;
+               
             }
             catch (Exception e)
             {
