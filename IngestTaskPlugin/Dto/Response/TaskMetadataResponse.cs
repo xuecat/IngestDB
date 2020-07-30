@@ -91,7 +91,7 @@ namespace IngestTaskPlugin.Dto.Response
         public int TcMode { get; set; }
         /// <summary>暂时无</summary>
         /// <example>0</example>
-        public int ClipSum { get; set; }
+        public int ClipSum { get; set; } = -1;
         /// <summary>暂时无</summary>
         /// <example>0</example>
         public int TransState { get; set; }
