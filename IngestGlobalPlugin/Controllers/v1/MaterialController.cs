@@ -30,7 +30,7 @@ namespace IngestGlobalPlugin.Controllers.v1
 
 
 
-        [HttpPost("AddMqMsg"), MapToApiVersion("1.0")]
+        [HttpPost("PostAddMqMsgToDB"), MapToApiVersion("1.0")]
         [ApiExplorerSettings(GroupName = "v1")]
         public async Task<bool> AddMqMsg([FromBody] MQmsgInfo msg)
         {
