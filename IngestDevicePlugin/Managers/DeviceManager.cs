@@ -750,7 +750,7 @@ namespace IngestDevicePlugin.Managers
         {
             if (data == null)
                 data = "";
-            data = data.Replace("\\", "\\\\");
+            //data = data.Replace("\\\\\\\\", "\\\\");
             return await Store.SaveChannelExtenddataAsync(channelid, type, data) > 0;
         }
 
