@@ -369,9 +369,11 @@ namespace IngestDevicePlugin.Stores
                              join device in Context.DbpCapturedevice on channel.Cpdeviceid equals device.Cpdeviceid into ps1
                              join recout in Context.DbpRcdoutdesc on channel.Channelid equals recout.Channelid into ps2
                              join grp in Context.DbpChannelgroupmap on channel.Cpdeviceid equals grp.Channelid into ps3
+                             join state in Context.DbpMsvchannelState on channel.Channelid equals state.Channelid into ps4
                              from p1 in ps1.DefaultIfEmpty()
                              from p2 in ps2.DefaultIfEmpty()
                              from p3 in ps3.DefaultIfEmpty()
+                             from p4 in ps4.DefaultIfEmpty()
                              where p2 != null
                              select new CaptureChannelInfoDto
                              {
@@ -384,7 +386,8 @@ namespace IngestDevicePlugin.Stores
                                  BackState = (emBackupFlag)channel.Backupflag,
                                  CpSignalType = channel.Cpsignaltype ?? 0,
                                  OrderCode = p1 != null ? p1.Ordercode.GetValueOrDefault() : -1,
-                                 GroupId = p3 != null ? p3.Groupid : -1
+                                 GroupId = p3 != null ? p3.Groupid : -1,
+                                 DeviceState = p4 !=null ?(Device_State)p4.Devstate.GetValueOrDefault():Device_State.DISCONNECTTED
                              }).ToListAsync();
             }
             else
