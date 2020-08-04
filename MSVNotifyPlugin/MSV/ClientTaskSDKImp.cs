@@ -2924,7 +2924,7 @@ namespace MsvClientSDK
                 {
                     string ip = (strTSIp != "") ? strTSIp : m_iCtrlIp;
                     string cmd = string.Format("<?xml version =\"1.0\"?><Relocate><Port>{0}</Port><TargetIP>{1}</TargetIP><LocalIP>{2}</LocalIP><PgmID>{3}</PgmID><taskID>{4}</taskID></Relocate>", nPort, lpStrTargetIP, lpStrLocalIP, nAnalyzeID, taskID);
-                    string strRet = m_udpMsv.GetMsvUdpData("", m_iCtrlPort, ip, m_iCtrlPort, cmd, Logger);
+                    string strRet = m_udpMsv.GetMsvUdpData("", nPort, ip, nPort, cmd, Logger);
                     if (strRet != "")
                     {
                         _xml.LoadXml(strRet);

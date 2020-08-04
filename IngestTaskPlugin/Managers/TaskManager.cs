@@ -1693,23 +1693,25 @@ namespace IngestTaskPlugin.Managers
                     strContentMetaData = mroot.ToString();
                 }
 
-                var addinfo = new TaskInfoRequest();
-                addinfo.BackUpTask = false;
-                addinfo.TaskSource = taskSrc;
-                addinfo.TaskContent = _mapper.Map<TaskContentRequest>(findtask);
-                var backinfo = await AddTaskWithoutPolicy(addinfo, strCapatureMetaData, strContentMetaData, strStoreMetaData, strPlanMetaData);
+                //var addinfo = new TaskInfoRequest();
+                //addinfo.BackUpTask = false;
+                //addinfo.TaskSource = taskSrc;
+                //addinfo.TaskContent = _mapper.Map<TaskContentRequest>(findtask);
 
-                Logger.Info("SplitTask {0}", addinfo.TaskContent.TaskId);
+                var backinfo = Store.AddTaskWithPolicys(findtask, true, taskSrc, strCapatureMetaData, strContentMetaData, strStoreMetaData, strPlanMetaData, null);
+                //var backinfo = await AddTaskWithoutPolicy(addinfo, strCapatureMetaData, strContentMetaData, strStoreMetaData, strPlanMetaData);
+
+                Logger.Info("SplitTask {0}", backinfo.Id);
 
                 if (typeof(TResult) == typeof(SplitTask_OUT))
                 {
                     var retinfo = new SplitTask_OUT();
                     retinfo.taskSplit = _mapper.Map<TaskContent>(backinfo);
                     retinfo.metaDataPairs = new List<MetadataPair>() {
-                        new MetadataPair() {nTaskID = addinfo.TaskContent.TaskId, emtype = MetaDataType.emCapatureMetaData, strMetadata = strCapatureMetaData},
-                        new MetadataPair() {nTaskID = addinfo.TaskContent.TaskId, emtype = MetaDataType.emStoreMetaData, strMetadata = strStoreMetaData},
-                        new MetadataPair() {nTaskID = addinfo.TaskContent.TaskId, emtype = MetaDataType.emContentMetaData, strMetadata = strContentMetaData},
-                        new MetadataPair() {nTaskID = addinfo.TaskContent.TaskId, emtype = MetaDataType.emSplitData, strMetadata = strSplitMetaData},
+                        new MetadataPair() {nTaskID = backinfo.Id, emtype = MetaDataType.emCapatureMetaData, strMetadata = strCapatureMetaData},
+                        new MetadataPair() {nTaskID = backinfo.Id, emtype = MetaDataType.emStoreMetaData, strMetadata = strStoreMetaData},
+                        new MetadataPair() {nTaskID = backinfo.Id, emtype = MetaDataType.emContentMetaData, strMetadata = strContentMetaData},
+                        new MetadataPair() {nTaskID = backinfo.Id, emtype = MetaDataType.emSplitData, strMetadata = strSplitMetaData},
                     };
                     return _mapper.Map<TResult>(retinfo);
                 }
@@ -2235,7 +2237,7 @@ namespace IngestTaskPlugin.Managers
                 string taskClassify = strOldTaskClassify;
                 taskClassify += string.Format("[{0}]", modifyinfo.Begin);
 
-                await Store.SetTaskClassify(modifyinfo.TaskId, modifyinfo.Classify, false);
+                await Store.SetTaskClassify(modifyinfo.TaskId, taskClassify, true);
 
                 //添加新任务
                 bool isNeedAppDate = false;
