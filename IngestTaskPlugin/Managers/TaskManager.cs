@@ -243,11 +243,11 @@ namespace IngestTaskPlugin.Managers
             {
                 root.Add(new XElement("HOUSETC", re.HouseTc));
             }
-            if (re.PresetStamp >= 0)
+            if (re.PresetStamp > 0)
             {
                 root.Add(new XElement("PRESETSTAMP", re.PresetStamp));
             }
-            if (re.SixteenToNine >= 0)
+            if (re.SixteenToNine > 0)
             {
                 root.Add(new XElement("SIXTEENTONINE", re.SixteenToNine));
             }
@@ -255,7 +255,7 @@ namespace IngestTaskPlugin.Managers
             {
                 root.Add(new XElement("SOURCETAPEID", re.SourceTapeID));
             }
-            if (re.DeleteFlag >= 0)
+            if (re.DeleteFlag > 0)
             {
                 root.Add(new XElement("DELETEFLAG", re.DeleteFlag));
             }
@@ -263,11 +263,11 @@ namespace IngestTaskPlugin.Managers
             {
                 root.Add(new XElement("SOURCETAPEBARCODE", re.SourceTapeBarcode));
             }
-            if (re.BackTapeId >= 0)
+            if (re.BackTapeId > 0)
             {
                 root.Add(new XElement("BACKTAPEID", re.BackTapeId));
             }
-            if (re.UserMediaId >= 0)
+            if (re.UserMediaId > 0)
             {
                 root.Add(new XElement("USERMEDIAID", re.UserMediaId));
             }
