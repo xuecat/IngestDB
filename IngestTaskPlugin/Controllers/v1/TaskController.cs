@@ -1448,9 +1448,19 @@ namespace IngestTaskPlugin.Controllers.v1
             try
             {
                 var ret = await _taskManage.SplitTask<SplitTask_OUT>(pIn.nTaskID, pIn.strNewGUID, pIn.strNewName);
+                if (ret != null)
+                {
+                    ret.bRet = true;
+                    ret.errStr = "ok";
+                }
+                else
+                {
+                    Response.bRet = false;
+                    Response.errStr = "not find";
+                    return Response;
+                }
 
-                ret.bRet = true;
-                ret.errStr = "ok";
+                
                 
                 return ret;
             }

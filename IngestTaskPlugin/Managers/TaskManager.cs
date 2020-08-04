@@ -1698,22 +1698,22 @@ namespace IngestTaskPlugin.Managers
                 //addinfo.TaskSource = taskSrc;
                 //addinfo.TaskContent = _mapper.Map<TaskContentRequest>(findtask);
 
-                var backinfo = Store.AddTaskWithPolicys(findtask, true, taskSrc, strCapatureMetaData, strContentMetaData, strStoreMetaData, strPlanMetaData, null);
+                var backinfo = await Store.AddTaskWithPolicys(findtask, true, taskSrc, strCapatureMetaData, strContentMetaData, strStoreMetaData, strPlanMetaData, null);
                 //var backinfo = await AddTaskWithoutPolicy(addinfo, strCapatureMetaData, strContentMetaData, strStoreMetaData, strPlanMetaData);
 
-                Logger.Info("SplitTask {0}", backinfo.Id);
+                Logger.Info("SplitTask {0}", backinfo.Taskid);
 
                 if (typeof(TResult) == typeof(SplitTask_OUT))
                 {
                     var retinfo = new SplitTask_OUT();
                     retinfo.taskSplit = _mapper.Map<TaskContent>(backinfo);
                     retinfo.metaDataPairs = new List<MetadataPair>() {
-                        new MetadataPair() {nTaskID = backinfo.Id, emtype = MetaDataType.emCapatureMetaData, strMetadata = strCapatureMetaData},
-                        new MetadataPair() {nTaskID = backinfo.Id, emtype = MetaDataType.emStoreMetaData, strMetadata = strStoreMetaData},
-                        new MetadataPair() {nTaskID = backinfo.Id, emtype = MetaDataType.emContentMetaData, strMetadata = strContentMetaData},
-                        new MetadataPair() {nTaskID = backinfo.Id, emtype = MetaDataType.emSplitData, strMetadata = strSplitMetaData},
+                        new MetadataPair() {nTaskID = backinfo.Taskid, emtype = MetaDataType.emCapatureMetaData, strMetadata = strCapatureMetaData},
+                        new MetadataPair() {nTaskID = backinfo.Taskid, emtype = MetaDataType.emStoreMetaData, strMetadata = strStoreMetaData},
+                        new MetadataPair() {nTaskID = backinfo.Taskid, emtype = MetaDataType.emContentMetaData, strMetadata = strContentMetaData},
+                        new MetadataPair() {nTaskID = backinfo.Taskid, emtype = MetaDataType.emSplitData, strMetadata = strSplitMetaData},
                     };
-                    return _mapper.Map<TResult>(retinfo);
+                    return _mapper.Map<SplitTask_OUT,TResult>(retinfo);
                 }
 
                 return _mapper.Map<TResult>(backinfo);
