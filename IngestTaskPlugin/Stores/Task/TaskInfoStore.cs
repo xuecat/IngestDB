@@ -277,7 +277,7 @@ namespace IngestTaskPlugin.Stores
                    )
                 && a.State != (int)taskState.tsDelete
                 && a.Starttime != a.Endtime)
-               || (a.State == (int)taskState.tsExecuting && a.Tasktype == (int)TaskType.TT_OPENEND && a.Starttime > fdate))//这里本来是starttime..AddSeconds(86400) 怕翻译问题
+               || (a.State == (int)taskState.tsExecuting && (a.Tasktype==(int)TaskType.TT_MANUTASK || a.Tasktype == (int)TaskType.TT_OPENEND) && a.Starttime <= fdate))//这里本来是starttime..AddSeconds(86400) 怕翻译问题
                 ).ToListAsync();
         }
 
