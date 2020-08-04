@@ -403,33 +403,33 @@ namespace IngestDBCore.Tool
                 UseTokenHeader(userTokenOrCode);
             else
                 UseCodeHeader(userTokenOrCode);
-            //var back = await AutoRetry.Run<ResponseMessage<CmParam>>(() =>
-            //{
-            //DefaultParameter param = new DefaultParameter()
-            //{
-            //    tool = "DEFAULT",
-            //    paramname = key,
-            //    system = "INGEST"
-            //};
-            //return Post<ResponseMessage<CmParam>>(
-            //string.Format("{0}/CMApi/api/basic/config/getsysparam", ApplicationContext.Current.CMServerUrl),
-            //param); 
-            //});
+            var back = await AutoRetry.Run<ResponseMessage<CmParam>>(() =>
+            {
+                DefaultParameter param = new DefaultParameter()
+                {
+                    tool = "DEFAULT",
+                    paramname = key,
+                    system = "INGEST"
+                };
+                return Post<ResponseMessage<CmParam>>(
+                string.Format("{0}/CMApi/api/basic/config/getsysparam", ApplicationContext.Current.CMServerUrl),
+                param);
+            });
 
             //if (back != null)
             //{
             //    return back.Ext?.paramvalue;
             //}
             //有polly重试了，手动重试放后面用
-            DefaultParameter param = new DefaultParameter()
-            {
-                tool = "DEFAULT",
-                paramname = key,
-                system = "INGEST"
-            };
-            var back = await Post<ResponseMessage<CmParam>>(
-            string.Format("{0}/CMApi/api/basic/config/getsysparam", ApplicationContext.Current.CMServerUrl),
-            param);
+            //DefaultParameter param = new DefaultParameter()
+            //{
+            //    tool = "DEFAULT",
+            //    paramname = key,
+            //    system = "INGEST"
+            //};
+            //var back = await Post<ResponseMessage<CmParam>>(
+            //string.Format("{0}/CMApi/api/basic/config/getsysparam", ApplicationContext.Current.CMServerUrl),
+            //param);
             if (back != null)
             {
                 return back.Ext?.paramvalue;
@@ -445,30 +445,30 @@ namespace IngestDBCore.Tool
             else
                 UseCodeHeader(userTokenOrCode);
 
-            //var back = await AutoRetry.Run<ResponseMessage<CmParam>>(() =>
-            //    {
-            //        DefaultParameter param = new DefaultParameter()
-            //        {
-            //            tool = "DEFAULT",
-            //            paramname = "HIGH_RESOLUTION",
-            //            system = "INGEST"
-            //        };
-            //        return Post<ResponseMessage<CmParam>>(
-            //        string.Format("{0}/CMApi/api/basic/config/getuserparam", ApplicationContext.Current.CMServerUrl),
-            //        param);
+            var back = await AutoRetry.Run<ResponseMessage<CmParam>>(() =>
+                {
+                    DefaultParameter param = new DefaultParameter()
+                    {
+                        tool = "DEFAULT",
+                        paramname = "HIGH_RESOLUTION",
+                        system = "INGEST"
+                    };
+                    return Post<ResponseMessage<CmParam>>(
+                    string.Format("{0}/CMApi/api/basic/config/getuserparam", ApplicationContext.Current.CMServerUrl),
+                    param);
 
-            //    });
+                });
 
             //有polly重试了，手动重试放后面用
-            DefaultParameter param = new DefaultParameter()
-            {
-                tool = "DEFAULT",
-                paramname = "HIGH_RESOLUTION",
-                system = "INGEST"
-            };
-            var back = await Post<ResponseMessage<CmParam>>(
-            string.Format("{0}/CMApi/api/basic/config/getuserparam", ApplicationContext.Current.CMServerUrl),
-            param);
+            //DefaultParameter param = new DefaultParameter()
+            //{
+            //    tool = "DEFAULT",
+            //    paramname = "HIGH_RESOLUTION",
+            //    system = "INGEST"
+            //};
+            //var back = await Post<ResponseMessage<CmParam>>(
+            //string.Format("{0}/CMApi/api/basic/config/getuserparam", ApplicationContext.Current.CMServerUrl),
+            //param);
 
             if (back != null)
             {
@@ -485,24 +485,24 @@ namespace IngestDBCore.Tool
                 UseCodeHeader(userTokenOrCode);
 
 
-            //var back = await AutoRetry.Run<ResponseMessage<ExtParam>>(() =>
-            //{
+            var back = await AutoRetry.Run<ResponseMessage<ExtParam>>(() =>
+            {
 
+                NameValueCollection v = new NameValueCollection();
+                v.Add("storagetype", storagetype);
+                v.Add("storagemark", storagemark);
+                return Get<ResponseMessage<ExtParam>>(
+                    string.Format("{0}/CMApi/api/basic/user/getcurrentusercanwritepathbycondition", ApplicationContext.Current.CMServerUrl),
+                    v);
+
+            });
+                //有polly重试了，手动重试放后面用
             //    NameValueCollection v = new NameValueCollection();
-            //    v.Add("storagetype", storagetype);
-            //    v.Add("storagemark", storagemark);
-            //    return Get<ResponseMessage<ExtParam>>(
-            //        string.Format("{0}/CMApi/api/basic/user/getcurrentusercanwritepathbycondition", ApplicationContext.Current.CMServerUrl),
-            //        v);
-
-            //});
-            //有polly重试了，手动重试放后面用
-            NameValueCollection v = new NameValueCollection();
-            v.Add("storagetype", storagetype);
-            v.Add("storagemark", storagemark);
-            var back = await Get<ResponseMessage<ExtParam>>(
-                string.Format("{0}/CMApi/api/basic/user/getcurrentusercanwritepathbycondition", ApplicationContext.Current.CMServerUrl),
-                v);
+            //v.Add("storagetype", storagetype);
+            //v.Add("storagemark", storagemark);
+            //var back = await Get<ResponseMessage<ExtParam>>(
+            //    string.Format("{0}/CMApi/api/basic/user/getcurrentusercanwritepathbycondition", ApplicationContext.Current.CMServerUrl),
+            //    v);
 
             if (back != null)
             {
@@ -519,21 +519,21 @@ namespace IngestDBCore.Tool
                 UseCodeHeader(userTokenOrCode);
 
 
-            //var back = await AutoRetry.Run<ResponseMessage<CMUserInfo>>(() =>
-            //{
+            var back = await AutoRetry.Run<ResponseMessage<CMUserInfo>>(() =>
+            {
 
-            //    NameValueCollection v = new NameValueCollection();
-            //    v.Add("usercode", userCode);
-            //    return Get<ResponseMessage<CMUserInfo>>(
-            //        string.Format("{0}/CMApi/api/basic/account/getuserinfobyusercode", ApplicationContext.Current.CMServerUrl),
-            //        v);
-            //});
+                NameValueCollection v = new NameValueCollection();
+                v.Add("usercode", userCode);
+                return Get<ResponseMessage<CMUserInfo>>(
+                    string.Format("{0}/CMApi/api/basic/account/getuserinfobyusercode", ApplicationContext.Current.CMServerUrl),
+                    v);
+            });
 
-            NameValueCollection v = new NameValueCollection();
-            v.Add("usercode", userCode);
-            var back = await Get<ResponseMessage<CMUserInfo>>(
-                string.Format("{0}/CMApi/api/basic/account/getuserinfobyusercode", ApplicationContext.Current.CMServerUrl),
-                v);
+            //NameValueCollection v = new NameValueCollection();
+            //v.Add("usercode", userCode);
+            //var back = await Get<ResponseMessage<CMUserInfo>>(
+            //    string.Format("{0}/CMApi/api/basic/account/getuserinfobyusercode", ApplicationContext.Current.CMServerUrl),
+            //    v);
 
             if (back != null)
             {
