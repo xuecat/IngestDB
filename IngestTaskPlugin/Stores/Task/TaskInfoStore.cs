@@ -1502,6 +1502,9 @@ namespace IngestTaskPlugin.Stores
             DateTime dtDayBegin = new DateTime(dtDay.Year, dtDay.Month, dtDay.Day, 0, 0, 0);
             DateTime dtDayEnd = new DateTime(dtDay.Year, dtDay.Month, dtDay.Day, 23, 59, 59);
 
+            DateTime subDays = DateTime.Now.AddDays(-1);
+            DateTime addDyas = DateTime.Now.AddSeconds(5);
+
             List<DbpTask> lst = null;
             List<DbpTask> retlst = new List<DbpTask>();
             switch (timetype)
@@ -1510,14 +1513,15 @@ namespace IngestTaskPlugin.Stores
                     {
                         List<DbpTaskBackup> backlst = null;
                         lst = await Context.DbpTask.AsNoTracking().Where(a =>
-                        (a.Starttime >= dtDayBegin && a.Starttime <= dtDayEnd)
+                        ((a.Starttime >= dtDayBegin && a.Starttime <= dtDayEnd)
                         || (a.Endtime >= dtDayBegin && a.Endtime <= dtDayEnd)
                         || (a.Starttime <= dtDayBegin && a.Endtime >= dtDayEnd)
                         && (a.Category.Contains($"W{Week}+") || a.Category.Contains($"W{ProvWeek}+")
                             || a.Category.Contains($"M{MDay}+") || a.Category.Contains($"M{ProvMDay}+")
                             || a.Category.Contains($"D") || a.Category.Contains("A"))
                         && (a.DispatchState == (int)dispatchState.dpsNotDispatch || a.DispatchState == (int)dispatchState.dpsDispatched || a.DispatchState == (int)dispatchState.dpsInvalid || a.DispatchState == (int)dispatchState.dpsRedispatch)
-                        && (a.State == (int)taskState.tsReady || a.State == (int)taskState.tsComplete || a.State == (int)taskState.tsPause || a.State == (int)taskState.tsInvaild || a.State == (int)taskState.tsExecuting)
+                        && (a.State == (int)taskState.tsReady || a.State == (int)taskState.tsComplete || a.State == (int)taskState.tsPause || a.State == (int)taskState.tsInvaild || a.State == (int)taskState.tsExecuting)) 
+                        || (a.Starttime >= subDays && a.Starttime <= addDyas && a.State == (int)taskState.tsExecuting )
                         /*
                          * @breif 老版本会对手动任务，open任务，tsExecuting附加上，不明白为啥，直接全部返回，我这里
                          */
@@ -1526,14 +1530,15 @@ namespace IngestTaskPlugin.Stores
                         if (lst == null || lst.Count <= 0)
                         {
                             lst = await Context.DbpTaskBackup.AsNoTracking().Where(a =>
-                               (a.Starttime >= dtDayBegin && a.Starttime <= dtDayEnd)
+                               ((a.Starttime >= dtDayBegin && a.Starttime <= dtDayEnd)
                                || (a.Endtime >= dtDayBegin && a.Endtime <= dtDayEnd)
                                || (a.Starttime <= dtDayBegin && a.Endtime >= dtDayEnd)
                                && (a.Category.Contains($"W{Week}+") || a.Category.Contains($"W{ProvWeek}+")
                                    || a.Category.Contains($"M{MDay}+") || a.Category.Contains($"M{ProvMDay}+")
                                    || a.Category.Contains($"D") || a.Category.Contains("A"))
                                && (a.DispatchState == (int)dispatchState.dpsNotDispatch || a.DispatchState == (int)dispatchState.dpsDispatched || a.DispatchState == (int)dispatchState.dpsInvalid || a.DispatchState == (int)dispatchState.dpsRedispatch)
-                               && (a.State == (int)taskState.tsReady || a.State == (int)taskState.tsComplete || a.State == (int)taskState.tsPause || a.State == (int)taskState.tsInvaild || a.State == (int)taskState.tsExecuting)
+                               && (a.State == (int)taskState.tsReady || a.State == (int)taskState.tsComplete || a.State == (int)taskState.tsPause || a.State == (int)taskState.tsInvaild || a.State == (int)taskState.tsExecuting))
+                               || (a.Starttime >= subDays && a.Starttime <= addDyas && a.State == (int)taskState.tsExecuting)
                            /*
                             * @breif 老版本会对手动任务，open任务，tsExecuting附加上，不明白为啥，直接全部返回，我这里
                             */
@@ -1579,14 +1584,15 @@ namespace IngestTaskPlugin.Stores
 
                         List<DbpTaskBackup> backlst = null;
                         lst = await Context.DbpTask.AsNoTracking().Where(a =>
-                        (a.Starttime >= dtDayBegin && a.Starttime <= dtDayEnd)
+                        ((a.Starttime >= dtDayBegin && a.Starttime <= dtDayEnd)
                         || (a.Endtime >= dtDayBegin && a.Endtime <= dtDayEnd)
                         || (a.Starttime <= dtDayBegin && a.Endtime >= dtDayEnd)
                         && (a.Category.Contains($"W{Week}+") || a.Category.Contains($"W{ProvWeek}+") || a.Category.Contains($"W{NextWeekly}+")
                             || a.Category.Contains($"M{MDay}+") || a.Category.Contains($"M{ProvMDay}+") || a.Category.Contains($"M{NextMonthDay}+")
                             || a.Category.Contains($"D") || a.Category.Contains("A"))
                         && (a.DispatchState == (int)dispatchState.dpsNotDispatch || a.DispatchState == (int)dispatchState.dpsDispatched || a.DispatchState == (int)dispatchState.dpsInvalid || a.DispatchState == (int)dispatchState.dpsRedispatch)
-                        && (a.State == (int)taskState.tsReady || a.State == (int)taskState.tsComplete || a.State == (int)taskState.tsPause || a.State == (int)taskState.tsInvaild || a.State == (int)taskState.tsExecuting)
+                        && (a.State == (int)taskState.tsReady || a.State == (int)taskState.tsComplete || a.State == (int)taskState.tsPause || a.State == (int)taskState.tsInvaild || a.State == (int)taskState.tsExecuting)) 
+                        || (a.Starttime >= subDays && a.Starttime <= addDyas && a.State == (int)taskState.tsExecuting)
                         /*
                          * @breif 老版本会对手动任务，open任务，tsExecuting附加上，不明白为啥，直接全部返回，我这里
                          */
@@ -1595,14 +1601,15 @@ namespace IngestTaskPlugin.Stores
                         if (lst == null || lst.Count <= 0)
                         {
                             lst = await Context.DbpTaskBackup.AsNoTracking().Where(a =>
-                               (a.Starttime >= dtDayBegin && a.Starttime <= dtDayEnd)
+                               ((a.Starttime >= dtDayBegin && a.Starttime <= dtDayEnd)
                                || (a.Endtime >= dtDayBegin && a.Endtime <= dtDayEnd)
                                || (a.Starttime <= dtDayBegin && a.Endtime >= dtDayEnd)
                                && (a.Category.Contains($"W{Week}+") || a.Category.Contains($"W{ProvWeek}+") || a.Category.Contains($"W{NextWeekly}+")
                                    || a.Category.Contains($"M{MDay}+") || a.Category.Contains($"M{ProvMDay}+") || a.Category.Contains($"M{NextMonthDay}+")
                                    || a.Category.Contains($"D") || a.Category.Contains("A"))
                                && (a.DispatchState == (int)dispatchState.dpsNotDispatch || a.DispatchState == (int)dispatchState.dpsDispatched || a.DispatchState == (int)dispatchState.dpsInvalid || a.DispatchState == (int)dispatchState.dpsRedispatch)
-                               && (a.State == (int)taskState.tsReady || a.State == (int)taskState.tsComplete || a.State == (int)taskState.tsPause || a.State == (int)taskState.tsInvaild || a.State == (int)taskState.tsExecuting)
+                               && (a.State == (int)taskState.tsReady || a.State == (int)taskState.tsComplete || a.State == (int)taskState.tsPause || a.State == (int)taskState.tsInvaild || a.State == (int)taskState.tsExecuting)) 
+                               || (a.Starttime >= subDays && a.Starttime <= addDyas && a.State == (int)taskState.tsExecuting)
                            /*
                             * @breif 老版本会对手动任务，open任务，tsExecuting附加上，不明白为啥，直接全部返回，我这里
                             */
