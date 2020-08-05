@@ -491,7 +491,7 @@ namespace IngestTaskPlugin.Controllers.v2
                 
                 if (_globalInterface != null)
                 {
-                    GlobalInternals re = new GlobalInternals() { Funtype = IngestDBCore.GlobalInternals.FunctionType.SetGlobalState, State = GlobalStateName.ADDTASK };
+                    GlobalInternals re = new GlobalInternals() { Funtype = IngestDBCore.GlobalInternals.FunctionType.SetGlobalState, State = GlobalStateName.ADDTASK, TaskID = addTask.Channelid.GetValueOrDefault() };
                     var response1 = await _globalInterface.Value.SubmitGlobalCallBack(re);
                     if (response1.Code != ResponseCodeDefines.SuccessCode)
                     {
@@ -574,7 +574,7 @@ namespace IngestTaskPlugin.Controllers.v2
                 
                 if (_globalInterface != null)
                 {
-                    GlobalInternals re = new GlobalInternals() { Funtype = IngestDBCore.GlobalInternals.FunctionType.SetGlobalState, State = GlobalStateName.ADDTASK };
+                    GlobalInternals re = new GlobalInternals() { Funtype = IngestDBCore.GlobalInternals.FunctionType.SetGlobalState, State = GlobalStateName.ADDTASK, TaskID = addTask.Channelid.GetValueOrDefault() };
                     var response1 = await _globalInterface.Value.SubmitGlobalCallBack(re);
                     if (response1.Code != ResponseCodeDefines.SuccessCode)
                     {
@@ -2366,7 +2366,7 @@ namespace IngestTaskPlugin.Controllers.v2
                 }
                 if (_globalInterface != null)
                 {
-                    GlobalInternals re = new GlobalInternals() { Funtype = IngestDBCore.GlobalInternals.FunctionType.SetGlobalState, State = GlobalStateName.ADDTASK };
+                    GlobalInternals re = new GlobalInternals() { Funtype = IngestDBCore.GlobalInternals.FunctionType.SetGlobalState, State = GlobalStateName.ADDTASK, TaskID = task.Channelid.GetValueOrDefault() };
                     var response1 = await _globalInterface.Value.SubmitGlobalCallBack(re);
                     if (response1.Code != ResponseCodeDefines.SuccessCode)
                     {

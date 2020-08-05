@@ -61,7 +61,10 @@ namespace IngestGlobalInterfacePlugin
             switch (examineResponse.Funtype)
             {
                 case FunctionType.SetGlobalState:
-                    return await _globalController.SetGlobalState(examineResponse.State);
+                    {
+                        return await _globalController.SetGlobalState(examineResponse.State);
+                    } break;
+                    
                     
                 default:
                     break;

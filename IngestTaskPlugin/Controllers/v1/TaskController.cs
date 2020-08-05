@@ -362,6 +362,13 @@ namespace IngestTaskPlugin.Controllers.v1
                 
                 var f = await _taskManage.AddTaskWithoutPolicy<AddTaskExDb_in>(pIn, CaptureMeta, ContentMeta, MatiralMeta, PlanningMeta);
 
+                if (f == null)
+                {
+                    Response.bRet = false;
+                    Response.errStr = "error";
+                    return Response;
+                }
+
                 Response.taskID = f.Taskid;
                 //添加后如果开始时间在2分钟以内，需要调度一次
                 if ((DateTimeFormat.DateTimeFromString(pIn.taskAdd.strBegin) - DateTime.Now).TotalSeconds < 120)
@@ -370,7 +377,7 @@ namespace IngestTaskPlugin.Controllers.v1
                 
                 if (_globalInterface != null)
                 {
-                    GlobalInternals re = new GlobalInternals() { Funtype = IngestDBCore.GlobalInternals.FunctionType.SetGlobalState, State = GlobalStateName.ADDTASK };
+                    GlobalInternals re = new GlobalInternals() { Funtype = IngestDBCore.GlobalInternals.FunctionType.SetGlobalState, State = GlobalStateName.ADDTASK, TaskID = f.Channelid.GetValueOrDefault() };
                     var response1 = await _globalInterface.Value.SubmitGlobalCallBack(re);
                     if (response1.Code != ResponseCodeDefines.SuccessCode)
                     {
@@ -430,7 +437,14 @@ namespace IngestTaskPlugin.Controllers.v1
                     }
                 }
                 var f = await _taskManage.AddTaskWithoutPolicy<AddTaskSvr_IN>(pIn, CaptureMeta, ContentMeta, MatiralMeta, PlanningMeta);
-               
+
+                if (f == null)
+                {
+                    Response.bRet = false;
+                    Response.errStr = "error";
+                    return Response;
+                }
+
                 Response.newTaskId = f.Taskid;
                 //添加后如果开始时间在2分钟以内，需要调度一次
                 if ((DateTimeFormat.DateTimeFromString(pIn.taskAdd.strBegin) - DateTime.Now).TotalSeconds < 120)
@@ -439,7 +453,7 @@ namespace IngestTaskPlugin.Controllers.v1
                 
                 if (_globalInterface != null)
                 {
-                    GlobalInternals re = new GlobalInternals() { Funtype = IngestDBCore.GlobalInternals.FunctionType.SetGlobalState, State = GlobalStateName.ADDTASK };
+                    GlobalInternals re = new GlobalInternals() { Funtype = IngestDBCore.GlobalInternals.FunctionType.SetGlobalState, State = GlobalStateName.ADDTASK, TaskID = f.Channelid.GetValueOrDefault() };
                     var response1 = await _globalInterface.Value.SubmitGlobalCallBack(re);
                     if (response1.Code != ResponseCodeDefines.SuccessCode)
                     {
@@ -500,6 +514,13 @@ namespace IngestTaskPlugin.Controllers.v1
                     }
                 }
                 var f = await _taskManage.AddTaskWithPolicy<AddTaskSvrPolicysAndBackupFlag_IN>(pIn, false,CaptureMeta, ContentMeta, MatiralMeta, PlanningMeta);
+                if (f == null)
+                {
+                    Response.bRet = false;
+                    Response.errStr = "error";
+                    return Response;
+                }
+
                 Response.taskBack = _taskManage.ConvertTaskResponse(f);
                 Response.newTaskId = Response.taskBack.nTaskID;
 
@@ -517,7 +538,7 @@ namespace IngestTaskPlugin.Controllers.v1
                 
                 if (_globalInterface != null)
                 {
-                    GlobalInternals re = new GlobalInternals() { Funtype = IngestDBCore.GlobalInternals.FunctionType.SetGlobalState, State = GlobalStateName.ADDTASK };
+                    GlobalInternals re = new GlobalInternals() { Funtype = IngestDBCore.GlobalInternals.FunctionType.SetGlobalState, State = GlobalStateName.ADDTASK, TaskID = f.Channelid.GetValueOrDefault() };
                     var response1 = await _globalInterface.Value.SubmitGlobalCallBack(re);
                     if (response1.Code != ResponseCodeDefines.SuccessCode)
                     {
@@ -1888,6 +1909,13 @@ namespace IngestTaskPlugin.Controllers.v1
                  */
                 var f = await _taskManage.AddTaskWithPolicy<AddReScheduleTaskSvr_in>(pIn, true, CaptureMeta, ContentMeta, MatiralMeta, PlanningMeta);
 
+                if (f == null)
+                {
+                    Response.nCode = 0;
+                    Response.message = "error";
+                    return Response;
+                }
+
                 //添加后如果开始时间在2分钟以内，需要调度一次
                 if ((DateTimeFormat.DateTimeFromString(pIn.taskAdd.strBegin) - DateTime.Now).TotalSeconds < 120)
                     await _taskManage.UpdateComingTasks();
@@ -1895,7 +1923,7 @@ namespace IngestTaskPlugin.Controllers.v1
                 
                 if (_globalInterface != null)
                 {
-                    GlobalInternals re = new GlobalInternals() { Funtype = IngestDBCore.GlobalInternals.FunctionType.SetGlobalState, State = GlobalStateName.ADDTASK };
+                    GlobalInternals re = new GlobalInternals() { Funtype = IngestDBCore.GlobalInternals.FunctionType.SetGlobalState, State = GlobalStateName.ADDTASK, TaskID = f.Channelid.GetValueOrDefault() };
                     var response1 = await _globalInterface.Value.SubmitGlobalCallBack(re);
                     if (response1.Code != ResponseCodeDefines.SuccessCode)
                     {

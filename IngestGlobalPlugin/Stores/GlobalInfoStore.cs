@@ -194,7 +194,7 @@ namespace IngestGlobalPlugin.Stores
 
                 DateTime AddMillSec = dtLock.AddMilliseconds(nTime);
                 DateTime dtNow = DateTime.Now;
-                var selectResult = await GetObjectstateinfoAsync(a => a.Where(x => x.Objectid == objectstateinfo.Objectid && x.Objecttypeid == objectstateinfo.Objecttypeid && x.Username == objectstateinfo.Username));
+                var selectResult = await GetObjectstateinfoAsync(a => a.Where(x => x.Objectid == objectstateinfo.Objectid && x.Objecttypeid == objectstateinfo.Objecttypeid ));
 
                 if (AddMillSec < dtNow) //锁超时
                 {
