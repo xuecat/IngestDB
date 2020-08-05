@@ -277,7 +277,7 @@ namespace IngestTaskPlugin.Stores
                    )
                 && a.State != (int)taskState.tsDelete
                 && a.Starttime != a.Endtime)
-               || (a.State == (int)taskState.tsExecuting && (a.Tasktype==(int)TaskType.TT_MANUTASK || a.Tasktype == (int)TaskType.TT_OPENEND) && a.Starttime <= fdate))//这里本来是starttime..AddSeconds(86400) 怕翻译问题
+               || (a.State == (int)taskState.tsExecuting && (a.Tasktype == (int)TaskType.TT_MANUTASK || a.Tasktype == (int)TaskType.TT_OPENEND) && a.Starttime <= fdate))//这里本来是starttime..AddSeconds(86400) 怕翻译问题
                 ).ToListAsync();
         }
 
@@ -1520,8 +1520,8 @@ namespace IngestTaskPlugin.Stores
                             || a.Category.Contains($"M{MDay}+") || a.Category.Contains($"M{ProvMDay}+")
                             || a.Category.Contains($"D") || a.Category.Contains("A"))
                         && (a.DispatchState == (int)dispatchState.dpsNotDispatch || a.DispatchState == (int)dispatchState.dpsDispatched || a.DispatchState == (int)dispatchState.dpsInvalid || a.DispatchState == (int)dispatchState.dpsRedispatch)
-                        && (a.State == (int)taskState.tsReady || a.State == (int)taskState.tsComplete || a.State == (int)taskState.tsPause || a.State == (int)taskState.tsInvaild || a.State == (int)taskState.tsExecuting)) 
-                        || (a.Starttime >= subDays && a.Starttime <= addDyas && a.State == (int)taskState.tsExecuting )
+                        && (a.State == (int)taskState.tsReady || a.State == (int)taskState.tsComplete || a.State == (int)taskState.tsPause || a.State == (int)taskState.tsInvaild || a.State == (int)taskState.tsExecuting))
+                        || (a.Starttime >= subDays && a.Starttime <= addDyas && a.State == (int)taskState.tsExecuting)
                         /*
                          * @breif 老版本会对手动任务，open任务，tsExecuting附加上，不明白为啥，直接全部返回，我这里
                          */
@@ -1591,7 +1591,7 @@ namespace IngestTaskPlugin.Stores
                             || a.Category.Contains($"M{MDay}+") || a.Category.Contains($"M{ProvMDay}+") || a.Category.Contains($"M{NextMonthDay}+")
                             || a.Category.Contains($"D") || a.Category.Contains("A"))
                         && (a.DispatchState == (int)dispatchState.dpsNotDispatch || a.DispatchState == (int)dispatchState.dpsDispatched || a.DispatchState == (int)dispatchState.dpsInvalid || a.DispatchState == (int)dispatchState.dpsRedispatch)
-                        && (a.State == (int)taskState.tsReady || a.State == (int)taskState.tsComplete || a.State == (int)taskState.tsPause || a.State == (int)taskState.tsInvaild || a.State == (int)taskState.tsExecuting)) 
+                        && (a.State == (int)taskState.tsReady || a.State == (int)taskState.tsComplete || a.State == (int)taskState.tsPause || a.State == (int)taskState.tsInvaild || a.State == (int)taskState.tsExecuting))
                         || (a.Starttime >= subDays && a.Starttime <= addDyas && a.State == (int)taskState.tsExecuting)
                         /*
                          * @breif 老版本会对手动任务，open任务，tsExecuting附加上，不明白为啥，直接全部返回，我这里
@@ -1608,7 +1608,7 @@ namespace IngestTaskPlugin.Stores
                                    || a.Category.Contains($"M{MDay}+") || a.Category.Contains($"M{ProvMDay}+") || a.Category.Contains($"M{NextMonthDay}+")
                                    || a.Category.Contains($"D") || a.Category.Contains("A"))
                                && (a.DispatchState == (int)dispatchState.dpsNotDispatch || a.DispatchState == (int)dispatchState.dpsDispatched || a.DispatchState == (int)dispatchState.dpsInvalid || a.DispatchState == (int)dispatchState.dpsRedispatch)
-                               && (a.State == (int)taskState.tsReady || a.State == (int)taskState.tsComplete || a.State == (int)taskState.tsPause || a.State == (int)taskState.tsInvaild || a.State == (int)taskState.tsExecuting)) 
+                               && (a.State == (int)taskState.tsReady || a.State == (int)taskState.tsComplete || a.State == (int)taskState.tsPause || a.State == (int)taskState.tsInvaild || a.State == (int)taskState.tsExecuting))
                                || (a.Starttime >= subDays && a.Starttime <= addDyas && a.State == (int)taskState.tsExecuting)
                            /*
                             * @breif 老版本会对手动任务，open任务，tsExecuting附加上，不明白为啥，直接全部返回，我这里
@@ -2084,12 +2084,10 @@ namespace IngestTaskPlugin.Stores
                             var f = org.Element("MATERIAL").Elements().FirstOrDefault(x => x.Name == m.Name);
                             if (f != null)
                             {
-                                f.Value = m.Value;
+                                //f.Value = m.Value;
+                                f.Remove();
                             }
-                            else
-                            {
-                                org.Element("MATERIAL").Add(m);
-                            }
+                            org.Element("MATERIAL").Add(m);
                         }
 
                         item.Metadatalong = org.ToString();
@@ -2122,12 +2120,9 @@ namespace IngestTaskPlugin.Stores
                             var f = org.Element("TaskContentMetaData").Elements().FirstOrDefault(x => x.Name == m.Name);
                             if (f != null)
                             {
-                                f.Value = m.Value;
+                                f.Remove();
                             }
-                            else
-                            {
-                                org.Element("TaskContentMetaData").Add(m);
-                            }
+                            org.Element("TaskContentMetaData").Add(m);
                         }
 
                         item.Metadatalong = org.ToString();
@@ -2160,12 +2155,10 @@ namespace IngestTaskPlugin.Stores
                             var f = org.Element("Planning").Elements().FirstOrDefault(x => x.Name == m.Name);
                             if (f != null)
                             {
-                                f.Value = m.Value;
+                                //f.Value = m.Value;
+                                f.Remove();
                             }
-                            else
-                            {
-                                org.Element("Planning").Add(m);
-                            }
+                            org.Element("Planning").Add(m);
                         }
 
                         item.Metadatalong = org.ToString();
