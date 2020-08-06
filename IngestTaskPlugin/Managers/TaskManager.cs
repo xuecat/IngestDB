@@ -3548,11 +3548,13 @@ namespace IngestTaskPlugin.Managers
                 {
                     if (taskinfo.TaskContent.ChannelId > 0)
                     {
-                        SobeyRecException.ThrowSelfNoParam(Store.GetConfictTaskInfo(), GlobalDictionary.GLOBALDICT_CODE_SELECTED_CHANNEL_IS_BUSY_OR_CAN_NOT_BE_SUITED_TO_PROGRAMME, Logger, null);
+                        Logger.Error("add task with policy channelbusy 1" + Store.GetConfictTaskInfo());
+                        SobeyRecException.ThrowSelfNoParam("", GlobalDictionary.GLOBALDICT_CODE_SELECTED_CHANNEL_IS_BUSY_OR_CAN_NOT_BE_SUITED_TO_PROGRAMME, Logger, null);
                     }
                     else
                     {
-                        SobeyRecException.ThrowSelfNoParam(Store.GetConfictTaskInfo(), GlobalDictionary.GLOBALDICT_CODE_ALL_USEABLE_CHANNELS_ARE_BUSY, Logger, null);
+                        Logger.Error("add task with policy channelbusy 2" + Store.GetConfictTaskInfo());
+                        SobeyRecException.ThrowSelfNoParam(, GlobalDictionary.GLOBALDICT_CODE_ALL_USEABLE_CHANNELS_ARE_BUSY, Logger, null);
                     }
                 }
                 else
@@ -3747,11 +3749,13 @@ namespace IngestTaskPlugin.Managers
                 {
                     if (taskinfo.TaskContent.ChannelId > 0)
                     {
-                        SobeyRecException.ThrowSelfNoParam(Store.GetConfictTaskInfo(), GlobalDictionary.GLOBALDICT_CODE_SELECTED_CHANNEL_IS_BUSY_OR_CAN_NOT_BE_SUITED_TO_PROGRAMME, Logger, null);
+                        Logger.Error("add task with out policy channelbusy " + Store.GetConfictTaskInfo());
+                        SobeyRecException.ThrowSelfNoParam("", GlobalDictionary.GLOBALDICT_CODE_SELECTED_CHANNEL_IS_BUSY_OR_CAN_NOT_BE_SUITED_TO_PROGRAMME, Logger, null);
                     }
                     else
                     {
-                        SobeyRecException.ThrowSelfNoParam(Store.GetConfictTaskInfo(), GlobalDictionary.GLOBALDICT_CODE_ALL_USEABLE_CHANNELS_ARE_BUSY, Logger, null);
+                        Logger.Error("add task with out policy channelbusy " + Store.GetConfictTaskInfo());
+                        SobeyRecException.ThrowSelfNoParam("", GlobalDictionary.GLOBALDICT_CODE_ALL_USEABLE_CHANNELS_ARE_BUSY, Logger, null);
                     }
                 }
                 else

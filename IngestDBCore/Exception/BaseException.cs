@@ -113,31 +113,57 @@ namespace IngestDBCore
         /// </remarks>
         public static void ThrowSelfNoParam(string custommessage, int lLogErrorCode, ILogger logger, System.Exception oInner)
         {
-            string strMessage = custommessage + ':';
-            strMessage += GlobalDictionary.Instance.GetMessageByCode(lLogErrorCode);
-            BuildErrInfo(oInner, ref strMessage);
-            SobeyRecException ex = new SobeyRecException(strMessage, oInner, logger, lLogErrorCode);
-            throw ex;
+            if (string.IsNullOrEmpty(custommessage))
+            {
+                SobeyRecException ex = new SobeyRecException(custommessage, oInner, logger, lLogErrorCode);
+                throw ex;
+            }
+            else
+            {
+                string strMessage = custommessage + ':';
+                strMessage += GlobalDictionary.Instance.GetMessageByCode(lLogErrorCode);
+                BuildErrInfo(oInner, ref strMessage);
+                SobeyRecException ex = new SobeyRecException(strMessage, oInner, logger, lLogErrorCode);
+                throw ex;
+            }
+            
         }
 
         public static void ThrowSelfOneParam(string custommessage, int lLogErrorCode, ILogger logger, object p, System.Exception oInner)
         {
-            string strMessage = custommessage + ':';
-            strMessage += GlobalDictionary.Instance.GetMessageByCode(lLogErrorCode);
-            strMessage = string.Format(strMessage, p.ToString());
-            BuildErrInfo(oInner, ref strMessage);
-            SobeyRecException ex = new SobeyRecException(strMessage, oInner, logger, lLogErrorCode);
-            throw ex;
+            if (string.IsNullOrEmpty(custommessage))
+            {
+                SobeyRecException ex = new SobeyRecException(custommessage, oInner, logger, lLogErrorCode);
+                throw ex;
+            }
+            else
+            {
+                string strMessage = custommessage + ':';
+                strMessage += GlobalDictionary.Instance.GetMessageByCode(lLogErrorCode);
+                strMessage = string.Format(strMessage, p.ToString());
+                BuildErrInfo(oInner, ref strMessage);
+                SobeyRecException ex = new SobeyRecException(strMessage, oInner, logger, lLogErrorCode);
+                throw ex;
+            }
         }
 
         public static void ThrowSelfTwoParam(string custommessage, int lLogErrorCode, ILogger logger, object p1, object p2, System.Exception oInner)
         {
-            string strMessage = custommessage + ':';
-            strMessage += GlobalDictionary.Instance.GetMessageByCode(lLogErrorCode);
-            strMessage = string.Format(strMessage, p1.ToString(), p2.ToString());
-            BuildErrInfo(oInner, ref strMessage);
-            SobeyRecException ex = new SobeyRecException(strMessage, oInner, logger, lLogErrorCode);
-            throw ex;
+            if (string.IsNullOrEmpty(custommessage))
+            {
+                SobeyRecException ex = new SobeyRecException(custommessage, oInner, logger, lLogErrorCode);
+                throw ex;
+            }
+            else
+            {
+                string strMessage = custommessage + ':';
+                strMessage += GlobalDictionary.Instance.GetMessageByCode(lLogErrorCode);
+                strMessage = string.Format(strMessage, p1.ToString(), p2.ToString());
+                BuildErrInfo(oInner, ref strMessage);
+                SobeyRecException ex = new SobeyRecException(strMessage, oInner, logger, lLogErrorCode);
+                throw ex;
+            }
+            
         }
 
 		private static void BuildErrInfo(Exception oInner, ref string strMessage)
