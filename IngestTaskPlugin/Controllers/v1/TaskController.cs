@@ -53,7 +53,8 @@ namespace IngestTaskPlugin.Controllers.v1
             }
             try
             {
-                return await _taskManage.GetTaskMetadataAsync<GetQueryTaskMetaData_param>(nTaskID, Type);
+                var metadata = await _taskManage.GetTaskMetadataAsync<GetQueryTaskMetaData_param>(nTaskID, Type);
+                return metadata != null ? metadata : new GetQueryTaskMetaData_param() { bRet = true, errStr = "OK" };
             }
             catch (Exception e)
             {
