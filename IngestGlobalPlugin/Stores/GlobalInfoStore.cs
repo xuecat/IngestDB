@@ -1046,7 +1046,7 @@ namespace IngestGlobalPlugin.Stores
 
         public int GetNextValId(string value)
         {
-            return Context.Sequence.Select(x => IngestGlobalDBContext.next_val(value)).FirstOrDefault();
+            return Context.DbpGlobal.Select(x => IngestGlobalDBContext.next_val(value)).FirstOrDefault();
         }
 
 
