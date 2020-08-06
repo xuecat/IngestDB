@@ -148,7 +148,7 @@ namespace IngestGlobalPlugin.Stores
                 {
                     query = query.Where(x => x.Objecttypeid == (int)param_In.ObjectTypeID);
                 }
-                if (!string.IsNullOrEmpty(param_In.userName))
+                if (!string.IsNullOrEmpty(param_In.userName) && param_In.userName != "NullUserName")
                 {
                     query = query.Where(x => x.Username == param_In.userName);
                 }
