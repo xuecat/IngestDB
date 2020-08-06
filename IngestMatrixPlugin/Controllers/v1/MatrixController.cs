@@ -55,7 +55,7 @@ namespace IngestMatrixPlugin.Controllers.v1
                 }
                 else
                 {
-                    response.message = $"{System.Reflection.MethodBase.GetCurrentMethod().DeclaringType.FullName}：error info:{e.Message}";
+                    response.message = $"{System.Reflection.MethodBase.GetCurrentMethod().DeclaringType.FullName}:error info:{e.Message}";
                     Logger.Error(response.message);
                 }
                 response.nCode = 0;
@@ -88,7 +88,7 @@ namespace IngestMatrixPlugin.Controllers.v1
                     response.message = se.Message;
                 } else
                 {
-                    response.message = $"{System.Reflection.MethodBase.GetCurrentMethod().DeclaringType.FullName}：error info:{e.Message}";
+                    response.message = $"{System.Reflection.MethodBase.GetCurrentMethod().DeclaringType.FullName}:error info:{e.Message}";
                     Logger.Error(response.message);
                 }
                 response.nCode = 0;
@@ -120,7 +120,7 @@ namespace IngestMatrixPlugin.Controllers.v1
                     res.message = se.Message;
                 } else
                 {
-                    res.message = $"{System.Reflection.MethodBase.GetCurrentMethod().DeclaringType.FullName}：error info:{e.Message}";
+                    res.message = $"{System.Reflection.MethodBase.GetCurrentMethod().DeclaringType.FullName}:error info:{e.Message}";
                     Logger.Error(res.message);
                 }
                 res.nCode = 0;

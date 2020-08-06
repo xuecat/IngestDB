@@ -76,7 +76,7 @@
                 if (response.Ext <= 0)
                 {
                     response.Code = ResponseCodeDefines.NotFound;
-                    response.Msg = $"{System.Reflection.MethodBase.GetCurrentMethod().DeclaringType.FullName}：error info: 获取数据为空!";
+                    response.Msg = $"{System.Reflection.MethodBase.GetCurrentMethod().DeclaringType.FullName}:error info: 获取数据为空!";
                 }
             }
             catch (Exception e)//其他未知的异常，写异常日志
@@ -89,7 +89,7 @@
                 else
                 {
                     response.Code = ResponseCodeDefines.ServiceError;
-                    response.Msg = "OldGetTaskMetaData error info：" + e.Message;
+                    response.Msg = "OldGetTaskMetaData error info:" + e.Message;
                     Logger.Error(response.Msg);
                 }
             }
@@ -121,7 +121,7 @@
                 else
                 {
                     response.Code = ResponseCodeDefines.ServiceError;
-                    response.Msg = "OldGetTaskMetaData error info：" + e.Message;
+                    response.Msg = "OldGetTaskMetaData error info:" + e.Message;
                     Logger.Error(response.Msg);
                 }
             }
@@ -154,7 +154,7 @@
                 else
                 {
                     response.Code = ResponseCodeDefines.ServiceError;
-                    response.Msg = $"{System.Reflection.MethodBase.GetCurrentMethod().DeclaringType.FullName}：error info:{e.Message}";
+                    response.Msg = $"{System.Reflection.MethodBase.GetCurrentMethod().DeclaringType.FullName}:error info:{e.Message}";
                     Logger.Error(response.Msg);
                 }
             }
@@ -176,7 +176,7 @@
                 if (response.Ext <= 0)
                 {
                     response.Code = ResponseCodeDefines.NotFound;
-                    response.Msg = $"{System.Reflection.MethodBase.GetCurrentMethod().DeclaringType.FullName}：error info: 获取数据为空!";
+                    response.Msg = $"{System.Reflection.MethodBase.GetCurrentMethod().DeclaringType.FullName}:error info: 获取数据为空!";
                 }
             }
             catch (Exception e)//其他未知的异常，写异常日志
@@ -189,7 +189,7 @@
                 else
                 {
                     response.Code = ResponseCodeDefines.ServiceError;
-                    response.Msg = $"{System.Reflection.MethodBase.GetCurrentMethod().DeclaringType.FullName}：error info:{e.Message}";
+                    response.Msg = $"{System.Reflection.MethodBase.GetCurrentMethod().DeclaringType.FullName}:error info:{e.Message}";
                     Logger.Error(response.Msg);
                 }
             }
@@ -224,7 +224,7 @@
                 else
                 {
                     response.Code = ResponseCodeDefines.ServiceError;
-                    response.Msg = $"{System.Reflection.MethodBase.GetCurrentMethod().DeclaringType.FullName}：error info:{e.Message}";
+                    response.Msg = $"{System.Reflection.MethodBase.GetCurrentMethod().DeclaringType.FullName}:error info:{e.Message}";
                     Logger.Error(response.Msg);
                 }
             }
@@ -252,7 +252,7 @@
                 if (response.Ext <= 0)
                 {
                     response.Code = ResponseCodeDefines.NotFound;
-                    response.Msg = $"{System.Reflection.MethodBase.GetCurrentMethod().DeclaringType.FullName}：error info: 获取数据为空!";
+                    response.Msg = $"{System.Reflection.MethodBase.GetCurrentMethod().DeclaringType.FullName}:error info: 获取数据为空!";
                 }
                 if (_globalInterface != null)
                 {
@@ -278,7 +278,7 @@
                 else
                 {
                     response.Code = ResponseCodeDefines.ServiceError;
-                    response.Msg = $"{System.Reflection.MethodBase.GetCurrentMethod().DeclaringType.FullName}：error info:{e.Message}";
+                    response.Msg = $"{System.Reflection.MethodBase.GetCurrentMethod().DeclaringType.FullName}:error info:{e.Message}";
                     Logger.Error(response.Msg);
                 }
             }
@@ -328,7 +328,7 @@
                 else
                 {
                     response.Code = ResponseCodeDefines.ServiceError;
-                    response.Msg = $"{System.Reflection.MethodBase.GetCurrentMethod().DeclaringType.FullName}：error info:{e.Message}";
+                    response.Msg = $"{System.Reflection.MethodBase.GetCurrentMethod().DeclaringType.FullName}:error info:{e.Message}";
                     Logger.Error(response.Msg);
                 }
             }
@@ -358,7 +358,7 @@
                 if (response.Ext != null || response?.Ext.Count <= 0)
                 {
                     response.Code = ResponseCodeDefines.NotFound;
-                    response.Msg = $"{System.Reflection.MethodBase.GetCurrentMethod().DeclaringType.FullName}：error info: 获取数据为空!";
+                    response.Msg = $"{System.Reflection.MethodBase.GetCurrentMethod().DeclaringType.FullName}:error info: 获取数据为空!";
                 }
             }
             catch (Exception e)//其他未知的异常，写异常日志
@@ -371,7 +371,7 @@
                 else
                 {
                     response.Code = ResponseCodeDefines.ServiceError;
-                    response.Msg = $"{System.Reflection.MethodBase.GetCurrentMethod().DeclaringType.FullName}：error info:{e.Message}";
+                    response.Msg = $"{System.Reflection.MethodBase.GetCurrentMethod().DeclaringType.FullName}:error info:{e.Message}";
                     Logger.Error(response.Msg);
                 }
             }
@@ -415,7 +415,7 @@
                 else
                 {
                     response.Code = ResponseCodeDefines.ServiceError;
-                    response.Msg = $"{System.Reflection.MethodBase.GetCurrentMethod().DeclaringType.FullName}：error info:{e.Message}";
+                    response.Msg = $"{System.Reflection.MethodBase.GetCurrentMethod().DeclaringType.FullName}:error info:{e.Message}";
                     Logger.Error(response.Msg);
                 }
             }
@@ -445,7 +445,7 @@
                 else
                 {
                     response.Code = ResponseCodeDefines.ServiceError;
-                    response.Msg = $"{System.Reflection.MethodBase.GetCurrentMethod().DeclaringType.FullName}：error info:{e.Message}";
+                    response.Msg = $"{System.Reflection.MethodBase.GetCurrentMethod().DeclaringType.FullName}:error info:{e.Message}";
                     Logger.Error(response.Msg);
                 }
             }
@@ -481,7 +481,7 @@
                 else
                 {
                     response.Code = ResponseCodeDefines.ServiceError;
-                    response.Msg = $"{System.Reflection.MethodBase.GetCurrentMethod().DeclaringType.FullName}：error info:{e.Message}";
+                    response.Msg = $"{System.Reflection.MethodBase.GetCurrentMethod().DeclaringType.FullName}:error info:{e.Message}";
                     Logger.Error(response.Msg);
                 }
             }
@@ -525,7 +525,7 @@
                 else
                 {
                     response.Code = ResponseCodeDefines.ServiceError;
-                    response.Msg = $"{System.Reflection.MethodBase.GetCurrentMethod().DeclaringType.FullName}：error info:{e.Message}";
+                    response.Msg = $"{System.Reflection.MethodBase.GetCurrentMethod().DeclaringType.FullName}:error info:{e.Message}";
                     Logger.Error(response.Msg);
                 }
             }
@@ -546,7 +546,7 @@
                 if (response.Ext != null || response?.Ext.Count <= 0)
                 {
                     response.Code = ResponseCodeDefines.NotFound;
-                    response.Msg = $"{System.Reflection.MethodBase.GetCurrentMethod().DeclaringType.FullName}：error info: 获取数据为空!";
+                    response.Msg = $"{System.Reflection.MethodBase.GetCurrentMethod().DeclaringType.FullName}:error info: 获取数据为空!";
                 }
             }
             catch (Exception e)//其他未知的异常，写异常日志
@@ -559,7 +559,7 @@
                 else
                 {
                     response.Code = ResponseCodeDefines.ServiceError;
-                    response.Msg = $"{System.Reflection.MethodBase.GetCurrentMethod().DeclaringType.FullName}：error info:{e.Message}";
+                    response.Msg = $"{System.Reflection.MethodBase.GetCurrentMethod().DeclaringType.FullName}:error info:{e.Message}";
                     Logger.Error(response.Msg);
                 }
             }
@@ -580,7 +580,7 @@
                 if (response.Ext != null || response?.Ext.Count <= 0)
                 {
                     response.Code = ResponseCodeDefines.NotFound;
-                    response.Msg = $"{System.Reflection.MethodBase.GetCurrentMethod().DeclaringType.FullName}：error info: 获取数据为空!";
+                    response.Msg = $"{System.Reflection.MethodBase.GetCurrentMethod().DeclaringType.FullName}:error info: 获取数据为空!";
                 }
             }
             catch (Exception e)//其他未知的异常，写异常日志
@@ -593,7 +593,7 @@
                 else
                 {
                     response.Code = ResponseCodeDefines.ServiceError;
-                    response.Msg = "OldGetTaskMetaData error info：" + e.Message;
+                    response.Msg = "OldGetTaskMetaData error info:" + e.Message;
                     Logger.Error(response.Msg);
                 }
             }
@@ -621,7 +621,7 @@
                 if (response.Ext != null || response?.Ext.Count <= 0)
                 {
                     response.Code = ResponseCodeDefines.NotFound;
-                    response.Msg = $"{System.Reflection.MethodBase.GetCurrentMethod().DeclaringType.FullName}：error info: 获取数据为空!";
+                    response.Msg = $"{System.Reflection.MethodBase.GetCurrentMethod().DeclaringType.FullName}:error info: 获取数据为空!";
                 }
             }
             catch (Exception e)//其他未知的异常，写异常日志
@@ -634,7 +634,7 @@
                 else
                 {
                     response.Code = ResponseCodeDefines.ServiceError;
-                    response.Msg = $"{System.Reflection.MethodBase.GetCurrentMethod().DeclaringType.FullName}：error info:{e.Message}";
+                    response.Msg = $"{System.Reflection.MethodBase.GetCurrentMethod().DeclaringType.FullName}:error info:{e.Message}";
                     Logger.Error(response.Msg);
                 }
             }
@@ -656,7 +656,7 @@
                 if (response.Ext != null || response?.Ext.Count <= 0)
                 {
                     response.Code = ResponseCodeDefines.NotFound;
-                    response.Msg = $"{System.Reflection.MethodBase.GetCurrentMethod().DeclaringType.FullName}：error info: 获取数据为空!";
+                    response.Msg = $"{System.Reflection.MethodBase.GetCurrentMethod().DeclaringType.FullName}:error info: 获取数据为空!";
                 }
             }
             catch (Exception e)//其他未知的异常，写异常日志
@@ -669,7 +669,7 @@
                 else
                 {
                     response.Code = ResponseCodeDefines.ServiceError;
-                    response.Msg = $"{System.Reflection.MethodBase.GetCurrentMethod().DeclaringType.FullName}：error info:{e.Message}";
+                    response.Msg = $"{System.Reflection.MethodBase.GetCurrentMethod().DeclaringType.FullName}:error info:{e.Message}";
                     Logger.Error(response.Msg);
                 }
             }
@@ -725,7 +725,7 @@
                 else
                 {
                     response.Code = ResponseCodeDefines.ServiceError;
-                    response.Msg = $"{System.Reflection.MethodBase.GetCurrentMethod().DeclaringType.FullName}：error info:{e.Message}";
+                    response.Msg = $"{System.Reflection.MethodBase.GetCurrentMethod().DeclaringType.FullName}:error info:{e.Message}";
                     Logger.Error(response.Msg);
                 }
             }
@@ -753,7 +753,7 @@
                 if (response.Ext != null)
                 {
                     response.Code = ResponseCodeDefines.NotFound;
-                    response.Msg = $"{System.Reflection.MethodBase.GetCurrentMethod().DeclaringType.FullName}：error info: 获取数据为空!";
+                    response.Msg = $"{System.Reflection.MethodBase.GetCurrentMethod().DeclaringType.FullName}:error info: 获取数据为空!";
                 }
             }
             catch (Exception e)//其他未知的异常，写异常日志
@@ -766,7 +766,7 @@
                 else
                 {
                     response.Code = ResponseCodeDefines.ServiceError;
-                    response.Msg = $"{System.Reflection.MethodBase.GetCurrentMethod().DeclaringType.FullName}：error info:{e.Message}";
+                    response.Msg = $"{System.Reflection.MethodBase.GetCurrentMethod().DeclaringType.FullName}:error info:{e.Message}";
                     Logger.Error(response.Msg);
                 }
             }
@@ -801,7 +801,7 @@
                 if (response.Ext != null)
                 {
                     response.Code = ResponseCodeDefines.NotFound;
-                    response.Msg = $"{System.Reflection.MethodBase.GetCurrentMethod().DeclaringType.FullName}：error info: 获取数据为空!";
+                    response.Msg = $"{System.Reflection.MethodBase.GetCurrentMethod().DeclaringType.FullName}:error info: 获取数据为空!";
                 }
                 //GLOBALSERVICE.SetGlobalState2(ClientOperLabelName.VTR_UPLOAD_ModifyTask);
                 if (_globalInterface != null)
@@ -828,7 +828,7 @@
                 else
                 {
                     response.Code = ResponseCodeDefines.ServiceError;
-                    response.Msg = "error info：" + e.Message;
+                    response.Msg = "error info:" + e.Message;
                     Logger.Error("GetUserInfoByCode : " + response.Msg);
                 }
             }
@@ -850,7 +850,7 @@
             if (response.Ext <= 0)
             {
                 response.Code = ResponseCodeDefines.NotFound;
-                response.Msg = $"{System.Reflection.MethodBase.GetCurrentMethod().DeclaringType.FullName}：error info: 获取数据为空!";
+                response.Msg = $"{System.Reflection.MethodBase.GetCurrentMethod().DeclaringType.FullName}:error info: 获取数据为空!";
             }
             try
             {
@@ -887,7 +887,7 @@
                 else
                 {
                     response.Code = ResponseCodeDefines.ServiceError;
-                    response.Msg = "error info：" + e.Message;
+                    response.Msg = "error info:" + e.Message;
                     Logger.Error("GetUserInfoByCode : " + response.Msg);
                 }
             }
@@ -909,7 +909,7 @@
             if (response.Ext <= 0)
             {
                 response.Code = ResponseCodeDefines.NotFound;
-                response.Msg = $"{System.Reflection.MethodBase.GetCurrentMethod().DeclaringType.FullName}：error info: 获取数据为空!";
+                response.Msg = $"{System.Reflection.MethodBase.GetCurrentMethod().DeclaringType.FullName}:error info: 获取数据为空!";
             }
             if (param == null)
             {
@@ -952,7 +952,7 @@
                 else
                 {
                     response.Code = ResponseCodeDefines.ServiceError;
-                    response.Msg = "error info：" + e.Message;
+                    response.Msg = "error info:" + e.Message;
                     Logger.Error("GetUserInfoByCode : " + response.Msg);
                 }
             }
@@ -990,7 +990,7 @@
                 if (response.Ext == null)
                 {
                     response.Code = ResponseCodeDefines.NotFound;
-                    response.Msg = $"{System.Reflection.MethodBase.GetCurrentMethod().DeclaringType.FullName}：error info: 获取数据为空!";
+                    response.Msg = $"{System.Reflection.MethodBase.GetCurrentMethod().DeclaringType.FullName}:error info: 获取数据为空!";
                 }
                 response.Code = response.Ext.errorCode == VTR_BUT_ErrorCode.emNormal ? ResponseCodeDefines.SuccessCode : ResponseCodeDefines.ServiceError;
             }
@@ -1005,7 +1005,7 @@
                 else
                 {
                     response.Code = ResponseCodeDefines.ServiceError;
-                    response.Msg = "error info：" + e.Message;
+                    response.Msg = "error info:" + e.Message;
                     Logger.Error("GetUserInfoByCode : " + response.Msg);
                 }
             }
@@ -1055,7 +1055,7 @@
                 else
                 {
                     response.Code = ResponseCodeDefines.ServiceError;
-                    response.Msg = "error info：" + e.Message;
+                    response.Msg = "error info:" + e.Message;
                     Logger.Error("GetUserInfoByCode : " + response.Msg);
                 }
             }
@@ -1086,7 +1086,7 @@
                 if (string.IsNullOrEmpty(response.Ext))
                 {
                     response.Code = ResponseCodeDefines.NotFound;
-                    response.Msg = $"{System.Reflection.MethodBase.GetCurrentMethod().DeclaringType.FullName}：error info: 获取数据为空!";
+                    response.Msg = $"{System.Reflection.MethodBase.GetCurrentMethod().DeclaringType.FullName}:error info: 获取数据为空!";
                 }
                 else
                     response.Code = ResponseCodeDefines.SuccessCode;
@@ -1102,7 +1102,7 @@
                 else
                 {
                     response.Code = ResponseCodeDefines.ServiceError;
-                    response.Msg = "error info：" + e.Message;
+                    response.Msg = "error info:" + e.Message;
                     Logger.Error("GetVtrTaskMetaData : " + response.Msg);
                 }
             }
@@ -1141,7 +1141,7 @@
                 if (response.Ext==null)
                 {
                     response.Code = ResponseCodeDefines.NotFound;
-                    response.Msg = $"{System.Reflection.MethodBase.GetCurrentMethod().DeclaringType.FullName}：error info: 获取数据为空!";
+                    response.Msg = $"{System.Reflection.MethodBase.GetCurrentMethod().DeclaringType.FullName}:error info: 获取数据为空!";
                 }
                 //GLOBALSERVICE.SetGlobalState2(ClientOperLabelName.VTR_UPLOAD_AddTask);
                 if (_globalInterface != null)
@@ -1166,7 +1166,7 @@
                 else
                 {
                     response.Code = ResponseCodeDefines.ServiceError;
-                    response.Msg = "error info：" + e.Message;
+                    response.Msg = "error info:" + e.Message;
                     Logger.Error("AddVTRUploadTask : " + response.Msg);
                 }
             }

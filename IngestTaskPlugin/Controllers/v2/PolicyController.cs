@@ -53,7 +53,7 @@ namespace IngestTaskPlugin.Controllers.v2
                 if (Response.Ext == null || Response.Ext.Count <= 0)
                 {
                     Response.Code = ResponseCodeDefines.NotFound;
-                    Response.Msg = $"{System.Reflection.MethodBase.GetCurrentMethod().DeclaringType.FullName}：error info: 获取数据为空!";
+                    Response.Msg = $"{System.Reflection.MethodBase.GetCurrentMethod().DeclaringType.FullName}:error info: 获取数据为空!";
                 }
             }
             catch (Exception e)
@@ -67,7 +67,7 @@ namespace IngestTaskPlugin.Controllers.v2
                 else
                 {
                     Response.Code = ResponseCodeDefines.ServiceError;
-                    Response.Msg = "GetTaskMaterialMetaData error info：" + e.Message;
+                    Response.Msg = "GetTaskMaterialMetaData error info:" + e.Message;
                     Logger.Error(Response.Msg);
                 }
             }

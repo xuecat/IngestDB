@@ -45,7 +45,7 @@ namespace IngestDevicePlugin.Controllers.v2
                 if (Response.Ext == null || Response.Ext.Count <= 0)
                 {
                     Response.Code = ResponseCodeDefines.NotFound;
-                    Response.Msg = $"{System.Reflection.MethodBase.GetCurrentMethod().DeclaringType.FullName}：error info: 获取数据为空!";
+                    Response.Msg = $"{System.Reflection.MethodBase.GetCurrentMethod().DeclaringType.FullName}:error info: 获取数据为空!";
                 }
                 else
                 Response.Code = ResponseCodeDefines.SuccessCode;
@@ -61,7 +61,7 @@ namespace IngestDevicePlugin.Controllers.v2
                 else
                 {
                     Response.Code = ResponseCodeDefines.ServiceError;
-                    Response.Msg = "error info：" + e.Message;
+                    Response.Msg = "error info:" + e.Message;
                     Logger.Error("GetAllXDCAMDevice v2 : " + Response.Msg);
                 }
             }

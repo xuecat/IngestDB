@@ -55,7 +55,7 @@ namespace IngestTaskPlugin.Controllers.v1
             catch (Exception e)
             {
                
-                Response.errStr = "GetPolicyByTaskID error info：" + e.Message;
+                Response.errStr = "GetPolicyByTaskID error info:" + e.Message;
                 Logger.Error(Response.errStr);
                 return Response;
             }
@@ -85,7 +85,7 @@ namespace IngestTaskPlugin.Controllers.v1
             catch (Exception e)
             {
 
-                Response.errStr = "GetAllMetaDataPolicy error info：" + e.Message;
+                Response.errStr = "GetAllMetaDataPolicy error info:" + e.Message;
                 Logger.Error(Response.errStr);
                 return Response;
             }

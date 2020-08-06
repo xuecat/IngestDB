@@ -56,7 +56,7 @@ namespace IngestGlobalPlugin.Controllers.v2
                 if (Response.Ext == null || Response.Ext.Count <= 0)
                 {
                     Response.Code = ResponseCodeDefines.NotFound;
-                    Response.Msg = $"{System.Reflection.MethodBase.GetCurrentMethod().DeclaringType.FullName}：error info: 获取数据为空!";
+                    Response.Msg = $"{System.Reflection.MethodBase.GetCurrentMethod().DeclaringType.FullName}:error info: 获取数据为空!";
                 }
             }
             catch (Exception e)
@@ -70,8 +70,8 @@ namespace IngestGlobalPlugin.Controllers.v2
                 else
                 {
                     Response.Code = ResponseCodeDefines.ServiceError;
-                    Response.Msg = "GetMaterailInfo error info：" + e.Message;
-                    Logger.Error("GetMaterailInfo error info：" + e.Message);
+                    Response.Msg = "GetMaterailInfo error info:" + e.Message;
+                    Logger.Error("GetMaterailInfo error info:" + e.Message);
                 }
             }
             return Response;
@@ -97,7 +97,7 @@ namespace IngestGlobalPlugin.Controllers.v2
                 if (Response.Ext == null || Response.Ext.Count <= 0)
                 {
                     Response.Code = ResponseCodeDefines.NotFound;
-                    Response.Msg = $"{System.Reflection.MethodBase.GetCurrentMethod().DeclaringType.FullName}：error info: 获取数据为空!";
+                    Response.Msg = $"{System.Reflection.MethodBase.GetCurrentMethod().DeclaringType.FullName}:error info: 获取数据为空!";
                 }
             }
             catch (Exception e)
@@ -111,7 +111,7 @@ namespace IngestGlobalPlugin.Controllers.v2
                 else
                 {
                     Response.Code = ResponseCodeDefines.ServiceError;
-                    Response.Msg = "GetNeedProcessedMqMsg error info：" + e.Message;
+                    Response.Msg = "GetNeedProcessedMqMsg error info:" + e.Message;
                     Logger.Error(Response.Msg);
                 }
             }
@@ -143,7 +143,7 @@ namespace IngestGlobalPlugin.Controllers.v2
                 if (Response.Ext == null || Response.Ext.Count <= 0)
                 {
                     Response.Code = ResponseCodeDefines.NotFound;
-                    Response.Msg = $"{System.Reflection.MethodBase.GetCurrentMethod().DeclaringType.FullName}：error info: 获取数据为空!";
+                    Response.Msg = $"{System.Reflection.MethodBase.GetCurrentMethod().DeclaringType.FullName}:error info: 获取数据为空!";
                 }
             }
             catch (Exception e)
@@ -157,7 +157,7 @@ namespace IngestGlobalPlugin.Controllers.v2
                 else
                 {
                     Response.Code = ResponseCodeDefines.ServiceError;
-                    Response.Msg = "GetMsgFailedRecord error info：" + e.Message;
+                    Response.Msg = "GetMsgFailedRecord error info:" + e.Message;
                     Logger.Error(Response.Msg);
                 }
             }
@@ -189,7 +189,7 @@ namespace IngestGlobalPlugin.Controllers.v2
                 if (Response.Ext <= 0)
                 {
                     Response.Code = ResponseCodeDefines.NotFound;
-                    Response.Msg = $"{System.Reflection.MethodBase.GetCurrentMethod().DeclaringType.FullName}：error info: 获取数据为空!";
+                    Response.Msg = $"{System.Reflection.MethodBase.GetCurrentMethod().DeclaringType.FullName}:error info: 获取数据为空!";
                 }
             }
             catch (Exception e)
@@ -203,7 +203,7 @@ namespace IngestGlobalPlugin.Controllers.v2
                 else
                 {
                     Response.Code = ResponseCodeDefines.ServiceError;
-                    Response.Msg = "AddMsgFailedRecord error info：" + e.Message;
+                    Response.Msg = "AddMsgFailedRecord error info:" + e.Message;
                     Logger.Error(Response.Msg);
                 }
             }
@@ -236,7 +236,7 @@ namespace IngestGlobalPlugin.Controllers.v2
                 if (Response.Ext <= 0)
                 {
                     Response.Code = ResponseCodeDefines.NotFound;
-                    Response.Msg = $"{System.Reflection.MethodBase.GetCurrentMethod().DeclaringType.FullName}：error info: 获取数据为空!";
+                    Response.Msg = $"{System.Reflection.MethodBase.GetCurrentMethod().DeclaringType.FullName}:error info: 获取数据为空!";
                 }
             }
             catch (Exception e)
@@ -250,7 +250,7 @@ namespace IngestGlobalPlugin.Controllers.v2
                 else
                 {
                     Response.Code = ResponseCodeDefines.ServiceError;
-                    Response.Msg = "DeleteMsgFaieldRecord error info：" + e.Message;
+                    Response.Msg = "DeleteMsgFaieldRecord error info:" + e.Message;
                     Logger.Error(Response.Msg);
                 }
             }
@@ -282,7 +282,7 @@ namespace IngestGlobalPlugin.Controllers.v2
                 if (Response.Ext <= 0)
                 {
                     Response.Code = ResponseCodeDefines.NotFound;
-                    Response.Msg = $"{System.Reflection.MethodBase.GetCurrentMethod().DeclaringType.FullName}：error info: 获取数据为空!";
+                    Response.Msg = $"{System.Reflection.MethodBase.GetCurrentMethod().DeclaringType.FullName}:error info: 获取数据为空!";
                 }
             }
             catch (Exception e)
@@ -296,7 +296,7 @@ namespace IngestGlobalPlugin.Controllers.v2
                 else
                 {
                     Response.Code = ResponseCodeDefines.ServiceError;
-                    Response.Msg = "GetTaskFailedCount error info：" + e.Message;
+                    Response.Msg = "GetTaskFailedCount error info:" + e.Message;
                     Logger.Error(Response.Msg);
                 }
             }
@@ -328,7 +328,7 @@ namespace IngestGlobalPlugin.Controllers.v2
                 if (Response.Ext == null || Response.Ext.Count <= 0)
                 {
                     Response.Code = ResponseCodeDefines.NotFound;
-                    Response.Msg = $"{System.Reflection.MethodBase.GetCurrentMethod().DeclaringType.FullName}：error info: 获取数据为空!";
+                    Response.Msg = $"{System.Reflection.MethodBase.GetCurrentMethod().DeclaringType.FullName}:error info: 获取数据为空!";
                 }
             }
             catch (Exception e)
@@ -342,7 +342,7 @@ namespace IngestGlobalPlugin.Controllers.v2
                 else
                 {
                     Response.Code = ResponseCodeDefines.ServiceError;
-                    Response.Msg = "GetMsgContentByTaskID error info：" + e.Message;
+                    Response.Msg = "GetMsgContentByTaskID error info:" + e.Message;
                     Logger.Error(Response.Msg);
                 }
             }
@@ -374,7 +374,7 @@ namespace IngestGlobalPlugin.Controllers.v2
                 if (Response.Ext == null)
                 {
                     Response.Code = ResponseCodeDefines.NotFound;
-                    Response.Msg = $"{System.Reflection.MethodBase.GetCurrentMethod().DeclaringType.FullName}：error info: 获取数据为空!";
+                    Response.Msg = $"{System.Reflection.MethodBase.GetCurrentMethod().DeclaringType.FullName}:error info: 获取数据为空!";
                 }
             }
             catch (Exception e)
@@ -388,7 +388,7 @@ namespace IngestGlobalPlugin.Controllers.v2
                 else
                 {
                     Response.Code = ResponseCodeDefines.ServiceError;
-                    Response.Msg = "FindFormatInfo error info：" + e.Message;
+                    Response.Msg = "FindFormatInfo error info:" + e.Message;
                     Logger.Error(Response.Msg);
                 }
             }
@@ -420,7 +420,7 @@ namespace IngestGlobalPlugin.Controllers.v2
                 if (Response.Ext == null)
                 {
                     Response.Code = ResponseCodeDefines.NotFound;
-                    Response.Msg = $"{System.Reflection.MethodBase.GetCurrentMethod().DeclaringType.FullName}：error info: 获取数据为空!";
+                    Response.Msg = $"{System.Reflection.MethodBase.GetCurrentMethod().DeclaringType.FullName}:error info: 获取数据为空!";
                 }
             }
             catch (Exception e)
@@ -434,7 +434,7 @@ namespace IngestGlobalPlugin.Controllers.v2
                 else
                 {
                     Response.Code = ResponseCodeDefines.ServiceError;
-                    Response.Msg = "UpdateFormateInfo error info：" + e.Message;
+                    Response.Msg = "UpdateFormateInfo error info:" + e.Message;
                     Logger.Error(Response.Msg);
                 }
             }

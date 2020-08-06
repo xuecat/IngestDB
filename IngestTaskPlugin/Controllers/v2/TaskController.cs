@@ -90,7 +90,7 @@ namespace IngestTaskPlugin.Controllers.v2
                 else
                 {
                     Response.Code = ResponseCodeDefines.ServiceError;
-                    Response.Msg = "GetTaskMaterialMetaData error info：" +e.Message;
+                    Response.Msg = "GetTaskMaterialMetaData error info:" +e.Message;
                     Logger.Error(Response.Msg);
                 }
             }
@@ -122,7 +122,7 @@ namespace IngestTaskPlugin.Controllers.v2
                 if (Response.Ext == null)
                 {
                     Response.Code = ResponseCodeDefines.NotFound;
-                    Response.Msg = $"{System.Reflection.MethodBase.GetCurrentMethod().DeclaringType.FullName}：error info: 获取数据为空!";
+                    Response.Msg = $"{System.Reflection.MethodBase.GetCurrentMethod().DeclaringType.FullName}:error info: 获取数据为空!";
                 }
             }
             catch (Exception e)
@@ -136,7 +136,7 @@ namespace IngestTaskPlugin.Controllers.v2
                 else
                 {
                     Response.Code = ResponseCodeDefines.ServiceError;
-                    Response.Msg = "GetTaskContentMetaData error info：" +e.Message;
+                    Response.Msg = "GetTaskContentMetaData error info:" +e.Message;
                     Logger.Error(Response.Msg);
                 }
             }
@@ -168,7 +168,7 @@ namespace IngestTaskPlugin.Controllers.v2
                 if (Response.Ext == null)
                 {
                     Response.Code = ResponseCodeDefines.NotFound;
-                    Response.Msg = $"{System.Reflection.MethodBase.GetCurrentMethod().DeclaringType.FullName}：error info: 获取数据为空!";
+                    Response.Msg = $"{System.Reflection.MethodBase.GetCurrentMethod().DeclaringType.FullName}:error info: 获取数据为空!";
                 }
             }
             catch (Exception e)
@@ -182,7 +182,7 @@ namespace IngestTaskPlugin.Controllers.v2
                 else
                 {
                     Response.Code = ResponseCodeDefines.ServiceError;
-                    Response.Msg = "GetTaskPlanningMetaData error info：" +e.Message;
+                    Response.Msg = "GetTaskPlanningMetaData error info:" +e.Message;
                     Logger.Error(Response.Msg);
                 }
             }
@@ -217,7 +217,7 @@ namespace IngestTaskPlugin.Controllers.v2
                 if (string.IsNullOrEmpty(Response.Ext))
                 {
                     Response.Code = ResponseCodeDefines.NotFound;
-                    Response.Msg = $"{System.Reflection.MethodBase.GetCurrentMethod().DeclaringType.FullName}：error info: 获取数据为空!";
+                    Response.Msg = $"{System.Reflection.MethodBase.GetCurrentMethod().DeclaringType.FullName}:error info: 获取数据为空!";
                 }
             }
             catch (Exception e)
@@ -231,7 +231,7 @@ namespace IngestTaskPlugin.Controllers.v2
                 else
                 {
                     Response.Code = ResponseCodeDefines.ServiceError;
-                    Response.Msg = "UpdateTaskMetaData error info：" +e.Message;
+                    Response.Msg = "UpdateTaskMetaData error info:" +e.Message;
                     Logger.Error(Response.Msg);
                 }
             }
@@ -277,7 +277,7 @@ namespace IngestTaskPlugin.Controllers.v2
                 else
                 {
                     Response.Code = ResponseCodeDefines.ServiceError;
-                    Response.Msg = "GetTaskCustomMetaData error info：" +e.Message;
+                    Response.Msg = "GetTaskCustomMetaData error info:" +e.Message;
                     Logger.Error(Response.Msg);
                 }
             }
@@ -320,7 +320,7 @@ namespace IngestTaskPlugin.Controllers.v2
                 else
                 {
                     Response.Code = ResponseCodeDefines.ServiceError;
-                    Response.Msg = "UpdateTaskCustomMetaData error info：" +e.Message;
+                    Response.Msg = "UpdateTaskCustomMetaData error info:" +e.Message;
                     Logger.Error(Response.Msg);
                 }
             }
@@ -352,7 +352,7 @@ namespace IngestTaskPlugin.Controllers.v2
                 if (Response.Ext == null || Response.Ext.Count <= 0)
                 {
                     Response.Code = ResponseCodeDefines.NotFound;
-                    Response.Msg = $"{System.Reflection.MethodBase.GetCurrentMethod().DeclaringType.FullName}：error info: 获取数据为空!";
+                    Response.Msg = $"{System.Reflection.MethodBase.GetCurrentMethod().DeclaringType.FullName}:error info: 获取数据为空!";
                 }
                 if (_globalInterface != null)
                 {
@@ -381,7 +381,7 @@ namespace IngestTaskPlugin.Controllers.v2
                 else
                 {
                     Response.Code = ResponseCodeDefines.ServiceError;
-                    Response.Msg = "StopGroupTask error info：" +e.Message;
+                    Response.Msg = "StopGroupTask error info:" +e.Message;
                     Logger.Error(Response.Msg);
                 }
             }
@@ -413,7 +413,7 @@ namespace IngestTaskPlugin.Controllers.v2
                 if (Response.Ext == null || Response.Ext.Count <= 0)
                 {
                     Response.Code = ResponseCodeDefines.NotFound;
-                    Response.Msg = $"{System.Reflection.MethodBase.GetCurrentMethod().DeclaringType.FullName}：error info: 获取数据为空!";
+                    Response.Msg = $"{System.Reflection.MethodBase.GetCurrentMethod().DeclaringType.FullName}:error info: 获取数据为空!";
                 }
 
                 if (_globalInterface != null)
@@ -442,7 +442,7 @@ namespace IngestTaskPlugin.Controllers.v2
                 else
                 {
                     Response.Code = ResponseCodeDefines.ServiceError;
-                    Response.Msg = "DeleteGroupTask error info：" +e.Message;
+                    Response.Msg = "DeleteGroupTask error info:" +e.Message;
                     Logger.Error(Response.Msg);
                 }
             }
@@ -483,7 +483,7 @@ namespace IngestTaskPlugin.Controllers.v2
                 if (Response.Ext == null)
                 {
                     Response.Code = ResponseCodeDefines.NotFound;
-                    Response.Msg = $"{System.Reflection.MethodBase.GetCurrentMethod().DeclaringType.FullName}：error info: 获取数据为空!";
+                    Response.Msg = $"{System.Reflection.MethodBase.GetCurrentMethod().DeclaringType.FullName}:error info: 获取数据为空!";
                 }
                 //添加后如果开始时间在2分钟以内，需要调度一次
                 if ((DateTimeFormat.DateTimeFromString(task.TaskContent.Begin) - DateTime.Now).TotalSeconds < 120)
@@ -518,7 +518,7 @@ namespace IngestTaskPlugin.Controllers.v2
                 else
                 {
                     Response.Code = ResponseCodeDefines.ServiceError;
-                    Response.Msg = "AddTaskWithoutPolicy error info：" +e.Message;
+                    Response.Msg = "AddTaskWithoutPolicy error info:" +e.Message;
                     Logger.Error(Response.Msg);
                 }
             }
@@ -560,7 +560,7 @@ namespace IngestTaskPlugin.Controllers.v2
                 if (Response.Ext == null)
                 {
                     Response.Code = ResponseCodeDefines.NotFound;
-                    Response.Msg = $"{System.Reflection.MethodBase.GetCurrentMethod().DeclaringType.FullName}：error info: 获取数据为空!";
+                    Response.Msg = $"{System.Reflection.MethodBase.GetCurrentMethod().DeclaringType.FullName}:error info: 获取数据为空!";
                 }
                 if (task.BackUpTask)
                 {
@@ -600,7 +600,7 @@ namespace IngestTaskPlugin.Controllers.v2
                 else
                 {
                     Response.Code = ResponseCodeDefines.ServiceError;
-                    Response.Msg = "AddTaskWithoutPolicy error info：" +e.Message;
+                    Response.Msg = "AddTaskWithoutPolicy error info:" +e.Message;
                     Logger.Error(Response.Msg);
                 }
             }
@@ -632,7 +632,7 @@ namespace IngestTaskPlugin.Controllers.v2
                 if (Response.Ext <= 0)
                 {
                     Response.Code = ResponseCodeDefines.NotFound;
-                    Response.Msg = $"{System.Reflection.MethodBase.GetCurrentMethod().DeclaringType.FullName}：error info: 获取数据为空!";
+                    Response.Msg = $"{System.Reflection.MethodBase.GetCurrentMethod().DeclaringType.FullName}:error info: 获取数据为空!";
                 }
             }
             catch (Exception e)
@@ -646,7 +646,7 @@ namespace IngestTaskPlugin.Controllers.v2
                 else
                 {
                     Response.Code = ResponseCodeDefines.ServiceError;
-                    Response.Msg = "TaskIDByTaskGUID error info：" +e.Message;
+                    Response.Msg = "TaskIDByTaskGUID error info:" +e.Message;
                     Logger.Error(Response.Msg);
                 }
             }
@@ -673,7 +673,7 @@ namespace IngestTaskPlugin.Controllers.v2
                 if (Response.Ext == null)
                 {
                     Response.Code = ResponseCodeDefines.NotFound;
-                    Response.Msg = $"{System.Reflection.MethodBase.GetCurrentMethod().DeclaringType.FullName}：error info: 获取数据为空!";
+                    Response.Msg = $"{System.Reflection.MethodBase.GetCurrentMethod().DeclaringType.FullName}:error info: 获取数据为空!";
                 }
             }
             catch (Exception e)
@@ -687,7 +687,7 @@ namespace IngestTaskPlugin.Controllers.v2
                 else
                 {
                     Response.Code = ResponseCodeDefines.ServiceError;
-                    Response.Msg = "GetAllChannelCapturingTaskInfo error info：" +e.Message;
+                    Response.Msg = "GetAllChannelCapturingTaskInfo error info:" +e.Message;
                     Logger.Error(Response.Msg);
                 }
             }
@@ -719,7 +719,7 @@ namespace IngestTaskPlugin.Controllers.v2
                 if (Response.Ext == null)
                 {
                     Response.Code = ResponseCodeDefines.NotFound;
-                    Response.Msg = $"{System.Reflection.MethodBase.GetCurrentMethod().DeclaringType.FullName}：error info: 获取数据为空!";
+                    Response.Msg = $"{System.Reflection.MethodBase.GetCurrentMethod().DeclaringType.FullName}:error info: 获取数据为空!";
                 }
             }
             catch (Exception e)
@@ -733,7 +733,7 @@ namespace IngestTaskPlugin.Controllers.v2
                 else
                 {
                     Response.Code = ResponseCodeDefines.ServiceError;
-                    Response.Msg = "GetChannelCapturingTaskInfo error info：" + e.Message;
+                    Response.Msg = "GetChannelCapturingTaskInfo error info:" + e.Message;
                     Logger.Error(Response.Msg);
                 }
             }
@@ -769,7 +769,7 @@ namespace IngestTaskPlugin.Controllers.v2
                 if (Response.Ext == null)
                 {
                     Response.Code = ResponseCodeDefines.NotFound;
-                    Response.Msg = $"{System.Reflection.MethodBase.GetCurrentMethod().DeclaringType.FullName}：error info: 获取数据为空!";
+                    Response.Msg = $"{System.Reflection.MethodBase.GetCurrentMethod().DeclaringType.FullName}:error info: 获取数据为空!";
                 }
                 //添加后如果开始时间在2分钟以内，需要调度一次
                 if ((DateTimeFormat.DateTimeFromString(req.Begin) - DateTime.Now).TotalSeconds < 120)
@@ -798,7 +798,7 @@ namespace IngestTaskPlugin.Controllers.v2
                 else
                 {
                     Response.Code = ResponseCodeDefines.ServiceError;
-                    Response.Msg = "ModifyTask error info：" + e.Message;
+                    Response.Msg = "ModifyTask error info:" + e.Message;
                     Logger.Error(Response.Msg);
                 }
             }
@@ -843,7 +843,7 @@ namespace IngestTaskPlugin.Controllers.v2
                 if (Response.Ext == null)
                 {
                     Response.Code = ResponseCodeDefines.NotFound;
-                    Response.Msg = $"{System.Reflection.MethodBase.GetCurrentMethod().DeclaringType.FullName}：error info: 获取数据为空!";
+                    Response.Msg = $"{System.Reflection.MethodBase.GetCurrentMethod().DeclaringType.FullName}:error info: 获取数据为空!";
                 }
                 //添加后如果开始时间在2分钟以内，需要调度一次
                 if ((DateTimeFormat.DateTimeFromString(req.TaskContent.Begin) - DateTime.Now).TotalSeconds < 120)
@@ -872,7 +872,7 @@ namespace IngestTaskPlugin.Controllers.v2
                 else
                 {
                     Response.Code = ResponseCodeDefines.ServiceError;
-                    Response.Msg = "ModifyAllTask error info：" + e.Message;
+                    Response.Msg = "ModifyAllTask error info:" + e.Message;
                     Logger.Error(Response.Msg);
                 }
             }
@@ -906,7 +906,7 @@ namespace IngestTaskPlugin.Controllers.v2
                 if (Response.Ext == null)
                 {
                     Response.Code = ResponseCodeDefines.NotFound;
-                    Response.Msg = $"{System.Reflection.MethodBase.GetCurrentMethod().DeclaringType.FullName}：error info: 获取数据为空!";
+                    Response.Msg = $"{System.Reflection.MethodBase.GetCurrentMethod().DeclaringType.FullName}:error info: 获取数据为空!";
                 }
             }
             catch (Exception e)
@@ -920,7 +920,7 @@ namespace IngestTaskPlugin.Controllers.v2
                 else
                 {
                     Response.Code = ResponseCodeDefines.ServiceError;
-                    Response.Msg = "GetTaskInfoByID error info：" + e.Message;
+                    Response.Msg = "GetTaskInfoByID error info:" + e.Message;
                     Logger.Error(Response.Msg);
                 }
             }
@@ -953,7 +953,7 @@ namespace IngestTaskPlugin.Controllers.v2
                 if (Response.Ext == null)
                 {
                     Response.Code = ResponseCodeDefines.NotFound;
-                    Response.Msg = $"{System.Reflection.MethodBase.GetCurrentMethod().DeclaringType.FullName}：error info: 获取数据为空!";
+                    Response.Msg = $"{System.Reflection.MethodBase.GetCurrentMethod().DeclaringType.FullName}:error info: 获取数据为空!";
                 }
             }
             catch (Exception e)
@@ -967,7 +967,7 @@ namespace IngestTaskPlugin.Controllers.v2
                 else
                 {
                     Response.Code = ResponseCodeDefines.ServiceError;
-                    Response.Msg = "GetTaskInfoAllByID error info：" + e.Message;
+                    Response.Msg = "GetTaskInfoAllByID error info:" + e.Message;
                     Logger.Error(Response.Msg);
                 }
             }
@@ -1000,7 +1000,7 @@ namespace IngestTaskPlugin.Controllers.v2
                 if (Response.Ext<=0)
                 {
                     Response.Code = ResponseCodeDefines.NotFound;
-                    Response.Msg = $"{System.Reflection.MethodBase.GetCurrentMethod().DeclaringType.FullName}：error info: 获取数据为空!";
+                    Response.Msg = $"{System.Reflection.MethodBase.GetCurrentMethod().DeclaringType.FullName}:error info: 获取数据为空!";
                 }
                 if (Response.Ext <= 0)
                 {
@@ -1019,7 +1019,7 @@ namespace IngestTaskPlugin.Controllers.v2
                 else
                 {
                     Response.Code = ResponseCodeDefines.ServiceError;
-                    Response.Msg = "TieUpTaskIDByChannelID error info：" + e.Message;
+                    Response.Msg = "TieUpTaskIDByChannelID error info:" + e.Message;
                     Logger.Error(Response.Msg);
                 }
             }
@@ -1081,7 +1081,7 @@ namespace IngestTaskPlugin.Controllers.v2
                 else
                 {
                     Response.Code = ResponseCodeDefines.ServiceError;
-                    Response.Msg = "StopTask error info：" +e.Message;
+                    Response.Msg = "StopTask error info:" +e.Message;
                     Logger.Error(Response.Msg);
                 }
             }
@@ -1150,7 +1150,7 @@ namespace IngestTaskPlugin.Controllers.v2
                 else
                 {
                     Response.Code = ResponseCodeDefines.ServiceError;
-                    Response.Msg = "StopTask time error info：" +e.Message;
+                    Response.Msg = "StopTask time error info:" +e.Message;
                     Logger.Error(Response.Msg);
                 }
             }
@@ -1201,7 +1201,7 @@ namespace IngestTaskPlugin.Controllers.v2
                 else
                 {
                     Response.Code = ResponseCodeDefines.ServiceError;
-                    Response.Msg = "SetTaskState error info：" + e.Message;
+                    Response.Msg = "SetTaskState error info:" + e.Message;
                     Logger.Error(Response.Msg);
                 }
             }
@@ -1231,7 +1231,7 @@ namespace IngestTaskPlugin.Controllers.v2
                 if (Response.Ext == null)
                 {
                     Response.Code = ResponseCodeDefines.NotFound;
-                    Response.Msg = $"{System.Reflection.MethodBase.GetCurrentMethod().DeclaringType.FullName}：error info: 获取数据为空!";
+                    Response.Msg = $"{System.Reflection.MethodBase.GetCurrentMethod().DeclaringType.FullName}:error info: 获取数据为空!";
                 }
             }
             catch (Exception e)
@@ -1245,7 +1245,7 @@ namespace IngestTaskPlugin.Controllers.v2
                 else
                 {
                     Response.Code = ResponseCodeDefines.ServiceError;
-                    Response.Msg = "QueryTaskContent error info：" +e.Message;
+                    Response.Msg = "QueryTaskContent error info:" +e.Message;
                     Logger.Error(Response.Msg);
                 }
             }
@@ -1282,7 +1282,7 @@ namespace IngestTaskPlugin.Controllers.v2
                 else
                 {
                     Response.Code = ResponseCodeDefines.ServiceError;
-                    Response.Msg = "GetTaskSource error info：" +e.Message;
+                    Response.Msg = "GetTaskSource error info:" +e.Message;
                     Logger.Error(Response.Msg);
                 }
             }
@@ -1325,7 +1325,7 @@ namespace IngestTaskPlugin.Controllers.v2
                 else
                 {
                     Response.Code = ResponseCodeDefines.ServiceError;
-                    Response.Msg = "TrimTaskBeginTime error info：" +e.Message;
+                    Response.Msg = "TrimTaskBeginTime error info:" +e.Message;
                     Logger.Error(Response.Msg);
                 }
             }
@@ -1372,7 +1372,7 @@ namespace IngestTaskPlugin.Controllers.v2
                 else
                 {
                     Response.Code = ResponseCodeDefines.ServiceError;
-                    Response.Msg = "DeleteTask error info：" +e.Message;
+                    Response.Msg = "DeleteTask error info:" +e.Message;
                     Logger.Error(Response.Msg);
                 }
             }
@@ -1410,7 +1410,7 @@ namespace IngestTaskPlugin.Controllers.v2
                 else
                 {
                     Response.Code = ResponseCodeDefines.ServiceError;
-                    Response.Msg = "SetTaskInfoClassify error info：" +e.Message;
+                    Response.Msg = "SetTaskInfoClassify error info:" +e.Message;
                     Logger.Error(Response.Msg);
                 }
             }
@@ -1446,7 +1446,7 @@ namespace IngestTaskPlugin.Controllers.v2
                 else
                 {
                     Response.Code = ResponseCodeDefines.ServiceError;
-                    Response.Msg = "SetPeriodTaskToNextTime error info：" +e.Message;
+                    Response.Msg = "SetPeriodTaskToNextTime error info:" +e.Message;
                     Logger.Error(Response.Msg);
                 }
             }
@@ -1484,7 +1484,7 @@ namespace IngestTaskPlugin.Controllers.v2
                 else
                 {
                     Response.Code = ResponseCodeDefines.ServiceError;
-                    Response.Msg = "SetPeriodTaskToNextTime error info：" +e.Message;
+                    Response.Msg = "SetPeriodTaskToNextTime error info:" +e.Message;
                     Logger.Error(Response.Msg);
                 }
             }
@@ -1521,7 +1521,7 @@ namespace IngestTaskPlugin.Controllers.v2
                 else
                 {
                     Response.Code = ResponseCodeDefines.ServiceError;
-                    Response.Msg = "CompleteSynTasks error info：" +e.Message;
+                    Response.Msg = "CompleteSynTasks error info:" +e.Message;
                     Logger.Error(Response.Msg);
                 }
             }
@@ -1569,7 +1569,7 @@ namespace IngestTaskPlugin.Controllers.v2
                 else
                 {
                     Response.Code = ResponseCodeDefines.ServiceError;
-                    Response.Msg = "CompleteSynTasks error info：" +e.Message;
+                    Response.Msg = "CompleteSynTasks error info:" +e.Message;
                     Logger.Error(Response.Msg);
                 }
             }
@@ -1596,7 +1596,7 @@ namespace IngestTaskPlugin.Controllers.v2
                 if (Response.Ext == null)
                 {
                     Response.Code = ResponseCodeDefines.NotFound;
-                    Response.Msg = $"{System.Reflection.MethodBase.GetCurrentMethod().DeclaringType.FullName}：error info: 获取数据为空!";
+                    Response.Msg = $"{System.Reflection.MethodBase.GetCurrentMethod().DeclaringType.FullName}:error info: 获取数据为空!";
                 }
             }
             catch (Exception e)
@@ -1610,7 +1610,7 @@ namespace IngestTaskPlugin.Controllers.v2
                 else
                 {
                     Response.Code = ResponseCodeDefines.ServiceError;
-                    Response.Msg = "NeedRescheduleTasks error info：" +e.Message;
+                    Response.Msg = "NeedRescheduleTasks error info:" +e.Message;
                     Logger.Error(Response.Msg);
                 }
             }
@@ -1647,7 +1647,7 @@ namespace IngestTaskPlugin.Controllers.v2
                 else
                 {
                     Response.Code = ResponseCodeDefines.ServiceError;
-                    Response.Msg = "CompleteRescheduleTasks error info：" +e.Message;
+                    Response.Msg = "CompleteRescheduleTasks error info:" +e.Message;
                     Logger.Error(Response.Msg);
                 }
             }
@@ -1685,7 +1685,7 @@ namespace IngestTaskPlugin.Controllers.v2
                 else
                 {
                     Response.Code = ResponseCodeDefines.ServiceError;
-                    Response.Msg = "ModifyCooperTask error info：" +e.Message;
+                    Response.Msg = "ModifyCooperTask error info:" +e.Message;
                     Logger.Error(Response.Msg);
                 }
             }
@@ -1712,7 +1712,7 @@ namespace IngestTaskPlugin.Controllers.v2
                 if (Response.Ext == null || Response.Ext.Count <= 0)
                 {
                     Response.Code = ResponseCodeDefines.NotFound;
-                    Response.Msg = $"{System.Reflection.MethodBase.GetCurrentMethod().DeclaringType.FullName}：error info: 获取数据为空!";
+                    Response.Msg = $"{System.Reflection.MethodBase.GetCurrentMethod().DeclaringType.FullName}:error info: 获取数据为空!";
                 }
             }
             catch (Exception e)
@@ -1726,7 +1726,7 @@ namespace IngestTaskPlugin.Controllers.v2
                 else
                 {
                     Response.Code = ResponseCodeDefines.ServiceError;
-                    Response.Msg = "RescheduleTasks error info：" +e.Message;
+                    Response.Msg = "RescheduleTasks error info:" +e.Message;
                     Logger.Error(Response.Msg);
                 }
             }
@@ -1758,7 +1758,7 @@ namespace IngestTaskPlugin.Controllers.v2
                 if (Response.Ext == null || Response.Ext.Count <= 0)
                 {
                     Response.Code = ResponseCodeDefines.NotFound;
-                    Response.Msg = $"{System.Reflection.MethodBase.GetCurrentMethod().DeclaringType.FullName}：error info: 获取数据为空!";
+                    Response.Msg = $"{System.Reflection.MethodBase.GetCurrentMethod().DeclaringType.FullName}:error info: 获取数据为空!";
                 }
             }
             catch (Exception e)
@@ -1772,7 +1772,7 @@ namespace IngestTaskPlugin.Controllers.v2
                 else
                 {
                     Response.Code = ResponseCodeDefines.ServiceError;
-                    Response.Msg = "WarningInfos error info：" +e.Message;
+                    Response.Msg = "WarningInfos error info:" +e.Message;
                     Logger.Error(Response.Msg);
                 }
             }
@@ -1800,7 +1800,7 @@ namespace IngestTaskPlugin.Controllers.v2
                 if (string.IsNullOrEmpty(Response.Ext))
                 {
                     Response.Code = ResponseCodeDefines.NotFound;
-                    Response.Msg = $"{System.Reflection.MethodBase.GetCurrentMethod().DeclaringType.FullName}：error info: 获取数据为空!";
+                    Response.Msg = $"{System.Reflection.MethodBase.GetCurrentMethod().DeclaringType.FullName}:error info: 获取数据为空!";
                 }
             }
             catch (Exception e)
@@ -1814,7 +1814,7 @@ namespace IngestTaskPlugin.Controllers.v2
                 else
                 {
                     Response.Code = ResponseCodeDefines.ServiceError;
-                    Response.Msg = "ChannelCapturingLowMaterial error info：" +e.Message;
+                    Response.Msg = "ChannelCapturingLowMaterial error info:" +e.Message;
                     Logger.Error(Response.Msg);
                 }
             }
@@ -1844,7 +1844,7 @@ namespace IngestTaskPlugin.Controllers.v2
                 if (Response.Ext == null)
                 {
                     Response.Code = ResponseCodeDefines.NotFound;
-                    Response.Msg = $"{System.Reflection.MethodBase.GetCurrentMethod().DeclaringType.FullName}：error info: 获取数据为空!";
+                    Response.Msg = $"{System.Reflection.MethodBase.GetCurrentMethod().DeclaringType.FullName}:error info: 获取数据为空!";
                 }
             }
             catch (Exception e)
@@ -1858,7 +1858,7 @@ namespace IngestTaskPlugin.Controllers.v2
                 else
                 {
                     Response.Code = ResponseCodeDefines.ServiceError;
-                    Response.Msg = "ChannelCapturingLowMaterial error info：" +e.Message;
+                    Response.Msg = "ChannelCapturingLowMaterial error info:" +e.Message;
                     Logger.Error(Response.Msg);
                 }
             }
@@ -1886,7 +1886,7 @@ namespace IngestTaskPlugin.Controllers.v2
                 if (Response.Ext == null)
                 {
                     Response.Code = ResponseCodeDefines.NotFound;
-                    Response.Msg = $"{System.Reflection.MethodBase.GetCurrentMethod().DeclaringType.FullName}：error info: 获取数据为空!";
+                    Response.Msg = $"{System.Reflection.MethodBase.GetCurrentMethod().DeclaringType.FullName}:error info: 获取数据为空!";
                 }
             }
             catch (Exception e)
@@ -1899,7 +1899,7 @@ namespace IngestTaskPlugin.Controllers.v2
                 else
                 {
                     Response.Code = ResponseCodeDefines.ServiceError;
-                    Response.Msg = $"SetTaskInfoClassify error info：{e.Message}";
+                    Response.Msg = $"SetTaskInfoClassify error info:{e.Message}";
                     Logger.Error(Response.Msg);
                 }
             }
@@ -1927,7 +1927,7 @@ namespace IngestTaskPlugin.Controllers.v2
                 if (Response.Ext == null)
                 {
                     Response.Code = ResponseCodeDefines.NotFound;
-                    Response.Msg = $"{System.Reflection.MethodBase.GetCurrentMethod().DeclaringType.FullName}：error info: 获取数据为空!";
+                    Response.Msg = $"{System.Reflection.MethodBase.GetCurrentMethod().DeclaringType.FullName}:error info: 获取数据为空!";
                 }
                 var custom = await _taskManage.GetCustomMetadataAsync<TaskCustomMetadataResponse>(taskid);
                 if (custom != null)
@@ -1947,7 +1947,7 @@ namespace IngestTaskPlugin.Controllers.v2
                 else
                 {
                     Response.Code = ResponseCodeDefines.ServiceError;
-                    Response.Msg = $"CreateNewTaskFromPeriodicTask error info：{e.Message}";
+                    Response.Msg = $"CreateNewTaskFromPeriodicTask error info:{e.Message}";
                     Logger.Error(Response.Msg);
                 }
             }
@@ -1997,7 +1997,7 @@ namespace IngestTaskPlugin.Controllers.v2
                 else
                 {
                     Response.Code = ResponseCodeDefines.ServiceError;
-                    Response.Msg = $"StartTieUpTask error info：{e.Message}";
+                    Response.Msg = $"StartTieUpTask error info:{e.Message}";
                     Logger.Error(Response.Msg);
                 }
             }
@@ -2026,7 +2026,7 @@ namespace IngestTaskPlugin.Controllers.v2
                 if (Response.Ext<= 0)
                 {
                     Response.Code = ResponseCodeDefines.NotFound;
-                    Response.Msg = $"{System.Reflection.MethodBase.GetCurrentMethod().DeclaringType.FullName}：error info: 获取数据为空!";
+                    Response.Msg = $"{System.Reflection.MethodBase.GetCurrentMethod().DeclaringType.FullName}:error info: 获取数据为空!";
                 }
             }
             catch (Exception e)
@@ -2039,7 +2039,7 @@ namespace IngestTaskPlugin.Controllers.v2
                 else
                 {
                     Response.Code = ResponseCodeDefines.ServiceError;
-                    Response.Msg = $"ChooseUseableChannelID error info：{e.Message}";
+                    Response.Msg = $"ChooseUseableChannelID error info:{e.Message}";
                     Logger.Error(Response.Msg);
                 }
             }
@@ -2087,7 +2087,7 @@ namespace IngestTaskPlugin.Controllers.v2
                 else
                 { 
                     Response.Code = ResponseCodeDefines.ServiceError;
-                    Response.Msg = $"ModifyTaskInfoNmae error info：{e.Message} ";
+                    Response.Msg = $"ModifyTaskInfoNmae error info:{e.Message} ";
                     Logger.Error(Response.Msg);
                 }
             }
@@ -2117,7 +2117,7 @@ namespace IngestTaskPlugin.Controllers.v2
                 if (Response.Ext <= 0)
                 {
                     Response.Code = ResponseCodeDefines.NotFound;
-                    Response.Msg = $"{System.Reflection.MethodBase.GetCurrentMethod().DeclaringType.FullName}：error info: 获取数据为空!";
+                    Response.Msg = $"{System.Reflection.MethodBase.GetCurrentMethod().DeclaringType.FullName}:error info: 获取数据为空!";
                 }
                 //添加后如果开始时间在2分钟以内，需要调度一次
                 if ((DateTimeFormat.DateTimeFromString(req.Begin) - DateTime.Now).TotalSeconds < 120)
@@ -2145,7 +2145,7 @@ namespace IngestTaskPlugin.Controllers.v2
                 else
                 {
                     Response.Code = ResponseCodeDefines.ServiceError;
-                    Response.Msg = $"ModifyTaskInfoNmae error info：{e.Message}";
+                    Response.Msg = $"ModifyTaskInfoNmae error info:{e.Message}";
                     Logger.Error(Response.Msg);
                 }
             }
@@ -2220,7 +2220,7 @@ namespace IngestTaskPlugin.Controllers.v2
                 else
                 {
                     Response.Code = ResponseCodeDefines.ServiceError;
-                    Response.Msg = $"IsTaskVTRCollide error info：{e.Message}";
+                    Response.Msg = $"IsTaskVTRCollide error info:{e.Message}";
                     Logger.Error(Response.Msg);
                 }
             }
@@ -2255,7 +2255,7 @@ namespace IngestTaskPlugin.Controllers.v2
                 else
                 {
                     Response.Code = ResponseCodeDefines.ServiceError;
-                    Response.Msg = $"WriteVTRUploadTask error info：{e.Message}";
+                    Response.Msg = $"WriteVTRUploadTask error info:{e.Message}";
                     Logger.Error(Response.Msg);
                 }
             }
@@ -2281,7 +2281,7 @@ namespace IngestTaskPlugin.Controllers.v2
                 if (Response.Ext == null)
                 {
                     Response.Code = ResponseCodeDefines.NotFound;
-                    Response.Msg = $"{System.Reflection.MethodBase.GetCurrentMethod().DeclaringType.FullName}：error info: 获取数据为空!";
+                    Response.Msg = $"{System.Reflection.MethodBase.GetCurrentMethod().DeclaringType.FullName}:error info: 获取数据为空!";
                 }
             }
             catch (Exception e)
@@ -2294,7 +2294,7 @@ namespace IngestTaskPlugin.Controllers.v2
                 else
                 {
                     Response.Code = ResponseCodeDefines.ServiceError;
-                    Response.Msg = $"GetAllKamakatiFailTasks error info：{e.Message}";
+                    Response.Msg = $"GetAllKamakatiFailTasks error info:{e.Message}";
                     Logger.Error(Response.Msg);
                 }
             }
@@ -2332,7 +2332,7 @@ namespace IngestTaskPlugin.Controllers.v2
                 else
                 {
                     Response.Code = ResponseCodeDefines.ServiceError;
-                    Response.Msg = $"SetTaskStampBmp error info：{e.Message}";
+                    Response.Msg = $"SetTaskStampBmp error info:{e.Message}";
                     Logger.Error(Response.Msg);
                 }
             }
@@ -2362,7 +2362,7 @@ namespace IngestTaskPlugin.Controllers.v2
                 if (Response.Ext == null)
                 {
                     Response.Code = ResponseCodeDefines.NotFound;
-                    Response.Msg = $"{System.Reflection.MethodBase.GetCurrentMethod().DeclaringType.FullName}：error info: 获取数据为空!";
+                    Response.Msg = $"{System.Reflection.MethodBase.GetCurrentMethod().DeclaringType.FullName}:error info: 获取数据为空!";
                 }
                 if (_globalInterface != null)
                 {
@@ -2387,7 +2387,7 @@ namespace IngestTaskPlugin.Controllers.v2
                 else
                 {
                     Response.Code = ResponseCodeDefines.ServiceError;
-                    Response.Msg = $"AddTaskByOld error info：{e.Message}";
+                    Response.Msg = $"AddTaskByOld error info:{e.Message}";
                     Logger.Error(Response.Msg);
                 }
             }
@@ -2409,7 +2409,7 @@ namespace IngestTaskPlugin.Controllers.v2
                 if (Response.Ext == null)
                 {
                     Response.Code = ResponseCodeDefines.NotFound;
-                    Response.Msg = $"{System.Reflection.MethodBase.GetCurrentMethod().DeclaringType.FullName}：error info: 获取数据为空!";
+                    Response.Msg = $"{System.Reflection.MethodBase.GetCurrentMethod().DeclaringType.FullName}:error info: 获取数据为空!";
                 }
             }
             catch (Exception e)
@@ -2422,7 +2422,7 @@ namespace IngestTaskPlugin.Controllers.v2
                 else
                 {
                     Response.Code = ResponseCodeDefines.ServiceError;
-                    Response.Msg = $"GetWillBeginAndCapturingTasks error info：{e.Message}";
+                    Response.Msg = $"GetWillBeginAndCapturingTasks error info:{e.Message}";
                     Logger.Error(Response.Msg);
                 }
             }
@@ -2461,7 +2461,7 @@ namespace IngestTaskPlugin.Controllers.v2
         //        else
         //        {
         //            Response.Code = ResponseCodeDefines.ServiceError;
-        //            Response.Msg = $"AddTaskByOld error info：{e.Message}";
+        //            Response.Msg = $"AddTaskByOld error info:{e.Message}";
         //            Logger.Error(Response.Msg);
         //        }
         //    }

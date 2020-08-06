@@ -1771,8 +1771,8 @@ namespace IngestTaskPlugin.Stores
         public async Task<List<int>> GetFreePerodiChannels(List<int> lst, int nTaskID, int nUnitID, int nSigID, int nChannelID, string Category, DateTime begin, DateTime end)
         {
             //先得到所有可用通道
-            //和普通任务的冲突：1.把所有时间段上冲突的选出来 2.对比下看实际的冲突情况，过滤出真正冲突的。
-            //和周期任务的冲突：1.把所有周期任务选出来 2.在内存中对比是否冲突。
+            //和普通任务的冲突:1.把所有时间段上冲突的选出来 2.对比下看实际的冲突情况，过滤出真正冲突的。
+            //和周期任务的冲突:1.把所有周期任务选出来 2.在内存中对比是否冲突。
             //从可用通道中去掉冲突的，就是可用的
 
 
@@ -2629,7 +2629,7 @@ namespace IngestTaskPlugin.Stores
             if (DBTaskDateTimeBegin.TimeOfDay <= DBTaskDateTimeEnd.TimeOfDay) //没有跨天(加上等于的情况，避免将意外出现的开始等于结束时间的任务设置成跨天任务)
             {
                 //在32小时模式下，开始时间处于0－8点之间的任务，今天执行、明天执行和今明两天执行都需要被显示出来
-                //A：如果今天不是执行日，明天是，那么需要把任务的日期改成明天
+                //A:如果今天不是执行日，明天是，那么需要把任务的日期改成明天
                 //B: 如果今天是执行日，明天不是，那么任务日期应该是今天
                 //C: 如果今天和明天都是执行日，那么需要再复制一条任务出来显示
                 if (nTimeMode == TimeLineType.em32HourDay)
@@ -2681,9 +2681,9 @@ namespace IngestTaskPlugin.Stores
                 taskContent.Endtime = new DateTime(tmDay.Year, tmDay.Month, tmDay.Day, DBTaskDateTimeEnd.Hour, DBTaskDateTimeEnd.Minute, DBTaskDateTimeEnd.Second);
             }
             else    //跨天，要看今天以及昨天是不是执行日
-                    //A-今天是执行日，昨天不是：任务从今天执行到明天
-                    //B-今天不是是执行日，昨天是：任务从昨天执行到今天
-                    //C-昨天和今天都是执行日：有两个任务？？这种情况复制一个任务出来，ID为负值，作为从昨天执行到今天的任务				
+                    //A-今天是执行日，昨天不是:任务从今天执行到明天
+                    //B-今天不是是执行日，昨天是:任务从昨天执行到今天
+                    //C-昨天和今天都是执行日:有两个任务？？这种情况复制一个任务出来，ID为负值，作为从昨天执行到今天的任务				
                     //D-昨天和今天都不是执行日，说明任务是明天的，现在又有两种情况，如果任务开始
                     //时间是明天0-8点之间，今天应该显示一部分，如果不是0-8点之间，不予显示
             {

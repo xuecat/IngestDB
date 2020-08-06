@@ -115,7 +115,7 @@ namespace IngestDBCore
         {
             if (string.IsNullOrEmpty(custommessage))
             {
-                SobeyRecException ex = new SobeyRecException(custommessage, oInner, logger, lLogErrorCode);
+                SobeyRecException ex = new SobeyRecException(GlobalDictionary.Instance.GetMessageByCode(lLogErrorCode), oInner, logger, lLogErrorCode);
                 throw ex;
             }
             else
@@ -133,7 +133,7 @@ namespace IngestDBCore
         {
             if (string.IsNullOrEmpty(custommessage))
             {
-                SobeyRecException ex = new SobeyRecException(custommessage, oInner, logger, lLogErrorCode);
+                SobeyRecException ex = new SobeyRecException(GlobalDictionary.Instance.GetMessageByCode(lLogErrorCode), oInner, logger, lLogErrorCode);
                 throw ex;
             }
             else
@@ -151,7 +151,7 @@ namespace IngestDBCore
         {
             if (string.IsNullOrEmpty(custommessage))
             {
-                SobeyRecException ex = new SobeyRecException(custommessage, oInner, logger, lLogErrorCode);
+                SobeyRecException ex = new SobeyRecException(GlobalDictionary.Instance.GetMessageByCode(lLogErrorCode), oInner, logger, lLogErrorCode);
                 throw ex;
             }
             else

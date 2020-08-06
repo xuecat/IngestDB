@@ -65,7 +65,7 @@ namespace IngestGlobalPlugin.Controllers.v1
 
             try
             {
-                Logger.Error("PostUpdateSaveInDBStateForTask error info：" + Newtonsoft.Json.JsonConvert.SerializeObject(pIn));
+                Logger.Error("PostUpdateSaveInDBStateForTask error info:" + Newtonsoft.Json.JsonConvert.SerializeObject(pIn));
 
                 await _materialManage.UpdateSaveInDBStateForTask(pIn.nTaskID, pIn.nPolicyID, pIn.nSectionID, (SAVE_IN_DB_STATE)pIn.state, pIn.strResult);
 
@@ -85,8 +85,8 @@ namespace IngestGlobalPlugin.Controllers.v1
                 {
                     Response.bRet = false;
                     //Response.Code = ResponseCodeDefines.ServiceError;
-                    //Response.Msg = "GetNeedProcessedMqMsg error info：" + e.ToString();
-                    Logger.Error("GetNeedProcessedMqMsg error info：" + e.Message);
+                    //Response.Msg = "GetNeedProcessedMqMsg error info:" + e.ToString();
+                    Logger.Error("GetNeedProcessedMqMsg error info:" + e.Message);
                     Response.errStr = e.Message;
                 }
             }
@@ -122,7 +122,7 @@ namespace IngestGlobalPlugin.Controllers.v1
                 else
                 {
                     Response.nCode = 0;
-                    Response.message = "error info：" + e.Message;
+                    Response.message = "error info:" + e.Message;
                     Logger.Error("GetNeedProcessedMqMsg" + e.Message);
                 }
             }
@@ -156,7 +156,7 @@ namespace IngestGlobalPlugin.Controllers.v1
                 else
                 {
                     Response.nCode = 0;
-                    Response.message = "error info：" + e.Message;
+                    Response.message = "error info:" + e.Message;
                     Logger.Error("QueryMsgFailedRecord" + e.Message);
                 }
             }
@@ -185,7 +185,7 @@ namespace IngestGlobalPlugin.Controllers.v1
                 else
                 {
                     Response.nCode = 0;
-                    Response.message = "error info：" + e.Message;
+                    Response.message = "error info:" + e.Message;
                     Logger.Error("QueryTaskResultByIDAndSection" + e.Message);
                 }
             }
@@ -223,7 +223,7 @@ namespace IngestGlobalPlugin.Controllers.v1
                 else
                 {
                     Response.nCode = 0;
-                    Response.message = "error info：" + e.Message;
+                    Response.message = "error info:" + e.Message;
                     Logger.Error("DeleteMsgFaieldRecord" + e.Message);
                 }
             }
@@ -268,7 +268,7 @@ namespace IngestGlobalPlugin.Controllers.v1
                 else
                 {
                     Response.nCode = 0;
-                    Response.message = "error info：" + e.Message;
+                    Response.message = "error info:" + e.Message;
                     Logger.Error("QueryTaskResultByIDAndSection" + e.Message);
                     Response.extention = false;
                 }
@@ -309,7 +309,7 @@ namespace IngestGlobalPlugin.Controllers.v1
                 else
                 {
                     Response.nCode = 0;
-                    Response.message = "error info：" + e.Message;
+                    Response.message = "error info:" + e.Message;
                     Logger.Error("QueryTaskResultByID" + e.Message);
                     Response.extention = false;
                 }
@@ -343,7 +343,7 @@ namespace IngestGlobalPlugin.Controllers.v1
                 else
                 {
                     //Response.nCode = 0;
-                    //Response.errStr = "error info：" + e.ToString();
+                    //Response.errStr = "error info:" + e.ToString();
                     Logger.Error("GetMsgContentByTaskID" + e.ToString());
                     Response.nCode = 0;
                     Response.message = e.Message;
@@ -382,7 +382,7 @@ namespace IngestGlobalPlugin.Controllers.v1
                 else
                 {
                     Response.nCode = 0;
-                    Response.errStr = "error info：" + e.Message;
+                    Response.errStr = "error info:" + e.Message;
                     Logger.Error("FindFormatInfo" + e.Message);
                 }
             }
@@ -419,7 +419,7 @@ namespace IngestGlobalPlugin.Controllers.v1
                 else
                 {
                     Response.nCode = 0;
-                    Response.errStr = "error info：" + e.Message;
+                    Response.errStr = "error info:" + e.Message;
                     Logger.Error("AddFormatInfo" + e.Message);
                 }
             }
@@ -456,7 +456,7 @@ namespace IngestGlobalPlugin.Controllers.v1
                 else
                 {
                     Response.nCode = 0;
-                    Response.errStr = "error info：" + e.Message;
+                    Response.errStr = "error info:" + e.Message;
                     Logger.Error("UpdateFormatInfo" + e.Message);
                 }
             }

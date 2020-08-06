@@ -97,7 +97,7 @@ namespace IngestTaskPlugin.Dto.Response
         public bool BackupCHSel { get; set; } = true;
         public bool CheckCHCurState { get; set; } = false;
         public bool MoveExcutingOpenTask { get; set; } = false;//是否排除有正在执行手动任务的通道
-        public bool OnlyLocalChannel { get; set; } = true;//1:只能在本通道；其他：优先在本通道
+        public bool OnlyLocalChannel { get; set; } = true;//1:只能在本通道；其他:优先在本通道
         public int BaseChId { get; set; } = -1;//这个ID是外面穿进来的，如果>0,那么将跟这个通道在同一个物理机上的通道优先级降低
     }
 

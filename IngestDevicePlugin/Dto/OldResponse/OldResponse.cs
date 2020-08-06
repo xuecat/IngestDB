@@ -70,7 +70,7 @@ namespace IngestDevicePlugin.Dto.OldResponse
         /// <summary>信号源类型Id（高标清）</summary>
         public int nTypeID;
 
-        /// <summary>图像类型;0、为素材原始比例，1、图像为4:3的方式，2：图像为16:9的方式</summary>
+        /// <summary>图像类型;0、为素材原始比例，1、图像为4:3的方式，2:图像为16:9的方式</summary>
         public int nImageType;
 
         /// <summary>表示是否是纯音频信号源</summary>
@@ -107,7 +107,7 @@ namespace IngestDevicePlugin.Dto.OldResponse
         /// <summary>序号</summary>
         public int orderCode = -1;
 
-        /// <summary>可以采集的信号源类型，0：Auto，1：SD，2：HD</summary>
+        /// <summary>可以采集的信号源类型，0:Auto，1:SD，2:HD</summary>
         public int nCPSignalType = 0;
 
         /// <summary>分组ID</summary>
@@ -251,7 +251,7 @@ namespace IngestDevicePlugin.Dto.OldResponse
         /// <example>1</example>
         public int PgmIndex { set; get; }
 
-        /// <summary>高标清，0：标清；1：高清</summary>
+        /// <summary>高标清，0:标清；1:高清</summary>
         /// <example>0</example>
         public int PgmTypeId { set; get; }
 
@@ -338,7 +338,7 @@ namespace IngestDevicePlugin.Dto.OldResponse
         /// <summary>通道的备份类型</summary>
         /// <example>0</example>
         public emBackupFlag emBackUpType { set; get; }
-        /// <summary>可以采集的信号源类型，0：Auto，1：SD，2：HD</summary>
+        /// <summary>可以采集的信号源类型，0:Auto，1:SD，2:HD</summary>
         /// <example>0</example>
         public int nCPSignalType { set; get; }
 

@@ -57,7 +57,7 @@ namespace IngestDevicePlugin.Controllers.v1
                 } else
                 {
                     response.bRet = false;
-                    response.errStr = $"{System.Reflection.MethodBase.GetCurrentMethod().DeclaringType.FullName}：error info:{e.Message}";
+                    response.errStr = $"{System.Reflection.MethodBase.GetCurrentMethod().DeclaringType.FullName}:error info:{e.Message}";
                     Logger.Error(response.errStr);
                 }
             }
@@ -86,7 +86,7 @@ namespace IngestDevicePlugin.Controllers.v1
                 } else
                 {
                     response.bRet = false;
-                    response.errStr = $"{System.Reflection.MethodBase.GetCurrentMethod().DeclaringType.FullName}：error info:{e.Message}";
+                    response.errStr = $"{System.Reflection.MethodBase.GetCurrentMethod().DeclaringType.FullName}:error info:{e.Message}";
                     Logger.Error(response.errStr);
                 }
             }
@@ -115,7 +115,7 @@ namespace IngestDevicePlugin.Controllers.v1
                 } else
                 {
                     response.bRet = false;
-                    response.errStr = $"{System.Reflection.MethodBase.GetCurrentMethod().DeclaringType.FullName}：error info:{e.Message}";
+                    response.errStr = $"{System.Reflection.MethodBase.GetCurrentMethod().DeclaringType.FullName}:error info:{e.Message}";
                     Logger.Error(response.errStr);
                 }
             }
@@ -144,7 +144,7 @@ namespace IngestDevicePlugin.Controllers.v1
                 } else
                 {
                     response.bRet = false;
-                    response.errStr = $"{System.Reflection.MethodBase.GetCurrentMethod().DeclaringType.FullName}：error info:{e.Message}";
+                    response.errStr = $"{System.Reflection.MethodBase.GetCurrentMethod().DeclaringType.FullName}:error info:{e.Message}";
                     Logger.Error(response.errStr);
                 }
             }
@@ -173,7 +173,7 @@ namespace IngestDevicePlugin.Controllers.v1
                 } else
                 {
                     response.bRet = false;
-                    response.errStr = $"{System.Reflection.MethodBase.GetCurrentMethod().DeclaringType.FullName}：error info:{e.Message}";
+                    response.errStr = $"{System.Reflection.MethodBase.GetCurrentMethod().DeclaringType.FullName}:error info:{e.Message}";
                     Logger.Error(response.errStr);
                 }
             }
@@ -202,7 +202,7 @@ namespace IngestDevicePlugin.Controllers.v1
                 } else
                 {
                     response.bRet = false;
-                    response.errStr = $"{System.Reflection.MethodBase.GetCurrentMethod().DeclaringType.FullName}：error info:{e.Message}";
+                    response.errStr = $"{System.Reflection.MethodBase.GetCurrentMethod().DeclaringType.FullName}:error info:{e.Message}";
                     Logger.Error(response.errStr);
                 }
             }
@@ -238,7 +238,7 @@ namespace IngestDevicePlugin.Controllers.v1
                 } else
                 {
                     response.bRet = false;
-                    response.errStr = $"{System.Reflection.MethodBase.GetCurrentMethod().DeclaringType.FullName}：error info:{e.Message}";
+                    response.errStr = $"{System.Reflection.MethodBase.GetCurrentMethod().DeclaringType.FullName}:error info:{e.Message}";
                     Logger.Error(response.errStr);
                 }
             }
@@ -273,7 +273,7 @@ namespace IngestDevicePlugin.Controllers.v1
                 } else
                 {
                     response.bRet = false;
-                    response.errStr = $"{System.Reflection.MethodBase.GetCurrentMethod().DeclaringType.FullName}：error info:{e.Message}";
+                    response.errStr = $"{System.Reflection.MethodBase.GetCurrentMethod().DeclaringType.FullName}:error info:{e.Message}";
                     Logger.Error(response.errStr);
                 }
             }
@@ -302,7 +302,7 @@ namespace IngestDevicePlugin.Controllers.v1
                 } else
                 {
                     response.bRet = false;
-                    response.errStr = $"{System.Reflection.MethodBase.GetCurrentMethod().DeclaringType.FullName}：error info:{e.Message}";
+                    response.errStr = $"{System.Reflection.MethodBase.GetCurrentMethod().DeclaringType.FullName}:error info:{e.Message}";
                     Logger.Error(response.errStr);
                 }
             }
@@ -334,7 +334,7 @@ namespace IngestDevicePlugin.Controllers.v1
                 } else
                 {
                     response.bRet = false;
-                    response.errStr = $"{System.Reflection.MethodBase.GetCurrentMethod().DeclaringType.FullName}：error info:{e.Message}";
+                    response.errStr = $"{System.Reflection.MethodBase.GetCurrentMethod().DeclaringType.FullName}:error info:{e.Message}";
                     Logger.Error(response.errStr);
                 }
             }
@@ -368,7 +368,7 @@ namespace IngestDevicePlugin.Controllers.v1
                 } else
                 {
                     response.bRet = false;
-                    response.errStr = $"{System.Reflection.MethodBase.GetCurrentMethod().DeclaringType.FullName}：error info:{e.Message}";
+                    response.errStr = $"{System.Reflection.MethodBase.GetCurrentMethod().DeclaringType.FullName}:error info:{e.Message}";
                     Logger.Error(response.errStr);
                 }
             }
@@ -396,7 +396,7 @@ namespace IngestDevicePlugin.Controllers.v1
                 } else
                 {
                     response.bRet = false;
-                    response.errStr = $"{System.Reflection.MethodBase.GetCurrentMethod().DeclaringType.FullName}：error info:{e.Message}";
+                    response.errStr = $"{System.Reflection.MethodBase.GetCurrentMethod().DeclaringType.FullName}:error info:{e.Message}";
                     Logger.Error(response.errStr);
                 }
             }
@@ -425,7 +425,7 @@ namespace IngestDevicePlugin.Controllers.v1
                 } else
                 {
                     response.bRet = false;
-                    response.errStr = $"{System.Reflection.MethodBase.GetCurrentMethod().DeclaringType.FullName}：error info:{e.Message}";
+                    response.errStr = $"{System.Reflection.MethodBase.GetCurrentMethod().DeclaringType.FullName}:error info:{e.Message}";
                     Logger.Error(response.errStr);
                 }
             }
@@ -454,7 +454,7 @@ namespace IngestDevicePlugin.Controllers.v1
                 } else
                 {
                     response.bRet = false;
-                    response.errStr = $"{System.Reflection.MethodBase.GetCurrentMethod().DeclaringType.FullName}：error info:{e.Message}";
+                    response.errStr = $"{System.Reflection.MethodBase.GetCurrentMethod().DeclaringType.FullName}:error info:{e.Message}";
                     Logger.Error(response.errStr);
                 }
             }
@@ -483,7 +483,7 @@ namespace IngestDevicePlugin.Controllers.v1
                 } else
                 {
                     response.bRet = false;
-                    response.errStr = $"{System.Reflection.MethodBase.GetCurrentMethod().DeclaringType.FullName}：error info:{e.Message}";
+                    response.errStr = $"{System.Reflection.MethodBase.GetCurrentMethod().DeclaringType.FullName}:error info:{e.Message}";
                     Logger.Error(response.errStr);
                 }
             }
@@ -512,7 +512,7 @@ namespace IngestDevicePlugin.Controllers.v1
                 } else
                 {
                     response.bRet = false;
-                    response.errStr = $"{System.Reflection.MethodBase.GetCurrentMethod().DeclaringType.FullName}：error info:{e.Message}";
+                    response.errStr = $"{System.Reflection.MethodBase.GetCurrentMethod().DeclaringType.FullName}:error info:{e.Message}";
                     Logger.Error(response.errStr);
                 }
             }
@@ -541,7 +541,7 @@ namespace IngestDevicePlugin.Controllers.v1
                 } else
                 {
                     response.bRet = false;
-                    response.errStr = $"{System.Reflection.MethodBase.GetCurrentMethod().DeclaringType.FullName}：error info:{e.Message}";
+                    response.errStr = $"{System.Reflection.MethodBase.GetCurrentMethod().DeclaringType.FullName}:error info:{e.Message}";
                     Logger.Error(response.errStr);
                 }
             }
@@ -575,7 +575,7 @@ namespace IngestDevicePlugin.Controllers.v1
                 } else
                 {
                     response.bRet = false;
-                    response.errStr = $"{System.Reflection.MethodBase.GetCurrentMethod().DeclaringType.FullName}：error info:{e.Message}";
+                    response.errStr = $"{System.Reflection.MethodBase.GetCurrentMethod().DeclaringType.FullName}:error info:{e.Message}";
                     Logger.Error(response.errStr);
                 }
             }
@@ -601,7 +601,7 @@ namespace IngestDevicePlugin.Controllers.v1
                 } else
                 {
                     response.bRet = false;
-                    response.errStr = $"{System.Reflection.MethodBase.GetCurrentMethod().DeclaringType.FullName}：error info:{e.Message}";
+                    response.errStr = $"{System.Reflection.MethodBase.GetCurrentMethod().DeclaringType.FullName}:error info:{e.Message}";
                     Logger.Error(response.errStr);
                 }
             }
@@ -634,7 +634,7 @@ namespace IngestDevicePlugin.Controllers.v1
                 } else
                 {
                     response.bRet = false;
-                    response.errStr = $"{System.Reflection.MethodBase.GetCurrentMethod().DeclaringType.FullName}：error info:{e.Message}";
+                    response.errStr = $"{System.Reflection.MethodBase.GetCurrentMethod().DeclaringType.FullName}:error info:{e.Message}";
                     Logger.Error(response.errStr);
                 }
             }
@@ -664,7 +664,7 @@ namespace IngestDevicePlugin.Controllers.v1
                 } else
                 {
                     response.bRet = false;
-                    response.errStr = $"{System.Reflection.MethodBase.GetCurrentMethod().DeclaringType.FullName}：error info:{e.Message}";
+                    response.errStr = $"{System.Reflection.MethodBase.GetCurrentMethod().DeclaringType.FullName}:error info:{e.Message}";
                     Logger.Error(response.errStr);
                 }
             }
@@ -694,7 +694,7 @@ namespace IngestDevicePlugin.Controllers.v1
                 } else
                 {
                     response.bRet = false;
-                    response.errStr = $"{System.Reflection.MethodBase.GetCurrentMethod().DeclaringType.FullName}：error info:{e.Message}";
+                    response.errStr = $"{System.Reflection.MethodBase.GetCurrentMethod().DeclaringType.FullName}:error info:{e.Message}";
                     Logger.Error(response.errStr);
                 }
             }
@@ -729,7 +729,7 @@ namespace IngestDevicePlugin.Controllers.v1
                 } else
                 {
                     response.bRet = false;
-                    response.errStr = $"{System.Reflection.MethodBase.GetCurrentMethod().DeclaringType.FullName}：error info:{e.Message}";
+                    response.errStr = $"{System.Reflection.MethodBase.GetCurrentMethod().DeclaringType.FullName}:error info:{e.Message}";
                     Logger.Error(response.errStr);
                 }
             }
@@ -758,7 +758,7 @@ namespace IngestDevicePlugin.Controllers.v1
                 } else
                 {
                     response.bRet = false;
-                    response.errStr = $"{System.Reflection.MethodBase.GetCurrentMethod().DeclaringType.FullName}：error info:{e.Message}";
+                    response.errStr = $"{System.Reflection.MethodBase.GetCurrentMethod().DeclaringType.FullName}:error info:{e.Message}";
                     Logger.Error(response.errStr);
                 }
             }
@@ -788,7 +788,7 @@ namespace IngestDevicePlugin.Controllers.v1
                 } else
                 {
                     response.bRet = false;
-                    response.errStr = $"{System.Reflection.MethodBase.GetCurrentMethod().DeclaringType.FullName}：error info:{e.Message}";
+                    response.errStr = $"{System.Reflection.MethodBase.GetCurrentMethod().DeclaringType.FullName}:error info:{e.Message}";
                     Logger.Error(response.errStr);
                 }
             }
@@ -822,7 +822,7 @@ namespace IngestDevicePlugin.Controllers.v1
                 } else
                 {
                     response.bRet = false;
-                    response.errStr = $"{System.Reflection.MethodBase.GetCurrentMethod().DeclaringType.FullName}：error info:{e.Message}";
+                    response.errStr = $"{System.Reflection.MethodBase.GetCurrentMethod().DeclaringType.FullName}:error info:{e.Message}";
                     Logger.Error(response.errStr);
                 }
             }
@@ -963,7 +963,7 @@ namespace IngestDevicePlugin.Controllers.v1
                 } else
                 {
                     response.bRet = false;
-                    response.errStr = $"{System.Reflection.MethodBase.GetCurrentMethod().DeclaringType.FullName}：error info:{e.Message}";
+                    response.errStr = $"{System.Reflection.MethodBase.GetCurrentMethod().DeclaringType.FullName}:error info:{e.Message}";
                     Logger.Error(response.errStr);
                 }
             }
@@ -994,7 +994,7 @@ namespace IngestDevicePlugin.Controllers.v1
                 } else
                 {
                     response.bRet = false;
-                    response.errStr = $"{System.Reflection.MethodBase.GetCurrentMethod().DeclaringType.FullName}：error info:{e.Message}";
+                    response.errStr = $"{System.Reflection.MethodBase.GetCurrentMethod().DeclaringType.FullName}:error info:{e.Message}";
                     Logger.Error(response.errStr);
                 }
             }
@@ -1033,7 +1033,7 @@ namespace IngestDevicePlugin.Controllers.v1
                 } else
                 {
                     response.bRet = false;
-                    response.errStr = $"{System.Reflection.MethodBase.GetCurrentMethod().DeclaringType.FullName}：error info:{e.Message}";
+                    response.errStr = $"{System.Reflection.MethodBase.GetCurrentMethod().DeclaringType.FullName}:error info:{e.Message}";
                     Logger.Error(response.errStr);
                 }
             }

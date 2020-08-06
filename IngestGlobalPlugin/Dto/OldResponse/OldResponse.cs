@@ -56,7 +56,7 @@ namespace IngestGlobalPlugin.Dto.OldResponse
     }
 
     /// <summary>
-    /// 很多重复的类字段一样，进行整合：PostLockObject_param_out,SetUserSetting_OUT
+    /// 很多重复的类字段一样，进行整合:PostLockObject_param_out,SetUserSetting_OUT
     /// </summary>
     public class PostParam_Out
     {

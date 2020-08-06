@@ -63,7 +63,7 @@ namespace IngestTaskPlugin.Controllers.v1
                     bRet = false
                 };
 
-                Response.errStr = "OldGetTaskMetaData error info：" + e.Message;
+                Response.errStr = "OldGetTaskMetaData error info:" + e.Message;
                 Logger.Error(Response.errStr);
                 return Response;
             }
@@ -114,7 +114,7 @@ namespace IngestTaskPlugin.Controllers.v1
                     bRet = false
                 };
 
-                Response.errStr = "PostAddTaskMetaDataPropety error info：" + e.Message;
+                Response.errStr = "PostAddTaskMetaDataPropety error info:" + e.Message;
                 Logger.Error(Response.errStr);
                 return Response;
             }
@@ -164,7 +164,7 @@ namespace IngestTaskPlugin.Controllers.v1
                     bRet = false
                 };
 
-                Response.errStr = "PostSetTaskMetaData error info：" + e.Message;
+                Response.errStr = "PostSetTaskMetaData error info:" + e.Message;
                 Logger.Error(Response.errStr);
                 return Response;
             }
@@ -202,7 +202,7 @@ namespace IngestTaskPlugin.Controllers.v1
                     bRet = false
                 };
 
-                Response.errStr = "GetTaskCustomMetadata error info：" + e.Message;
+                Response.errStr = "GetTaskCustomMetadata error info:" + e.Message;
                 Logger.Error(Response.errStr);
                 return Response;
             }
@@ -240,7 +240,7 @@ namespace IngestTaskPlugin.Controllers.v1
                     bRet = false
                 };
                
-                Response.errStr = "PostSetTaskCustomMetadata error info：" + e.Message;
+                Response.errStr = "PostSetTaskCustomMetadata error info:" + e.Message;
                 Logger.Error(Response.errStr);
                 return Response;
             }
@@ -288,7 +288,7 @@ namespace IngestTaskPlugin.Controllers.v1
             {
                 Response.bRet = false;
                 
-                Response.errStr = "StopGroupTaskById error info：" + e.Message;
+                Response.errStr = "StopGroupTaskById error info:" + e.Message;
                 Logger.Error(Response.errStr);
                 return Response;
             }
@@ -337,7 +337,7 @@ namespace IngestTaskPlugin.Controllers.v1
             {
                 Response.bRet = false;
 
-                Response.errStr = "DeleteGroupTaskById error info：" + e.Message;
+                Response.errStr = "DeleteGroupTaskById error info:" + e.Message;
                 Logger.Error(Response.errStr);
                 return Response;
             }
@@ -394,7 +394,7 @@ namespace IngestTaskPlugin.Controllers.v1
             {
                 Response.bRet = false;
                 Response.taskID = -1;
-                Response.errStr = "PostAddTaskSvr error info：" + e.Message;
+                Response.errStr = "PostAddTaskSvr error info:" + e.Message;
                 Logger.Error(Response.errStr);
                 return Response;
             }
@@ -470,7 +470,7 @@ namespace IngestTaskPlugin.Controllers.v1
             {
                 Response.bRet = false;
                
-                Response.errStr = "PostAddTaskSvr error info：" + e.Message;
+                Response.errStr = "PostAddTaskSvr error info:" + e.Message;
                 Logger.Error(Response.errStr);
                 return Response;
             }
@@ -557,7 +557,7 @@ namespace IngestTaskPlugin.Controllers.v1
                 Response.bRet = false;
                 Response.backupTaskId = -1;
 
-                Response.errStr = "PostAddTaskSvr error info：" + e.Message;
+                Response.errStr = "PostAddTaskSvr error info:" + e.Message;
                 Logger.Error(Response.errStr);
                 return Response;
             }
@@ -583,7 +583,7 @@ namespace IngestTaskPlugin.Controllers.v1
             catch (Exception e)
             {
                 Response.bRet = false;
-                Response.errStr = "error info：" + e.Message;
+                Response.errStr = "error info:" + e.Message;
                 Logger.Error("GetTaskIDByTaskGUID" + e.Message);
                 return Response;
             }
@@ -611,7 +611,7 @@ namespace IngestTaskPlugin.Controllers.v1
             {
                 Response.bRet = false;
 
-                Response.errStr = "error info：" + e.Message;
+                Response.errStr = "error info:" + e.Message;
                 Logger.Error("GetAllChannelCapturingTask" + e.Message);
                 return Response;
             }
@@ -637,7 +637,7 @@ namespace IngestTaskPlugin.Controllers.v1
             catch (Exception e)
             {
                 Response.bRet = false;
-                Response.errStr = "error info：" + e.Message;
+                Response.errStr = "error info:" + e.Message;
                 Logger.Error("GetAllChannelCapturingTask" + e.Message);
                 return Response;
             }
@@ -678,7 +678,7 @@ namespace IngestTaskPlugin.Controllers.v1
             catch (Exception e)
             {
                 Response.bRet = false;
-                Response.errStr = "error info：" + e.Message;
+                Response.errStr = "error info:" + e.Message;
                 Logger.Error("PostModifyTaskDb" + e.Message);
                 return Response;
             }
@@ -744,7 +744,7 @@ namespace IngestTaskPlugin.Controllers.v1
             catch (Exception e)
             {
                 Response.bRet = false;
-                Response.errStr = "error info：" + e.Message;
+                Response.errStr = "error info:" + e.Message;
                 Logger.Error("ModifyTask" + e.Message);
                 return Response;
             }
@@ -769,7 +769,7 @@ namespace IngestTaskPlugin.Controllers.v1
             catch (Exception e)
             {
                 Response.bRet = false;
-                Response.errStr = "error info：" + e.Message;
+                Response.errStr = "error info:" + e.Message;
                 Logger.Error("GetTaskByID" + e.Message);
                 return Response;
             }
@@ -793,7 +793,7 @@ namespace IngestTaskPlugin.Controllers.v1
             catch (Exception e)
             {
                 Response.bRet = false;
-                Response.errStr = "error info：" + e.Message;
+                Response.errStr = "error info:" + e.Message;
                 Logger.Error("GetTaskByIDForFSW" + e.Message);
                 return Response;
             }
@@ -818,7 +818,7 @@ namespace IngestTaskPlugin.Controllers.v1
             catch (Exception e)
             {
                 Response.bRet = false;
-                Response.errStr = "error info：" + e.Message;
+                Response.errStr = "error info:" + e.Message;
                 Logger.Error("GetTieUpTaskByChannelID" + e.Message);
                 return Response;
             }
@@ -861,7 +861,7 @@ namespace IngestTaskPlugin.Controllers.v1
             catch (Exception e)
             {
                 Response.bRet = false;
-                Response.errStr = "error info：" + e.Message;
+                Response.errStr = "error info:" + e.Message;
                 Logger.Error("GetStopTaskFromFSW" + e.Message);
                 return Response;
             }
@@ -910,7 +910,7 @@ namespace IngestTaskPlugin.Controllers.v1
             catch (Exception e)
             {
                 Response.bRet = false;
-                Response.errStr = "error info：" + e.Message;
+                Response.errStr = "error info:" + e.Message;
                 Logger.Error("GetStopTaskFromFSW" + e.Message);
                 return Response;
             }
@@ -939,7 +939,7 @@ namespace IngestTaskPlugin.Controllers.v1
             catch (Exception e)
             {
                 Response.bRet = false;
-                Response.errStr = "error info：" + e.Message;
+                Response.errStr = "error info:" + e.Message;
                 Logger.Error("GetStopTaskFromFSW" + e.Message);
                 return Response;
             }
@@ -970,7 +970,7 @@ namespace IngestTaskPlugin.Controllers.v1
             catch (Exception e)
             {
 
-                Response.errStr = "error info：" + e.Message;
+                Response.errStr = "error info:" + e.Message;
                 Logger.Error("GetStopTaskFromFSW" + e.Message);
                 Response.bRet = false;
                 return Response;
@@ -999,7 +999,7 @@ namespace IngestTaskPlugin.Controllers.v1
             catch (Exception e)//其他未知的异常，写异常日志
             {
                 Response.bRet = false;
-                Response.errStr = "error info：" + e.Message;
+                Response.errStr = "error info:" + e.Message;
                 Logger.Error("GetTaskSource" + e.Message);
                 return Response;
             }
@@ -1027,7 +1027,7 @@ namespace IngestTaskPlugin.Controllers.v1
             {
                 
                 {
-                    //Response.errStr = "error info：" + e.ToString();
+                    //Response.errStr = "error info:" + e.ToString();
                     Logger.Error("GetTrimTaskBeginTime" + e.Message);
                 }
                 return false;
@@ -1058,7 +1058,7 @@ namespace IngestTaskPlugin.Controllers.v1
             catch (Exception e)//其他未知的异常，写异常日志
             {
                 Response.bRet = false;
-                Response.errStr = "error info：" + e.Message;
+                Response.errStr = "error info:" + e.Message;
                 Logger.Error("PostQueryTaskMetadataGroup" + e.Message);
                 return Response;
             }
@@ -1094,7 +1094,7 @@ namespace IngestTaskPlugin.Controllers.v1
             catch (Exception e)//其他未知的异常，写异常日志
             {
                 Response.bRet = false;
-                Response.errStr = "error info：" + e.Message;
+                Response.errStr = "error info:" + e.Message;
                 Logger.Error("GetDelTaskDb" + e.Message);
                 return Response;
             }
@@ -1123,7 +1123,7 @@ namespace IngestTaskPlugin.Controllers.v1
             catch (Exception e)//其他未知的异常，写异常日志
             {
                 Response.bRet = false;
-                Response.errStr = "error info：" + e.Message;
+                Response.errStr = "error info:" + e.Message;
                 Logger.Error("SetTaskClassify" + e.Message);
                 return Response;
             }
@@ -1144,7 +1144,7 @@ namespace IngestTaskPlugin.Controllers.v1
             catch (Exception e)//其他未知的异常，写异常日志
             {
                 
-                //Response.errStr = "error info：" + e.ToString();
+                //Response.errStr = "error info:" + e.ToString();
                 Logger.Error("GetUnlockAllTasks" + e.Message);
                 return Response;
             }
@@ -1170,7 +1170,7 @@ namespace IngestTaskPlugin.Controllers.v1
                 }
                 else
                 {
-                    //Response.errStr = "error info：" + e.ToString();
+                    //Response.errStr = "error info:" + e.ToString();
                     Logger.Error("SetPeriodTaskToNextTime" + e.ToString());
                 }
                 return Response;
@@ -1204,7 +1204,7 @@ namespace IngestTaskPlugin.Controllers.v1
             {
                 Response.bRet = false;
 
-                Response.errStr = "error info：" + e.Message;
+                Response.errStr = "error info:" + e.Message;
                 Logger.Error("GetNeedSynTasks2" + e.Message);
                 return Response;
             }
@@ -1231,7 +1231,7 @@ namespace IngestTaskPlugin.Controllers.v1
             catch (Exception e)//其他未知的异常，写异常日志
             {
                 
-                    //Response.errStr = "error info：" + e.ToString();
+                    //Response.errStr = "error info:" + e.ToString();
                 Logger.Error("GetTrimTaskBeginTime" + e.Message);
                 //return Response;
             }
@@ -1257,7 +1257,7 @@ namespace IngestTaskPlugin.Controllers.v1
             {
                 if (e.GetType() == typeof(SobeyRecException))//sobeyexcep会自动打印错误
                
-                //Response.errStr = "error info：" + e.ToString();
+                //Response.errStr = "error info:" + e.ToString();
                 Logger.Error("GetTrimTaskBeginTime" + e.Message);
                 //return Response;
             }
@@ -1286,7 +1286,7 @@ namespace IngestTaskPlugin.Controllers.v1
             catch (Exception e)//其他未知的异常，写异常日志
             {
                 Response.bRet = false;
-                //Response.errStr = "error info：" + e.ToString();
+                //Response.errStr = "error info:" + e.ToString();
                 Logger.Error("GetNeedRescheduleTasks" + e.Message);
                 return Response;
             }
@@ -1307,7 +1307,7 @@ namespace IngestTaskPlugin.Controllers.v1
             catch (Exception e)//其他未知的异常，写异常日志
             {
                
-                //Response.errStr = "error info：" + e.ToString();
+                //Response.errStr = "error info:" + e.ToString();
                 Logger.Error("PostCompleteRescheduleTasks" + e.Message);
                 return Response;
             }
@@ -1328,7 +1328,7 @@ namespace IngestTaskPlugin.Controllers.v1
             catch (Exception e)//其他未知的异常，写异常日志
             {
                 
-                    //Response.errStr = "error info：" + e.ToString();
+                    //Response.errStr = "error info:" + e.ToString();
                     Logger.Error("GetLockTaskByID" + e.Message);
                 return Response;
             }
@@ -1362,7 +1362,7 @@ namespace IngestTaskPlugin.Controllers.v1
             catch (Exception e)//其他未知的异常，写异常日志
             {
                
-                //Response.errStr = "error info：" + e.ToString();
+                //Response.errStr = "error info:" + e.ToString();
                 Logger.Error("GetLockTaskByID" + e.Message);
                 return Response;
             }
@@ -1393,7 +1393,7 @@ namespace IngestTaskPlugin.Controllers.v1
             catch (Exception e)//其他未知的异常，写异常日志
             {
                 Response.bRet = false;
-                Response.errStr = "error info：" + e.Message;
+                Response.errStr = "error info:" + e.Message;
                 Logger.Error("GetRescheduleTasks" + e.Message);
                 return Response;
             }
@@ -1421,7 +1421,7 @@ namespace IngestTaskPlugin.Controllers.v1
             catch (Exception e)//其他未知的异常，写异常日志
             {
                 Response.bRet = false;
-                //Response.errStr = "error info：" + e.ToString();
+                //Response.errStr = "error info:" + e.ToString();
                 Logger.Error("GetWarningInfos" + e.Message);
                 return Response;
             }
@@ -1449,7 +1449,7 @@ namespace IngestTaskPlugin.Controllers.v1
                 if (e.GetType() == typeof(SobeyRecException))//sobeyexcep会自动打印错误
                 
                 Response.bRet = false;
-                //Response.errStr = "error info：" + e.ToString();
+                //Response.errStr = "error info:" + e.ToString();
                 Logger.Error("GetChannelCapturingLowMaterial" + e.Message);
                 return Response;
             }
@@ -1490,7 +1490,7 @@ namespace IngestTaskPlugin.Controllers.v1
             {
                 
                 Response.bRet = false;
-                Response.errStr = "error info：" + e.Message;
+                Response.errStr = "error info:" + e.Message;
                 Logger.Error("SplitTask" + e.Message);
                 return Response;
             }
@@ -1524,7 +1524,7 @@ namespace IngestTaskPlugin.Controllers.v1
             {
 
                 Response.bRet = false;
-                Response.errStr = "error info：" + e.Message;
+                Response.errStr = "error info:" + e.Message;
                 Logger.Error("CreateNewTaskFromPeriodicTask" + e.Message);
                 return Response;
             }
@@ -1565,7 +1565,7 @@ namespace IngestTaskPlugin.Controllers.v1
             {
 
                 Response.bRet = false;
-                Response.errStr = "error info：" + e.Message;
+                Response.errStr = "error info:" + e.Message;
                 Logger.Error("GetStartTieUpTask" + e.Message);
                 return Response;
             }
@@ -1592,7 +1592,7 @@ namespace IngestTaskPlugin.Controllers.v1
             {
 
                 Response.bRet = false;
-                Response.errStr = "error info：" + e.Message;
+                Response.errStr = "error info:" + e.Message;
                 Logger.Error("GetStartTieUpTask" + e.Message);
                 return Response;
             }
@@ -1619,7 +1619,7 @@ namespace IngestTaskPlugin.Controllers.v1
             {
 
                 Response.bRet = false;
-                Response.errStr = "error info：" + e.Message;
+                Response.errStr = "error info:" + e.Message;
                 Logger.Error("ModifyTaskName" + e.Message);
                 return Response;
             }
@@ -1666,7 +1666,7 @@ namespace IngestTaskPlugin.Controllers.v1
             {
                
                     Response.bRet = false;
-                    Response.errStr = "error info：" + e.Message;
+                    Response.errStr = "error info:" + e.Message;
                     Logger.Error("ModifyPeriodTask" + e.Message);
                 return Response;
             }
@@ -1731,7 +1731,7 @@ namespace IngestTaskPlugin.Controllers.v1
             {
                 
                 Response.bRet = false;
-                Response.errStr = "error info：" + e.Message;
+                Response.errStr = "error info:" + e.Message;
                 Logger.Error("IsVTRCollide" + e.Message);
                 return Response;
             }
@@ -1761,7 +1761,7 @@ namespace IngestTaskPlugin.Controllers.v1
                 else
                 {
                     Response.nCode = 500;
-                    //Response.errStr = "error info：" + e.ToString();
+                    //Response.errStr = "error info:" + e.ToString();
                     Logger.Error("ModifyTaskName" + e.Message);
                 }
                 return Response;
@@ -1792,7 +1792,7 @@ namespace IngestTaskPlugin.Controllers.v1
                 else
                 {
                     //Response.nCode = 500;
-                    //Response.errStr = "error info：" + e.ToString();
+                    //Response.errStr = "error info:" + e.ToString();
                     Logger.Error("GetKamakatiFailTasks" + e.ToString());
                 }
                 return Response;
@@ -1825,7 +1825,7 @@ namespace IngestTaskPlugin.Controllers.v1
                 else
                 {
                     Response.nCode = 500;
-                    //Response.errStr = "error info：" + e.ToString();
+                    //Response.errStr = "error info:" + e.ToString();
                     Logger.Error("SetTaskStampBmp" + e.ToString());
                 }
                 return Response;
@@ -1865,7 +1865,7 @@ namespace IngestTaskPlugin.Controllers.v1
             {
 
                 //Response.nCode = 500;
-                //Response.errStr = "error info：" + e.ToString();
+                //Response.errStr = "error info:" + e.ToString();
                 Response.nCode = 0;
                 Logger.Error("AutoAddTaskByOldTask" + e.ToString());
                 return Response;

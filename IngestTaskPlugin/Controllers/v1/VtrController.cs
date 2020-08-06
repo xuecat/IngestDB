@@ -75,7 +75,7 @@
                 }
                 else
                 {
-                    response.message = $"{System.Reflection.MethodBase.GetCurrentMethod().DeclaringType.FullName}：error info:{e.Message}";
+                    response.message = $"{System.Reflection.MethodBase.GetCurrentMethod().DeclaringType.FullName}:error info:{e.Message}";
                     Logger.Error(response.message);
                 }
             }
@@ -105,7 +105,7 @@
                 }
                 else
                 {
-                    response.message = $"{System.Reflection.MethodBase.GetCurrentMethod().DeclaringType.FullName}：error info:{e.Message}";
+                    response.message = $"{System.Reflection.MethodBase.GetCurrentMethod().DeclaringType.FullName}:error info:{e.Message}";
                     Logger.Error(response.message);
                 }
             }
@@ -137,7 +137,7 @@
                 }
                 else
                 {
-                    response.message = $"{System.Reflection.MethodBase.GetCurrentMethod().DeclaringType.FullName}：error info:{e.Message}";
+                    response.message = $"{System.Reflection.MethodBase.GetCurrentMethod().DeclaringType.FullName}:error info:{e.Message}";
                     Logger.Error(response.message);
                 }
             }
@@ -166,7 +166,7 @@
                 }
                 else
                 {
-                    response.message = $"{System.Reflection.MethodBase.GetCurrentMethod().DeclaringType.FullName}：error info:{e.Message}";
+                    response.message = $"{System.Reflection.MethodBase.GetCurrentMethod().DeclaringType.FullName}:error info:{e.Message}";
                     Logger.Error(response.message);
                 }
             }
@@ -200,7 +200,7 @@
                 }
                 else
                 {
-                    response.message = $"{System.Reflection.MethodBase.GetCurrentMethod().DeclaringType.FullName}：error info:{e.Message}";
+                    response.message = $"{System.Reflection.MethodBase.GetCurrentMethod().DeclaringType.FullName}:error info:{e.Message}";
                     Logger.Error(response.message);
                 }
             }
@@ -246,7 +246,7 @@
                 }
                 else
                 {
-                    response.message = $"{System.Reflection.MethodBase.GetCurrentMethod().DeclaringType.FullName}：error info:{e.Message}";
+                    response.message = $"{System.Reflection.MethodBase.GetCurrentMethod().DeclaringType.FullName}:error info:{e.Message}";
                     Logger.Error(response.message);
                 }
             }
@@ -291,7 +291,7 @@
                 }
                 else
                 {
-                    response.message = $"{System.Reflection.MethodBase.GetCurrentMethod().DeclaringType.FullName}：error info:{e.Message}";
+                    response.message = $"{System.Reflection.MethodBase.GetCurrentMethod().DeclaringType.FullName}:error info:{e.Message}";
                     Logger.Error(response.message);
                 }
             }
@@ -326,7 +326,7 @@
                 }
                 else
                 {
-                    response.message = $"{System.Reflection.MethodBase.GetCurrentMethod().DeclaringType.FullName}：error info:{e.Message}";
+                    response.message = $"{System.Reflection.MethodBase.GetCurrentMethod().DeclaringType.FullName}:error info:{e.Message}";
                     Logger.Error(response.message);
                 }
             }
@@ -370,7 +370,7 @@
                 }
                 else
                 {
-                    response.message = $"{System.Reflection.MethodBase.GetCurrentMethod().DeclaringType.FullName}：error info:{e.Message}";
+                    response.message = $"{System.Reflection.MethodBase.GetCurrentMethod().DeclaringType.FullName}:error info:{e.Message}";
                     Logger.Error(response.message);
                 }
             }
@@ -399,7 +399,7 @@
                 }
                 else
                 {
-                    response.message = $"{System.Reflection.MethodBase.GetCurrentMethod().DeclaringType.FullName}：error info:{e.Message}";
+                    response.message = $"{System.Reflection.MethodBase.GetCurrentMethod().DeclaringType.FullName}:error info:{e.Message}";
                     Logger.Error(response.message);
                 }
             }
@@ -434,7 +434,7 @@
                 }
                 else
                 {
-                    response.message = $"{System.Reflection.MethodBase.GetCurrentMethod().DeclaringType.FullName}：error info:{e.Message}";
+                    response.message = $"{System.Reflection.MethodBase.GetCurrentMethod().DeclaringType.FullName}:error info:{e.Message}";
                     Logger.Error(response.message);
                 }
             }
@@ -476,7 +476,7 @@
                 }
                 else
                 {
-                    response.message = $"{System.Reflection.MethodBase.GetCurrentMethod().DeclaringType.FullName}：error info:{e.Message}";
+                    response.message = $"{System.Reflection.MethodBase.GetCurrentMethod().DeclaringType.FullName}:error info:{e.Message}";
                     Logger.Error(response.message);
                 }
             }
@@ -504,7 +504,7 @@
                 }
                 else
                 {
-                    response.message = $"{System.Reflection.MethodBase.GetCurrentMethod().DeclaringType.FullName}：error info:{e.Message}";
+                    response.message = $"{System.Reflection.MethodBase.GetCurrentMethod().DeclaringType.FullName}:error info:{e.Message}";
                     Logger.Error(response.message);
                 }
             }
@@ -532,7 +532,7 @@
                 }
                 else
                 {
-                    response.message = $"{System.Reflection.MethodBase.GetCurrentMethod().DeclaringType.FullName}：error info:{e.Message}";
+                    response.message = $"{System.Reflection.MethodBase.GetCurrentMethod().DeclaringType.FullName}:error info:{e.Message}";
                     Logger.Error(response.message);
                 }
             }
@@ -573,7 +573,7 @@
                 }
                 else
                 {
-                    response.message = $"{System.Reflection.MethodBase.GetCurrentMethod().DeclaringType.FullName}：error info:{e.Message}";
+                    response.message = $"{System.Reflection.MethodBase.GetCurrentMethod().DeclaringType.FullName}:error info:{e.Message}";
                     Logger.Error(response.message);
                 }
             }
@@ -602,7 +602,7 @@
                 }
                 else
                 {
-                    response.message = $"{System.Reflection.MethodBase.GetCurrentMethod().DeclaringType.FullName}：error info:{e.Message}";
+                    response.message = $"{System.Reflection.MethodBase.GetCurrentMethod().DeclaringType.FullName}:error info:{e.Message}";
                     Logger.Error(response.message);
                 }
             }
@@ -649,7 +649,7 @@
                 }
                 else
                 {
-                    response.message = $"{System.Reflection.MethodBase.GetCurrentMethod().DeclaringType.FullName}：error info:{e.Message}";
+                    response.message = $"{System.Reflection.MethodBase.GetCurrentMethod().DeclaringType.FullName}:error info:{e.Message}";
                     Logger.Error(response.message);
                 }
             }
@@ -931,7 +931,7 @@
                 }
                 else
                 {
-                    response.message = $"{System.Reflection.MethodBase.GetCurrentMethod().DeclaringType.FullName}：error info:{e.Message}";
+                    response.message = $"{System.Reflection.MethodBase.GetCurrentMethod().DeclaringType.FullName}:error info:{e.Message}";
                     Logger.Error(response.message);
                 }
             }
@@ -968,7 +968,7 @@
                 }
                 else
                 {
-                    response.message = $"{System.Reflection.MethodBase.GetCurrentMethod().DeclaringType.FullName}：error info:{e.Message}";
+                    response.message = $"{System.Reflection.MethodBase.GetCurrentMethod().DeclaringType.FullName}:error info:{e.Message}";
                     Logger.Error(response.message);
                 }
             }

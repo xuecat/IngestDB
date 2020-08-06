@@ -21,7 +21,7 @@ namespace IngestDevicePlugin.Dto.Response
         /// <summary>信号源类型Id（高标清）</summary>
         public int TypeId;
 
-        /// <summary>图像类型;0、为素材原始比例，1、图像为4:3的方式，2：图像为16:9的方式</summary>
+        /// <summary>图像类型;0、为素材原始比例，1、图像为4:3的方式，2:图像为16:9的方式</summary>
         public int ImageType;
 
         /// <summary>表示是否是纯音频信号源</summary>

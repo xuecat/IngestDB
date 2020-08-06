@@ -349,7 +349,7 @@ namespace IngestDevicePlugin.Managers
                         // Add by chenzhi 2013-08-21
                         // TODO: Fix Bug: snp4100051546
                         // TODO: 这里修改此函数的功能，如果是SDI通道和信号源通过矩阵服务直接连接，
-                        // 则优先返回此信号源，注意：这需要在客户端限制不同分组的信号源和通道通过矩阵直接连接
+                        // 则优先返回此信号源，注意:这需要在客户端限制不同分组的信号源和通道通过矩阵直接连接
                         if (signalId == item.ProgrammeId)
                         {
                             lstback.Insert(0, item);

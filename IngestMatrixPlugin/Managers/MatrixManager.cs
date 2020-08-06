@@ -122,7 +122,7 @@ namespace IngestMatrixPlugin.Managers
                 var strMatrixTypeName = await Store.QueryMatrixtypeinfo(a => a.Where(x => x.Matrixtypeid == matrixinfo.Matrixtypeid)
                                                                            .Select(x => x.Matrixtypename)
                                                                            .SingleOrDefaultAsync(), true);
-                Logger.Info($"矩阵类型名称：{strMatrixTypeName}");
+                Logger.Info($"矩阵类型名称:{strMatrixTypeName}");
                 if (string.IsNullOrEmpty(strMatrixTypeName))
                 {
                     Logger.Error("In module MatrixService!call CIVirtualMatrix::SwitchInOut(),MatrixType Name %s Not Found");
@@ -375,7 +375,7 @@ namespace IngestMatrixPlugin.Managers
             var levelList = await Store.QueryLevelrelation(a => a.Where(x => x.Matrixid == matrixID), true);
 
             if (levelList == null || levelList.Count == 0)
-                Logger.Error("in TryCount：length is 0！");
+                Logger.Error("in TryCount:length is 0！");
 
             foreach (var info in levelList)
             {

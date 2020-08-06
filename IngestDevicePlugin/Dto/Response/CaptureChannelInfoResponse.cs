@@ -17,7 +17,7 @@ namespace IngestDevicePlugin.Dto.Response
         public emBackupFlag BackState { get; set; } = emBackupFlag.emNoAllowBackUp;
         public int CarrierId { get; set; }//运营商Id
         public int OrderCode { get; set; } = -1;//序号
-        public int CpSignalType { get; set; }//可以采集的信号源类型，0：Auto，1：SD，2：HD
+        public int CpSignalType { get; set; }//可以采集的信号源类型，0:Auto，1:SD，2:HD
 
         // 分组Id
         public int GroupId { get; set; }    // Add by chenzhi 2103-07-04

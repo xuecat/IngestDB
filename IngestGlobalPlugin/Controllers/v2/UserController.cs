@@ -71,7 +71,7 @@ namespace IngestGlobalPlugin.Controllers.v2
                 else
                 {
                     Response.Code = ResponseCodeDefines.ServiceError;
-                    Response.Msg = "error info：" + e.Message;
+                    Response.Msg = "error info:" + e.Message;
                     Logger.Error("Post_SetUserSetting : " + Response.Msg);
                 }
             }
@@ -109,7 +109,7 @@ namespace IngestGlobalPlugin.Controllers.v2
                 else
                 {
                     Response.Code = ResponseCodeDefines.ServiceError;
-                    Response.Msg = "error info：" + e.Message;
+                    Response.Msg = "error info:" + e.Message;
                     Logger.Error("GetUserSetting : " + Response.Msg);
                 }
             }
@@ -149,7 +149,7 @@ namespace IngestGlobalPlugin.Controllers.v2
                 if (string.IsNullOrEmpty(Response.Ext))
                 {
                     Response.Code = ResponseCodeDefines.NotFound;
-                    Response.Msg = $"{System.Reflection.MethodBase.GetCurrentMethod().DeclaringType.FullName}：error info: 获取数据为空!";
+                    Response.Msg = $"{System.Reflection.MethodBase.GetCurrentMethod().DeclaringType.FullName}:error info: 获取数据为空!";
                 }
                 else
                     Response.Code = ResponseCodeDefines.SuccessCode;
@@ -165,7 +165,7 @@ namespace IngestGlobalPlugin.Controllers.v2
                 else
                 {
                     Response.Code = ResponseCodeDefines.ServiceError;
-                    Response.Msg = "error info：" + e.Message;
+                    Response.Msg = "error info:" + e.Message;
                     Logger.Error("GetParamTemplateByID : " + Response.Msg);
                 }
             }
@@ -200,7 +200,7 @@ namespace IngestGlobalPlugin.Controllers.v2
                 if (string.IsNullOrEmpty(Response.Ext))
                 {
                     Response.Code = ResponseCodeDefines.NotFound;
-                    Response.Msg = $"{System.Reflection.MethodBase.GetCurrentMethod().DeclaringType.FullName}：error info: 获取数据为空!";
+                    Response.Msg = $"{System.Reflection.MethodBase.GetCurrentMethod().DeclaringType.FullName}:error info: 获取数据为空!";
                 }
                 else
                     Response.Code = ResponseCodeDefines.SuccessCode;
@@ -216,7 +216,7 @@ namespace IngestGlobalPlugin.Controllers.v2
                 else
                 {
                     Response.Code = ResponseCodeDefines.ServiceError;
-                    Response.Msg = "error info：" + e.Message;
+                    Response.Msg = "error info:" + e.Message;
                     Logger.Error("GetParamTemplateStringByID : " + Response.Msg);
                 }
             }
@@ -259,7 +259,7 @@ namespace IngestGlobalPlugin.Controllers.v2
                 else
                 {
                     Response.Code = ResponseCodeDefines.ServiceError;
-                    Response.Msg = "error info：" + e.Message;
+                    Response.Msg = "error info:" + e.Message;
                     Logger.Error("UpdateParamTemplate : " + Response.Msg);
                 }
             }
@@ -318,7 +318,7 @@ namespace IngestGlobalPlugin.Controllers.v2
                 else
                 {
                     Response.Code = ResponseCodeDefines.ServiceError;
-                    Response.Msg = "error info：" + e.Message;
+                    Response.Msg = "error info:" + e.Message;
                     Logger.Error("AddUserTemplate : " + Response.Msg);
                 }
             }
@@ -362,7 +362,7 @@ namespace IngestGlobalPlugin.Controllers.v2
                 else
                 {
                     Response.Code = ResponseCodeDefines.ServiceError;
-                    Response.Msg = "error info：" + e.Message;
+                    Response.Msg = "error info:" + e.Message;
                     Logger.Error("ModifyUserTempalte : " + Response.Msg);
                 }
             }
@@ -404,7 +404,7 @@ namespace IngestGlobalPlugin.Controllers.v2
                 else
                 {
                     Response.Code = ResponseCodeDefines.ServiceError;
-                    Response.Msg = "error info：" + e.Message;
+                    Response.Msg = "error info:" + e.Message;
                     Logger.Error("GetUserAllTemplatesByUserCode : " + Response.Msg);
                 }
             }
@@ -446,7 +446,7 @@ namespace IngestGlobalPlugin.Controllers.v2
                 else
                 {
                     Response.Code = ResponseCodeDefines.ServiceError;
-                    Response.Msg = "error info：" + e.Message;
+                    Response.Msg = "error info:" + e.Message;
                     Logger.Error("DeleteUserTemplateByID : " + Response.Msg);
                 }
             }
@@ -489,7 +489,7 @@ namespace IngestGlobalPlugin.Controllers.v2
                 else
                 {
                     Response.Code = ResponseCodeDefines.ServiceError;
-                    Response.Msg = "error info：" + e.Message;
+                    Response.Msg = "error info:" + e.Message;
                     Logger.Error("DeleteUserParamTemplateByUserCode : " + Response.Msg);
                 }
             }
@@ -530,7 +530,7 @@ namespace IngestGlobalPlugin.Controllers.v2
                 else
                 {
                     Response.Code = ResponseCodeDefines.ServiceError;
-                    Response.Msg = "error info：" + e.Message;
+                    Response.Msg = "error info:" + e.Message;
                     Logger.Error("GetUserInfoByCode : " + Response.Msg);
                 }
             }
@@ -546,11 +546,11 @@ namespace IngestGlobalPlugin.Controllers.v2
         /// 通过用户ID得到用户高清或标清采集参数=
         /// </summary>
         /// <param name="usertoken">用户usertoken</param>
-        /// <param name="flag">nFlag：0为标清，1为高清</param>
+        /// <param name="flag">nFlag:0为标清，1为高清</param>
         /// <returns>采集参数</returns>
         [HttpGet("captureparamtemplate/highorstandard")]
         [ApiExplorerSettings(GroupName = "v2")]
-        public async Task<ResponseMessage<string>> GetUserHighOrStandardCapParam([FromQuery, DefaultValue("897cd4f79531e3c04c2c9a371e4db4ea")]string usertoken, [FromQuery, DefaultValue(0)]int flag)//nFlag：0为标清，1为高清
+        public async Task<ResponseMessage<string>> GetUserHighOrStandardCapParam([FromQuery, DefaultValue("897cd4f79531e3c04c2c9a371e4db4ea")]string usertoken, [FromQuery, DefaultValue(0)]int flag)//nFlag:0为标清，1为高清
         {
             ResponseMessage<string> Response = new ResponseMessage<string>();
             try
@@ -579,7 +579,7 @@ namespace IngestGlobalPlugin.Controllers.v2
                 else
                 {
                     Response.Code = ResponseCodeDefines.ServiceError;
-                    Response.Msg = "error info：" + e.Message;
+                    Response.Msg = "error info:" + e.Message;
                     Logger.Error("GetUserHighOrStandardParam : " + Response.Msg);
                 }
             }

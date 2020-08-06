@@ -394,11 +394,11 @@ namespace IngestGlobalPlugin.Controllers.v1
         /// 通过用户ID得到用户高清或标清采集参数=
         /// </summary>
         /// <param name="szUserToken">用户usertoken</param>
-        /// <param name="nFlag">nFlag：0为标清，1为高清</param>
+        /// <param name="nFlag">nFlag:0为标清，1为高清</param>
         /// <returns>采集参数</returns>
         [HttpGet("GetUserHighOrStandardParam"), MapToApiVersion("1.0")]
         [ApiExplorerSettings(GroupName = "v1")]
-        public async Task<OldResponseMessage<string>> OldGetUserHighOrStandardParam([FromQuery, DefaultValue("897cd4f79531e3c04c2c9a371e4db4ea")]string szUserToken, [FromQuery, DefaultValue(0)]int nFlag)//nFlag：0为标清，1为高清
+        public async Task<OldResponseMessage<string>> OldGetUserHighOrStandardParam([FromQuery, DefaultValue("897cd4f79531e3c04c2c9a371e4db4ea")]string szUserToken, [FromQuery, DefaultValue(0)]int nFlag)//nFlag:0为标清，1为高清
         {
             OldResponseMessage<string> Res = new OldResponseMessage<string>();
             try
