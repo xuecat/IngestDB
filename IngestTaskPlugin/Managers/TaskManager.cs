@@ -3554,7 +3554,7 @@ namespace IngestTaskPlugin.Managers
                     else
                     {
                         Logger.Error("add task with policy channelbusy 2" + Store.GetConfictTaskInfo());
-                        SobeyRecException.ThrowSelfNoParam(, GlobalDictionary.GLOBALDICT_CODE_ALL_USEABLE_CHANNELS_ARE_BUSY, Logger, null);
+                        SobeyRecException.ThrowSelfNoParam("", GlobalDictionary.GLOBALDICT_CODE_ALL_USEABLE_CHANNELS_ARE_BUSY, Logger, null);
                     }
                 }
                 else
