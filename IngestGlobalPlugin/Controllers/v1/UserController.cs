@@ -145,7 +145,7 @@ namespace IngestGlobalPlugin.Controllers.v1
         /// </summary>
         /// <param name="nTemplateID">模板id</param>
         /// <returns>删除结果</returns>
-        [HttpDelete("DeleteUserTemplateByID"), MapToApiVersion("1.0")]
+        [HttpGet("DeleteUserTemplateByID"), MapToApiVersion("1.0")]
         [ApiExplorerSettings(GroupName = "v1")]
         public async Task<OldResponseMessage> OldDeleteUserTemplateByID([FromQuery, DefaultValue(2)]int nTemplateID)
         {
