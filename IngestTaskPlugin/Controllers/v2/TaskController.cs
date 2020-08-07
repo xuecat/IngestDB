@@ -475,6 +475,19 @@ namespace IngestTaskPlugin.Controllers.v2
                 Response.Code = ResponseCodeDefines.ModelStateInvalid;
                 Response.Msg = "请求参数不正确";
             }
+            if (string.IsNullOrEmpty(task.TaskContent.Begin) || task.TaskContent.Begin == "0000-00-00 00:00:00")
+            {
+                Response.Code = ResponseCodeDefines.ModelStateInvalid;
+                Response.Msg = "请求参数Begin不正确";
+                return Response;
+            }
+            if (string.IsNullOrEmpty(task.TaskContent.End) || task.TaskContent.End == "0000-00-00 00:00:00")
+            {
+                Response.Code = ResponseCodeDefines.ModelStateInvalid;
+                Response.Msg = "请求参数End不正确";
+                return Response;
+            }
+
             try
             {
                 //Response.Ext = await _taskManage.AddTaskWithoutPolicy(task, string.Empty, string.Empty, string.Empty, string.Empty);
@@ -551,7 +564,22 @@ namespace IngestTaskPlugin.Controllers.v2
             {
                 Response.Code = ResponseCodeDefines.ModelStateInvalid;
                 Response.Msg = "请求参数不正确";
+                return Response;
             }
+
+            if (string.IsNullOrEmpty(task.TaskContent.Begin) || task.TaskContent.Begin == "0000-00-00 00:00:00")
+            {
+                Response.Code = ResponseCodeDefines.ModelStateInvalid;
+                Response.Msg = "请求参数Begin不正确";
+                return Response;
+            }
+            if (string.IsNullOrEmpty(task.TaskContent.End) || task.TaskContent.End == "0000-00-00 00:00:00")
+            {
+                Response.Code = ResponseCodeDefines.ModelStateInvalid;
+                Response.Msg = "请求参数End不正确";
+                return Response;
+            }
+
             try
             {
                 //Response.Ext = await _taskManage.AddTaskWithPolicy(task, false, string.Empty, string.Empty, string.Empty, string.Empty);

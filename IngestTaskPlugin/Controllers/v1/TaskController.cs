@@ -360,7 +360,20 @@ namespace IngestTaskPlugin.Controllers.v1
                 string ContentMeta = pIn.strContentMetaData;
                 string MatiralMeta = string.Empty;
                 string PlanningMeta = string.Empty;
-                
+
+                if (string.IsNullOrEmpty(pIn.taskAdd.strBegin) || pIn.taskAdd.strBegin == "0000-00-00 00:00:00")
+                {
+                    Response.bRet = false;
+                    Response.errStr = "请求参数Begin不正确";
+                    return Response;
+                }
+                if (string.IsNullOrEmpty(pIn.taskAdd.strEnd) || pIn.taskAdd.strEnd == "0000-00-00 00:00:00")
+                {
+                    Response.bRet = false;
+                    Response.errStr = "请求参数End不正确";
+                    return Response;
+                }
+
                 var f = await _taskManage.AddTaskWithoutPolicy<AddTaskExDb_in>(pIn, CaptureMeta, ContentMeta, MatiralMeta, PlanningMeta);
 
                 if (f == null)
@@ -437,6 +450,19 @@ namespace IngestTaskPlugin.Controllers.v1
                         PlanningMeta = item.strMetadata;
                     }
                 }
+                if (string.IsNullOrEmpty(pIn.taskAdd.strBegin) || pIn.taskAdd.strBegin == "0000-00-00 00:00:00")
+                {
+                    Response.bRet = false;
+                    Response.errStr = "请求参数Begin不正确";
+                    return Response;
+                }
+                if (string.IsNullOrEmpty(pIn.taskAdd.strEnd) || pIn.taskAdd.strEnd == "0000-00-00 00:00:00")
+                {
+                    Response.bRet = false;
+                    Response.errStr = "请求参数End不正确";
+                    return Response;
+                }
+
                 var f = await _taskManage.AddTaskWithoutPolicy<AddTaskSvr_IN>(pIn, CaptureMeta, ContentMeta, MatiralMeta, PlanningMeta);
 
                 if (f == null)
@@ -514,6 +540,19 @@ namespace IngestTaskPlugin.Controllers.v1
                         PlanningMeta = item.strMetadata;
                     }
                 }
+                if (string.IsNullOrEmpty(pIn.taskAdd.strBegin) || pIn.taskAdd.strBegin == "0000-00-00 00:00:00")
+                {
+                    Response.bRet = false;
+                    Response.errStr = "请求参数Begin不正确";
+                    return Response;
+                }
+                if (string.IsNullOrEmpty(pIn.taskAdd.strEnd) || pIn.taskAdd.strEnd == "0000-00-00 00:00:00")
+                {
+                    Response.bRet = false;
+                    Response.errStr = "请求参数End不正确";
+                    return Response;
+                }
+
                 var f = await _taskManage.AddTaskWithPolicy<AddTaskSvrPolicysAndBackupFlag_IN>(pIn, false,CaptureMeta, ContentMeta, MatiralMeta, PlanningMeta);
                 if (f == null)
                 {
@@ -1600,7 +1639,7 @@ namespace IngestTaskPlugin.Controllers.v1
 
         }
 
-        [HttpPost("ModifyTaskName"), MapToApiVersion("1.0")]
+        [HttpGet("ModifyTaskName"), MapToApiVersion("1.0")]
         [ApiExplorerSettings(GroupName = "v1")]
         public async Task<ModifyTaskName_out> ModifyTaskName([FromQuery]int nTaskID, [FromQuery]string strNewName)
         {
