@@ -1113,7 +1113,7 @@ namespace IngestTaskPlugin.Managers
 
             try
             {
-                var root = XDocument.Load(f.Metadatalong);
+                var root = XDocument.Parse(f.Metadatalong);
 
                 XElement material = null;
                 switch (type)
