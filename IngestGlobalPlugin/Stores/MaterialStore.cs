@@ -598,7 +598,7 @@ namespace IngestGlobalPlugin.Stores
 
         public int GetNextValId(string value)
         {
-            return Context.DbpGlobalProgram.Select(x => IngestGlobalDBContext.next_val(value)).FirstOrDefault();
+            return Context.DbpMaterial.Select(x => IngestGlobalDBContext.next_val(value)).FirstOrDefault();
         }
     }
 }

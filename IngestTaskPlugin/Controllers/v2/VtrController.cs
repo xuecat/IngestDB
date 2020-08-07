@@ -76,7 +76,7 @@
                 if (response.Ext <= 0)
                 {
                     response.Code = ResponseCodeDefines.NotFound;
-                    response.Msg = $"{System.Reflection.MethodBase.GetCurrentMethod().DeclaringType.FullName}:error info: 获取数据为空!";
+                    response.Msg = $"{System.Reflection.MethodBase.GetCurrentMethod().DeclaringType.FullName}:error info: not find data!";
                 }
             }
             catch (Exception e)//其他未知的异常，写异常日志
@@ -176,7 +176,7 @@
                 if (response.Ext <= 0)
                 {
                     response.Code = ResponseCodeDefines.NotFound;
-                    response.Msg = $"{System.Reflection.MethodBase.GetCurrentMethod().DeclaringType.FullName}:error info: 获取数据为空!";
+                    response.Msg = $"{System.Reflection.MethodBase.GetCurrentMethod().DeclaringType.FullName}:error info: not find data!";
                 }
             }
             catch (Exception e)//其他未知的异常，写异常日志
@@ -252,7 +252,8 @@
                 if (response.Ext <= 0)
                 {
                     response.Code = ResponseCodeDefines.NotFound;
-                    response.Msg = $"{System.Reflection.MethodBase.GetCurrentMethod().DeclaringType.FullName}:error info: 获取数据为空!";
+                    response.Msg = $"{System.Reflection.MethodBase.GetCurrentMethod().DeclaringType.FullName}:error info: not find data!";
+                    return response;
                 }
                 if (_globalInterface != null)
                 {
@@ -358,7 +359,7 @@
                 if (response.Ext != null || response?.Ext.Count <= 0)
                 {
                     response.Code = ResponseCodeDefines.NotFound;
-                    response.Msg = $"{System.Reflection.MethodBase.GetCurrentMethod().DeclaringType.FullName}:error info: 获取数据为空!";
+                    response.Msg = $"{System.Reflection.MethodBase.GetCurrentMethod().DeclaringType.FullName}:error info: not find data!";
                 }
             }
             catch (Exception e)//其他未知的异常，写异常日志
@@ -546,7 +547,7 @@
                 if (response.Ext != null || response?.Ext.Count <= 0)
                 {
                     response.Code = ResponseCodeDefines.NotFound;
-                    response.Msg = $"{System.Reflection.MethodBase.GetCurrentMethod().DeclaringType.FullName}:error info: 获取数据为空!";
+                    response.Msg = $"{System.Reflection.MethodBase.GetCurrentMethod().DeclaringType.FullName}:error info: not find data!";
                 }
             }
             catch (Exception e)//其他未知的异常，写异常日志
@@ -580,7 +581,7 @@
                 if (response.Ext != null || response?.Ext.Count <= 0)
                 {
                     response.Code = ResponseCodeDefines.NotFound;
-                    response.Msg = $"{System.Reflection.MethodBase.GetCurrentMethod().DeclaringType.FullName}:error info: 获取数据为空!";
+                    response.Msg = $"{System.Reflection.MethodBase.GetCurrentMethod().DeclaringType.FullName}:error info: not find data!";
                 }
             }
             catch (Exception e)//其他未知的异常，写异常日志
@@ -621,7 +622,7 @@
                 if (response.Ext != null || response?.Ext.Count <= 0)
                 {
                     response.Code = ResponseCodeDefines.NotFound;
-                    response.Msg = $"{System.Reflection.MethodBase.GetCurrentMethod().DeclaringType.FullName}:error info: 获取数据为空!";
+                    response.Msg = $"{System.Reflection.MethodBase.GetCurrentMethod().DeclaringType.FullName}:error info: not find data!";
                 }
             }
             catch (Exception e)//其他未知的异常，写异常日志
@@ -656,7 +657,7 @@
                 if (response.Ext != null || response?.Ext.Count <= 0)
                 {
                     response.Code = ResponseCodeDefines.NotFound;
-                    response.Msg = $"{System.Reflection.MethodBase.GetCurrentMethod().DeclaringType.FullName}:error info: 获取数据为空!";
+                    response.Msg = $"{System.Reflection.MethodBase.GetCurrentMethod().DeclaringType.FullName}:error info: not find data!";
                 }
             }
             catch (Exception e)//其他未知的异常，写异常日志
@@ -753,7 +754,7 @@
                 if (response.Ext != null)
                 {
                     response.Code = ResponseCodeDefines.NotFound;
-                    response.Msg = $"{System.Reflection.MethodBase.GetCurrentMethod().DeclaringType.FullName}:error info: 获取数据为空!";
+                    response.Msg = $"{System.Reflection.MethodBase.GetCurrentMethod().DeclaringType.FullName}:error info: not find data!";
                 }
             }
             catch (Exception e)//其他未知的异常，写异常日志
@@ -801,7 +802,8 @@
                 if (response.Ext != null)
                 {
                     response.Code = ResponseCodeDefines.NotFound;
-                    response.Msg = $"{System.Reflection.MethodBase.GetCurrentMethod().DeclaringType.FullName}:error info: 获取数据为空!";
+                    response.Msg = $"{System.Reflection.MethodBase.GetCurrentMethod().DeclaringType.FullName}:error info: not find data!";
+                    return response;
                 }
                 //GLOBALSERVICE.SetGlobalState2(ClientOperLabelName.VTR_UPLOAD_ModifyTask);
                 if (_globalInterface != null)
@@ -850,7 +852,8 @@
             if (response.Ext <= 0)
             {
                 response.Code = ResponseCodeDefines.NotFound;
-                response.Msg = $"{System.Reflection.MethodBase.GetCurrentMethod().DeclaringType.FullName}:error info: 获取数据为空!";
+                response.Msg = $"{System.Reflection.MethodBase.GetCurrentMethod().DeclaringType.FullName}:error info: not find data!";
+                return response;
             }
             try
             {
@@ -909,7 +912,8 @@
             if (response.Ext <= 0)
             {
                 response.Code = ResponseCodeDefines.NotFound;
-                response.Msg = $"{System.Reflection.MethodBase.GetCurrentMethod().DeclaringType.FullName}:error info: 获取数据为空!";
+                response.Msg = $"{System.Reflection.MethodBase.GetCurrentMethod().DeclaringType.FullName}:error info: not find data!";
+                return response;
             }
             if (param == null)
             {
@@ -990,7 +994,7 @@
                 if (response.Ext == null)
                 {
                     response.Code = ResponseCodeDefines.NotFound;
-                    response.Msg = $"{System.Reflection.MethodBase.GetCurrentMethod().DeclaringType.FullName}:error info: 获取数据为空!";
+                    response.Msg = $"{System.Reflection.MethodBase.GetCurrentMethod().DeclaringType.FullName}:error info: not find data!";
                 }
                 response.Code = response.Ext.errorCode == VTR_BUT_ErrorCode.emNormal ? ResponseCodeDefines.SuccessCode : ResponseCodeDefines.ServiceError;
             }
@@ -1086,7 +1090,7 @@
                 if (string.IsNullOrEmpty(response.Ext))
                 {
                     response.Code = ResponseCodeDefines.NotFound;
-                    response.Msg = $"{System.Reflection.MethodBase.GetCurrentMethod().DeclaringType.FullName}:error info: 获取数据为空!";
+                    response.Msg = $"{System.Reflection.MethodBase.GetCurrentMethod().DeclaringType.FullName}:error info: not find data!";
                 }
                 else
                     response.Code = ResponseCodeDefines.SuccessCode;
@@ -1141,7 +1145,7 @@
                 if (response.Ext==null)
                 {
                     response.Code = ResponseCodeDefines.NotFound;
-                    response.Msg = $"{System.Reflection.MethodBase.GetCurrentMethod().DeclaringType.FullName}:error info: 获取数据为空!";
+                    response.Msg = $"{System.Reflection.MethodBase.GetCurrentMethod().DeclaringType.FullName}:error info: not find data!";
                 }
                 //GLOBALSERVICE.SetGlobalState2(ClientOperLabelName.VTR_UPLOAD_AddTask);
                 if (_globalInterface != null)

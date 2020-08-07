@@ -364,13 +364,13 @@ namespace IngestTaskPlugin.Controllers.v1
                 if (string.IsNullOrEmpty(pIn.taskAdd.strBegin) || pIn.taskAdd.strBegin == "0000-00-00 00:00:00")
                 {
                     Response.bRet = false;
-                    Response.errStr = "请求参数Begin不正确";
+                    Response.errStr = "request begin of param error";
                     return Response;
                 }
                 if (string.IsNullOrEmpty(pIn.taskAdd.strEnd) || pIn.taskAdd.strEnd == "0000-00-00 00:00:00")
                 {
                     Response.bRet = false;
-                    Response.errStr = "请求参数End不正确";
+                    Response.errStr = "request end of param error";
                     return Response;
                 }
 
@@ -453,13 +453,13 @@ namespace IngestTaskPlugin.Controllers.v1
                 if (string.IsNullOrEmpty(pIn.taskAdd.strBegin) || pIn.taskAdd.strBegin == "0000-00-00 00:00:00")
                 {
                     Response.bRet = false;
-                    Response.errStr = "请求参数Begin不正确";
+                    Response.errStr = "request begin of param error";
                     return Response;
                 }
                 if (string.IsNullOrEmpty(pIn.taskAdd.strEnd) || pIn.taskAdd.strEnd == "0000-00-00 00:00:00")
                 {
                     Response.bRet = false;
-                    Response.errStr = "请求参数End不正确";
+                    Response.errStr = "request end of param error";
                     return Response;
                 }
 
@@ -543,13 +543,13 @@ namespace IngestTaskPlugin.Controllers.v1
                 if (string.IsNullOrEmpty(pIn.taskAdd.strBegin) || pIn.taskAdd.strBegin == "0000-00-00 00:00:00")
                 {
                     Response.bRet = false;
-                    Response.errStr = "请求参数Begin不正确";
+                    Response.errStr = "request begin of param error";
                     return Response;
                 }
                 if (string.IsNullOrEmpty(pIn.taskAdd.strEnd) || pIn.taskAdd.strEnd == "0000-00-00 00:00:00")
                 {
                     Response.bRet = false;
-                    Response.errStr = "请求参数End不正确";
+                    Response.errStr = "request end of param error";
                     return Response;
                 }
 

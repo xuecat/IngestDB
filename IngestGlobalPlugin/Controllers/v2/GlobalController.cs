@@ -164,7 +164,7 @@ namespace IngestGlobalPlugin.Controllers.v2
             if (string.IsNullOrEmpty(key))
             {
                 Response.Code = ResponseCodeDefines.ArgumentNullError;
-                Response.Msg = "请求参数不正确";
+                Response.Msg = "request param error";
                 return Response;
             }
             try
@@ -338,7 +338,7 @@ namespace IngestGlobalPlugin.Controllers.v2
             if (string.IsNullOrEmpty(label))
             {
                 Response.Code = ResponseCodeDefines.ArgumentNullError;
-                Response.Msg = "请求参数不正确";
+                Response.Msg = "request param error";
                 return Response;
             }
             try

@@ -149,7 +149,7 @@ namespace IngestGlobalPlugin.Controllers.v2
                 if (string.IsNullOrEmpty(Response.Ext))
                 {
                     Response.Code = ResponseCodeDefines.NotFound;
-                    Response.Msg = $"{System.Reflection.MethodBase.GetCurrentMethod().DeclaringType.FullName}:error info: 获取数据为空!";
+                    Response.Msg = $"{System.Reflection.MethodBase.GetCurrentMethod().DeclaringType.FullName}:error info: not find data!";
                 }
                 else
                     Response.Code = ResponseCodeDefines.SuccessCode;
@@ -200,7 +200,7 @@ namespace IngestGlobalPlugin.Controllers.v2
                 if (string.IsNullOrEmpty(Response.Ext))
                 {
                     Response.Code = ResponseCodeDefines.NotFound;
-                    Response.Msg = $"{System.Reflection.MethodBase.GetCurrentMethod().DeclaringType.FullName}:error info: 获取数据为空!";
+                    Response.Msg = $"{System.Reflection.MethodBase.GetCurrentMethod().DeclaringType.FullName}:error info: not find data!";
                 }
                 else
                     Response.Code = ResponseCodeDefines.SuccessCode;

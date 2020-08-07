@@ -200,33 +200,40 @@ namespace IngestGlobalPlugin.Managers
             {
                 //
                 int id = Store.GetNextValId("DBP_SQ_MATERIALID");
-                //添加素材
-                string strGUID = Guid.NewGuid().ToString("N");
-                int nClipState = (state == SAVE_IN_DB_STATE.SECOND_END || state == SAVE_IN_DB_STATE.SECOND_READY) ? 1 : 0;
 
-                bool bRet = (strResult == "1") ? true : false;
-                strResult = UpdateArchiveResult("", (SAVE_IN_DB_STATE)0, true);
-                strResult = UpdateArchiveResult(strResult, state, bRet);
+                if (id > 0)
+                {
+                    //添加素材
+                    string strGUID = Guid.NewGuid().ToString("N");
+                    int nClipState = (state == SAVE_IN_DB_STATE.SECOND_END || state == SAVE_IN_DB_STATE.SECOND_READY) ? 1 : 0;
+
+                    bool bRet = (strResult == "1") ? true : false;
+                    strResult = UpdateArchiveResult("", (SAVE_IN_DB_STATE)0, true);
+                    strResult = UpdateArchiveResult(strResult, state, bRet);
 
 
-                await Store.AddMaterial(new DbpMaterial() {
-                    Materialid = id,
-                    Name = "Unknow",
-                    Remark = "",
-                    Createtime = DateTime.Now,
-                    Taskid = nTaskID,
-                    Sectionid = nSectionID,
-                    Guid = Guid.NewGuid().ToString("N"),
-                    Clipstate = nClipState
-                }, false);
+                    await Store.AddMaterial(new DbpMaterial()
+                    {
+                        Materialid = id,
+                        Name = "Unknow",
+                        Remark = "",
+                        Createtime = DateTime.Now,
+                        Taskid = nTaskID,
+                        Sectionid = nSectionID,
+                        Guid = Guid.NewGuid().ToString("N"),
+                        Clipstate = nClipState
+                    }, false);
 
-                await Store.UpdateMaterialArchive(new DbpMaterialArchive() {
-                    Materialid = id,
-                    Policyid = nPolicyID,
-                    Archivestate = (int)state,
-                    Nextretry = DateTime.Now,
-                    Archiveresult = strResult
-                }, true);
+                    await Store.UpdateMaterialArchive(new DbpMaterialArchive()
+                    {
+                        Materialid = id,
+                        Policyid = nPolicyID,
+                        Archivestate = (int)state,
+                        Nextretry = DateTime.Now,
+                        Archiveresult = strResult
+                    }, true);
+                }
+                
                 return;
             }
             else
