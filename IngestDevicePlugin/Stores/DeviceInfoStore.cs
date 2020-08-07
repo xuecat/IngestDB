@@ -273,7 +273,7 @@ namespace IngestDevicePlugin.Stores
                                         .Join(Context.DbpVirtualmatrixportstate.Where(matrix => matrix.State == 1),
                                               rcdout => rcdout.Recoutidx,
                                               matrix => matrix.Virtualoutport,
-                                              (rcdout, matrix) => matrix.Virtualoutport)
+                                              (rcdout, matrix) => matrix.Virtualinport)
                                         .Join(Context.DbpRcdindesc,
                                               outport => outport,
                                               rcdin => rcdin.Recinidx,
