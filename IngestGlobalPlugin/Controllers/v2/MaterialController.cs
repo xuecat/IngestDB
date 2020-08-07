@@ -56,7 +56,7 @@ namespace IngestGlobalPlugin.Controllers.v2
                 if (Response.Ext == null || Response.Ext.Count <= 0)
                 {
                     Response.Code = ResponseCodeDefines.NotFound;
-                    Response.Msg = $"{System.Reflection.MethodBase.GetCurrentMethod().DeclaringType.FullName}:error info: 获取数据为空!";
+                    Response.Msg = $"{System.Reflection.MethodBase.GetCurrentMethod().DeclaringType.FullName}:error info: not find data!";
                 }
             }
             catch (Exception e)
@@ -97,7 +97,7 @@ namespace IngestGlobalPlugin.Controllers.v2
                 if (Response.Ext == null || Response.Ext.Count <= 0)
                 {
                     Response.Code = ResponseCodeDefines.NotFound;
-                    Response.Msg = $"{System.Reflection.MethodBase.GetCurrentMethod().DeclaringType.FullName}:error info: 获取数据为空!";
+                    Response.Msg = $"{System.Reflection.MethodBase.GetCurrentMethod().DeclaringType.FullName}:error info: not find data!";
                 }
             }
             catch (Exception e)
@@ -135,7 +135,7 @@ namespace IngestGlobalPlugin.Controllers.v2
             if (taskid == null)
             {
                 Response.Code = ResponseCodeDefines.ModelStateInvalid;
-                Response.Msg = "请求参数不正确";
+                Response.Msg = "request param error";
             }
             try
             {
@@ -143,7 +143,7 @@ namespace IngestGlobalPlugin.Controllers.v2
                 if (Response.Ext == null || Response.Ext.Count <= 0)
                 {
                     Response.Code = ResponseCodeDefines.NotFound;
-                    Response.Msg = $"{System.Reflection.MethodBase.GetCurrentMethod().DeclaringType.FullName}:error info: 获取数据为空!";
+                    Response.Msg = $"{System.Reflection.MethodBase.GetCurrentMethod().DeclaringType.FullName}:error info: not find data!";
                 }
             }
             catch (Exception e)
@@ -181,7 +181,7 @@ namespace IngestGlobalPlugin.Controllers.v2
             if (msgInfo == null)
             {
                 Response.Code = ResponseCodeDefines.ModelStateInvalid;
-                Response.Msg = "请求参数不正确";
+                Response.Msg = "request param error";
             }
             try
             {
@@ -189,7 +189,7 @@ namespace IngestGlobalPlugin.Controllers.v2
                 if (Response.Ext <= 0)
                 {
                     Response.Code = ResponseCodeDefines.NotFound;
-                    Response.Msg = $"{System.Reflection.MethodBase.GetCurrentMethod().DeclaringType.FullName}:error info: 获取数据为空!";
+                    Response.Msg = $"{System.Reflection.MethodBase.GetCurrentMethod().DeclaringType.FullName}:error info: not find data!";
                 }
             }
             catch (Exception e)
@@ -228,7 +228,7 @@ namespace IngestGlobalPlugin.Controllers.v2
             if (taskid < 1)
             {
                 Response.Code = ResponseCodeDefines.ModelStateInvalid;
-                Response.Msg = "请求参数不正确";
+                Response.Msg = "request param error";
             }
             try
             {
@@ -236,7 +236,7 @@ namespace IngestGlobalPlugin.Controllers.v2
                 if (Response.Ext <= 0)
                 {
                     Response.Code = ResponseCodeDefines.NotFound;
-                    Response.Msg = $"{System.Reflection.MethodBase.GetCurrentMethod().DeclaringType.FullName}:error info: 获取数据为空!";
+                    Response.Msg = $"{System.Reflection.MethodBase.GetCurrentMethod().DeclaringType.FullName}:error info: not find data!";
                 }
             }
             catch (Exception e)
@@ -274,7 +274,7 @@ namespace IngestGlobalPlugin.Controllers.v2
             if (taskid < 1)
             {
                 Response.Code = ResponseCodeDefines.ModelStateInvalid;
-                Response.Msg = "请求参数不正确";
+                Response.Msg = "request param error";
             }
             try
             {
@@ -282,7 +282,7 @@ namespace IngestGlobalPlugin.Controllers.v2
                 if (Response.Ext <= 0)
                 {
                     Response.Code = ResponseCodeDefines.NotFound;
-                    Response.Msg = $"{System.Reflection.MethodBase.GetCurrentMethod().DeclaringType.FullName}:error info: 获取数据为空!";
+                    Response.Msg = $"{System.Reflection.MethodBase.GetCurrentMethod().DeclaringType.FullName}:error info: not find data!";
                 }
             }
             catch (Exception e)
@@ -320,7 +320,7 @@ namespace IngestGlobalPlugin.Controllers.v2
             if (taskid <1)
             {
                 Response.Code = ResponseCodeDefines.ModelStateInvalid;
-                Response.Msg = "请求参数不正确";
+                Response.Msg = "request param error";
             }
             try
             {
@@ -328,7 +328,7 @@ namespace IngestGlobalPlugin.Controllers.v2
                 if (Response.Ext == null || Response.Ext.Count <= 0)
                 {
                     Response.Code = ResponseCodeDefines.NotFound;
-                    Response.Msg = $"{System.Reflection.MethodBase.GetCurrentMethod().DeclaringType.FullName}:error info: 获取数据为空!";
+                    Response.Msg = $"{System.Reflection.MethodBase.GetCurrentMethod().DeclaringType.FullName}:error info: not find data!";
                 }
             }
             catch (Exception e)
@@ -366,7 +366,7 @@ namespace IngestGlobalPlugin.Controllers.v2
             if (string.IsNullOrEmpty(key))
             {
                 Response.Code = ResponseCodeDefines.ModelStateInvalid;
-                Response.Msg = "请求参数不正确";
+                Response.Msg = "request param error";
             }
             try
             {
@@ -374,7 +374,7 @@ namespace IngestGlobalPlugin.Controllers.v2
                 if (Response.Ext == null)
                 {
                     Response.Code = ResponseCodeDefines.NotFound;
-                    Response.Msg = $"{System.Reflection.MethodBase.GetCurrentMethod().DeclaringType.FullName}:error info: 获取数据为空!";
+                    Response.Msg = $"{System.Reflection.MethodBase.GetCurrentMethod().DeclaringType.FullName}:error info: not find data!";
                 }
             }
             catch (Exception e)
@@ -412,7 +412,7 @@ namespace IngestGlobalPlugin.Controllers.v2
             if (formateinfo == null)
             {
                 Response.Code = ResponseCodeDefines.ModelStateInvalid;
-                Response.Msg = "请求参数不正确";
+                Response.Msg = "request param error";
             }
             try
             {
@@ -420,7 +420,7 @@ namespace IngestGlobalPlugin.Controllers.v2
                 if (Response.Ext == null)
                 {
                     Response.Code = ResponseCodeDefines.NotFound;
-                    Response.Msg = $"{System.Reflection.MethodBase.GetCurrentMethod().DeclaringType.FullName}:error info: 获取数据为空!";
+                    Response.Msg = $"{System.Reflection.MethodBase.GetCurrentMethod().DeclaringType.FullName}:error info: not find data!";
                 }
             }
             catch (Exception e)

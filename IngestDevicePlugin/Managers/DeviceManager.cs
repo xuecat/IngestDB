@@ -680,7 +680,7 @@ namespace IngestDevicePlugin.Managers
             foreach (var item in channelInfos)
             {
                 ////类型匹配
-                if (!((programme.PgmType == ProgrammeType.PT_SDI && item.DeviceTypeId == (int)CaptureChannelType.emMsvChannel)
+                if (!((programme.PgmType == ProgrammeType.PT_SDI && item.DeviceTypeId == (int)CaptureChannelType.emMsvChannel && programme.SignalSourceType != emSignalSource.emStreamMedia)
                      || (programme.PgmType == ProgrammeType.PT_SDI && programme.SignalSourceType == emSignalSource.emStreamMedia && item.DeviceTypeId == (int)CaptureChannelType.emStreamChannel)
                      || ((programme.PgmType == ProgrammeType.PT_IPTS) && (item.DeviceTypeId == (int)CaptureChannelType.emIPTSChannel))
                      || ((programme.PgmType == ProgrammeType.PT_StreamMedia || programme.SignalSourceType == emSignalSource.emStreamMedia) && (item.DeviceTypeId == (int)CaptureChannelType.emStreamChannel))) )
@@ -836,7 +836,7 @@ namespace IngestDevicePlugin.Managers
             foreach (var item in channels)
             {
                 ////类型匹配
-                if (!((programinfo.PgmType == ProgrammeType.PT_SDI && item.DeviceTypeId == (int)CaptureChannelType.emMsvChannel)
+                if (!((programinfo.PgmType == ProgrammeType.PT_SDI && item.DeviceTypeId == (int)CaptureChannelType.emMsvChannel && programinfo.SignalSourceType != emSignalSource.emStreamMedia)
                      || (programinfo.PgmType == ProgrammeType.PT_SDI && programinfo.SignalSourceType == emSignalSource.emStreamMedia && item.DeviceTypeId == (int)CaptureChannelType.emStreamChannel)
                      || ((programinfo.PgmType == ProgrammeType.PT_IPTS) && (item.DeviceTypeId == (int)CaptureChannelType.emIPTSChannel))
                      || ((programinfo.PgmType == ProgrammeType.PT_StreamMedia) && (item.DeviceTypeId == (int)CaptureChannelType.emStreamChannel))))

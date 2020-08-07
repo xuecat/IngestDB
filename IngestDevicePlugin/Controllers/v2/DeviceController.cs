@@ -45,7 +45,7 @@ namespace IngestDevicePlugin.Controllers.v2
                 if (response.Ext==null|| response.Ext.Count==0)
                 {
                     response.Code = ResponseCodeDefines.NotFound;
-                    response.Msg = $"{System.Reflection.MethodBase.GetCurrentMethod().DeclaringType.FullName}:error info: 获取数据为空!";
+                    response.Msg = $"{System.Reflection.MethodBase.GetCurrentMethod().DeclaringType.FullName}:error info: not find data!";
                 }
             } catch(Exception e)
             {
@@ -80,7 +80,7 @@ namespace IngestDevicePlugin.Controllers.v2
                 if (response.Ext == null)
                 {
                     response.Code = ResponseCodeDefines.NotFound;
-                    response.Msg = $"{System.Reflection.MethodBase.GetCurrentMethod().DeclaringType.FullName}:error info: 获取数据为空!";
+                    response.Msg = $"{System.Reflection.MethodBase.GetCurrentMethod().DeclaringType.FullName}:error info: not find data!";
                 }
             } catch(Exception e)
             {
@@ -114,7 +114,7 @@ namespace IngestDevicePlugin.Controllers.v2
                 if (response.Ext == null)
                 {
                     response.Code = ResponseCodeDefines.NotFound;
-                    response.Msg = $"{System.Reflection.MethodBase.GetCurrentMethod().DeclaringType.FullName}:error info: 获取数据为空!";
+                    response.Msg = $"{System.Reflection.MethodBase.GetCurrentMethod().DeclaringType.FullName}:error info: not find data!";
                 }
             } catch(Exception e)
             {
@@ -150,7 +150,7 @@ namespace IngestDevicePlugin.Controllers.v2
                 if (response.Ext <= 0)
                 {
                     response.Code = ResponseCodeDefines.NotFound;
-                    response.Msg = $"{System.Reflection.MethodBase.GetCurrentMethod().DeclaringType.FullName}:error info: 获取数据为空!";
+                    response.Msg = $"{System.Reflection.MethodBase.GetCurrentMethod().DeclaringType.FullName}:error info: not find data!";
                 }
             } catch(Exception e)
             {
@@ -190,7 +190,7 @@ namespace IngestDevicePlugin.Controllers.v2
                 if (response.Ext <=0)
                 {
                     response.Code = ResponseCodeDefines.NotFound;
-                    response.Msg = $"{System.Reflection.MethodBase.GetCurrentMethod().DeclaringType.FullName}:error info: 获取数据为空!";
+                    response.Msg = $"{System.Reflection.MethodBase.GetCurrentMethod().DeclaringType.FullName}:error info: not find data!";
                 }
             } catch(Exception e)
             {
@@ -257,7 +257,7 @@ namespace IngestDevicePlugin.Controllers.v2
                 if (string.IsNullOrEmpty(response.Ext))
                 {
                     response.Code = ResponseCodeDefines.NotFound;
-                    response.Msg = $"{System.Reflection.MethodBase.GetCurrentMethod().DeclaringType.FullName}:error info: 获取数据为空!";
+                    response.Msg = $"{System.Reflection.MethodBase.GetCurrentMethod().DeclaringType.FullName}:error info: not find data!";
                 }
             } catch(Exception e)
             {
@@ -294,7 +294,7 @@ namespace IngestDevicePlugin.Controllers.v2
                 if (response.Ext<=0)
                 {
                     response.Code = ResponseCodeDefines.NotFound;
-                    response.Msg = $"{System.Reflection.MethodBase.GetCurrentMethod().DeclaringType.FullName}:error info: 获取数据为空!";
+                    response.Msg = $"{System.Reflection.MethodBase.GetCurrentMethod().DeclaringType.FullName}:error info: not find data!";
                 }
             } catch(Exception e)
             {
@@ -329,7 +329,7 @@ namespace IngestDevicePlugin.Controllers.v2
                 if (response.Ext ==null|| response.Ext.Count<= 0)
                 {
                     response.Code = ResponseCodeDefines.NotFound;
-                    response.Msg = $"{System.Reflection.MethodBase.GetCurrentMethod().DeclaringType.FullName}:error info: 获取数据为空!";
+                    response.Msg = $"{System.Reflection.MethodBase.GetCurrentMethod().DeclaringType.FullName}:error info: not find data!";
                 }
             } catch(Exception e)
             {
@@ -363,7 +363,7 @@ namespace IngestDevicePlugin.Controllers.v2
                 if (response.Ext == null || response.Ext.Count <= 0)
                 {
                     response.Code = ResponseCodeDefines.NotFound;
-                    response.Msg = $"{System.Reflection.MethodBase.GetCurrentMethod().DeclaringType.FullName}:error info: 获取数据为空!";
+                    response.Msg = $"{System.Reflection.MethodBase.GetCurrentMethod().DeclaringType.FullName}:error info: not find data!";
                 }
             } catch(Exception e)
             {
@@ -433,7 +433,7 @@ namespace IngestDevicePlugin.Controllers.v2
                 if (response.Ext == null || response.Ext.Count <= 0)
                 {
                     response.Code = ResponseCodeDefines.NotFound;
-                    response.Msg = $"{System.Reflection.MethodBase.GetCurrentMethod().DeclaringType.FullName}:error info: 获取数据为空!";
+                    response.Msg = $"{System.Reflection.MethodBase.GetCurrentMethod().DeclaringType.FullName}:error info: not find data!";
                 }
             } catch(Exception e)
             {
@@ -497,7 +497,7 @@ namespace IngestDevicePlugin.Controllers.v2
                 if (response.Ext == null || response.Ext.Count <= 0)
                 {
                     response.Code = ResponseCodeDefines.NotFound;
-                    response.Msg = $"{System.Reflection.MethodBase.GetCurrentMethod().DeclaringType.FullName}:error info: 获取数据为空!";
+                    response.Msg = $"{System.Reflection.MethodBase.GetCurrentMethod().DeclaringType.FullName}:error info: not find data!";
                 }
             } catch(Exception e)
             {
@@ -532,7 +532,7 @@ namespace IngestDevicePlugin.Controllers.v2
                 if (response.Ext == null || response.Ext.Count <= 0)
                 {
                     response.Code = ResponseCodeDefines.NotFound;
-                    response.Msg = $"{System.Reflection.MethodBase.GetCurrentMethod().DeclaringType.FullName}:error info: 获取数据为空!";
+                    response.Msg = $"{System.Reflection.MethodBase.GetCurrentMethod().DeclaringType.FullName}:error info: not find data!";
                 }
             } catch(Exception e)
             {
@@ -567,7 +567,7 @@ namespace IngestDevicePlugin.Controllers.v2
                 if (response.Ext == null)
                 {
                     response.Code = ResponseCodeDefines.NotFound;
-                    response.Msg = $"{System.Reflection.MethodBase.GetCurrentMethod().DeclaringType.FullName}:error info: 获取数据为空!";
+                    response.Msg = $"{System.Reflection.MethodBase.GetCurrentMethod().DeclaringType.FullName}:error info: not find data!";
                 }
             } catch(Exception e)
             {
@@ -638,7 +638,7 @@ namespace IngestDevicePlugin.Controllers.v2
                 if (response.Ext <= 0)
                 {
                     response.Code = ResponseCodeDefines.NotFound;
-                    response.Msg = $"{System.Reflection.MethodBase.GetCurrentMethod().DeclaringType.FullName}:error info: 获取数据为空!";
+                    response.Msg = $"{System.Reflection.MethodBase.GetCurrentMethod().DeclaringType.FullName}:error info: not find data!";
                 }
             } catch(Exception e)
             {
@@ -673,7 +673,7 @@ namespace IngestDevicePlugin.Controllers.v2
                 if (response.Ext <= 0)
                 {
                     response.Code = ResponseCodeDefines.NotFound;
-                    response.Msg = $"{System.Reflection.MethodBase.GetCurrentMethod().DeclaringType.FullName}:error info: 获取数据为空!";
+                    response.Msg = $"{System.Reflection.MethodBase.GetCurrentMethod().DeclaringType.FullName}:error info: not find data!";
                 }
             } catch(Exception e)
             {
@@ -712,7 +712,7 @@ namespace IngestDevicePlugin.Controllers.v2
                 if (response.Ext==null||response.Ext?.Count <= 0)
                 {
                     response.Code = ResponseCodeDefines.NotFound;
-                    response.Msg = $"{System.Reflection.MethodBase.GetCurrentMethod().DeclaringType.FullName}:error info: 获取数据为空!";
+                    response.Msg = $"{System.Reflection.MethodBase.GetCurrentMethod().DeclaringType.FullName}:error info: not find data!";
                 }
             } catch(Exception e)
             {
@@ -746,7 +746,7 @@ namespace IngestDevicePlugin.Controllers.v2
                 if (response.Ext == null || response.Ext?.Count <= 0)
                 {
                     response.Code = ResponseCodeDefines.NotFound;
-                    response.Msg = $"{System.Reflection.MethodBase.GetCurrentMethod().DeclaringType.FullName}:error info: 获取数据为空!";
+                    response.Msg = $"{System.Reflection.MethodBase.GetCurrentMethod().DeclaringType.FullName}:error info: not find data!";
                 }
             } catch(Exception e)
             {
@@ -784,7 +784,7 @@ namespace IngestDevicePlugin.Controllers.v2
                 if (Response.Ext == null)
                 {
                     Response.Code = ResponseCodeDefines.NotFound;
-                    Response.Msg = $"{System.Reflection.MethodBase.GetCurrentMethod().DeclaringType.FullName}:error info: 获取数据为空!";
+                    Response.Msg = $"{System.Reflection.MethodBase.GetCurrentMethod().DeclaringType.FullName}:error info: not find data!";
                 }
             } catch(Exception e)
             {
@@ -823,7 +823,7 @@ namespace IngestDevicePlugin.Controllers.v2
                 if (Response.Ext == null )
                 {
                     Response.Code = ResponseCodeDefines.NotFound;
-                    Response.Msg = $"{System.Reflection.MethodBase.GetCurrentMethod().DeclaringType.FullName}:error info: 获取数据为空!";
+                    Response.Msg = $"{System.Reflection.MethodBase.GetCurrentMethod().DeclaringType.FullName}:error info: not find data!";
                 }
             } catch(Exception e)
             {
@@ -863,7 +863,7 @@ namespace IngestDevicePlugin.Controllers.v2
                 if (response.Ext == null || response.Ext?.Count <= 0)
                 {
                     response.Code = ResponseCodeDefines.NotFound;
-                    response.Msg = $"{System.Reflection.MethodBase.GetCurrentMethod().DeclaringType.FullName}:error info: 获取数据为空!";
+                    response.Msg = $"{System.Reflection.MethodBase.GetCurrentMethod().DeclaringType.FullName}:error info: not find data!";
                 }
             } catch(Exception e)
             {
@@ -897,7 +897,7 @@ namespace IngestDevicePlugin.Controllers.v2
                 if (response.Ext == null || response.Ext?.Count <= 0)
                 {
                     response.Code = ResponseCodeDefines.NotFound;
-                    response.Msg = $"{System.Reflection.MethodBase.GetCurrentMethod().DeclaringType.FullName}:error info: 获取数据为空!";
+                    response.Msg = $"{System.Reflection.MethodBase.GetCurrentMethod().DeclaringType.FullName}:error info: not find data!";
                 }
             } catch(Exception e)
             {
@@ -935,7 +935,7 @@ namespace IngestDevicePlugin.Controllers.v2
                 if (response.Ext == null || response.Ext?.Count <= 0)
                 {
                     response.Code = ResponseCodeDefines.NotFound;
-                    response.Msg = $"{System.Reflection.MethodBase.GetCurrentMethod().DeclaringType.FullName}:error info: 获取数据为空!";
+                    response.Msg = $"{System.Reflection.MethodBase.GetCurrentMethod().DeclaringType.FullName}:error info: not find data!";
                 }
             } catch(Exception e)
             {
@@ -970,7 +970,7 @@ namespace IngestDevicePlugin.Controllers.v2
                 if (response.Ext == null)
                 {
                     response.Code = ResponseCodeDefines.NotFound;
-                    response.Msg = $"{System.Reflection.MethodBase.GetCurrentMethod().DeclaringType.FullName}:error info: 获取数据为空!";
+                    response.Msg = $"{System.Reflection.MethodBase.GetCurrentMethod().DeclaringType.FullName}:error info: not find data!";
                 }
             } catch(Exception e)
             {
@@ -1037,7 +1037,7 @@ namespace IngestDevicePlugin.Controllers.v2
                 if (response.Ext == null || response.Ext?.Count <= 0)
                 {
                     response.Code = ResponseCodeDefines.NotFound;
-                    response.Msg = $"{System.Reflection.MethodBase.GetCurrentMethod().DeclaringType.FullName}:error info: 获取数据为空!";
+                    response.Msg = $"{System.Reflection.MethodBase.GetCurrentMethod().DeclaringType.FullName}:error info: not find data!";
                 }
             } catch(Exception e)
             {
@@ -1071,7 +1071,7 @@ namespace IngestDevicePlugin.Controllers.v2
                 if (response.Ext == null || response.Ext?.Count <= 0)
                 {
                     response.Code = ResponseCodeDefines.NotFound;
-                    response.Msg = $"{System.Reflection.MethodBase.GetCurrentMethod().DeclaringType.FullName}:error info: 获取数据为空!";
+                    response.Msg = $"{System.Reflection.MethodBase.GetCurrentMethod().DeclaringType.FullName}:error info: not find data!";
                 }
             } catch(Exception e)
             {
@@ -1105,7 +1105,7 @@ namespace IngestDevicePlugin.Controllers.v2
                 if (response.Ext == null || response.Ext?.Count <= 0)
                 {
                     response.Code = ResponseCodeDefines.NotFound;
-                    response.Msg = $"{System.Reflection.MethodBase.GetCurrentMethod().DeclaringType.FullName}:error info: 获取数据为空!";
+                    response.Msg = $"{System.Reflection.MethodBase.GetCurrentMethod().DeclaringType.FullName}:error info: not find data!";
                 }
             } catch(Exception e)
             {
@@ -1139,7 +1139,7 @@ namespace IngestDevicePlugin.Controllers.v2
                 if (response.Ext == null || response.Ext?.Count <= 0)
                 {
                     response.Code = ResponseCodeDefines.NotFound;
-                    response.Msg = $"{System.Reflection.MethodBase.GetCurrentMethod().DeclaringType.FullName}:error info: 获取数据为空!";
+                    response.Msg = $"{System.Reflection.MethodBase.GetCurrentMethod().DeclaringType.FullName}:error info: not find data!";
                 }
             } catch(Exception e)
             {
@@ -1174,7 +1174,7 @@ namespace IngestDevicePlugin.Controllers.v2
                 if (response.Ext <= 0)
                 {
                     response.Code = ResponseCodeDefines.NotFound;
-                    response.Msg = $"{System.Reflection.MethodBase.GetCurrentMethod().DeclaringType.FullName}:error info: 获取数据为空!";
+                    response.Msg = $"{System.Reflection.MethodBase.GetCurrentMethod().DeclaringType.FullName}:error info: not find data!";
                 }
             } catch(Exception e)
             {
@@ -1247,7 +1247,7 @@ namespace IngestDevicePlugin.Controllers.v2
                 if (response.Ext == null || response.Ext?.Count <= 0)
                 {
                     response.Code = ResponseCodeDefines.NotFound;
-                    response.Msg = $"{System.Reflection.MethodBase.GetCurrentMethod().DeclaringType.FullName}:error info: 获取数据为空!";
+                    response.Msg = $"{System.Reflection.MethodBase.GetCurrentMethod().DeclaringType.FullName}:error info: not find data!";
                 }
             } catch(Exception e)
             {
@@ -1284,7 +1284,7 @@ namespace IngestDevicePlugin.Controllers.v2
                 if (response.Ext <= 0)
                 {
                     response.Code = ResponseCodeDefines.NotFound;
-                    response.Msg = $"{System.Reflection.MethodBase.GetCurrentMethod().DeclaringType.FullName}:error info: 获取数据为空!";
+                    response.Msg = $"{System.Reflection.MethodBase.GetCurrentMethod().DeclaringType.FullName}:error info: not find data!";
                 }
             } catch(Exception e)
             {
@@ -1321,7 +1321,7 @@ namespace IngestDevicePlugin.Controllers.v2
                 if (response.Ext == null || response.Ext?.Count <= 0)
                 {
                     response.Code = ResponseCodeDefines.NotFound;
-                    response.Msg = $"{System.Reflection.MethodBase.GetCurrentMethod().DeclaringType.FullName}:error info: 获取数据为空!";
+                    response.Msg = $"{System.Reflection.MethodBase.GetCurrentMethod().DeclaringType.FullName}:error info: not find data!";
                 }
             } catch(Exception e)
             {
@@ -1363,7 +1363,7 @@ namespace IngestDevicePlugin.Controllers.v2
                 if (response.Ext <= 0)
                 {
                     response.Code = ResponseCodeDefines.NotFound;
-                    response.Msg = $"{System.Reflection.MethodBase.GetCurrentMethod().DeclaringType.FullName}:error info: 获取数据为空!";
+                    response.Msg = $"{System.Reflection.MethodBase.GetCurrentMethod().DeclaringType.FullName}:error info: not find data!";
                 }
             } catch(Exception e)
             {
