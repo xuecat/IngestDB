@@ -253,6 +253,7 @@
                 {
                     response.Code = ResponseCodeDefines.NotFound;
                     response.Msg = $"{System.Reflection.MethodBase.GetCurrentMethod().DeclaringType.FullName}:error info: not find data!";
+                    return response;
                 }
                 if (_globalInterface != null)
                 {
@@ -802,6 +803,7 @@
                 {
                     response.Code = ResponseCodeDefines.NotFound;
                     response.Msg = $"{System.Reflection.MethodBase.GetCurrentMethod().DeclaringType.FullName}:error info: not find data!";
+                    return response;
                 }
                 //GLOBALSERVICE.SetGlobalState2(ClientOperLabelName.VTR_UPLOAD_ModifyTask);
                 if (_globalInterface != null)
@@ -851,6 +853,7 @@
             {
                 response.Code = ResponseCodeDefines.NotFound;
                 response.Msg = $"{System.Reflection.MethodBase.GetCurrentMethod().DeclaringType.FullName}:error info: not find data!";
+                return response;
             }
             try
             {
@@ -910,6 +913,7 @@
             {
                 response.Code = ResponseCodeDefines.NotFound;
                 response.Msg = $"{System.Reflection.MethodBase.GetCurrentMethod().DeclaringType.FullName}:error info: not find data!";
+                return response;
             }
             if (param == null)
             {

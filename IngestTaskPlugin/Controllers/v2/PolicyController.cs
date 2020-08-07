@@ -54,6 +54,7 @@ namespace IngestTaskPlugin.Controllers.v2
                 {
                     Response.Code = ResponseCodeDefines.NotFound;
                     Response.Msg = $"{System.Reflection.MethodBase.GetCurrentMethod().DeclaringType.FullName}:error info: not find data!";
+                    return Response;
                 }
             }
             catch (Exception e)

@@ -65,7 +65,7 @@ namespace IngestGlobalPlugin.Controllers.v1
 
             try
             {
-                Logger.Error("PostUpdateSaveInDBStateForTask error info:" + Newtonsoft.Json.JsonConvert.SerializeObject(pIn));
+                Logger.Info("PostUpdateSaveInDBStateForTask  info:" + Newtonsoft.Json.JsonConvert.SerializeObject(pIn));
 
                 await _materialManage.UpdateSaveInDBStateForTask(pIn.nTaskID, pIn.nPolicyID, pIn.nSectionID, (SAVE_IN_DB_STATE)pIn.state, pIn.strResult);
 

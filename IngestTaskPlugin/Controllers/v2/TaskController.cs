@@ -123,6 +123,7 @@ namespace IngestTaskPlugin.Controllers.v2
                 {
                     Response.Code = ResponseCodeDefines.NotFound;
                     Response.Msg = $"{System.Reflection.MethodBase.GetCurrentMethod().DeclaringType.FullName}:error info: not find data!";
+                    return Response;
                 }
             }
             catch (Exception e)
@@ -169,6 +170,7 @@ namespace IngestTaskPlugin.Controllers.v2
                 {
                     Response.Code = ResponseCodeDefines.NotFound;
                     Response.Msg = $"{System.Reflection.MethodBase.GetCurrentMethod().DeclaringType.FullName}:error info: not find data!";
+                    return Response;
                 }
             }
             catch (Exception e)
@@ -353,6 +355,7 @@ namespace IngestTaskPlugin.Controllers.v2
                 {
                     Response.Code = ResponseCodeDefines.NotFound;
                     Response.Msg = $"{System.Reflection.MethodBase.GetCurrentMethod().DeclaringType.FullName}:error info: not find data!";
+                    return Response;
                 }
                 if (_globalInterface != null)
                 {
@@ -414,6 +417,7 @@ namespace IngestTaskPlugin.Controllers.v2
                 {
                     Response.Code = ResponseCodeDefines.NotFound;
                     Response.Msg = $"{System.Reflection.MethodBase.GetCurrentMethod().DeclaringType.FullName}:error info: not find data!";
+                    return Response;
                 }
 
                 if (_globalInterface != null)
@@ -497,6 +501,7 @@ namespace IngestTaskPlugin.Controllers.v2
                 {
                     Response.Code = ResponseCodeDefines.NotFound;
                     Response.Msg = $"{System.Reflection.MethodBase.GetCurrentMethod().DeclaringType.FullName}:error info: not find data!";
+                    return Response;
                 }
                 //添加后如果开始时间在2分钟以内，需要调度一次
                 if ((DateTimeFormat.DateTimeFromString(task.TaskContent.Begin) - DateTime.Now).TotalSeconds < 120)
@@ -559,7 +564,7 @@ namespace IngestTaskPlugin.Controllers.v2
         public async Task<ResponseMessage<TaskContentResponse>> AddTaskWithPolicy([FromBody, BindRequired]TaskInfoRequest task)
         {
             //处理任务名中含有分号的时候，元数据xml不对劲，导致任务总控无法调度，同时含有单斜线的时候，mysql会自动消化掉一个斜线
-            var Response = new ResponseMessage<TaskContentResponse>();
+             var Response = new ResponseMessage<TaskContentResponse>();
             if (task == null)
             {
                 Response.Code = ResponseCodeDefines.ModelStateInvalid;
@@ -589,6 +594,7 @@ namespace IngestTaskPlugin.Controllers.v2
                 {
                     Response.Code = ResponseCodeDefines.NotFound;
                     Response.Msg = $"{System.Reflection.MethodBase.GetCurrentMethod().DeclaringType.FullName}:error info: not find data!";
+                    return Response;
                 }
                 if (task.BackUpTask)
                 {
@@ -798,6 +804,7 @@ namespace IngestTaskPlugin.Controllers.v2
                 {
                     Response.Code = ResponseCodeDefines.NotFound;
                     Response.Msg = $"{System.Reflection.MethodBase.GetCurrentMethod().DeclaringType.FullName}:error info: not find data!";
+                    return Response;
                 }
                 //添加后如果开始时间在2分钟以内，需要调度一次
                 if ((DateTimeFormat.DateTimeFromString(req.Begin) - DateTime.Now).TotalSeconds < 120)
@@ -872,6 +879,7 @@ namespace IngestTaskPlugin.Controllers.v2
                 {
                     Response.Code = ResponseCodeDefines.NotFound;
                     Response.Msg = $"{System.Reflection.MethodBase.GetCurrentMethod().DeclaringType.FullName}:error info: not find data!";
+                    return Response;
                 }
                 //添加后如果开始时间在2分钟以内，需要调度一次
                 if ((DateTimeFormat.DateTimeFromString(req.TaskContent.Begin) - DateTime.Now).TotalSeconds < 120)
@@ -1956,6 +1964,7 @@ namespace IngestTaskPlugin.Controllers.v2
                 {
                     Response.Code = ResponseCodeDefines.NotFound;
                     Response.Msg = $"{System.Reflection.MethodBase.GetCurrentMethod().DeclaringType.FullName}:error info: not find data!";
+                    return Response;
                 }
                 var custom = await _taskManage.GetCustomMetadataAsync<TaskCustomMetadataResponse>(taskid);
                 if (custom != null)
@@ -2146,6 +2155,7 @@ namespace IngestTaskPlugin.Controllers.v2
                 {
                     Response.Code = ResponseCodeDefines.NotFound;
                     Response.Msg = $"{System.Reflection.MethodBase.GetCurrentMethod().DeclaringType.FullName}:error info: not find data!";
+                    return Response;
                 }
                 //添加后如果开始时间在2分钟以内，需要调度一次
                 if ((DateTimeFormat.DateTimeFromString(req.Begin) - DateTime.Now).TotalSeconds < 120)
@@ -2391,6 +2401,7 @@ namespace IngestTaskPlugin.Controllers.v2
                 {
                     Response.Code = ResponseCodeDefines.NotFound;
                     Response.Msg = $"{System.Reflection.MethodBase.GetCurrentMethod().DeclaringType.FullName}:error info: not find data!";
+                    return Response;
                 }
                 if (_globalInterface != null)
                 {
