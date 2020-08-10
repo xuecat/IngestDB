@@ -1274,12 +1274,12 @@ namespace IngestTaskPlugin.Stores
              * @brief 老代码有个endtime > datetime.now, 我不明白为啥，应该没有道理的，我这里先屏蔽了看看
              */
             var lsttask = await Context.DbpTask.AsNoTracking().Where(x =>
-                                                                        ((x.Starttime >= begin && x.Starttime < end)
+                                                                        (((x.Starttime >= begin && x.Starttime < end)
                                                                         || (x.Endtime > begin && x.Endtime <= end) || (x.Starttime < begin && x.Endtime > end))
                                                                         && (x.State != (int)taskState.tsConflict && x.State != (int)taskState.tsDelete && x.State != (int)taskState.tsInvaild)
                                                                         && x.DispatchState != (int)dispatchState.dpsInvalid
                                                                         && x.OpType != (int)opType.otDel
-                                                                        && (x.Tasktype != (int)TaskType.TT_PERIODIC && x.Tasktype != (int)TaskType.TT_OPENEND && x.Tasktype != (int)TaskType.TT_OPENENDEX))
+                                                                        && (x.Tasktype != (int)TaskType.TT_PERIODIC && x.Tasktype != (int)TaskType.TT_OPENEND && x.Tasktype != (int)TaskType.TT_OPENENDEX)) || (x.Tasktype == (int)TaskType.TT_MANUTASK && x.State == (int)taskState.tsExecuting && x.Starttime < begin && x.Starttime > begin.AddDays(-1)))
                                                                         .ToListAsync();
 
             ConfictTaskInfo = string.Empty;
