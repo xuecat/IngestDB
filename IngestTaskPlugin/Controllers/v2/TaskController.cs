@@ -2356,7 +2356,7 @@ namespace IngestTaskPlugin.Controllers.v2
 
             try
             {
-                bmppath = bmppath.Replace("\\", "\\\\");
+                bmppath = bmppath.Replace(@"\\", @"\");
                 bmppath = bmppath.Replace("'", "''");
                 await _taskManage.SetTaskBmp(taskid, bmppath);
             }
