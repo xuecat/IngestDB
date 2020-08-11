@@ -322,7 +322,7 @@ namespace IngestTaskPlugin.Stores
 
         public async Task UpdateTaskCutomMetaDataAsync(int taskid, string metadata)
         {
-            var item = await Context.DbpTaskCustommetadata.Where(x => x.Taskid == taskid).SingleAsync();
+            var item = await Context.DbpTaskCustommetadata.Where(x => x.Taskid == taskid).SingleOrDefaultAsync();
             if (item == null)
             {
                 await Context.DbpTaskCustommetadata.AddAsync(new DbpTaskCustommetadata()
@@ -3101,7 +3101,7 @@ namespace IngestTaskPlugin.Stores
         {
             foreach (var metadata in metadatas)
             {
-                var item = await Context.DbpTaskMetadata.Where(x => x.Taskid == metadata.taskId && x.Metadatatype == (int)metadata.type).SingleAsync();
+                var item = await Context.DbpTaskMetadata.Where(x => x.Taskid == metadata.taskId && x.Metadatatype == (int)metadata.type).SingleOrDefaultAsync();
                 if (item == null)
                 {
                     await Context.DbpTaskMetadata.AddAsync(new DbpTaskMetadata()

@@ -453,7 +453,7 @@ namespace IngestDevicePlugin.Stores
 
         public Task<DbpChannelRecmap> GetChannelUnitMap(int channel)
         {
-            return Context.DbpChannelRecmap.Where(x => x.Channelid == channel).SingleAsync();
+            return Context.DbpChannelRecmap.Where(x => x.Channelid == channel).SingleOrDefaultAsync();
         }
 
         #endregion

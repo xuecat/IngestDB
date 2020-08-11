@@ -293,7 +293,7 @@ namespace IngestMatrixPlugin.Stores
 
         public async Task<bool> UpdatePortInfo(long lInPort, long lOutPort, int bState, bool savechange)
         {
-            var matrixId = await Context.DbpMatrixinfo.AsNoTracking().Where(a => a.Matrixtypeid == 1).Select(a => a.Matrixid).SingleAsync();
+            var matrixId = await Context.DbpMatrixinfo.AsNoTracking().Where(a => a.Matrixtypeid == 1).Select(a => a.Matrixid).SingleOrDefaultAsync();
             var hasData = await Context.DbpVirtualmatrixportstate.Where(a => a.Virtualinport == lInPort && a.Virtualoutport == lOutPort).SingleOrDefaultAsync();
 
             if (hasData != null)
