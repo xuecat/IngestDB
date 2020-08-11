@@ -385,21 +385,19 @@ namespace IngestGlobalPlugin.Stores
         //add or update
         public async Task UpdateGlobalStateAsync(string strLabel)
         {
-            var state = new DbpGlobalState()
+            var dbpState = await Context.DbpGlobalState.SingleOrDefaultAsync(x => x.Label == strLabel);
+            if (dbpState != null)
             {
-                Label = strLabel,
-                Lasttime = DateTime.Now  //.ToString("yyyy-MM-dd HH:mm:ss")
-            };
-            if (!Context.DbpGlobalState.AsNoTracking().Any(a => a.Label == strLabel))
-            {
-                //add
-                Context.DbpGlobalState.Add(state);
+                dbpState.Lasttime = DateTime.Now;
             }
             else
             {
-                //update
-                Context.Attach(state);
-                Context.Entry(state).Property(x => x.Lasttime).IsModified = true;
+                var state = new DbpGlobalState()
+                {
+                    Label = strLabel,
+                    Lasttime = DateTime.Now  //.ToString("yyyy-MM-dd HH:mm:ss")
+                };
+                Context.DbpGlobalState.Add(state);
             }
 
             try
