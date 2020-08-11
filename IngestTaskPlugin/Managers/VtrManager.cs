@@ -488,8 +488,11 @@ namespace IngestTaskPlugin.Managers
                     {
                         if (!isHaveCapturingManulTask)
                         {
-                            uploadTaskList.RemoveAt(i - 1);
-                            uploadTaskList.Add(vtrScheduleTask);
+                            if (i - 1 >= 0)
+                            {
+                                uploadTaskList.RemoveAt(i - 1);
+                                uploadTaskList.Add(vtrScheduleTask);
+                            }
                         }
                     }
                 }
