@@ -671,6 +671,11 @@ namespace IngestTaskPlugin.Controllers.v1
             try
             {
                 Response.content = await _taskManage.GetChannelCapturingTask<TaskContent>(nChannelID, newest);
+                if (Response.content == null)
+                {
+                    Response.bRet = false;
+                    Response.errStr = "no Capturing Task";
+                }
                 return Response;
             }
             catch (Exception e)
