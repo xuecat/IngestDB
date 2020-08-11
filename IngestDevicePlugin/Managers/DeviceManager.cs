@@ -143,7 +143,7 @@ namespace IngestDevicePlugin.Managers
                 }
             }
 
-            
+
             return captureChannel;
         }
 
@@ -278,7 +278,7 @@ namespace IngestDevicePlugin.Managers
         /// <summary> 获取所有节目 </summary>
         public virtual async Task<List<TResult>> GetAllProgrammeInfosAsync<TResult>()
         {
-            var programmeInfos = _mapper.Map<List<TResult>>( await Store.GetAllProgrammeInfoAsync());
+            var programmeInfos = _mapper.Map<List<TResult>>(await Store.GetAllProgrammeInfoAsync());
 
             var allTSPgmInfo = _mapper.Map<List<TResult>>(await Store.GetIpProgrammeAsync(a => a, true));
             programmeInfos.AddRange(allTSPgmInfo);
@@ -286,7 +286,7 @@ namespace IngestDevicePlugin.Managers
             var allStreamMedia = _mapper.Map<List<TResult>>(await Store.GetStreamMediaAsync(a => a, true));
             programmeInfos.AddRange(allStreamMedia);
 
-            return programmeInfos;
+            return programmeInfos.CustomSortT().ToList();
         }
 
         /// <summary> 根据通道获取相应的节目 </summary>
@@ -380,7 +380,7 @@ namespace IngestDevicePlugin.Managers
                 }
             }
 
-           
+
             return lstback;
         }
 
@@ -422,7 +422,7 @@ namespace IngestDevicePlugin.Managers
                 return 0;
             }
             DateTime dtNow = DateTime.Now;
-            
+
             if (_taskInterface != null)
             {
                 var channelIds = await GetUserHiddenChannels(userCode);     //获得该用户的隐藏通道
@@ -612,7 +612,7 @@ namespace IngestDevicePlugin.Managers
                 return map.nChannelID;
             }
 
-            
+
             if (_taskInterface != null)
             {
                 TaskInternals re = new TaskInternals() { funtype = IngestDBCore.TaskInternals.FunctionType.WillBeginAndCapturingTasks };
@@ -652,7 +652,7 @@ namespace IngestDevicePlugin.Managers
             }
             return 0;
         }
-        
+
         public async Task<List<TResult>> GetAllGPIInfoAsync<TResult>()
         {
             return _mapper.Map<List<TResult>>(await Store.GetGPIInfoAsync(a => a, true));
@@ -674,7 +674,7 @@ namespace IngestDevicePlugin.Managers
         {
             var programme = await Store.GetSignalInfoAsync(programmeId);
             var channelInfos = await Store.GetAllCaptureChannelsAsync(0);
-            
+
             List<CaptureChannelInfoResponse> lstchn = new List<CaptureChannelInfoResponse>();
 
             foreach (var item in channelInfos)
@@ -683,7 +683,7 @@ namespace IngestDevicePlugin.Managers
                 if (!((programme.PgmType == ProgrammeType.PT_SDI && item.DeviceTypeId == (int)CaptureChannelType.emMsvChannel && programme.SignalSourceType != emSignalSource.emStreamMedia)
                      || (programme.PgmType == ProgrammeType.PT_SDI && programme.SignalSourceType == emSignalSource.emStreamMedia && item.DeviceTypeId == (int)CaptureChannelType.emStreamChannel)
                      || ((programme.PgmType == ProgrammeType.PT_IPTS) && (item.DeviceTypeId == (int)CaptureChannelType.emIPTSChannel))
-                     || ((programme.PgmType == ProgrammeType.PT_StreamMedia || programme.SignalSourceType == emSignalSource.emStreamMedia) && (item.DeviceTypeId == (int)CaptureChannelType.emStreamChannel))) )
+                     || ((programme.PgmType == ProgrammeType.PT_StreamMedia || programme.SignalSourceType == emSignalSource.emStreamMedia) && (item.DeviceTypeId == (int)CaptureChannelType.emStreamChannel))))
                 {
                     continue;
                 }
@@ -703,7 +703,7 @@ namespace IngestDevicePlugin.Managers
                     }
                 }
 
-                if (programme.GroupId > 0 && item.GroupId >0 && item.GroupId != programme.GroupId)
+                if (programme.GroupId > 0 && item.GroupId > 0 && item.GroupId != programme.GroupId)
                 {
                     continue;
                 }
@@ -920,6 +920,17 @@ namespace IngestDevicePlugin.Managers
             })
             .OrderBy(x => x.SortStr)
             .Select(x => x.OrgStr);
+        } 
+        public static IEnumerable<TResult> CustomSortT<TResult>(this IEnumerable<TResult> list)
+        {
+            int maxLen = list.Select(s => s.GetType().GetProperty("ProgrammeName").GetValue(s).ToString().Length).Max();//ProgrammeName
+            return list.Select(s => new
+            {
+                OrgStr = s,
+                SortStr = Regex.Replace(s.GetType().GetProperty("ProgrammeName").GetValue(s).ToString(), @"(\d+)|(\D+)", m => m.Value.PadLeft(maxLen, char.IsDigit(m.Value[0]) ? ' ' : '\xffff'))
+            })
+            .OrderBy(x => x.SortStr)
+            .Select(x => x.OrgStr); 
         }
 
     }
