@@ -21,7 +21,7 @@ namespace IngestMatrixPlugin.Controllers.v2
         ///// <summary>互斥锁</summary>
         //public static Mutex m_MatrixMt = new Mutex();
         private readonly MatrixManager _matrixManage;
-        private readonly ILogger Logger = LoggerManager.GetLogger("DeviceInfo");
+        private readonly ILogger Logger = LoggerManager.GetLogger("Matrixinfo");
         //private readonly RestClient _restClient;
 
 

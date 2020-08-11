@@ -29,7 +29,7 @@ namespace IngestMatrixPlugin.Managers
             _clock = clock;
         }
 
-        private readonly ILogger Logger = LoggerManager.GetLogger("MatrixStoreManager");
+        private readonly ILogger Logger = LoggerManager.GetLogger("Matrixinfo");
 
         private RestClient _restClient { get; }
 

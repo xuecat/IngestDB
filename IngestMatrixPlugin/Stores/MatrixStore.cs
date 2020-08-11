@@ -16,7 +16,7 @@ namespace IngestMatrixPlugin.Stores
         {
             Context = baseDataDbContext;
         }
-        private readonly ILogger Logger = LoggerManager.GetLogger("MatrixStore");
+        private readonly ILogger Logger = LoggerManager.GetLogger("Matrixinfo");
         protected IngestMatrixDBContext Context { get; }
 
         public Task<List<TResult>> QueryList<TEntity, TResult>(Func<IQueryable<TEntity>, IQueryable<TResult>> query, bool notrack = false) where TEntity : class

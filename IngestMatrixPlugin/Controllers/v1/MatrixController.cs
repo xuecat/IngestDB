@@ -18,7 +18,7 @@ namespace IngestMatrixPlugin.Controllers.v1
     [ApiController]
     public partial class MatrixController : ControllerBase
     {
-        private readonly ILogger Logger = LoggerManager.GetLogger("DeviceInfo");
+        private readonly ILogger Logger = LoggerManager.GetLogger("Matrixinfo");
         private readonly MatrixManager _matrixManage;
         //private readonly RestClient _restClient;
 
