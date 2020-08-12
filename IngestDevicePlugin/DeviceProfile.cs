@@ -17,6 +17,16 @@ namespace IngestDevicePlugin
     {
         public DeviceProfile()
         {
+
+            CreateMap<DbpMsvchannelState, MSVChannelStateResponse>()
+                    .ForMember(a => a.ChannelId, (map) => map.MapFrom(b => b.Channelid))
+                    .ForMember(a => a.DevState, (map) => map.MapFrom(b => b.Devstate))
+                    .ForMember(a => a.MsvMode, (map) => map.MapFrom(b => b.Msvmode))
+                    .ForMember(a => a.VtrId, (map) => map.MapFrom(b => b.Sourcevtrid))
+                    .ForMember(a => a.UserCode, (map) => map.MapFrom(b => b.Curusercode))
+                    .ForMember(a => a.KamatakiInfo, (map) => map.MapFrom(b => b.Kamatakiinfo))
+                    .ForMember(a => a.UploadMode, (map) => map.MapFrom(b => b.Uploadstate));
+
             #region DbpRcdindesc To RoterInportDesc、RouterInResponse
             //V2
             CreateMap<DbpRcdindesc, RouterInResponse>()
@@ -160,7 +170,7 @@ namespace IngestDevicePlugin
                 .ForMember(a => a.DeviceTypeId, (map) => map.MapFrom(b => b.Devicetypeid))
                 .ForMember(a => a.DeviceName, (map) => map.MapFrom(b => b.Devicename))
                 .ForMember(a => a.Ip, (map) => map.MapFrom(b => b.Ipaddress))
-                .ForMember(a => a.OrderCode, (map) => map.MapFrom(b => b.Ordercode));            
+                .ForMember(a => a.OrderCode, (map) => map.MapFrom(b => b.Ordercode));
             //V1
             CreateMap<DbpCapturedevice, CaptureDeviceInfo>()
                 .ForMember(a => a.nID, (map) => map.MapFrom(b => b.Cpdeviceid))
@@ -248,7 +258,7 @@ namespace IngestDevicePlugin
                 .ForMember(a => a.nID, (map) => map.MapFrom(b => b.Id))
                 .ForMember(a => a.nSignalSrcType, (map) => map.MapFrom(b => b.SignalSrcType))
                 .ForMember(a => a.bIsMainSignalSrc, (map) => map.MapFrom(b => b.IsMainSignalSrc))
-                .ForMember(a => a.nMainSignalSrcId, (map) => map.MapFrom(b => b.MainSignalSrcId));            
+                .ForMember(a => a.nMainSignalSrcId, (map) => map.MapFrom(b => b.MainSignalSrcId));
             #endregion
 
             #region DbpMsvchannelState To MSVChannelState
@@ -369,7 +379,8 @@ namespace IngestDevicePlugin
                 .ForMember(a => a.TypeId, (map) => map.MapFrom(b => b.Programmetype))
                 .ForMember(a => a.emImageType, (map) => map.MapFrom(b => b.Imagetype))
                 .ForMember(a => a.nPureAudio, (map) => map.MapFrom(b => b.Pureaudio))
-                .AfterMap((b, a) => {
+                .AfterMap((b, a) =>
+                {
                     a.ProgrammeDesc = MergeTSPgmInfoMultiIPAndPort(b.Programmeindex, b.Multicastip, b.Multicastport, b.Programmedesc, b.Extendparams);
                     a.emPgmType = ProgrammeType.PT_IPTS;
                     a.emSignalSourceType = emSignalSource.emIPTS;

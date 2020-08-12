@@ -1775,6 +1775,7 @@ namespace IngestTaskPlugin.Managers
             if (taskinfo.ChannelId > 0)
             {
                 var findtask = await Store.GetTaskAsync(a => a.Where(b => b.Taskid == taskinfo.TaskId));
+                findtask.Channelid = taskinfo.ChannelId;
                 findtask.SyncState = (int)syncState.ssNot;
                 findtask.DispatchState = (int)dispatchState.dpsDispatched;
 
@@ -3287,7 +3288,7 @@ namespace IngestTaskPlugin.Managers
                 {
                     // 获得备份信号源信息
                     var response1 = await _deviceInterface.Value.GetDeviceCallBack(new DeviceInternals() {
-                        funtype = IngestDBCore.DeviceInternals.FunctionType.BackSignalByID, SrcId = taskinfo.TaskContent.SignalId
+                        funtype = IngestDBCore.DeviceInternals.FunctionType.SignalInfoByID, SrcId = taskinfo.TaskContent.SignalId
                     });
 
                     if (response1.Code != ResponseCodeDefines.SuccessCode)

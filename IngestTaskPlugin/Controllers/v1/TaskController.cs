@@ -1617,7 +1617,7 @@ namespace IngestTaskPlugin.Controllers.v1
 
         }
 
-        [HttpGet("ChooseUseableChannel"), MapToApiVersion("1.0")]
+        [HttpPost("ChooseUseableChannel"), MapToApiVersion("1.0")]
         [ApiExplorerSettings(GroupName = "v1")]
         public async Task<ChooseUseableChannel_out> ChooseUseableChannel([FromBody]ChooseUseableChannel_in pIn)
         {
