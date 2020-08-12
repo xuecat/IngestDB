@@ -371,10 +371,8 @@
         {
             var dt1 = dtBegin.AddSeconds(5);
             var dt2 = dtBegin.AddDays(-1);
-            IQueryable<VtrUploadtask> uploadQuery = Context.VtrUploadtask.AsNoTracking();
-            uploadQuery.Where(a => a.Vtrtasktype == 1 && a.Taskstate == 2);
-            IQueryable<DbpTask> taskQeruy = Context.DbpTask.AsNoTracking();
-            taskQeruy.Where(a => a.Tasktype == 6 &&
+            IQueryable<VtrUploadtask> uploadQuery = Context.VtrUploadtask.AsNoTracking().Where(a => a.Vtrtasktype == 1 && a.Taskstate == 2);
+            IQueryable<DbpTask> taskQeruy = Context.DbpTask.AsNoTracking().Where(a => a.Tasktype == 6 &&
                                  a.Tasklock == "" &&
                                  a.SyncState == 0 &&
                                  a.Starttime < dt1 &&
