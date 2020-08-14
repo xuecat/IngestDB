@@ -1661,7 +1661,7 @@ namespace IngestTaskPlugin.Stores
             {
                 foreach (var item in lst)
                 {
-                    Logger.Info("GetTaskListWithMode task {0} {1} {2} {3}", item.Taskid, item.Tasktype, item.Starttime, item.Endtime);
+                    //Logger.Info("GetTaskListWithMode task {0} {1} {2} {3}", item.Taskid, item.Tasktype, item.Starttime, item.Endtime);
                     if (item.DispatchState == (int)dispatchState.dpsInvalid)
                     {
                         item.State = (int)taskState.tsDelete;

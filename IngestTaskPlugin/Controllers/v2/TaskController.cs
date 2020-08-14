@@ -207,6 +207,8 @@ namespace IngestTaskPlugin.Controllers.v2
         [ApiExplorerSettings(GroupName = "v2")]
         public async Task<ResponseMessage<string>> UpdateTaskMetaData([FromRoute, BindRequired]int taskid, [FromQuery, BindRequired]int tasktype, [FromBody, BindRequired]List<PropertyResponse> lst)
         {
+            Logger.Info($"UpdateTaskMetaData taskid : {taskid} , tasktype : {tasktype}, lst: {JsonHelper.ToJson(lst)}");
+
             var Response = new ResponseMessage<string>();
             if (taskid < 1 || lst == null || lst.Count < 1)
             {
@@ -300,6 +302,8 @@ namespace IngestTaskPlugin.Controllers.v2
         [ApiExplorerSettings(GroupName = "v2")]
         public async Task<ResponseMessage<int>> UpdateTaskCustomMetaData([FromRoute, BindRequired]int taskid, [FromBody, BindRequired]TaskCustomMetadataRequest data)
         {
+            Logger.Info($"UpdateTaskCustomMetaData taskid : {taskid}, data : {JsonHelper.ToJson(data)}");
+
             var Response = new ResponseMessage<int>();
             if (taskid < 1|| data == null)
             {
@@ -342,6 +346,7 @@ namespace IngestTaskPlugin.Controllers.v2
         [ApiExplorerSettings(GroupName = "v2")]
         public async Task<ResponseMessage<List<int>>> StopGroupTask([FromRoute, BindRequired]int taskid)
         {
+            Logger.Info($"StopGroupTask taskid : {taskid}");
             var Response = new ResponseMessage<List<int>>();
             if (taskid < 1)
             {
@@ -404,6 +409,8 @@ namespace IngestTaskPlugin.Controllers.v2
         [ApiExplorerSettings(GroupName = "v2")]
         public async Task<ResponseMessage<List<int>>> DeleteGroupTask([FromRoute, BindRequired]int taskid)
         {
+            Logger.Info($"DeleteGroupTask taskid : {taskid}");
+
             var Response = new ResponseMessage<List<int>>();
             if (taskid < 1)
             {
@@ -473,6 +480,8 @@ namespace IngestTaskPlugin.Controllers.v2
         [ApiExplorerSettings(GroupName = "v2")]
         public async Task<ResponseMessage<TaskContentResponse>> AddTaskWithoutPolicy([FromBody, BindRequired]TaskInfoRequest task)
         {
+            Logger.Info($"AddTaskWithoutPolicy task : {JsonHelper.ToJson(task)}");
+
             var Response = new ResponseMessage<TaskContentResponse>();
             if (task == null)
             {
@@ -563,8 +572,9 @@ namespace IngestTaskPlugin.Controllers.v2
         [ApiExplorerSettings(GroupName = "v2")]
         public async Task<ResponseMessage<TaskContentResponse>> AddTaskWithPolicy([FromBody, BindRequired]TaskInfoRequest task)
         {
+            Logger.Info($"AddTaskWithPolicy task : {JsonHelper.ToJson(task)}");
             //处理任务名中含有分号的时候，元数据xml不对劲，导致任务总控无法调度，同时含有单斜线的时候，mysql会自动消化掉一个斜线
-             var Response = new ResponseMessage<TaskContentResponse>();
+            var Response = new ResponseMessage<TaskContentResponse>();
             if (task == null)
             {
                 Response.Code = ResponseCodeDefines.ModelStateInvalid;
@@ -788,6 +798,7 @@ namespace IngestTaskPlugin.Controllers.v2
         [ApiExplorerSettings(GroupName = "v2")]
         public async Task<ResponseMessage<TaskContentResponse>> ModifyTask([FromRoute, BindRequired]int taskid, [FromBody, BindRequired]TaskContentRequest req)
         {
+            Logger.Info($"ModifyTask taskid : {taskid}, req {JsonHelper.ToJson(req)}");
             var Response = new ResponseMessage<TaskContentResponse>();
             if (req == null || req.TaskId < 1)
             {
@@ -854,6 +865,7 @@ namespace IngestTaskPlugin.Controllers.v2
         [ApiExplorerSettings(GroupName = "v2")]
         public async Task<ResponseMessage<TaskContentResponse>> ModifyAllTask([FromRoute, BindRequired]int taskid, [FromBody, BindRequired]TaskInfoRequest req)
         {
+            Logger.Info($"ModifyAllTask taskid : {taskid}, req {JsonHelper.ToJson(req)}");
             var Response = new ResponseMessage<TaskContentResponse>();
             if (req == null || req.TaskContent.TaskId < 1)
             {
@@ -1075,6 +1087,7 @@ namespace IngestTaskPlugin.Controllers.v2
         [ApiExplorerSettings(GroupName = "v2")]
         public async Task<ResponseMessage<int>> StopTask([FromRoute, BindRequired]int taskid)
         {
+            Logger.Info($"StopTask taskid : {taskid}");
             var Response = new ResponseMessage<int>();
             if (taskid <= 0)
             {
@@ -1138,6 +1151,7 @@ namespace IngestTaskPlugin.Controllers.v2
         [ApiExplorerSettings(GroupName = "v2")]
         public async Task<ResponseMessage<int>> StopTask([FromRoute, BindRequired]int taskid, [FromQuery, BindRequired]string endtime)
         {
+            Logger.Info($"StopTask taskid : {taskid}, endtime : {endtime}");
             var Response = new ResponseMessage<int>();
             if (taskid <= 0)
             {
@@ -1207,6 +1221,8 @@ namespace IngestTaskPlugin.Controllers.v2
         [ApiExplorerSettings(GroupName = "v2")]
         public async Task<ResponseMessage<int>> SetTaskState([FromRoute, BindRequired]int taskid, [FromQuery, BindRequired]int state)
         {
+            Logger.Info($"SetTaskState taskid : {taskid}, state : {state}");
+
             var Response = new ResponseMessage<int>();
             if (taskid <= 0)
             {
@@ -1339,6 +1355,7 @@ namespace IngestTaskPlugin.Controllers.v2
         [ApiExplorerSettings(GroupName = "v2")]
         public async Task<ResponseMessage<int>> TrimTaskBeginTime([FromRoute, BindRequired]int taskid, [FromQuery, BindRequired]string starttime)
         {
+            Logger.Info($"TrimTaskBeginTime taskid : {taskid}, starttime : {starttime}");
             var Response = new ResponseMessage<int>();
 
             try
@@ -1429,6 +1446,8 @@ namespace IngestTaskPlugin.Controllers.v2
         [ApiExplorerSettings(GroupName = "v2")]
         public async Task<ResponseMessage<int>> SetTaskInfoClassify([FromRoute, BindRequired]int taskid, [FromQuery, BindRequired]string classify)
         {
+            Logger.Info($"SetTaskInfoClassify taskid : {taskid}, classify : {classify}");
+
             var Response = new ResponseMessage<int>();
 
             try
@@ -1540,6 +1559,8 @@ namespace IngestTaskPlugin.Controllers.v2
         [ApiExplorerSettings(GroupName = "v2")]
         public async Task<ResponseMessage> CompleteSynTasks([FromBody, BindRequired]CompleteSyncTaskRequest req)
         {
+            Logger.Info($"CompleteSynTasks  CompleteSyncTaskRequest : {req}");
+
             var Response = new ResponseMessage();
 
             try
@@ -1588,6 +1609,8 @@ namespace IngestTaskPlugin.Controllers.v2
             [FromQuery, BindRequired]string newguid,
             [FromQuery, BindRequired]int index)
         {
+            Logger.Info($"SplitClip  taskid : {taskid}, oldlen : {oldlen}, oldclipnum : {oldclipnum}, newname : {newname}, newguid : {newguid}, index : {index}");
+
             var Response = new ResponseMessage<string>();
 
             try
@@ -1666,6 +1689,8 @@ namespace IngestTaskPlugin.Controllers.v2
         [ApiExplorerSettings(GroupName = "v2")]
         public async Task<ResponseMessage<bool>> CompleteRescheduleTasks([FromBody, BindRequired]TaskContentRequest req)
         {
+            Logger.Info($"CompleteRescheduleTasks  TaskContentRequest : {req}");
+
             var Response = new ResponseMessage<bool>();
 
             try
@@ -1704,6 +1729,8 @@ namespace IngestTaskPlugin.Controllers.v2
         [ApiExplorerSettings(GroupName = "v2")]
         public async Task<ResponseMessage<bool>> ModifyCooperTask([FromRoute, BindRequired]int taskid, [FromQuery, BindRequired]int cooptype)
         {
+            Logger.Info($"ModifyCooperTask  taskid : {taskid}, cooptype : {cooptype}");
+
             var Response = new ResponseMessage<bool>();
 
             try
@@ -1872,6 +1899,8 @@ namespace IngestTaskPlugin.Controllers.v2
         [ApiExplorerSettings(GroupName = "v2")]
         public async Task<ResponseMessage<TaskContentResponse>> SplitTaskInfo([FromRoute, BindRequired]int taskid, [FromQuery, BindRequired]string newguid, [FromQuery, BindRequired]string newname)
         {
+            Logger.Info($"SplitTaskInfo  taskid : {taskid}, newguid : {newguid}, newname : {newname}");
+
             var Response = new ResponseMessage<TaskContentResponse>();
 
             try
@@ -1955,6 +1984,8 @@ namespace IngestTaskPlugin.Controllers.v2
         [ApiExplorerSettings(GroupName = "v2")]
         public async Task<ResponseMessage<TaskContentResponse>> CreatePeriodicTask([FromRoute, BindRequired]int taskid)
         {
+            Logger.Info($"CreatePeriodicTask  taskid : {taskid}");
+
             var Response = new ResponseMessage<TaskContentResponse>();
 
             try
@@ -2003,6 +2034,8 @@ namespace IngestTaskPlugin.Controllers.v2
         [ApiExplorerSettings(GroupName = "v2")]
         public async Task<ResponseMessage<bool>> StartTieUpTask([FromRoute, BindRequired]int taskid)
         {
+            Logger.Info($"StartTieUpTask  taskid : {taskid}");
+
             var Response = new ResponseMessage<bool>();
 
             try
@@ -2055,6 +2088,8 @@ namespace IngestTaskPlugin.Controllers.v2
         [ApiExplorerSettings(GroupName = "v2")]
         public async Task<ResponseMessage<int>> ChooseUseableChannelID([FromQuery, BindRequired]List<int> lstchannelid, [FromQuery, BindRequired]string begin, [FromQuery, BindRequired]string end)
         {
+            Logger.Info($"ChooseUseableChannelID  lstchannelid : {JsonHelper.ToJson(lstchannelid)}, begin : {begin}, end : {end}");
+
             var Response = new ResponseMessage<int>();
 
             try
@@ -2096,6 +2131,8 @@ namespace IngestTaskPlugin.Controllers.v2
         [ApiExplorerSettings(GroupName = "v2")]
         public async Task<ResponseMessage> ModifyTaskInfoName([FromRoute, BindRequired]int taskid, [FromQuery, BindRequired]string taskname)
         {
+            Logger.Info($"ModifyTaskInfoName  taskid : {taskid}, taskname : {taskname}");
+
             var Response = new ResponseMessage();
 
             try
@@ -2144,6 +2181,8 @@ namespace IngestTaskPlugin.Controllers.v2
         [ApiExplorerSettings(GroupName = "v2")]
         public async Task<ResponseMessage<int>> ModifyPeriodTaskInfo([FromQuery, BindRequired]int isall, [FromBody, BindRequired]TaskContentRequest req)
         {
+            Logger.Info($"ModifyPeriodTaskInfo  isall : {isall}, TaskContentRequest : {JsonHelper.ToJson(req)}");
+
             var Response = new ResponseMessage<int>();
 
             try
@@ -2277,6 +2316,8 @@ namespace IngestTaskPlugin.Controllers.v2
         [ApiExplorerSettings(GroupName = "v2")]
         public async Task<ResponseMessage> WriteVTRUploadTask([FromBody, BindRequired]TaskContentRequest req)
         {
+            Logger.Info($"WriteVTRUploadTask  TaskContentRequest : {JsonHelper.ToJson(req)}");
+
             var Response = new ResponseMessage();
 
             try
@@ -2352,6 +2393,8 @@ namespace IngestTaskPlugin.Controllers.v2
         [ApiExplorerSettings(GroupName = "v2")]
         public async Task<ResponseMessage> SetTaskInfoStampBmp([FromRoute, BindRequired]int taskid, [FromBody, BindRequired]string bmppath)
         {
+            Logger.Info($"SetTaskInfoStampBmp  taskid : {taskid}, bmppath : {bmppath}");
+
             var Response = new ResponseMessage();
 
             try
@@ -2398,6 +2441,8 @@ namespace IngestTaskPlugin.Controllers.v2
 
             try
             {
+                Logger.Info($"AddTaskByOld  oldtaskid:{oldtaskid}, starttime:{starttime}.");
+
                 //Response.Ext = await _taskManage.AutoAddTaskByOldTask(oldtaskid, DateTimeFormat.DateTimeFromString(starttime), _globalInterface.Value);
                 var task = await _taskManage.AutoAddTaskByOldTask(oldtaskid, DateTimeFormat.DateTimeFromString(starttime), _globalInterface.Value);
                 Response.Ext = _mapper.Map<TaskContentResponse>(task);
