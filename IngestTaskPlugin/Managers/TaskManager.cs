@@ -1775,6 +1775,7 @@ namespace IngestTaskPlugin.Managers
             if (taskinfo.ChannelId > 0)
             {
                 var findtask = await Store.GetTaskAsync(a => a.Where(b => b.Taskid == taskinfo.TaskId));
+                findtask.Channelid = taskinfo.ChannelId;
                 findtask.SyncState = (int)syncState.ssNot;
                 findtask.DispatchState = (int)dispatchState.dpsDispatched;
 
@@ -3273,7 +3274,7 @@ namespace IngestTaskPlugin.Managers
         
        
 
-        public async Task<DbpTask> AddTaskWithPolicy<TResult>(TResult info, bool backup, string CaptureMeta, string ContentMeta, string MatiralMeta, string PlanningMeta)
+        public async Task<DbpTask> AddTaskWithPolicy<TResult>(TResult info, bool backup, string CaptureMeta, string ContentMeta, string MatiralMeta, string PlanningMeta, bool isOnlyLocalChannel = true)
         {
             var taskinfo = _mapper.Map<TaskInfoRequest>(info);
 
@@ -3287,7 +3288,7 @@ namespace IngestTaskPlugin.Managers
                 {
                     // 获得备份信号源信息
                     var response1 = await _deviceInterface.Value.GetDeviceCallBack(new DeviceInternals() {
-                        funtype = IngestDBCore.DeviceInternals.FunctionType.BackSignalByID, SrcId = taskinfo.TaskContent.SignalId
+                        funtype = IngestDBCore.DeviceInternals.FunctionType.SignalInfoByID, SrcId = taskinfo.TaskContent.SignalId
                     });
 
                     if (response1.Code != ResponseCodeDefines.SuccessCode)
@@ -3326,40 +3327,46 @@ namespace IngestTaskPlugin.Managers
                 taskinfo.TaskContent.TaskName = "BK_" + taskinfo.TaskContent.TaskName;
                 taskinfo.TaskContent.TaskGuid = Guid.NewGuid().ToString("N");
 
-                MatiralMeta = ConverTaskMaterialMetaString(taskinfo.MaterialMeta);
-                if (!string.IsNullOrEmpty(MatiralMeta))
+                if (taskinfo.MaterialMeta != null)
                 {
-                    var mroot = XDocument.Parse(MatiralMeta);
-                    var f = mroot.Element("MATERIAL")?.Element("TITLE");
-                    if (f != null)
+                    MatiralMeta = ConverTaskMaterialMetaString(taskinfo.MaterialMeta);
+                    if (!string.IsNullOrEmpty(MatiralMeta))
                     {
-                        f.Value = taskinfo.TaskContent.TaskName;
+                        var mroot = XDocument.Parse(MatiralMeta);
+                        var f = mroot.Element("MATERIAL")?.Element("TITLE");
+                        if (f != null)
+                        {
+                            f.Value = taskinfo.TaskContent.TaskName;
+                        }
+                        f = mroot.Element("MATERIAL")?.Element("MATERIALID");
+                        if (f != null)
+                        {
+                            f.Value = taskinfo.TaskContent.TaskGuid;
+                        }
+                        MatiralMeta = mroot.ToString();
                     }
-                    f = mroot.Element("MATERIAL")?.Element("MATERIALID");
-                    if (f != null)
-                    {
-                        f.Value = taskinfo.TaskContent.TaskGuid;
-                    }
-                    MatiralMeta = mroot.ToString();
                 }
 
-                ContentMeta = ConverTaskContentMetaString(taskinfo.ContentMeta);
-                if (!string.IsNullOrEmpty(ContentMeta))
+                if (taskinfo.ContentMeta != null)
                 {
-                    var mroot = XDocument.Parse(ContentMeta);
-                    var f = mroot.Element("TaskContentMetaData")?.Element("BACKUP");
-                    if (f != null)
+                    ContentMeta = ConverTaskContentMetaString(taskinfo.ContentMeta);
+                    if (!string.IsNullOrEmpty(ContentMeta))
                     {
-                        f.Value = taskinfo.TaskContent.SignalId.ToString();
-                    }
-                    else
-                        mroot.Element("TaskContentMetaData").Add(new XElement("BACKUP", taskinfo.TaskContent.SignalId));
+                        var mroot = XDocument.Parse(ContentMeta);
+                        var f = mroot.Element("TaskContentMetaData")?.Element("BACKUP");
+                        if (f != null)
+                        {
+                            f.Value = taskinfo.TaskContent.SignalId.ToString();
+                        }
+                        else
+                            mroot.Element("TaskContentMetaData").Add(new XElement("BACKUP", taskinfo.TaskContent.SignalId));
 
-                    if (taskinfo.TaskContent.GroupColor > 0)
-                    {
-                        mroot.Descendants().Where(e => e.Name == "GroupColor" || e.Name == "GroupID" || e.Name == "GroupItem" || e.Name == "").Remove();
+                        if (taskinfo.TaskContent.GroupColor > 0)
+                        {
+                            mroot.Descendants().Where(e => e.Name == "GroupColor" || e.Name == "GroupID" || e.Name == "GroupItem" || e.Name == "").Remove();
+                        }
+                        ContentMeta = mroot.ToString();
                     }
-                    ContentMeta = mroot.ToString();
                 }
 
             }
@@ -3529,7 +3536,7 @@ namespace IngestTaskPlugin.Managers
                  * @brief 当前没有openend任务，估计路透就会有了，所以这个我暂时用false来表示
                  */
                 condition.MoveExcutingOpenTask = false;
-                condition.OnlyLocalChannel = true;
+                condition.OnlyLocalChannel = isOnlyLocalChannel;
                 condition.BaseChId = -1;
                 //condition. = true;
 
@@ -3952,7 +3959,7 @@ namespace IngestTaskPlugin.Managers
                 var fresponse = response1 as ResponseMessage<List<CaptureChannelInfoInterface>>;
                 if (fresponse != null && fresponse.Ext?.Count > 0)
                 {
-                    fresponse.Ext.RemoveAll(x => ChID != x.Id && (x.BackState == BackupFlagInterface.emAllowBackUp && ChID != -1));
+                    fresponse.Ext.RemoveAll(x => ChID != x.Id && (x.BackState == BackupFlagInterface.emNoAllowBackUp && ChID != -1));
 
                     /// 如果存在onlybackup属性的通道，优先考虑
                     return fresponse.Ext.OrderByDescending(x => x.BackState).Select(y => y.Id).ToList();/// 如果存在onlybackup属性的通道，优先考虑

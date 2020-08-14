@@ -1617,7 +1617,7 @@ namespace IngestTaskPlugin.Controllers.v1
 
         }
 
-        [HttpGet("ChooseUseableChannel"), MapToApiVersion("1.0")]
+        [HttpPost("ChooseUseableChannel"), MapToApiVersion("1.0")]
         [ApiExplorerSettings(GroupName = "v1")]
         public async Task<ChooseUseableChannel_out> ChooseUseableChannel([FromBody]ChooseUseableChannel_in pIn)
         {
@@ -1956,7 +1956,7 @@ namespace IngestTaskPlugin.Controllers.v1
                 /*
                  * @brief 老代码会通过老任务查询一遍policy，再保存入库，由于现在入库策略就一种，所以去掉那部分逻辑
                  */
-                var f = await _taskManage.AddTaskWithPolicy<AddReScheduleTaskSvr_in>(pIn, true, CaptureMeta, ContentMeta, MatiralMeta, PlanningMeta);
+                var f = await _taskManage.AddTaskWithPolicy<AddReScheduleTaskSvr_in>(pIn, false, CaptureMeta, ContentMeta, MatiralMeta, PlanningMeta, false);
 
                 if (f == null)
                 {
