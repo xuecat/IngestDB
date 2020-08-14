@@ -533,6 +533,18 @@
             return await Context.DbpPolicyuser.AsNoTracking().Where(x => x.Usercode == usercode).Join(Context.DbpMetadatapolicy, user => user.Policyid, policy => policy.Policyid, (x, y) => y).ToListAsync();
         }
 
+        public async Task<bool> AddUploadListtask(List<VtrUploadtask> task, bool savechange)
+        {
+            if (task != null && task.Count > 0)
+            {
+                await Context.VtrUploadtask.AddRangeAsync(task);
+            }
+            if (savechange)
+            {
+                return await Context.SaveChangesAsync() > 0;
+            }
+            return true;
+        }
         public async Task<bool> AddUploadtask(VtrUploadtask task, bool submitFlag)
         {
             if (task != null)
@@ -571,6 +583,25 @@
                 return true;
             }
             return false;
+        }
+
+        public async Task UpdateVtrUploadTaskListAsync(List<VtrUploadtask> lst, bool submitFlag)
+        {
+            if (lst != null && lst.Count > 0)
+            {
+                Context.VtrUploadtask.UpdateRange(lst);
+                if (submitFlag)
+                {
+                    try
+                    {
+                        await Context.SaveChangesAsync();
+                    }
+                    catch (DbUpdateException e)
+                    {
+                        throw e;
+                    }
+                }
+            }
         }
 
     }

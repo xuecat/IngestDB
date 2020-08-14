@@ -176,7 +176,7 @@ namespace IngestTaskPlugin
                .ForMember(a => a.strUserToken, (map) => map.MapFrom(b => b.Usertoken ))
                .ForMember(a => a.nTrimInCTL, (map) => map.MapFrom(b => b.Triminctl))
                .ForMember(a => a.nTrimOutCTL, (map) => map.MapFrom(b => b.Trimoutctl))
-               .ForMember(a => a.emVtrTaskType, (map) => map.MapFrom(b => b.Vtrtasktype));
+               .ForMember(a => a.emVtrTaskType, (map) => map.MapFrom(b => b.Vtrtasktype)).ReverseMap();
             #endregion
 
             #region VTRUploadTaskContentResponse To VTRUploadTaskContent

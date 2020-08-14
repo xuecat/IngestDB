@@ -758,9 +758,16 @@ namespace IngestTaskPlugin.Managers
             //对通道里的时间段进行排序
             foreach (var ctp in chsTimePeriods)
             {
-                DateTime thirdDay = beginTime.AddDays(3).AddSeconds(-1);
-                ctp.Periods = TaskManager.GetFreeTimePeriodsByTieup(ctp.ChannelId, ctp.Periods, beginTime, thirdDay);
-                ctp.Periods = ctp.Periods.Where(a => a.Duration.TotalSeconds > 3).ToList();
+                DateTime thirdDay = new DateTime(beginTime.Year, beginTime.Month, beginTime.Day, 23, 59, 59);
+                thirdDay = thirdDay.AddDays(2);
+
+                var actp = chsFreeTimePeriods.FirstOrDefault(a => a.ChannelId == ctp.ChannelId);
+                if (actp != null)
+                {
+                    actp.Periods = TaskManager.GetFreeTimePeriodsByTieup(ctp.ChannelId, ctp.Periods, beginTime, thirdDay);
+                    actp.Periods = actp.Periods.Where(a => a.Duration.TotalSeconds > 3).ToList();
+                }
+                
             }
 
             return chsFreeTimePeriods;
@@ -802,39 +809,40 @@ namespace IngestTaskPlugin.Managers
             // 新增从普通任务转换为VTR任务 VTR表中无法查询到任务，该任务原本可能是一个普通任务
             if (vtrUploadTasks == null || vtrUploadTasks.Count <= 0)
             {
-                if (vtrTask.emTaskState != VTRUPLOADTASKSTATE.VTR_UPLOAD_COMMIT && vtrTask.emVtrTaskType != VTRUPLOADTASKTYPE.VTR_SCHEDULE_UPLOAD)
-                {
-                    throw new Exception("Can not find the task.TaskId = " + vtrTask.nTaskId);
-                }
+                SobeyRecException.ThrowSelfOneParam( "", GlobalDictionary.GLOBALDICT_CODE_CAN_NOT_FIND_THE_TASK_ONEPARAM, Logger, vtrTask.nTaskId, null);
+                //if (vtrTask.emTaskState != VTRUPLOADTASKSTATE.VTR_UPLOAD_COMMIT && vtrTask.emVtrTaskType != VTRUPLOADTASKTYPE.VTR_SCHEDULE_UPLOAD)
+                //{
+                //    throw new Exception("Can not find the task.TaskId = " + vtrTask.nTaskId);
+                //}
                 
-                var dbpTask = await TaskStore.GetTaskAsync(a => a.Where(x => x.Taskid == vtrTask.nTaskId));
-                if (dbpTask == null)
-                {
-                    throw new Exception("Can not find the task in DBP_TASK.TaskId = " + vtrTask.nTaskId);
-                }
+                //var dbpTask = await TaskStore.GetTaskAsync(a => a.Where(x => x.Taskid == vtrTask.nTaskId));
+                //if (dbpTask == null)
+                //{
+                //    throw new Exception("Can not find the task in DBP_TASK.TaskId = " + vtrTask.nTaskId);
+                //}
 
-                if (dbpTask.State != (int)taskState.tsReady)
-                {
-                    throw new Exception($"Can not modify a normal task to vtr task which is not in ready state.TaskId = {vtrTask.nTaskId} ");
-                }
+                //if (dbpTask.State != (int)taskState.tsReady)
+                //{
+                //    throw new Exception($"Can not modify a normal task to vtr task which is not in ready state.TaskId = {vtrTask.nTaskId} ");
+                //}
 
-                if (dbpTask.Tasktype != (int)TaskType.TT_NORMAL)
-                {
-                    throw new Exception("Can not modify a task to vtr task which is not a normal task.TaskId = " + vtrTask.nTaskId);
-                }
+                //if (dbpTask.Tasktype != (int)TaskType.TT_NORMAL)
+                //{
+                //    throw new Exception("Can not modify a task to vtr task which is not a normal task.TaskId = " + vtrTask.nTaskId);
+                //}
 
-                try
-                {
-                    Logger.Info("In SetVTRUploadTask.Before ModifyNormalTaskToVTRUploadTask");
-                    await ModifyNormalTaskToVTRUploadTaskAsync(vtrTask, metadatas, dbpTask);
+                //try
+                //{
+                //    Logger.Info("In SetVTRUploadTask.Before ModifyNormalTaskToVTRUploadTask");
+                //    await ModifyNormalTaskToVTRUploadTaskAsync(vtrTask, metadatas, dbpTask);
 
 
-                    return Mapper.Map<TResult>(vtrTask);
-                }
-                catch (System.Exception ex)
-                {
-                    throw ex;
-                }
+                //    return Mapper.Map<TResult>(vtrTask);
+                //}
+                //catch (System.Exception ex)
+                //{
+                //    throw ex;
+                //}
             }
 
             VTRUploadTaskContentResponse vtrTaskNow = vtrUploadTasks[0];
@@ -2222,9 +2230,10 @@ namespace IngestTaskPlugin.Managers
                     dbpTask = VTRUploadTaskContent2Dbptask(true, task, dbpTask, -1);
 
                     submitTasks.Add(dbpTask);
+                    vtrUploadtasks.Add(Mapper.Map<VtrUploadtask>(task));
+
                     submitTaskSource.Add(new DbpTaskSource() { Taskid = task.nTaskId, Tasksource = (int)TaskSource.emVTRUploadTask });
 
-                    //await VtrStore.GetPolicyuser(a => a.Where(x => x.Usercode == task.strUserCode));
                     List<DbpMetadatapolicy> dbpMetadatapolicies = await VtrStore.GetMetadatapoliciesByUserCode(task.strUserCode);
                     
                     foreach (DbpMetadatapolicy policy in dbpMetadatapolicies)
@@ -2254,14 +2263,15 @@ namespace IngestTaskPlugin.Managers
             if (isAdd2DB)
             {
                 await TaskStore.AddTaskList(submitTasks, false);
+                await VtrStore.AddUploadListtask(vtrUploadtasks, false);
                 await TaskStore.AddTaskSourceList(submitTaskSource, false);
                 await TaskStore.AddPolicyTask(submitPolicy, true);
             }
             else
             {
                 await TaskStore.UpdateTaskListAsync(submitTasks, false);
-                await TaskStore.UpdateVtrUploadTaskListAsync(vtrUploadtasks, true);
-
+                await VtrStore.UpdateVtrUploadTaskListAsync(vtrUploadtasks, true);
+                
             }
 
             return taskIds;

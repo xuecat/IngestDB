@@ -795,7 +795,7 @@
         /// </summary>
         /// <param name="param"></param>
         /// <returns>extention为整数，对应枚举 VTR_BUT_ErrorCode </returns>
-        [HttpPost("api/vtr/CommitVTRBatchUploadTasks")]
+        [HttpPost("CommitVTRBatchUploadTasks")]
         public async Task<TaskOldResponseMessage<int>> CommitVTRBatchUploadTasks([FromBody] CommitParam param)
         {
             TaskOldResponseMessage<int> res = new TaskOldResponseMessage<int>();
@@ -981,7 +981,7 @@
         /// <param name="pIn">见声明</param>
         /// <returns>见声明</returns>
         [HttpPost]
-        [Route("api/vtr/AddVTRBatchUploadTasks")]
+        [Route("AddVTRBatchUploadTasks")]
         public async Task<TaskOldResponseMessage<VtrBatchUploadTask>> AddVTRBatchUploadTasks([FromBody] AddVTRBatchUploadTasks_in pIn)
         {
             TaskOldResponseMessage<VtrBatchUploadTask> res = new TaskOldResponseMessage<VtrBatchUploadTask>();

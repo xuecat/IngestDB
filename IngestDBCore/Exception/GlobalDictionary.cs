@@ -114,6 +114,7 @@ namespace IngestDBCore
                 _globalDict.Add(GLOBALDICT_CODE_TASK_IS_LOCKED, "任务被锁定@Task Is Locked!@任務被鎖定@");
                 _globalDict.Add(GLOBALDICT_CODE_SIGNAL_AND_CHANNEL_IS_MISMATCHED, "信号源和通道不匹配@The signal and channel is mismatched@信號源和通道不匹配@");
                 _globalDict.Add(GLOBALDICT_CODE_CAN_NOT_FIND_THE_TASK_ONEPARAM, "找不到ID为{0}的任务@Can not find the task.TaskId = {0}@找不到ID為{0}的任務@");
+                _globalDict.Add(GLOBALDICT_CODE_CAN_NOT_FIND_THE_VTRTASK_ONEPARAM, "找不到ID为{0}的vtr任务@Can not find the vtr task.TaskId = {0}@找不到ID為{0}的vtr任務@");
                 _globalDict.Add(GLOBALDICT_CODE_VTR_HAS_BEEN_USED_BY_OTHER_TASKS_ONEPARAM, "{0}的VTR设备已经被其它任务所占用@{0} has been used by other tasks@{0}的VTR設備已經被其它任務所佔用@");
                 _globalDict.Add(GLOBALDICT_CODE_CAN_NOT_MODIFY_TIME_CONFLICT_TASKS_ONEPARAM, "不能更改任务时间，冲突任务包括{0}@Can Not Modify Time, Conflict Tasks:{0}@不能更改任務時間，衝突任務包括{0}@");
                 _globalDict.Add(GLOBALDICT_CODE_SET_TASKMETADATA_FAIL, "更新任务元数据失败@Set task metadata Fail.@更新任務元數據失敗@");
@@ -1766,6 +1767,7 @@ namespace IngestDBCore
         /// 根据主键未查询到数据
         /// </summary>
         public const int GLOBALDICT_CODE_DATA_NOTFOUND_BYKEY = 18275;
+        public const int GLOBALDICT_CODE_CAN_NOT_FIND_THE_VTRTASK_ONEPARAM = 18276;
         #endregion
 
         #endregion

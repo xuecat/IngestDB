@@ -626,6 +626,11 @@ namespace IngestTaskPlugin.Stores
                     Taskstate = item.Taskstate
                 }).SingleOrDefaultAsync();
 
+            if (itm == null)
+            {
+                SobeyRecException.ThrowSelfOneParam("", GlobalDictionary.GLOBALDICT_CODE_CAN_NOT_FIND_THE_VTRTASK_ONEPARAM, Logger, taskid, null);
+            }
+
             if (task == null)
             {
                 task = await GetTaskAsync<DbpTask>(a => a
@@ -3045,25 +3050,7 @@ namespace IngestTaskPlugin.Stores
                 }
             }
         }
-
-        public async Task UpdateVtrUploadTaskListAsync(List<VtrUploadtask> lst, bool submitFlag)
-        {
-            if (lst != null && lst.Count > 0)
-            {
-                Context.VtrUploadtask.UpdateRange(lst);
-                if (submitFlag)
-                {
-                    try
-                    {
-                        await Context.SaveChangesAsync();
-                    }
-                    catch (DbUpdateException e)
-                    {
-                        throw e;
-                    }
-                }
-            }
-        }
+        
 
         public async Task UpdateTaskMetaDataAsync(int taskid, MetaDataType type, string metadata, bool submitFlag)
         {

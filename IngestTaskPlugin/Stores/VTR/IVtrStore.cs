@@ -230,6 +230,7 @@
         /// <param name="task">The Vtr上传任务<see cref="VtrUploadtask"/>.</param>
         /// <returns>The 是否添加成功<see cref="bool"/>.</returns>
         Task<bool> AddUploadtask(VtrUploadtask task);
+        
 
         /// <summary>
         /// The 更新 Vtr上传任务.
@@ -242,7 +243,10 @@
         Task<List<DbpMetadatapolicy>> GetMetadatapoliciesByUserCode(string usercode);
 
         Task<bool> AddUploadtask(VtrUploadtask task, bool submitFlag);
+        Task<bool> AddUploadListtask(List<VtrUploadtask> task, bool savechange);
+
         Task DeleteVtrUploadTask(VtrUploadtask task, bool submitFlag);
         Task<bool> UpdateUploadtask(VtrUploadtask task, bool submitFlag);
+        Task UpdateVtrUploadTaskListAsync(List<VtrUploadtask> lst, bool submitFlag);
     }
 }
