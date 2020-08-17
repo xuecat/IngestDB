@@ -392,11 +392,11 @@
             var dt1 = dtNow.AddMinutes(minute);
             var dt2 = dtNow.AddDays(-1);
             IQueryable<VtrUploadtask> uploadQuery = Context.VtrUploadtask.AsNoTracking();
-            uploadQuery.Where(a => a.Vtrtasktype == 1 && a.Taskstate == 2);
+            uploadQuery.Where(a => a.Vtrtasktype == (int)VTRUPLOADTASKTYPE.VTR_SCHEDULE_UPLOAD && a.Taskstate == (int)VTRUPLOADTASKSTATE.VTR_UPLOAD_COMMIT);
             IQueryable<DbpTask> taskQeruy = Context.DbpTask.AsNoTracking();
-            taskQeruy.Where(a => a.Tasktype == 6 &&
+            taskQeruy.Where(a => a.Tasktype == (int)TaskType.TT_VTRUPLOAD &&
                                  string.IsNullOrEmpty(a.Tasklock) &&
-                                 a.SyncState == 0 &&
+                                 a.SyncState == (int)syncState.ssNot &&
                                  a.Starttime < dt1 &&
                                  a.Starttime > dt2);
 
