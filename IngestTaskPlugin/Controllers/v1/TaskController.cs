@@ -85,6 +85,8 @@ namespace IngestTaskPlugin.Controllers.v1
             }
             try
             {
+                Logger.Info($"PostAddTaskMetaDataPropety PostSetTaskMetaData_IN : {JsonHelper.ToJson(pIn)} ");
+
                 PostSetTaskMetaData_OUT pOut = new PostSetTaskMetaData_OUT();
                 if (pIn.MateData == null)
                 {
@@ -136,6 +138,8 @@ namespace IngestTaskPlugin.Controllers.v1
             }
             try
             {
+                Logger.Info($"PostSetTaskMetaData PostSetTaskMetaData_IN : {JsonHelper.ToJson(pIn)} ");
+
                 PostSetTaskMetaData_OUT pOut = new PostSetTaskMetaData_OUT();
                 if (pIn.MateData == null)
                 {
@@ -224,6 +228,8 @@ namespace IngestTaskPlugin.Controllers.v1
             }
             try
             {
+                Logger.Info($"PostSetTaskCustomMetadata SetTaskCustomMetadata_IN : {JsonHelper.ToJson(pIn)} ");
+
                 SetTaskCustomMetadata_OUT pOut = new SetTaskCustomMetadata_OUT() {
                     bRet = true,
                     errStr = "OK"
@@ -251,6 +257,8 @@ namespace IngestTaskPlugin.Controllers.v1
         [ApiExplorerSettings(GroupName = "v1")]
         public async Task<GroupTaskParam_OUT> StopGroupTaskById([FromQuery]int nTaskID)
         {
+            Logger.Info($"StopGroupTaskById nTaskID : {nTaskID} ");
+
             var Response = new GroupTaskParam_OUT
             {
                 bRet = true,
@@ -300,6 +308,8 @@ namespace IngestTaskPlugin.Controllers.v1
         [ApiExplorerSettings(GroupName = "v1")]
         public async Task<GroupTaskParam_OUT> DeleteGroupTaskById([FromQuery]int nTaskID)
         {
+            Logger.Info($"DeleteGroupTaskById nTaskID : {nTaskID} ");
+
             var Response = new GroupTaskParam_OUT
             {
                 bRet = true,
@@ -348,6 +358,8 @@ namespace IngestTaskPlugin.Controllers.v1
         [ApiExplorerSettings(GroupName = "v1")]
         public async Task<AddTaskExDb_out> AddTaskExDb([FromBody] AddTaskExDb_in pIn)
         {
+            Logger.Info($"AddTaskExDb AddTaskExDb_in : {JsonHelper.ToJson(pIn)} ");
+
             var Response = new AddTaskExDb_out
             {
                 bRet = true,
@@ -418,6 +430,8 @@ namespace IngestTaskPlugin.Controllers.v1
         [ApiExplorerSettings(GroupName = "v1")]
         public async Task<AddTaskSvr_OUT> PostAddTaskSvr([FromBody] AddTaskSvr_IN pIn)
         {
+            Logger.Info($"PostAddTaskSvr AddTaskSvr_IN : {JsonHelper.ToJson(pIn)} ");
+
             var Response = new AddTaskSvr_OUT
             {
                 bRet = true,
@@ -507,6 +521,8 @@ namespace IngestTaskPlugin.Controllers.v1
         [ApiExplorerSettings(GroupName = "v1")]
         public async Task<AddTaskSvrPolicysAndBackupFlag_OUT> PostAddTaskSvrPolicysAndBackupFlag([FromBody] AddTaskSvrPolicysAndBackupFlag_IN pIn)
         {
+            Logger.Info($"PostAddTaskSvrPolicysAndBackupFlag AddTaskSvrPolicysAndBackupFlag_IN : {JsonHelper.ToJson(pIn)} ");
+
             var Response = new AddTaskSvrPolicysAndBackupFlag_OUT
             {
                 bRet = true,
@@ -691,6 +707,8 @@ namespace IngestTaskPlugin.Controllers.v1
         [ApiExplorerSettings(GroupName = "v1")]
         public async Task<PostModifyTaskDb_OUT> PostModifyTaskDb([FromBody]PostModifyTaskDb_IN pIn)
         {
+            Logger.Info($"PostModifyTaskDb PostModifyTaskDb_IN : {JsonHelper.ToJson(pIn)} ");
+
             var Response = new PostModifyTaskDb_OUT
             {
                 bRet = true,
@@ -733,6 +751,8 @@ namespace IngestTaskPlugin.Controllers.v1
         [ApiExplorerSettings(GroupName = "v1")]
         public async Task<ModifyTask_out> ModifyTask([FromBody] ModifyTask_in pIn)
         {
+            Logger.Info($"ModifyTask ModifyTask_in : {JsonHelper.ToJson(pIn)} ");
+
             var Response = new ModifyTask_out
             {
                 bRet = true,
@@ -872,6 +892,8 @@ namespace IngestTaskPlugin.Controllers.v1
         [ApiExplorerSettings(GroupName = "v1")]
         public async Task<StopTaskFromFSW_OUT> GetStopTaskFromFSW([FromQuery]int nTaskID)
         {
+            Logger.Info($"GetStopTaskFromFSW nTaskID : {nTaskID} ");
+
             var Response = new StopTaskFromFSW_OUT
             {
                 bRet = true,
@@ -915,6 +937,8 @@ namespace IngestTaskPlugin.Controllers.v1
         [ApiExplorerSettings(GroupName = "v1")]
         public async Task<StopCapture_OUT> GetStopCapture([FromQuery]int nTaskID, [FromQuery]string strEndTime)
         {
+            Logger.Info($"GetStopCapture nTaskID : {nTaskID} , strEndTime : {strEndTime} ");
+
             var Response = new StopCapture_OUT
             {
                 bRet = true,
@@ -1057,6 +1081,8 @@ namespace IngestTaskPlugin.Controllers.v1
         {
             try
             {
+                Logger.Info($"GetTrimTaskBeginTime nTaskID : {nTaskID} , strStartTime : {strStartTime} ");
+
                 if (nTaskID < 0)
                 {
                     return false;
@@ -1114,6 +1140,8 @@ namespace IngestTaskPlugin.Controllers.v1
         [ApiExplorerSettings(GroupName = "v1")]
         public async Task<DelTaskDb_OUT> GetDelTaskDb([FromQuery]int nTaskID)
         {
+            Logger.Info($"GetDelTaskDb nTaskID : {nTaskID} ");
+
             var Response = new DelTaskDb_OUT
             {
                 bRet = true,
@@ -1150,6 +1178,8 @@ namespace IngestTaskPlugin.Controllers.v1
         [ApiExplorerSettings(GroupName = "v1")]
         public async Task<SetTaskClassify_OUT> SetTaskClassify([FromQuery]int nTaskID, [FromBody]string strClassify)
         {
+            Logger.Info($"SetTaskClassify nTaskID : {nTaskID} , strClassify : {strClassify}");
+
             var Response = new SetTaskClassify_OUT
             {
                 bRet = true,
@@ -1260,6 +1290,8 @@ namespace IngestTaskPlugin.Controllers.v1
         [ApiExplorerSettings(GroupName = "v1")]
         public async Task<bool> PostCompleteSynTasks([FromBody]CompleteSynTasks_IN pIn)
         {
+            Logger.Info($"PostCompleteSynTasks CompleteSynTasks_IN : {JsonHelper.ToJson(pIn)} ");
+
             //var Response = new GetNeedSynTasks2_OUT
             //{
             //    bRet = true,
@@ -1293,6 +1325,8 @@ namespace IngestTaskPlugin.Controllers.v1
             //    bRet = true,
             //    errStr = "OK",
             //};
+            Logger.Info($"Update24HoursTask ntaskid : {ntaskid} , oldlen : {oldlen} , oldclipnum : {oldclipnum} , newname : {newname} ,  newguid: {newguid} , index : {index} ");
+
             try
             {
                 return await _taskManage.Update24HoursTask(ntaskid, oldlen, oldclipnum, newname, newguid, index);
@@ -1342,6 +1376,8 @@ namespace IngestTaskPlugin.Controllers.v1
         [ApiExplorerSettings(GroupName = "v1")]
         public async Task<bool> PostCompleteRescheduleTasks([FromBody]TaskFullInfo rescheduleTask)
         {
+            Logger.Info($"PostCompleteRescheduleTasks TaskFullInfo : {JsonHelper.ToJson(rescheduleTask)} ");
+
             var Response = false;
 
             try
@@ -1505,6 +1541,8 @@ namespace IngestTaskPlugin.Controllers.v1
         [ApiExplorerSettings(GroupName = "v1")]
         public async Task<SplitTask_OUT> SplitTask([FromBody]SplitTask_IN pIn)
         {
+            Logger.Info($"SplitTask SplitTask_IN : {JsonHelper.ToJson(pIn)} ");
+
             var Response = new SplitTask_OUT()
             {
                 errStr = "OK",
@@ -1546,6 +1584,8 @@ namespace IngestTaskPlugin.Controllers.v1
         [ApiExplorerSettings(GroupName = "v1")]
         public async Task<CreateNewTaskFromPeriodicTask_OUT> CreateNewTaskFromPeriodicTask([FromQuery]int periodicTaskId)
         {
+            Logger.Info($"CreateNewTaskFromPeriodicTask periodicTaskId : {periodicTaskId} ");
+
             var Response = new CreateNewTaskFromPeriodicTask_OUT()
             {
                 errStr = "OK",
@@ -1648,6 +1688,8 @@ namespace IngestTaskPlugin.Controllers.v1
         [ApiExplorerSettings(GroupName = "v1")]
         public async Task<ModifyTaskName_out> ModifyTaskName([FromQuery]int nTaskID, [FromQuery]string strNewName)
         {
+            Logger.Info($"ModifyTaskName nTaskID : {nTaskID} , strNewName : {strNewName}");
+
             var Response = new ModifyTaskName_out()
             {
                 errStr = "OK",
@@ -1675,6 +1717,8 @@ namespace IngestTaskPlugin.Controllers.v1
         [ApiExplorerSettings(GroupName = "v1")]
         public async Task<ModifyPeriodTask_out> ModifyPeriodTask([FromQuery]int IsAll, [FromBody]TaskContent taskModify)
         {
+            Logger.Info($"ModifyPeriodTask IsAll : {IsAll} , TaskContent : { JsonHelper.ToJson(taskModify)}");
+
             var Response = new ModifyPeriodTask_out()
             {
                 errStr = "OK",
@@ -1787,6 +1831,8 @@ namespace IngestTaskPlugin.Controllers.v1
         [ApiExplorerSettings(GroupName = "v1")]
         public async Task<TaskOldResponseMessage> WriteVTRUploadTaskDB([FromBody] TaskContent taskAdd)
         {
+            Logger.Info($"WriteVTRUploadTaskDB TaskContent : { JsonHelper.ToJson(taskAdd)}");
+
             var Response = new TaskOldResponseMessage();
 
             try
@@ -1849,6 +1895,8 @@ namespace IngestTaskPlugin.Controllers.v1
         [ApiExplorerSettings(GroupName = "v1")]
         public async Task<TaskOldResponseMessage> SetTaskStampBmp([FromQuery] int nTaskID, [FromBody] string strBmp)
         {
+            Logger.Info($"SetTaskStampBmp nTaskID : { nTaskID} , strBmp : {strBmp}");
+
             var Response = new TaskOldResponseMessage() { nCode = 1, message = "OK"};
 
             try
@@ -1886,6 +1934,8 @@ namespace IngestTaskPlugin.Controllers.v1
         [ApiExplorerSettings(GroupName = "v1")]
         public async Task<TaskOldResponseMessage<int>> AutoAddTaskByOldTask([FromQuery]int nOldTaskID, [FromQuery]string strStartTime)
         {
+            Logger.Info($"AutoAddTaskByOldTask nOldTaskID : { nOldTaskID} , strStartTime : {strStartTime}");
+
             var Response = new TaskOldResponseMessage<int>();
             Response.extention = -1;
 
@@ -1927,6 +1977,8 @@ namespace IngestTaskPlugin.Controllers.v1
         [ApiExplorerSettings(GroupName = "v1")]
         public async Task<TaskOldResponseMessage<int>> AddReScheduleTaskSvr([FromBody] AddReScheduleTaskSvr_in pIn)
         {
+            Logger.Info($"AddReScheduleTaskSvr AddReScheduleTaskSvr_in : { JsonHelper.ToJson(pIn)}");
+
             var Response = new TaskOldResponseMessage<int>();
 
             try
