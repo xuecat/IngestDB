@@ -1970,6 +1970,17 @@ namespace IngestTaskPlugin.Managers
             Logger.Info("GetNeedFinishTasks {0} ", string.Join(",", lstfinishtask.Select(x=>x.Taskid).ToList()));
             Logger.Info("GetNeedUnSynTasks {0} ", string.Join(",", lstunsyntask.Select(x => x.Taskid).ToList()));
 
+            foreach (var item in lstfinishtask)
+            {
+                if (item.Tasktype == (int)TaskType.TT_MANUTASK)
+                {
+                    item.Tasktype = (int)TaskType.TT_NORMAL;
+                    item.SyncState = (int)syncState.ssSync;
+                    item.Endtime = item.Starttime.AddDays(1).AddSeconds(-1);
+                    item.NewEndtime = item.Endtime;
+                }
+            }
+
             List<DbpTask> lstunsync = new List<DbpTask>();
             List<DbpTask> lstModify = new List<DbpTask>();
             //周期任务快要开始的时候，就把周期任务复制一条出来，任务类型是当天的任务，有效期只有一天,OldChannelID用来记载关联的原周期任务
