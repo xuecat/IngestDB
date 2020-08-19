@@ -3847,7 +3847,7 @@ namespace IngestTaskPlugin.Managers
 
                 DateTime Begin = DateTimeFormat.DateTimeFromString(request.Begin);
                 DateTime End = DateTimeFormat.DateTimeFromString(request.End);
-                List<int> freeChannelIdList = await Store.GetFreeChannels(matchlst, request.TaskId, Begin, End);
+                List<int> freeChannelIdList = await Store.GetFreeChannels(matchlst, request.TaskId, Begin, End, request.ChannelId != -1);
 
                 Logger.Info("GetFreeChannels freeChannelIdList {0}", freeChannelIdList.Count);
 
