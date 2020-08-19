@@ -1157,14 +1157,26 @@ namespace IngestTaskPlugin.Controllers.v1
                     return Response;
                 }
                 var task = await _taskManage.DeleteTask(nTaskID);
-                if (task == null)
+                if (_globalInterface != null)
                 {
-                    Task.Run(() => { _clock.InvokeNotify(GlobalStateName.DELTASK, NotifyPlugin.Kafka, NotifyAction.DELETETASK, new DbpTask() { Taskid = nTaskID }); });
+                    GlobalInternals re = new GlobalInternals() { Funtype = IngestDBCore.GlobalInternals.FunctionType.SetGlobalState, State = GlobalStateName.DELTASK };
+                    var response1 = await _globalInterface.Value.SubmitGlobalCallBack(re);
+                    if (response1.Code != ResponseCodeDefines.SuccessCode)
+                    {
+                        Logger.Error("SetGlobalState modtask error");
+                    }
+
+                    if (task == null)
+                    {
+                        Task.Run(() => { _clock.InvokeNotify(GlobalStateName.DELTASK, NotifyPlugin.Kafka, NotifyAction.DELETETASK, new DbpTask() { Taskid = nTaskID }); });
+                    }
+                    else
+                    {
+                        Task.Run(() => { _clock.InvokeNotify(GlobalStateName.MODTASK, NotifyPlugin.Kafka, NotifyAction.DELETETASK, task); });
+                    }
                 }
-                else
-                {
-                    Task.Run(() => { _clock.InvokeNotify(GlobalStateName.MODTASK, NotifyPlugin.Kafka, NotifyAction.DELETETASK, task); });
-                }}
+                
+            }
             catch (Exception e)//其他未知的异常，写异常日志
             {
                 Response.bRet = false;

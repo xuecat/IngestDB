@@ -757,6 +757,13 @@ namespace IngestTaskPlugin.Stores
                 return null;
             }
 
+            if (taskinfo.OpType == (int)opType.otDel && (taskinfo.Recunitid& 0x8000)>0)
+            {
+                SobeyRecException.ThrowSelfNoParam(taskid.ToString(), GlobalDictionary.GLOBALDICT_CODE_CAN_NOT_DELETE_DELETING_TASK,
+                    Logger, null);
+                return null;
+            }
+
             bool isNeedDelFromDB = false;
             taskinfo.OpType = (int)opType.otDel;
             if (taskinfo.DispatchState == (int)dispatchState.dpsNotDispatch ||

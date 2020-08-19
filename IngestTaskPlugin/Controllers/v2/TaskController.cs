@@ -1404,14 +1404,25 @@ namespace IngestTaskPlugin.Controllers.v2
             try
             {
                 var task = await _taskManage.DeleteTask(taskid);
-                if (task == null)
+                if (_globalInterface != null)
                 {
-                    Task.Run(() => { _clock.InvokeNotify(GlobalStateName.DELTASK, NotifyPlugin.Kafka, NotifyAction.DELETETASK, new DbpTask() { Taskid = taskid }); });
+                    GlobalInternals re = new GlobalInternals() { Funtype = IngestDBCore.GlobalInternals.FunctionType.SetGlobalState, State = GlobalStateName.DELTASK };
+                    var response1 = await _globalInterface.Value.SubmitGlobalCallBack(re);
+                    if (response1.Code != ResponseCodeDefines.SuccessCode)
+                    {
+                        Logger.Error("SetGlobalState modtask error");
+                    }
+
+                    if (task == null)
+                    {
+                        Task.Run(() => { _clock.InvokeNotify(GlobalStateName.DELTASK, NotifyPlugin.Kafka, NotifyAction.DELETETASK, new DbpTask() { Taskid = taskid }); });
+                    }
+                    else
+                    {
+                        Task.Run(() => { _clock.InvokeNotify(GlobalStateName.MODTASK, NotifyPlugin.Kafka, NotifyAction.DELETETASK, task); });
+                    }
                 }
-                else
-                {
-                    Task.Run(() => { _clock.InvokeNotify(GlobalStateName.MODTASK, NotifyPlugin.Kafka, NotifyAction.DELETETASK, task); });
-                }
+                
                 Response.Ext = taskid;
                 
             }
