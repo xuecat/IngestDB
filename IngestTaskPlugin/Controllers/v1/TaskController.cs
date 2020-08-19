@@ -92,12 +92,14 @@ namespace IngestTaskPlugin.Controllers.v1
                 {
                     pOut.errStr = "MetaData";
                     pOut.bRet = false;
+                    return pOut;
                 }
 
                 if (pIn.MateData.Length <= 0 && pIn.Type != MetaDataType.emAmfsData)
                 {
                     pOut.errStr = "MetaData";
                     pOut.bRet = false;
+                    return pOut;
                 }
 
                 if (pIn.Type == MetaDataType.emAmfsData)
@@ -582,9 +584,9 @@ namespace IngestTaskPlugin.Controllers.v1
 
                 if (pIn.isCreateBackupTask)
                 {
-                    pIn.taskAdd.nTaskID = Response.newTaskId;
-                    Response.backupTaskId = (await _taskManage.AddTaskWithPolicy<AddTaskSvrPolicysAndBackupFlag_IN>(pIn, true, CaptureMeta, ContentMeta, MatiralMeta, PlanningMeta)).Taskid;
-
+                    string sourcecontentmeata = ContentMeta;
+                    Response.backupTaskId = (await _taskManage.AddTaskWithPolicy<AddTaskSvrPolicysAndBackupFlag_IN>(pIn, true, CaptureMeta, ContentMeta, MatiralMeta, PlanningMeta, false)).Taskid;
+                    await _taskManage.UpdateBackupTaskMetadata(f.Taskid, Response.backupTaskId, sourcecontentmeata);
                 }
 
                 //添加后如果开始时间在2分钟以内，需要调度一次

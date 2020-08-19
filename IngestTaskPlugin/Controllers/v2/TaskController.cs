@@ -609,7 +609,8 @@ namespace IngestTaskPlugin.Controllers.v2
                 if (task.BackUpTask)
                 {
                     task.TaskContent = Response.Ext;
-                    await _taskManage.AddTaskWithPolicy(task, true, string.Empty, string.Empty, string.Empty, string.Empty);
+                    var backtask = await _taskManage.AddTaskWithPolicy(task, true, string.Empty, string.Empty, string.Empty, string.Empty, false);
+                    await _taskManage.UpdateBackupTaskMetadata(Response.Ext.TaskId, backtask.Taskid, task.ContentMeta);
                 }
 
                 //添加后如果开始时间在2分钟以内，需要调度一次

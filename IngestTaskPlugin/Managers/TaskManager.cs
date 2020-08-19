@@ -3271,8 +3271,53 @@ namespace IngestTaskPlugin.Managers
             return info;
         }
 
-        
-       
+        public async Task<bool> UpdateBackupTaskMetadata(int taskid, int backtaskid, string ContentMeta)
+        {
+            if (!string.IsNullOrEmpty(ContentMeta))
+            {
+                var mroot = XDocument.Parse(ContentMeta);
+
+                var f = mroot.Element("TaskContentMetaData")?.Element("BACKUP");
+                if (f != null)
+                {
+                    f.Value = backtaskid.ToString();
+                }
+                else
+                    mroot.Element("TaskContentMetaData").Add(new XElement("BACKUP", backtaskid));
+
+                ContentMeta = mroot.ToString();
+
+                await Store.UpdateTaskMetaDataAsync(taskid, MetaDataType.emContentMetaData, ContentMeta);
+                return true;
+            }
+            return false;
+        }
+        public async Task<bool> UpdateBackupTaskMetadata(int taskid, int backtaskid, TaskContentMetaResponse taskcontentMeta)
+        {
+            string ContentMeta = string.Empty;
+            if (taskcontentMeta != null)
+            {
+                ContentMeta = ConverTaskContentMetaString(taskcontentMeta);
+            }
+            if (!string.IsNullOrEmpty(ContentMeta))
+            {
+                var mroot = XDocument.Parse(ContentMeta);
+
+                var f = mroot.Element("TaskContentMetaData")?.Element("BACKUP");
+                if (f != null)
+                {
+                    f.Value = backtaskid.ToString();
+                }
+                else
+                    mroot.Element("TaskContentMetaData").Add(new XElement("BACKUP", backtaskid));
+
+                ContentMeta = mroot.ToString();
+
+                await Store.UpdateTaskMetaDataAsync(taskid, MetaDataType.emContentMetaData, ContentMeta);
+                return true;
+            }
+            return false;
+        }
 
         public async Task<DbpTask> AddTaskWithPolicy<TResult>(TResult info, bool backup, string CaptureMeta, string ContentMeta, string MatiralMeta, string PlanningMeta, bool isOnlyLocalChannel = true)
         {
@@ -3283,90 +3328,52 @@ namespace IngestTaskPlugin.Managers
             TaskSource ts = TaskSource.emUnknowTask;
             if (backup)
             {
-
-                if (_deviceInterface != null)
-                {
-                    // 获得备份信号源信息
-                    var response1 = await _deviceInterface.Value.GetDeviceCallBack(new DeviceInternals() {
-                        funtype = IngestDBCore.DeviceInternals.FunctionType.SignalInfoByID, SrcId = taskinfo.TaskContent.SignalId
-                    });
-
-                    if (response1.Code != ResponseCodeDefines.SuccessCode)
-                    {
-                        Logger.Error("AddTaskWithPolicy BackSignalByID error");
-                        return null;
-                    }
-                    var fr = response1 as ResponseMessage<ProgrammeInfoInterface>;
-
-                    if (fr.Ext != null)
-                    {
-                        // 将信号源ID修改为备份信号源的ID
-                        taskinfo.TaskContent.SignalId = fr.Ext.ProgrammeId;
-                        switch (fr.Ext.PgmType)
-                        {
-                            case ProgrammeTypeInterface.PT_Null:
-                                ts = TaskSource.emUnknowTask;
-                                break;
-                            case ProgrammeTypeInterface.PT_SDI:
-                                ts = TaskSource.emMSVUploadTask;
-                                break;
-                            case ProgrammeTypeInterface.PT_IPTS:
-                                ts = TaskSource.emIPTSUploadTask;
-                                break;
-                            case ProgrammeTypeInterface.PT_StreamMedia:
-                                ts = TaskSource.emStreamMediaUploadTask;
-                                break;
-                            default:
-                                ts = TaskSource.emUnknowTask;
-                                break;
-                        }
-
-                    }
-                }
-                taskinfo.TaskSource = ts;
                 taskinfo.TaskContent.TaskName = "BK_" + taskinfo.TaskContent.TaskName;
                 taskinfo.TaskContent.TaskGuid = Guid.NewGuid().ToString("N");
 
                 if (taskinfo.MaterialMeta != null)
                 {
                     MatiralMeta = ConverTaskMaterialMetaString(taskinfo.MaterialMeta);
-                    if (!string.IsNullOrEmpty(MatiralMeta))
+                    
+                }
+                if (!string.IsNullOrEmpty(MatiralMeta))
+                {
+                    var mroot = XDocument.Parse(MatiralMeta);
+                    var f = mroot.Element("MATERIAL")?.Element("TITLE");
+                    if (f != null)
                     {
-                        var mroot = XDocument.Parse(MatiralMeta);
-                        var f = mroot.Element("MATERIAL")?.Element("TITLE");
-                        if (f != null)
-                        {
-                            f.Value = taskinfo.TaskContent.TaskName;
-                        }
-                        f = mroot.Element("MATERIAL")?.Element("MATERIALID");
-                        if (f != null)
-                        {
-                            f.Value = taskinfo.TaskContent.TaskGuid;
-                        }
-                        MatiralMeta = mroot.ToString();
+                        f.Value = taskinfo.TaskContent.TaskName;
                     }
+                    f = mroot.Element("MATERIAL")?.Element("MATERIALID");
+                    if (f != null)
+                    {
+                        f.Value = taskinfo.TaskContent.TaskGuid;
+                    }
+                    MatiralMeta = mroot.ToString();
                 }
 
                 if (taskinfo.ContentMeta != null)
                 {
                     ContentMeta = ConverTaskContentMetaString(taskinfo.ContentMeta);
-                    if (!string.IsNullOrEmpty(ContentMeta))
-                    {
-                        var mroot = XDocument.Parse(ContentMeta);
-                        var f = mroot.Element("TaskContentMetaData")?.Element("BACKUP");
-                        if (f != null)
-                        {
-                            f.Value = taskinfo.TaskContent.SignalId.ToString();
-                        }
-                        else
-                            mroot.Element("TaskContentMetaData").Add(new XElement("BACKUP", taskinfo.TaskContent.SignalId));
+                }
+                if (!string.IsNullOrEmpty(ContentMeta))
+                {
+                    var mroot = XDocument.Parse(ContentMeta);
 
-                        if (taskinfo.TaskContent.GroupColor > 0)
-                        {
-                            mroot.Descendants().Where(e => e.Name == "GroupColor" || e.Name == "GroupID" || e.Name == "GroupItem" || e.Name == "").Remove();
-                        }
-                        ContentMeta = mroot.ToString();
+                    //taskinfo.TaskContent.TaskId = Store.GetNextValId("DBP_SQ_TASKID");
+                    //var f = mroot.Element("TaskContentMetaData")?.Element("BACKUP");
+                    //if (f != null)
+                    //{
+                    //    f.Value = taskinfo.TaskContent.TaskId.ToString();
+                    //}
+                    //else
+                    //    mroot.Element("TaskContentMetaData").Add(new XElement("BACKUP", taskinfo.TaskContent.TaskId));
+
+                    if (taskinfo.TaskContent.GroupColor > 0)
+                    {
+                        mroot.Descendants().Where(e => e.Name == "GroupColor" || e.Name == "GroupID" || e.Name == "GroupItem" || e.Name == "").Remove();
                     }
+                    ContentMeta = mroot.ToString();
                 }
 
             }
@@ -3463,7 +3470,7 @@ namespace IngestTaskPlugin.Managers
                             dest.Tasklock = string.Empty;
                             dest.Taskid = -1;
                         })), true, TaskSource.emMSVUploadTask,
-                        string.IsNullOrEmpty(ContentMeta) ? taskinfo.CaptureMeta : CaptureMeta,
+                        string.IsNullOrEmpty(CaptureMeta) ? taskinfo.CaptureMeta : CaptureMeta,
                         string.IsNullOrEmpty(ContentMeta) ? ConverTaskContentMetaString(taskinfo.ContentMeta) : ContentMeta,
                         string.IsNullOrEmpty(MatiralMeta) ? ConverTaskMaterialMetaString(taskinfo.MaterialMeta) : MatiralMeta,
                         string.IsNullOrEmpty(PlanningMeta) ? ConverTaskPlanningMetaString(taskinfo.PlanningMeta) : PlanningMeta,
@@ -3556,12 +3563,12 @@ namespace IngestTaskPlugin.Managers
                     if (taskinfo.TaskContent.ChannelId > 0)
                     {
                         Logger.Error("add task with policy channelbusy 1" + Store.GetConfictTaskInfo());
-                        SobeyRecException.ThrowSelfNoParam("", GlobalDictionary.GLOBALDICT_CODE_SELECTED_CHANNEL_IS_BUSY_OR_CAN_NOT_BE_SUITED_TO_PROGRAMME, Logger, null);
+                        SobeyRecException.ThrowSelfNoParam(backup?"backup task":"", GlobalDictionary.GLOBALDICT_CODE_SELECTED_CHANNEL_IS_BUSY_OR_CAN_NOT_BE_SUITED_TO_PROGRAMME, Logger, null);
                     }
                     else
                     {
                         Logger.Error("add task with policy channelbusy 2" + Store.GetConfictTaskInfo());
-                        SobeyRecException.ThrowSelfNoParam("", GlobalDictionary.GLOBALDICT_CODE_ALL_USEABLE_CHANNELS_ARE_BUSY, Logger, null);
+                        SobeyRecException.ThrowSelfNoParam(backup ? "backup task" : "", GlobalDictionary.GLOBALDICT_CODE_ALL_USEABLE_CHANNELS_ARE_BUSY, Logger, null);
                     }
                 }
                 else
@@ -3596,7 +3603,7 @@ namespace IngestTaskPlugin.Managers
                     dest.Tasklock = string.Empty;
                     dest.Taskid = -1;
                 })), true, taskinfo.TaskSource,
-                string.IsNullOrEmpty(ContentMeta) ? taskinfo.CaptureMeta : CaptureMeta,
+                string.IsNullOrEmpty(CaptureMeta) ? taskinfo.CaptureMeta : CaptureMeta,
                 string.IsNullOrEmpty(ContentMeta) ? ConverTaskContentMetaString(taskinfo.ContentMeta) : ContentMeta,
                 string.IsNullOrEmpty(MatiralMeta) ? ConverTaskMaterialMetaString(taskinfo.MaterialMeta) : MatiralMeta,
                 string.IsNullOrEmpty(PlanningMeta) ? ConverTaskPlanningMetaString(taskinfo.PlanningMeta) : PlanningMeta,
@@ -3672,7 +3679,7 @@ namespace IngestTaskPlugin.Managers
                             dest.Tasklock = string.Empty;
                             dest.Taskid = -1;
                         })), true, TaskSource.emMSVUploadTask,
-                        string.IsNullOrEmpty(ContentMeta) ? taskinfo.CaptureMeta : CaptureMeta,
+                        string.IsNullOrEmpty(CaptureMeta) ? taskinfo.CaptureMeta : CaptureMeta,
                         string.IsNullOrEmpty(ContentMeta) ? ConverTaskContentMetaString(taskinfo.ContentMeta) : ContentMeta,
                         string.IsNullOrEmpty(MatiralMeta) ? ConverTaskMaterialMetaString(taskinfo.MaterialMeta) : MatiralMeta,
                         string.IsNullOrEmpty(PlanningMeta) ? ConverTaskPlanningMetaString(taskinfo.PlanningMeta) : PlanningMeta,
@@ -3801,7 +3808,7 @@ namespace IngestTaskPlugin.Managers
                     dest.Tasklock = string.Empty;
                     dest.Taskid = -1;
                 })), true, taskinfo.TaskSource,
-                string.IsNullOrEmpty(ContentMeta) ? taskinfo.CaptureMeta : CaptureMeta,
+                string.IsNullOrEmpty(CaptureMeta) ? taskinfo.CaptureMeta : CaptureMeta,
                 string.IsNullOrEmpty(ContentMeta) ? ConverTaskContentMetaString(taskinfo.ContentMeta) : ContentMeta,
                 string.IsNullOrEmpty(MatiralMeta) ? ConverTaskMaterialMetaString(taskinfo.MaterialMeta) : MatiralMeta,
                 string.IsNullOrEmpty(PlanningMeta) ? ConverTaskPlanningMetaString(taskinfo.PlanningMeta) : PlanningMeta,
@@ -3959,7 +3966,10 @@ namespace IngestTaskPlugin.Managers
                 var fresponse = response1 as ResponseMessage<List<CaptureChannelInfoInterface>>;
                 if (fresponse != null && fresponse.Ext?.Count > 0)
                 {
-                    fresponse.Ext.RemoveAll(x => ChID != x.Id && (x.BackState == BackupFlagInterface.emNoAllowBackUp && ChID != -1));
+                    if (condition.BackupCHSel)
+                    {
+                        fresponse.Ext.RemoveAll(x => ChID != x.Id && (x.BackState == BackupFlagInterface.emNoAllowBackUp && ChID != -1));
+                    }
 
                     /// 如果存在onlybackup属性的通道，优先考虑
                     return fresponse.Ext.OrderByDescending(x => x.BackState).Select(y => y.Id).ToList();/// 如果存在onlybackup属性的通道，优先考虑
