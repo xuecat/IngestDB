@@ -435,7 +435,7 @@ namespace IngestDevicePlugin.Managers
                 //获得当前通道与信号源的映射
                 var channel2SignalSrcMaps = await Store.GetAllChannel2SignalSrcMapAsync();//获得当前通道与信号源的映射
 
-                var captureChannelInfos = captureChannels.Where(a => channelIds.Contains(a.Id) &&
+                var captureChannelInfos = captureChannels.Where(a => !channelIds.Contains(a.Id) &&
                                                                      arrMsvChannelState.Any(s => s.Channelid == a.Id &&
                                                                                                  s.Msvmode == (int)MSV_Mode.NETWORK &&
                                                                                                  string.IsNullOrEmpty(s.Kamatakiinfo)))
@@ -560,8 +560,12 @@ namespace IngestDevicePlugin.Managers
                 {
                     settingText = !string.IsNullOrWhiteSpace(userSetting.Settingtext) ? userSetting.Settingtext : userSetting.Settingtextlong;
                 }
-                var userHiddenChannels = settingText.Split('|');
-                return userHiddenChannels.Where(a => !string.IsNullOrWhiteSpace(a)).Select(a => Convert.ToInt32(a)).ToList();
+                if (!string.IsNullOrEmpty(settingText))
+                {
+                    var userHiddenChannels = settingText.Split('|');
+                    return userHiddenChannels.Where(a => !string.IsNullOrWhiteSpace(a)).Select(a => Convert.ToInt32(a)).ToList();
+                }
+                return new List<int>();
             }
             catch (Exception ex)
             {
