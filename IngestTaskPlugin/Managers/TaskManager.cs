@@ -92,6 +92,11 @@ namespace IngestTaskPlugin.Managers
         }
         public string ConverTaskMaterialMetaString(TaskMaterialMetaResponse re)
         {
+            if(re == null)
+            {
+                return null;
+            }
+
             XDocument xdoc = new XDocument(new XElement("MATERIAL"));
             var root = xdoc.Root;
 
@@ -372,6 +377,11 @@ namespace IngestTaskPlugin.Managers
         }
         public string ConverTaskPlanningMetaString(TaskPlanningResponse re)
         {
+            if(re == null)
+            {
+                return null;
+            }
+
             XDocument xdoc = new XDocument(new XElement("Planning"));
             var root = xdoc.Root;
 
