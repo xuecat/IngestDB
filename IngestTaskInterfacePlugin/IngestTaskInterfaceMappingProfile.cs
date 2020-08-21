@@ -2,6 +2,7 @@
 using IngestDBCore;
 using IngestTaskPlugin.Dto;
 using IngestTaskPlugin.Dto.OldResponse;
+using IngestTaskPlugin.Dto.Response;
 using System;
 using System.Collections.Generic;
 using System.Text;
@@ -14,8 +15,8 @@ namespace IngestTaskInterfacePlugin
         public IngestTaskInterfaceMappingProfile()
         {
             //CreateMap<TaskContent, TaskContentInterface>();
-            CreateMap<TaskContent, TaskContentInterface>().ReverseMap();
-            CreateMap<ResponseMessage<List<TaskContent>>, ResponseMessage<List<TaskContentInterface>>>().ReverseMap();
+            CreateMap<TaskContentResponse, TaskContentInterface>().ReverseMap();
+            CreateMap<ResponseMessage<List<TaskContentResponse>>, ResponseMessage<List<TaskContentInterface>>>().ReverseMap();
         }
     }
 }

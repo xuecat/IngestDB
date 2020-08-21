@@ -69,7 +69,7 @@ namespace IngestTaskPlugin.Stores
             return await query.Invoke(Context.VtrUploadtask).SingleOrDefaultAsync();
         }
 
-        public async Task<List<TResult>> GetVtrUploadTaskListAsync<TResult>(Func<IQueryable<VtrUploadtask>, IQueryable<TResult>> query, bool notrack = false)
+        public Task<List<TResult>> GetVtrUploadTaskListAsync<TResult>(Func<IQueryable<VtrUploadtask>, IQueryable<TResult>> query, bool notrack = false)
         {
             if (query == null)
             {
@@ -77,9 +77,9 @@ namespace IngestTaskPlugin.Stores
             }
             if (notrack)
             {
-                return await query.Invoke(Context.VtrUploadtask.AsNoTracking()).ToListAsync();
+                return query.Invoke(Context.VtrUploadtask.AsNoTracking()).ToListAsync();
             }
-            return await query.Invoke(Context.VtrUploadtask).ToListAsync();
+            return query.Invoke(Context.VtrUploadtask).ToListAsync();
         }
 
         public async Task<TResult> GetTaskBackupAsync<TResult>(Func<IQueryable<DbpTaskBackup>, IQueryable<TResult>> query, bool notrack = false)

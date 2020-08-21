@@ -416,19 +416,14 @@ namespace IngestDevicePlugin.Managers
 
         public virtual async Task<int> GetBestChannelIdBySignalIDAsync(int signalID, string userCode)
         {
-            var signalsrcs = (await Store.GetAllSignalsrcForRcdinAsync(true)).Where(a => a.Signalsrcid == signalID).ToList();
-            if (signalsrcs == null && signalsrcs.Count <= 0)
-            {
-                return 0;
-            }
             DateTime dtNow = DateTime.Now;
 
             if (_taskInterface != null)
             {
                 var channelIds = await GetUserHiddenChannels(userCode);     //获得该用户的隐藏通道
-                List<MSVChannelState> arrMsvChannelState =
-                    _mapper.Map<List<MSVChannelState>>(
-                        await Store.GetMsvchannelStateAsync(a => a, true)); //获得所有通道的状态，查看是否在做KAMATAKI任务
+                List<DbpMsvchannelState> arrMsvChannelState = await Store.GetMsvchannelStateAsync(async a => 
+                await a.Where(b => b.Devstate.GetValueOrDefault() != (int)Device_State.DISCONNECTTED).ToListAsync(),
+                    true); //获得所有通道的状态，查看是否在做KAMATAKI任务
                 //获得所有采集通道
                 List<CaptureChannelInfoResponse> captureChannels = await Store.GetAllCaptureChannelsAsync(0);
                 //获得将要和正在执行的任务
@@ -437,30 +432,24 @@ namespace IngestDevicePlugin.Managers
                 var taskContents = (willResponse as IngestDBCore.ResponseMessage<List<TaskContentInterface>>)?.Ext;
 
                 //获得当前任务
-                TaskInternals reCurrentTasks = new TaskInternals() { funtype = IngestDBCore.TaskInternals.FunctionType.CurrentTasks };
-                var currentResponse = await _taskInterface.Value.GetTaskCallBack(reCurrentTasks);
-                var currentTasks = (currentResponse as IngestDBCore.ResponseMessage<List<TaskContentInterface>>)?.Ext;
-                var curIds = currentTasks?.Select(a => a.nChannelID).ToList();
                 //获得当前通道与信号源的映射
                 var channel2SignalSrcMaps = await Store.GetAllChannel2SignalSrcMapAsync();//获得当前通道与信号源的映射
 
                 var captureChannelInfos = captureChannels.Where(a => channelIds.Contains(a.Id) &&
-                                                                     arrMsvChannelState.Any(s => s.nChannelID == a.Id &&
-                                                                                                 s.emMSVMode == MSV_Mode.NETWORK &&
-                                                                                                 s.emDevState != Device_State.DISCONNECTTED &&
-                                                                                                 string.IsNullOrEmpty(s.kamatakiInfo)) &&
-                                                                                                 curIds.Contains(a.Id))
+                                                                     arrMsvChannelState.Any(s => s.Channelid == a.Id &&
+                                                                                                 s.Msvmode == (int)MSV_Mode.NETWORK &&
+                                                                                                 string.IsNullOrEmpty(s.Kamatakiinfo)))
                                                          .Select(a => new ChannelScore { Id = a.Id }).ToList();
                 if (captureChannelInfos.Count > 0)
                     return 0;
                 foreach (var channel in captureChannelInfos)
                 {
                     var bIsExist = false;
-                    var task = taskContents?.FirstOrDefault(t => t != null && t.nChannelID == channel.Id);
+                    var task = taskContents?.FirstOrDefault(t => t != null && t.ChannelId == channel.Id);
                     if (task != null)
                     {
                         bIsExist = true;
-                        double totalSeconds = (DateTimeFormat.DateTimeFromString(task.strBegin) - dtNow).TotalSeconds;
+                        double totalSeconds = (DateTimeFormat.DateTimeFromString(task.Begin) - dtNow).TotalSeconds;
                         if (totalSeconds <= 10)//最近10s钟要运行的任务，那么将分值设置为负值
                         {
                             channel.Score = -1;
@@ -622,7 +611,7 @@ namespace IngestDevicePlugin.Managers
                 var tempList = captureChannels.Where(a => (a.nDeviceTypeID == (int)CaptureChannelType.emMsvChannel ||
                                                             a.nDeviceTypeID == (int)CaptureChannelType.emDefualtChannel) &&
                                               IsDeviceOk(a.nID, arrMsvChannelState) &&
-                                            taskContents.Any(x => x.emState == taskStateInterface.tsExecuting && x.nChannelID == a.nID))
+                                            taskContents.Any(x => x.State == taskStateInterface.tsExecuting && x.ChannelId == a.nID))
                                .Select(a => new ChannelScore { Id = a.nID }).ToList();
 
                 if (tempList.Count <= 0)
@@ -630,12 +619,12 @@ namespace IngestDevicePlugin.Managers
                 foreach (var item in tempList)
                 {
                     var bIsExist = false;
-                    var tasks = taskContents.Where(t => t != null && t.nChannelID == item.Id && t.nSignalID != signalID).ToList();
+                    var tasks = taskContents.Where(t => t != null && t.ChannelId == item.Id && t.SignalId != signalID).ToList();
                     if (tasks != null && tasks.Count > 0)
                     {
                         tasks.ForEach(t =>
                         {
-                            item.Score = (DateTimeFormat.DateTimeFromString(t.strBegin) - DateTime.Now).TotalSeconds;
+                            item.Score = (DateTimeFormat.DateTimeFromString(t.Begin) - DateTime.Now).TotalSeconds;
                         });
                     }
                     else

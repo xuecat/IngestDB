@@ -3993,21 +3993,31 @@ namespace IngestTaskPlugin.Managers
 
         public async Task<List<TResult>> GetWillBeginAndCapturingTasksAsync<TResult>()
         {
-            List<TaskContent> capturingTasks = await GetAllChannelCapturingTask<TaskContent>();//获得所有通道正在采集的任务.
-            List<TaskContent> willBeginTasks = await GetWillBeginTasksInLast2Hours<TaskContent>();
-            capturingTasks.AddRange(willBeginTasks);
-            return _mapper.Map<List<TResult>>( capturingTasks);
+            return _mapper.Map<List<TResult>>( await GetCapturingAndWillBeginTasksInLast1Hours<TResult>());
         }
 
-        private async Task<List<TSource>> GetWillBeginTasksInLast2Hours<TSource>()
+        private async Task<List<TSource>> GetCapturingAndWillBeginTasksInLast1Hours<TSource>()
         {
             var now = DateTime.Now;
-            var dt = now.AddHours(2);
-            var tasks = await Store.GetTaskListAsync(a => a.Where(x => x.State == (int)taskState.tsReady && x.NewBegintime > now && x.NewBegintime < dt)
-                                                           .GroupBy(x => x.Channelid), true);
+            var dt = now.AddHours(1);
+            var tasks = await Store.GetTaskListAsync(a => a.Where(x => (x.State == (int)taskState.tsReady && x.NewBegintime > now && x.NewBegintime < dt)
+                                                                        || x.State == (int)taskState.tsExecuting || x.State == (int)taskState.tsManuexecuting
+                                                                        )
+                                                           .GroupBy(x => x.State), true);
             if (tasks.Count > 0)
             {
-                return _mapper.Map<List<TSource>>(tasks.Select(a => a.MaxItem(x => x.Starttime)));
+                List<DbpTask> lsttask = new List<DbpTask>();
+                foreach (var item in tasks)
+                {
+                    if (item.Key == (int)taskState.tsReady)
+                    {
+                        lsttask.AddRange(item.GroupBy(x => x.Channelid).Select(a => a.MinItem(x => x.Starttime)));
+                    }
+                    else
+                        lsttask.AddRange(item.Select(a =>a));
+                    
+                }
+                return _mapper.Map<List<TSource>>(lsttask);
             }
             return new List<TSource>();
         }
@@ -4016,7 +4026,8 @@ namespace IngestTaskPlugin.Managers
         {
             var now = DateTime.Now;
             return _mapper.Map<List<TSource>>(await Store.GetTaskListAsync(
-                a => a.Where(x => x.State == (int)taskState.tsReady && x.NewBegintime < DateTime.MaxValue && x.NewEndtime > now), true));
+                a => a.Where(x => x.State == (int)taskState.tsReady && x.State!=(int)taskState.tsDelete
+                && x.NewBegintime < now && x.NewEndtime > now), true));
         }
 
     }
