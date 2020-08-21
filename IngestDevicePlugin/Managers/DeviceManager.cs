@@ -440,7 +440,7 @@ namespace IngestDevicePlugin.Managers
                                                                                                  s.Msvmode == (int)MSV_Mode.NETWORK &&
                                                                                                  string.IsNullOrEmpty(s.Kamatakiinfo)))
                                                          .Select(a => new ChannelScore { Id = a.Id }).ToList();
-                if (captureChannelInfos.Count > 0)
+                if (captureChannelInfos.Count <= 0)
                     return 0;
                 foreach (var channel in captureChannelInfos)
                 {
@@ -450,6 +450,7 @@ namespace IngestDevicePlugin.Managers
                     {
                         bIsExist = true;
                         double totalSeconds = (DateTimeFormat.DateTimeFromString(task.Begin) - dtNow).TotalSeconds;
+
                         if (totalSeconds <= 10)//最近10s钟要运行的任务，那么将分值设置为负值
                         {
                             channel.Score = -1;
@@ -493,7 +494,8 @@ namespace IngestDevicePlugin.Managers
 
                 captureChannelInfos = captureChannelInfos.OrderByDescending(a => a.Score).ToList();
 
-                return captureChannelInfos.Where(a => a.Score >= 0).Select(a => a.Id).ToList()?[0] ?? 0;
+                var captureInfos = captureChannelInfos.Where(a => a.Score >= 0).Select(a => a.Id).ToList();
+                return captureInfos.Count > 0 ? captureInfos[0] : 0;
             }
             return 0;
         }
