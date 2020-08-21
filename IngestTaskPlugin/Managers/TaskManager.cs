@@ -3993,13 +3993,13 @@ namespace IngestTaskPlugin.Managers
 
         public async Task<List<TResult>> GetWillBeginAndCapturingTasksAsync<TResult>()
         {
-            return _mapper.Map<List<TResult>>( await GetCapturingAndWillBeginTasksInLast1Hours<TResult>());
+            return _mapper.Map<List<TResult>>( await GetCapturingAndWillBeginTasksInLast2Hours<TResult>());
         }
 
-        private async Task<List<TSource>> GetCapturingAndWillBeginTasksInLast1Hours<TSource>()
+        private async Task<List<TSource>> GetCapturingAndWillBeginTasksInLast2Hours<TSource>()
         {
             var now = DateTime.Now;
-            var dt = now.AddHours(1);
+            var dt = now.AddHours(2);
             var tasks = await Store.GetTaskListAsync(a => a.Where(x => (x.State == (int)taskState.tsReady && x.NewBegintime > now && x.NewBegintime < dt)
                                                                         || x.State == (int)taskState.tsExecuting || x.State == (int)taskState.tsManuexecuting
                                                                         )
