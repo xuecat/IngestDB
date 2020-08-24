@@ -266,7 +266,7 @@ namespace IngestTaskPlugin.Stores
         {
             var date = DateTime.Now.AddSeconds(600);
 
-            var fdate = date.AddSeconds(-86400);
+            var fdate = DateTime.Now.AddSeconds(-86390);//提前10秒
 
             return await Context.DbpTask.AsNoTracking().Where(a => string.IsNullOrEmpty(a.Tasklock)
             && ((a.NewEndtime < date

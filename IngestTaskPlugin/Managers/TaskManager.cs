@@ -1986,8 +1986,9 @@ namespace IngestTaskPlugin.Managers
                 {
                     item.Tasktype = (int)TaskType.TT_NORMAL;
                     item.SyncState = (int)syncState.ssSync;
-                    item.Endtime = item.Starttime.AddDays(1).AddSeconds(-1);
-                    item.NewEndtime = item.Endtime;
+                    item.Endtime = DateTime.Now;
+                    item.NewEndtime = DateTime.Now;
+                    Logger.Info($"need finishtask {item.Tasktype} {item.Endtime} {item.SyncState}");
                 }
             }
 

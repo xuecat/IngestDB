@@ -812,6 +812,12 @@ namespace IngestDevicePlugin.Controllers.v1
                 } else
                 {
                     response.nChnID = await _deviceManage.GetBestPreviewChnForSignalAsync(nSignalID);
+                    if (response.nChnID <= 0)
+                    {
+                        response.errStr = "channel ID less than 0.";
+                        response.bRet = false;
+                        return response;
+                    }
                 }
             } catch(Exception e)
             {

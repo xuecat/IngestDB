@@ -586,16 +586,17 @@ namespace IngestDevicePlugin.Managers
 
         public virtual async Task<int> GetBestPreviewChnForSignalAsync(int signalID)
         {
-            var signalSrcInfos = _mapper.Map<List<SignalSrcInfo>>(await Store.GetAllSignalsrcForRcdinAsync(true));
+            var captureChannels = await GetChannelsByProgrammeIdAsync<CaptureChannelInfo>(signalID);//获得所有采集通道
 
-            if (signalSrcInfos == null || signalSrcInfos.Count <= 0)
+            if (captureChannels == null)
             {
+                Logger.Error("GetBestPreviewChnForSignalAsync GetChannelsByProgrammeIdAsync error");
                 return 0;
             }
-
-            var captureChannels = await GetChannelsByProgrammeIdAsync<CaptureChannelInfo>(signalID);//获得所有采集通道
             //获得所有通道的状态，查看是否在做KAMATAKI任务
-            var arrMsvChannelState = await GetAllChannelStateAsync<MSVChannelState>();
+            var arrMsvChannelState = (await GetAllChannelStateAsync<MSVChannelState>()).Where(a => 
+            a.emMSVMode == MSV_Mode.NETWORK && a.emDevState != Device_State.DISCONNECTTED).Select(x=> x.nChannelID).ToList();
+
             var channel2SignalSrcMaps = await Store.GetAllChannel2SignalSrcMapAsync();//获得当前通道与信号源的映射
 
             var ids = captureChannels.Select(a => a.nID).ToList();
@@ -607,18 +608,21 @@ namespace IngestDevicePlugin.Managers
                 return map.nChannelID;
             }
 
-
             if (_taskInterface != null)
             {
                 TaskInternals re = new TaskInternals() { funtype = IngestDBCore.TaskInternals.FunctionType.WillBeginAndCapturingTasks };
                 var taskResponse = await _taskInterface.Value.GetTaskCallBack(re);
                 var taskContents = (taskResponse as IngestDBCore.ResponseMessage<List<TaskContentInterface>>).Ext;
                 //需进行测试
-                var tempList = captureChannels.Where(a => (a.nDeviceTypeID == (int)CaptureChannelType.emMsvChannel ||
+                var selectlist = captureChannels.Where(a => (a.nDeviceTypeID == (int)CaptureChannelType.emMsvChannel ||
                                                             a.nDeviceTypeID == (int)CaptureChannelType.emDefualtChannel) &&
-                                              IsDeviceOk(a.nID, arrMsvChannelState) &&
-                                            taskContents.Any(x => x.State == taskStateInterface.tsExecuting && x.ChannelId == a.nID))
-                               .Select(a => new ChannelScore { Id = a.nID }).ToList();
+                                              arrMsvChannelState.Contains(a.nID));
+                if (taskContents !=null && taskContents.Count > 0)
+                {
+                    selectlist = selectlist.Where(a => taskContents.Any(x => x.State != taskStateInterface.tsExecuting && x.ChannelId == a.nID));
+                }
+
+                var tempList = selectlist.Select(a => new ChannelScore { Id = a.nID }).ToList();
 
                 if (tempList.Count <= 0)
                     return 0;
