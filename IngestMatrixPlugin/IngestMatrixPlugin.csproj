@@ -35,4 +35,8 @@
     <ProjectReference Include="..\IngestDBCore\IngestDBCore.csproj" />
   </ItemGroup>
 
+  <Target Name="PreBuild" BeforeTargets="PreBuildEvent">
+    <Exec Command="" />
+  </Target>
+
 </Project>

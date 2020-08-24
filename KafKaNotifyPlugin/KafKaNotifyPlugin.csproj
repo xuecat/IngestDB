@@ -9,6 +9,10 @@
     <OutputPath>..\Bin\netcoreapp2.1\Plugin</OutputPath>
   </PropertyGroup>
 
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|AnyCPU'">
+    <OutputPath>..\BinU\netcoreapp2.1\Plugin</OutputPath>
+  </PropertyGroup>
+
   <ItemGroup>
     <ProjectReference Include="..\IngestDBCore\IngestDBCore.csproj" />
   </ItemGroup>
