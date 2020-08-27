@@ -8,6 +8,7 @@ using IngestDevicePlugin.Models;
 using Microsoft.EntityFrameworkCore;
 using ProgrammeInfoDto = IngestDevicePlugin.Dto.Response.ProgrammeInfoResponse;
 using CaptureChannelInfoDto = IngestDevicePlugin.Dto.Response.CaptureChannelInfoResponse;
+using DeviceInfoDto = IngestDevicePlugin.Dto.Response.DeviceInfoResponse;
 using IngestDBCore;
 using IngestDevicePlugin.Dto.Enum;
 using IngestDevicePlugin.Dto.Response;
@@ -119,6 +120,8 @@ namespace IngestDevicePlugin.Stores
             return await Context.DbpMatrixinfo.AsNoTracking().AnyAsync(a => a.Matrixid == 2 && a.Matrixtypeid != 2);//老版本NULL MATRIX是6，现在是2，难道老版本一直返回的是有矩阵？
 
         }
+
+
         
         public async Task<List<ProgrammeInfoDto>> GetAllProgrammeInfoAsync()
         {
@@ -266,7 +269,27 @@ namespace IngestDevicePlugin.Stores
             }
             return query;
         }
-                
+
+        public async Task<DeviceInfoDto> GetDeviceInfoByIdAsync(int deviceid)
+        {
+            return await Context.DbpCapturedevice.Where(device => device.Cpdeviceid == deviceid)
+                .Join(Context.DbpCapturechannels,
+                        devicea => devicea.Cpdeviceid,
+                        channela => channela.Cpdeviceid,
+                        (devicea, channela) => new DeviceInfoDto()
+                        {
+                            ChannelId = channela.Channelid,
+                            ChannelIndex = channela.Channelindex.GetValueOrDefault(),
+                            ChannelName = channela.Channelname,
+                            Id = devicea.Cpdeviceid,
+                            DeviceName = devicea.Devicename,
+                            DeviceTypeId = devicea.Devicetypeid,
+                            Ip = devicea.Ipaddress,
+                            OrderCode = devicea.Ordercode.GetValueOrDefault()
+                        }).SingleOrDefaultAsync();
+        }
+
+
         public async Task<int> GetMatrixChannelBySignalAsync(int channelid)
         {
             return await Context.DbpRcdoutdesc.Where(rcdout => rcdout.Channelid == channelid)

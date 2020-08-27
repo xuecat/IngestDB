@@ -12,6 +12,7 @@ using IngestMatrixPlugin.Dto.Vo;
 using IngestMatrixPlugin.Models.DB;
 using IngestMatrixPlugin.Stores;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.DependencyInjection;
 using Newtonsoft.Json;
 using Sobey.Core.Log;
 using MatrixOldResponseMessage = IngestMatrixPlugin.Dto.OldResponse.v1.MatrixOldResponseMessage;
@@ -20,12 +21,12 @@ namespace IngestMatrixPlugin.Managers
 {
     public class MatrixManager
     {
-        public MatrixManager(IMatrixStore store, IMapper mapper, RestClient client, IIngestDeviceInterface device, NotifyClock clock)
+        public MatrixManager(IMatrixStore store, IMapper mapper, RestClient client, IServiceProvider services, NotifyClock clock)
         {
             _restClient = client;
             Store = store;
             _mapper = mapper ?? throw new ArgumentNullException(nameof(mapper));
-            _deviceInterface = device;
+            _deviceInterface = new Lazy<IIngestDeviceInterface>(() => services.GetRequiredService<IIngestDeviceInterface>()); ;
             _clock = clock;
         }
 
@@ -38,7 +39,7 @@ namespace IngestMatrixPlugin.Managers
         /// <summary> 数据映射器 </summary>
         protected IMapper _mapper { get; }
 
-        private IIngestDeviceInterface _deviceInterface { get; }
+        private Lazy<IIngestDeviceInterface> _deviceInterface { get; }
 
         private readonly NotifyClock _clock;
 
@@ -118,7 +119,6 @@ namespace IngestMatrixPlugin.Managers
                 //matrixinfo.Comportbaud pbaud  pserialport comport
 
                 // 根据矩阵类型ID获得矩阵类型名称
-                Logger.Info("Get the matrix name from matrix type id!! ");
                 var strMatrixTypeName = await Store.QueryMatrixtypeinfo(a => a.Where(x => x.Matrixtypeid == matrixinfo.Matrixtypeid)
                                                                            .Select(x => x.Matrixtypename)
                                                                            .SingleOrDefaultAsync(), true);
@@ -173,23 +173,19 @@ namespace IngestMatrixPlugin.Managers
                     int msvport = -1;
                     if (_deviceInterface != null)
                     {
-                        var response = await _deviceInterface.GetDeviceCallBack(new DeviceInternals()
+                        var response = await _deviceInterface.Value.GetDeviceCallBack(new DeviceInternals()
                         {
-                            funtype = IngestDBCore.DeviceInternals.FunctionType.AllCaptureDevice
+                            funtype = IngestDBCore.DeviceInternals.FunctionType.DeviceInfoByID,
+                            DeviceId = dbpRcdoutdesc.Rcdeviceid
                         });
 
-                        var deviceInfos = response as ResponseMessage<List<CaptureDeviceInfoInterface>>;
+                        var deviceInfos = response as ResponseMessage<DeviceInfoInterface>;
 
-                        msvip = deviceInfos.Ext?.FirstOrDefault(x=>x.Id == dbpRcdoutdesc.Rcdeviceid)?.Ip;
-
-                        response = await _deviceInterface.GetDeviceCallBack(new DeviceInternals()
+                        if (deviceInfos != null)
                         {
-                            funtype = IngestDBCore.DeviceInternals.FunctionType.AllCaptureChannels
-                        });
-
-                        var channelsInfos = response as ResponseMessage<List<CaptureChannelInfoInterface>>;
-                        msvport = (int)channelsInfos.Ext?.FirstOrDefault(x => x.CpDeviceId == dbpRcdoutdesc.Rcdeviceid)?.ChannelIndex;
-
+                            msvip = deviceInfos.Ext.Ip;
+                            msvport = deviceInfos.Ext.ChannelIndex;
+                        }
                     }
 
                     Logger.Error($"call SwitchInOutAsync, msvip: {msvip},msvport:{msvport}, dbpRcdindesc.Ipaddress:{dbpRcdindesc.Ipaddress}.");
@@ -226,12 +222,10 @@ namespace IngestMatrixPlugin.Managers
                     return false;//切换失败，直接返回
                 }
 
-                Logger.Info($"matrix service return is :{msg.nCode}");
-                Logger.Info($"matrix service return is :{msg.message}");
+                Logger.Info($"matrix service return is :{msg.nCode} {msg.message}");
             }
             //离开循环之后，已完成矩阵切换，开始更新路由表
-            Logger.Info("switching successfully,so updating relative database...");
-            Logger.Info("begin to update rout infomation...");
+            Logger.Info("switching successfully,so updating relative database..begin to update rout infomation...");
 
             if (await Store.AddOrUpdateMatrixrout(_mapper.Map<List<Models.DB.DbpMatrixrout>>(routList), false) <= 0)
             {

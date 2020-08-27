@@ -7,6 +7,7 @@ using System.Text;
 using System.Threading.Tasks;
 using ProgrammeInfoDto = IngestDevicePlugin.Dto.Response.ProgrammeInfoResponse;
 using CaptureChannelInfoDto = IngestDevicePlugin.Dto.Response.CaptureChannelInfoResponse;
+using DeviceInfoDto = IngestDevicePlugin.Dto.Response.DeviceInfoResponse;
 using IngestDevicePlugin.Dto.Response;
 using IngestDevicePlugin.Dto.OldResponse;
 
@@ -29,6 +30,7 @@ namespace IngestDevicePlugin.Stores
         Task<DbpChannelRecmap> GetChannelUnitMap(int channel);
         Task<int> GetMatrixChannelBySignalAsync(int channelid);
         Task<int> GetBackUpSignalInfoByID(int srgid);
+        Task<DeviceInfoDto> GetDeviceInfoByIdAsync(int deviceid);
         
 
         /// <summary> 获取输入端口与信号源 </summary>

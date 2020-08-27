@@ -15,6 +15,7 @@ namespace IngestDBCore
             AllChannelUnitMap,
             ChannelUnitMap,
             BackSignalByID,
+            DeviceInfoByID,
             SignalInfoByID,
             CaptureTemplateIDBySignal,
             AllChannelState,
@@ -29,6 +30,7 @@ namespace IngestDBCore
 
         public int SrcId { get; set; }
         public int ChannelId { get; set; }
+        public int DeviceId { get; set; }
 
         public int Status { get; set; }
     }
@@ -87,6 +89,28 @@ namespace IngestDBCore
 
         // 分组ID
         public int GroupId { get; set; }    // Add by chenzhi 2103-07-04
+    }
+    public class DeviceInfoInterface
+    {
+        /// <summary>设备Id</summary>
+        public int Id { get; set; }
+        /// <summary>通道id</summary>
+        public int ChannelId { get; set; }
+        /// <summary>通道名</summary>
+        public string ChannelName { get; set; }
+        /// <summary>设备类型 当前为0</summary>
+        public int DeviceTypeId { get; set; }
+
+        /// <summary>设备名称</summary>
+        public string DeviceName { get; set; }
+
+        /// <summary>IP</summary>
+        public string Ip { get; set; }
+
+        public int ChannelIndex { get; set; }
+
+        /// <summary>序号</summary>
+        public int OrderCode { get; set; }
     }
     public enum ProgrammeTypeInterface
     {
