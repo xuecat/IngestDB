@@ -473,7 +473,16 @@ namespace IngestDevicePlugin.Controllers.v1
             try
             {
                 response.arGPIDeviceMapInfo = await _deviceManage.GetGPIMapInfoByGPIIDAsync<GPIDeviceMapInfo>(nGPIID);
+                if (response.arGPIDeviceMapInfo == null || response.arGPIDeviceMapInfo.Count <= 0)
+                {
+                    response.bRet = false;
+                    response.errStr = "not find";
+                    response.nVaildDataCount = 0;
+                    return response;
+                }
                 response.nVaildDataCount = response.arGPIDeviceMapInfo.Count;
+
+                
             } catch(Exception e)
             {
                 if(e is SobeyRecException se)//sobeyexcep会自动打印错误
@@ -778,6 +787,7 @@ namespace IngestDevicePlugin.Controllers.v1
             response.nChannelID = -1;
             try
             {
+                Logger.Info($"GetBestChannelIDBySignalID {nSignalID}");
                 response.nChannelID = await _deviceManage.GetBestChannelIdBySignalIDAsync(nSignalID, strUserCode);
             } catch(Exception e)
             {

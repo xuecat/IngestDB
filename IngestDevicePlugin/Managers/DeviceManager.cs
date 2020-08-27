@@ -440,6 +440,9 @@ namespace IngestDevicePlugin.Managers
                                                                                                  s.Msvmode == (int)MSV_Mode.NETWORK &&
                                                                                                  string.IsNullOrEmpty(s.Kamatakiinfo)))
                                                          .Select(a => new ChannelScore { Id = a.Id }).ToList();
+
+                Logger.Info($"GetBestChannelIdBySignalIDAsync {string.Join(",", captureChannelInfos)}");
+
                 if (captureChannelInfos.Count <= 0)
                     return 0;
                 foreach (var channel in captureChannelInfos)
