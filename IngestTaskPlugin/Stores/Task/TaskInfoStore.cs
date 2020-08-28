@@ -2029,6 +2029,9 @@ namespace IngestTaskPlugin.Stores
             {
                 DateTime NewBeginTime = task.NewBegintime;
                 DateTime NewEndTime = task.NewEndtime;
+
+
+
                 bool bIsValid = true;
                 if (bPerodic2Next) //置为下一次的执行时间
                     bIsValid = SetPerodicTask2NextExectueTime(task.Starttime, task.Endtime, task.Category, ref NewBeginTime, ref NewEndTime);
@@ -2040,13 +2043,14 @@ namespace IngestTaskPlugin.Stores
                     bIsValid = false;
                 }
 
+                Logger.Info($"ModifyTask {task.Taskid} {bIsValid} {NewBeginTime}");
                 if (bIsValid)
                 {
                     task.NewBegintime = NewBeginTime;
                     task.NewEndtime = NewEndTime;
                     //if (bPerodic2Next)
                     //{
-                    task.Starttime = NewBeginTime;
+                    //task.Starttime = NewBeginTime;
                     //}
                     //else
                     //    task.Starttime = ;
