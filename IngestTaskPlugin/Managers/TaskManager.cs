@@ -2032,6 +2032,8 @@ namespace IngestTaskPlugin.Managers
 
             var taskinfo = await Store.GetTaskAsync(a => a.Where(b => b.Taskid == req.TaskID));
 
+            Logger.Info($"CompleteSynTasks {req.TaskID} {req.TaskState} {taskinfo.State} {req.SynState} {taskinfo.SyncState}");
+
             if (taskinfo == null)
             {
                 Logger.Error("CompleteSynTasks no find" + req.TaskID);

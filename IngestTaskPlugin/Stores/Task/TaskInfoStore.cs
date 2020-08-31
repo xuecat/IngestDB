@@ -1527,13 +1527,12 @@ namespace IngestTaskPlugin.Stores
                         lst = await Context.DbpTask.AsNoTracking().Where(a =>
                         ((a.Starttime >= dtDayBegin && a.Starttime <= dtDayEnd)
                         || (a.Endtime >= dtDayBegin && a.Endtime <= dtDayEnd)
-                        || (a.Starttime <= dtDayBegin && a.Endtime >= dtDayEnd)
+                        || (a.Starttime <= dtDayBegin && a.Endtime >= dtDayEnd))
                         && (a.Category.Contains($"W{Week}+") || a.Category.Contains($"W{ProvWeek}+")
                             || a.Category.Contains($"M{MDay}+") || a.Category.Contains($"M{ProvMDay}+")
                             || a.Category.Contains($"D") || a.Category.Contains("A"))
                         && (a.DispatchState == (int)dispatchState.dpsNotDispatch || a.DispatchState == (int)dispatchState.dpsDispatched || a.DispatchState == (int)dispatchState.dpsInvalid || a.DispatchState == (int)dispatchState.dpsRedispatch)
-                        && (a.State == (int)taskState.tsReady || a.State == (int)taskState.tsComplete || a.State == (int)taskState.tsPause || a.State == (int)taskState.tsInvaild || a.State == (int)taskState.tsExecuting))
-                        || (a.Starttime >= subDays && a.Starttime <= addDyas && a.State == (int)taskState.tsExecuting)
+                        && (a.State == (int)taskState.tsReady || a.State == (int)taskState.tsComplete || a.State == (int)taskState.tsPause || a.State == (int)taskState.tsInvaild || a.State == (int)taskState.tsExecuting)
                         /*
                          * @breif 老版本会对手动任务，open任务，tsExecuting附加上，不明白为啥，直接全部返回，我这里
                          */
@@ -1544,13 +1543,12 @@ namespace IngestTaskPlugin.Stores
                             lst = await Context.DbpTaskBackup.AsNoTracking().Where(a =>
                                ((a.Starttime >= dtDayBegin && a.Starttime <= dtDayEnd)
                                || (a.Endtime >= dtDayBegin && a.Endtime <= dtDayEnd)
-                               || (a.Starttime <= dtDayBegin && a.Endtime >= dtDayEnd)
+                               || (a.Starttime <= dtDayBegin && a.Endtime >= dtDayEnd))
                                && (a.Category.Contains($"W{Week}+") || a.Category.Contains($"W{ProvWeek}+")
                                    || a.Category.Contains($"M{MDay}+") || a.Category.Contains($"M{ProvMDay}+")
                                    || a.Category.Contains($"D") || a.Category.Contains("A"))
                                && (a.DispatchState == (int)dispatchState.dpsNotDispatch || a.DispatchState == (int)dispatchState.dpsDispatched || a.DispatchState == (int)dispatchState.dpsInvalid || a.DispatchState == (int)dispatchState.dpsRedispatch)
-                               && (a.State == (int)taskState.tsReady || a.State == (int)taskState.tsComplete || a.State == (int)taskState.tsPause || a.State == (int)taskState.tsInvaild || a.State == (int)taskState.tsExecuting))
-                               || (a.Starttime >= subDays && a.Starttime <= addDyas && a.State == (int)taskState.tsExecuting)
+                               && (a.State == (int)taskState.tsReady || a.State == (int)taskState.tsComplete || a.State == (int)taskState.tsPause || a.State == (int)taskState.tsInvaild || a.State == (int)taskState.tsExecuting)
                            /*
                             * @breif 老版本会对手动任务，open任务，tsExecuting附加上，不明白为啥，直接全部返回，我这里
                             */
@@ -1598,13 +1596,12 @@ namespace IngestTaskPlugin.Stores
                         lst = await Context.DbpTask.AsNoTracking().Where(a =>
                         ((a.Starttime >= dtDayBegin && a.Starttime <= dtDayEnd)
                         || (a.Endtime >= dtDayBegin && a.Endtime <= dtDayEnd)
-                        || (a.Starttime <= dtDayBegin && a.Endtime >= dtDayEnd)
+                        || (a.Starttime <= dtDayBegin && a.Endtime >= dtDayEnd))
                         && (a.Category.Contains($"W{Week}+") || a.Category.Contains($"W{ProvWeek}+") || a.Category.Contains($"W{NextWeekly}+")
                             || a.Category.Contains($"M{MDay}+") || a.Category.Contains($"M{ProvMDay}+") || a.Category.Contains($"M{NextMonthDay}+")
                             || a.Category.Contains($"D") || a.Category.Contains("A"))
                         && (a.DispatchState == (int)dispatchState.dpsNotDispatch || a.DispatchState == (int)dispatchState.dpsDispatched || a.DispatchState == (int)dispatchState.dpsInvalid || a.DispatchState == (int)dispatchState.dpsRedispatch)
-                        && (a.State == (int)taskState.tsReady || a.State == (int)taskState.tsComplete || a.State == (int)taskState.tsPause || a.State == (int)taskState.tsInvaild || a.State == (int)taskState.tsExecuting))
-                        || (a.Starttime >= subDays && a.Starttime <= addDyas && a.State == (int)taskState.tsExecuting)
+                        && (a.State == (int)taskState.tsReady || a.State == (int)taskState.tsComplete || a.State == (int)taskState.tsPause || a.State == (int)taskState.tsInvaild || a.State == (int)taskState.tsExecuting)
                         /*
                          * @breif 老版本会对手动任务，open任务，tsExecuting附加上，不明白为啥，直接全部返回，我这里
                          */
@@ -1615,13 +1612,12 @@ namespace IngestTaskPlugin.Stores
                             lst = await Context.DbpTaskBackup.AsNoTracking().Where(a =>
                                ((a.Starttime >= dtDayBegin && a.Starttime <= dtDayEnd)
                                || (a.Endtime >= dtDayBegin && a.Endtime <= dtDayEnd)
-                               || (a.Starttime <= dtDayBegin && a.Endtime >= dtDayEnd)
+                               || (a.Starttime <= dtDayBegin && a.Endtime >= dtDayEnd))
                                && (a.Category.Contains($"W{Week}+") || a.Category.Contains($"W{ProvWeek}+") || a.Category.Contains($"W{NextWeekly}+")
                                    || a.Category.Contains($"M{MDay}+") || a.Category.Contains($"M{ProvMDay}+") || a.Category.Contains($"M{NextMonthDay}+")
                                    || a.Category.Contains($"D") || a.Category.Contains("A"))
                                && (a.DispatchState == (int)dispatchState.dpsNotDispatch || a.DispatchState == (int)dispatchState.dpsDispatched || a.DispatchState == (int)dispatchState.dpsInvalid || a.DispatchState == (int)dispatchState.dpsRedispatch)
-                               && (a.State == (int)taskState.tsReady || a.State == (int)taskState.tsComplete || a.State == (int)taskState.tsPause || a.State == (int)taskState.tsInvaild || a.State == (int)taskState.tsExecuting))
-                               || (a.Starttime >= subDays && a.Starttime <= addDyas && a.State == (int)taskState.tsExecuting)
+                               && (a.State == (int)taskState.tsReady || a.State == (int)taskState.tsComplete || a.State == (int)taskState.tsPause || a.State == (int)taskState.tsInvaild || a.State == (int)taskState.tsExecuting)
                            /*
                             * @breif 老版本会对手动任务，open任务，tsExecuting附加上，不明白为啥，直接全部返回，我这里
                             */
@@ -2009,6 +2005,7 @@ namespace IngestTaskPlugin.Stores
 
         public async Task<DbpTask> ModifyTask(DbpTask task, bool bPerodic2Next, bool autoupdate, bool savechange, string CaptureMeta, string ContentMeta, string MatiralMeta, string PlanningMeta)
         {
+            Logger.Info($"ModifyTask {task.Taskid} {task.State} {task.SyncState} {task.Starttime}");
             if (task.Tasktype != (int)TaskType.TT_PERIODIC)
             {
                 task.Category = "A";
@@ -2030,8 +2027,7 @@ namespace IngestTaskPlugin.Stores
                 DateTime NewBeginTime = task.NewBegintime;
                 DateTime NewEndTime = task.NewEndtime;
 
-
-
+               
                 bool bIsValid = true;
                 if (bPerodic2Next) //置为下一次的执行时间
                     bIsValid = SetPerodicTask2NextExectueTime(task.Starttime, task.Endtime, task.Category, ref NewBeginTime, ref NewEndTime);
@@ -2043,14 +2039,18 @@ namespace IngestTaskPlugin.Stores
                     bIsValid = false;
                 }
 
-                Logger.Info($"ModifyTask {task.Taskid} {bIsValid} {NewBeginTime}");
+                Logger.Info($"ModifyTask {task.Taskid} {bIsValid} {task.State} {NewBeginTime}");
                 if (bIsValid)
                 {
                     task.NewBegintime = NewBeginTime;
                     task.NewEndtime = NewEndTime;
                     //if (bPerodic2Next)
                     //{
-                    //task.Starttime = NewBeginTime;
+                    if (bPerodic2Next)
+                    {
+                        task.Starttime = NewBeginTime;
+                    }
+                    
                     //}
                     //else
                     //    task.Starttime = ;
