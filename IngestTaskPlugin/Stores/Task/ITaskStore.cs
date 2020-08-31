@@ -82,6 +82,10 @@ namespace IngestTaskPlugin.Stores
         List<DateTime> GetDateTimeFromString(string str);
         bool IsInvalidPerodicTask(string strClassify, DateTime begin);
 
+        Task<List<TResult>> GetTaskErrorInfoListAsync<TResult>(Func<IQueryable<DbpTaskErrorinfo>, IQueryable<TResult>> query, bool notrack = false);
+
+        Task<bool> AddTaskErrorInfo(DbpTaskErrorinfo taskSource);
+
         Task<bool> AddTaskSource(DbpTaskSource taskSource);
 
         Task<bool> AddPolicyTask(List<DbpPolicytask> policytasks);
@@ -95,5 +99,6 @@ namespace IngestTaskPlugin.Stores
         
         Task UpdateTaskMetaDataAsync(int taskid, MetaDataType type, string metadata, bool submitFlag);
         Task UpdateTaskMetaDataListAsync(List<Dto.Request.SubmitMetadata> metadatas);
+        
     }
 }

@@ -2234,12 +2234,14 @@ namespace IngestTaskPlugin.Managers
 
                     submitTaskSource.Add(new DbpTaskSource() { Taskid = task.nTaskId, Tasksource = (int)TaskSource.emVTRUploadTask });
 
-                    List<DbpMetadatapolicy> dbpMetadatapolicies = await VtrStore.GetMetadatapoliciesByUserCode(task.strUserCode);
+                    /*policy现在就一个，写死*/
+                    submitPolicy.Add(new DbpPolicytask() { Policyid= 1, Taskid= task.nTaskId });
+                    //List<DbpMetadatapolicy> dbpMetadatapolicies = await VtrStore.GetMetadatapoliciesByUserCode(task.strUserCode);
                     
-                    foreach (DbpMetadatapolicy policy in dbpMetadatapolicies)
-                    {
-                        submitPolicy.Add(new DbpPolicytask() { Policyid = policy.Policyid, Taskid = task.nTaskId });
-                    }
+                    //foreach (DbpMetadatapolicy policy in dbpMetadatapolicies)
+                    //{
+                    //    submitPolicy.Add(new DbpPolicytask() { Policyid = policy.Policyid, Taskid = task.nTaskId });
+                    //}
                 }
                 else
                 {

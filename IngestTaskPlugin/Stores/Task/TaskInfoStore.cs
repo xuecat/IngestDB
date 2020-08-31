@@ -2924,6 +2924,29 @@ namespace IngestTaskPlugin.Stores
             return false;
         }
 
+        public async Task<bool> AddTaskErrorInfo(DbpTaskErrorinfo taskSource)
+        {
+            if (taskSource != null)
+            {
+                await Context.DbpTaskErrorinfo.AddAsync(taskSource);
+                return await Context.SaveChangesAsync() > 0;
+            }
+            return false;
+        }
+
+        public async Task<List<TResult>> GetTaskErrorInfoListAsync<TResult>(Func<IQueryable<DbpTaskErrorinfo>, IQueryable<TResult>> query, bool notrack = false)
+        {
+            if (query == null)
+            {
+                throw new ArgumentNullException(nameof(query));
+            }
+            if (notrack)
+            {
+                return await query.Invoke(Context.DbpTaskErrorinfo.AsNoTracking()).ToListAsync();
+            }
+            return await query.Invoke(Context.DbpTaskErrorinfo).ToListAsync();
+        }
+
         public async Task<bool> AddPolicyTask(List<DbpPolicytask> policytasks)
         {
             if (policytasks != null && policytasks.Count > 0)
@@ -3122,6 +3145,8 @@ namespace IngestTaskPlugin.Stores
                 throw e;
             }
         }
+
+
 
     }
 }

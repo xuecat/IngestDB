@@ -2529,6 +2529,105 @@ namespace IngestTaskPlugin.Controllers.v2
             return Response;
         }
 
+        /// <summary>
+        /// Task获取最新错误信息
+        /// </summary>
+        /// <returns>错误信息</returns>
+        [HttpGet("taskerror/{taskid}/lastinfo")]
+        [ApiExplorerSettings(GroupName = "v2")]
+        public async Task<ResponseMessage<TaskErrorInfoResponse>> GetTaskLastErrorInfo([FromRoute, BindRequired]int taskid)
+        {
+            var Response = new ResponseMessage<TaskErrorInfoResponse>();
+            try
+            {
+                Response.Ext = await _taskManage.GetLastTaskErrorInfoAsync(taskid);
+                if (Response.Ext == null)
+                {
+                    Response.Code = ResponseCodeDefines.NotFound;
+                    Response.Msg = $"{System.Reflection.MethodBase.GetCurrentMethod().DeclaringType.FullName}:error info: not find data!";
+                }
+            }
+            catch (Exception e)
+            {
+                if (e is SobeyRecException se)//sobeyexcep会自动打印错误
+                {
+                    Response.Code = se.ErrorCode.ToString();
+                    Response.Msg = se.Message;
+                }
+                else
+                {
+                    Response.Code = ResponseCodeDefines.ServiceError;
+                    Response.Msg = $"GetTaskLastErrorInfo error info:{e.Message}";
+                    Logger.Error(Response.Msg);
+                }
+            }
+            return Response;
+        }
+
+        /// <summary>
+        /// Task获取错误信息，按照类型获取
+        /// </summary>
+        /// <returns>错误信息</returns>
+        [HttpGet("taskerror/{taskid}")]
+        [ApiExplorerSettings(GroupName = "v2")]
+        public async Task<ResponseMessage<TaskErrorInfoResponse>> GetTaskErrorInfoByType([FromRoute, BindRequired]int taskid, [FromQuery] int type)
+        {
+            var Response = new ResponseMessage<TaskErrorInfoResponse>();
+            try
+            {
+                Response.Ext = await _taskManage.GetLastTaskErrorInfoAsync(taskid);
+                if (Response.Ext == null)
+                {
+                    Response.Code = ResponseCodeDefines.NotFound;
+                    Response.Msg = $"{System.Reflection.MethodBase.GetCurrentMethod().DeclaringType.FullName}:error info: not find data!";
+                }
+            }
+            catch (Exception e)
+            {
+                if (e is SobeyRecException se)//sobeyexcep会自动打印错误
+                {
+                    Response.Code = se.ErrorCode.ToString();
+                    Response.Msg = se.Message;
+                }
+                else
+                {
+                    Response.Code = ResponseCodeDefines.ServiceError;
+                    Response.Msg = $"GetTaskLastErrorInfo error info:{e.Message}";
+                    Logger.Error(Response.Msg);
+                }
+            }
+            return Response;
+        }
+
+        /// <summary>
+        /// 添加Task错误信息
+        /// </summary>
+        /// <returns>将要和正在执行的任务</returns>
+        [HttpPost("taskerror/{taskid}")]
+        [ApiExplorerSettings(GroupName = "v2")]
+        public async Task<ResponseMessage<bool>> AddTaskErrorInfo([FromRoute, BindRequired]int taskid, [FromBody, BindRequired]TaskErrorInfoResponse errorinfo)
+        {
+            var Response = new ResponseMessage<bool>();
+            try
+            {
+                Response.Ext = await _taskManage.AddTaskErrorInfoAsync(errorinfo);
+            }
+            catch (Exception e)
+            {
+                if (e is SobeyRecException se)//sobeyexcep会自动打印错误
+                {
+                    Response.Code = se.ErrorCode.ToString();
+                    Response.Msg = se.Message;
+                }
+                else
+                {
+                    Response.Code = ResponseCodeDefines.ServiceError;
+                    Response.Msg = $"AddTaskErrorInfo error info:{e.Message}";
+                    Logger.Error(Response.Msg);
+                }
+            }
+            return Response;
+        }
 
         //[HttpPost("withoutpolicytask/addrescheduletask/{oldtaskid}")]
         //[ApiExplorerSettings(GroupName = "v2")]

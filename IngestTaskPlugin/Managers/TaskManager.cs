@@ -4043,5 +4043,44 @@ namespace IngestTaskPlugin.Managers
                 && x.NewBegintime < now && x.NewEndtime > now), true));
         }
 
+        public async Task<TaskErrorInfoResponse> GetLastTaskErrorInfoAsync(int taskid)
+        {
+            var lst = await Store.GetTaskErrorInfoListAsync(a => a.Where(b => b.Taskid == taskid));
+            if (lst != null && lst.Count > 0)
+            {
+                return _mapper.Map<TaskErrorInfoResponse>(lst.First());
+            }
+            return null;
+        }
+
+        public async Task<TaskErrorInfoResponse> GetTaskErrorInfoByTypeAsync(int taskid, int type)
+        {
+            var lst = await Store.GetTaskErrorInfoListAsync(a => a.Where(b => b.Taskid == taskid && type == b.Errtype));
+            if (lst != null && lst.Count > 0)
+            {
+                return _mapper.Map<TaskErrorInfoResponse>(lst.First());
+            }
+            return null;
+        }
+
+        public async Task<bool> AddTaskErrorInfoAsync(TaskErrorInfoResponse errorinfo)
+        {
+            if (errorinfo.Errorcode == 10001)
+            {
+                var task = await Store.GetTaskAsync(a => a.Where(b => b.Taskid == errorinfo.Taskid));
+                if (task != null)
+                {
+                    task.Recunitid |= 0x80;
+                }
+            }
+
+            //1级以上的错误才会被记录，并显示
+            if (errorinfo.Errtype > 1)
+            {
+                return await Store.AddTaskErrorInfo(_mapper.Map<DbpTaskErrorinfo>(errorinfo));
+            }
+            return false;
+        }
+
     }
 }
