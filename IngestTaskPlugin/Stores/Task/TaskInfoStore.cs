@@ -1514,8 +1514,8 @@ namespace IngestTaskPlugin.Stores
             DateTime dtDayBegin = new DateTime(dtDay.Year, dtDay.Month, dtDay.Day, 0, 0, 0);
             DateTime dtDayEnd = new DateTime(dtDay.Year, dtDay.Month, dtDay.Day, 23, 59, 59);
 
-            DateTime subDays = dtDay.AddDays(-1);
-            DateTime addDyas = dtDay.AddSeconds(5);
+            //DateTime subDays = dtDay.AddDays(-1);
+            //DateTime addDyas = dtDay.AddSeconds(5);
 
             List<DbpTask> lst = null;
             List<DbpTask> retlst = new List<DbpTask>();
