@@ -1659,9 +1659,9 @@ namespace IngestTaskPlugin.Managers
                                 {
                                     foreach (RouterInInterface inport in routerIns)
                                     {
-                                        if (inport.RCDeviceID == vtrTaskList[i].Vtrid)
+                                        if (inport.RcDeviceId == vtrTaskList[i].Vtrid)
                                         {
-                                            signalId = inport.SignalSrcID;
+                                            signalId = inport.SignalSrcId;
                                             break;
                                         }
                                     }

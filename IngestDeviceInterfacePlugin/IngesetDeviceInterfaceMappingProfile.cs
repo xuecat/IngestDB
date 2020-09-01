@@ -32,6 +32,8 @@ namespace IngestDeviceInterfacePlugin
             CreateMap<DeviceInfoResponse, DeviceInfoInterface>().ReverseMap();
             CreateMap<ResponseMessage<DeviceInfoResponse>, ResponseMessage<DeviceInfoInterface>>().ReverseMap();
 
+            CreateMap<RouterInResponse, RouterInInterface>();
+            CreateMap<ResponseMessage<List<RouterInResponse>>, ResponseMessage<List<RouterInInterface>>>();
         }
     }
 }
