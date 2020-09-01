@@ -82,6 +82,7 @@ namespace IngestTaskPlugin.Stores
         List<DateTime> GetDateTimeFromString(string str);
         bool IsInvalidPerodicTask(string strClassify, DateTime begin);
 
+        Task<int> ResetTaskErrorInfo(int taskid);
         Task<List<TResult>> GetTaskErrorInfoListAsync<TResult>(Func<IQueryable<DbpTaskErrorinfo>, IQueryable<TResult>> query, bool notrack = false);
 
         Task<bool> AddTaskErrorInfo(DbpTaskErrorinfo taskSource);

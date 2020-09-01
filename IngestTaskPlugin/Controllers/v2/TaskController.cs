@@ -2629,6 +2629,36 @@ namespace IngestTaskPlugin.Controllers.v2
             return Response;
         }
 
+        /// <summary>
+        /// 重置Task错误信息
+        /// </summary>
+        /// <returns>当前错误数量</returns>
+        [HttpDelete("taskerror/{taskid}")]
+        [ApiExplorerSettings(GroupName = "v2")]
+        public async Task<ResponseMessage<int>> ResetTaskErrorInfo([FromRoute, BindRequired]int taskid)
+        {
+            var Response = new ResponseMessage<int>();
+            try
+            {
+                Response.Ext = await _taskManage.ResetTaskErrorInfoAsync(taskid);
+            }
+            catch (Exception e)
+            {
+                if (e is SobeyRecException se)//sobeyexcep会自动打印错误
+                {
+                    Response.Code = se.ErrorCode.ToString();
+                    Response.Msg = se.Message;
+                }
+                else
+                {
+                    Response.Code = ResponseCodeDefines.ServiceError;
+                    Response.Msg = $"ResetTaskErrorInfo error info:{e.Message}";
+                    Logger.Error(Response.Msg);
+                }
+            }
+            return Response;
+        }
+
         //[HttpPost("withoutpolicytask/addrescheduletask/{oldtaskid}")]
         //[ApiExplorerSettings(GroupName = "v2")]
         //public async Task<ResponseMessage<TaskContentResponse>> AddReScheduleTask([FromRoute, BindRequired]int oldtaskid, [FromQuery, BindRequired]string starttime)

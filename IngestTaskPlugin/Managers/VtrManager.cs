@@ -2206,6 +2206,11 @@ namespace IngestTaskPlugin.Managers
                     taskIds.Add(task.nTaskId);
                 }
 
+                if (string.IsNullOrEmpty(task.strClassify))//vtr任务一般都a
+                {
+                    task.strClassify = "A";
+                }
+
                 if (string.IsNullOrEmpty(task.strTaskGUID))
                 {
                     task.strTaskGUID = Guid.NewGuid().ToString("N");

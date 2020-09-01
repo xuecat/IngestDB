@@ -4045,7 +4045,7 @@ namespace IngestTaskPlugin.Managers
 
         public async Task<TaskErrorInfoResponse> GetLastTaskErrorInfoAsync(int taskid)
         {
-            var lst = await Store.GetTaskErrorInfoListAsync(a => a.Where(b => b.Taskid == taskid));
+            var lst = await Store.GetTaskErrorInfoListAsync(a => a.Where(b => b.Taskid == taskid), true);
             if (lst != null && lst.Count > 0)
             {
                 return _mapper.Map<TaskErrorInfoResponse>(lst.First());
@@ -4055,7 +4055,7 @@ namespace IngestTaskPlugin.Managers
 
         public async Task<TaskErrorInfoResponse> GetTaskErrorInfoByTypeAsync(int taskid, int type)
         {
-            var lst = await Store.GetTaskErrorInfoListAsync(a => a.Where(b => b.Taskid == taskid && type == b.Errtype));
+            var lst = await Store.GetTaskErrorInfoListAsync(a => a.Where(b => b.Taskid == taskid && type == b.Errtype), true);
             if (lst != null && lst.Count > 0)
             {
                 return _mapper.Map<TaskErrorInfoResponse>(lst.First());
@@ -4080,6 +4080,11 @@ namespace IngestTaskPlugin.Managers
                 return await Store.AddTaskErrorInfo(_mapper.Map<DbpTaskErrorinfo>(errorinfo));
             }
             return false;
+        }
+
+        public Task<int> ResetTaskErrorInfoAsync(int taskid)
+        {
+            return Store.ResetTaskErrorInfo(taskid);
         }
 
     }

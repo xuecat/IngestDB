@@ -2924,6 +2924,24 @@ namespace IngestTaskPlugin.Stores
             return false;
         }
 
+        public async Task<int> ResetTaskErrorInfo(int taskid)
+        {
+            var task = await Context.DbpTask.Where(a => a.Taskid == taskid).SingleOrDefaultAsync();
+            if (task != null)
+            {
+                task.Recunitid =(task.Recunitid & 0x100);//后面八位都是给task显示error的
+            }
+
+            var info = Context.DbpTaskErrorinfo.Where(a => a.Taskid == taskid);
+            int ret = info.Count();
+
+            Context.DbpTaskErrorinfo.RemoveRange(info);
+
+            await Context.SaveChangesAsync();
+
+            return ret;
+        }
+
         public async Task<bool> AddTaskErrorInfo(DbpTaskErrorinfo taskSource)
         {
             if (taskSource != null)
