@@ -2309,6 +2309,15 @@ namespace IngestTaskPlugin.Managers
             int vtrId = 0;
             foreach (VTRUploadTaskContent task in vtrTasks)
             {
+                if (string.IsNullOrEmpty(task.strBegin) || task.strBegin == "0000-00-00 00:00:00")
+                {
+                    throw new Exception("request begin of param error");
+                }
+                if (string.IsNullOrEmpty(task.strEnd) || task.strEnd == "0000-00-00 00:00:00")
+                {
+                    throw new Exception("request end of param error");
+                }
+
                 vtrId = task.nVtrId;
 
                 if (task.emTaskState == VTRUPLOADTASKSTATE.VTR_UPLOAD_TEMPSAVE)

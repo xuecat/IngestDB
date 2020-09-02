@@ -1004,6 +1004,7 @@
                     return res;
                 }
 
+                
                 res.extention = await _VtrManage.AddVTRBatchUploadTasksAsync<VtrBatchUploadTask,VTRUploadTaskContent, VTR_UPLOAD_MetadataPair>(pIn.vtrTasks, pIn.metadatas, pIn.ignoreWrong);
                 res.nCode = res.extention.errorCode == VTR_BUT_ErrorCode.emNormal ? 1 : 0;
             }

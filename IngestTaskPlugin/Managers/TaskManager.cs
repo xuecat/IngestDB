@@ -2032,7 +2032,7 @@ namespace IngestTaskPlugin.Managers
 
             var taskinfo = await Store.GetTaskAsync(a => a.Where(b => b.Taskid == req.TaskID));
 
-            Logger.Info($"CompleteSynTasks {req.TaskID} {req.TaskState} {taskinfo.State} {req.SynState} {taskinfo.SyncState}");
+            Logger.Info($"CompleteSynTasks {req.DispatchState} {req.TaskID} {req.TaskState} {taskinfo.State} {req.SynState} {taskinfo.SyncState}");
 
             if (taskinfo == null)
             {
