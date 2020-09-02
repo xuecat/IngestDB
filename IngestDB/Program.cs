@@ -69,10 +69,16 @@ namespace IngestDB
         {
             if (ExceptionLogger != null)
             {
-                
-                
+                System.Net.Sockets.SocketException tempExcption = null;
+                if (e.Exception is System.Net.Sockets.SocketException)
+                {
+                    tempExcption = (System.Net.Sockets.SocketException)e.Exception;
+                }
 
-                ExceptionLogger.Error("Exception: {0} ", e.Exception.ToString());
+                if(tempExcption == null || tempExcption.ErrorCode != 125)
+                {
+                    ExceptionLogger.Error("Exception: {0} ", e.Exception.ToString());
+                }
             }
         }
 

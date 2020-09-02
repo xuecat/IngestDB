@@ -2005,7 +2005,7 @@ namespace IngestTaskPlugin.Stores
 
         public async Task<DbpTask> ModifyTask(DbpTask task, bool bPerodic2Next, bool autoupdate, bool savechange, string CaptureMeta, string ContentMeta, string MatiralMeta, string PlanningMeta)
         {
-            Logger.Info($"ModifyTask {task.Taskid} {task.State} {task.SyncState} {task.Starttime}");
+            Logger.Info($"ModifyTask {task.Taskid} {task.State} {task.SyncState} {task.Starttime} {task.Endtime}");
             if (task.Tasktype != (int)TaskType.TT_PERIODIC)
             {
                 task.Category = "A";
@@ -2063,6 +2063,8 @@ namespace IngestTaskPlugin.Stores
                 }
 
             }
+
+            Logger.Info($"ModifyTask UpdateTask {task.Taskid} {task.State} {task.SyncState} {task.Starttime} {task.Endtime}");
 
             Context.DbpTask.Update(task);
 
