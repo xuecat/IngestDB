@@ -1880,7 +1880,10 @@ namespace IngestTaskPlugin.Managers
 
             if (state == (int)taskState.tsInvaild)
             {
-                taskinfo.Endtime = DateTime.Now;
+                /*
+                 * 任务假如一开始就采集不了，就会导致把这个任务弄成了一条线暂时先去掉看看
+                 */
+                //taskinfo.Endtime = DateTime.Now;
             }
             taskinfo.State = state;
             //zmj 2010-11-22 不该把锁去掉，会导致再次被调用出来
@@ -2018,7 +2021,11 @@ namespace IngestTaskPlugin.Managers
                 lstunsync.Add(item);
             }
 
-            await Store.UpdateTaskListAsync(lstModify);
+            if (lstModify.Count > 0)
+            {
+                await Store.UpdateTaskListAsync(lstModify);
+            }
+            
 
             lstunsync.AddRange(lstfinishtask);
             

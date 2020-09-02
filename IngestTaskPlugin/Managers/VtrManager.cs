@@ -407,8 +407,8 @@ namespace IngestTaskPlugin.Managers
         public async Task<List<TResult>> GetNeedExecuteVTRUploadTasksAsync<TResult>()
         {
             var uploadTaskList = Mapper.Map<List<VTRUploadTaskContentResponse>>(await VtrStore.GetUploadtask(a => a.Where(x => x.Taskstate ==
-                20 &&
-                x.Vtrtasktype == 0),
+                (int)VTRUPLOADTASKSTATE.VTR_UPLOAD_PRE_EXECUTE &&
+                x.Vtrtasktype == (int)VTRUPLOADTASKTYPE.VTR_MANUAL_UPLOAD),
                                                                                                              true));
 
             List<TaskContent> capturingTasks = await TaskManager.GetAllChannelCapturingTask<TaskContent>();
@@ -421,19 +421,25 @@ namespace IngestTaskPlugin.Managers
                 foreach (VTRUploadTaskContentResponse vtrScheduleTask in vtrTasks)
                 {
                     //重新调整开始时间
-                    DateTime dtEnd = vtrScheduleTask.EndTime;
-                    if (dtEnd <= DateTime.Now)
-                    {
-                        //重新调整开始时间跟结束时间 
-                        SB_TimeCode tcIn = new SB_TimeCode((uint)vtrScheduleTask.TrimIn);
-                        SB_TimeCode tcOut = new SB_TimeCode((uint)vtrScheduleTask.TrimOut);
-                        TimeSpan tsDuration = tcOut - tcIn;
-                        vtrScheduleTask.BeginTime = DateTime.Now;
-                        vtrScheduleTask.EndTime = DateTime.Now + tsDuration;
-                        await TaskStore.AdjustVtrUploadTasksByChannelId(vtrScheduleTask.ChannelId,
-                                                                        vtrScheduleTask.TaskId,
-                                                                        DateTime.Now);
-                    }
+
+                    /*
+                     * wq 把调整时间去了，每次任务失败都会自动拉伸长度
+                     */
+
+                    //DateTime dtEnd = vtrScheduleTask.EndTime;
+                    //if (dtEnd <= DateTime.Now)
+                    //{
+                    //    //重新调整开始时间跟结束时间 
+                    //    SB_TimeCode tcIn = new SB_TimeCode((uint)vtrScheduleTask.TrimIn);
+                    //    SB_TimeCode tcOut = new SB_TimeCode((uint)vtrScheduleTask.TrimOut);
+                    //    TimeSpan tsDuration = tcOut - tcIn;
+                    //    vtrScheduleTask.BeginTime = DateTime.Now;
+                    //    vtrScheduleTask.EndTime = DateTime.Now + tsDuration;
+                    //    await TaskStore.AdjustVtrUploadTasksByChannelId(vtrScheduleTask.ChannelId,
+                    //                                                    vtrScheduleTask.TaskId,
+                    //                                                    DateTime.Now);
+                    //}
+
                     int i = 0;
                     bool isNeedReplace = false;
                     for (; i < uploadTaskList.Count; i++)

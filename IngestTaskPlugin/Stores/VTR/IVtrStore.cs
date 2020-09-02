@@ -191,6 +191,8 @@
         /// <returns>The 查询结果<see cref="Task{List{VTRUploadTaskContentResponse}}"/>.</returns>
         Task<List<VTRUploadTaskContentResponse>> GetNeedScheduleExecuteVTRUploadTasks(DateTime dtBegin);
 
+        Task<List<VtrUploadtask>> GetNeedManualxecuteVTRUploadTasksAsync();
+
         /// <summary>
         /// The 查询 未开始的 Vtr上传任务及内容.
         /// </summary>

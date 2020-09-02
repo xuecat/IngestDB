@@ -371,14 +371,21 @@
         {
             var dt1 = dtBegin.AddSeconds(5);
             var dt2 = dtBegin.AddDays(-1);
-            IQueryable<VtrUploadtask> uploadQuery = Context.VtrUploadtask.AsNoTracking().Where(a => a.Vtrtasktype == 1 && a.Taskstate == 2);
-            IQueryable<DbpTask> taskQeruy = Context.DbpTask.AsNoTracking().Where(a => a.Tasktype == 6 &&
-                                 a.Tasklock == "" &&
-                                 a.SyncState == 0 &&
+            IQueryable<VtrUploadtask> uploadQuery = Context.VtrUploadtask.AsNoTracking().Where(a => a.Vtrtasktype == (int)VTRUPLOADTASKTYPE.VTR_SCHEDULE_UPLOAD 
+                                                                                                    && a.Taskstate == (int)VTRUPLOADTASKSTATE.VTR_UPLOAD_COMMIT);
+            IQueryable<DbpTask> taskQeruy = Context.DbpTask.AsNoTracking().Where(a => a.Tasktype == (int)TaskType.TT_VTRUPLOAD &&
+                                 string.IsNullOrEmpty(a.Tasklock) &&
+                                 a.SyncState == (int)syncState.ssNot &&
                                  a.Starttime < dt1 &&
                                  a.Starttime > dt2);
 
             return await GetUploadTaskContent(uploadQuery, taskQeruy);
+        }
+
+        public async Task<List<VtrUploadtask>> GetNeedManualxecuteVTRUploadTasksAsync()
+        {
+            return await Context.VtrUploadtask.AsNoTracking().Where(a => a.Taskstate == (int)VTRUPLOADTASKSTATE.VTR_UPLOAD_PRE_EXECUTE 
+                                                            && a.Vtrtasktype == (int)VTRUPLOADTASKTYPE.VTR_MANUAL_UPLOAD).ToListAsync();
         }
 
         /// <summary>
