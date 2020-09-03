@@ -4072,20 +4072,27 @@ namespace IngestTaskPlugin.Managers
 
         public async Task<bool> AddTaskErrorInfoAsync(TaskErrorInfoResponse errorinfo)
         {
-            if (errorinfo.Errorcode == 10001)
+            //拒绝重复码
+            var lst = await Store.GetTaskErrorInfoListAsync(a => a.Where(b => b.Taskid == errorinfo.Taskid && b.Errorcode == errorinfo.Errorcode));
+            Logger.Info($"AddTaskErrorInfoAsync {errorinfo.Errorcode} {errorinfo.Taskid}");
+            if (lst == null || lst.Count == 0)
             {
-                var task = await Store.GetTaskAsync(a => a.Where(b => b.Taskid == errorinfo.Taskid));
-                if (task != null)
+                if (errorinfo.Errorcode == 10001)
                 {
-                    task.Recunitid |= 0x80;
+                    var task = await Store.GetTaskAsync(a => a.Where(b => b.Taskid == errorinfo.Taskid));
+                    if (task != null)
+                    {
+                        task.Recunitid |= 0x80;
+                    }
+                }
+
+                //1级以上的错误才会被记录，并显示
+                if (errorinfo.Errlevel > 1)
+                {
+                    return await Store.AddTaskErrorInfo(_mapper.Map<DbpTaskErrorinfo>(errorinfo));
                 }
             }
-
-            //1级以上的错误才会被记录，并显示
-            if (errorinfo.Errlevel > 1)
-            {
-                return await Store.AddTaskErrorInfo(_mapper.Map<DbpTaskErrorinfo>(errorinfo));
-            }
+            
             return false;
         }
 
