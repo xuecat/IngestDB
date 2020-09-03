@@ -2935,13 +2935,17 @@ namespace IngestTaskPlugin.Stores
             }
 
             var info = Context.DbpTaskErrorinfo.Where(a => a.Taskid == taskid);
-            int ret = info.Count();
+            if (info != null && info.Count()>0)
+            {
+                int ret = info.Count();
 
-            Context.DbpTaskErrorinfo.RemoveRange(info);
+                Context.DbpTaskErrorinfo.RemoveRange(info);
 
-            await Context.SaveChangesAsync();
+                await Context.SaveChangesAsync();
 
-            return ret;
+                return ret;
+            }
+            return 0;
         }
 
         public async Task<bool> AddTaskErrorInfo(DbpTaskErrorinfo taskSource)

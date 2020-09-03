@@ -4082,7 +4082,7 @@ namespace IngestTaskPlugin.Managers
             }
 
             //1级以上的错误才会被记录，并显示
-            if (errorinfo.Errtype > 1)
+            if (errorinfo.Errlevel > 1)
             {
                 return await Store.AddTaskErrorInfo(_mapper.Map<DbpTaskErrorinfo>(errorinfo));
             }
