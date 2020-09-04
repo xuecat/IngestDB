@@ -4093,7 +4093,7 @@ namespace IngestTaskPlugin.Managers
                 }
             }
 
-            Logger.Info($"AddTaskErrorInfoAsync {errorinfo.Errorcode} {errorinfo.Taskid}");
+            Logger.Info($"AddTaskErrorInfoAsync {errorinfo.Errorcode} {errorinfo.Taskid} {needsave}");
             if (lst == null || lst.Count == 0)
             {
                 //1级以上的错误才会被记录，并显示
