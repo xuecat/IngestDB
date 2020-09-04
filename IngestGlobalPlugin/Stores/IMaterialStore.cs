@@ -48,18 +48,18 @@ namespace IngestGlobalPlugin.Stores
         #region DbpMaterialArchive
         Task<List<TResult>> GetMaterialArchive<TResult>(Func<IQueryable<DbpMaterialArchive>, IQueryable<TResult>> query, bool notrack = false);
         Task<TResult> GetMaterialArchive<TResult>(Func<IQueryable<DbpMaterialArchive>, Task<TResult>> query, bool notrack = false);
-        Task<bool> AddOrUpdateMaterialArchive(List<DbpMaterialArchive> materialArchives);
+        Task<bool> AddOrUpdateMaterialArchive(List<DbpMaterialArchive> materialArchives, bool savechange = true);
         #endregion
         #region DbpMaterialAudio
         Task<List<TResult>> GetMaterialAudioListAsync<TResult>(Func<IQueryable<DbpMaterialAudio>, IQueryable<TResult>> query, bool notrack = false);
         Task<TResult> GetMaterialAudioAsync<TResult>(Func<IQueryable<DbpMaterialAudio>, Task<TResult>> query, bool notrack = false);
-        Task<bool> AddMaterialAudio(int materialId, List<AudioInfo> audios);
+        Task<bool> AddMaterialAudio(int materialId, List<AudioInfo> audios, bool savechange = true);
         Task<bool> UpdateMaterialAudio(int materialId, List<AudioInfo> audios);
         #endregion
         #region DbpMaterialVideo
         Task<List<TResult>> GetMaterialVideoListAsync<TResult>(Func<IQueryable<DbpMaterialVideo>, IQueryable<TResult>> query, bool notrack = false);
         Task<TResult> GetMaterialVideoAsync<TResult>(Func<IQueryable<DbpMaterialVideo>, Task<TResult>> query, bool notrack = false);
-        Task<bool> AddMaterialVideo(int materialId, List<VideoInfo> videos);
+        Task<bool> AddMaterialVideo(int materialId, List<VideoInfo> videos, bool savechange = true);
         Task<bool> UpdateMaterialVideo(int materialId, List<VideoInfo> videos);
         #endregion
         #region DbpMetadatapolicy

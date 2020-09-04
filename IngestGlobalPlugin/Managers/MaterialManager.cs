@@ -473,28 +473,28 @@ namespace IngestGlobalPlugin.Managers
                 return  materialID;
             }
 
-            int nId = await Store.GetMaterial(a => a.MaxAsync(x => x.Materialid)) + 1;
+            int nId = await Store.GetMaterial(a => a.MaxAsync(x => x.Materialid), true) + 1;
 
             //添加素材
             mtrl.strGUID = Guid.NewGuid().ToString("N");
             
             mtrl.nID = nId;
-            await Store.AddMaterial(_mapper.Map<DbpMaterial>(mtrl));
+            await Store.AddMaterial(_mapper.Map<DbpMaterial>(mtrl), false);
 
             //添加视频信息
             if (mtrl.videos != null && mtrl.videos.Count> 0)
             {
-                await Store.AddMaterialVideo(mtrl.nID, mtrl.videos);
+                await Store.AddMaterialVideo(mtrl.nID, mtrl.videos, false);
             }
 
             //添加音频信息
             if (mtrl.audios != null && mtrl.audios.Count > 0)
             {
-                await Store.AddMaterialAudio(mtrl.nID, mtrl.audios);
+                await Store.AddMaterialAudio(mtrl.nID, mtrl.audios, false);
             }
 
             //添加入库信息
-            await ModifyPolicy(mtrl.nTaskID, nId);
+            await ModifyPolicy(mtrl.nTaskID, nId, true);
 
             //向DBP_TASK添加缩略图
 
@@ -527,7 +527,7 @@ namespace IngestGlobalPlugin.Managers
         }
 
         //修改入库策略
-        private async Task ModifyPolicy(int nTaskID, int nMaterialID)
+        private async Task ModifyPolicy(int nTaskID, int nMaterialID, bool savechange = true)
         {
             //获得nTaskID对应的入库策略
             List<MetaDataPolicy> policies = await GetPolicyByTaskID(nTaskID);
@@ -545,9 +545,13 @@ namespace IngestGlobalPlugin.Managers
             }).ToList();
             if (archives != null && archives.Count > 0)
             {
-                await Store.AddOrUpdateMaterialArchive(archives);
+                await Store.AddOrUpdateMaterialArchive(archives, false);
             }
-            
+
+            if (savechange)
+            {
+                await Store.SaveChangeAsync();
+            }
         }
 
         private async Task<List<MetaDataPolicy>> GetPolicyByTaskID(int taskId)

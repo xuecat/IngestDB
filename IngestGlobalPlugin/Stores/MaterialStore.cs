@@ -430,7 +430,7 @@ namespace IngestGlobalPlugin.Stores
         {
             return QueryModel(query, notrack);
         }
-        public async Task<bool> AddOrUpdateMaterialArchive(List<DbpMaterialArchive> materialArchives)
+        public async Task<bool> AddOrUpdateMaterialArchive(List<DbpMaterialArchive> materialArchives, bool savechange = true)
         {
             var materialIds = materialArchives.Select(a => a.Materialid).ToList();
             var policyIds = materialArchives.Select(a => a.Policyid).ToList();
@@ -454,7 +454,11 @@ namespace IngestGlobalPlugin.Stores
             {
                 await Context.DbpMaterialArchive.AddRangeAsync(materialArchives);
             }
-            return await Context.SaveChangesAsync() > 0;
+            if (savechange)
+            {
+                return await Context.SaveChangesAsync() > 0;
+            }
+            return true;
         }
         #endregion
 
@@ -467,7 +471,7 @@ namespace IngestGlobalPlugin.Stores
         {
             return await QueryModel(query, notrack);
         }
-        public async Task<bool> AddMaterialAudio(int materialId, List<AudioInfo> audioInfos)
+        public async Task<bool> AddMaterialAudio(int materialId, List<AudioInfo> audioInfos, bool savechange = true)
         {
             if (audioInfos != null && audioInfos.Count > 0)
             {
@@ -479,7 +483,12 @@ namespace IngestGlobalPlugin.Stores
                     Materialid = materialId
                 });
                 await Context.DbpMaterialAudio.AddRangeAsync(audios);
-                return await Context.SaveChangesAsync() > 0;
+                if (savechange)
+                {
+                    return await Context.SaveChangesAsync() > 0;
+                }
+                return true;
+                
             }
             return false;
         }
@@ -515,7 +524,7 @@ namespace IngestGlobalPlugin.Stores
         {
             return await QueryModel(query, notrack);
         }
-        public async Task<bool> AddMaterialVideo(int materialId, List<VideoInfo> videoInfos)
+        public async Task<bool> AddMaterialVideo(int materialId, List<VideoInfo> videoInfos, bool savechange = true)
         {
             if (videoInfos != null && videoInfos.Count > 0)
             {
@@ -527,7 +536,12 @@ namespace IngestGlobalPlugin.Stores
                     Materialid = materialId
                 });
                 await Context.DbpMaterialVideo.AddRangeAsync(videos);
-                return await Context.SaveChangesAsync() > 0;
+                if (savechange)
+                {
+                    return await Context.SaveChangesAsync() > 0;
+                }
+                return true;
+                
             }
             return false;
         }
