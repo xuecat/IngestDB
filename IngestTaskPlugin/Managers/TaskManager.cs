@@ -1878,12 +1878,20 @@ namespace IngestTaskPlugin.Managers
                 return taskid;
             }
 
-            if (state == (int)taskState.tsInvaild)
+            /*
+                * 任务假如一开始就采集不了，就会导致把这个任务弄成了一条线暂时先去掉看看
+                * 由于他们专门提了bug，对vtr任务做一天线的限制
+                * 但是怕太短了，就最短3秒
+                */
+            if (state == (int)taskState.tsInvaild && taskinfo.Tasktype != (int)TaskType.TT_VTRUPLOAD)
             {
-                /*
-                 * 任务假如一开始就采集不了，就会导致把这个任务弄成了一条线暂时先去掉看看
-                 */
-                //taskinfo.Endtime = DateTime.Now;
+               
+                if ((DateTime.Now-taskinfo.Starttime).TotalSeconds <= 3)
+                {
+                    taskinfo.Endtime = DateTime.Now.AddSeconds(3);
+                }
+                else
+                    taskinfo.Endtime = DateTime.Now;
             }
             taskinfo.State = state;
             //zmj 2010-11-22 不该把锁去掉，会导致再次被调用出来
