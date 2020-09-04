@@ -4081,12 +4081,14 @@ namespace IngestTaskPlugin.Managers
         public async Task<bool> AddTaskErrorInfoAsync(TaskErrorInfoResponse errorinfo)
         {
             //拒绝重复码
-            var lst = await Store.GetTaskErrorInfoListAsync(a => a.Where(b => b.Taskid == errorinfo.Taskid && b.Errorcode == errorinfo.Errorcode));
+            var lst = await Store.GetTaskErrorInfoListAsync(a => a.Where(b => b.Taskid == errorinfo.Taskid && b.Errorcode == errorinfo.Errorcode), true);
+            bool needsave = false;
             if (errorinfo.Errorcode == 10001)
             {
                 var task = await Store.GetTaskAsync(a => a.Where(b => b.Taskid == errorinfo.Taskid));
-                if (task != null)
+                if (task != null && (task.Recunitid &0x80)<=0)
                 {
+                    needsave = true;
                     task.Recunitid |= 0x80;
                 }
             }
@@ -4100,7 +4102,7 @@ namespace IngestTaskPlugin.Managers
                     return await Store.AddTaskErrorInfo(_mapper.Map<DbpTaskErrorinfo>(errorinfo));
                 }
             }
-            else
+            else if (needsave)
                 await Store.SaveChangeAsync();
             
             return false;
