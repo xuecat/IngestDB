@@ -30,7 +30,9 @@ namespace IngestDevicePlugin.Stores
         Task<DbpChannelRecmap> GetChannelUnitMap(int channel);
         Task<int> GetMatrixChannelBySignalAsync(int channelid);
         Task<int> GetBackUpSignalInfoByID(int srgid);
-        Task<DeviceInfoDto> GetDeviceInfoByIdAsync(int deviceid);
+
+        Task<List<DeviceInfoDto>> GetAllDeviceAsync();
+        Task<DeviceInfoDto> GetDeviceByIdAsync(int deviceid);
         
 
         /// <summary> 获取输入端口与信号源 </summary>

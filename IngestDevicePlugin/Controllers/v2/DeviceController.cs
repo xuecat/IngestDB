@@ -206,42 +206,6 @@ namespace IngestDevicePlugin.Controllers.v2
             }
             return response;
         }
-
-        /// <summary>
-        /// 获取指定采集设备信息(这个信息毕竟全，有通道和ip等信息)
-        /// </summary>
-        /// <remarks></remarks>
-        /// <returns>采集设备单个信息</returns>
-        [HttpGet("capturedevice/{deviceid}")]
-        [ApiExplorerSettings(GroupName = "v2")]
-        public async Task<ResponseMessage<DeviceInfoResponse>> GetCaptureDeviceByid([FromRoute, BindRequired, DefaultValue(39)]int deviceid)
-        {
-            ResponseMessage<DeviceInfoResponse> response = new ResponseMessage<DeviceInfoResponse>();
-            try
-            {
-                response.Ext = await _deviceManage.GetCaptureDeviceByIDAsync<DeviceInfoResponse>(deviceid);
-                if (response.Ext == null)
-                {
-                    response.Code = ResponseCodeDefines.NotFound;
-                    response.Msg = $"{System.Reflection.MethodBase.GetCurrentMethod().DeclaringType.FullName}:error info: not find data!";
-                }
-            }
-            catch (Exception e)
-            {
-                if (e is SobeyRecException se)//sobeyexcep会自动打印错误
-                {
-                    response.Code = se.ErrorCode.ToString();
-                    response.Msg = se.Message;
-                }
-                else
-                {
-                    response.Code = ResponseCodeDefines.ServiceError;
-                    response.Msg = $"{System.Reflection.MethodBase.GetCurrentMethod().DeclaringType.FullName}:error info:{e.Message}";
-                    Logger.Error(response.Msg);
-                }
-            }
-            return response;
-        }
         
         /// <summary>
         /// 根据 信号源Id 获取绑定的采集参数 id
