@@ -272,8 +272,20 @@ namespace IngestDevicePlugin.Stores
 
         public async Task<List<DeviceInfoDto>> GetAllDeviceAsync()
         {
-            return await Context.DbpCapturedevice.AsNoTracking().Join(Context.DbpCapturechannels,
-                                                                        )
+            return await Context.DbpCapturedevice.AsNoTracking().Join(Context.DbpCapturechannels.AsNoTracking(),
+                                                                        devicea => devicea.Cpdeviceid,
+                                                                        channela => channela.Cpdeviceid,
+                                                                        (devicea, channela) => new DeviceInfoDto()
+                                                                        {
+                                                                            ChannelId = channela.Channelid,
+                                                                            ChannelIndex = channela.Channelindex.GetValueOrDefault(),
+                                                                            ChannelName = channela.Channelname,
+                                                                            Id = devicea.Cpdeviceid,
+                                                                            DeviceName = devicea.Devicename,
+                                                                            DeviceTypeId = devicea.Devicetypeid,
+                                                                            Ip = devicea.Ipaddress,
+                                                                            OrderCode = devicea.Ordercode.GetValueOrDefault()
+                                                                        }).ToListAsync();
         }
 
         public async Task<DeviceInfoDto> GetDeviceByIdAsync(int deviceid)
