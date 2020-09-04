@@ -455,7 +455,7 @@ namespace IngestGlobalPlugin.Managers
             var materialInfoList = await Store.GetMaterial(a => a.Where(x => x.Sectionid == mtrl.nSectionID &&
                                                                        x.Taskid == mtrl.nTaskID)
                                                            .OrderBy(x => x.Sectionid));
-            if (materialInfoList.Count != 0)//当前分段和任务存在
+            if (materialInfoList != null && materialInfoList.Count > 0)//当前分段和任务存在
             {
                 int materialID = materialInfoList[0].Materialid;
                 await Store.UpdateMaterialVideo(materialID, mtrl.videos);
@@ -482,10 +482,13 @@ namespace IngestGlobalPlugin.Managers
             await Store.AddMaterial(_mapper.Map<DbpMaterial>(mtrl));
 
             //添加视频信息
-            await Store.AddMaterialVideo(mtrl.nID, mtrl.videos);
+            if (mtrl.videos != null && mtrl.videos.Count> 0)
+            {
+                await Store.AddMaterialVideo(mtrl.nID, mtrl.videos);
+            }
 
             //添加音频信息
-            if (mtrl.audios != null)
+            if (mtrl.audios != null && mtrl.audios.Count > 0)
             {
                 await Store.AddMaterialAudio(mtrl.nID, mtrl.audios);
             }
@@ -540,7 +543,11 @@ namespace IngestGlobalPlugin.Managers
                 Lastupdatetime = DateTime.Now,
                 Archiveresult = ""
             }).ToList();
-            await Store.AddOrUpdateMaterialArchive(archives);
+            if (archives != null && archives.Count > 0)
+            {
+                await Store.AddOrUpdateMaterialArchive(archives);
+            }
+            
         }
 
         private async Task<List<MetaDataPolicy>> GetPolicyByTaskID(int taskId)
