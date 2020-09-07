@@ -876,34 +876,33 @@ namespace IngestDevicePlugin.Controllers.v1
             return p;
         }
 
-        ///// <summary>根据GPID获取GPI映射信息</summary>
-        //[HttpGet("GetGPIMapInfoByGPIID"), MapToApiVersion("1.0")]
-        //
-        //[ApiExplorerSettings(GroupName = "v1")]
-        //public async Task<Dto.Old.Response.ResponseMessage<GPIDeviceMapInfo[]>> GetGPIMapInfoByGPIID2([FromQuery]int nGPIID)
-        //{
-        //    Dto.Old.Response.ResponseMessage<GPIDeviceMapInfo[]> p = new Dto.Old.Response.ResponseMessage<GPIDeviceMapInfo[]>();
-        //    try
-        //    {
-        //        p.extention = (await _deviceManage.GetGPIMapInfoByGPIIDAsync<GPIDeviceMapInfo>(nGPIID)).ToArray();
-        //    }
-        //    catch (Exception ex)
-        //    {
-        //        if (ex.GetType() == typeof(SobeyRecException))//sobeyexcep会自动打印错误
-        //        {
-        //            SobeyRecException se = ex as SobeyRecException;
-        //            p.nCode = 0;
-        //            p.message = se.Message;
-        //        }
-        //        else
-        //        {
-        //            p.nCode = 0;
-        //            p.message = $"error info:{ex.ToString()}";
-        //            Logger.Error(p.message);
-        //        }
-        //    }
-        //    return p;
-        //}
+        /// <summary>根据GPID获取GPI映射信息</summary>
+        [HttpGet("GetGPIMapInfoByGPIID2"), MapToApiVersion("1.0")]
+        [ApiExplorerSettings(GroupName = "v1")]
+        public async Task<Dto.Old.Response.ResponseMessage<GPIDeviceMapInfo[]>> GetGPIMapInfoByGPIID2([FromQuery]int nGPIID)
+        {
+            Dto.Old.Response.ResponseMessage<GPIDeviceMapInfo[]> p = new Dto.Old.Response.ResponseMessage<GPIDeviceMapInfo[]>();
+            try
+            {
+                p.extention = (await _deviceManage.GetGPIMapInfoByGPIIDAsync<GPIDeviceMapInfo>(nGPIID)).ToArray();
+            }
+            catch (Exception ex)
+            {
+                if (ex.GetType() == typeof(SobeyRecException))//sobeyexcep会自动打印错误
+                {
+                    SobeyRecException se = ex as SobeyRecException;
+                    p.nCode = 0;
+                    p.message = se.Message;
+                }
+                else
+                {
+                    p.nCode = 0;
+                    p.message = $"error info:{ex.ToString()}";
+                    Logger.Error(p.message);
+                }
+            }
+            return p;
+        }
 
         /// <summary>
         /// 根据信号源获取绑定的采集参数
