@@ -142,6 +142,8 @@ namespace IngestTaskPlugin.Managers
 
             var vtrtask = await TaskStore.GetVtrUploadTaskAsync(a => a.Where(b => b.Taskid == info.VtrTaskId), true);
 
+            Logger.Info($"SetVTRUploadTaskInfo vtrtask : {JsonHelper.ToJson(vtrtask)}");
+
             DateTime beginCheckTime = info.CommitTime;
 
             TimeSpan tsDuration = new TimeSpan();
@@ -166,7 +168,7 @@ namespace IngestTaskPlugin.Managers
 
             if (vtrtask == null)
             {
-                retTaskID = info.VtrTaskId = await VtrStore.GetTask(a => a.MaxAsync(x => x.Taskid)) + 1;
+                retTaskID = info.VtrTaskId = TaskStore.GetNextValId("DBP_SQ_TASKID");
 
                 if (info.CommitTime == DateTime.MinValue)
                 {
@@ -210,6 +212,8 @@ namespace IngestTaskPlugin.Managers
                         .SingleOrDefaultAsync());
                 }
                 await VtrStore.UpdateUploadtask(upload);
+
+                retTaskID = info.VtrTaskId;
             }
 
             //UpdateTime = DateTime.Now;
@@ -415,6 +419,7 @@ namespace IngestTaskPlugin.Managers
 
             //再获得计划的上载任务
             List<VTRUploadTaskContentResponse> vtrTasks = await VtrStore.GetNeedScheduleExecuteVTRUploadTasks(DateTime.Now);
+
             if (vtrTasks != null && vtrTasks.Count > 0)
             {
                 //每个通道只能返回一个，每个VTR也只能返回一个，而且只能返回时间最前的那个                
@@ -503,6 +508,7 @@ namespace IngestTaskPlugin.Managers
                     }
                 }
             }
+
             return Mapper.Map<List<TResult>>(uploadTaskList);
         }
 
