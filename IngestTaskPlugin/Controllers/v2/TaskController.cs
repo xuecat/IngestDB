@@ -487,7 +487,9 @@ namespace IngestTaskPlugin.Controllers.v2
             {
                 Response.Code = ResponseCodeDefines.ModelStateInvalid;
                 Response.Msg = "request param error";
+                return Response;
             }
+
             if (string.IsNullOrEmpty(task.TaskContent.Begin) || task.TaskContent.Begin == "0000-00-00 00:00:00")
             {
                 Response.Code = ResponseCodeDefines.ModelStateInvalid;
@@ -870,6 +872,7 @@ namespace IngestTaskPlugin.Controllers.v2
             {
                 Response.Code = ResponseCodeDefines.ModelStateInvalid;
                 Response.Msg = "request param error";
+                return Response;
             }
 
             try
@@ -937,6 +940,7 @@ namespace IngestTaskPlugin.Controllers.v2
             {
                 Response.Code = ResponseCodeDefines.ModelStateInvalid;
                 Response.Msg = "request param error";
+                return Response;
             }
 
             try

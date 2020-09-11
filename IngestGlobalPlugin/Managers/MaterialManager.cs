@@ -34,12 +34,12 @@ namespace IngestGlobalPlugin.Managers
         {
             var msg = _mapper.Map<DbpMsmqmsg>(info);
 
-            if (msg.Msgprocesstime == DateTime.MinValue)
-            {
-                msg.Msgprocesstime = DateTime.Now;
-            }
             if (msg != null)
             {
+                if (msg.Msgprocesstime == DateTime.MinValue)
+                {
+                    msg.Msgprocesstime = DateTime.Now;
+                }
                 await Store.AddMQMsg(msg);
                 return true;
             }

@@ -470,7 +470,7 @@ namespace IngestDBCore.Tool
             //string.Format("{0}/CMApi/api/basic/config/getuserparam", ApplicationContext.Current.CMServerUrl),
             //param);
 
-            if (back != null)
+            if (back != null && !string.IsNullOrEmpty(back.Ext?.paramvalue))
             {
                 return int.Parse(back.Ext?.paramvalue);
             }

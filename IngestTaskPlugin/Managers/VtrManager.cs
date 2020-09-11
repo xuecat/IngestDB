@@ -271,12 +271,13 @@ namespace IngestTaskPlugin.Managers
                             originalNode.Remove();
                         }
                     }
+                    await TaskStore.UpdateTaskMetaDataAsync(taskId, MetaDataType.emContentMetaData, xElement.ToString(), false);//doc.OuterXml);
                 }
 
                 await TaskStore.UpdateTaskMetaDataAsync(taskId, MetaDataType.emStoreMetaData, materialMeta,false);
                 await TaskStore.UpdateTaskMetaDataAsync(taskId, MetaDataType.emPlanMetaData, planningMeta, false);
                 await TaskStore.UpdateTaskMetaDataAsync(taskId, MetaDataType.emOriginalMetaData, originalMeta, false);
-                await TaskStore.UpdateTaskMetaDataAsync(taskId, MetaDataType.emContentMetaData, xElement.ToString(),false);//doc.OuterXml);
+                
             }
             else
             {
@@ -378,7 +379,7 @@ namespace IngestTaskPlugin.Managers
         {
             var upload = await VtrStore.GetUploadtask(a => a.FirstOrDefaultAsync(x => x.Taskid == taskId), true);
 
-            if (upload == null)
+            if (upload != null)
             {
                 if (vtrTaskState == VTRUPLOADTASKSTATE.VTR_UPLOAD_COMMIT &&
                     (upload.Taskstate == (int)VTRUPLOADTASKSTATE.VTR_UPLOAD_COMPLETE))

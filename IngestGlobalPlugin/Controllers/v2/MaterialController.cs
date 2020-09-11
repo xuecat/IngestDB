@@ -182,6 +182,7 @@ namespace IngestGlobalPlugin.Controllers.v2
             {
                 Response.Code = ResponseCodeDefines.ModelStateInvalid;
                 Response.Msg = "request param error";
+                return Response;
             }
             try
             {

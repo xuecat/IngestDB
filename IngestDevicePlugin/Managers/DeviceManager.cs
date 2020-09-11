@@ -741,8 +741,12 @@ namespace IngestDevicePlugin.Managers
             }
             // Add by chenzhi 2013-07-09
             // TODO: 通道需要排序，同一个分组的排在前面，无分组的排在后面
-            lstchn.OrderBy(x => x.GroupId);
-            return _mapper.Map<List<TResult>>(lstchn);
+            if (lstchn.Count>0)
+            {
+                lstchn.OrderBy(x => x.GroupId);
+                return _mapper.Map<List<TResult>>(lstchn);
+            }
+            return default(List<TResult>);
         }
 
         public virtual Task<bool> HaveMatrixAsync()

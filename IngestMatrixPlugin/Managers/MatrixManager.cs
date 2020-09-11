@@ -369,7 +369,12 @@ namespace IngestMatrixPlugin.Managers
             var levelList = await Store.QueryLevelrelation(a => a.Where(x => x.Matrixid == matrixID), true);
 
             if (levelList == null || levelList.Count == 0)
+            {
+
                 Logger.Error("in TryCount:length is 0！");
+                return routList;
+            }
+                
 
             foreach (var info in levelList)
             {
@@ -390,13 +395,15 @@ namespace IngestMatrixPlugin.Managers
                     var matrixinport = await Store.QueryMapinport(a => a.SingleOrDefaultAsync(x => x.Matrixid == matrixID && x.Inport == info.Inport), true);
                     if (matrixinport != null)
                     {
-                        return routList;
+                        if (matrixinport.Virtualinport == virtualInPort) //如果等于被请求的虚拟输入端口，则路由成功
+                        {
+                            routList.Add(RoutInfo);
+                            return routList;
+                        }
                     }
-                    if (matrixinport.Virtualinport == virtualInPort) //如果等于被请求的虚拟输入端口，则路由成功
-                    {
-                        routList.Add(RoutInfo);
+                    else
                         return routList;
-                    }
+                    
                 }
                 else//如果有父矩阵
                 {

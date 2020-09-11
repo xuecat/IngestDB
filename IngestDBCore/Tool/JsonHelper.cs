@@ -45,6 +45,10 @@ namespace IngestDBCore.Tool
 
         public static TObject ToObject<TObject>(string json)
         {
+            if (String.IsNullOrEmpty(json))
+            {
+                return default(TObject);
+            }
             return (TObject)ToObject(json, typeof(TObject));
         }
     }
