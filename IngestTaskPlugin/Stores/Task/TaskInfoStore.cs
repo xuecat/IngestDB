@@ -2039,7 +2039,7 @@ namespace IngestTaskPlugin.Stores
                     bIsValid = false;
                 }
 
-                Logger.Info($"ModifyTask {task.Taskid} {bIsValid} {task.State} {NewBeginTime}");
+                Logger.Info($"ModifyTask periodic {task.Taskid} {bIsValid} {task.State} {NewBeginTime}");
                 if (bIsValid)
                 {
                     task.NewBegintime = NewBeginTime;

@@ -104,10 +104,10 @@ namespace IngestDevicePlugin.Controllers.v2
         /// </summary>
         /// <remarks>原方法 GetAllCaptureDevices</remarks>
         /// <returns>采集设备集合</returns>
-        [HttpGet("capturedevice/all")]
+        [HttpGet("device/all")]
         [MapToApiVersion("2.1")]
         [ApiExplorerSettings(GroupName = "v2")]
-        public async Task<ResponseMessage<List<CaptureDeviceInfoResponse>>> AllCaptureDevicesForTask()
+        public async Task<ResponseMessage<List<CaptureDeviceInfoResponse>>> AllDevicesForTask()
         {
             ResponseMessage<List<CaptureDeviceInfoResponse>> response = new ResponseMessage<List<CaptureDeviceInfoResponse>>();
             try

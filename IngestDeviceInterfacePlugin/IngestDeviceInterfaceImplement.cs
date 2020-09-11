@@ -34,7 +34,7 @@ namespace IngestTaskInterfacePlugin
                 case FunctionType.DeviceInfoByID:
                     {
                         return _mapper.Map<ResponseMessage<DeviceInfoInterface>>(
-                        await _controller.GetCaptureDeviceByid(examineResponse.DeviceId));
+                        await _controller.GetCaptureDeviceByidForTask(examineResponse.DeviceId));
                     }
 
                 case FunctionType.SingnalIDByChannel:

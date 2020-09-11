@@ -705,6 +705,47 @@ namespace IngestTaskPlugin.Controllers.v1
             }
         }
 
+        [HttpPost("ModifyTaskEndTime"), MapToApiVersion("1.0")]
+        [ApiExplorerSettings(GroupName = "v1")]
+        public async Task<PostModifyTaskDb_OUT> ModifyTaskEndTime([FromQuery]int nTaskID, [FromQuery]string strEndTime)
+        {
+            Logger.Info($"ModifyTaskEndTime : {nTaskID} {strEndTime} ");
+
+            var Response = new PostModifyTaskDb_OUT
+            {
+                bRet = true,
+                errStr = "OK"
+            };
+
+            try
+            {
+                var modifyTask = await _taskManage.ModifyTaskEndTimeInSecurity(nTaskID, DateTimeFormat.DateTimeFromString(strEndTime));
+                //添加后如果开始时间在2分钟以内，需要调度一次
+               
+                if (_globalInterface != null)
+                {
+                    GlobalInternals re = new GlobalInternals() { Funtype = IngestDBCore.GlobalInternals.FunctionType.SetGlobalState, State = GlobalStateName.MODTASK };
+                    var response1 = await _globalInterface.Value.SubmitGlobalCallBack(re);
+                    if (response1.Code != ResponseCodeDefines.SuccessCode)
+                    {
+                        Logger.Error("SetGlobalState modtask error");
+                    }
+
+                    Task.Run(() => { _clock.InvokeNotify(GlobalStateName.MODTASK, NotifyPlugin.Kafka, NotifyAction.MODIFYTASK, modifyTask); });
+                }
+
+                return Response;
+            }
+            catch (Exception e)
+            {
+                Response.bRet = false;
+                Response.errStr = "error info:" + e.Message;
+                Logger.Error("PostModifyTaskDb" + e.Message);
+                return Response;
+            }
+            return Response;
+        }
+
         [HttpPost("PostModifyTaskDb"), MapToApiVersion("1.0")]
         [ApiExplorerSettings(GroupName = "v1")]
         public async Task<PostModifyTaskDb_OUT> PostModifyTaskDb([FromBody]PostModifyTaskDb_IN pIn)
@@ -1322,7 +1363,7 @@ namespace IngestTaskPlugin.Controllers.v1
             {
                 
                     //Response.errStr = "error info:" + e.ToString();
-                Logger.Error("GetTrimTaskBeginTime" + e.Message);
+                Logger.Error("PostCompleteSynTasks" + e.Message);
                 //return Response;
             }
             return false;
@@ -1350,7 +1391,7 @@ namespace IngestTaskPlugin.Controllers.v1
                 if (e.GetType() == typeof(SobeyRecException))//sobeyexcep会自动打印错误
                
                 //Response.errStr = "error info:" + e.ToString();
-                Logger.Error("GetTrimTaskBeginTime" + e.Message);
+                Logger.Error("Update24HoursTask" + e.Message);
                 //return Response;
             }
             return "";

@@ -786,6 +786,71 @@ namespace IngestTaskPlugin.Controllers.v2
         }
 
         /// <summary>
+        /// 修改任务结束时间，
+        /// </summary>
+        /// <remarks>
+        /// 这个函数不会有通道安全判断，直接修改
+        ///
+        /// </remarks>
+        /// <param name="taskid">任务id，给不给值无所谓只是为了好看</param>
+        /// <param name="req">修改请求体，请填入taskid信息</param>
+        /// <returns>任务信息</returns>
+        [HttpPut("content/{taskid}/endtime")]
+        [ApiExplorerSettings(GroupName = "v2")]
+        public async Task<ResponseMessage<TaskContentResponse>> ModifyTaskEndTime([FromRoute, BindRequired]int taskid, [FromQuery, BindRequired]string endtime)
+        {
+            Logger.Info($"ModifyTask taskid : {taskid}, req {endtime}");
+
+            var Response = new ResponseMessage<TaskContentResponse>();
+            if (taskid < 1)
+            {
+                Response.Code = ResponseCodeDefines.ModelStateInvalid;
+                Response.Msg = "request param error";
+            }
+
+            try
+            {
+                //Response.Ext = await _taskManage.ModifyTask<TaskContentResponse>(req, string.Empty, string.Empty, string.Empty, string.Empty);
+                var modifyTask = await _taskManage.ModifyTaskEndTimeInSecurity(taskid, DateTimeFormat.DateTimeFromString(endtime));
+                Response.Ext = _mapper.Map<TaskContentResponse>(modifyTask);
+                if (Response.Ext == null)
+                {
+                    Response.Code = ResponseCodeDefines.NotFound;
+                    Response.Msg = $"{System.Reflection.MethodBase.GetCurrentMethod().DeclaringType.FullName}:error info: not find data!";
+                    return Response;
+                }
+                
+                if (_globalInterface != null)
+                {
+                    GlobalInternals re = new GlobalInternals() { Funtype = IngestDBCore.GlobalInternals.FunctionType.SetGlobalState, State = GlobalStateName.MODTASK };
+                    var response1 = await _globalInterface.Value.SubmitGlobalCallBack(re);
+                    if (response1.Code != ResponseCodeDefines.SuccessCode)
+                    {
+                        Logger.Error("SetGlobalState modtask error");
+                    }
+
+                    Task.Run(() => { _clock.InvokeNotify(GlobalStateName.MODTASK, NotifyPlugin.Kafka, NotifyAction.MODIFYTASK, modifyTask); });
+                }
+            }
+            catch (Exception e)
+            {
+                if (e.GetType() == typeof(SobeyRecException))//sobeyexcep会自动打印错误
+                {
+                    SobeyRecException se = e as SobeyRecException;
+                    Response.Code = se.ErrorCode.ToString();
+                    Response.Msg = se.Message;
+                }
+                else
+                {
+                    Response.Code = ResponseCodeDefines.ServiceError;
+                    Response.Msg = "ModifyTaskEndTime error info:" + e.Message;
+                    Logger.Error(Response.Msg);
+                }
+            }
+            return Response;
+        }
+
+        /// <summary>
         /// 修改任务元数据，不包括任务metadata数据
         /// </summary>
         /// <remarks>

@@ -149,7 +149,7 @@ namespace IngestDevicePlugin.Managers
 
         public async Task<TResult> GetCaptureDeviceByIDAsync<TResult>(int deveiceid)
         {
-            return _mapper.Map<TResult>(await Store.GetDeviceInfoByIdAsync(deveiceid));
+            return _mapper.Map<TResult>(await Store.GetDeviceByIdAsync(deveiceid));
         }
 
         /// <summary> 获取所有采集设备 </summary>

@@ -371,6 +371,7 @@ namespace IngestDBCore
 
                 _globalDict.Add(GLOBALDICT_CODE_FILL_GETTASKMETADATA_EXCEPTION, "在GetTaskMetaData过程中发生错误@Error in GetTaskMetaData.@在GetTaskMetaData過程中發生錯誤@");
                 _globalDict.Add(GLOBALDICT_CODE_CAN_NOT_DELETE_DELETING_TASK, "不能删除正在执行删除的任务@Can not delete the deleting task.@不能刪除正在执行的任務@");
+                _globalDict.Add(GLOBALDICT_CODE_CANNOTMODIFYTASK_WHERE_STOPING, "任务正在停止，不能修改@Can not modify where the task is stoping.@不能刪除已完成的任務@");
                 // 调试日志
                 //ApplicationLog.WriteDebugTraceLog0(string.Format("### GlobalDictionary having {0} count Dict record. ###", _globalDict.Count));
             }
@@ -1769,6 +1770,8 @@ namespace IngestDBCore
         public const int GLOBALDICT_CODE_DATA_NOTFOUND_BYKEY = 18275;
         public const int GLOBALDICT_CODE_CAN_NOT_FIND_THE_VTRTASK_ONEPARAM = 18276;
         public const int GLOBALDICT_CODE_CAN_NOT_DELETE_DELETING_TASK = 18277;
+
+        public const int GLOBALDICT_CODE_CANNOTMODIFYTASK_WHERE_STOPING = 18278;
         #endregion
 
         #endregion

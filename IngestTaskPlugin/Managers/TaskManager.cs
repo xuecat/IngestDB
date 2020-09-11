@@ -2360,6 +2360,31 @@ namespace IngestTaskPlugin.Managers
             }
             //return 0;
         }
+
+        public async Task<DbpTask> ModifyTaskEndTimeInSecurity(int taskid, DateTime endtime)
+        {
+            var findtask = await Store.GetTaskAsync(a => a.Where(b => b.Taskid == taskid));
+
+            if (findtask == null)
+            {
+                SobeyRecException.ThrowSelfNoParam("ModifyTaskEndTime findtask empty", GlobalDictionary.GLOBALDICT_CODE_TASKSET_IS_NULL, Logger, null);
+            }
+
+            if ((endtime-findtask.Starttime).TotalSeconds < 3)
+            {
+                SobeyRecException.ThrowSelfNoParam("", GlobalDictionary.GLOBALDICT_CODE_TASK_END_TIME_IS_SMALLER_THAN_BEING_TIME, Logger, null);
+            }
+
+            if ((findtask.Recunitid & 0x8000)>0)
+            {
+                SobeyRecException.ThrowSelfNoParam(taskid.ToString(), GlobalDictionary.GLOBALDICT_CODE_CANNOTMODIFYTASK_WHERE_STOPING, Logger, null);
+            }
+
+            findtask.Endtime = endtime;
+            await Store.SaveChangeAsync();
+            return findtask;
+        }
+
         public async Task<DbpTask> ModifyTask<TResult>(TResult task, string CaptureMeta, string ContentMeta, string MatiralMeta, string PlanningMeta)
         {
             var taskModify = _mapper.Map<TaskContentRequest>(task);
