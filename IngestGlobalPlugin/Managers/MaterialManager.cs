@@ -473,7 +473,7 @@ namespace IngestGlobalPlugin.Managers
                 return  materialID;
             }
 
-            int nId = await Store.GetMaterial(a => a.MaxAsync(x => x.Materialid), true) + 1;
+            int nId = Store.GetNextValId("DBP_SQ_MATERIALID");
 
             //添加素材
             mtrl.strGUID = Guid.NewGuid().ToString("N");
