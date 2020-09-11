@@ -262,8 +262,8 @@ namespace IngestMatrixPlugin.Managers
             {
                 Logger.Error("ReleaseWhenSwitch matrixroutList empty");
             }
-
-            matrixRouts.AddRange(matrixroutList);
+            else
+                matrixRouts.AddRange(matrixroutList);
 
             //var matrixList = _mapper.Map<List<MatrixRoutInfo>>(await Store.QueryMatrixrout(a => a, true));
             //matrixRouts.AddRange(matrixList);

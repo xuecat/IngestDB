@@ -1588,8 +1588,7 @@ namespace IngestTaskPlugin.Managers
                     }
 
                     //剩下的，肯定是跟通道空闲时间有交集的
-                    TimePeriod tp = new TimePeriod();
-                    tp = TimePeriod.GetIntersect(chTP, vtrFreeTP.Periods[i]);
+                    TimePeriod tp = TimePeriod.GetIntersect(chTP, vtrFreeTP.Periods[i]);
                     tp.Id = newChannelFreeTP.ChannelId;
                     newChannelFreeTP.Periods.Add(tp);
                 }
