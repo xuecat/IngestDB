@@ -200,14 +200,17 @@
             else
             {
                 var oldTape = await Context.VtrTapelist.FirstOrDefaultAsync(a => a.Tapename == tapelist.Tapename);
-                if (tapelist != null && oldTape != null)
+                if (oldTape != null)
                 {
                     oldTape.Tapedesc = tapelist.Tapedesc;
                 }
                 else
                 {
-                    tapelist.Tapeid = await Context.VtrTapelist.MaxAsync(a => a.Tapeid) + 1;
-                    if (tapelist.Tapeid < 11) tapelist.Tapeid = 11;
+                    do
+                    {
+                        tapelist.Tapeid = GetNextValId("DBP_SQ_TAPEID");
+                    } while (tapelist.Tapeid < 11);
+                    
                     await Context.VtrTapelist.AddAsync(tapelist);
                 }
             }
@@ -607,6 +610,11 @@
                     }
                 }
             }
+        }
+
+        public int GetNextValId(string value)
+        {
+            return Context.VtrUploadtask.Select(x => IngestTaskDBContext.next_val(value)).FirstOrDefault();
         }
 
     }

@@ -1494,15 +1494,19 @@ namespace IngestTaskPlugin.Managers
             if (materilmeta != null)
             {
                 var mroot = XDocument.Parse(materilmeta.Metadatalong);
-                var title = mroot?.Element("MATERIAL")?.Element("TITLE");
-                if (title == null)
+                if (mroot != null)
                 {
-                    mroot.Element("MATERIAL").Add(new XElement("TITLE", newname));
-                }
-                else
-                    title.Value = newname;
+                    var title = mroot?.Element("MATERIAL")?.Element("TITLE");
+                    if (title == null)
+                    {
+                        mroot.Element("MATERIAL").Add(new XElement("TITLE", newname));
+                    }
+                    else
+                        title.Value = newname;
 
-                materilmeta.Metadatalong = mroot.ToString();
+                    materilmeta.Metadatalong = mroot.ToString();
+                }
+                
             }
            
             taskinfo.Taskname = newname;
@@ -2581,7 +2585,7 @@ namespace IngestTaskPlugin.Managers
                 TimeSpan span = findtask.Starttime - DateTime.Now;
                 int tkState = findtask.State.GetValueOrDefault();
                 //如果任务已经或者即将开始，不允许改变开始时间
-                if ((tkState == (int)taskState.tsExecuting || tkState != (int)taskState.tsReady || tkState != (int)taskState.tsManuexecuting)
+                if ((tkState == (int)taskState.tsExecuting || tkState == (int)taskState.tsReady || tkState == (int)taskState.tsManuexecuting)
                     && span.TotalSeconds < 30)
                 {
                     //原有的开始时间不等于现有的开始时间，但是长度相等，表明是拖动整体移动，不能修改时间，
@@ -2593,9 +2597,14 @@ namespace IngestTaskPlugin.Managers
                         /*
                          * @brief 这里会判断冲突，我去掉了，因为感觉没有必要
                          */
+                        Logger.Info("ModifyTask confilict move");
                     }
                     else
+                    {
                         findtask.Endtime = modifyend;
+                        Logger.Info("ModifyTask confilict change endtime");
+                    }
+                        
                 }
                 else
                 {
@@ -3177,10 +3186,11 @@ namespace IngestTaskPlugin.Managers
         public async Task<DbpTask> AutoAddTaskByOldTask(int oldtask, DateTime starttime , IIngestGlobalInterface global)
         {
             var findtask = await Store.GetTaskAsync(a => a.Where(b => b.Taskid == oldtask));
-            var newtaskinfo = Store.DeepClone(findtask);
 
             if (findtask != null)
             {
+                var newtaskinfo = Store.DeepClone(findtask);
+
                 if (findtask.Tasktype == (int)TaskType.TT_MANUTASK
                 || findtask.Tasktype == (int)TaskType.TT_OPENEND)
                 {
@@ -3196,143 +3206,145 @@ namespace IngestTaskPlugin.Managers
                     return null;
                     // ----------------- The End 2013-08-01 -----------------
                 }
-            }
 
-            if (findtask.Backtype == (int)CooperantType.emVTRBackup)
-            {
-                findtask.Backtype = (int)CooperantType.emVTRBackupFinish;
-            }
-            else if (findtask.Backtype == (int)CooperantType.emKamataki)
-            {
-                //Kamataki任务改成普通任务
-                newtaskinfo.Backtype = (int)CooperantType.emPureTask;
-            }
-
-            // Add by chenzhi 2013-07-23
-            // TODO: 如果原任务是一个周期任务的子任务，则需要在这改为普通任务
-
-            if (findtask.Tasktype == (int)TaskType.TT_PERIODIC)
-            {
-                // 改为普通任务
-                newtaskinfo.Tasktype = (int)TaskType.TT_NORMAL;
-            }
-
-            //MetaDataPolicy[] arrMetaDataPolicy = PPLICYACCESS.GetPolicyByTaskID(oldTaskID);
-            //List<int> listPolicyId = new List<int>();
-            //foreach (MetaDataPolicy item in arrMetaDataPolicy)
-            //{
-            //    listPolicyId.Add(item.nID);
-            //}
-            //int[] arrPolicyId = listPolicyId.ToArray();
-
-            Store.StopTaskNoChange(findtask, starttime);
-
-            newtaskinfo.Taskguid = Guid.NewGuid().ToString("N");
-            newtaskinfo.Taskid = -1;
-            newtaskinfo.Starttime = starttime.AddSeconds(1);
-            newtaskinfo.NewBegintime = newtaskinfo.Starttime;
-            newtaskinfo.Taskname += "_1";
-
-            
-            if (_deviceInterface != null)
-            {
-                var response1 = await _deviceInterface.Value.GetDeviceCallBack(new DeviceInternals()
+                if (findtask.Backtype == (int)CooperantType.emVTRBackup)
                 {
-                    funtype = DeviceInternals.FunctionType.SingnalIDByChannel,
-                    ChannelId = findtask.Channelid.GetValueOrDefault()
-
-                });
-                if (response1.Code != ResponseCodeDefines.SuccessCode)
-                {
-                    Logger.Error("AutoAddTaskByOldTask SingnalIDByChannel error");
-                    return null;
+                    findtask.Backtype = (int)CooperantType.emVTRBackupFinish;
                 }
-                var fr = response1 as ResponseMessage<int>;
-                if (fr != null && fr.Ext > 0)
+                else if (findtask.Backtype == (int)CooperantType.emKamataki)
                 {
-                    newtaskinfo.Signalid = fr.Ext;
+                    //Kamataki任务改成普通任务
+                    newtaskinfo.Backtype = (int)CooperantType.emPureTask;
                 }
-            }
 
-            newtaskinfo.Tasklock = string.Empty;
-            newtaskinfo.SyncState = (int)syncState.ssSync;
-            newtaskinfo.DispatchState = (int)dispatchState.dpsNotDispatch;
-            newtaskinfo.OpType = (int)opType.otAdd;
-            newtaskinfo.Description = string.Empty;
-            newtaskinfo.State = (int)taskState.tsReady;//先改成准备状态
+                // Add by chenzhi 2013-07-23
+                // TODO: 如果原任务是一个周期任务的子任务，则需要在这改为普通任务
 
-            //OpenEnd任务的结束时间和开始时间一样
-            if (newtaskinfo.Tasktype == (int)TaskType.TT_OPENEND)
-            {
-                newtaskinfo.Endtime = newtaskinfo.Starttime;
-                newtaskinfo.NewEndtime = newtaskinfo.Starttime;
-            }
-
-            TaskSource src = await GetTaskSource(findtask.Taskid);
-
-            var lsttaskmeta = await Store.GetTaskMetaDataListAsync(a => a.Where(b => b.Taskid == findtask.Taskid), true); ;
-            string strCapatureMetaData = string.Empty, strStoreMetaData = string.Empty, strContentMetaData = string.Empty, strPlanMetaData = string.Empty, strSplitMetaData = string.Empty;
-            foreach (var item in lsttaskmeta)
-            {
-                if (item.Metadatatype == (int)MetaDataType.emCapatureMetaData)
+                if (findtask.Tasktype == (int)TaskType.TT_PERIODIC)
                 {
-                    strCapatureMetaData = await GetCaptureTemplateBySignalIdAndUserCode(newtaskinfo.Signalid.GetValueOrDefault(), false, findtask.Usercode, global);
+                    // 改为普通任务
+                    newtaskinfo.Tasktype = (int)TaskType.TT_NORMAL;
+                }
 
-                    if (string.IsNullOrEmpty(strCapatureMetaData))
+                //MetaDataPolicy[] arrMetaDataPolicy = PPLICYACCESS.GetPolicyByTaskID(oldTaskID);
+                //List<int> listPolicyId = new List<int>();
+                //foreach (MetaDataPolicy item in arrMetaDataPolicy)
+                //{
+                //    listPolicyId.Add(item.nID);
+                //}
+                //int[] arrPolicyId = listPolicyId.ToArray();
+
+                Store.StopTaskNoChange(findtask, starttime);
+
+                newtaskinfo.Taskguid = Guid.NewGuid().ToString("N");
+                newtaskinfo.Taskid = -1;
+                newtaskinfo.Starttime = starttime.AddSeconds(1);
+                newtaskinfo.NewBegintime = newtaskinfo.Starttime;
+                newtaskinfo.Taskname += "_1";
+
+
+                if (_deviceInterface != null)
+                {
+                    var response1 = await _deviceInterface.Value.GetDeviceCallBack(new DeviceInternals()
                     {
-                        strCapatureMetaData = item.Metadatalong;
+                        funtype = DeviceInternals.FunctionType.SingnalIDByChannel,
+                        ChannelId = findtask.Channelid.GetValueOrDefault()
+
+                    });
+                    if (response1.Code != ResponseCodeDefines.SuccessCode)
+                    {
+                        Logger.Error("AutoAddTaskByOldTask SingnalIDByChannel error");
+                        return null;
+                    }
+                    var fr = response1 as ResponseMessage<int>;
+                    if (fr != null && fr.Ext > 0)
+                    {
+                        newtaskinfo.Signalid = fr.Ext;
                     }
                 }
-                else if (item.Metadatatype == (int)MetaDataType.emContentMetaData)
-                {
-                    strContentMetaData = item.Metadatalong;
-                }
-                else if (item.Metadatatype == (int)MetaDataType.emStoreMetaData)
-                {
-                    strStoreMetaData = item.Metadatalong;
-                }
-                else if (item.Metadatatype == (int)MetaDataType.emPlanMetaData)
-                {
-                    strPlanMetaData = item.Metadatalong;
-                }
-                else if (item.Metadatatype == (int)MetaDataType.emSplitData)
-                {
-                    strSplitMetaData = item.Metadatalong;
-                }
-            }
 
-            if (!string.IsNullOrEmpty(strStoreMetaData))
-            {
-                //<MADEBYINGEST></MADEBYINGEST>这个玩意会妨碍xml解析，居然有这个玩意，日了
-                var root = XElement.Parse(strStoreMetaData);
-                if (root != null)
+                newtaskinfo.Tasklock = string.Empty;
+                newtaskinfo.SyncState = (int)syncState.ssSync;
+                newtaskinfo.DispatchState = (int)dispatchState.dpsNotDispatch;
+                newtaskinfo.OpType = (int)opType.otAdd;
+                newtaskinfo.Description = string.Empty;
+                newtaskinfo.State = (int)taskState.tsReady;//先改成准备状态
+
+                //OpenEnd任务的结束时间和开始时间一样
+                if (newtaskinfo.Tasktype == (int)TaskType.TT_OPENEND)
                 {
-                    var ma = root.Element("MATERIAL");
-                    if (ma != null)
+                    newtaskinfo.Endtime = newtaskinfo.Starttime;
+                    newtaskinfo.NewEndtime = newtaskinfo.Starttime;
+                }
+
+                TaskSource src = await GetTaskSource(findtask.Taskid);
+
+                var lsttaskmeta = await Store.GetTaskMetaDataListAsync(a => a.Where(b => b.Taskid == findtask.Taskid), true); ;
+                string strCapatureMetaData = string.Empty, strStoreMetaData = string.Empty, strContentMetaData = string.Empty, strPlanMetaData = string.Empty, strSplitMetaData = string.Empty;
+                foreach (var item in lsttaskmeta)
+                {
+                    if (item.Metadatatype == (int)MetaDataType.emCapatureMetaData)
                     {
-                        var t = ma.Element("TITLE");
-                        if (t != null) t.Value = newtaskinfo.Taskname;
-                        var m = ma.Element("MATERIALID");
-                        if (m != null) m.Value = string.Empty;
+                        strCapatureMetaData = await GetCaptureTemplateBySignalIdAndUserCode(newtaskinfo.Signalid.GetValueOrDefault(), false, findtask.Usercode, global);
+
+                        if (string.IsNullOrEmpty(strCapatureMetaData))
+                        {
+                            strCapatureMetaData = item.Metadatalong;
+                        }
+                    }
+                    else if (item.Metadatatype == (int)MetaDataType.emContentMetaData)
+                    {
+                        strContentMetaData = item.Metadatalong;
+                    }
+                    else if (item.Metadatatype == (int)MetaDataType.emStoreMetaData)
+                    {
+                        strStoreMetaData = item.Metadatalong;
+                    }
+                    else if (item.Metadatatype == (int)MetaDataType.emPlanMetaData)
+                    {
+                        strPlanMetaData = item.Metadatalong;
+                    }
+                    else if (item.Metadatatype == (int)MetaDataType.emSplitData)
+                    {
+                        strSplitMetaData = item.Metadatalong;
                     }
                 }
+
+                if (!string.IsNullOrEmpty(strStoreMetaData))
+                {
+                    //<MADEBYINGEST></MADEBYINGEST>这个玩意会妨碍xml解析，居然有这个玩意，日了
+                    var root = XElement.Parse(strStoreMetaData);
+                    if (root != null)
+                    {
+                        var ma = root.Element("MATERIAL");
+                        if (ma != null)
+                        {
+                            var t = ma.Element("TITLE");
+                            if (t != null) t.Value = newtaskinfo.Taskname;
+                            var m = ma.Element("MATERIALID");
+                            if (m != null) m.Value = string.Empty;
+                        }
+                    }
+                }
+
+                if (!string.IsNullOrEmpty(strContentMetaData))
+                {
+                    var root = XElement.Parse(strContentMetaData);
+                    root.Descendants("RealStampIndex").Remove();
+                    root.Descendants("PERIODPARAM").Remove();
+                }
+
+                var info = await Store.AddTaskWithPolicys(newtaskinfo, true, src,
+                                                            strCapatureMetaData,
+                                                            strContentMetaData,
+                                                            strStoreMetaData,
+                                                            strPlanMetaData, null);
+
+                //return _mapper.Map<TaskContentResponse>(info);
+                return info;
             }
 
-            if (!string.IsNullOrEmpty(strContentMetaData))
-            {
-                var root = XElement.Parse(strContentMetaData);
-                root.Descendants("RealStampIndex").Remove();
-                root.Descendants("PERIODPARAM").Remove();
-            }
-
-            var info = await Store.AddTaskWithPolicys(newtaskinfo, true, src,
-                                                        strCapatureMetaData,
-                                                        strContentMetaData,
-                                                        strStoreMetaData,
-                                                        strPlanMetaData, null);
-
-            //return _mapper.Map<TaskContentResponse>(info);
-            return info;
+            return null;
         }
 
         public async Task<bool> UpdateBackupTaskMetadata(int taskid, int backtaskid, string ContentMeta)
@@ -3913,17 +3925,17 @@ namespace IngestTaskPlugin.Managers
                 DateTime End = DateTimeFormat.DateTimeFromString(request.End);
                 List<int> freeChannelIdList = await Store.GetFreeChannels(matchlst, request.TaskId, Begin, End, request.ChannelId != -1);
 
-                Logger.Info("GetFreeChannels freeChannelIdList {0}", freeChannelIdList.Count);
-
-                if (freeChannelIdList?.Count > 0)
+                if (freeChannelIdList != null && freeChannelIdList.Count>0)
                 {
+                    Logger.Info("GetFreeChannels freeChannelIdList {0}", freeChannelIdList.Count);
                     /*
-                     @ brief 这里按照老逻辑会赛选下被锁住的通道，全是超时锁
-                     @ 选择通道时锁住通道，添加任务完了再释放锁，这什么鬼逻辑
-                     @ 决定放弃这个通道锁这个逻辑，后面不行再补上
-                     */
+                    @ brief 这里按照老逻辑会赛选下被锁住的通道，全是超时锁
+                    @ 选择通道时锁住通道，添加任务完了再释放锁，这什么鬼逻辑
+                    @ 决定放弃这个通道锁这个逻辑，后面不行再补上
+                    */
                     return ChooseBestChannel(request, freeChannelIdList, condition);
                 }
+                
             }
             else
                 Logger.Error("CHSelectForNormalTask matchcount error");
@@ -3955,10 +3967,11 @@ namespace IngestTaskPlugin.Managers
                 int reqChannelId = condition.BackupCHSel ? -1 : request.ChannelId;
                 List<int> freeChannelIdList = await Store.GetFreePerodiChannels(matchlst, -1, request.Unit, request.SignalId, reqChannelId, request.Classify, Begin, End);
 
-                Logger.Info("GetFreeChannels freeChannelIdList {0}", freeChannelIdList.Count);
+                
 
-                if (freeChannelIdList?.Count > 0)
+                if (freeChannelIdList!= null&& freeChannelIdList?.Count > 0)
                 {
+                    Logger.Info("GetFreeChannels freeChannelIdList {0}", freeChannelIdList.Count);
                     /*
                      @ brief 这里按照老逻辑会赛选下被锁住的通道，全是超时锁
                      @ 选择通道时锁住通道，添加任务完了再释放锁，这什么鬼逻辑
