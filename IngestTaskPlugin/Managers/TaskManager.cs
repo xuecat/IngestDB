@@ -3951,7 +3951,9 @@ namespace IngestTaskPlugin.Managers
 
                 DateTime Begin = DateTimeFormat.DateTimeFromString(request.Begin);
                 DateTime End = DateTimeFormat.DateTimeFromString(request.End);
-                List<int> freeChannelIdList = await Store.GetFreePerodiChannels(matchlst, -1, request.Unit, request.SignalId, request.ChannelId, request.Classify, Begin, End);
+
+                int reqChannelId = condition.BackupCHSel ? -1 : request.ChannelId;
+                List<int> freeChannelIdList = await Store.GetFreePerodiChannels(matchlst, -1, request.Unit, request.SignalId, reqChannelId, request.Classify, Begin, End);
 
                 Logger.Info("GetFreeChannels freeChannelIdList {0}", freeChannelIdList.Count);
 

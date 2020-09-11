@@ -215,6 +215,8 @@
         [HttpPost("SetVTRUploadTaskInfo")]
         public async Task<TaskOldResponseMessage<int>> SetVTRUploadTaskInfo([FromBody] VTRUploadTaskInfo UploadTask)
         {
+            Logger.Info($"SetVTRUploadTaskInfo UploadTask : {Newtonsoft.Json.JsonConvert.SerializeObject(UploadTask)}");
+
             TaskOldResponseMessage<int> response = new TaskOldResponseMessage<int>();
             try
             {
@@ -235,6 +237,9 @@
                         Logger.Error("SetGlobalState modtask error");
                     }
                 }
+
+                Logger.Info($"SetVTRUploadTaskInfo result : {Newtonsoft.Json.JsonConvert.SerializeObject(response)}");
+
             }
             catch (Exception e)//其他未知的异常，写异常日志
             {
@@ -522,6 +527,9 @@
             try
             {
                 response.extention = await _VtrManage.GetNeedExecuteVTRUploadTasksAsync<VTRUploadTaskContent>();
+
+
+                Logger.Error($"response.extention : {Newtonsoft.Json.JsonConvert.SerializeObject(response.extention)}");
             }
             catch (Exception e)//其他未知的异常，写异常日志
             {
@@ -747,6 +755,8 @@
         [HttpGet("CommitVTRUploadTask")]
         public async Task<TaskOldResponseMessage<int>> CommitVTRUploadTask([FromQuery] int taskId)
         {
+            Logger.Error($"CommitVTRUploadTask vtrTask taskId : {taskId}");
+
             TaskOldResponseMessage<int> res = new TaskOldResponseMessage<int>();
             res.message = no_err;
             res.extention = (int)VTR_BUT_ErrorCode.emNormal;

@@ -1900,10 +1900,10 @@ namespace IngestTaskPlugin.Stores
                                     DateTime dtend = new DateTime(dtStartCheck.Year, dtStartCheck.Month, dtStartCheck.Day,
                                         end.Hour, end.Minute, end.Second);
 
-                                    if ((dtend > dtnewitembegin && dtend < dtnewitemend)
-                                            || (dtbegin < dtnewitembegin && dtend > dtnewitemend)
-                                            || (dtbegin > dtnewitembegin && dtend < dtnewitemend)
-                                            || (dtbegin > dtnewitembegin && dtbegin < dtnewitemend))
+                                    if ((dtend >= dtnewitembegin && dtend <= dtnewitemend)
+                                            || (dtbegin <= dtnewitembegin && dtend >= dtnewitemend)
+                                            || (dtbegin >= dtnewitembegin && dtend <= dtnewitemend)
+                                            || (dtbegin >= dtnewitembegin && dtbegin <= dtnewitemend))
                                     {
                                         filterconficttasklst.Add(item);
 
