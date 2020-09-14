@@ -1915,8 +1915,9 @@ namespace IngestTaskPlugin.Managers
                 return 0;
             }
 
-            //对普通任务和可执行的周期任务做同样的操作，将开始时间换成当前时间zmj2008-9-1
-            if (taskinfo.Tasktype != (int)TaskType.TT_PERIODIC || (taskinfo.Tasktype == (int)TaskType.TT_PERIODIC && taskinfo.OldChannelid > 0))
+            //对普通任务和可执行的周期任务做同样的操作，将开始时间换成当前时间zmj2008-9-1  
+            //任务状态不是完成时才能够进行修改
+            if (taskinfo.State != (int)taskState.tsComplete && (taskinfo.Tasktype != (int)TaskType.TT_PERIODIC || (taskinfo.Tasktype == (int)TaskType.TT_PERIODIC && taskinfo.OldChannelid > 0)))
             {
                 DateTime dtNow = new DateTime();
                 if (string.IsNullOrEmpty(StartTime))
