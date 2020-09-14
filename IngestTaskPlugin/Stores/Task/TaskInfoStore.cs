@@ -719,8 +719,10 @@ namespace IngestTaskPlugin.Stores
 
         public async Task<int> DeleteTaskDB(int taskid, bool change)
         {
-            Context.DbpTask.Remove(new DbpTask() { Taskid = taskid });
-            Context.DbpTaskMetadata.Remove(new DbpTaskMetadata() { Taskid = taskid });
+            var dbptask = await GetTaskAsync(a => a.Where(x => x.Taskid == taskid));
+            Context.DbpTask.Remove(dbptask);
+            var dbptaskMetadatas = await GetTaskMetaDataListAsync(a => a.Where(x => x.Taskid == taskid));
+            Context.DbpTaskMetadata.RemoveRange(dbptaskMetadatas);
 
             if (change)
             {
