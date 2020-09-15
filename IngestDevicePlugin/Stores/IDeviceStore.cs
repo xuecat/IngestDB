@@ -31,8 +31,8 @@ namespace IngestDevicePlugin.Stores
         Task<int> GetMatrixChannelBySignalAsync(int channelid);
         Task<int> GetBackUpSignalInfoByID(int srgid);
 
-        Task<List<DeviceInfoDto>> GetAllDeviceAsync();
-        Task<DeviceInfoDto> GetDeviceByIdAsync(int deviceid);
+        Task<List<DeviceInfoDto>> GetAllDeviceInfoAsync();
+        Task<DeviceInfoDto> GetDeviceInfoByIdAsync(int deviceid);
         
 
         /// <summary> 获取输入端口与信号源 </summary>

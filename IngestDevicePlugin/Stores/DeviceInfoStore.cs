@@ -270,7 +270,7 @@ namespace IngestDevicePlugin.Stores
             return query;
         }
 
-        public async Task<List<DeviceInfoDto>> GetAllDeviceAsync()
+        public async Task<List<DeviceInfoDto>> GetAllDeviceInfoAsync()
         {
             return await Context.DbpCapturedevice.AsNoTracking().Join(Context.DbpCapturechannels.AsNoTracking(),
                                                                         devicea => devicea.Cpdeviceid,
@@ -288,7 +288,7 @@ namespace IngestDevicePlugin.Stores
                                                                         }).ToListAsync();
         }
 
-        public async Task<DeviceInfoDto> GetDeviceByIdAsync(int deviceid)
+        public async Task<DeviceInfoDto> GetDeviceInfoByIdAsync(int deviceid)
         {
             return await Context.DbpCapturedevice.Where(device => device.Cpdeviceid == deviceid)
                 .Join(Context.DbpCapturechannels,

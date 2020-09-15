@@ -147,11 +147,15 @@ namespace IngestDevicePlugin.Managers
             return captureChannel;
         }
 
-        public async Task<TResult> GetCaptureDeviceByIDAsync<TResult>(int deveiceid)
+        public async Task<TResult> GetDeviceInfoByIDAsync<TResult>(int deveiceid)
         {
-            return _mapper.Map<TResult>(await Store.GetDeviceByIdAsync(deveiceid));
+            return _mapper.Map<TResult>(await Store.GetDeviceInfoByIdAsync(deveiceid));
         }
 
+        public async Task<List<TResult>> GetAllDeviceInfoAsync<TResult>()
+        {
+            return _mapper.Map<List<TResult>>(await Store.GetAllDeviceInfoAsync());
+        }
         /// <summary> 获取所有采集设备 </summary>
         public virtual async Task<List<TResult>> GetAllCaptureDevicesAsync<TResult>()
         {

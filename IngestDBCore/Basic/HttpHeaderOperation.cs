@@ -39,7 +39,6 @@ namespace IngestDBCore.Basic
             {
                 swaggerDoc.Paths.Add(item.Key, item.Value);
             }
-            int aa = 4;
         }
     }
 
@@ -69,11 +68,23 @@ namespace IngestDBCore.Basic
                     }
                 });
                 var apiVersion = methodInfo.DeclaringType.GetCustomAttributes(true).Where(a => a is ApiVersionAttribute).Select(a => a as ApiVersionAttribute).FirstOrDefault();
+                var mapVersion = methodInfo.GetCustomAttributes(true).Where(a => a is MapToApiVersionAttribute).Select(a => a as MapToApiVersionAttribute).FirstOrDefault();
+                
                 var param = operation.Parameters.SingleOrDefault(a => a.Name == "version" && a.In == ParameterLocation.Path);
                 if (param != null)
                 {
                     //operation.Parameters.Remove(param);
-                    param.Schema.Default = new OpenApiString(apiVersion.Versions[0].ToString());
+                    if (apiVersion.Versions.Count > 0)
+                    {
+                        if (mapVersion != null)
+                        {
+                            param.Schema.Default = new OpenApiString(mapVersion.Versions[0].ToString());
+                        }
+                        else
+                            param.Schema.Default = new OpenApiString(apiVersion.Versions[0].ToString());
+                        
+                    }
+                    
                 }
 
             }
