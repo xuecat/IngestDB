@@ -19,7 +19,7 @@ namespace IngestDevicePlugin.Controllers.h
         public string Get()
         {
 
-            return "DBPlatform Service is already startup at wq " + DateTime.Now.ToString();
+            return "DBPlatform Service is already startup at " + DateTime.Now.ToString();
         }
     }
 }
