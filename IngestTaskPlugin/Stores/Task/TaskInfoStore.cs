@@ -886,6 +886,12 @@ namespace IngestTaskPlugin.Stores
                 return null;
             }
 
+            if(taskinfo.State == (int)taskState.tsComplete)
+            {
+                Logger.Info("StopTask task is tscomplete : " + taskid);
+                return taskinfo;
+            }
+
             Logger.Info("StopTask " + taskid);
 
             if (dt == DateTime.MinValue)//自动停
