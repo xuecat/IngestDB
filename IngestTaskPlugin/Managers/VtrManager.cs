@@ -240,7 +240,7 @@ namespace IngestTaskPlugin.Managers
                 //xElement.LoadXml(metadata);
                 //XmlNode taskContentNode = doc.SelectSingleNode("/TaskContentMetaData");
                 //var taskContentNode = xElement.Elements("TaskContentMetaData").FirstOrDefault();
-                if (xElement != null && xElement.Name == "TaskContentMetaData")
+                if (xElement != null)
                 {
                     if (xElement.HasElements)
                     {
@@ -248,7 +248,7 @@ namespace IngestTaskPlugin.Managers
                         var materialNode = xElement.Element("MetaMaterial");
                         if (materialNode != null)
                         {
-                            materialMeta = materialNode.Value;
+                            materialMeta = materialNode.ToString();
                             //taskContentNode.RemoveChild(materialNode);
                             materialNode.Remove();
                         }
@@ -257,7 +257,7 @@ namespace IngestTaskPlugin.Managers
                         var planningNode = xElement.Element("MetaPlanning");
                         if (planningNode != null)
                         {
-                            planningMeta = planningNode.Value ;
+                            planningMeta = planningNode.ToString();
                             //taskContentNode.RemoveChild(planningNode);
                             planningNode.Remove();
                         }
@@ -266,7 +266,7 @@ namespace IngestTaskPlugin.Managers
                         var originalNode = xElement.Element("MetaOriginal");
                         if (originalNode != null)
                         {
-                            originalMeta = originalNode.Value;
+                            originalMeta = originalNode.ToString();
                             //taskContentNode.RemoveChild(originalNode);
                             originalNode.Remove();
                         }
@@ -1505,44 +1505,53 @@ namespace IngestTaskPlugin.Managers
                 XElement xElement = XElement.Parse(metadata);
                 //xElement.LoadXml(metadata);
                 //XmlNode taskContentNode = doc.SelectSingleNode("/TaskContentMetaData");
-                var taskContentNode = xElement.Elements("TaskContentMetaData").FirstOrDefault();
-                if (taskContentNode != null)
+                //var taskContentNode = xElement.Descendants("TaskContentMetaData").FirstOrDefault();
+                if (xElement != null)
                 {
-                    if (taskContentNode.HasElements)
+                    if (xElement.HasElements)
                     {
                         //XmlNode materialNode = doc.SelectSingleNode("/TaskContentMetaData/MetaMaterial");
-                        var materialNode = taskContentNode.Element("MetaMaterial");
+                        var materialNode = xElement.Element("MetaMaterial");
                         if (materialNode != null)
                         {
-                            materialMeta = materialNode.Value;
+                            materialMeta = materialNode.ToString();
                             //taskContentNode.RemoveChild(materialNode);
                             materialNode.Remove();
                         }
 
                         //XmlNode planningNode = doc.SelectSingleNode("/TaskContentMetaData/MetaPlanning");
-                        var planningNode = taskContentNode.Element("MetaPlanning");
+                        var planningNode = xElement.Element("MetaPlanning");
                         if (planningNode != null)
                         {
-                            planningMeta = planningNode.Value;
+                            planningMeta = planningNode.ToString();
                             //taskContentNode.RemoveChild(planningNode);
                             planningNode.Remove();
                         }
 
                         //XmlNode originalNode = doc.SelectSingleNode("/TaskContentMetaData/MetaOriginal");
-                        var originalNode = taskContentNode.Element("MetaOriginal");
+                        var originalNode = xElement.Element("MetaOriginal");
                         if (originalNode != null)
                         {
-                            originalMeta = originalNode.Value;
+                            originalMeta = originalNode.ToString();
                             //taskContentNode.RemoveChild(originalNode);
                             originalNode.Remove();
                         }
                     }
                 }
 
-                list.Add(new SubmitMetadata() { taskId = taskId, type = MetaDataType.emStoreMetaData, metadata = materialMeta });
-                list.Add(new SubmitMetadata() { taskId = taskId, type = MetaDataType.emPlanMetaData, metadata = planningMeta });
-                list.Add(new SubmitMetadata() { taskId = taskId, type = MetaDataType.emOriginalMetaData, metadata = originalMeta });
-                list.Add(new SubmitMetadata() { taskId = taskId, type = MetaDataType.emContentMetaData, metadata = xElement.Value });
+                if (!string.IsNullOrEmpty(materialMeta))
+                {
+                    list.Add(new SubmitMetadata() { taskId = taskId, type = MetaDataType.emStoreMetaData, metadata = materialMeta });
+                }
+                if (!string.IsNullOrEmpty(planningMeta))
+                {
+                    list.Add(new SubmitMetadata() { taskId = taskId, type = MetaDataType.emPlanMetaData, metadata = planningMeta });
+                }
+                if (!string.IsNullOrEmpty(originalMeta))
+                {
+                    list.Add(new SubmitMetadata() { taskId = taskId, type = MetaDataType.emOriginalMetaData, metadata = originalMeta });
+                }
+                list.Add(new SubmitMetadata() { taskId = taskId, type = MetaDataType.emContentMetaData, metadata = xElement.ToString() });
                 //await TaskStore.UpdateTaskMetaDataAsync(taskId, MetaDataType.emStoreMetaData, materialMeta);
                 //await TaskStore.UpdateTaskMetaDataAsync(taskId, MetaDataType.emPlanMetaData, planningMeta);
                 //await TaskStore.UpdateTaskMetaDataAsync(taskId, MetaDataType.emOriginalMetaData, originalMeta);

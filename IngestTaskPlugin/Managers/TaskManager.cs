@@ -2148,12 +2148,12 @@ namespace IngestTaskPlugin.Managers
             try
             {
                 XDocument xd = new XDocument();
-                xd = XDocument.Load(f.Metadatalong);
+                xd = XDocument.Parse(f.Metadatalong);
 
                 var content = xd.Element("TaskContentMetaData");
                 int groupcolor = int.Parse(content.Element("GroupColor").Value);
 
-                var groupitems = content.Element("GroupItems").Elements();
+                var groupitems = content.Element("GroupItems")?.Elements();
 
                 var channellist = groupitems.Select(l => int.Parse(l.Element("ItemData").Value)).ToList();
 
@@ -2173,12 +2173,12 @@ namespace IngestTaskPlugin.Managers
             try
             {
                 XDocument xd = new XDocument();
-                xd = XDocument.Load(f.Metadatalong);
+                xd = XDocument.Parse(f.Metadatalong);
 
                 var content = xd.Element("TaskContentMetaData");
                 int groupcolor = int.Parse(content.Element("GroupColor").Value);
 
-                var groupitems = content.Element("GroupItems").Elements();
+                var groupitems = content.Element("GroupItems")?.Elements();
 
                 var channellist = groupitems.Select(l => int.Parse(l.Element("ItemData").Value)).ToList();
 
@@ -2961,14 +2961,13 @@ namespace IngestTaskPlugin.Managers
             if (!string.IsNullOrEmpty(strContentMetaData))
             {
                 var root = XElement.Parse(strContentMetaData);
-                var content= root.Element("TaskContentMetaData");
-                var offset = content?.Element("ContentTime")?.Element("OffsetDay");
+                var offset = root?.Element("OffsetDay");
                 if (offset != null)
                 {
                     int offsetday = int.Parse(offset.Value);
 
-                    var contentbegin = content.Element("ContentTime")?.Element("BeginTime");
-                    var contentend = content.Element("ContentTime")?.Element("EndTime");
+                    var contentbegin = root.Element("ContentTime")?.Element("BeginTime");
+                    var contentend = root.Element("ContentTime")?.Element("EndTime");
 
                     var contbegin = DateTimeFormat.DateTimeFromString(contentbegin.Value);
                     var contend = DateTimeFormat.DateTimeFromString(contentend.Value);
@@ -3317,15 +3316,13 @@ namespace IngestTaskPlugin.Managers
                     var root = XElement.Parse(strStoreMetaData);
                     if (root != null)
                     {
-                        var ma = root.Element("MATERIAL");
-                        if (ma != null)
-                        {
-                            var t = ma.Element("TITLE");
-                            if (t != null) t.Value = newtaskinfo.Taskname;
-                            var m = ma.Element("MATERIALID");
-                            if (m != null) m.Value = string.Empty;
-                        }
+                        var t = root.Element("TITLE");
+                        if (t != null) t.Value = newtaskinfo.Taskname;
+                        var m = root.Element("MATERIALID");
+                        if (m != null) m.Value = string.Empty;
+
                     }
+                    strStoreMetaData = root.ToString();
                 }
 
                 if (!string.IsNullOrEmpty(strContentMetaData))
@@ -3333,6 +3330,7 @@ namespace IngestTaskPlugin.Managers
                     var root = XElement.Parse(strContentMetaData);
                     root.Descendants("RealStampIndex").Remove();
                     root.Descendants("PERIODPARAM").Remove();
+                    strContentMetaData = root.ToString();
                 }
 
                 var info = await Store.AddTaskWithPolicys(newtaskinfo, true, src,

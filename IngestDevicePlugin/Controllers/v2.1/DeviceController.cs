@@ -67,6 +67,7 @@ namespace IngestDevicePlugin.Controllers.v2._1
         /// <summary>
         /// 获取指定采集设备全信息(区别于2.0的capturedevice)
         /// </summary>
+        /// <param name="deviceid">设备ID</param>
         /// <remarks>包括设备ip，设备端口号等</remarks>
         /// <returns>采集设备单个信息</returns>
         [HttpGet("device/{deviceid}")]
