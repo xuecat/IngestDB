@@ -528,8 +528,11 @@
             {
                 response.extention = await _VtrManage.GetNeedExecuteVTRUploadTasksAsync<VTRUploadTaskContent>();
 
-
-                Logger.Error($"response.extention : {Newtonsoft.Json.JsonConvert.SerializeObject(response.extention)}");
+                if (response.extention.Count > 0)
+                {
+                    Logger.Error($"response.extention : {Newtonsoft.Json.JsonConvert.SerializeObject(response.extention)}");
+                }
+                
             }
             catch (Exception e)//其他未知的异常，写异常日志
             {
