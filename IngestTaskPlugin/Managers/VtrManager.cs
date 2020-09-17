@@ -248,7 +248,7 @@ namespace IngestTaskPlugin.Managers
                         var materialNode = xElement.Element("MetaMaterial");
                         if (materialNode != null)
                         {
-                            materialMeta = materialNode.ToString();
+                            materialMeta = materialNode.FirstNode?.ToString();
                             //taskContentNode.RemoveChild(materialNode);
                             materialNode.Remove();
                         }
@@ -257,7 +257,7 @@ namespace IngestTaskPlugin.Managers
                         var planningNode = xElement.Element("MetaPlanning");
                         if (planningNode != null)
                         {
-                            planningMeta = planningNode.ToString();
+                            planningMeta = planningNode.FirstNode?.ToString();
                             //taskContentNode.RemoveChild(planningNode);
                             planningNode.Remove();
                         }
@@ -266,7 +266,7 @@ namespace IngestTaskPlugin.Managers
                         var originalNode = xElement.Element("MetaOriginal");
                         if (originalNode != null)
                         {
-                            originalMeta = originalNode.ToString();
+                            originalMeta = originalNode.FirstNode?.ToString();
                             //taskContentNode.RemoveChild(originalNode);
                             originalNode.Remove();
                         }
@@ -1514,7 +1514,7 @@ namespace IngestTaskPlugin.Managers
                         var materialNode = xElement.Element("MetaMaterial");
                         if (materialNode != null)
                         {
-                            materialMeta = materialNode.ToString();
+                            materialMeta = materialNode.FirstNode?.ToString();
                             //taskContentNode.RemoveChild(materialNode);
                             materialNode.Remove();
                         }
@@ -1523,7 +1523,7 @@ namespace IngestTaskPlugin.Managers
                         var planningNode = xElement.Element("MetaPlanning");
                         if (planningNode != null)
                         {
-                            planningMeta = planningNode.ToString();
+                            planningMeta = planningNode.FirstNode?.ToString();
                             //taskContentNode.RemoveChild(planningNode);
                             planningNode.Remove();
                         }
@@ -1532,7 +1532,7 @@ namespace IngestTaskPlugin.Managers
                         var originalNode = xElement.Element("MetaOriginal");
                         if (originalNode != null)
                         {
-                            originalMeta = originalNode.ToString();
+                            originalMeta = originalNode.FirstNode?.ToString();
                             //taskContentNode.RemoveChild(originalNode);
                             originalNode.Remove();
                         }
