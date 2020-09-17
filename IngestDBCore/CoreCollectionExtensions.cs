@@ -18,6 +18,9 @@ namespace IngestDBCore
             }
             var client = new RestClient(httpClientFactory);
             ApplicationContext.Current.KafkaUrl = client.GetGlobalParam(false, "admin", "KafkaAddress").Result;
+            ApplicationContext.Current.IngestMatrixUrl = "http://"+ client.GetGlobalParam(false, "admin", "IngestDeviceCtrlIP").Result;
+            ApplicationContext.Current.IngestMatrixUrl += ":";
+            ApplicationContext.Current.IngestMatrixUrl += client.GetGlobalParam(false, "admin", "IngestDeviceCtrlPort").Result;
 
             if (!string.IsNullOrEmpty(ApplicationContext.Current.KafkaUrl))
             {
