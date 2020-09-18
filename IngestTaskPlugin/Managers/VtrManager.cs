@@ -1870,8 +1870,28 @@ namespace IngestTaskPlugin.Managers
                     {
                         if (IsTimePeriodInChannelTimePeriods(preSetChTP, ctp))
                         {
-                            selectedChannel = ctp.ChannelId;
-                            break;
+                            /*
+                             * 优先使用原来通道
+                             */
+                            if (preSetChannelId > 0)
+                            {
+                                if (ctp.ChannelId == preSetChannelId)
+                                {
+                                    selectedChannel = ctp.ChannelId;
+                                    break;
+                                }
+                                else
+                                {
+                                    //没有就优先第一个
+                                    if (selectedChannel <= 0) selectedChannel = ctp.ChannelId;
+                                    continue;
+                                }
+                            }
+                            else
+                            {
+                                selectedChannel = ctp.ChannelId;
+                                break;
+                            }
                         }
                     }
                 }
@@ -1899,11 +1919,43 @@ namespace IngestTaskPlugin.Managers
                         {
                             if (tempTP.Duration >= preSetChTP.Duration)
                             {
-                                selectedChannel = tempTP.Id;
-                                preSetBeginTime = tempTP.StartTime.AddSeconds(3);
-                                preSetEndTime = preSetBeginTime + preSetChTP.Duration;
-                                break;
+                            //    selectedChannel = tempTP.Id;
+                            //    preSetBeginTime = tempTP.StartTime.AddSeconds(3);
+                            //    preSetEndTime = preSetBeginTime + preSetChTP.Duration;
+                            //    break;
+
+                            /*本通道优先*/
+
+                                if (preSetChannelId > 0)
+                                {
+                                    if (tempTP.Id == preSetChannelId)
+                                    {
+                                        selectedChannel = tempTP.Id;
+                                        preSetBeginTime = tempTP.StartTime.AddSeconds(3);
+                                        preSetEndTime = preSetBeginTime + preSetChTP.Duration;
+                                        break;
+                                    }
+                                    else
+                                    {
+                                        //没有就优先第一个
+                                        if (selectedChannel <= 0)
+                                        {
+                                            selectedChannel = tempTP.Id;
+                                            preSetBeginTime = tempTP.StartTime.AddSeconds(3);
+                                            preSetEndTime = preSetBeginTime + preSetChTP.Duration;
+                                        }
+                                        continue;
+                                    }
+                                }
+                                else
+                                {
+                                    selectedChannel = tempTP.Id;
+                                    preSetBeginTime = tempTP.StartTime.AddSeconds(3);
+                                    preSetEndTime = preSetBeginTime + preSetChTP.Duration;
+                                    break;
+                                }
                             }
+
                         }
                     }
                     else
