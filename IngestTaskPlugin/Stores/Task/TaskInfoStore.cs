@@ -1534,9 +1534,9 @@ namespace IngestTaskPlugin.Stores
                     {
                         List<DbpTaskBackup> backlst = null;
                         lst = await Context.DbpTask.AsNoTracking().Where(a =>
-                        ((a.Starttime >= dtDayBegin && a.Starttime <= dtDayEnd)
+                        (((a.Starttime >= dtDayBegin && a.Starttime <= dtDayEnd)
                         || (a.Endtime >= dtDayBegin && a.Endtime <= dtDayEnd)
-                        || (a.Starttime <= dtDayBegin && a.Endtime >= dtDayEnd)
+                        || (a.Starttime <= dtDayBegin && a.Endtime >= dtDayEnd))
                         && (a.Category.Contains($"W{Week}+") || a.Category.Contains($"W{ProvWeek}+")
                             || a.Category.Contains($"M{MDay}+") || a.Category.Contains($"M{ProvMDay}+")
                             || a.Category.Contains($"D") || a.Category.Contains("A"))
@@ -1550,9 +1550,9 @@ namespace IngestTaskPlugin.Stores
                         if (lst == null || lst.Count <= 0)
                         {
                             lst = await Context.DbpTaskBackup.AsNoTracking().Where(a =>
-                               ((a.Starttime >= dtDayBegin && a.Starttime <= dtDayEnd)
+                               (((a.Starttime >= dtDayBegin && a.Starttime <= dtDayEnd)
                                || (a.Endtime >= dtDayBegin && a.Endtime <= dtDayEnd)
-                               || (a.Starttime <= dtDayBegin && a.Endtime >= dtDayEnd)
+                               || (a.Starttime <= dtDayBegin && a.Endtime >= dtDayEnd))
                                && (a.Category.Contains($"W{Week}+") || a.Category.Contains($"W{ProvWeek}+")
                                    || a.Category.Contains($"M{MDay}+") || a.Category.Contains($"M{ProvMDay}+")
                                    || a.Category.Contains($"D") || a.Category.Contains("A"))
@@ -1603,9 +1603,9 @@ namespace IngestTaskPlugin.Stores
 
                         List<DbpTaskBackup> backlst = null;
                         lst = await Context.DbpTask.AsNoTracking().Where(a =>
-                        ((a.Starttime >= dtDayBegin && a.Starttime <= dtDayEnd)
+                        (((a.Starttime >= dtDayBegin && a.Starttime <= dtDayEnd)
                         || (a.Endtime >= dtDayBegin && a.Endtime <= dtDayEnd)
-                        || (a.Starttime <= dtDayBegin && a.Endtime >= dtDayEnd)
+                        || (a.Starttime <= dtDayBegin && a.Endtime >= dtDayEnd))
                         && (a.Category.Contains($"W{Week}+") || a.Category.Contains($"W{ProvWeek}+") || a.Category.Contains($"W{NextWeekly}+")
                             || a.Category.Contains($"M{MDay}+") || a.Category.Contains($"M{ProvMDay}+") || a.Category.Contains($"M{NextMonthDay}+")
                             || a.Category.Contains($"D") || a.Category.Contains("A"))
@@ -1619,9 +1619,9 @@ namespace IngestTaskPlugin.Stores
                         if (lst == null || lst.Count <= 0)
                         {
                             lst = await Context.DbpTaskBackup.AsNoTracking().Where(a =>
-                               ((a.Starttime >= dtDayBegin && a.Starttime <= dtDayEnd)
+                               (((a.Starttime >= dtDayBegin && a.Starttime <= dtDayEnd)
                                || (a.Endtime >= dtDayBegin && a.Endtime <= dtDayEnd)
-                               || (a.Starttime <= dtDayBegin && a.Endtime >= dtDayEnd)
+                               || (a.Starttime <= dtDayBegin && a.Endtime >= dtDayEnd))
                                && (a.Category.Contains($"W{Week}+") || a.Category.Contains($"W{ProvWeek}+") || a.Category.Contains($"W{NextWeekly}+")
                                    || a.Category.Contains($"M{MDay}+") || a.Category.Contains($"M{ProvMDay}+") || a.Category.Contains($"M{NextMonthDay}+")
                                    || a.Category.Contains($"D") || a.Category.Contains("A"))
