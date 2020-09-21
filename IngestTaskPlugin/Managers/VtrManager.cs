@@ -1754,7 +1754,7 @@ namespace IngestTaskPlugin.Managers
         
         private async Task<List<int>> AddCommitVTRBUTasksExAsync(List<VTRUploadTaskContent> commitTasks, bool ignoreWrong, List<VTR_UPLOAD_MetadataPair> metadatas, bool isAdd2DB, List<int> taskIds)
         {
-
+            Logger.Info($"AddCommitVTRBUTask {JsonHelper.ToJson(commitTasks)}");
             if (commitTasks == null || commitTasks.Count <= 0)
             {
                 throw new Exception("No any commit tasks");
@@ -1964,6 +1964,7 @@ namespace IngestTaskPlugin.Managers
                     }
                 }
 
+                Logger.Info("AddCommitVTRBUTask select one " + selectedChannel);
                 if (selectedChannel > 0)
                 {
                     commitTasks[0].nChannelId = selectedChannel;
@@ -2085,6 +2086,7 @@ namespace IngestTaskPlugin.Managers
                                     {
                                         if (IsTimePeriodInVTRTimePeriods(tp, freeVtrTimePeriods))
                                         {
+                                            Logger.Info("AddCommitVTRBUTask select two " + ctp.ChannelId);
                                             //成功
                                             commitTasks[i].nChannelId = ctp.ChannelId;
                                             commitTasks[i].emTaskState = VTRUPLOADTASKSTATE.VTR_UPLOAD_COMMIT;
@@ -2119,6 +2121,8 @@ namespace IngestTaskPlugin.Managers
                                         {
                                             dtBegin = ctp.Periods[j].StartTime.AddSeconds(10);
                                             dtEnd = dtBegin + duration;
+
+                                            Logger.Info("AddCommitVTRBUTask select three " + ctp.ChannelId);
 
                                             commitTasks[i].nChannelId = ctp.ChannelId;
                                             commitTasks[i].emTaskState = VTRUPLOADTASKSTATE.VTR_UPLOAD_COMMIT;
@@ -2207,6 +2211,8 @@ namespace IngestTaskPlugin.Managers
                             {
                                 dtBegin = newChannelFreeTP.Periods[j].StartTime.AddSeconds(3);
                                 dtEnd = dtBegin + duration;
+
+                                Logger.Info("AddCommitVTRBUTask select four " + newChannelFreeTP.ChannelId);
 
                                 commitTasks[i].nChannelId = newChannelFreeTP.ChannelId;
                                 commitTasks[i].emTaskState = VTRUPLOADTASKSTATE.VTR_UPLOAD_COMMIT;
