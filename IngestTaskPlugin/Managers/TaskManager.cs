@@ -1993,8 +1993,15 @@ namespace IngestTaskPlugin.Managers
             var lstfinishtask = await Store.GetNeedFinishTasks();
             var lstunsyntask = await Store.GetNeedUnSynTasks();
 
-            Logger.Info("GetNeedFinishTasks {0} ", string.Join(",", lstfinishtask.Select(x=>x.Taskid).ToList()));
-            Logger.Info("GetNeedUnSynTasks {0} ", string.Join(",", lstunsyntask.Select(x => x.Taskid).ToList()));
+            if (lstfinishtask.Count>0)
+            {
+                Logger.Info("GetNeedFinishTasks {0} ", string.Join(",", lstfinishtask.Select(x => x.Taskid).ToList()));
+            }
+            if (lstunsyntask.Count>0)
+            {
+                Logger.Info("GetNeedUnSynTasks {0} ", string.Join(",", lstunsyntask.Select(x => x.Taskid).ToList()));
+            }
+            
 
             foreach (var item in lstfinishtask)
             {

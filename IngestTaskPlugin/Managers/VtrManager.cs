@@ -1873,9 +1873,9 @@ namespace IngestTaskPlugin.Managers
                             /*
                              * 优先使用原来通道
                              */
-                            if (preSetChannelId > 0)
+                            if (vtrTask.nChannelId > 0)
                             {
-                                if (ctp.ChannelId == preSetChannelId)
+                                if (ctp.ChannelId == vtrTask.nChannelId)
                                 {
                                     selectedChannel = ctp.ChannelId;
                                     break;
@@ -1926,9 +1926,9 @@ namespace IngestTaskPlugin.Managers
 
                             /*本通道优先*/
 
-                                if (preSetChannelId > 0)
+                                if (vtrTask.nChannelId > 0)
                                 {
-                                    if (tempTP.Id == preSetChannelId)
+                                    if (tempTP.Id == vtrTask.nChannelId)
                                     {
                                         selectedChannel = tempTP.Id;
                                         preSetBeginTime = tempTP.StartTime.AddSeconds(3);
