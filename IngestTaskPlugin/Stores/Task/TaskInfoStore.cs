@@ -3065,14 +3065,32 @@ namespace IngestTaskPlugin.Stores
             return true;
         }
 
-        public async Task<bool> AddTaskList(List<DbpTask> tasks, bool submitFlag)
+        public async Task<bool> AddTask(DbpTask tasks, bool savechange)
+        {
+            if (tasks != null )
+            {
+                await Context.DbpTask.AddAsync(tasks);
+            }
+
+            if (savechange)
+            {
+                return await Context.SaveChangesAsync() > 0;
+            }
+            else
+            {
+                return true;
+            }
+
+        }
+
+        public async Task<bool> AddTaskList(List<DbpTask> tasks, bool savechange)
         {
             if (tasks != null && tasks.Count > 0)
             {
                 await Context.DbpTask.AddRangeAsync(tasks);
             }
 
-            if (submitFlag)
+            if (savechange)
             {
                 return await Context.SaveChangesAsync() > 0;
             }
@@ -3096,6 +3114,25 @@ namespace IngestTaskPlugin.Stores
             }
 
             return true;
+        }
+        public async Task UpdateTaskAsync(DbpTask item, bool savechange)
+        {
+            if (item != null )
+            {
+                Context.DbpTask.Update(item);
+            }
+
+            if (savechange)
+            {
+                try
+                {
+                    await Context.SaveChangesAsync();
+                }
+                catch (DbUpdateException e)
+                {
+                    throw e;
+                }
+            }
         }
 
         public async Task UpdateTaskListAsync(List<DbpTask> lst, bool submitFlag)

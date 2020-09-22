@@ -187,12 +187,47 @@ namespace IngestTaskPlugin.Managers
                         .Select(x => x.Tapeid)
                         .SingleOrDefaultAsync());
                 }
+
+                SB_TimeCode tcIn = new SB_TimeCode((uint)upload.Trimin);
+                SB_TimeCode tcOut = new SB_TimeCode((uint)upload.Trimout);
+                TimeSpan taskDuration = tcOut - tcIn;
+
+                DateTime begintime = DateTime.Now;
+                DateTime endtime = DateTime.Now + taskDuration;
+
+                await TaskStore.AddTask(new DbpTask()
+                {
+                    Backtype = (int)CooperantType.emPureTask,
+                    Category = "A",
+                    Channelid = upload.Recchannelid,
+
+                    DispatchState = (int)dispatchState.dpsNotDispatch,
+                    OpType = (int)opType.otAdd,
+                    State = (int)taskState.tsReady,
+                    SyncState = (int)syncState.ssNot,
+
+                    Starttime = begintime,
+                    Endtime = endtime,
+                    NewBegintime = begintime,
+                    NewEndtime = endtime,
+                    OldChannelid = 0,
+                    Recunitid = 1,
+                    Signalid = upload.Signalid,
+                    Taskid = upload.Taskid,
+                    Tasklock = "",
+                    Taskname = upload.Taskname,
+                    Tasktype = (int)TaskType.TT_VTRUPLOAD,
+                    Usercode = upload.Usercode,
+                    Taskguid = upload.Taskguid,
+                    Backupvtrid = 0
+                }, false);
                 await VtrStore.AddUploadtask(upload);
 
                 //填充任务来源表
                 var taskSource = new DbpTaskSource();
                 taskSource.Taskid = info.VtrTaskId;
                 taskSource.Tasksource = (int)TaskSource.emVTRUploadTask;
+
                 await TaskStore.AddTaskSource(taskSource);
 
                 await AddPolicyTaskByUserCode(info.UserCode, info.VtrTaskId);
@@ -211,6 +246,36 @@ namespace IngestTaskPlugin.Managers
                         .Select(x => x.Tapeid)
                         .SingleOrDefaultAsync());
                 }
+
+                var taskinfo = await TaskStore.GetTaskAsync(a => a.Where(b => b.Taskid == vtrtask.Taskid));
+                if (taskinfo != null)
+                {
+                    //await TaskStore.UpdateTaskAsync(new DbpTask()
+                    //{
+                    //    Backtype = (int)CooperantType.emPureTask,
+                    //    Category = "A",
+                    //    Channelid = upload.Recchannelid,
+                    //    //Starttime = DateTimeFormat.DateTimeFromString(task.strBegin),
+                    //    //Endtime = DateTimeFormat.DateTimeFromString(task.strEnd),
+                    //    //NewBegintime = DateTimeFormat.DateTimeFromString(task.strBegin),
+                    //    //NewEndtime = DateTimeFormat.DateTimeFromString(task.strEnd),
+                    //    OldChannelid = 0,
+
+                    //    Recunitid = 1,
+                    //    Signalid = upload.Signalid,
+
+                    //    Taskid = upload.Taskid,
+                    //    Tasklock = "",
+                    //    Taskname = upload.Taskname,
+                    //    Tasktype = (int)TaskType.TT_VTRUPLOAD,
+                    //    Usercode = upload.Usercode,
+                    //    Taskguid = upload.Taskguid,
+                    //    Backupvtrid = 0
+                    //}, false);
+                }
+
+                
+
                 await VtrStore.UpdateUploadtask(upload);
 
                 retTaskID = info.VtrTaskId;
@@ -543,6 +608,10 @@ namespace IngestTaskPlugin.Managers
                 tasks = await VtrStore.GetMetadatapolicy(a => a.Where(x => x.Defaultpolicy != 0)
                     .Select(x => new DbpPolicytask { Policyid = x.Policyid, Taskid = vtrTaskId }));
             }
+            /*
+             * 设置policy为默认值，现在只有这个了
+             */
+            tasks.ForEach(x => x.Policyid = 1);
             return await TaskStore.AddPolicyTask(tasks);
         }
 
@@ -1159,6 +1228,7 @@ namespace IngestTaskPlugin.Managers
 
         private DbpTask VTRUploadTaskContent2Dbptask(bool isAdd, VTRUploadTaskContent task,DbpTask dbpTask, long lMask)
         {
+
             if (lMask <= 0)
             {
                 dbpTask.Backtype = (int)CooperantType.emPureTask;

@@ -31,6 +31,8 @@ namespace IngestTaskPlugin.Stores
         Task SaveChangeAsync();
         int GetNextValId(string value);
         Task<List<DbpTask>> GetTaskListAsync(TaskCondition condition , bool Track, bool uselock);
+
+        Task UpdateTaskAsync(DbpTask item, bool savechange);
         Task UpdateTaskListAsync(List<DbpTask> lst);
 
         Task<TResult> GetTaskMetaDataAsync<TResult>(Func<IQueryable<DbpTaskMetadata>, IQueryable<TResult>> query, bool notrack = false);
@@ -94,7 +96,8 @@ namespace IngestTaskPlugin.Stores
         Task<bool> UpdateTaskSource(DbpTaskSource taskSource, bool submitFlag);
 
         Task<bool> AddTaskSourceList(List<DbpTaskSource> taskSources, bool submitFlag);
-        Task<bool> AddTaskList(List<DbpTask> tasks, bool submitFlag);
+        Task<bool> AddTask(DbpTask tasks, bool savechange);
+        Task<bool> AddTaskList(List<DbpTask> tasks, bool savechange);
         Task<bool> AddPolicyTask(List<DbpPolicytask> policytasks, bool submitFlag);
         Task UpdateTaskListAsync(List<DbpTask> lst, bool submitFlag);
         
