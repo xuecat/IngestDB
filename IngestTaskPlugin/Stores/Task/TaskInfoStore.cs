@@ -1376,7 +1376,7 @@ namespace IngestTaskPlugin.Stores
                         }
                     }
 
-                    if (!isNeedRemove)
+                    if (isNeedRemove)
                     {
                         lstfiltertask.Add(item);
                     }
