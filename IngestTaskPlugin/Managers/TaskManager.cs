@@ -2747,7 +2747,11 @@ namespace IngestTaskPlugin.Managers
 
                 taskinfo.Unit = fr.Ext;
 
-                await Store.DeleteTaskDB(taskinfo.TaskId, false);
+                var findtask = await Store.GetTaskAsync(a => a.Where(b => b.Taskid == taskinfo.TaskId));
+                if (findtask != null)
+                {
+                    await Store.DeleteTaskDB(taskinfo.TaskId, false);
+                }
 
                 await Store.AddTaskWithPolicys(_mapper.Map<TaskContentRequest, DbpTask>(taskinfo, opt =>
                 opt.AfterMap((src, des) =>

@@ -188,39 +188,48 @@ namespace IngestTaskPlugin.Managers
                         .SingleOrDefaultAsync());
                 }
 
-                SB_TimeCode tcIn = new SB_TimeCode((uint)upload.Trimin);
-                SB_TimeCode tcOut = new SB_TimeCode((uint)upload.Trimout);
-                TimeSpan taskDuration = tcOut - tcIn;
+                //SB_TimeCode tcIn = new SB_TimeCode((uint)upload.Trimin);
+                //SB_TimeCode tcOut = new SB_TimeCode((uint)upload.Trimout);
+                //TimeSpan taskDuration = tcOut - tcIn;
 
-                DateTime begintime = DateTime.Now;
-                DateTime endtime = DateTime.Now + taskDuration;
+                //DateTime begintime = DateTime.Now;
+                //DateTime endtime = DateTime.Now + taskDuration;
 
-                await TaskStore.AddTask(new DbpTask()
-                {
-                    Backtype = (int)CooperantType.emPureTask,
-                    Category = "A",
-                    Channelid = upload.Recchannelid,
+                //var task = new DbpTask()
+                //{
+                //    Backtype = (int)CooperantType.emPureTask,
+                //    Category = "A",
+                //    Channelid = upload.Recchannelid,
 
-                    DispatchState = (int)dispatchState.dpsNotDispatch,
-                    OpType = (int)opType.otAdd,
-                    State = (int)taskState.tsReady,
-                    SyncState = (int)syncState.ssNot,
+                //    DispatchState = (int)dispatchState.dpsNotDispatch,
+                //    OpType = (int)opType.otAdd,
+                //    State = (int)taskState.tsReady,
+                //    SyncState = (int)syncState.ssNot,
 
-                    Starttime = begintime,
-                    Endtime = endtime,
-                    NewBegintime = begintime,
-                    NewEndtime = endtime,
-                    OldChannelid = 0,
-                    Recunitid = 1,
-                    Signalid = upload.Signalid,
-                    Taskid = upload.Taskid,
-                    Tasklock = "",
-                    Taskname = upload.Taskname,
-                    Tasktype = (int)TaskType.TT_VTRUPLOAD,
-                    Usercode = upload.Usercode,
-                    Taskguid = upload.Taskguid,
-                    Backupvtrid = 0
-                }, false);
+                //    Starttime = begintime,
+                //    Endtime = endtime,
+                //    NewBegintime = begintime,
+                //    NewEndtime = endtime,
+                //    OldChannelid = 0,
+                //    Recunitid = 1,
+                //    Signalid = upload.Signalid,
+                //    Taskid = upload.Taskid,
+                //    Tasklock = "",
+                //    Taskname = upload.Taskname,
+                //    Tasktype = (int)TaskType.TT_VTRUPLOAD,
+                //    Usercode = upload.Usercode,
+                //    Taskguid = upload.Taskguid,
+                //    Backupvtrid = 0
+                //};
+                //if (vtrtask.Vtrtasktype == (int)VTRUPLOADTASKTYPE.VTR_MANUAL_UPLOAD)
+                //{
+                //    task.State = (int)taskState.tsExecuting;
+                //    task.DispatchState = (int)dispatchState.dpsDispatched;
+                //    task.OpType = (int)opType.otAdd;
+                //    task.SyncState = (int)syncState.ssNot;
+                //}
+                //Logger.Info($"SetVTRUploadTaskInfoAsync {task.Taskid} {task.Starttime} {task.Endtime} {task.Channelid} {task.State}");
+                //await TaskStore.AddTask(task, false);
                 await VtrStore.AddUploadtask(upload);
 
                 //填充任务来源表
@@ -246,36 +255,7 @@ namespace IngestTaskPlugin.Managers
                         .Select(x => x.Tapeid)
                         .SingleOrDefaultAsync());
                 }
-
-                var taskinfo = await TaskStore.GetTaskAsync(a => a.Where(b => b.Taskid == vtrtask.Taskid));
-                if (taskinfo != null)
-                {
-                    //await TaskStore.UpdateTaskAsync(new DbpTask()
-                    //{
-                    //    Backtype = (int)CooperantType.emPureTask,
-                    //    Category = "A",
-                    //    Channelid = upload.Recchannelid,
-                    //    //Starttime = DateTimeFormat.DateTimeFromString(task.strBegin),
-                    //    //Endtime = DateTimeFormat.DateTimeFromString(task.strEnd),
-                    //    //NewBegintime = DateTimeFormat.DateTimeFromString(task.strBegin),
-                    //    //NewEndtime = DateTimeFormat.DateTimeFromString(task.strEnd),
-                    //    OldChannelid = 0,
-
-                    //    Recunitid = 1,
-                    //    Signalid = upload.Signalid,
-
-                    //    Taskid = upload.Taskid,
-                    //    Tasklock = "",
-                    //    Taskname = upload.Taskname,
-                    //    Tasktype = (int)TaskType.TT_VTRUPLOAD,
-                    //    Usercode = upload.Usercode,
-                    //    Taskguid = upload.Taskguid,
-                    //    Backupvtrid = 0
-                    //}, false);
-                }
-
                 
-
                 await VtrStore.UpdateUploadtask(upload);
 
                 retTaskID = info.VtrTaskId;
@@ -597,7 +577,7 @@ namespace IngestTaskPlugin.Managers
             List<DbpPolicytask> tasks = new List<DbpPolicytask>();
             //首先根据User ID查找Policy ID
             var policys = await VtrStore.GetPolicyuser(a => a.Where(x => x.Usercode == userCode));
-            if (policys.Count > 0)
+            if (policys !=null && policys.Count > 0)
             {
                 var policyIds = policys.Select(x => x.Policyid).ToList();
                 tasks = await VtrStore.GetMetadatapolicy(a => a.Where(x => policyIds.Contains(x.Policyid))
@@ -611,7 +591,13 @@ namespace IngestTaskPlugin.Managers
             /*
              * 设置policy为默认值，现在只有这个了
              */
-            tasks.ForEach(x => x.Policyid = 1);
+            if (tasks.Count > 0)
+            {
+                tasks.ForEach(x => x.Policyid = 1);
+            }
+            else
+                tasks.Add(new DbpPolicytask() { Policyid = 1, Taskid = vtrTaskId});
+            
             return await TaskStore.AddPolicyTask(tasks);
         }
 
