@@ -1907,7 +1907,7 @@ namespace IngestTaskPlugin.Controllers.v1
                 {
                     Response.nCode = 500;
                     //Response.errStr = "error info:" + e.ToString();
-                    Logger.Error("ModifyTaskName" + e.Message);
+                    Logger.Error("WriteVTRUploadTaskDB" + e.Message);
                 }
                 return Response;
             }

@@ -2256,10 +2256,9 @@ namespace IngestTaskPlugin.Managers
                     var vtrtask = await Store.GetVtrUploadTaskAsync(a => a.Where(b => b.Taskid == taskid));
                     vtrtask.Taskname = taskname;
                 }
-                else
-                {
-                    findtask.Taskname = taskname;
-                }
+
+                findtask.Taskname = taskname;
+                
 
                 await Store.SaveChangeAsync();
             }
