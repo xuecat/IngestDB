@@ -2756,11 +2756,11 @@ namespace IngestTaskPlugin.Managers
                 await Store.AddTaskWithPolicys(_mapper.Map<TaskContentRequest, DbpTask>(taskinfo, opt =>
                 opt.AfterMap((src, des) =>
                 {
-                    des.State = (int)taskState.tsReady;
+                    //des.State = (int)taskState.tsReady;
                     des.SyncState = (int)syncState.ssSync;
                     des.DispatchState = (int)dispatchState.dpsDispatched;
                 })
-                ), false, TaskSource.emMSVUploadTask, string.Empty, string.Empty, string.Empty, string.Empty, null);
+                ), false, TaskSource.emVTRUploadTask, string.Empty, string.Empty, string.Empty, string.Empty, null);
             }
 
         }

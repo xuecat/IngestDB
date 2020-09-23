@@ -2251,8 +2251,8 @@ namespace IngestTaskPlugin.Stores
                 task.Taskguid = Guid.NewGuid().ToString("N");
             }
 
-            if (bAddForInDB)
-            {
+            //if (bAddForInDB)
+            //{
                 await Context.DbpTaskSource.AddAsync(new DbpTaskSource() { Taskid = task.Taskid, Tasksource = (int)taskSrc });
 
                 //目前只有一种入库策略，何必再写，全部省略
@@ -2263,7 +2263,7 @@ namespace IngestTaskPlugin.Stores
                 //PPLICYACCESS.AddPolicyTask(policy.nID, taskInfo.taskContent.nTaskID);
                 await Context.DbpPolicytask.AddAsync(new DbpPolicytask() { Policyid = 1, Taskid = task.Taskid });
                 //}
-            }
+            //}            
 
             Context.DbpTask.Add(task);
 
