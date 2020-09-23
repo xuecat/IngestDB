@@ -2251,8 +2251,9 @@ namespace IngestTaskPlugin.Stores
                 task.Taskguid = Guid.NewGuid().ToString("N");
             }
 
-            //if (bAddForInDB)
-            //{
+            Logger.Info(" AddTaskWithPolicys add source and policy "+ task.Taskid);
+            if (bAddForInDB)
+            {
                 await Context.DbpTaskSource.AddAsync(new DbpTaskSource() { Taskid = task.Taskid, Tasksource = (int)taskSrc });
 
                 //目前只有一种入库策略，何必再写，全部省略
@@ -2263,8 +2264,21 @@ namespace IngestTaskPlugin.Stores
                 //PPLICYACCESS.AddPolicyTask(policy.nID, taskInfo.taskContent.nTaskID);
                 await Context.DbpPolicytask.AddAsync(new DbpPolicytask() { Policyid = 1, Taskid = task.Taskid });
                 //}
-            //}            
+            }
+            else
+            {
+                if (!await Context.DbpTaskSource.AsNoTracking().AnyAsync(a => a.Taskid == task.Taskid))
+                {
+                    await Context.DbpTaskSource.AddAsync(new DbpTaskSource() { Taskid = task.Taskid, Tasksource = (int)taskSrc });
+                }
 
+                if (!await Context.DbpPolicytask.AsNoTracking().AnyAsync(b=> b.Taskid == task.Taskid))
+                {
+                    await Context.DbpPolicytask.AddAsync(new DbpPolicytask() { Policyid = 1, Taskid = task.Taskid });
+                }
+            }
+
+            Logger.Info(" AddTaskWithPolicys add task " + task.Taskid);
             Context.DbpTask.Add(task);
 
             if (!string.IsNullOrEmpty(ContentMeta))

@@ -2751,7 +2751,7 @@ namespace IngestTaskPlugin.Managers
                 {
                     await Store.DeleteTaskDB(taskinfo.TaskId, false);
                 }
-
+                Logger.Info("WriteVTRUploadTaskDB beging add");
                 await Store.AddTaskWithPolicys(_mapper.Map<TaskContentRequest, DbpTask>(taskinfo, opt =>
                 opt.AfterMap((src, des) =>
                 {
