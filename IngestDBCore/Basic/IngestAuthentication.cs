@@ -66,6 +66,11 @@ namespace IngestDBCore.Basic
             string data = UnBase64String(headerExists.First());
             string[] requesta = data.Split(';');
 
+            if (requesta.Length <= 0)
+            {
+                return false;
+            }
+
             if (requesta[0] == "ingest_server")
             {
                 //StreamReader reader = new StreamReader(request.Body);
