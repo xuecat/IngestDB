@@ -1998,8 +1998,11 @@ namespace IngestTaskPlugin.Controllers.v1
             {
                 Logger.Error($"AutoAddTaskByOldTask nOldTaskID : {nOldTaskID} ,strStartTime : {strStartTime} " );
                 var task = await _taskManage.AutoAddTaskByOldTask(nOldTaskID, DateTimeFormat.DateTimeFromString(strStartTime),_globalInterface.Value);
-                Response.extention = task.Taskid;
-                Response.nCode = 1;
+                if (task != null)
+                {
+                    Response.extention = task.Taskid;
+                    Response.nCode = 1;
+                }
                 
                 if (_globalInterface != null)
                 {

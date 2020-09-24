@@ -3250,8 +3250,6 @@ namespace IngestTaskPlugin.Managers
                 newtaskinfo.Taskid = -1;
                 newtaskinfo.Starttime = starttime.AddSeconds(1);
                 newtaskinfo.NewBegintime = newtaskinfo.Starttime;
-                newtaskinfo.Taskname += "_1";
-
 
                 if (_deviceInterface != null)
                 {
@@ -3320,6 +3318,31 @@ namespace IngestTaskPlugin.Managers
                     }
                 }
 
+                string orgtitle = string.Empty;
+
+                if (!string.IsNullOrEmpty(strSplitMetaData))
+                {
+                    var root = XElement.Parse(strSplitMetaData);
+                    if (root != null)
+                    {
+                        var sptitle = root.Element("ORGTITLE");
+                        if (sptitle == null)
+                        {
+                            root.Add(new XElement("ORGTITLE", findtask.Taskname));
+                            orgtitle = findtask.Taskname;
+                        }
+                        else
+                            orgtitle = sptitle.Value;
+
+                        root.Descendants("VTRSTART")?.Remove();
+
+                        strSplitMetaData = root.ToString();
+                    }
+                }
+
+
+                newtaskinfo.Taskname = CreateClipName(findtask.Taskname, orgtitle);
+
                 if (!string.IsNullOrEmpty(strStoreMetaData))
                 {
                     //<MADEBYINGEST></MADEBYINGEST>这个玩意会妨碍xml解析，居然有这个玩意，日了
@@ -3338,10 +3361,11 @@ namespace IngestTaskPlugin.Managers
                 if (!string.IsNullOrEmpty(strContentMetaData))
                 {
                     var root = XElement.Parse(strContentMetaData);
-                    root.Descendants("RealStampIndex").Remove();
-                    root.Descendants("PERIODPARAM").Remove();
+                    root.Descendants("RealStampIndex")?.Remove();
+                    root.Descendants("PERIODPARAM")?.Remove();
                     strContentMetaData = root.ToString();
                 }
+
 
                 var info = await Store.AddTaskWithPolicys(newtaskinfo, true, src,
                                                             strCapatureMetaData,
@@ -3349,11 +3373,43 @@ namespace IngestTaskPlugin.Managers
                                                             strStoreMetaData,
                                                             strPlanMetaData, null);
 
+                if (!string.IsNullOrEmpty(strSplitMetaData))
+                {
+                    await Store.UpdateTaskMetaDataAsync(info.Taskid, MetaDataType.emSplitData, strSplitMetaData);
+                }
+
                 //return _mapper.Map<TaskContentResponse>(info);
                 return info;
             }
 
             return null;
+        }
+
+        public string CreateClipName(string lastname, string orgname)
+        {
+            if (lastname == orgname)
+            {
+                return lastname + "_1";
+            }
+
+            int index = lastname.LastIndexOf("_");
+            if (index>0)
+            {
+                string nubmer = lastname.Substring(index+1, lastname.Length-index-1);
+                if (!string.IsNullOrEmpty(nubmer))
+                {
+                    int num = int.Parse(nubmer);
+
+                    if (orgname.Length > 249)
+                    {
+                        orgname = orgname.Substring(0, 249);
+                        orgname += "...";
+                    }
+
+                    return orgname + "_"+ ++num;
+                }
+            }
+            return orgname;
         }
 
         public async Task<bool> UpdateBackupTaskMetadata(int taskid, int backtaskid, string ContentMeta)
