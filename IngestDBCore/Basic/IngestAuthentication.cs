@@ -71,86 +71,95 @@ namespace IngestDBCore.Basic
                 return false;
             }
 
-            if (requesta[0] == "ingest_server")
+            switch(requesta[0])
             {
-                //StreamReader reader = new StreamReader(request.Body);
-                //Logger.Info("ingest_server " +reader.ReadToEnd());
+                case "ingest_server":
+                    {
+                        //StreamReader reader = new StreamReader(request.Body);
+                        //Logger.Info("ingest_server " +reader.ReadToEnd());
 
-                return true;
+                        return true;
 
-                DateTime date = DateTime.Parse(requesta[1]);
-                var span = DateTime.Now - date;
-                if (span.TotalMinutes > 3)
-                {
-                    return false;
-                }
-                else
-                {
-                    return true;
-                }
-                    
-            }
-            if (requesta[0] == "ingest_web")
-            {
-                DateTime date = DateTime.Parse(requesta[1]);
-                var span = DateTime.Now - date;
-                if (span.TotalMinutes > 3)
-                {
-                    return false;
-                }
-                else
-                {
-                    //StreamReader reader = new StreamReader(request.Body);
-                    //Logger.Info("ingest_web " + reader.ReadToEnd());
+                        DateTime date = DateTime.Parse(requesta[1]);
+                        var span = DateTime.Now - date;
+                        if (span.TotalMinutes > 3)
+                        {
+                            return false;
+                        }
+                        else
+                        {
+                            return true;
+                        }
+                    }
+                    break;
+                case "ingest_web":
+                    {
+                        DateTime date = DateTime.Parse(requesta[1]);
+                        var span = DateTime.Now - date;
+                        if (span.TotalMinutes > 3)
+                        {
+                            return false;
+                        }
+                        else
+                        {
+                            //StreamReader reader = new StreamReader(request.Body);
+                            //Logger.Info("ingest_web " + reader.ReadToEnd());
 
-                    return true;
-                }
+                            return true;
+                        }
+                    }
+                    break;
+                case "WEBINGEST":
+                    {
+                        DateTime date = DateTime.Parse(requesta[1]);
+                        var span = DateTime.Now - date;
+                        if (span.TotalMinutes > 3)
+                        {
+                            return false;
+                        }
+                        else
+                        {
+                            //StreamReader reader = new StreamReader(request.Body);
+                            //Logger.Info("WEBINGEST " + reader.ReadToEnd());
+                            return true;
+                        }
+                    }
+                    break;
+                case "ingest_other":
+                    {
+                        DateTime date = DateTime.Parse(requesta[1]);
+                        var span = DateTime.Now - date;
+                        if (span.TotalMinutes > 3)
+                        {
+                            return false;
+                        }
+                        else
+                        {
+                            //StreamReader reader = new StreamReader(request.Body);
+                            //Logger.Info("WEBINGEST " + reader.ReadToEnd());
+                            return true;
+                        }
+                    }
+                    break;
+                case "ingest_client":
+                    {
+                        DateTime date = DateTime.Parse(requesta[1]);
+                        var span = DateTime.Now - date;
+                        if (span.TotalMinutes > 5)
+                        {
+                            return false;
+                        }
+                        else
+                        {
+                            //StreamReader reader = new StreamReader(request.Body);
+                            //Logger.Info("ingest_client " + reader.ReadToEnd());
+                            return true;
+                        }
+                    }
+                    break;
+
             }
-            if (requesta[0] == "WEBINGEST")
-            {
-                DateTime date = DateTime.Parse(requesta[1]);
-                var span = DateTime.Now - date;
-                if (span.TotalMinutes > 3)
-                {
-                    return false;
-                }
-                else
-                {
-                    //StreamReader reader = new StreamReader(request.Body);
-                    //Logger.Info("WEBINGEST " + reader.ReadToEnd());
-                    return true;
-                }
-            }
-            if (requesta[0] == "ingest_other")
-            {
-                DateTime date = DateTime.Parse(requesta[1]);
-                var span = DateTime.Now - date;
-                if (span.TotalMinutes > 3)
-                {
-                    return false;
-                }
-                else
-                {
-                    //StreamReader reader = new StreamReader(request.Body);
-                    //Logger.Info("WEBINGEST " + reader.ReadToEnd());
-                    return true;
-                }
-            }
-            else if (requesta[0] == "ingest_client")
-            {
-                DateTime date = DateTime.Parse(requesta[1]);
-                var span = DateTime.Now - date;
-                if (span.TotalMinutes > 5)
-                {
-                    return false;
-                }
-                else
-                {
-                    //StreamReader reader = new StreamReader(request.Body);
-                    //Logger.Info("ingest_client " + reader.ReadToEnd());
-                    return true;
-                }
-            }
+            
             return false;
         }
     }
