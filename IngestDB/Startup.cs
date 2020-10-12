@@ -97,6 +97,7 @@ namespace IngestDB
                 applicationContext.CMServerUrl = CreateConfigURI(sys.Element("CMServer").Value);
                 applicationContext.CMServerWindowsUrl = CreateConfigURI(sys.Element("CMserver_windows").Value);
                 applicationContext.ConnectionString = CreateDBConnect(ps, applicationContext.VIP);
+                applicationContext.Limit24Hours = Convert.ToBoolean(Configuration["Limit24Hours"]) ;
 
                 logger.Info(path + sys.ToString() + applicationContext.ConnectionString);
             }

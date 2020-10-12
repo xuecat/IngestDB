@@ -16,5 +16,6 @@ namespace IngestDBCore
         public string CMServerUrl { get; set; }
         public string CMServerWindowsUrl { get; set; }
         public string KafkaUrl { get; set; }
+        public bool Limit24Hours { get; set; }
     }
 }
