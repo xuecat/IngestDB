@@ -209,7 +209,16 @@ namespace IngestMatrixPlugin.Managers
                 }
                 else
                 {
-                    msg = await MatrixSwitch(param);
+                    if(strMatrixTypeName != "NULLMATRIX" && dbpRcdindesc.Signalsource != 10) //NULLMATRIX和Never信号源不调矩阵接口
+                    {
+                        msg = await MatrixSwitch(param);
+                    }
+                    else
+                    {
+                        msg = new MatrixOldResponseMessage();
+                        msg.nCode = 1;
+                        msg.message = "ok";
+                    }
                 }
 
                 if (msg == null|| msg.nCode == 0)
