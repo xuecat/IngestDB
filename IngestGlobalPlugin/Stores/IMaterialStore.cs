@@ -71,9 +71,7 @@ namespace IngestGlobalPlugin.Stores
         Task<TResult> GetPolicyTask<TResult>(Func<IQueryable<DbpPolicytask>, Task<TResult>> query, bool notrack = false);
         #endregion
         #region DbpTask
-        Task<List<TResult>> GetTask<TResult>(Func<IQueryable<DbpTask>, IQueryable<TResult>> query, bool notrack = false);
-        Task<TResult> GetTask<TResult>(Func<IQueryable<DbpTask>, Task<TResult>> query, bool notrack = false);
-        Task<bool> UpdateTaskBmp(List<(int taskId, string bmpPath)> taskBmps);
+       
         #endregion
     }
 }

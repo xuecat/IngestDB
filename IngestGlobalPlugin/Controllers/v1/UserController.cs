@@ -3,6 +3,7 @@ using IngestDBCore.Basic;
 using IngestDBCore.Dto;
 using IngestGlobalPlugin.Dto;
 using IngestGlobalPlugin.Dto.OldResponse;
+using IngestGlobalPlugin.Dto.Response;
 using IngestGlobalPlugin.Managers;
 using Microsoft.AspNetCore.Mvc;
 using Sobey.Core.Log;
@@ -11,6 +12,7 @@ using System.Collections.Generic;
 using System.Net.Http;
 using System.Text;
 using System.Threading.Tasks;
+using UserLoginInfoRequest = IngestGlobalPlugin.Dto.Response.UserLoginInfoResponse;
 
 namespace IngestGlobalPlugin.Controllers.v1
 {
@@ -429,6 +431,83 @@ namespace IngestGlobalPlugin.Controllers.v1
             return Res;
         }
 
+        /// <summary>
+        /// 添加用户登录机器
+        /// </summary>
+        /// <returns></returns>
+        [HttpGet("AddUserLoginInfo"), MapToApiVersion("1.0")]
+        [ApiExplorerSettings(GroupName = "v1")]
+        public async Task<OldResponseMessage> AddUserLoginInfo([FromBody]UserLoginInfoRequest request)//nFlag:0为标清，1为高清
+        {
+            OldResponseMessage Res = new OldResponseMessage();
+            try
+            {
+                await _GlobalManager.AddUserLoginInfo(request);
+                Res.nCode = 1;
+            }
+            catch (System.Exception ex)
+            {
+                Res.nCode = 0;
+                Res.message = ex.Message;
+                Logger.Error("AddUserLoginInfo : " + ex.ToString());
+            }
+            return Res;
+        }
+
+        /// <summary>
+        /// 通过ip删除信息=
+        /// </summary>
+        /// <param name="ip">用户usertoken</param>
+        /// <returns>采集参数</returns>
+        [HttpGet("DeleteUserLoginInfoByIP"), MapToApiVersion("1.0")]
+        [ApiExplorerSettings(GroupName = "v1")]
+        public async Task<OldResponseMessage> DeleteUserLoginInfoByIP([FromQuery, DefaultValue("127.0.0.1")]string ip)//nFlag:0为标清，1为高清
+        {
+            OldResponseMessage Res = new OldResponseMessage();
+            try
+            {
+                var bre = await _GlobalManager.DeleteUserLoginInfoByIP(ip);
+                if (bre)
+                {
+                    Res.nCode = 1;
+                }
+                else
+                    Res.nCode = 0;
+            }
+            catch (System.Exception ex)
+            {
+                Res.nCode = 0;
+                Res.message = ex.Message;
+                Logger.Error("DeleteUserLoginInfoByIP : " + ex.ToString());
+            }
+            return Res;
+        }
+
+        /// <summary>
+        /// 获取所有机器登录信息=
+        /// </summary>
+        /// <returns>机器登录信息</returns>
+        [HttpGet("GetAllUserLoginInfos"), MapToApiVersion("1.0")]
+        [ApiExplorerSettings(GroupName = "v1")]
+        public async Task<OldResponseMessage<List<UserLoginInfoResponse>>> GetAllUserLoginInfos()//nFlag:0为标清，1为高清
+        {
+            OldResponseMessage<List<UserLoginInfoResponse>> Res = new OldResponseMessage<List<UserLoginInfoResponse>>();
+            try
+            {
+                Res.extention = await _GlobalManager.GetAllUserLoginInfo();
+                if (Res.extention == null || Res.extention.Count == 0)
+                {
+                    Res.nCode = 0;
+                }
+            }
+            catch (System.Exception ex)
+            {
+                Res.nCode = 0;
+                Res.message = ex.Message;
+                Logger.Error("OldGetUserHighOrStandardParam : " + ex.ToString());
+            }
+            return Res;
+        }
         #endregion
     }
 }

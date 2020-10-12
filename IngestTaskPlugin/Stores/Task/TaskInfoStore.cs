@@ -3230,7 +3230,17 @@ namespace IngestTaskPlugin.Stores
             }
         }
 
-
+        public async Task<bool> UpdateTaskBmp(Dictionary<int, string> taskPmp)
+        {
+            var taskIds = taskPmp.Select(a => a.Key).ToList();
+            var tasks = await Context.DbpTask.Where(a => taskIds.Contains(a.Taskid)).ToListAsync();
+            if (tasks != null && tasks.Count > 0)
+            {
+                tasks.ForEach(a => a.Description = taskPmp.First(x => x.Key == a.Taskid).Value);
+                return await Context.SaveChangesAsync() > 0;
+            }
+            return false;
+        }
 
     }
 }

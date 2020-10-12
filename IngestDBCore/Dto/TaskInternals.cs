@@ -9,18 +9,19 @@ namespace IngestDBCore
         public enum FunctionType
         {
             WillBeginAndCapturingTasks,
-            CurrentTasks
+            CurrentTasks,
+            SetTaskBmp
         }
 
         public FunctionType funtype { get; set; }
 
         
-
         /// </summary>
         public int TaskId { get; set; }
 
         public string Ext1 { get; set; }
         public string Ext2 { get; set; }
+        public object Ext3 { get; set; }
     }
     /// <summary>任务类型</summary>
     public enum TaskTypeInterface

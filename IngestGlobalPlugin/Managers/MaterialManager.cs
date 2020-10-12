@@ -1,4 +1,6 @@
 ﻿using AutoMapper;
+using IngestDBCore;
+using IngestDBCore.Interface;
 using IngestDBCore.Tool;
 using IngestGlobalPlugin.Dto;
 using IngestGlobalPlugin.Dto.OldResponse;
@@ -6,6 +8,7 @@ using IngestGlobalPlugin.Dto.Response;
 using IngestGlobalPlugin.Models;
 using IngestGlobalPlugin.Stores;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.DependencyInjection;
 using Sobey.Core.Log;
 using System;
 using System.Collections.Generic;
@@ -23,11 +26,13 @@ namespace IngestGlobalPlugin.Managers
 
         protected IMaterialStore Store { get; }
         protected IMapper _mapper { get; }
-
-        public MaterialManager(IMaterialStore store, IMapper mapper)
+        private Lazy<IIngestTaskInterface> _taskInterface { get; }
+        public MaterialManager(IMaterialStore store, IMapper mapper, IServiceProvider services)
         {
             Store = store;
             _mapper = mapper ?? throw new ArgumentNullException(nameof(mapper));
+
+            _taskInterface = new Lazy<IIngestTaskInterface>(() => services.GetRequiredService<IIngestTaskInterface>());
         }
 
         public async Task<bool> AddMqMsg<T>(T info)
@@ -500,10 +505,25 @@ namespace IngestGlobalPlugin.Managers
 
             if (mtrl.videos != null && mtrl.videos.Count > 0)
             {
-                var taskBmps = mtrl.videos.Where(a => mtrl.nSectionID == a.nVideoSource).Select(a => (mtrl.nTaskID, a.strFilename)).ToList();
+                var taskBmps = mtrl.videos.Where(a => mtrl.nSectionID == a.nVideoSource).ToDictionary(a => mtrl.nTaskID, b=>b.strFilename);
+
                 if (taskBmps.Count > 0)
                 {
-                    await Store.UpdateTaskBmp(taskBmps);
+                    //await Store.UpdateTaskBmp(taskBmps);
+                    if (_taskInterface != null)
+                    {
+                        var response1 = await _taskInterface.Value.SubmitTaskCallBack(new TaskInternals()
+                        {
+                            funtype = IngestDBCore.TaskInternals.FunctionType.SetTaskBmp,
+                            Ext3 = taskBmps
+                        });
+
+                        if (response1.Code != ResponseCodeDefines.SuccessCode)
+                        {
+                            Logger.Error("AddMaterialInfo SetTaskBmp error");
+                        }
+
+                    }
                 }
             }
             return mtrl.nID;

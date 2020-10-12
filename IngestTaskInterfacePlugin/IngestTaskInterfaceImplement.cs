@@ -43,7 +43,15 @@ namespace IngestTaskInterfacePlugin
 
         public async Task<ResponseMessage> SubmitTaskCallBack(TaskInternals examineResponse)
         {
-            throw new NotImplementedException();
+            switch (examineResponse.funtype)
+            {
+                case FunctionType.SetTaskBmp:
+                    return _mapper.Map<ResponseMessage<bool>>(await _controller.ModifyTaskBmp(examineResponse.Ext3 as Dictionary<int, string>));
+                    break;
+                default:
+                    break;
+            }
+            return null;
         }
     }
 }

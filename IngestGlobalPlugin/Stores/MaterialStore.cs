@@ -588,24 +588,7 @@ namespace IngestGlobalPlugin.Stores
         {
             return await QueryModel(query, notrack);
         }
-
-        public Task<List<TResult>> GetTask<TResult>(Func<IQueryable<DbpTask>, IQueryable<TResult>> query, bool notrack = false)
-        {
-            throw new NotImplementedException();
-        }
-
-        public Task<TResult> GetTask<TResult>(Func<IQueryable<DbpTask>, Task<TResult>> query, bool notrack = false)
-        {
-            throw new NotImplementedException();
-        }
-
-        public async Task<bool> UpdateTaskBmp(List<(int taskId, string bmpPath)> taskPmp)
-        {
-            var taskIds = taskPmp.Select(a => a.taskId).ToList();
-            var tasks = await Context.DbpTask.Where(a => taskIds.Contains(a.Taskid)).ToListAsync();
-            tasks.ForEach(a => a.Description = taskPmp.First(x => x.taskId == a.Taskid).bmpPath);
-            return await Context.SaveChangesAsync() > 0;
-        }
+        
 
 
         #endregion

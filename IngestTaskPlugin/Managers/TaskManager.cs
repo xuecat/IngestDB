@@ -4218,5 +4218,10 @@ namespace IngestTaskPlugin.Managers
             return Store.ResetTaskErrorInfo(taskid);
         }
 
+        public Task<bool> UpdateTaskBmp(Dictionary<int, string> taskPmp)
+        {
+            return Store.UpdateTaskBmp(taskPmp);
+        }
+
     }
 }

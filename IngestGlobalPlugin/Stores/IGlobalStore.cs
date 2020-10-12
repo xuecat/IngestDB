@@ -44,6 +44,11 @@ namespace IngestGlobalPlugin.Stores
 
         Task UpdateUsersettingsAsync(DbpUsersettings usersetting);
 
+        Task AddUserLoginInfoAsync(DbpUserLoginInfo logininfo);
+        Task<bool> DeleteUserLoginInfoByIPAsync(string ip);
+        Task<bool> DeleteUserLoginInfoByUserCodeAsync(string usercode);
+        Task<List<DbpUserLoginInfo>> GetAllUserLoginInfoAsync();
+
         #endregion
 
         #region Capturetemplate

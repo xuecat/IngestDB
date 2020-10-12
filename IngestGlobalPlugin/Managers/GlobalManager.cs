@@ -18,6 +18,7 @@ using IngestGlobalPlugin.Dto.Response;
 using Microsoft.Extensions.DependencyInjection;
 using System.Net.Http;
 
+using UserLoginInfoRequest = IngestGlobalPlugin.Dto.Response.UserLoginInfoResponse;
 namespace IngestGlobalPlugin.Managers
 {
     public class GlobalManager
@@ -197,6 +198,28 @@ namespace IngestGlobalPlugin.Managers
         #endregion
 
         #region User
+
+        public Task AddUserLoginInfo(UserLoginInfoRequest logininfo)
+        {
+            logininfo.Logintime = DateTime.Now;
+            return Store.AddUserLoginInfoAsync(_mapper.Map<DbpUserLoginInfo>(logininfo));
+        }
+
+        public Task<bool> DeleteUserLoginInfoByIP(string ip)
+        {
+            return Store.DeleteUserLoginInfoByIPAsync(ip);
+        }
+
+        public Task<bool> DeleteUserLoginInfoByUserCode(string usercode)
+        {
+            return Store.DeleteUserLoginInfoByUserCodeAsync(usercode);
+        }
+
+        public async Task<List<UserLoginInfoResponse>> GetAllUserLoginInfo()
+        {
+            return _mapper.Map<List<UserLoginInfoResponse>>(await Store.GetAllUserLoginInfoAsync());
+        }
+
         //get user setting
         public async Task<string> GetUserSettingAsync(string UserCode, string Settingtype)
         {
@@ -252,6 +275,8 @@ namespace IngestGlobalPlugin.Managers
 
             return strTemp;
         }
+
+
 
         #region CaptureTemplate
         //get Captureparam

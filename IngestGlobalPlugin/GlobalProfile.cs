@@ -173,6 +173,8 @@ namespace IngestGlobalPlugin
                 .ForMember(a => a.TaskId, (map) => map.MapFrom(b => b.TaskID))
                 .ForMember(a => a.SectionId, (map) => map.MapFrom(b => b.SectionID))
                 .ForMember(a => a.MsgContent, (map) => map.MapFrom(b => b.MsgContent)).ReverseMap();
+
+            CreateMap<UserLoginInfoResponse, DbpUserLoginInfo>().ReverseMap();
         }
 
     }

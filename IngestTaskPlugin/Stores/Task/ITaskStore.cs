@@ -103,6 +103,8 @@ namespace IngestTaskPlugin.Stores
         
         Task UpdateTaskMetaDataAsync(int taskid, MetaDataType type, string metadata, bool submitFlag);
         Task UpdateTaskMetaDataListAsync(List<Dto.Request.SubmitMetadata> metadatas);
-        
+        Task<bool> UpdateTaskBmp(Dictionary<int, string> taskPmp);
+
+
     }
 }

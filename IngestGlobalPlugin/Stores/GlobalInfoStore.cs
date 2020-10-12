@@ -700,6 +700,50 @@ namespace IngestGlobalPlugin.Stores
             }
         }
 
+        public async Task AddUserLoginInfoAsync(DbpUserLoginInfo logininfo)
+        {
+            try
+            {
+                if (logininfo != null)
+                {
+                    Context.DbpUserLoginInfo.Add(logininfo);
+                    await Context.SaveChangesAsync();
+                }
+            }
+            catch (Exception d)
+            {
+
+                throw d;
+            }
+        }
+
+        public async Task<bool> DeleteUserLoginInfoByIPAsync(string ip)
+        {
+            var have = await Context.DbpUserLoginInfo.AsNoTracking().Where(a => a.Ip == ip).SingleOrDefaultAsync();
+            if (have != null)
+            {
+                Context.DbpUserLoginInfo.Remove(have);
+                return true;
+            }
+            return false;
+        }
+
+        public async Task<bool> DeleteUserLoginInfoByUserCodeAsync(string usercode)
+        {
+            var have = await Context.DbpUserLoginInfo.AsNoTracking().Where(a => a.Usercode == usercode).SingleOrDefaultAsync();
+            if (have != null)
+            {
+                Context.DbpUserLoginInfo.Remove(have);
+                return true;
+            }
+            return false;
+        }
+
+        public async Task<List<DbpUserLoginInfo>> GetAllUserLoginInfoAsync()
+        {
+            return await Context.DbpUserLoginInfo.AsNoTracking().ToListAsync();
+        }
+
         #endregion
 
         #region CaptureTemplate

@@ -2200,6 +2200,41 @@ namespace IngestTaskPlugin.Controllers.v2
         }
 
         /// <summary>
+        /// 修改任务关键帧
+        /// </summary>
+        /// <remarks>
+        /// 
+        /// </remarks>
+        /// <param name="bmp">任务id和任务图片路径，是个数组</param>
+        /// <returns>无返回</returns>
+        [HttpPut("bmp/{taskid}")]
+        [ApiExplorerSettings(GroupName = "v2")]
+        public async Task<ResponseMessage<bool>> ModifyTaskBmp([FromBody, BindRequired]Dictionary<int, string> bmp)
+        {
+
+            var Response = new ResponseMessage<bool>();
+            try
+            {
+                Response.Ext = await _taskManage.UpdateTaskBmp(bmp);
+            }
+            catch (Exception e)
+            {
+                if (e is SobeyRecException se)//sobeyexcep会自动打印错误
+                {
+                    Response.Code = se.ErrorCode.ToString();
+                    Response.Msg = se.Message;
+                }
+                else
+                {
+                    Response.Code = ResponseCodeDefines.ServiceError;
+                    Response.Msg = $"ModifyTaskBmp error info:{e.Message} ";
+                    Logger.Error(Response.Msg);
+                }
+            }
+            return Response;
+        }
+
+        /// <summary>
         /// 修改任务名
         /// </summary>
         /// <remarks>
