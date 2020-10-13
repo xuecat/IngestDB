@@ -10,6 +10,7 @@ namespace IngestDBCore.Notify
         static public int Kafka { get { return 0x01; } }
         static public int Msv { get { return 0x10; } }
         static public int Orleans { get { return 0x100; } }
+        static public int Udp { get { return 0x1000; } }
         static public int All { get { return Kafka | Msv | Orleans; } }
     }
     public class NotifyAction

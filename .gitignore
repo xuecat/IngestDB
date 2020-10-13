@@ -61,6 +61,9 @@ IngestGlobalInterfacePlugin/bin/
 KafKaNotifyPlugin/obj/
 KafKaNotifyPlugin/bin/
 
+UdpNotifyPlugin/obj/
+UdpNotifyPlugin/bin/
+
 /IngestVtrInterfacePlugin/obj
 
 /IngestVtrPlugin/obj

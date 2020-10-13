@@ -435,9 +435,9 @@ namespace IngestGlobalPlugin.Controllers.v1
         /// 添加用户登录机器
         /// </summary>
         /// <returns></returns>
-        [HttpGet("AddUserLoginInfo"), MapToApiVersion("1.0")]
+        [HttpPost("AddUserLoginInfo"), MapToApiVersion("1.0")]
         [ApiExplorerSettings(GroupName = "v1")]
-        public async Task<OldResponseMessage> AddUserLoginInfo([FromBody]UserLoginInfoRequest request)//nFlag:0为标清，1为高清
+        public async Task<OldResponseMessage> AddUserLoginInfo([FromBody]UserLoginInfoRequest request)//
         {
             OldResponseMessage Res = new OldResponseMessage();
             try
@@ -459,14 +459,14 @@ namespace IngestGlobalPlugin.Controllers.v1
         /// </summary>
         /// <param name="ip">用户usertoken</param>
         /// <returns>采集参数</returns>
-        [HttpGet("DeleteUserLoginInfoByIP"), MapToApiVersion("1.0")]
+        [HttpGet("DeleteUserLoginInfoByUsercode"), MapToApiVersion("1.0")]
         [ApiExplorerSettings(GroupName = "v1")]
-        public async Task<OldResponseMessage> DeleteUserLoginInfoByIP([FromQuery, DefaultValue("127.0.0.1")]string ip)//nFlag:0为标清，1为高清
+        public async Task<OldResponseMessage> DeleteUserLoginInfoByIP([FromQuery, DefaultValue("127.0.0.1")]string usercode)
         {
             OldResponseMessage Res = new OldResponseMessage();
             try
             {
-                var bre = await _GlobalManager.DeleteUserLoginInfoByIP(ip);
+                var bre = await _GlobalManager.DeleteUserLoginInfoByUserCode(usercode);
                 if (bre)
                 {
                     Res.nCode = 1;
@@ -489,7 +489,7 @@ namespace IngestGlobalPlugin.Controllers.v1
         /// <returns>机器登录信息</returns>
         [HttpGet("GetAllUserLoginInfos"), MapToApiVersion("1.0")]
         [ApiExplorerSettings(GroupName = "v1")]
-        public async Task<OldResponseMessage<List<UserLoginInfoResponse>>> GetAllUserLoginInfos()//nFlag:0为标清，1为高清
+        public async Task<OldResponseMessage<List<UserLoginInfoResponse>>> GetAllUserLoginInfos()//
         {
             OldResponseMessage<List<UserLoginInfoResponse>> Res = new OldResponseMessage<List<UserLoginInfoResponse>>();
             try

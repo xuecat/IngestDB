@@ -35,6 +35,8 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "IngestMatrixPlugin", "Inges
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "KafKaNotifyPlugin", "KafKaNotifyPlugin\KafKaNotifyPlugin.csproj", "{6BF18E25-3398-49A6-9104-2CC8EE3AAA5B}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "UdpNotifyPlugin", "UdpNotifyPlugin\UdpNotifyPlugin.csproj", "{BAEE1E09-0B8B-4A3C-98BB-E91126C90545}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -97,6 +99,10 @@ Global
 		{6BF18E25-3398-49A6-9104-2CC8EE3AAA5B}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{6BF18E25-3398-49A6-9104-2CC8EE3AAA5B}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{6BF18E25-3398-49A6-9104-2CC8EE3AAA5B}.Release|Any CPU.Build.0 = Release|Any CPU
+		{BAEE1E09-0B8B-4A3C-98BB-E91126C90545}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{BAEE1E09-0B8B-4A3C-98BB-E91126C90545}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{BAEE1E09-0B8B-4A3C-98BB-E91126C90545}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{BAEE1E09-0B8B-4A3C-98BB-E91126C90545}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -114,6 +120,7 @@ Global
 		{7E71E1D6-1C0C-4C0D-8145-96A0C329571A} = {59AD4432-774F-470C-B163-FFDE4F9097EC}
 		{D437C821-59BF-475D-86AB-A0B869FFEEEB} = {59AD4432-774F-470C-B163-FFDE4F9097EC}
 		{6BF18E25-3398-49A6-9104-2CC8EE3AAA5B} = {DE951F8D-8B2D-435E-A6CD-13CD60AC5FA9}
+		{BAEE1E09-0B8B-4A3C-98BB-E91126C90545} = {DE951F8D-8B2D-435E-A6CD-13CD60AC5FA9}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {98696BFC-44A3-4355-B438-A3953923FF58}

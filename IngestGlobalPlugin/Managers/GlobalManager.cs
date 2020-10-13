@@ -202,6 +202,7 @@ namespace IngestGlobalPlugin.Managers
         public Task AddUserLoginInfo(UserLoginInfoRequest logininfo)
         {
             logininfo.Logintime = DateTime.Now;
+            logininfo.Port = 5566;
             return Store.AddUserLoginInfoAsync(_mapper.Map<DbpUserLoginInfo>(logininfo));
         }
 

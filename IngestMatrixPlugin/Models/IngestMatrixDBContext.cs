@@ -21,7 +21,7 @@ namespace IngestMatrixPlugin.Models
         public virtual DbSet<DbpRcdindesc> DbpRcdindesc { get; set; }
         public virtual DbSet<DbpRcdoutdesc> DbpRcdoutdesc { get; set; }
         public virtual DbSet<DbpVirtualmatrixportstate> DbpVirtualmatrixportstate { get; set; }
-
+        public virtual DbSet<DbpUserLoginInfo> DbpUserLoginInfo { get; set; }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
@@ -258,6 +258,31 @@ namespace IngestMatrixPlugin.Models
                     .HasColumnName("LASTOPRTIME")
                     .HasColumnType("timestamp")
                     .HasDefaultValueSql("'CURRENT_TIMESTAMP'");
+            });
+
+            modelBuilder.Entity<DbpUserLoginInfo>(entity =>
+            {
+                entity.HasKey(e => e.Ip);
+
+                entity.ToTable("dbp_userlogininfo");
+
+                entity.Property(e => e.Ip)
+                    .HasColumnName("IP")
+                    .HasColumnType("varchar(64)");
+
+                entity.Property(e => e.Port)
+                    .HasColumnName("PORT")
+                    .HasColumnType("int(11)")
+                    .HasDefaultValueSql("'0'");
+
+                entity.Property(e => e.Usercode)
+                    .HasColumnName("USERCODE")
+                    .HasColumnType("varchar(64)");
+
+                entity.Property(e => e.Logintime)
+                   .HasColumnName("LOGINTIME")
+                   .HasColumnType("timestamp")
+                   .HasDefaultValueSql("'0000-00-00 00:00:00'");
             });
         }
     }

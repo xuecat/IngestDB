@@ -330,6 +330,11 @@ namespace IngestMatrixPlugin.Stores
             return true;
         }
 
+        public Task<List<DbpUserLoginInfo>> GetAllUserLoginInfos()
+        {
+            return Context.DbpUserLoginInfo.AsNoTracking().ToListAsync();
+        }
+
 
     }
 }

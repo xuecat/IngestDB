@@ -219,16 +219,27 @@ namespace IngestMatrixPlugin.Managers
                         msg.nCode = 1;
                         msg.message = "ok";
                     }
-                }
 
-                if (msg == null|| msg.nCode == 0)
-                {
-                    Logger.Error("切换矩阵失败，直接return");
-                    if (!await RecoverReleasedRoutAndPort(releasedVirtualPortList, releasedRoutList))//切换失败时，要恢复原来的链接状态
+                    //sdi的才会更换信息
+                    if (msg == null || msg.nCode == 0)
                     {
-                        Logger.Error("In module MatrixService!call CIVirtualMatrix::SwitchInOut(),recover the released rout and port failed!");
+                        Logger.Error("切换矩阵失败，直接return");
+                        if (!await RecoverReleasedRoutAndPort(releasedVirtualPortList, releasedRoutList))//切换失败时，要恢复原来的链接状态
+                        {
+                            Logger.Error("In module MatrixService!call CIVirtualMatrix::SwitchInOut(),recover the released rout and port failed!");
+                        }
+                        return false;//切换失败，直接返回
                     }
-                    return false;//切换失败，直接返回
+                    else
+                    {
+                        var loginparam = (await Store.GetAllUserLoginInfos()).ToDictionary(x =>x.Ip, y=>y.Port);
+                        if (loginparam != null)
+                        {
+                            Task.Run(() => { _clock.InvokeNotify("udp", NotifyPlugin.Udp,
+                                $"<Notify><NotifyType>SwitchMatrix</NotifyType><TaskID>0</TaskID><Inport>{param.lInPort}</Inport><Outport>{param.lOutPort}</Outport></Notify>",
+                                loginparam); });
+                        }
+                    }
                 }
 
                 Logger.Info($"matrix service return is :{msg.nCode} {msg.message}");
@@ -484,12 +495,9 @@ namespace IngestMatrixPlugin.Managers
         /// 调用矩阵硬件接口，执行切换操作
         /// </summary>
         /// <returns>标准调用提示信息</returns>
-        public async Task<MatrixOldResponseMessage> MatrixSwitch(MatrixParam param)
+        public Task<MatrixOldResponseMessage> MatrixSwitch(MatrixParam param)
         {
-            string uri = $"{ApplicationContext.Current.IngestMatrixUrl}/api/G2MatrixWebCtrl/MatrixSwitch";
-            Logger.Info("matrix service url is:" + uri);
-
-            return await _restClient.Post<MatrixOldResponseMessage>(uri, param);
+            return _restClient.Post<MatrixOldResponseMessage>($"{ApplicationContext.Current.IngestMatrixUrl}/api/G2MatrixWebCtrl/MatrixSwitch", param);
         }
     }
 }
