@@ -10,7 +10,7 @@ using System.Collections.Generic;
 using System.Threading.Tasks;
 
 using EditUserTemplateRequest = IngestGlobalPlugin.Dto.Response.EditUserTemplate;
-
+using UserLoginInfoRequest = IngestGlobalPlugin.Dto.Response.UserLoginInfoResponse;
 namespace IngestGlobalPlugin.Controllers.v2
 {
 
@@ -86,7 +86,7 @@ namespace IngestGlobalPlugin.Controllers.v2
         /// <returns> extention为strSettingText </returns>
         /// <remarks>
         /// 例子:
-        /// Get api/v2/global/usersetting
+        /// Get api/v2/user/usersetting
         /// </remarks>
         [HttpGet("usersetting")]
         [ApiExplorerSettings(GroupName = "v2")]
@@ -111,6 +111,83 @@ namespace IngestGlobalPlugin.Controllers.v2
                     Response.Code = ResponseCodeDefines.ServiceError;
                     Response.Msg = "error info:" + e.Message;
                     Logger.Error("GetUserSetting : " + Response.Msg);
+                }
+            }
+            return Response;
+        }
+
+        /// <summary>
+        /// 添加用户登录信息
+        /// </summary>
+        /// <remarks>
+        /// 例子:
+        /// Post api/v2/user/usersetting
+        /// </remarks>
+        [HttpPost("userlogininfo")]
+        [ApiExplorerSettings(GroupName = "v2")]
+        public async Task<ResponseMessage> AddUserLoginInfo([FromBody, BindRequired]UserLoginInfoRequest userinfo)
+        {
+            ResponseMessage Response = new ResponseMessage();
+            try
+            {
+                await _GlobalManager.AddUserLoginInfo(userinfo);
+
+                Response.Code = ResponseCodeDefines.SuccessCode;
+            }
+            catch (Exception e)//其他未知的异常，写异常日志
+            {
+                if (e.GetType() == typeof(SobeyRecException))//sobeyexcep会自动打印错误
+                {
+                    SobeyRecException se = e as SobeyRecException;
+                    Response.Code = se.ErrorCode.ToString();
+                    Response.Msg = se.Message;
+                }
+                else
+                {
+                    Response.Code = ResponseCodeDefines.ServiceError;
+                    Response.Msg = "error info:" + e.Message;
+                    Logger.Error("AddUserLoginInfo : " + Response.Msg);
+                }
+            }
+            return Response;
+        }
+
+        /// <summary>
+        /// 删除用户登录信息
+        /// </summary>
+        /// <remarks>
+        /// 例子:
+        /// Post api/v2/user/usersetting
+        /// </remarks>
+        [HttpDelete("userlogininfo/{usercode}")]
+        [ApiExplorerSettings(GroupName = "v2")]
+        public async Task<ResponseMessage> DeleteUserLoginInfo([FromRoute, BindRequired]string usercode)
+        {
+            ResponseMessage Response = new ResponseMessage();
+            try
+            {
+                var bret= await _GlobalManager.DeleteUserLoginInfoByUserCode(usercode);
+                if (bret)
+                {
+                    Response.Code = ResponseCodeDefines.SuccessCode;
+                }
+                else
+                    Response.Code = ResponseCodeDefines.NotFound;
+
+            }
+            catch (Exception e)//其他未知的异常，写异常日志
+            {
+                if (e.GetType() == typeof(SobeyRecException))//sobeyexcep会自动打印错误
+                {
+                    SobeyRecException se = e as SobeyRecException;
+                    Response.Code = se.ErrorCode.ToString();
+                    Response.Msg = se.Message;
+                }
+                else
+                {
+                    Response.Code = ResponseCodeDefines.ServiceError;
+                    Response.Msg = "error info:" + e.Message;
+                    Logger.Error("DeleteUserLoginInfo : " + Response.Msg);
                 }
             }
             return Response;

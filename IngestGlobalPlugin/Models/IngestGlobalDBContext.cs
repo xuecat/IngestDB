@@ -587,7 +587,7 @@ namespace IngestGlobalPlugin.Models
 
             modelBuilder.Entity<DbpUserLoginInfo>(entity =>
             {
-                entity.HasKey(e => e.Ip);
+                entity.HasKey(e => new { e.Ip, e.Usercode});
 
                 entity.ToTable("dbp_userlogininfo");
 

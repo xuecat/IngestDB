@@ -706,8 +706,16 @@ namespace IngestGlobalPlugin.Stores
             {
                 if (logininfo != null)
                 {
-                    Context.DbpUserLoginInfo.Add(logininfo);
-                    await Context.SaveChangesAsync();
+                    if (await Context.DbpUserLoginInfo.AsNoTracking().AnyAsync(x => x.Ip == logininfo.Ip && x.Usercode == logininfo.Usercode))
+                    {
+                        Logger.Info($"AddUserLoginInfoAsync same {logininfo.Ip} {logininfo.Usercode}");
+                    }
+                    else
+                    {
+
+                        Context.DbpUserLoginInfo.Add(logininfo);
+                        await Context.SaveChangesAsync();
+                    }
                 }
             }
             catch (Exception d)

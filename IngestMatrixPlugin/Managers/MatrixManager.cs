@@ -43,7 +43,7 @@ namespace IngestMatrixPlugin.Managers
 
         private readonly NotifyClock _clock;
 
-        public async Task<bool> SwitchInOutAsync(long inPort, long outPort)
+        public async Task<bool> SwitchInOutAsync(long inPort, long outPort, string rtmpurl)
         {
             Logger.Info("**********************************************************************");
             string strlog = string.Format("Begin to switch in[{0}]-and -out[{1}] Port...", inPort, outPort);
@@ -190,7 +190,7 @@ namespace IngestMatrixPlugin.Managers
 
                     Logger.Error($"call SwitchInOutAsync, msvip: {msvip},msvport:{msvport}, dbpRcdindesc.Ipaddress:{dbpRcdindesc.Ipaddress}.");
 
-                    Task.Run(() => { _clock.InvokeNotify(msvip, NotifyPlugin.Msv, NotifyAction.MSVRELOCATE, dbpRcdindesc.Ipaddress, msvport); });
+                    Task.Run(() => { _clock.InvokeNotify(msvip, NotifyPlugin.Msv, NotifyAction.MSVRELOCATE, string.IsNullOrEmpty(rtmpurl)?dbpRcdindesc.Ipaddress:rtmpurl, msvport); });
 
                     //if (!ApplicationContext.Current.CtrlSDK.Relecate(msvip, msvport, dbpRcdindesc.Ipaddress))
                     //{
