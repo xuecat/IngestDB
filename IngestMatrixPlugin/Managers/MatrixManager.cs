@@ -43,6 +43,58 @@ namespace IngestMatrixPlugin.Managers
 
         private readonly NotifyClock _clock;
 
+        public async Task<bool> SwitchRtmpUrl(long outPort, string rtmpurl)
+        {
+            var dbpRcdoutdesc = (await Store.QueryRcdoutdesc(a => a.Where(x => x.Recoutidx == outPort))).FirstOrDefault();
+            if (dbpRcdoutdesc == null)
+            {
+                return false;
+            }
+
+            if (string.IsNullOrEmpty(rtmpurl))
+            {
+                SobeyRecException.ThrowSelfNoParam(outPort.ToString(),
+                    GlobalDictionary.GLOBALDICT_CODE_RTMP_PARAMERROR_URL, Logger, null);
+            }
+
+            string msvip = string.Empty;
+            int msvport = -1;
+            if (_deviceInterface != null)
+            {
+                var response = await _deviceInterface.Value.GetDeviceCallBack(new DeviceInternals()
+                {
+                    funtype = IngestDBCore.DeviceInternals.FunctionType.DeviceInfoByID,
+                    DeviceId = dbpRcdoutdesc.Rcdeviceid
+                });
+
+                var deviceInfos = response as ResponseMessage<DeviceInfoInterface>;
+
+                if (deviceInfos != null)
+                {
+                    msvip = deviceInfos.Ext.Ip;
+                    msvport = deviceInfos.Ext.ChannelIndex;
+
+                    Logger.Error($"call SwitchRtmpUrl, msvip: {msvip},msvport:{msvport}, .");
+
+                    Task.Run(() => { _clock.InvokeNotify(msvip, NotifyPlugin.Msv, NotifyAction.MSVRELOCATE, rtmpurl, msvport); });
+
+                    return true;
+               //     var loginparam = (await Store.GetAllUserLoginInfos()).ToDictionary(x => x.Ip, y => y.Port);
+               //     if (loginparam != null)
+               //     {
+               //         Task.Run(() =>
+               //         {
+               //             _clock.InvokeNotify("udp", NotifyPlugin.Udp,
+               //$"<Notify><NotifyType>SwitchMatrix</NotifyType><TaskID>0</TaskID><Inport>{param.lInPort}</Inport><Outport>{param.lOutPort}</Outport></Notify>",
+               //loginparam);
+               //         });
+               //     }
+                }
+            }
+
+            return false;
+        }
+
         public async Task<bool> SwitchInOutAsync(long inPort, long outPort, string rtmpurl)
         {
             Logger.Info("**********************************************************************");
