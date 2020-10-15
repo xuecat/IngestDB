@@ -68,6 +68,44 @@ namespace IngestMatrixPlugin.Controllers.v1
         /// <summary>
         /// 矩阵开关
         /// </summary>
+        /// <param name="outPort"></param>
+        /// <param name="url"></param>
+        /// <returns></returns>
+        [HttpGet("SwitchRtmpdUrl"), MapToApiVersion("1.0")]
+        [ApiExplorerSettings(GroupName = "v1")]
+        public async Task<IngestMatrixPlugin.Dto.OldResponse.v1.MatrixOldResponseMessage> SwitchRtmpUrl([FromQuery]int outPort, [FromQuery]string url)
+        {
+            IngestMatrixPlugin.Dto.OldResponse.v1.MatrixOldResponseMessage response 
+                = new IngestMatrixPlugin.Dto.OldResponse.v1.MatrixOldResponseMessage();
+
+            try
+            {
+                if (outPort <= 0 )
+                {
+                    throw new Exception("Switch failed！ param is invailed");
+                }
+
+                response.nCode = await _matrixManage.SwitchRtmpUrl(outPort, url) ? 1 : 0;
+            }
+            catch (Exception e)
+            {
+                if (e is SobeyRecException se)//sobeyexcep会自动打印错误
+                {
+                    response.message = se.Message;
+                }
+                else
+                {
+                    response.message = $"{System.Reflection.MethodBase.GetCurrentMethod().DeclaringType.FullName}:error info:{e.Message}";
+                    Logger.Error(response.message);
+                }
+                response.nCode = 0;
+            }
+            return response;
+        }
+
+        /// <summary>
+        /// 矩阵开关
+        /// </summary>
         /// <param name="lInPort"></param>
         /// <param name="lOutPort"></param>
         /// <param name="lTimeOut"></param>

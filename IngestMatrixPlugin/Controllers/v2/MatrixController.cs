@@ -30,6 +30,44 @@ namespace IngestMatrixPlugin.Controllers.v2
         /// <summary>
         /// 矩阵切换指定rtmp的url
         /// </summary>
+        /// <param name="outPort">输入端口</param>
+        /// <param name="url">指定rtmp地址</param>
+        /// <returns>是否切换成功</returns>
+        [HttpGet("switchrtmpurl"), MapToApiVersion("2.0")]
+        [ApiExplorerSettings(GroupName = "v2")]
+        public async Task<ResponseMessage<bool>> SwitchRtmpUrl([FromQuery, BindRequired]int outPort, [FromQuery]string url)
+        {
+            ResponseMessage<bool> response = new ResponseMessage<bool>();
+            try
+            {
+                if (outPort<=0)
+                {
+                    throw new Exception("Switch failed！ param is invailed");
+                }
+
+                response.Ext = await _matrixManage.SwitchRtmpUrl(outPort, url);
+
+            }
+            catch (Exception e)
+            {
+                if (e is SobeyRecException se)//sobeyexcep会自动打印错误
+                {
+                    response.Msg = se.Message;
+                    response.Code = se.ErrorCode.ToString();
+                }
+                else
+                {
+                    response.Msg = $"{System.Reflection.MethodBase.GetCurrentMethod().DeclaringType.FullName}:error info:{e.Message}";
+                    response.Code = ResponseCodeDefines.ServiceError;
+                    Logger.Error(response.Msg);
+                }
+            }
+            return response;
+        }
+
+        /// <summary>
+        /// 矩阵切换指定rtmp的url
+        /// </summary>
         /// <param name="inport">输入端口</param>
         /// <param name="outport">输出端口</param>
         /// <param name="url">指定rtmp地址</param>
