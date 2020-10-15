@@ -64,3 +64,4 @@ KafKaNotifyPlugin/bin/
 /IngestVtrInterfacePlugin/obj
 
 /IngestVtrPlugin/obj
+/UdpNotifyPlugin/obj
