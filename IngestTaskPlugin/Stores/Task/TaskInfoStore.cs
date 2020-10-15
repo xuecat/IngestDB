@@ -1903,11 +1903,19 @@ namespace IngestTaskPlugin.Stores
                                         item.Starttime.Hour, item.Starttime.Minute, item.Starttime.Second);
                                     DateTime dtnewitemend = new DateTime(dtStartCheck.Year, dtStartCheck.Month, dtStartCheck.Day,
                                         item.Endtime.Hour, item.Endtime.Minute, item.Endtime.Second);
+                                    if (dtnewitemend < dtnewitembegin)//处理跨天任务
+                                    {
+                                        dtnewitemend = dtnewitemend.AddDays(1);
+                                    }
 
                                     DateTime dtbegin = new DateTime(dtStartCheck.Year, dtStartCheck.Month, dtStartCheck.Day,
                                         begin.Hour, begin.Minute, begin.Second);
                                     DateTime dtend = new DateTime(dtStartCheck.Year, dtStartCheck.Month, dtStartCheck.Day,
                                         end.Hour, end.Minute, end.Second);
+                                    if(dtend < dtbegin)
+                                    {
+                                        dtend = dtend.AddDays(1);
+                                    }
 
                                     if ((dtend >= dtnewitembegin && dtend <= dtnewitemend)
                                             || (dtbegin <= dtnewitembegin && dtend >= dtnewitemend)

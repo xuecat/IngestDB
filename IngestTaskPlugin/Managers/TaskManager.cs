@@ -2286,7 +2286,37 @@ namespace IngestTaskPlugin.Managers
                 string strOldTaskClassify = modifyinfo.Classify;
                 int nOrignalTaskID = modifyinfo.TaskId;
                 string taskClassify = strOldTaskClassify;
-                taskClassify += string.Format("[{0}]", modifyinfo.Begin);
+                var realTask = await Store.GetTaskAsync(a => a.Where(b => b.Taskid == modifyinfo.TaskId), true);
+                if (realTask.Starttime.TimeOfDay > realTask.Endtime.TimeOfDay)//跨天周期任务,如果修改时间
+                {
+                    var modifyBegin = DateTimeFormat.DateTimeFromString(modifyinfo.Begin);
+                    var modifyEnd = DateTimeFormat.DateTimeFromString(modifyinfo.End);
+
+                    if (!taskClassify.Contains(modifyBegin.AddDays(-1).ToString("yyyy-MM-dd")) && !taskClassify.Contains(modifyBegin.ToString("yyyy-MM-dd")))
+                    {
+                        if (((realTask.Endtime.TimeOfDay > modifyBegin.TimeOfDay && realTask.Endtime.TimeOfDay < modifyEnd.TimeOfDay) || (modifyBegin < modifyEnd && realTask.Starttime.TimeOfDay > modifyEnd.TimeOfDay && realTask.Endtime.TimeOfDay < modifyBegin.TimeOfDay && modifyBegin.TimeOfDay - realTask.Endtime.TimeOfDay < realTask.Starttime.TimeOfDay - modifyEnd.TimeOfDay)) && modifyBegin.AddDays(-1).Date >= realTask.Starttime.Date)
+                        {
+                            taskClassify += string.Format("[{0}]", modifyBegin.AddDays(-1).ToString("yyyy-MM-dd HH:mm:ss"));
+                        }
+                        else
+                        {
+                            taskClassify += string.Format("[{0}]", modifyinfo.Begin);
+                        }
+                    }
+                    else if (!taskClassify.Contains(modifyBegin.AddDays(-1).ToString("yyyy-MM-dd")) && taskClassify.Contains(modifyBegin.ToString("yyyy-MM-dd")))
+                    {
+                        taskClassify += string.Format("[{0}]", modifyBegin.AddDays(-1).ToString("yyyy-MM-dd HH:mm:ss"));
+                    }
+                    else if (taskClassify.Contains(modifyBegin.AddDays(-1).ToString("yyyy-MM-dd")) && !taskClassify.Contains(modifyBegin.ToString("yyyy-MM-dd")))
+                    {
+                        taskClassify += string.Format("[{0}]", modifyinfo.Begin);
+                    }
+
+                }
+                else
+                {
+                    taskClassify += string.Format("[{0}]", modifyinfo.Begin);
+                }
 
                 await Store.SetTaskClassify(modifyinfo.TaskId, taskClassify, true);
 
