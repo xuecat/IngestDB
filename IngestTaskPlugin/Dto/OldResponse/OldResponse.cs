@@ -270,6 +270,12 @@ namespace IngestTaskPlugin.Dto.OldResponse
         /// 流媒体 = 4
         /// </summary>
         emStreamMediaUploadTask = 4,
+
+        /// <summary>
+        /// 流媒体 = 4
+        /// </summary>
+        emRtmpSwitchTask = 5,
+
         /// <summary>
         /// UnknowTask = -1
         /// </summary>

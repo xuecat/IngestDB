@@ -76,7 +76,7 @@ namespace IngestTaskPlugin.Dto.Response
         public bool BackUpTask { get; set; }
         /// <summary>任务来源</summary>
         /// <example>emMSVUploadTask</example>
-        public TaskSource TaskSource { get; set; }
+        public TaskSource TaskSource { get; set; } = TaskSource.emUnknowTask;
         /// <summary>任务基础元数据</summary>
         public TaskContentResponse TaskContent { get; set; }
         /// <summary>任务素材元数据</summary>

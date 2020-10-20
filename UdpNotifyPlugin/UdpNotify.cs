@@ -11,6 +11,10 @@ namespace UdpNotifyPlugin
     public class UdpNotify : SubNotify
     {
         private readonly ILogger Logger = LoggerManager.GetLogger("UdpNotify");
+        public UdpNotify()
+        {
+
+        }
         public override void ActionNotify(object theClock, NotifyArgs ti)
         {
             //发送通知

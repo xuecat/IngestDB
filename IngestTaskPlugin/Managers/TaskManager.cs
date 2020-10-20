@@ -2383,7 +2383,7 @@ namespace IngestTaskPlugin.Managers
                     //newTaskId = AddTaskWithoutPolicy(taskModify, TaskSource.emUnknowTask, metadatas, false, null);
                     var addinfo = new TaskInfoRequest();
                     addinfo.BackUpTask = false;
-                    addinfo.TaskSource = TaskSource.emUnknowTask;
+                    addinfo.TaskSource = (TaskSource)(await Store.GetTaskSourceAsync(a => a.Where(b => b.Taskid == realTask.Taskid))).Tasksource;//TaskSource.emUnknowTask;
                     addinfo.TaskContent = modifyinfo;
                     var backinfo = await AddTaskWithPolicy(addinfo, false, strCapatureMetaData, strContentMetaData, strStoreMetaData, strPlanMetaData);
                     //return backinfo.TaskID;
@@ -3497,7 +3497,7 @@ namespace IngestTaskPlugin.Managers
 
             //var _globalinterface = ApplicationContext.Current.ServiceProvider.GetRequiredService<IIngestDeviceInterface>();
 
-            TaskSource ts = TaskSource.emUnknowTask;
+            //TaskSource ts = TaskSource.emUnknowTask;
             if (backup)
             {
                 taskinfo.TaskContent.TaskName = "BK_" + taskinfo.TaskContent.TaskName;
@@ -3551,7 +3551,7 @@ namespace IngestTaskPlugin.Managers
             }
             else
             {
-                if (_deviceInterface != null)
+                if (_deviceInterface != null && taskinfo.TaskContent.SignalId > 0)
                 {
                     var response1 = await _deviceInterface.Value.GetDeviceCallBack(new DeviceInternals() {
                         funtype = IngestDBCore.DeviceInternals.FunctionType.SignalInfoByID, SrcId = taskinfo.TaskContent.SignalId
@@ -3571,25 +3571,25 @@ namespace IngestTaskPlugin.Managers
                         switch (fr.Ext.PgmType)
                         {
                             case ProgrammeTypeInterface.PT_Null:
-                                ts = TaskSource.emUnknowTask;
+                                taskinfo.TaskSource = TaskSource.emUnknowTask;
                                 break;
                             case ProgrammeTypeInterface.PT_SDI:
-                                ts = TaskSource.emMSVUploadTask;
+                                taskinfo.TaskSource = TaskSource.emMSVUploadTask;
                                 break;
                             case ProgrammeTypeInterface.PT_IPTS:
-                                ts = TaskSource.emIPTSUploadTask;
+                                taskinfo.TaskSource = TaskSource.emIPTSUploadTask;
                                 break;
                             case ProgrammeTypeInterface.PT_StreamMedia:
-                                ts = TaskSource.emStreamMediaUploadTask;
+                                taskinfo.TaskSource = TaskSource.emStreamMediaUploadTask;
                                 break;
                             default:
-                                ts = TaskSource.emUnknowTask;
+                                taskinfo.TaskSource = TaskSource.emUnknowTask;
                                 break;
                         }
 
                     }
                 }
-                taskinfo.TaskSource = ts;
+                //taskinfo.TaskSource = ts;
             }
 
             if (taskinfo.TaskContent.TaskType == TaskType.TT_MANUTASK)
