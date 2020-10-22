@@ -211,6 +211,8 @@ namespace IngestTaskPlugin.Managers
                     ret.TransState = temp;
                 }
 
+                ret.SignalRtmpUrl = material?.Element("SIGNALRTMPURL")?.Value;
+
                 var period = material?.Element("PERIODPARAM");
                 if (period != null)
                 {
@@ -295,6 +297,10 @@ namespace IngestTaskPlugin.Managers
             if (re.TransState >= 0)
             {
                 root.Add(new XElement("TransState", re.TransState));
+            }
+            if (!string.IsNullOrEmpty(re.SignalRtmpUrl))
+            {
+                root.Add(new XElement("SIGNALRTMPURL", re.SignalRtmpUrl));
             }
 
             if (re.PeriodParam != null)
@@ -578,6 +584,8 @@ namespace IngestTaskPlugin.Managers
                 {
                     ret.TransState = temp;
                 }
+
+                ret.SignalRtmpUrl = material?.Element("SIGNALRTMPURL").Value;
 
                 var period = material?.Element("PERIODPARAM");
                 if (period != null)

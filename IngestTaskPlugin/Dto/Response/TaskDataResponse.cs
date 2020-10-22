@@ -67,6 +67,7 @@ namespace IngestTaskPlugin.Dto.Response
         /// <summary>成组颜色 rgb值</summary>
         /// <example>0</example>
         public int GroupColor { get; set; }//注意没有S
+        
     }
 
     public class TaskInfoResponse

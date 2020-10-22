@@ -95,7 +95,8 @@ namespace IngestTaskPlugin.Dto.Response
         /// <summary>暂时无</summary>
         /// <example>0</example>
         public int TransState { get; set; }
-        
+
+        public string SignalRtmpUrl { get; set; }
     }
 
     public class TaskPlanningResponse
