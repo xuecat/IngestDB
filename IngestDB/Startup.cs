@@ -82,24 +82,34 @@ namespace IngestDB
             logger.Info(path);
             if (File.Exists(path))
             {
-                XDocument xd = new XDocument();
-                xd = XDocument.Load(path);
-                XElement ps = xd.Element("PublicSetting");
-                XElement sys = ps.Element("System");
+                try
+                {
+                    XDocument xd = new XDocument();
+                    xd = XDocument.Load(path);
+                    XElement ps = xd.Element("PublicSetting");
+                    XElement sys = ps.Element("System");
 
-                applicationContext = new ApplicationContextImpl(services);
-                applicationContext.UseSwagger = false;
-                applicationContext.PluginFactory = new DefaultPluginFactory();
+                    applicationContext = new ApplicationContextImpl(services);
+                    applicationContext.UseSwagger = false;
+                    applicationContext.PluginFactory = new DefaultPluginFactory();
 
-                applicationContext.VIP = sys.Element("Sys_VIP").Value;//cfg["PublicSetting:System:Sys_VIP"];
-                applicationContext.IngestDBUrl = CreateConfigURI(sys.Element("IngestDBSvr").Value);
-                applicationContext.IngestMatrixUrl = CreateConfigURI(sys.Element("IngestDEVCTL").Value);
-                applicationContext.CMServerUrl = CreateConfigURI(sys.Element("CMServer").Value);
-                applicationContext.CMServerWindowsUrl = CreateConfigURI(sys.Element("CMserver_windows").Value);
-                applicationContext.ConnectionString = CreateDBConnect(ps, applicationContext.VIP);
-                applicationContext.Limit24Hours = Convert.ToBoolean(Configuration["Limit24Hours"]) ;
+                    applicationContext.VIP = sys.Element("Sys_VIP").Value;//cfg["PublicSetting:System:Sys_VIP"];
+                    applicationContext.IngestDBUrl = CreateConfigURI(sys.Element("IngestDBSvr").Value);
+                    applicationContext.IngestMatrixUrl = CreateConfigURI(sys.Element("IngestDEVCTL").Value);
+                    applicationContext.CMServerUrl = CreateConfigURI(sys.Element("CMServer").Value);
+                    applicationContext.CMServerWindowsUrl = CreateConfigURI(sys.Element("CMserver_windows").Value);
+                    applicationContext.ConnectionString = CreateDBConnect(ps, applicationContext.VIP);
+                    applicationContext.Limit24Hours = Convert.ToBoolean(Configuration["Limit24Hours"]);
+                    applicationContext.NotifyUdpInfomation = Convert.ToBoolean(Configuration["NotifyUdpInfomation"]);
 
-                logger.Info(path + sys.ToString() + applicationContext.ConnectionString);
+                    logger.Info(path + sys.ToString() + applicationContext.ConnectionString);
+                }
+                catch (Exception e)
+                {
+
+                    logger.Error("ConfigureServices load json error " +e.Message);
+                }
+                
             }
             else
             { //此处加日志

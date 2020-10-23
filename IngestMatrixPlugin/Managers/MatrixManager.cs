@@ -284,12 +284,18 @@ namespace IngestMatrixPlugin.Managers
                     }
                     else
                     {
-                        var loginparam = (await Store.GetAllUserLoginInfos()).ToDictionary(x =>x.Ip, y=>y.Port);
-                        if (loginparam != null)
+                        if (ApplicationContext.Current.NotifyUdpInfomation)
                         {
-                            Task.Run(() => { _clock.InvokeNotify("udp", NotifyPlugin.Udp,
-                                $"<Notify><NotifyType>SwitchMatrix</NotifyType><TaskID>0</TaskID><Inport>{param.lInPort}</Inport><Outport>{param.lOutPort}</Outport></Notify>",
-                                loginparam); });
+                            var loginparam = (await Store.GetAllUserLoginInfos()).ToDictionary(x => x.Ip, y => y.Port);
+                            if (loginparam != null)
+                            {
+                                Task.Run(() =>
+                                {
+                                    _clock.InvokeNotify("udp", NotifyPlugin.Udp,
+                                   $"<Notify><NotifyType>SwitchMatrix</NotifyType><TaskID>0</TaskID><Inport>{param.lInPort}</Inport><Outport>{param.lOutPort}</Outport></Notify>",
+                                   loginparam);
+                                });
+                            }
                         }
                     }
                 }
