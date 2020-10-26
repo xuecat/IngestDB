@@ -153,6 +153,48 @@ namespace IngestGlobalPlugin.Controllers.v2
         }
 
         /// <summary>
+        /// 获取所有用户登录信息
+        /// </summary>
+        /// <remarks>
+        /// 例子:
+        /// Post api/v2/user/userlogininfo/all
+        /// </remarks>
+        [HttpDelete("userlogininfo/all")]
+        [ApiExplorerSettings(GroupName = "v2")]
+        public async Task< ResponseMessage<List<UserLoginInfoResponse>>> GetAllUserLoginInfos()
+        {
+            ResponseMessage<List<UserLoginInfoResponse>> Response = new ResponseMessage<List<UserLoginInfoResponse>>();
+            try
+            {
+                var bret = await _GlobalManager.GetAllUserLoginInfo();
+                if (bret != null)
+                {
+                    Response.Code = ResponseCodeDefines.SuccessCode;
+                    Response.Ext = bret;
+                }
+                else
+                    Response.Code = ResponseCodeDefines.NotFound;
+
+            }
+            catch (Exception e)//其他未知的异常，写异常日志
+            {
+                if (e.GetType() == typeof(SobeyRecException))//sobeyexcep会自动打印错误
+                {
+                    SobeyRecException se = e as SobeyRecException;
+                    Response.Code = se.ErrorCode.ToString();
+                    Response.Msg = se.Message;
+                }
+                else
+                {
+                    Response.Code = ResponseCodeDefines.ServiceError;
+                    Response.Msg = "error info:" + e.Message;
+                    Logger.Error("GetAllUserLoginInfos : " + Response.Msg);
+                }
+            }
+            return Response;
+        }
+
+        /// <summary>
         /// 删除用户登录信息
         /// </summary>
         /// <remarks>

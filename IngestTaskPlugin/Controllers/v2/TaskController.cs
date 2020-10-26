@@ -1636,7 +1636,7 @@ namespace IngestTaskPlugin.Controllers.v2
         /// </remarks>
         /// <param name="req">请求结构体</param>
         /// <returns></returns>
-        [HttpGet("completesync")]
+        [HttpPut("completesync")]
         [ApiExplorerSettings(GroupName = "v2")]
         public async Task<ResponseMessage> CompleteSynTasks([FromBody, BindRequired]CompleteSyncTaskRequest req)
         {
