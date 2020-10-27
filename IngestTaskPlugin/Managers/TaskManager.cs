@@ -240,7 +240,7 @@ namespace IngestTaskPlugin.Managers
             }
             return null;
         }
-        public string ConverTaskContentMetaString(TaskContentMetaResponse re)
+        public string ConverTaskContentMetaString(TaskContentMetaResponse re, opType opType = opType.otMove)
         {
             
             XDocument xdoc = new XDocument(new XElement("TaskContentMetaData"));
@@ -292,7 +292,7 @@ namespace IngestTaskPlugin.Managers
             }
             if (re.ClipSum >= 0)
             {
-                root.Add(new XElement("ClipSum", re.ClipSum));
+                root.Add(new XElement("ClipSum", opType == opType.otAdd ? -1 : re.ClipSum));
             }
             if (re.TransState >= 0)
             {
@@ -3540,7 +3540,7 @@ namespace IngestTaskPlugin.Managers
 
                 if (taskinfo.ContentMeta != null)
                 {
-                    ContentMeta = ConverTaskContentMetaString(taskinfo.ContentMeta);
+                    ContentMeta = ConverTaskContentMetaString(taskinfo.ContentMeta, opType.otAdd);
                 }
                 if (!string.IsNullOrEmpty(ContentMeta))
                 {
@@ -3657,7 +3657,7 @@ namespace IngestTaskPlugin.Managers
                             dest.Taskid = -1;
                         })), true, TaskSource.emMSVUploadTask,
                         string.IsNullOrEmpty(CaptureMeta) ? taskinfo.CaptureMeta : CaptureMeta,
-                        string.IsNullOrEmpty(ContentMeta) ? ConverTaskContentMetaString(taskinfo.ContentMeta) : ContentMeta,
+                        string.IsNullOrEmpty(ContentMeta) ? ConverTaskContentMetaString(taskinfo.ContentMeta, opType.otAdd) : ContentMeta,
                         string.IsNullOrEmpty(MatiralMeta) ? ConverTaskMaterialMetaString(taskinfo.MaterialMeta) : MatiralMeta,
                         string.IsNullOrEmpty(PlanningMeta) ? ConverTaskPlanningMetaString(taskinfo.PlanningMeta) : PlanningMeta,
                         null);
@@ -3790,7 +3790,7 @@ namespace IngestTaskPlugin.Managers
                     dest.Taskid = -1;
                 })), true, taskinfo.TaskSource,
                 string.IsNullOrEmpty(CaptureMeta) ? taskinfo.CaptureMeta : CaptureMeta,
-                string.IsNullOrEmpty(ContentMeta) ? ConverTaskContentMetaString(taskinfo.ContentMeta) : ContentMeta,
+                string.IsNullOrEmpty(ContentMeta) ? ConverTaskContentMetaString(taskinfo.ContentMeta, opType.otAdd) : ContentMeta,
                 string.IsNullOrEmpty(MatiralMeta) ? ConverTaskMaterialMetaString(taskinfo.MaterialMeta) : MatiralMeta,
                 string.IsNullOrEmpty(PlanningMeta) ? ConverTaskPlanningMetaString(taskinfo.PlanningMeta) : PlanningMeta,
                 null);
@@ -3866,7 +3866,7 @@ namespace IngestTaskPlugin.Managers
                             dest.Taskid = -1;
                         })), true, TaskSource.emMSVUploadTask,
                         string.IsNullOrEmpty(CaptureMeta) ? taskinfo.CaptureMeta : CaptureMeta,
-                        string.IsNullOrEmpty(ContentMeta) ? ConverTaskContentMetaString(taskinfo.ContentMeta) : ContentMeta,
+                        string.IsNullOrEmpty(ContentMeta) ? ConverTaskContentMetaString(taskinfo.ContentMeta, opType.otAdd) : ContentMeta,
                         string.IsNullOrEmpty(MatiralMeta) ? ConverTaskMaterialMetaString(taskinfo.MaterialMeta) : MatiralMeta,
                         string.IsNullOrEmpty(PlanningMeta) ? ConverTaskPlanningMetaString(taskinfo.PlanningMeta) : PlanningMeta,
                         null);
@@ -3995,7 +3995,7 @@ namespace IngestTaskPlugin.Managers
                     dest.Taskid = -1;
                 })), true, taskinfo.TaskSource,
                 string.IsNullOrEmpty(CaptureMeta) ? taskinfo.CaptureMeta : CaptureMeta,
-                string.IsNullOrEmpty(ContentMeta) ? ConverTaskContentMetaString(taskinfo.ContentMeta) : ContentMeta,
+                string.IsNullOrEmpty(ContentMeta) ? ConverTaskContentMetaString(taskinfo.ContentMeta, opType.otAdd) : ContentMeta,
                 string.IsNullOrEmpty(MatiralMeta) ? ConverTaskMaterialMetaString(taskinfo.MaterialMeta) : MatiralMeta,
                 string.IsNullOrEmpty(PlanningMeta) ? ConverTaskPlanningMetaString(taskinfo.PlanningMeta) : PlanningMeta,
                 null);
