@@ -74,6 +74,15 @@ namespace IngestTaskPlugin
                 .ForMember(a => a.Priority, (map) => map.MapFrom(b => b.Taskpriority))
                 .ForMember(a => a.CooperantType, (map) => map.MapFrom(b => b.Backtype));
 
+            CreateMap<DbpTask, TaskFullInfoResponse>()
+                .ForMember(a => a.OldChannelId, (map) => map.MapFrom(b => b.OldChannelid))
+                .ForMember(a => a.DispatchState, (map) => map.MapFrom(b => b.DispatchState))
+                .ForMember(a => a.SyncState, (map) => map.MapFrom(b => b.SyncState))
+                .ForMember(a => a.OpType, (map) => map.MapFrom(b => b.OpType))
+                .ForMember(a => a.NewBeginTime, (map) => map.MapFrom(b => b.NewBegintime))
+                .ForMember(a => a.NewEndTime, (map) => map.MapFrom(b => b.NewEndtime));
+
+
             CreateMap<DbpTask, TaskContent>()
                 .ForMember(a => a.nTaskID, (y) => y.MapFrom( b => b.Taskid))
                 .ForMember(a => a.strTaskName, (y) => y.MapFrom(b => b.Taskname))

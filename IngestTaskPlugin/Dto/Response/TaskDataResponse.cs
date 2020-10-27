@@ -93,6 +93,21 @@ namespace IngestTaskPlugin.Dto.Response
         public string CaptureMeta { get; set; }
     }
 
+    public class TaskFullInfoResponse: TaskInfoResponse
+    {
+        public int OldChannelId { get; set; }
+
+        public dispatchState DispatchState { get; set; }
+
+        public syncState SyncState { get; set; }
+
+        public opType OpType { get; set; }
+
+        public string NewBeginTime { get; set; }
+
+        public string NewEndTime { get; set; }
+    }
+
     public class CHSelCondition
     {
         public bool BackupCHSel { get; set; } = true;

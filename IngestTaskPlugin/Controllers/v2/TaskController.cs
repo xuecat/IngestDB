@@ -1067,7 +1067,7 @@ namespace IngestTaskPlugin.Controllers.v2
 
             try
             {
-                Response.Ext = await _taskManage.GetTaskInfoAll(taskid);
+                Response.Ext = await _taskManage.GetTaskInfoAll<TaskInfoResponse>(taskid);
                 if (Response.Ext == null)
                 {
                     Response.Code = ResponseCodeDefines.NotFound;

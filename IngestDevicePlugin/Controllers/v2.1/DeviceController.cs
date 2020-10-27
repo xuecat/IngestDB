@@ -21,7 +21,7 @@ namespace IngestDevicePlugin.Controllers.v2._1
     [ApiController]
     public class DeviceController : ControllerBase
     {
-        private readonly ILogger Logger = LoggerManager.GetLogger("DeviceInfo");
+        private readonly ILogger Logger = LoggerManager.GetLogger("DeviceInfo21");
         private readonly DeviceManager _deviceManage;
         //private readonly RestClient _restClient;
 

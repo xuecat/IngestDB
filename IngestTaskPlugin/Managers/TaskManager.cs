@@ -678,9 +678,9 @@ namespace IngestTaskPlugin.Managers
             return default(TResult);
         }
 
-        public async Task<TaskInfoResponse> GetTaskInfoAll(int taskid)
+        public async Task<T> GetTaskInfoAll<T>(int taskid) where T: new()
         {
-            TaskInfoResponse backobj = new TaskInfoRequest();
+            dynamic backobj = new T();
 
             var item = await Store.GetTaskAsync(a => a.Where(b => b.Taskid == taskid), true);
             if (item != null)
@@ -694,6 +694,12 @@ namespace IngestTaskPlugin.Managers
                     item.State = (int)taskState.tsInvaild;
                 }
 
+                var mapinfo = _mapper.ConfigurationProvider.FindTypeMapFor<DbpTask, T>();
+                if (mapinfo != null)
+                {
+                    backobj = _mapper.Map<DbpTask, T>(item, backobj);
+                }
+                
                 backobj.TaskContent = _mapper.Map<TaskContentResponse>(item);
 
                 var lstmeta = await Store.GetTaskMetaDataListAsync(a => a.Where(b => b.Taskid == taskid), true);
