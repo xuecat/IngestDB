@@ -678,7 +678,7 @@ namespace IngestTaskPlugin.Managers
             return default(TResult);
         }
 
-        public async Task<T> GetTaskInfoAll<T>(int taskid) where T: new()
+        public async Task<T> GetTaskInfoAll<T>(int taskid) where T: class, new()
         {
             dynamic backobj = new T();
 
