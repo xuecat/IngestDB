@@ -95,7 +95,20 @@ namespace IngestMatrixPlugin.Managers
             return false;
         }
 
-        public async Task<bool> SwitchInOutAsync(long inPort, long outPort, string rtmpurl)
+        public async Task<bool> SwitchSignalChannelAsync(int signalid, int channelid)
+        {
+            if (signalid < 0)//-1是自动通道，切换不切换已经没有意义了，直接采集
+            {
+                Logger.Info("SwitchSignalChannelAsync signalid less 0, -1");
+                return true;
+            }
+            var dbpRcdindesc = (await Store.QueryRcdindesc(a => a.Where(b => b.Signalsrcid == signalid), true)).FirstOrDefault();
+            var dbpRcdoutdesc = (await Store.QueryRcdoutdesc(a => a.Where(b => b.Channelid == channelid), true)).FirstOrDefault();
+
+            return await SwitchInOutAsync(dbpRcdindesc.Recinidx, dbpRcdoutdesc.Recoutidx, dbpRcdindesc, dbpRcdoutdesc);
+        }
+
+        public async Task<bool> SwitchInOutAsync(long inPort, long outPort, DbpRcdindesc dbpRcdindesc, DbpRcdoutdesc dbpRcdoutdesc)
         {
             Logger.Info("**********************************************************************");
             string strlog = string.Format("Begin to switch in[{0}]-and -out[{1}] Port...", inPort, outPort);
@@ -196,26 +209,33 @@ namespace IngestMatrixPlugin.Managers
                 Logger.Info(JsonConvert.SerializeObject(param));
 
                 //MatrixOldResponseMessage msg = await MatrixSwitch(param);
-                var dbpRcdindesc = (await Store.QueryRcdindesc(a => a.Where(x => x.Recinidx == inPort))).FirstOrDefault();
                 if (dbpRcdindesc == null)
                 {
-                    Logger.Error($"call DBAccessMatrixInfo::SwitchInOutByArea(), no inport {inPort} .");
-                    if (!await RecoverReleasedRoutAndPort(releasedVirtualPortList, releasedRoutList))
+                    dbpRcdindesc = (await Store.QueryRcdindesc(a => a.Where(x => x.Recinidx == inPort), true)).FirstOrDefault();
+                    if (dbpRcdindesc == null)
                     {
-                        Logger.Error("In module MatrixService!call CIVirtualMatrix::SwitchInOut(),recover the released rout and port failed!");
+                        Logger.Error($"call DBAccessMatrixInfo::SwitchInOutByArea(), no inport {inPort} .");
+                        if (!await RecoverReleasedRoutAndPort(releasedVirtualPortList, releasedRoutList))
+                        {
+                            Logger.Error("In module MatrixService!call CIVirtualMatrix::SwitchInOut(),recover the released rout and port failed!");
+                        }
+                        return false;
                     }
-                    return false;
+                    
                 }
 
-                var dbpRcdoutdesc = (await Store.QueryRcdoutdesc(a => a.Where(x => x.Recoutidx == outPort))).FirstOrDefault();
                 if (dbpRcdoutdesc == null)
                 {
-                    Logger.Error($"call DBAccessMatrixInfo::SwitchInOutByArea(), no outport {outPort} .");
-                    if (!await RecoverReleasedRoutAndPort(releasedVirtualPortList, releasedRoutList))
+                    dbpRcdoutdesc = (await Store.QueryRcdoutdesc(a => a.Where(x => x.Recoutidx == outPort), true)).FirstOrDefault();
+                    if (dbpRcdoutdesc == null)
                     {
-                        Logger.Error("In module MatrixService!call CIVirtualMatrix::SwitchInOut(),recover the released rout and port failed!");
+                        Logger.Error($"call DBAccessMatrixInfo::SwitchInOutByArea(), no outport {outPort} .");
+                        if (!await RecoverReleasedRoutAndPort(releasedVirtualPortList, releasedRoutList))
+                        {
+                            Logger.Error("In module MatrixService!call CIVirtualMatrix::SwitchInOut(),recover the released rout and port failed!");
+                        }
+                        return false;
                     }
-                    return false;
                 }
 
                 MatrixOldResponseMessage msg = null;
@@ -242,7 +262,7 @@ namespace IngestMatrixPlugin.Managers
 
                     Logger.Error($"call SwitchInOutAsync, msvip: {msvip},msvport:{msvport}, dbpRcdindesc.Ipaddress:{dbpRcdindesc.Ipaddress}.");
 
-                    Task.Run(() => { _clock.InvokeNotify(msvip, NotifyPlugin.Msv, NotifyAction.MSVRELOCATE, string.IsNullOrEmpty(rtmpurl)?dbpRcdindesc.Ipaddress:rtmpurl, msvport); });
+                    Task.Run(() => { _clock.InvokeNotify(msvip, NotifyPlugin.Msv, NotifyAction.MSVRELOCATE, dbpRcdindesc.Ipaddress, msvport); });
 
                     //if (!ApplicationContext.Current.CtrlSDK.Relecate(msvip, msvport, dbpRcdindesc.Ipaddress))
                     //{
