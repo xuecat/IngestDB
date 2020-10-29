@@ -65,7 +65,45 @@ namespace IngestMatrixPlugin.Controllers.v2
             return response;
         }
 
-       
+        /// <summary>
+        /// 矩阵切换指定通道的rtmp的url
+        /// </summary>
+        /// <param name="channelid">输入端口</param>
+        /// <param name="url">指定rtmp地址</param>
+        /// <returns>是否切换成功</returns>
+        [HttpGet("switchchannelrtmpurl"), MapToApiVersion("2.0")]
+        [ApiExplorerSettings(GroupName = "v2")]
+        public async Task<ResponseMessage<bool>> SwitchChannelRtmpUrl([FromQuery, BindRequired]int channelid, [FromQuery]string url)
+        {
+            ResponseMessage<bool> response = new ResponseMessage<bool>();
+            try
+            {
+                if (channelid <= 0)
+                {
+                    throw new Exception("Switch failed！ param is invailed");
+                }
+
+                response.Ext = await _matrixManage.SwitchChannelRtmpAsync(channelid, url);
+
+            }
+            catch (Exception e)
+            {
+                if (e is SobeyRecException se)//sobeyexcep会自动打印错误
+                {
+                    response.Msg = se.Message;
+                    response.Code = se.ErrorCode.ToString();
+                }
+                else
+                {
+                    response.Msg = $"{System.Reflection.MethodBase.GetCurrentMethod().DeclaringType.FullName}:error info:{e.Message}";
+                    response.Code = ResponseCodeDefines.ServiceError;
+                    Logger.Error(response.Msg);
+                }
+            }
+            return response;
+        }
+
+
         /// <summary>
         /// 矩阵切换指定信号和通道
         /// </summary>

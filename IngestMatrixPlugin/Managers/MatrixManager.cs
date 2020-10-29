@@ -43,6 +43,57 @@ namespace IngestMatrixPlugin.Managers
 
         private readonly NotifyClock _clock;
 
+        public async Task<bool> SwitchChannelRtmpAsync(int channelid, string rtmpurl)
+        {
+            var dbpRcdoutdesc = (await Store.QueryRcdoutdesc(a => a.Where(x => x.Channelid == channelid))).FirstOrDefault();
+            if (dbpRcdoutdesc == null)
+            {
+                return false;
+            }
+
+            if (string.IsNullOrEmpty(rtmpurl))
+            {
+                SobeyRecException.ThrowSelfNoParam(channelid.ToString(),
+                    GlobalDictionary.GLOBALDICT_CODE_RTMP_PARAMERROR_URL, Logger, null);
+            }
+
+            string msvip = string.Empty;
+            int msvport = -1;
+            if (_deviceInterface != null)
+            {
+                var response = await _deviceInterface.Value.GetDeviceCallBack(new DeviceInternals()
+                {
+                    funtype = IngestDBCore.DeviceInternals.FunctionType.DeviceInfoByID,
+                    DeviceId = dbpRcdoutdesc.Rcdeviceid
+                });
+
+                var deviceInfos = response as ResponseMessage<DeviceInfoInterface>;
+
+                if (deviceInfos != null)
+                {
+                    msvip = deviceInfos.Ext.Ip;
+                    msvport = deviceInfos.Ext.ChannelIndex;
+
+                    Logger.Error($"call SwitchRtmpUrl, msvip: {msvip},msvport:{msvport}, .");
+
+                    Task.Run(() => { _clock.InvokeNotify(msvip, NotifyPlugin.Msv, NotifyAction.MSVRELOCATE, rtmpurl, msvport); });
+
+                    return true;
+                    //     var loginparam = (await Store.GetAllUserLoginInfos()).ToDictionary(x => x.Ip, y => y.Port);
+                    //     if (loginparam != null)
+                    //     {
+                    //         Task.Run(() =>
+                    //         {
+                    //             _clock.InvokeNotify("udp", NotifyPlugin.Udp,
+                    //$"<Notify><NotifyType>SwitchMatrix</NotifyType><TaskID>0</TaskID><Inport>{param.lInPort}</Inport><Outport>{param.lOutPort}</Outport></Notify>",
+                    //loginparam);
+                    //         });
+                    //     }
+                }
+            }
+            return false;
+        }
+
         public async Task<bool> SwitchRtmpUrl(long outPort, string rtmpurl)
         {
             var dbpRcdoutdesc = (await Store.QueryRcdoutdesc(a => a.Where(x => x.Recoutidx == outPort))).FirstOrDefault();
@@ -104,8 +155,13 @@ namespace IngestMatrixPlugin.Managers
             }
             var dbpRcdindesc = (await Store.QueryRcdindesc(a => a.Where(b => b.Signalsrcid == signalid), true)).FirstOrDefault();
             var dbpRcdoutdesc = (await Store.QueryRcdoutdesc(a => a.Where(b => b.Channelid == channelid), true)).FirstOrDefault();
+            if (dbpRcdindesc != null && dbpRcdoutdesc != null)
+            {
+                return await SwitchInOutAsync(dbpRcdindesc.Recinidx, dbpRcdoutdesc.Recoutidx, dbpRcdindesc, dbpRcdoutdesc);
+            }
 
-            return await SwitchInOutAsync(dbpRcdindesc.Recinidx, dbpRcdoutdesc.Recoutidx, dbpRcdindesc, dbpRcdoutdesc);
+            Logger.Error($"SwitchSignalChannelAsync not find in/out {signalid} {channelid} ");
+            return false;
         }
 
         public async Task<bool> SwitchInOutAsync(long inPort, long outPort, DbpRcdindesc dbpRcdindesc, DbpRcdoutdesc dbpRcdoutdesc)
