@@ -210,6 +210,18 @@ namespace IngestTaskPlugin.Managers
                 {
                     ret.TransState = temp;
                 }
+                if (int.TryParse(material?.Element("AudioChannels")?.Value, out temp))
+                {
+                    ret.AudioChannels = temp;
+                }
+                if (int.TryParse(material?.Element("nAudioChannelAttribute")?.Value, out temp))
+                {
+                    ret.AudioChannelAttribute = temp;
+                }
+                if (int.TryParse(material?.Element("ASR_mask")?.Value, out temp))
+                {
+                    ret.ASRmask = temp;
+                }
 
                 ret.SignalRtmpUrl = material?.Element("SIGNALRTMPURL")?.Value;
 
@@ -298,6 +310,19 @@ namespace IngestTaskPlugin.Managers
             {
                 root.Add(new XElement("TransState", re.TransState));
             }
+            if (re.AudioChannels >= 0)
+            {
+                root.Add(new XElement("AudioChannels", re.AudioChannels));
+            }
+            if (re.AudioChannelAttribute > 0)
+            {
+                root.Add(new XElement("nAudioChannelAttribute", re.AudioChannelAttribute));
+            }
+            if (re.ASRmask >= 0)
+            {
+                root.Add(new XElement("ASR_mask", re.ASRmask));
+            }
+
             if (!string.IsNullOrEmpty(re.SignalRtmpUrl))
             {
                 root.Add(new XElement("SIGNALRTMPURL", re.SignalRtmpUrl));
@@ -583,6 +608,18 @@ namespace IngestTaskPlugin.Managers
                 if (int.TryParse(material?.Element("TransState")?.Value, out temp))
                 {
                     ret.TransState = temp;
+                }
+                if (int.TryParse(material?.Element("AudioChannels")?.Value, out temp))
+                {
+                    ret.AudioChannels = temp;
+                }
+                if (int.TryParse(material?.Element("nAudioChannelAttribute")?.Value, out temp))
+                {
+                    ret.AudioChannelAttribute = temp;
+                }
+                if (int.TryParse(material?.Element("ASR_mask")?.Value, out temp))
+                {
+                    ret.ASRmask = temp;
                 }
 
                 ret.SignalRtmpUrl = material?.Element("SIGNALRTMPURL").Value;

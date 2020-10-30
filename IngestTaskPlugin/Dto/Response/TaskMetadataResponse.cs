@@ -96,6 +96,10 @@ namespace IngestTaskPlugin.Dto.Response
         /// <example>0</example>
         public int TransState { get; set; }
 
+        public int AudioChannels { get; set; } = -1;
+        public int AudioChannelAttribute { get; set; }
+        public int ASRmask { get; set; } = -1;
+
         public string SignalRtmpUrl { get; set; }
     }
 
