@@ -21,6 +21,7 @@ using IngestTaskPlugin.Extend;
 using IngestTaskPlugin.Dto.Response;
 using IngestTaskPlugin.Dto.OldResponse;
 using IngestTaskPlugin.Dto;
+using System.Xml.Serialization;
 
 namespace IngestTaskPlugin.Managers
 {
@@ -763,6 +764,14 @@ namespace IngestTaskPlugin.Managers
                         backobj.SplitMeta = ConverTaskSplitMetaString(itm.Metadatalong);
                     }
                 }
+
+
+                var taskSource = await Store.GetTaskSourceAsync(a => a.Where(x => x.Taskid == taskid), true);
+                if(taskSource != null)
+                {
+                    backobj.TaskSource = (TaskSource)taskSource.Tasksource;
+                }
+                
             }
             
             return backobj;
@@ -4056,10 +4065,10 @@ namespace IngestTaskPlugin.Managers
             request.TaskId, request.SignalId, request.ChannelId,
             condition.BackupCHSel, condition.CheckCHCurState, condition.BaseChId, condition.OnlyLocalChannel, condition.MoveExcutingOpenTask)));
 
-            if (request.SignalId <= 0)
-            {
-                return -1;
-            }
+            //if (request.SignalId <= 0)
+            //{
+            //    return -1;
+            //}
 
             //1. 为信号源选择所有匹配的通道
             //2. 根据条件筛选通道，这些条件是固定属性，放在前面筛选掉，不用互斥
@@ -4096,10 +4105,10 @@ namespace IngestTaskPlugin.Managers
             request.TaskId, request.SignalId, request.ChannelId,
             condition.BackupCHSel, condition.CheckCHCurState, condition.BaseChId, condition.OnlyLocalChannel, condition.MoveExcutingOpenTask)));
 
-            if (request.SignalId <= 0)
-            {
-                return -1;
-            }
+            //if (request.SignalId <= 0)
+            //{
+            //    return -1;
+            //}
 
             //1. 为信号源选择所有匹配的通道
             //2. 根据条件筛选通道，这些条件是固定属性，放在前面筛选掉，不用互斥
@@ -4179,7 +4188,17 @@ namespace IngestTaskPlugin.Managers
             
             if (_deviceInterface != null)
             {
-                DeviceInternals re = new DeviceInternals() { funtype = IngestDBCore.DeviceInternals.FunctionType.ChannelInfoBySrc, SrcId = SignalID, Status = condition.CheckCHCurState ? 1 : 0 };
+                DeviceInternals re = null;
+
+                if(SignalID > 0)
+                {
+                    re = new DeviceInternals() { funtype = IngestDBCore.DeviceInternals.FunctionType.ChannelInfoBySrc, SrcId = SignalID, Status = condition.CheckCHCurState ? 1 : 0 };
+                }
+                else
+                {
+                    re = new DeviceInternals() { funtype = DeviceInternals.FunctionType.AllCaptureChannels };
+                }
+
                 var response1 = await _deviceInterface.Value.GetDeviceCallBack(re);
                 if (response1.Code != ResponseCodeDefines.SuccessCode)
                 {
