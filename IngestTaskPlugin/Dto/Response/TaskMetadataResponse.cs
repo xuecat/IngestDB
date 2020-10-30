@@ -96,10 +96,17 @@ namespace IngestTaskPlugin.Dto.Response
         /// <example>0</example>
         public int TransState { get; set; }
 
+        /// <summary>音频轨道配置</summary>
+        /// <example>-1</example>
         public int AudioChannels { get; set; } = -1;
+        /// <summary>纯音频配置</summary>
+        /// <example>0</example>
         public int AudioChannelAttribute { get; set; }
+        /// <summary>音频掩码</summary>
+        /// <example>-1</example>
         public int ASRmask { get; set; } = -1;
-
+        /// <summary>指定信号rtmp切换url</summary>
+        /// <example>rtmp</example>
         public string SignalRtmpUrl { get; set; }
     }
 
