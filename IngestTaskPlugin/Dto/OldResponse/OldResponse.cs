@@ -272,7 +272,7 @@ namespace IngestTaskPlugin.Dto.OldResponse
         emStreamMediaUploadTask = 4,
 
         /// <summary>
-        /// 流媒体 = 4
+        /// 专门用来切换rtmp的任务
         /// </summary>
         emRtmpSwitchTask = 5,
 

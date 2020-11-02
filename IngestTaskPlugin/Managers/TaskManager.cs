@@ -21,7 +21,6 @@ using IngestTaskPlugin.Extend;
 using IngestTaskPlugin.Dto.Response;
 using IngestTaskPlugin.Dto.OldResponse;
 using IngestTaskPlugin.Dto;
-using System.Xml.Serialization;
 
 namespace IngestTaskPlugin.Managers
 {
@@ -3783,11 +3782,11 @@ namespace IngestTaskPlugin.Managers
                 if (taskinfo.TaskContent.TaskType != TaskType.TT_PERIODIC)
                 {
 
-                    nSelCH = await CHSelectForNormalTask(taskinfo.TaskContent, condition);
+                    nSelCH = await CHSelectForNormalTask(taskinfo.TaskContent, taskinfo.TaskSource, condition);
                 }
                 else
                 {
-                    nSelCH = await CHSelectForPeriodicTask(taskinfo.TaskContent, condition);
+                    nSelCH = await CHSelectForPeriodicTask(taskinfo.TaskContent, taskinfo.TaskSource, condition);
                 }
 
                 if (nSelCH <= 0)
@@ -3984,11 +3983,11 @@ namespace IngestTaskPlugin.Managers
                 if (taskinfo.TaskContent.TaskType != TaskType.TT_PERIODIC)
                 {
 
-                    nSelCH = await CHSelectForNormalTask(taskinfo.TaskContent, condition);
+                    nSelCH = await CHSelectForNormalTask(taskinfo.TaskContent, taskinfo.TaskSource, condition);
                 }
                 else
                 {
-                    nSelCH = await CHSelectForPeriodicTask(taskinfo.TaskContent, condition);
+                    nSelCH = await CHSelectForPeriodicTask(taskinfo.TaskContent, taskinfo.TaskSource, condition);
                 }
 
                 if (nSelCH <= 0)
@@ -4059,16 +4058,16 @@ namespace IngestTaskPlugin.Managers
             return null;
         }
 
-        public async ValueTask<int> CHSelectForNormalTask(TaskContentRequest request, CHSelCondition condition)
+        public async ValueTask<int> CHSelectForNormalTask(TaskContentRequest request, TaskSource tasksource, CHSelCondition condition)
         {
             Logger.Info((string.Format("###Begin to Select channel for Normal task:{0}, signalid:{1}, channelid:{2}, bBackupCH:{3}, bCheckState:{4}, nBaseCH:{5}, OnlyLocal:{6},bExcuting:{7}",
             request.TaskId, request.SignalId, request.ChannelId,
             condition.BackupCHSel, condition.CheckCHCurState, condition.BaseChId, condition.OnlyLocalChannel, condition.MoveExcutingOpenTask)));
 
-            //if (request.SignalId <= 0)
-            //{
-            //    return -1;
-            //}
+            if (request.SignalId <= 0 && tasksource != TaskSource.emRtmpSwitchTask)
+            {
+                return -1;
+            }
 
             //1. 为信号源选择所有匹配的通道
             //2. 根据条件筛选通道，这些条件是固定属性，放在前面筛选掉，不用互斥
@@ -4099,16 +4098,16 @@ namespace IngestTaskPlugin.Managers
             return -1;
         }
 
-        public async ValueTask<int> CHSelectForPeriodicTask(TaskContentRequest request, CHSelCondition condition)
+        public async ValueTask<int> CHSelectForPeriodicTask(TaskContentRequest request, TaskSource tasksource, CHSelCondition condition)
         {
             Logger.Info((string.Format("###Begin to Select channel for Normal task:{0}, signalid:{1}, channelid:{2}, bBackupCH:{3}, bCheckState:{4}, nBaseCH:{5}, OnlyLocal:{6},bExcuting:{7}",
             request.TaskId, request.SignalId, request.ChannelId,
             condition.BackupCHSel, condition.CheckCHCurState, condition.BaseChId, condition.OnlyLocalChannel, condition.MoveExcutingOpenTask)));
 
-            //if (request.SignalId <= 0)
-            //{
-            //    return -1;
-            //}
+            if (request.SignalId <= 0 && tasksource != TaskSource.emRtmpSwitchTask)
+            {
+                return -1;
+            }
 
             //1. 为信号源选择所有匹配的通道
             //2. 根据条件筛选通道，这些条件是固定属性，放在前面筛选掉，不用互斥
