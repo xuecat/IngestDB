@@ -2042,6 +2042,35 @@ namespace IngestTaskPlugin.Managers
             return _mapper.Map<List<TResult>>(await Store.GetTaskListWithMode(1, day, timetype));
         }
 
+        public async Task<List<TaskContentSignalUrlResponse>> QueryTaskSignalUrlContent(int unitid, DateTime day, TimeLineType timetype)
+        {
+            var lst = _mapper.Map<List<TaskContentSignalUrlResponse>>(await Store.GetTaskListWithMode(1, day, timetype));
+
+            foreach (var item in lst)
+            {
+                if (item.Signal == "-1")
+                {
+                    var content = await Store.GetTaskMetaDataAsync(a => a
+                               .Where(b => b.Taskid == item.TaskId && b.Metadatatype == (int)MetaDataType.emContentMetaData)
+                               .Select(x => x.Metadatalong), true);
+
+                    if (!string.IsNullOrEmpty(content))
+                    {
+                        var root = XDocument.Parse(content);
+                        var material = root.Element("TaskContentMetaData");
+                        var signal = material.Element("SIGNALRTMPURL");
+                        if (signal != null)
+                        {
+                            item.Signal = signal.Value;
+                        }
+                        
+                    }
+                    
+                }
+            }
+            return lst;
+        }
+
         public async Task<TaskSource> GetTaskSource(int taskid)
         {
             return (TaskSource)(await Store.GetTaskSourceAsync(a => a.Where(b => b.Taskid == taskid).Select(x => x.Tasksource), true));

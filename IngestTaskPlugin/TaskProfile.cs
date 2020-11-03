@@ -74,6 +74,18 @@ namespace IngestTaskPlugin
                 .ForMember(a => a.Priority, (map) => map.MapFrom(b => b.Taskpriority))
                 .ForMember(a => a.CooperantType, (map) => map.MapFrom(b => b.Backtype));
 
+            CreateMap<DbpTask, TaskContentSignalUrlResponse>()
+               .ForMember(a => a.Unit, (map) => map.MapFrom(b => b.Recunitid))
+               .ForMember(a => a.Classify, (map) => map.MapFrom(b => b.Category))
+               .ForMember(a => a.TaskDesc, (map) => map.MapFrom(b => b.Description))
+               .ForMember(a => a.Begin, (map) => map.MapFrom(b => b.Starttime))
+               .ForMember(a => a.End, (map) => map.MapFrom(b => b.Endtime))
+               .ForMember(a => a.GroupColor, (map) => map.MapFrom(b => b.Sgroupcolor))
+               .ForMember(a => a.StampImageType, (map) => map.MapFrom(b => b.Stampimagetype))
+               .ForMember(a => a.Priority, (map) => map.MapFrom(b => b.Taskpriority))
+               .ForMember(a => a.CooperantType, (map) => map.MapFrom(b => b.Backtype))
+               .ForMember(a => a.Signal, (map) => map.MapFrom(b => b.Signalid.ToString()));
+
             CreateMap<DbpTask, TaskFullInfoResponse>()
                 .ForMember(a => a.OldChannelId, (map) => map.MapFrom(b => b.OldChannelid))
                 .ForMember(a => a.DispatchState, (map) => map.MapFrom(b => b.DispatchState))
