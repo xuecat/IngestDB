@@ -95,7 +95,7 @@ namespace IngestTaskPlugin.Dto.Response
         public string UserCode { get; set; }
         /// <summary>信号源id</summary>
         /// <example>0</example>
-        public string Signal { get; set; }
+        public string SignalId { get; set; }
         /// <summary>任务开始时间</summary>
         /// <example>2020-4-02 16:19:33</example>
         public string Begin { get; set; } = DateTime.MinValue.ToString("yyyy-MM-dd HH:mm:ss");
