@@ -84,7 +84,7 @@ namespace IngestTaskPlugin
                .ForMember(a => a.StampImageType, (map) => map.MapFrom(b => b.Stampimagetype))
                .ForMember(a => a.Priority, (map) => map.MapFrom(b => b.Taskpriority))
                .ForMember(a => a.CooperantType, (map) => map.MapFrom(b => b.Backtype))
-               .ForMember(a => a.Signal, (map) => map.MapFrom(b => b.Signalid.ToString()));
+               .ForMember(a => a.SignalId, (map) => map.MapFrom(b => b.Signalid.ToString()));
 
             CreateMap<DbpTask, TaskFullInfoResponse>()
                 .ForMember(a => a.OldChannelId, (map) => map.MapFrom(b => b.OldChannelid))

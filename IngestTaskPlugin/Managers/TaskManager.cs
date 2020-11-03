@@ -2048,7 +2048,7 @@ namespace IngestTaskPlugin.Managers
 
             foreach (var item in lst)
             {
-                if (item.Signal == "-1")
+                if (item.SignalId == "-1")
                 {
                     var content = await Store.GetTaskMetaDataAsync(a => a
                                .Where(b => b.Taskid == item.TaskId && b.Metadatatype == (int)MetaDataType.emContentMetaData)
@@ -2061,7 +2061,7 @@ namespace IngestTaskPlugin.Managers
                         var signal = material.Element("SIGNALRTMPURL");
                         if (signal != null)
                         {
-                            item.Signal = signal.Value;
+                            item.SignalId = signal.Value;
                         }
                         
                     }
