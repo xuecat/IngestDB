@@ -4100,7 +4100,7 @@ namespace IngestTaskPlugin.Managers
 
             //1. 为信号源选择所有匹配的通道
             //2. 根据条件筛选通道，这些条件是固定属性，放在前面筛选掉，不用互斥
-            var matchlst = await GetMatchedChannelForSignal(request.SignalId, request.ChannelId, condition);
+            var matchlst = await GetMatchedChannelForSignal(request.SignalId, request.ChannelId, condition, tasksource);
             if (matchlst != null && matchlst.Count > 0)
             {
                 Logger.Info("CHSelectForNormalTask matchcount {0}", matchlst.Count);
@@ -4140,7 +4140,7 @@ namespace IngestTaskPlugin.Managers
 
             //1. 为信号源选择所有匹配的通道
             //2. 根据条件筛选通道，这些条件是固定属性，放在前面筛选掉，不用互斥
-            var matchlst = await GetMatchedChannelForSignal(request.SignalId, request.ChannelId, condition);
+            var matchlst = await GetMatchedChannelForSignal(request.SignalId, request.ChannelId, condition, tasksource);
             if (matchlst != null && matchlst.Count > 0)
             {
                 Logger.Info("CHSelectForNormalTask matchcount {0}", matchlst.Count);
@@ -4211,20 +4211,24 @@ namespace IngestTaskPlugin.Managers
             }
             return nSelCH;
         }
-        public async Task<List<int>> GetMatchedChannelForSignal(int SignalID, int ChID, CHSelCondition condition)
+        public async Task<List<int>> GetMatchedChannelForSignal(int SignalID, int ChID, CHSelCondition condition, TaskSource tasksource)
         {
             
             if (_deviceInterface != null)
             {
                 DeviceInternals re = null;
 
-                if(SignalID > 0)
+                if(SignalID <= 0 && tasksource == TaskSource.emRtmpSwitchTask)
+                {
+                    re = new DeviceInternals() { funtype = DeviceInternals.FunctionType.RtmpCaptureChannels };
+                }
+                else if(SignalID > 0)
                 {
                     re = new DeviceInternals() { funtype = IngestDBCore.DeviceInternals.FunctionType.ChannelInfoBySrc, SrcId = SignalID, Status = condition.CheckCHCurState ? 1 : 0 };
                 }
                 else
                 {
-                    re = new DeviceInternals() { funtype = DeviceInternals.FunctionType.AllCaptureChannels };
+                    return null;
                 }
 
                 var response1 = await _deviceInterface.Value.GetDeviceCallBack(re);
