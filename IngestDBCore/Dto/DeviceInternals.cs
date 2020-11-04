@@ -22,7 +22,8 @@ namespace IngestDBCore
             ChannelExtendData,
             AllCaptureChannels,
             AllRouterInPort,
-            AllCaptureDevice
+            AllCaptureDevice,
+            RtmpCaptureChannels
             /////////////////////////////set信息//
         }
 
