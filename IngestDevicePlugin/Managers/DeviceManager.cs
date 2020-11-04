@@ -397,7 +397,7 @@ namespace IngestDevicePlugin.Managers
         /// <param name="channelid">通道Id</param>
         public virtual async Task<int> GetChannelSignalSrcAsync(int channelid)
         {
-            if (!await HaveMatrixAsync())
+            if (await HaveMatrixAsync())
             {
                 CaptureChannelInfoDto channelInfo = await GetCaptureChannelByIDAsync<CaptureChannelInfoDto>(channelid);
 
