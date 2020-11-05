@@ -569,10 +569,11 @@ namespace IngestTaskPlugin.Controllers.v2
         ///
         /// </remarks>
         /// <param name="task">添加任务数据</param>
+        /// <param name="signalRules">空矩阵时是否严格信号源通道对应</param>
         /// <returns>基本任务信息附带任务id</returns>
         [HttpPost("withpolicytask")]
         [ApiExplorerSettings(GroupName = "v2")]
-        public async Task<ResponseMessage<TaskContentResponse>> AddTaskWithPolicy([FromBody, BindRequired]TaskInfoRequest task)
+        public async Task<ResponseMessage<TaskContentResponse>> AddTaskWithPolicy([FromBody, BindRequired]TaskInfoRequest task, [FromQuery] bool signalRules = true)
         {
             Logger.Info($"AddTaskWithPolicy task : {JsonHelper.ToJson(task)}");
             //处理任务名中含有分号的时候，元数据xml不对劲，导致任务总控无法调度，同时含有单斜线的时候，mysql会自动消化掉一个斜线
@@ -600,7 +601,7 @@ namespace IngestTaskPlugin.Controllers.v2
             try
             {
                 //Response.Ext = await _taskManage.AddTaskWithPolicy(task, false, string.Empty, string.Empty, string.Empty, string.Empty);
-                var addTask = await _taskManage.AddTaskWithPolicy(task, false, string.Empty, string.Empty, string.Empty, string.Empty);
+                var addTask = await _taskManage.AddTaskWithPolicy(task, false, string.Empty, string.Empty, string.Empty, string.Empty, signalRules);
                 Response.Ext = _mapper.Map<TaskContentResponse>(addTask);
                 if (Response.Ext == null)
                 {
@@ -611,7 +612,7 @@ namespace IngestTaskPlugin.Controllers.v2
                 if (task.BackUpTask)
                 {
                     task.TaskContent = Response.Ext;
-                    var backtask = await _taskManage.AddTaskWithPolicy(task, true, string.Empty, string.Empty, string.Empty, string.Empty, false);
+                    var backtask = await _taskManage.AddTaskWithPolicy(task, true, string.Empty, string.Empty, string.Empty, string.Empty, signalRules, false);
                     await _taskManage.UpdateBackupTaskMetadata(Response.Ext.TaskId, backtask.Taskid, task.ContentMeta);
                 }
 

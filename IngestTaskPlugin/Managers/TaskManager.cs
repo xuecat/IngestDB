@@ -2473,7 +2473,7 @@ namespace IngestTaskPlugin.Managers
                     addinfo.BackUpTask = false;
                     addinfo.TaskSource = (TaskSource)(await Store.GetTaskSourceAsync(a => a.Where(b => b.Taskid == realTask.Taskid))).Tasksource;//TaskSource.emUnknowTask;
                     addinfo.TaskContent = modifyinfo;
-                    var backinfo = await AddTaskWithPolicy(addinfo, false, strCapatureMetaData, strContentMetaData, strStoreMetaData, strPlanMetaData);
+                    var backinfo = await AddTaskWithPolicy(addinfo, false, strCapatureMetaData, strContentMetaData, strStoreMetaData, strPlanMetaData,true);
                     //return backinfo.TaskID;
                     return backinfo;
                 }
@@ -3579,7 +3579,7 @@ namespace IngestTaskPlugin.Managers
             return false;
         }
 
-        public async Task<DbpTask> AddTaskWithPolicy<TResult>(TResult info, bool backup, string CaptureMeta, string ContentMeta, string MatiralMeta, string PlanningMeta, bool isOnlyLocalChannel = true)
+        public async Task<DbpTask> AddTaskWithPolicy<TResult>(TResult info, bool backup, string CaptureMeta, string ContentMeta, string MatiralMeta, string PlanningMeta, bool strictSignalRules, bool isOnlyLocalChannel = true)
         {
             var taskinfo = _mapper.Map<TaskInfoRequest>(info);
 
@@ -3842,13 +3842,23 @@ namespace IngestTaskPlugin.Managers
                     {
                         DeviceInternals re = new DeviceInternals() { funtype = IngestDBCore.DeviceInternals.FunctionType.SingnalIDByChannel, ChannelId = taskinfo.TaskContent.ChannelId };
                         var response1 = await _deviceInterface.Value.GetDeviceCallBack(re);
-                        if (response1.Code != ResponseCodeDefines.SuccessCode)
+                        if(response1.Code == ResponseCodeDefines.NotFound && !strictSignalRules)
+                        {
+                            re = new DeviceInternals() { funtype = IngestDBCore.DeviceInternals.FunctionType.AllRouterInPort };
+                            var response2 = await _deviceInterface.Value.GetDeviceCallBack(re);
+                            var result = response2 as ResponseMessage<List<RouterInInterface>>;
+                            taskinfo.TaskContent.SignalId = result.Ext.Count > 0 ? result.Ext[0].SignalSrcId : 1;
+                        }
+                        else if (response1.Code != ResponseCodeDefines.SuccessCode)
                         {
                             Logger.Error("AddTaskWithPolicy SingnalIDByChannel error");
                             return null;
                         }
-                        var fr = response1 as ResponseMessage<int>;
-                        taskinfo.TaskContent.SignalId = fr.Ext;
+                        else
+                        {
+                            var fr = response1 as ResponseMessage<int>;
+                            taskinfo.TaskContent.SignalId = fr.Ext;
+                        }
                     }
 
                 }
