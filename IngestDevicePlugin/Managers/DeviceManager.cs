@@ -761,7 +761,10 @@ namespace IngestDevicePlugin.Managers
 
         public virtual Task<bool> HaveMatrixAsync()
         {
-            return Store.TrueHaveMatirxAsync();
+            /*
+             * 没矩阵的情况，我们已经不需要了，以前代码是没矩阵in和out要一一对应。现在有没有矩阵我们都应该随意设置in口。所以这个函数要一直返回true
+             */
+            return Store.HaveMatirxAsync();
         }
 
 
