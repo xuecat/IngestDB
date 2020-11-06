@@ -31,9 +31,14 @@ namespace UdpNotifyPlugin
 
                         foreach (var item in iplist)
                         {
-                            Logger.Info($"udpnotify {item.Key} {item.Value}");
-                            IPEndPoint ipe = new IPEndPoint(IPAddress.Parse(item.Key), item.Value);
-                            sock.SendTo(bySend, ipe);
+                            IPAddress ip;
+                            if (item.Key != "0.0.0.0" && IPAddress.TryParse(item.Key, out ip))
+                            {
+                                Logger.Info($"udpnotify {item.Key} {item.Value}");
+                                IPEndPoint ipe = new IPEndPoint(ip, item.Value);
+                                sock.SendTo(bySend, ipe);
+                            }
+                            
                         }
 
                         sock.Close();

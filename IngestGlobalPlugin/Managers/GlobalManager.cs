@@ -201,9 +201,13 @@ namespace IngestGlobalPlugin.Managers
 
         public Task AddUserLoginInfo(UserLoginInfoRequest logininfo)
         {
-            logininfo.Logintime = DateTime.Now;
-            logininfo.Port = 5566;
-            return Store.AddUserLoginInfoAsync(_mapper.Map<DbpUserLoginInfo>(logininfo));
+            if (logininfo.Ip != "0.0.0.0")
+            {
+                logininfo.Logintime = DateTime.Now;
+                logininfo.Port = 5566;
+                return Store.AddUserLoginInfoAsync(_mapper.Map<DbpUserLoginInfo>(logininfo));
+            }
+            return Task.CompletedTask;
         }
 
         public Task<bool> DeleteUserLoginInfoByIP(string ip)

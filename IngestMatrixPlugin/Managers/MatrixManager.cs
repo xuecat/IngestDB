@@ -362,7 +362,7 @@ namespace IngestMatrixPlugin.Managers
                     {
                         if (ApplicationContext.Current.NotifyUdpInfomation)
                         {
-                            var loginparam = (await Store.GetAllUserLoginInfos()).ToDictionary(x => x.Ip, y => y.Port);
+                            var loginparam = (await Store.GetAllUserLoginInfos()).ToLookup(t => t.Ip, t=>t.Port).ToDictionary(x => x.Key, y => y.First());
                             if (loginparam != null)
                             {
                                 Task.Run(() =>
