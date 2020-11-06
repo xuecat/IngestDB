@@ -422,7 +422,7 @@ namespace IngestDevicePlugin.Managers
 
             int resultSignal = 0;
             resultSignal = await Store.GetMatrixChannelBySignalAsync(channelid);
-            if(!SignalStrict && resultSignal == 0)
+            if(!SignalStrict && resultSignal <= 0)
             {
                 var rcdindesc = (await Store.GetAllProgrammeInfoAsync()).FirstOrDefault();
                 resultSignal = rcdindesc != null? rcdindesc.ProgrammeId : 1;
