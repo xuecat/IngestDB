@@ -39,7 +39,7 @@ namespace IngestTaskInterfacePlugin
 
                 case FunctionType.SingnalIDByChannel:
                     {
-                        return await _controller.GetChannelSignalSrc(examineResponse.ChannelId);
+                        return await _controller.GetChannelSignalSrc(examineResponse.ChannelId, false);
                     }
 
                 case FunctionType.ChannelUnitMap:
