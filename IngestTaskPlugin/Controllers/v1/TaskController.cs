@@ -521,7 +521,7 @@ namespace IngestTaskPlugin.Controllers.v1
 
         [HttpPost("PostAddTaskSvrPolicysAndBackupFlag"), MapToApiVersion("1.0")]
         [ApiExplorerSettings(GroupName = "v1")]
-        public async Task<AddTaskSvrPolicysAndBackupFlag_OUT> PostAddTaskSvrPolicysAndBackupFlag([FromBody] AddTaskSvrPolicysAndBackupFlag_IN pIn, [FromQuery] bool signalRules = true)
+        public async Task<AddTaskSvrPolicysAndBackupFlag_OUT> PostAddTaskSvrPolicysAndBackupFlag([FromBody] AddTaskSvrPolicysAndBackupFlag_IN pIn)
         {
             Logger.Info($"PostAddTaskSvrPolicysAndBackupFlag AddTaskSvrPolicysAndBackupFlag_IN : {JsonHelper.ToJson(pIn)} ");
 
@@ -571,7 +571,7 @@ namespace IngestTaskPlugin.Controllers.v1
                     return Response;
                 }
 
-                var f = await _taskManage.AddTaskWithPolicy<AddTaskSvrPolicysAndBackupFlag_IN>(pIn, false,CaptureMeta, ContentMeta, MatiralMeta, PlanningMeta, signalRules);
+                var f = await _taskManage.AddTaskWithPolicy<AddTaskSvrPolicysAndBackupFlag_IN>(pIn, false,CaptureMeta, ContentMeta, MatiralMeta, PlanningMeta);
                 if (f == null)
                 {
                     Response.bRet = false;
@@ -585,7 +585,7 @@ namespace IngestTaskPlugin.Controllers.v1
                 if (pIn.isCreateBackupTask)
                 {
                     string sourcecontentmeata = ContentMeta;
-                    Response.backupTaskId = (await _taskManage.AddTaskWithPolicy<AddTaskSvrPolicysAndBackupFlag_IN>(pIn, true, CaptureMeta, ContentMeta, MatiralMeta, PlanningMeta, signalRules, false)).Taskid;
+                    Response.backupTaskId = (await _taskManage.AddTaskWithPolicy<AddTaskSvrPolicysAndBackupFlag_IN>(pIn, true, CaptureMeta, ContentMeta, MatiralMeta, PlanningMeta, false)).Taskid;
                     await _taskManage.UpdateBackupTaskMetadata(f.Taskid, Response.backupTaskId, sourcecontentmeata);
                 }
 
@@ -2067,7 +2067,7 @@ namespace IngestTaskPlugin.Controllers.v1
                 /*
                  * @brief 老代码会通过老任务查询一遍policy，再保存入库，由于现在入库策略就一种，所以去掉那部分逻辑
                  */
-                var f = await _taskManage.AddTaskWithPolicy<AddReScheduleTaskSvr_in>(pIn, false, CaptureMeta, ContentMeta, MatiralMeta, PlanningMeta,true, false);
+                var f = await _taskManage.AddTaskWithPolicy<AddReScheduleTaskSvr_in>(pIn, false, CaptureMeta, ContentMeta, MatiralMeta, PlanningMeta, false);
 
                 if (f == null)
                 {
