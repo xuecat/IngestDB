@@ -401,7 +401,8 @@ namespace IngestDevicePlugin.Managers
 
         /// <summary>根据 通道Id 获取 信号id</summary>
         /// <param name="channelid">通道Id</param>
-        public virtual async Task<int> GetChannelSignalSrcAsync(int channelid)
+        /// <param name="SignalStrict">为true如果没有查询到也返回一个信号源id</param>
+        public virtual async Task<int> GetChannelSignalSrcAsync(int channelid, bool SignalStrict = true)
         {
             if (!await HaveMatrixAsync())
             {
@@ -418,7 +419,15 @@ namespace IngestDevicePlugin.Managers
                     }
                 }
             }
-            return await Store.GetMatrixChannelBySignalAsync(channelid);
+
+            int resultSignal = 0;
+            resultSignal = await Store.GetMatrixChannelBySignalAsync(channelid);
+            if(!SignalStrict && resultSignal == 0)
+            {
+                var rcdindesc = (await Store.GetRcdindescAsync(a => a)).FirstOrDefault();
+                resultSignal = rcdindesc != null? rcdindesc.Signalsrcid : 1;
+            }
+            return resultSignal;
         }
 
 
