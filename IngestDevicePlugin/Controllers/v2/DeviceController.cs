@@ -1346,15 +1346,16 @@ namespace IngestDevicePlugin.Controllers.v2
         ///
         /// </remarks>
         /// <param name="channelid">通道id</param>
+        /// <param name="SignalStrict">根据可选参数来判断是否要有返回</param>
         [HttpGet("signalinfo/id/{channelid}")]
         //device有点特殊，做了监听端口的所以不能全类检验
         [ApiExplorerSettings(GroupName = "v2")]
-        public async Task<ResponseMessage<int>> GetChannelSignalSrc([FromRoute, BindRequired, DefaultValue(16)]int channelid)
+        public async Task<ResponseMessage<int>> GetChannelSignalSrc([FromRoute, BindRequired, DefaultValue(16)]int channelid, [FromQuery] bool SignalStrict = true)
         {
             ResponseMessage<int> response = new ResponseMessage<int>();
             try
             {
-                response.Ext = await _deviceManage.GetChannelSignalSrcAsync(channelid);
+                response.Ext = await _deviceManage.GetChannelSignalSrcAsync(channelid, SignalStrict);
                 if (response.Ext <= 0)
                 {
                     response.Code = ResponseCodeDefines.NotFound;

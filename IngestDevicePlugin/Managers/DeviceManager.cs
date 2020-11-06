@@ -401,7 +401,8 @@ namespace IngestDevicePlugin.Managers
 
         /// <summary>根据 通道Id 获取 信号id</summary>
         /// <param name="channelid">通道Id</param>
-        public virtual async Task<int> GetChannelSignalSrcAsync(int channelid)
+        /// <param name="SignalStrict">为true如果没有查询到也返回一个信号源id</param>
+        public virtual async Task<int> GetChannelSignalSrcAsync(int channelid, bool SignalStrict = true)
         {
             if (!await HaveMatrixAsync())
             {
@@ -418,7 +419,15 @@ namespace IngestDevicePlugin.Managers
                     }
                 }
             }
-            return await Store.GetMatrixChannelBySignalAsync(channelid);
+
+            int resultSignal = 0;
+            resultSignal = await Store.GetMatrixChannelBySignalAsync(channelid);
+            if(!SignalStrict && resultSignal == 0)
+            {
+                var rcdindesc = (await Store.GetRcdindescAsync(a => a)).FirstOrDefault();
+                resultSignal = rcdindesc != null? rcdindesc.Signalsrcid : 1;
+            }
+            return resultSignal;
         }
 
 
@@ -761,7 +770,10 @@ namespace IngestDevicePlugin.Managers
 
         public virtual Task<bool> HaveMatrixAsync()
         {
-            return Store.TrueHaveMatirxAsync();
+            /*
+             * 没矩阵的情况，我们已经不需要了，以前代码是没矩阵in和out要一一对应。现在有没有矩阵我们都应该随意设置in口。所以这个函数要一直返回true
+             */
+            return Store.HaveMatirxAsync();
         }
 
 
