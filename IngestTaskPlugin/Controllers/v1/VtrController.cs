@@ -54,17 +54,17 @@
         /// <summary>
         /// 增加或修改一盘VTR磁带.
         /// </summary>
-        /// <param name="TapeName">磁带名.</param>
+        /// <param name="tapeinfo">磁带信息.</param>
         /// <param name="TapeDesc">磁带描述信息.</param>
         /// <param name="nTapeID">磁带ID.</param>
         /// <returns>extension字段为 nOutTapeID.</returns>
-        [HttpGet("SetTapeInfo")]
-        public async Task<TaskOldResponseMessage<int>> SetTapeInfo([FromQuery]string TapeName, [FromQuery]string TapeDesc, [FromQuery]int nTapeID)
+        [HttpPost("SetTapeInfo")]
+        public async Task<TaskOldResponseMessage<int>> SetTapeInfo([FromBody]VTRTapeInfo tapeinfo)
         {
             TaskOldResponseMessage<int> response = new TaskOldResponseMessage<int>();
             try
             {
-                response.extention = await _VtrManage.SetTapeInfoAsync(nTapeID, TapeName, TapeDesc);
+                response.extention = await _VtrManage.SetTapeInfoAsync(tapeinfo);
             }
             catch (Exception e)//其他未知的异常，写异常日志
             {

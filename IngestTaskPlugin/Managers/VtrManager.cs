@@ -81,10 +81,9 @@ namespace IngestTaskPlugin.Managers
         /// <param name="tapeName">The 磁带名称<see cref="string"/>.</param>
         /// <param name="tapeDesc">The 磁带描述<see cref="string"/>.</param>
         /// <returns>The 磁带Id <see cref="Task{int}"/>.</returns>
-        public async ValueTask<int> SetTapeInfoAsync(int tapeId, string tapeName, string tapeDesc)
+        public async ValueTask<int> SetTapeInfoAsync<T>(T info)
         {
-            var newTapeId = await VtrStore.SaveTaplist(new VtrTapelist
-            { Tapeid = tapeId, Tapename = tapeName, Tapedesc = tapeDesc });
+            var newTapeId = await VtrStore.SaveTaplist(Mapper.Map<VtrTapelist>(info));
             return newTapeId;
         }
 

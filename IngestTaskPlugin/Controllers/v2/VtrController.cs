@@ -18,7 +18,7 @@
     using Microsoft.Extensions.DependencyInjection;
     using Sobey.Core.Log;
     using VTRUploadTaskInfoRequest = IngestTaskPlugin.Dto.Response.VTRUploadTaskInfoResponse;
-
+    using VTRTapeInfoRequest = Dto.Response.VTRTapeInfoResponse;
     /// <summary>
     /// VTR磁带.
     /// </summary>
@@ -65,14 +65,12 @@
         /// <param name="tapedesc">磁带描述信息<see cref="string"/>.</param>
         /// <returns>磁带ID<see cref="Task{ResponseMessage{int}}"/>.</returns>
         [HttpPost("tapeinfo/{tapeid}")]
-        public async Task<ResponseMessage<int>> SetTapeInfo([FromRoute, BindRequired, DefaultValue(1)]int tapeid,
-                                                            [FromQuery, BindRequired, DefaultValue("tapeName")]string tapename,
-                                                            [FromQuery, BindRequired, DefaultValue("tapeDesc")]string tapedesc)
+        public async Task<ResponseMessage<int>> SetTapeInfo([FromBody, BindRequired]VTRTapeInfoRequest tapeinfo)
         {
             ResponseMessage<int> response = new ResponseMessage<int>();
             try
             {
-                response.Ext = await _VtrManage.SetTapeInfoAsync(tapeid, tapename, tapedesc);
+                response.Ext = await _VtrManage.SetTapeInfoAsync(tapeinfo);
                 if (response.Ext <= 0)
                 {
                     response.Code = ResponseCodeDefines.NotFound;
@@ -89,7 +87,7 @@
                 else
                 {
                     response.Code = ResponseCodeDefines.ServiceError;
-                    response.Msg = "OldGetTaskMetaData error info:" + e.Message;
+                    response.Msg = "SetTapeInfo error info:" + e.Message;
                     Logger.Error(response.Msg);
                 }
             }

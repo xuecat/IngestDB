@@ -28,12 +28,12 @@ namespace IngestTaskPlugin
             CreateMap<VtrTapelist, VTRTapeInfo>()
                .ForMember(a => a.nTapeID, (map) => map.MapFrom(b => b.Tapeid))
                .ForMember(a => a.strTapeName, (map) => map.MapFrom(b => b.Tapename))
-               .ForMember(a => a.strTapeDesc, (map) => map.MapFrom(b => b.Tapedesc));
+               .ForMember(a => a.strTapeDesc, (map) => map.MapFrom(b => b.Tapedesc)).ReverseMap();
 
             CreateMap<VtrTapelist, VTRTapeInfoResponse>()
                .ForMember(a => a.TapeId, (map) => map.MapFrom(b => b.Tapeid))
                .ForMember(a => a.TapeName, (map) => map.MapFrom(b => b.Tapename))
-               .ForMember(a => a.TapeDesc, (map) => map.MapFrom(b => b.Tapedesc));
+               .ForMember(a => a.TapeDesc, (map) => map.MapFrom(b => b.Tapedesc)).ReverseMap();
             #endregion
 
             #region VtrUploadtask To VTRUploadTaskInfo、 VTRUploadTaskInfoResponse
