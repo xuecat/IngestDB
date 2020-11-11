@@ -108,6 +108,8 @@ namespace IngestMatrixPlugin.Managers
                     GlobalDictionary.GLOBALDICT_CODE_RTMP_PARAMERROR_URL, Logger, null);
             }
 
+            rtmpurl = System.Web.HttpUtility.HtmlDecode(rtmpurl);
+
             string msvip = string.Empty;
             int msvport = -1;
             if (_deviceInterface != null)
