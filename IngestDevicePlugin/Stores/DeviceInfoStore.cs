@@ -642,7 +642,8 @@ namespace IngestDevicePlugin.Stores
             {
                 deviceMap.Extenddata = data;
             }
-            return await Context.SaveChangesAsync();
+            await Context.SaveChangesAsync();
+            return 1;
         }
 
 
