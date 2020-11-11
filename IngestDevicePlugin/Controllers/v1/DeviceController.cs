@@ -1,5 +1,6 @@
 ﻿using IngestDBCore;
 using IngestDBCore.Basic;
+using IngestDBCore.Tool;
 using IngestDevicePlugin.Dto;
 using IngestDevicePlugin.Dto.Enum;
 using IngestDevicePlugin.Dto.OldResponse;
@@ -965,6 +966,7 @@ namespace IngestDevicePlugin.Controllers.v1
         [ApiExplorerSettings(GroupName = "v1")]
         public async Task<UpdateChnExtData_OUT> PostUpdateChnExtData([FromBody]UpdateChnExtData_IN pIn)
         {
+            Logger.Info($"PostUpdateChnExtData {JsonHelper.ToJson(pIn)}");
             UpdateChnExtData_OUT response = new UpdateChnExtData_OUT();
             try
             {
