@@ -1721,10 +1721,10 @@ namespace IngestTaskPlugin.Managers
                                 if (i < lst.Length - 1)
                                 {
                                     findtask.Taskname += lst[i];
+                                    findtask.Taskname += "-";
                                 }
                                 else
                                 {
-                                    findtask.Taskname += "-";
                                     findtask.Taskname += ++outlen;
                                 }
                             }
@@ -1772,6 +1772,11 @@ namespace IngestTaskPlugin.Managers
                 //addinfo.TaskContent = _mapper.Map<TaskContentRequest>(findtask);
 
                 var backinfo = await Store.AddTaskWithPolicys(findtask, true, taskSrc, strCapatureMetaData, strContentMetaData, strStoreMetaData, strPlanMetaData, null);
+                if (backinfo != null)
+                {
+                    await Store.UpdateTaskMetaDataAsync(findtask.Taskid, MetaDataType.emSplitData, strSplitMetaData);
+                }
+                
                 //var backinfo = await AddTaskWithoutPolicy(addinfo, strCapatureMetaData, strContentMetaData, strStoreMetaData, strPlanMetaData);
 
                 Logger.Info("SplitTask {0}", backinfo.Taskid);
@@ -2048,7 +2053,7 @@ namespace IngestTaskPlugin.Managers
 
             foreach (var item in lst)
             {
-                if (item.SignalId == "-1")
+                if (item.SignalId == -1)
                 {
                     var content = await Store.GetTaskMetaDataAsync(a => a
                                .Where(b => b.Taskid == item.TaskId && b.Metadatatype == (int)MetaDataType.emContentMetaData)
@@ -2061,7 +2066,7 @@ namespace IngestTaskPlugin.Managers
                         var signal = material.Element("SIGNALRTMPURL");
                         if (signal != null)
                         {
-                            item.SignalId = signal.Value;
+                            item.SignalUrl = signal.Value;
                         }
                         
                     }

@@ -2222,7 +2222,8 @@ namespace IngestTaskPlugin.Stores
             return task;
         }
 
-        public async Task<DbpTask> AddTaskWithPolicys(DbpTask task, bool bAddForInDB, TaskSource taskSrc, string CaptureMeta, string ContentMeta, string MatiralMeta, string PlanningMeta, int[] arrPolicys)
+        public async Task<DbpTask> AddTaskWithPolicys(DbpTask task, bool bAddForInDB, TaskSource taskSrc,
+            string CaptureMeta, string ContentMeta, string MatiralMeta, string PlanningMeta, int[] arrPolicys)
         {
             if (task.Taskid <= 0)
             {
