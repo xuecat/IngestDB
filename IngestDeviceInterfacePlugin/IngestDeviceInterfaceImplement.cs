@@ -93,7 +93,7 @@ namespace IngestTaskInterfacePlugin
                 case FunctionType.AllCaptureDevice:
                     return _mapper.Map<ResponseMessage<List<CaptureDeviceInfoInterface>>>(await _controller.AllCaptureDevices());
                 case FunctionType.RtmpCaptureChannels:
-                    return _mapper.Map<ResponseMessage<List<CaptureDeviceInfoInterface>>>(await _controller.RtmpCaptureDevices());
+                    return _mapper.Map<ResponseMessage<List<CaptureChannelInfoInterface>>>(await _controller.RtmpCaptureChannels());
                 default:
                     break;
             }

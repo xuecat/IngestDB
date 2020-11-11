@@ -141,12 +141,12 @@ namespace IngestDevicePlugin.Controllers.v2
         /// <returns>采集设备集合</returns>
         [HttpGet("capturedevice/rtmp")]
         [ApiExplorerSettings(GroupName = "v2")]
-        public async Task<ResponseMessage<List<CaptureDeviceInfoResponse>>> RtmpCaptureDevices()
+        public async Task<ResponseMessage<List<CaptureChannelInfoInterface>>> RtmpCaptureChannels()
         {
-            ResponseMessage<List<CaptureDeviceInfoResponse>> response = new ResponseMessage<List<CaptureDeviceInfoResponse>>();
+            ResponseMessage<List<CaptureChannelInfoInterface>> response = new ResponseMessage<List<CaptureChannelInfoInterface>>();
             try
             {
-                response.Ext = await _deviceManage.GetRtmpCaptureDevicesAsync<CaptureDeviceInfoResponse>();
+                response.Ext = await _deviceManage.GetRtmpCaptureChannelsAsync<CaptureChannelInfoInterface>();
                 if (response.Ext == null)
                 {
                     response.Code = ResponseCodeDefines.NotFound;

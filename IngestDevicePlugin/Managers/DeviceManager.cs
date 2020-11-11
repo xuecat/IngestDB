@@ -163,9 +163,10 @@ namespace IngestDevicePlugin.Managers
         }
 
         /// <summary> 获取所有采集设备 </summary>
-        public virtual async Task<List<TResult>> GetRtmpCaptureDevicesAsync<TResult>()
+        public virtual async Task<List<TResult>> GetRtmpCaptureChannelsAsync<TResult>()
         {
-            return _mapper.Map<List<TResult>>(await Store.GetCapturedeviceAsync(a => a.Where(x=>x.Devicetypeid == (int)emDeviceType.emDeviceRTMP).OrderBy(x => x.Ordercode), true));
+            var allChannels = await Store.GetAllCaptureChannelsAsync(1);
+            return _mapper.Map<List<TResult>>(allChannels.Where(x=>x.DeviceTypeId == (int)emDeviceType.emDeviceRTMP).OrderBy(x => x.OrderCode));
         }
 
         /// <summary>获取所有TS设备信息</summary>
