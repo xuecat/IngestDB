@@ -25,24 +25,25 @@ namespace UdpNotifyPlugin
                 {
                     try
                     {
-                        Socket sock = new Socket(AddressFamily.InterNetwork, SocketType.Dgram, ProtocolType.Udp);
-
-                        Byte[] bySend = Encoding.Unicode.GetBytes(ti.Action);
-
-                        foreach (var item in iplist)
+                        using (Socket sock = new Socket(AddressFamily.InterNetwork, SocketType.Dgram, ProtocolType.Udp))
                         {
-                            IPAddress ip;
-                            if (item.Key != "0.0.0.0" && IPAddress.TryParse(item.Key, out ip))
-                            {
-                                Logger.Info($"udpnotify {item.Key} {item.Value}");
-                                IPEndPoint ipe = new IPEndPoint(ip, item.Value);
-                                sock.SendTo(bySend, ipe);
-                            }
-                            
-                        }
+                            Byte[] bySend = Encoding.Unicode.GetBytes(ti.Action);
 
-                        sock.Close();
-                        sock = null;
+                            foreach (var item in iplist)
+                            {
+                                IPAddress ip;
+                                if (item.Key != "0.0.0.0" && IPAddress.TryParse(item.Key, out ip))
+                                {
+                                    Logger.Info($"udpnotify {item.Key} {item.Value}");
+                                    IPEndPoint ipe = new IPEndPoint(ip, item.Value);
+                                    sock.SendTo(bySend, ipe);
+                                }
+
+                            }
+
+                            sock.Close();
+                        }
+                        
                     }
                     catch (Exception e)
                     {
