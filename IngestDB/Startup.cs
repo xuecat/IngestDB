@@ -69,16 +69,13 @@ namespace IngestDB
             //options.SerializerSettings.Converters.Add(new StringEnumConverter()));
             string fileName = "publicsetting.xml";
             string path = string.Empty;
-            var basePath = AppContext.BaseDirectory;
             if ((Environment.OSVersion.Platform == PlatformID.Unix) || (Environment.OSVersion.Platform == PlatformID.MacOSX))
             {
                 //str = string.Format(@"{0}/{1}", System.AppDomain.CurrentDomain.SetupInformation.ApplicationBase, fileName);
                 path = '/' + fileName;
-                basePath = "/";
             }
             else
             {
-                basePath = AppDomain.CurrentDomain.BaseDirectory.Replace("\\", "/") + "/";
                 path = AppDomain.CurrentDomain.BaseDirectory.Replace("\\", "/") + "/" + fileName;
             }
 
@@ -150,7 +147,7 @@ namespace IngestDB
             });
 
 
-            
+            var basePath = AppContext.BaseDirectory;
             var xmlPath1 = Path.Combine(basePath, "Plugin", "IngestGlobalPlugin.xml");
             var xmlPath2 = Path.Combine(basePath, "Plugin", "IngestDevicePlugin.xml");
             var xmlPath3 = Path.Combine(basePath, "Plugin", "IngestTaskPlugin.xml");
