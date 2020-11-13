@@ -1375,6 +1375,13 @@ namespace IngestTaskPlugin.Stores
                             isNeedRemove = true;
                         }
                     }
+                    else
+                    {
+                        if (IsConflict(item.Starttime, item.Endtime, begin, end))
+                        {
+                            isNeedRemove = true;
+                        }
+                    }
 
                     if (isNeedRemove)
                     {
