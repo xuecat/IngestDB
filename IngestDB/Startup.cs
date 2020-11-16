@@ -152,7 +152,7 @@ namespace IngestDB
             var xmlPath2 = Path.Combine(basePath, "Plugin", "IngestDevicePlugin.xml");
             var xmlPath3 = Path.Combine(basePath, "Plugin", "IngestTaskPlugin.xml");
             var xmlPath4 = Path.Combine(basePath, "Plugin", "IngestMatrixPlugin.xml");
-
+            
             if (File.Exists(xmlPath1) && File.Exists(xmlPath2) && File.Exists(xmlPath3))
             {
                 applicationContext.UseSwagger = true;
@@ -191,6 +191,12 @@ namespace IngestDB
 
                     c.OrderActionsBy((apiDesc) => $"{apiDesc.ActionDescriptor.RouteValues["controller"]}_{apiDesc.HttpMethod}");
 
+                    if ((Environment.OSVersion.Platform == PlatformID.Unix) || (Environment.OSVersion.Platform == PlatformID.MacOSX))
+                    {
+                        xmlPath1 = xmlPath1.ToLower();
+                        xmlPath2 = xmlPath2.ToLower();
+                        xmlPath3 = xmlPath3.ToLower();
+                    }
                     // http://localhost:9024/swagger/v1/swagger.json
                     // http://localhost:9024/swagger/
                     c.IncludeXmlComments(xmlPath1);
