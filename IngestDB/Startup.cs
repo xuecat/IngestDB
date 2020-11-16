@@ -148,7 +148,7 @@ namespace IngestDB
             });
 
             ;
-            var basePath = AppContext.BaseDirectory + "//Plugin";
+            var basePath = AppContext.BaseDirectory + "Plugin//";
             var xmlPath1 = basePath + applicationContext.PluginFactory.GetPluginInfo("AE7A95D5-7143-42B8-827C-EA7D45597796").SwaggerXml;
             var xmlPath2 = basePath + applicationContext.PluginFactory.GetPluginInfo("D018511A-DBE7-45D6-B9AD-7A43360450C6").SwaggerXml;
             var xmlPath3 = basePath + applicationContext.PluginFactory.GetPluginInfo("e7acec14-a68b-4116-b9a0-7d07be69de58").SwaggerXml;
