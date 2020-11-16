@@ -5,6 +5,7 @@ using System.Linq;
 using System.Net.Http;
 using System.Threading.Tasks;
 using System.Xml.Linq;
+using System.Xml.XPath;
 using AutoMapper;
 using IngestDBCore;
 using IngestDBCore.Basic;
@@ -200,10 +201,11 @@ namespace IngestDB
                     }
                     // http://localhost:9024/swagger/v1/swagger.json
                     // http://localhost:9024/swagger/
-                    c.IncludeXmlComments(xmlPath1);
-                    c.IncludeXmlComments(xmlPath2);
-                    c.IncludeXmlComments(xmlPath3);
-                    c.IncludeXmlComments(xmlPath4);
+                    
+                    c.IncludeXmlComments(() =>new XPathDocument(xmlPath1));
+                    c.IncludeXmlComments(() => new XPathDocument(xmlPath2));
+                    c.IncludeXmlComments(() => new XPathDocument(xmlPath3));
+                    c.IncludeXmlComments(() => new XPathDocument(xmlPath4));
                     //c.DescribeAllEnumsAsStrings();
                     c.OperationFilter<HttpHeaderOperation>(); // 添加httpHeader参数
                     c.OperationFilter<DefaultValueOperation>(); // 添加defaultValue参数
