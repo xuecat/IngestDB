@@ -5,7 +5,6 @@ using System.Linq;
 using System.Net.Http;
 using System.Threading.Tasks;
 using System.Xml.Linq;
-using System.Xml.XPath;
 using AutoMapper;
 using IngestDBCore;
 using IngestDBCore.Basic;
@@ -193,19 +192,14 @@ namespace IngestDB
 
                     c.OrderActionsBy((apiDesc) => $"{apiDesc.ActionDescriptor.RouteValues["controller"]}_{apiDesc.HttpMethod}");
 
-                    if ((Environment.OSVersion.Platform == PlatformID.Unix) || (Environment.OSVersion.Platform == PlatformID.MacOSX))
-                    {
-                        xmlPath1 = xmlPath1.ToLower();
-                        xmlPath2 = xmlPath2.ToLower();
-                        xmlPath3 = xmlPath3.ToLower();
-                    }
+                   
                     // http://localhost:9024/swagger/v1/swagger.json
                     // http://localhost:9024/swagger/
                     
-                    c.IncludeXmlComments(() =>new XPathDocument(xmlPath1));
-                    c.IncludeXmlComments(() => new XPathDocument(xmlPath2));
-                    c.IncludeXmlComments(() => new XPathDocument(xmlPath3));
-                    c.IncludeXmlComments(() => new XPathDocument(xmlPath4));
+                    c.IncludeXmlComments(xmlPath1);
+                    c.IncludeXmlComments(xmlPath2);
+                    c.IncludeXmlComments(xmlPath3);
+                    c.IncludeXmlComments(xmlPath4);
                     //c.DescribeAllEnumsAsStrings();
                     c.OperationFilter<HttpHeaderOperation>(); // 添加httpHeader参数
                     c.OperationFilter<DefaultValueOperation>(); // 添加defaultValue参数
