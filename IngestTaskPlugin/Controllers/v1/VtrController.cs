@@ -903,6 +903,8 @@
         [HttpPost("AddVTRUploadTask")]
         public async Task<TaskOldResponseMessage<Dto.OldResponse.OldVtr.AddVTRUploadTask_out>> AddVTRUploadTask([FromBody]AddVTRUploadTask_in pIn)
         {
+            Logger.Error($"AddVTRUploadTask : {Newtonsoft.Json.JsonConvert.SerializeObject(pIn)}");
+
             TaskOldResponseMessage<AddVTRUploadTask_out> response = new TaskOldResponseMessage<AddVTRUploadTask_out>();
             response.extention = new AddVTRUploadTask_out();
             response.extention.errorCode = (int)VTR_BUT_ErrorCode.emNormal;
@@ -940,7 +942,7 @@
                 response.nCode = 0;
                 if (e is SobeyRecException se)//sobeyexcep会自动打印错误
                 {
-                    response.message = se.ErrorCode.ToString();
+                    response.message = se.Message.ToString();//se.ErrorCode.ToString();
                 }
                 else
                 {
@@ -997,6 +999,8 @@
         [Route("AddVTRBatchUploadTasks")]
         public async Task<TaskOldResponseMessage<VtrBatchUploadTask>> AddVTRBatchUploadTasks([FromBody] AddVTRBatchUploadTasks_in pIn)
         {
+            Logger.Error($"AddVTRBatchUploadTasks : {Newtonsoft.Json.JsonConvert.SerializeObject(pIn)}");
+
             TaskOldResponseMessage<VtrBatchUploadTask> res = new TaskOldResponseMessage<VtrBatchUploadTask>();
             res.extention = new VtrBatchUploadTask();
             res.message = no_err;

@@ -1884,28 +1884,28 @@ namespace IngestTaskPlugin.Managers
 
                 List<int> channelIds = new List<int>();
                 List<ChannelTimePeriods> channelsTimePeriods = new List<ChannelTimePeriods>();
+
+                if (_deviceInterface != null)//对通道进行是否连接判断
+                {
+                    var response = await _deviceInterface.GetDeviceCallBack(new DeviceInternals()
+                    {
+                        funtype = IngestDBCore.DeviceInternals.FunctionType.ChannelInfoBySrc,
+                        SrcId = vtrTask.nSignalId,
+                        Status = 1
+                    });
+
+                    var channelInfos = response as ResponseMessage<List<CaptureChannelInfoInterface>>;
+
+                    foreach (CaptureChannelInfoInterface info in channelInfos.Ext)
+                    {
+                        channelIds.Add(info.Id);
+                    }
+                }
+
                 if (preSetChannelId > 0)
                 {
-                    channelIds.Add(vtrTask.nChannelId);
-                }
-                else
-                {
-                    if (_deviceInterface != null)
-                    {
-                        var response = await _deviceInterface.GetDeviceCallBack(new DeviceInternals()
-                        {
-                            funtype = IngestDBCore.DeviceInternals.FunctionType.ChannelInfoBySrc,
-                            SrcId = vtrTask.nSignalId,
-                            Status = 0
-                        });
-
-                        var channelInfos = response as ResponseMessage<List<CaptureChannelInfoInterface>>;
-
-                        foreach (CaptureChannelInfoInterface info in channelInfos.Ext)
-                        {
-                            channelIds.Add(info.Id);
-                        }
-                    }
+                    //channelIds.Add(vtrTask.nChannelId);
+                    channelIds.RemoveAll(x => x != preSetChannelId);
                 }
 
                 channelsTimePeriods = await GetChannelsFreeTimePeriods(preSetBeginTime, channelIds, vtrTask.nTaskId);
@@ -2665,7 +2665,15 @@ namespace IngestTaskPlugin.Managers
 
                 if (errCode == VTR_BUT_ErrorCode.emNoChannel)
                 {
-                    throw new Exception("No MSV channel can accept all the tasks, do you want to continue?");
+                    //throw new Exception("No MSV channel can accept all the tasks, do you want to continue?");
+                    if (vtrTask.nChannelId > 0)
+                    {
+                        SobeyRecException.ThrowSelfNoParam("", GlobalDictionary.GLOBALDICT_CODE_SELECTED_CHANNEL_IS_BUSY_OR_CAN_NOT_BE_SUITED_TO_PROGRAMME, Logger, null);
+                    }
+                    else
+                    {
+                        SobeyRecException.ThrowSelfNoParam("", GlobalDictionary.GLOBALDICT_CODE_ALL_USEABLE_CHANNELS_ARE_BUSY, Logger, null);
+                    }
                 }
                 if (errCode == VTR_BUT_ErrorCode.emSomeSuccessful)
                 {
