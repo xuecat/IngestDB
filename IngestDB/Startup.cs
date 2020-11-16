@@ -132,10 +132,11 @@ namespace IngestDB
                     apm.ApplicationParts.Add(new AssemblyPart(a));
                 });
             }
+            
             //单例注入RestClient等
             services.AddToolDefined(services.BuildServiceProvider().GetService<IHttpClientFactory>());
-
             bool InitIsOk = applicationContext.Init().Result;
+
             services.AddApiVersioning(o =>
             {
                 o.ReportApiVersions = true;
@@ -146,13 +147,13 @@ namespace IngestDB
                 //o.ApiVersionSelector = new CurrentImplementationApiVersionSelector(o);
             });
 
-
+            ;
             var basePath = AppContext.BaseDirectory;
-            var xmlPath1 = Path.Combine(basePath, "Plugin", "IngestGlobalPlugin.xml");
-            var xmlPath2 = Path.Combine(basePath, "Plugin", "IngestDevicePlugin.xml");
-            var xmlPath3 = Path.Combine(basePath, "Plugin", "IngestTaskPlugin.xml");
-            var xmlPath4 = Path.Combine(basePath, "Plugin", "IngestMatrixPlugin.xml");
-
+            var xmlPath1 = Path.Combine(basePath, "Plugin", applicationContext.PluginFactory.GetPluginInfo("AE7A95D5-7143-42B8-827C-EA7D45597796").SwaggerXml);
+            var xmlPath2 = Path.Combine(basePath, "Plugin", applicationContext.PluginFactory.GetPluginInfo("D018511A-DBE7-45D6-B9AD-7A43360450C6").SwaggerXml);
+            var xmlPath3 = Path.Combine(basePath, "Plugin", applicationContext.PluginFactory.GetPluginInfo("e7acec14-a68b-4116-b9a0-7d07be69de58").SwaggerXml);
+            var xmlPath4 = Path.Combine(basePath, "Plugin", applicationContext.PluginFactory.GetPluginInfo("464E27F2-D1E8-4900-8293-A700265A5C9F").SwaggerXml);
+            
             if (File.Exists(xmlPath1) && File.Exists(xmlPath2) && File.Exists(xmlPath3))
             {
                 applicationContext.UseSwagger = true;
@@ -191,6 +192,12 @@ namespace IngestDB
 
                     c.OrderActionsBy((apiDesc) => $"{apiDesc.ActionDescriptor.RouteValues["controller"]}_{apiDesc.HttpMethod}");
 
+                    if ((Environment.OSVersion.Platform == PlatformID.Unix) || (Environment.OSVersion.Platform == PlatformID.MacOSX))
+                    {
+                        xmlPath1 = xmlPath1.ToLower();
+                        xmlPath2 = xmlPath2.ToLower();
+                        xmlPath3 = xmlPath3.ToLower();
+                    }
                     // http://localhost:9024/swagger/v1/swagger.json
                     // http://localhost:9024/swagger/
                     c.IncludeXmlComments(xmlPath1);

@@ -101,9 +101,10 @@ namespace IngestDBCore.Plugin
                             ID = p.PluginID,
                             Type = t,
                             Instance = p,
-                            Name = p.PluginName
+                            Name = p.PluginName,
+                            SwaggerXml = $"{a.GetName().Name}.xml"
                         };
-
+                        
                         if (typeof(IPluginConfig).GetTypeInfo().IsAssignableFrom(p.GetType()))
                         {
                             pi.HasConfig = true;
