@@ -23,7 +23,7 @@ namespace IngestDBCore.Plugin
         public string Message { get; protected set; }
 
         public bool HasConfig { get; set; }
-
+        public string SwaggerXml { get; set; }
         public void CopyFrom(PluginItem pi, bool secret = false)
         {
             this.ID = pi.ID;
@@ -35,6 +35,7 @@ namespace IngestDBCore.Plugin
             this.InitFail = pi.InitFail;
             this.StartFail = pi.StartFail;
             this.Message = pi.Message;
+            this.SwaggerXml = pi.SwaggerXml;
         }
 
     }
