@@ -5,7 +5,9 @@ using System.Text;
 
 namespace IngestTaskPlugin.Dto.OldResponse
 {
-    
+    /// <summary>
+    /// 采集元数据 = 0 存储元数据 = 1 Plan元数据 = 3 编目信息元数据 = 4 审查打回意见 = 5 MSV本地素材GUID = 6 分裂信息 = 8
+    /// </summary>
     public enum MetaDataType
     {
         /// <summary>
@@ -40,10 +42,13 @@ namespace IngestTaskPlugin.Dto.OldResponse
         ///  = 7
         /// </summary>
         emOriginalMetaData,
+        /// <summary>
+        /// 分裂信息 = 8
+        /// </summary>
         emSplitData
     }
     /// <summary>
-    /// 任务类型
+    /// 任务类型 普通任务 = 0 周期任务 = 1 OpenEnd任务 = 2 循环任务 = 3 占位任务 = 4 手动任务 = 5 VTR上载任务 = 6 扩展的OpenEnd任务 = 7
     /// </summary>
 	public enum TaskType
     {
@@ -80,6 +85,10 @@ namespace IngestTaskPlugin.Dto.OldResponse
         /// </summary>
         TT_OPENENDEX = 7
     }
+
+    /// <summary>
+    /// 任务状态 就绪 = 0 正在执行任务 = 1 暂停标记 = 3 删除标记 = 4  冲突任务 = 5 无效任务 = 6 正在采集的手动任务 = 7 禁用的任务 = 8
+    /// </summary>
     public enum taskState
     {
         /// 就绪 = 0
@@ -110,7 +119,7 @@ namespace IngestTaskPlugin.Dto.OldResponse
 		tsDisabled
     }
     /// <summary>
-    /// 任务调度状态
+    /// 任务调度状态 未调度 = 0  需要重调度 = 1 已调度 = 2 调度失败 = 3 无效 = 4 禁用 = 5
     /// </summary>
     public enum dispatchState
     {
@@ -140,7 +149,7 @@ namespace IngestTaskPlugin.Dto.OldResponse
 		dpsDisabled
     };
     /// <summary>
-    /// 任务同步状态
+    /// 任务同步状态 未同步 = 0  已同步 = 1 同步失败 = 2
     /// </summary>
 	public enum syncState
     {
@@ -158,7 +167,7 @@ namespace IngestTaskPlugin.Dto.OldResponse
 		ssFailed
     };
     /// <summary>
-    /// 任务操作类型
+    /// 任务操作类型 添加 = 0 删除 = 1  移动 = 2 修改 = 3
     /// </summary>
 	public enum opType
     {
@@ -179,6 +188,9 @@ namespace IngestTaskPlugin.Dto.OldResponse
         /// </summary>
 		otModify
     };
+    /// <summary>
+    /// VTR上载任务状态 所有状态 = 0 暂存 =1 提交待执行=2 正在执行=3 执行完成=4 执行失败=5 删除上载任务=6 任务打回=7 入库成功= 8 入库失败= 9
+    /// </summary>
     public enum VTRUPLOADTASKSTATE
     {
         VTR_ALL_UPLOAD_STATE = 0, //所有状态
@@ -246,7 +258,7 @@ namespace IngestTaskPlugin.Dto.OldResponse
     }
 
     /// <summary>
-    /// 任务来源
+    /// 任务来源 MSV Upload Task = 0 VTR Upload Task = 1 XDCAM Upload Task = 2 IP TS流 收录 = 3 流媒体 = 4 专门用来切换rtmp的任务 = 5
     /// </summary>
 	public enum TaskSource
     {
@@ -272,7 +284,7 @@ namespace IngestTaskPlugin.Dto.OldResponse
         emStreamMediaUploadTask = 4,
 
         /// <summary>
-        /// 专门用来切换rtmp的任务
+        /// 专门用来切换rtmp的任务 = 5
         /// </summary>
         emRtmpSwitchTask = 5,
 
@@ -283,7 +295,7 @@ namespace IngestTaskPlugin.Dto.OldResponse
     }
 
     /// <summary>
-    /// 任务附加类型
+    /// 任务附加类型 一般任务 = 0 同时收录到播出 = 1 vtr上载同时到播出 = 2 VTR备份 = 3 Kamataki完成标识 = 4 VTR备份完成标识 = 5 VTR备份失败标识 = 6
     /// </summary>
     public enum CooperantType
     {
@@ -317,7 +329,7 @@ namespace IngestTaskPlugin.Dto.OldResponse
 		emVTRBackupFailed = 6
     }
     /// <summary>
-    /// 任务优先级
+    /// 任务优先级 最低优先级= 0 较低优先级= 1 普通优先级= 2 较高优先级 = 3 最高优先级= 4
     /// </summary>
     public enum TaskPriority
     {
@@ -695,7 +707,7 @@ namespace IngestTaskPlugin.Dto.OldResponse
         public bool bRet;
     }
     /// <summary>
-    /// VTR备份冲突结果
+    /// VTR备份冲突结果 判断VTR冲突失败 = -1 没有VTR冲突 = 0  有VTR冲突 = 1
 	/// </summary>
 	public enum VTRCollideResult
     {

@@ -189,9 +189,8 @@ namespace IngestDB
                         License = new OpenApiLicense { Name = "Sobey", Url = new Uri("http://www.sobey.com") }
                         //TermsOfService = new Uri("None"),
                     });
-
+                    
                     c.OrderActionsBy((apiDesc) => $"{apiDesc.ActionDescriptor.RouteValues["controller"]}_{apiDesc.HttpMethod}");
-
                    
                     // http://localhost:9024/swagger/v1/swagger.json
                     // http://localhost:9024/swagger/
@@ -288,6 +287,7 @@ namespace IngestDB
             {
                 app.UseSwagger().UseSwaggerUI(c =>
                 {
+                    
                     c.SwaggerEndpoint("/swagger/v1/swagger.json", "IngestGateway API V1");
                     c.SwaggerEndpoint("/swagger/v2/swagger.json", "IngestGateway API V2");
                     c.SwaggerEndpoint("/swagger/v2.1/swagger.json", "IngestGateway API V2.1");

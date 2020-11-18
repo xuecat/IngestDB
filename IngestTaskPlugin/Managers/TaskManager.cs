@@ -2991,6 +2991,11 @@ namespace IngestTaskPlugin.Managers
             var findtask = await Store.GetTaskAsync(a => a.Where(b => b.Taskid == periodicTaskId), true);
             TaskSource src = await GetTaskSource(periodicTaskId);
 
+            if (findtask.Category == "A")
+            {
+                SobeyRecException.ThrowSelfNoParam("CreateNewTaskFromPeriodicTask match ", GlobalDictionary.GLOBALDICT_CODE_TASK_IS_NOT_A_PERIODIC_TASK, Logger, null);
+            }
+
             string strmetadata = await IsNeedModPeriodicTaskName(periodicTaskId);
 
             var addtask = Store.DeepClone(findtask);
