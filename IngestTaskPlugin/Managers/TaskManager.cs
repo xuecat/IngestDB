@@ -1307,6 +1307,7 @@ namespace IngestTaskPlugin.Managers
 
                     if (string.IsNullOrEmpty(strCaptureTemplate))
                     {
+                        Logger.Error("GetCaptureTemplateBySignalIdAndUserCode error 1");
                         return string.Empty;
                     }
                     
@@ -1317,20 +1318,36 @@ namespace IngestTaskPlugin.Managers
                     int pos = strCaptureTemplate.IndexOf("</CAPTUREPARAM>");
                     strCapParamHD = strCaptureTemplate.Substring(0, pos + 15);
                     strCapParamHD = await ModifyCaptureParamPath(usetokencode, userCode, strCapParamHD);
+                    if (string.IsNullOrEmpty(strCapParamHD))
+                    {
+                        Logger.Error("GetCaptureTemplateBySignalIdAndUserCode error 2");
+                        return string.Empty;
+                    }
+
                     int nLen = strCaptureTemplate.Length - pos - 15;
                     if (nLen <= 0)
                     {
                         strCapParamSD = "";
+                        Logger.Error("GetCaptureTemplateBySignalIdAndUserCode error 3");
                         return string.Empty;
                     }
 
                     int npos2 = strCaptureTemplate.IndexOf("</CAPTUREPARAM>", pos + 15);
                     strCapParamSD = strCaptureTemplate.Substring(pos + 15, npos2 - pos);
                     strCapParamSD = await ModifyCaptureParamPath(usetokencode, userCode, strCapParamSD);
+                    if (string.IsNullOrEmpty(strCapParamSD))
+                    {
+                        Logger.Error("GetCaptureTemplateBySignalIdAndUserCode error 4");
+                        return string.Empty;
+                    }
 
                     strCapParamUHD = strCaptureTemplate.Substring(npos2 + 15);
                     strCapParamUHD = await ModifyCaptureParamPath(usetokencode, userCode, strCapParamUHD);
-
+                    if (string.IsNullOrEmpty(strCapParamUHD))
+                    {
+                        Logger.Error("GetCaptureTemplateBySignalIdAndUserCode error 5");
+                        return string.Empty;
+                    }
                     //TS和SDI支持高标清自适应，流媒体不支持
                     //ProgrammeInfo info = DEVICESACCESS.GetProgrammeInfoById(nSignalId);
 
@@ -1340,9 +1357,9 @@ namespace IngestTaskPlugin.Managers
                     //}
                     //else//(taskSrc != TaskSource.emStreamMediaUploadTask)
                     //{
-                        //构造总的采集参数串
-                        
-                        var doc = new XElement("CaptureMetaAll", 
+                    //构造总的采集参数串
+
+                    var doc = new XElement("CaptureMetaAll", 
                             new XElement("SDCaptureMeta", strCapParamSD),
                             new XElement("HDCaptureMeta", strCapParamHD),
                             new XElement("UHDCaptureMeta", strCapParamUHD));
@@ -1406,6 +1423,7 @@ namespace IngestTaskPlugin.Managers
                         else
                         {
                             Logger.Info("GpiCtrServiceLog", "ModifyCaptureParamPath, GetUserPath is failed!", "");
+                            return string.Empty;
                         }
                     }
                     string fileName0 = "";
@@ -1455,6 +1473,7 @@ namespace IngestTaskPlugin.Managers
                         else
                         {
                             Logger.Info("ModifyCaptureParamPath, GetUserPath is failed!", "");
+                            return string.Empty;
                         }
                     }
                     string fileName1 = "";
