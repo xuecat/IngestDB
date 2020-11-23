@@ -505,7 +505,7 @@ namespace IngestGlobalPlugin.Managers
 
             if (mtrl.videos != null && mtrl.videos.Count > 0)
             {
-                var taskBmps = mtrl.videos.Where(a => mtrl.nSectionID == a.nVideoSource).ToDictionary(a => mtrl.nTaskID, b=>b.strFilename);
+                var taskBmps = mtrl.videos.DistinctBy(a=>a.nVideoSource).Where(a => mtrl.nSectionID == a.nVideoSource).ToDictionary(a => mtrl.nTaskID, b=>b.strFilename);
 
                 if (taskBmps.Count > 0)
                 {
@@ -578,6 +578,21 @@ namespace IngestGlobalPlugin.Managers
         {
             var listIds = await Store.GetPolicyTask(a => a.Where(x => x.Taskid == taskId && x.Policyid == -1).Select(x => x.Taskid), true);
             return _mapper.Map<List<MetaDataPolicy>>(await Store.GetMetadataPolicy(a => a.Where(x => listIds.Contains(x.Policyid)), true));
+        }
+    }
+
+    public static class DistinctByClass
+    {
+        public static IEnumerable<TSource> DistinctBy<TSource, TKey>(this IEnumerable<TSource> source, Func<TSource, TKey> keySelector)
+        {
+            HashSet<TKey> seenKeys = new HashSet<TKey>();
+            foreach (TSource element in source)
+            {
+                if (seenKeys.Add(keySelector(element)))
+                {
+                    yield return element;
+                }
+            }
         }
     }
 }
