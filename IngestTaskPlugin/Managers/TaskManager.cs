@@ -2566,7 +2566,7 @@ namespace IngestTaskPlugin.Managers
 
             //如果是改变了信号源或者通道，判断一下信号源和通道是不是匹配的
             bool match = false;
-            if (findtask.Channelid != taskModify.ChannelId || findtask.Signalid != taskModify.SignalId)
+            if (findtask.Channelid != taskModify.ChannelId || (findtask.Signalid != taskModify.SignalId && taskModify.SignalId > 0) )
             {
                 
                 if (_deviceInterface != null)
@@ -2782,6 +2782,11 @@ namespace IngestTaskPlugin.Managers
             }
             return null;
 
+        }
+
+        public async Task ModifyTaskSource(int taskId, TaskSource taskSource)
+        {
+            await Store.UpdateTaskSource(new DbpTaskSource() { Taskid= taskId , Tasksource = (int)taskSource }, true);
         }
 
         public async Task<TResult> IsVTRCollide<TResult>(int VTR_ID, string begintime, string endtime, int TaskID)

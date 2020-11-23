@@ -950,12 +950,11 @@ namespace IngestTaskPlugin.Controllers.v2
                 //    _taskManage.ConverTaskMaterialMetaString(req.MaterialMeta),
                 //    _taskManage.ConverTaskPlanningMetaString(req.PlanningMeta));
 
-                Logger.Info($"ModifyAllTask info {JsonHelper.ToJson(req)}");
-
                 var modifyTask = await _taskManage.ModifyTask<TaskContentResponse>(req.TaskContent, req.CaptureMeta,
                     req.ContentMeta ==null?string.Empty:_taskManage.ConverTaskContentMetaString(req.ContentMeta),
                     req.MaterialMeta == null ? string.Empty : _taskManage.ConverTaskMaterialMetaString(req.MaterialMeta),
                     req.PlanningMeta == null ? string.Empty : _taskManage.ConverTaskPlanningMetaString(req.PlanningMeta));
+                await _taskManage.ModifyTaskSource(req.TaskContent.TaskId, req.TaskSource);
                 Response.Ext = _mapper.Map<TaskContentResponse>(modifyTask);
                 if (Response.Ext == null)
                 {
