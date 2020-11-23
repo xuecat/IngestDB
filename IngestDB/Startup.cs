@@ -148,12 +148,12 @@ namespace IngestDB
             });
 
             ;
-            var basePath = AppContext.BaseDirectory;
-            var xmlPath1 = Path.Combine(basePath, "Plugin", applicationContext.PluginFactory.GetPluginInfo("AE7A95D5-7143-42B8-827C-EA7D45597796").SwaggerXml);
-            var xmlPath2 = Path.Combine(basePath, "Plugin", applicationContext.PluginFactory.GetPluginInfo("D018511A-DBE7-45D6-B9AD-7A43360450C6").SwaggerXml);
-            var xmlPath3 = Path.Combine(basePath, "Plugin", applicationContext.PluginFactory.GetPluginInfo("e7acec14-a68b-4116-b9a0-7d07be69de58").SwaggerXml);
-            var xmlPath4 = Path.Combine(basePath, "Plugin", applicationContext.PluginFactory.GetPluginInfo("464E27F2-D1E8-4900-8293-A700265A5C9F").SwaggerXml);
-            
+            var basePath = AppContext.BaseDirectory + "Plugin//";
+            var xmlPath1 = basePath + applicationContext.PluginFactory.GetPluginInfo("AE7A95D5-7143-42B8-827C-EA7D45597796").SwaggerXml;
+            var xmlPath2 = basePath + applicationContext.PluginFactory.GetPluginInfo("D018511A-DBE7-45D6-B9AD-7A43360450C6").SwaggerXml;
+            var xmlPath3 = basePath + applicationContext.PluginFactory.GetPluginInfo("e7acec14-a68b-4116-b9a0-7d07be69de58").SwaggerXml;
+            var xmlPath4 = basePath + applicationContext.PluginFactory.GetPluginInfo("464E27F2-D1E8-4900-8293-A700265A5C9F").SwaggerXml;
+            logger.Info($"swagger {xmlPath1} {xmlPath2} {xmlPath3} {xmlPath4}");
             if (File.Exists(xmlPath1) && File.Exists(xmlPath2) && File.Exists(xmlPath3))
             {
                 applicationContext.UseSwagger = true;
@@ -174,7 +174,7 @@ namespace IngestDB
                     {
                         Version = "v2",
                         Title = "> 收录新版本网关接口文档",
-                        Description = "**Ingest Web API**(接口设计原则: `Post`->新加和修改，`Post`->新加；`Put`->修改, 所有路由和参数均是小写, 所有返回值均是驼峰(注释的是大写, 实际返回驼峰))",
+                        Description = "**Ingest Web API**(接口设计原则: `Post`->新加和修改，`Post`->新加；`Put`->修改, 所有路由和参数均是小写, 所有返回值均是驼峰(注释的是大写, 实际返回驼峰)) <hr><p>**返回Code类型:** <ul><li>SuccessCode = \"0\"</li><li> ModelStateInvalid = \"100\"</li><li>ArgumentNullError = \"101\"</li><li>ObjectAlreadyExists = \"102\"</li><li>PartialFailure = \"103\"</li><li>NotFound = \"404\"</li><li>NotAllow = \"403\"</li><li>ServiceError = \"500\"</li></ul> </p>",
                         Contact = new OpenApiContact { Name = "XueCat", Email = "", Url = new Uri("http://ingest.com") },
                         License = new OpenApiLicense { Name = "Sobey", Url = new Uri("http://www.sobey.com") }
                         //TermsOfService = new Uri("None"),
@@ -189,17 +189,12 @@ namespace IngestDB
                         License = new OpenApiLicense { Name = "Sobey", Url = new Uri("http://www.sobey.com") }
                         //TermsOfService = new Uri("None"),
                     });
-
+                    
                     c.OrderActionsBy((apiDesc) => $"{apiDesc.ActionDescriptor.RouteValues["controller"]}_{apiDesc.HttpMethod}");
-
-                    if ((Environment.OSVersion.Platform == PlatformID.Unix) || (Environment.OSVersion.Platform == PlatformID.MacOSX))
-                    {
-                        xmlPath1 = xmlPath1.ToLower();
-                        xmlPath2 = xmlPath2.ToLower();
-                        xmlPath3 = xmlPath3.ToLower();
-                    }
+                   
                     // http://localhost:9024/swagger/v1/swagger.json
                     // http://localhost:9024/swagger/
+                    
                     c.IncludeXmlComments(xmlPath1);
                     c.IncludeXmlComments(xmlPath2);
                     c.IncludeXmlComments(xmlPath3);
@@ -292,6 +287,7 @@ namespace IngestDB
             {
                 app.UseSwagger().UseSwaggerUI(c =>
                 {
+                    
                     c.SwaggerEndpoint("/swagger/v1/swagger.json", "IngestGateway API V1");
                     c.SwaggerEndpoint("/swagger/v2/swagger.json", "IngestGateway API V2");
                     c.SwaggerEndpoint("/swagger/v2.1/swagger.json", "IngestGateway API V2.1");

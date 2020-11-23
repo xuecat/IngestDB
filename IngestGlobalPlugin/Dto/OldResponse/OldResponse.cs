@@ -241,6 +241,9 @@ namespace IngestGlobalPlugin.Dto.OldResponse
         public string strLock;//加锁
         public int nActionID = -1;//对于没有处理过的消息，这个ID是0，失败重试的消息，这个ID是策略ID
     }
+    /// <summary>
+    /// 素材状态 开始采集了,可以边采边编了	= 0 采集完成 = 1
+    /// </summary>
     public enum CLIP_STATE
     {
         STARTCAPUTER = 0,   //开始采集了,可以边采边编了	
@@ -322,6 +325,9 @@ namespace IngestGlobalPlugin.Dto.OldResponse
 
     //yangchuang20130220这个状态实际上表示的是入库过程中的状态，并不是表示入库结果,重新命名
     //0.1.2.3,分别是第一次入库准备,结束,第二次入库准备,结束
+    /// <summary>
+    /// 入库状态 第一次入库准备 = 0 第一次入库结束 = 1 第二次入库准备 = 2 第二次入库结束 = 3 手动入库模式 = 4
+    /// </summary>
     public enum SAVE_IN_DB_STATE
     {
         FIRST_READY = 0,            //第一次入库准备
