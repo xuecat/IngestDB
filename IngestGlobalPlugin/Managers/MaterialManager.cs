@@ -505,17 +505,25 @@ namespace IngestGlobalPlugin.Managers
 
             if (mtrl.videos != null && mtrl.videos.Count > 0)
             {
-                var taskBmps = mtrl.videos.DistinctBy(a=>a.nVideoSource).Where(a => mtrl.nSectionID == a.nVideoSource).ToDictionary(a => mtrl.nTaskID, b=>b.strFilename);
+                /*
+                 * 1. 取个图片值，免得老是更新成.mp4这种
+                 * 2. 取个最后值，标识分段后的最新图片
+                 */
+                var taskitem = mtrl.videos.Where(a => mtrl.nSectionID == a.nVideoSource && (a.strFilename.Contains(".bmp") || a.strFilename.Contains(".jpg") || a.strFilename.Contains(".jpeg"))).LastOrDefault();
 
-                if (taskBmps.Count > 0)
+                if (taskitem != null)
                 {
+                    Dictionary<int, string> taskbmp = new Dictionary<int, string>();
+                    taskbmp.Add(mtrl.nTaskID, taskitem.strFilename);
+                    //.ToDictionary(a => mtrl.nTaskID, b=>b.strFilename);
+
                     //await Store.UpdateTaskBmp(taskBmps);
                     if (_taskInterface != null)
                     {
                         var response1 = await _taskInterface.Value.SubmitTaskCallBack(new TaskInternals()
                         {
                             funtype = IngestDBCore.TaskInternals.FunctionType.SetTaskBmp,
-                            Ext3 = taskBmps
+                            Ext3 = taskbmp
                         });
 
                         if (response1.Code != ResponseCodeDefines.SuccessCode)
@@ -524,6 +532,10 @@ namespace IngestGlobalPlugin.Managers
                         }
 
                     }
+                }
+                else
+                {
+                    Logger.Warn($"AddMaterialInfo update task bmp not image {JsonHelper.ToJson(mtrl.videos)}");
                 }
             }
             return mtrl.nID;
