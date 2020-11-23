@@ -508,7 +508,7 @@ namespace IngestMatrixPlugin.Managers
                 }
                 strPortState += "</state>";
                 strPortState += "</matrixlinkstate>";
-                Logger.Info("attention in module MatrixService!call CIVirtualMatrix::QueryLinkState(),get matrix link state information successfully");
+                //Logger.Info("attention in module MatrixService!call CIVirtualMatrix::QueryLinkState(),get matrix link state information successfully");
                 return strPortState;
             }
             catch (Exception ex)

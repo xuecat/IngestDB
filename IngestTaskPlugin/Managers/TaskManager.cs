@@ -4355,7 +4355,7 @@ namespace IngestTaskPlugin.Managers
             //拒绝重复码
             var lst = await Store.GetTaskErrorInfoListAsync(a => a.Where(b => b.Taskid == errorinfo.Taskid && b.Errorcode == errorinfo.Errorcode), true);
             bool needsave = false;
-            if (errorinfo.Errorcode == 10001)
+            if (errorinfo.Errorcode == 10001 || errorinfo.Errorcode == 500)
             {
                 var task = await Store.GetTaskAsync(a => a.Where(b => b.Taskid == errorinfo.Taskid));
                 if (task != null && (task.Recunitid &0x80)<=0)
