@@ -360,7 +360,7 @@ namespace IngestTaskPlugin.Controllers.v1
         [ApiExplorerSettings(GroupName = "v1")]
         public async Task<AddTaskExDb_out> AddTaskExDb([FromBody] AddTaskExDb_in pIn)
         {
-            Logger.Info($"AddTaskExDb AddTaskExDb_in : {JsonHelper.ToJson(pIn)} ");
+            Logger.Info($"AddTaskExDb AddTaskExDb_in {Request.Host.Host}{Request.Host.Value} : {JsonHelper.ToJson(pIn)} ");
 
             var Response = new AddTaskExDb_out
             {
@@ -432,7 +432,7 @@ namespace IngestTaskPlugin.Controllers.v1
         [ApiExplorerSettings(GroupName = "v1")]
         public async Task<AddTaskSvr_OUT> PostAddTaskSvr([FromBody] AddTaskSvr_IN pIn)
         {
-            Logger.Info($"PostAddTaskSvr AddTaskSvr_IN : {JsonHelper.ToJson(pIn)} ");
+            Logger.Info($"PostAddTaskSvr AddTaskSvr_IN {Request.Host.Host}{Request.Host.Value}: {JsonHelper.ToJson(pIn)} ");
 
             var Response = new AddTaskSvr_OUT
             {
@@ -523,7 +523,7 @@ namespace IngestTaskPlugin.Controllers.v1
         [ApiExplorerSettings(GroupName = "v1")]
         public async Task<AddTaskSvrPolicysAndBackupFlag_OUT> PostAddTaskSvrPolicysAndBackupFlag([FromBody] AddTaskSvrPolicysAndBackupFlag_IN pIn)
         {
-            Logger.Info($"PostAddTaskSvrPolicysAndBackupFlag AddTaskSvrPolicysAndBackupFlag_IN : {JsonHelper.ToJson(pIn)} ");
+            Logger.Info($"PostAddTaskSvrPolicysAndBackupFlag AddTaskSvrPolicysAndBackupFlag_IN {Request.Host.Host}{Request.Host.Value} : {JsonHelper.ToJson(pIn)} ");
 
             var Response = new AddTaskSvrPolicysAndBackupFlag_OUT
             {
@@ -750,7 +750,7 @@ namespace IngestTaskPlugin.Controllers.v1
         [ApiExplorerSettings(GroupName = "v1")]
         public async Task<PostModifyTaskDb_OUT> PostModifyTaskDb([FromBody]PostModifyTaskDb_IN pIn)
         {
-            Logger.Info($"PostModifyTaskDb PostModifyTaskDb_IN : {JsonHelper.ToJson(pIn)} ");
+            Logger.Info($"PostModifyTaskDb PostModifyTaskDb_IN {Request.Host.Host}{Request.Host.Value} : {JsonHelper.ToJson(pIn)} ");
 
             var Response = new PostModifyTaskDb_OUT
             {
@@ -794,7 +794,7 @@ namespace IngestTaskPlugin.Controllers.v1
         [ApiExplorerSettings(GroupName = "v1")]
         public async Task<ModifyTask_out> ModifyTask([FromBody] ModifyTask_in pIn)
         {
-            Logger.Info($"ModifyTask ModifyTask_in : {JsonHelper.ToJson(pIn)} ");
+            Logger.Info($"ModifyTask ModifyTask_in {Request.Host.Host}{Request.Host.Value} : {JsonHelper.ToJson(pIn)} ");
 
             var Response = new ModifyTask_out
             {
@@ -1772,7 +1772,8 @@ namespace IngestTaskPlugin.Controllers.v1
         [ApiExplorerSettings(GroupName = "v1")]
         public async Task<ModifyPeriodTask_out> ModifyPeriodTask([FromQuery]int IsAll, [FromBody]TaskContent taskModify)
         {
-            Logger.Info($"ModifyPeriodTask IsAll : {IsAll} , TaskContent : { JsonHelper.ToJson(taskModify)}");
+            
+            Logger.Info($"ModifyPeriodTask IsAll : {Request.Host.Host}{Request.Host.Value} , TaskContent : { JsonHelper.ToJson(taskModify)}");
 
             var Response = new ModifyPeriodTask_out()
             {
