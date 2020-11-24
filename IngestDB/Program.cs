@@ -75,10 +75,10 @@ namespace IngestDB
                     tempExcption = (System.Net.Sockets.SocketException)e.Exception;
                 }
 
-                //if(tempExcption == null || (tempExcption.ErrorCode != 125 && tempExcption.ErrorCode != 111 && tempExcption.ErrorCode != 104))
-                //{
+                if (tempExcption == null || (tempExcption.ErrorCode != 125 && tempExcption.ErrorCode != 111 && tempExcption.ErrorCode != 104))
+                {
                     ExceptionLogger.Error("Exception: {0} ", e.Exception.ToString());
-                //}
+                }
             }
         }
 
