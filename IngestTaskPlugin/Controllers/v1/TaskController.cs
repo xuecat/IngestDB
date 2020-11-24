@@ -310,7 +310,7 @@ namespace IngestTaskPlugin.Controllers.v1
         [ApiExplorerSettings(GroupName = "v1")]
         public async Task<GroupTaskParam_OUT> DeleteGroupTaskById([FromQuery]int nTaskID)
         {
-            Logger.Info($"DeleteGroupTaskById nTaskID : {nTaskID} ");
+            Logger.Info($"DeleteGroupTaskById {Request.Host.Host}{Request.Host.Value} nTaskID : {nTaskID} ");
 
             var Response = new GroupTaskParam_OUT
             {
@@ -1183,7 +1183,7 @@ namespace IngestTaskPlugin.Controllers.v1
         [ApiExplorerSettings(GroupName = "v1")]
         public async Task<DelTaskDb_OUT> GetDelTaskDb([FromQuery]int nTaskID)
         {
-            Logger.Info($"GetDelTaskDb nTaskID : {nTaskID} ");
+            Logger.Info($"GetDelTaskDb nTaskID {Request.Host.Host}{Request.Host.Value} : {nTaskID} ");
 
             var Response = new DelTaskDb_OUT
             {

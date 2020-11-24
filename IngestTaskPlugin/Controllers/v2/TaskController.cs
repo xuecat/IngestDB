@@ -1518,6 +1518,7 @@ namespace IngestTaskPlugin.Controllers.v2
 
             try
             {
+                Logger.Info($"delete task {Request.Host.Host}{Request.Host.Value} {taskid}");
                 var task = await _taskManage.DeleteTask(taskid);
                 if (_globalInterface != null)
                 {
