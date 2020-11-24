@@ -3405,7 +3405,6 @@ namespace IngestTaskPlugin.Managers
                     {
                         funtype = DeviceInternals.FunctionType.SingnalIDByChannel,
                         ChannelId = findtask.Channelid.GetValueOrDefault()
-
                     });
                     if (response1.Code != ResponseCodeDefines.SuccessCode)
                     {

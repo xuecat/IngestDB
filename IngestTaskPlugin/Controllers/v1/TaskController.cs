@@ -1996,7 +1996,6 @@ namespace IngestTaskPlugin.Controllers.v1
 
             try
             {
-                Logger.Error($"AutoAddTaskByOldTask nOldTaskID : {nOldTaskID} ,strStartTime : {strStartTime} " );
                 var task = await _taskManage.AutoAddTaskByOldTask(nOldTaskID, DateTimeFormat.DateTimeFromString(strStartTime),_globalInterface.Value);
                 if (task != null)
                 {
