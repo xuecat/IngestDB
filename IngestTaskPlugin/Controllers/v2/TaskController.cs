@@ -480,7 +480,7 @@ namespace IngestTaskPlugin.Controllers.v2
         [ApiExplorerSettings(GroupName = "v2")]
         public async Task<ResponseMessage<TaskContentResponse>> AddTaskWithoutPolicy([FromBody, BindRequired]TaskInfoRequest task)
         {
-            Logger.Info($"AddTaskWithoutPolicy task : {JsonHelper.ToJson(task)}");
+            Logger.Info($"AddTaskWithoutPolicy task {Request.Host.Host}{Request.Host.Value} : {JsonHelper.ToJson(task)}");
 
             var Response = new ResponseMessage<TaskContentResponse>();
             if (task == null)
@@ -574,7 +574,7 @@ namespace IngestTaskPlugin.Controllers.v2
         [ApiExplorerSettings(GroupName = "v2")]
         public async Task<ResponseMessage<TaskContentResponse>> AddTaskWithPolicy([FromBody, BindRequired]TaskInfoRequest task)
         {
-            Logger.Info($"AddTaskWithPolicy task : {JsonHelper.ToJson(task)}");
+            Logger.Info($"AddTaskWithPolicy task {Request.Host.Host}{Request.Host.Value} : {JsonHelper.ToJson(task)}");
             //处理任务名中含有分号的时候，元数据xml不对劲，导致任务总控无法调度，同时含有单斜线的时候，mysql会自动消化掉一个斜线
             var Response = new ResponseMessage<TaskContentResponse>();
             if (task == null)
@@ -801,7 +801,7 @@ namespace IngestTaskPlugin.Controllers.v2
         [ApiExplorerSettings(GroupName = "v2")]
         public async Task<ResponseMessage<TaskContentResponse>> ModifyTaskEndTime([FromRoute, BindRequired]int taskid, [FromQuery, BindRequired]string endtime)
         {
-            Logger.Info($"ModifyTask taskid : {taskid}, req {endtime}");
+            Logger.Info($"ModifyTask taskid {Request.Host.Host}{Request.Host.Value} : {taskid}, req {endtime}");
 
             var Response = new ResponseMessage<TaskContentResponse>();
             if (taskid < 1)
@@ -866,7 +866,7 @@ namespace IngestTaskPlugin.Controllers.v2
         [ApiExplorerSettings(GroupName = "v2")]
         public async Task<ResponseMessage<TaskContentResponse>> ModifyTask([FromRoute, BindRequired]int taskid, [FromBody, BindRequired]TaskContentRequest req)
         {
-            Logger.Info($"ModifyTask taskid : {taskid}, req {JsonHelper.ToJson(req)}");
+            Logger.Info($"ModifyTask taskid {Request.Host.Host}{Request.Host.Value}: {taskid}, req {JsonHelper.ToJson(req)}");
             var Response = new ResponseMessage<TaskContentResponse>();
             if (req == null || req.TaskId < 1)
             {
@@ -934,7 +934,7 @@ namespace IngestTaskPlugin.Controllers.v2
         [ApiExplorerSettings(GroupName = "v2")]
         public async Task<ResponseMessage<TaskContentResponse>> ModifyAllTask([FromRoute, BindRequired]int taskid, [FromBody, BindRequired]TaskInfoRequest req)
         {
-            Logger.Info($"ModifyAllTask taskid : {taskid}, req {JsonHelper.ToJson(req)}");
+            Logger.Info($"ModifyAllTask taskid {Request.Host.Host}{Request.Host.Value}: {taskid}, req {JsonHelper.ToJson(req)}");
             var Response = new ResponseMessage<TaskContentResponse>();
             if (req == null || req.TaskContent.TaskId < 1)
             {
@@ -1518,6 +1518,7 @@ namespace IngestTaskPlugin.Controllers.v2
 
             try
             {
+                Logger.Info($"delete task {Request.Host.Host}{Request.Host.Value} {taskid}");
                 var task = await _taskManage.DeleteTask(taskid);
                 if (_globalInterface != null)
                 {
@@ -2343,7 +2344,7 @@ namespace IngestTaskPlugin.Controllers.v2
         [ApiExplorerSettings(GroupName = "v2")]
         public async Task<ResponseMessage<int>> ModifyPeriodTaskInfo([FromQuery, BindRequired]int isall, [FromBody, BindRequired]TaskContentRequest req)
         {
-            Logger.Info($"ModifyPeriodTaskInfo  isall : {isall}, TaskContentRequest : {JsonHelper.ToJson(req)}");
+            Logger.Info($"ModifyPeriodTaskInfo  isall {Request.Host.Host}{Request.Host.Value}: {isall}, TaskContentRequest : {JsonHelper.ToJson(req)}");
 
             var Response = new ResponseMessage<int>();
 
