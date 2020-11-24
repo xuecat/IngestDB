@@ -283,7 +283,8 @@ namespace IngestTaskPlugin.Stores
 
         public async Task<List<DbpTask>> GetNeedUnSynTasks()
         {
-            var date = DateTime.Now.AddSeconds(600);
+            var now = DateTime.Now;
+            var date = now.AddSeconds(60);
             var fdate = date.AddDays(-1);
             return await Context.DbpTask.AsNoTracking().Where(x => string.IsNullOrEmpty(x.Tasklock)
                 && x.DispatchState == (int)dispatchState.dpsDispatched
@@ -291,7 +292,7 @@ namespace IngestTaskPlugin.Stores
                 && x.Tasktype != (int)TaskType.TT_VTRUPLOAD
                 && x.State != (int)taskState.tsDelete
                 && ((x.State != (int)taskState.tsExecuting && x.State != (int)taskState.tsManuexecuting) || x.Backtype != (int)CooperantType.emKamataki)
-                && (x.NewBegintime > fdate && x.NewBegintime < date)).ToListAsync();
+                && (x.NewBegintime > fdate && x.NewBegintime < date && x.Endtime > now)).ToListAsync();
         }
 
         public async Task UpdateTaskMetaDataAsync(int taskid, MetaDataType type, string metadata)
