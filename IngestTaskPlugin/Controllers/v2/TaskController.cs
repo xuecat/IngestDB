@@ -878,7 +878,7 @@ namespace IngestTaskPlugin.Controllers.v2
             try
             {
                 //Response.Ext = await _taskManage.ModifyTask<TaskContentResponse>(req, string.Empty, string.Empty, string.Empty, string.Empty);
-                var modifyTask = await _taskManage.ModifyTask<TaskContentResponse>(req, string.Empty, string.Empty, string.Empty, string.Empty);
+                var modifyTask = await _taskManage.ModifyTask<TaskContentResponse>(req, string.Empty, string.Empty, string.Empty, string.Empty, TaskSource.emUnknowTask);
                 Response.Ext = _mapper.Map<TaskContentResponse>(modifyTask);
                 if (Response.Ext == null)
                 {
@@ -953,7 +953,7 @@ namespace IngestTaskPlugin.Controllers.v2
                 var modifyTask = await _taskManage.ModifyTask<TaskContentResponse>(req.TaskContent, req.CaptureMeta,
                     req.ContentMeta ==null?string.Empty:_taskManage.ConverTaskContentMetaString(req.ContentMeta),
                     req.MaterialMeta == null ? string.Empty : _taskManage.ConverTaskMaterialMetaString(req.MaterialMeta),
-                    req.PlanningMeta == null ? string.Empty : _taskManage.ConverTaskPlanningMetaString(req.PlanningMeta));
+                    req.PlanningMeta == null ? string.Empty : _taskManage.ConverTaskPlanningMetaString(req.PlanningMeta), req.TaskSource);
                 await _taskManage.ModifyTaskSource(req.TaskContent.TaskId, req.TaskSource);
                 Response.Ext = _mapper.Map<TaskContentResponse>(modifyTask);
                 if (Response.Ext == null)

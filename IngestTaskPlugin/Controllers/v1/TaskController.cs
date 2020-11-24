@@ -760,7 +760,7 @@ namespace IngestTaskPlugin.Controllers.v1
 
             try
             {
-                var modifyTask = await _taskManage.ModifyTask<TaskContent>(pIn.taskModify, string.Empty, pIn.TaskMetaData, pIn.MaterialMetaData, string.Empty);
+                var modifyTask = await _taskManage.ModifyTask<TaskContent>(pIn.taskModify, string.Empty, pIn.TaskMetaData, pIn.MaterialMetaData, string.Empty, TaskSource.emUnknowTask);
                 //添加后如果开始时间在2分钟以内，需要调度一次
                 if ((DateTimeFormat.DateTimeFromString(pIn.taskModify.strBegin) - DateTime.Now).TotalSeconds < 120)
                     await _taskManage.UpdateComingTasks();
@@ -828,7 +828,7 @@ namespace IngestTaskPlugin.Controllers.v1
                     }
                 }
 
-                var modifyTask = await _taskManage.ModifyTask<TaskContent>(pIn.taskModify, CaptureMeta, ContentMeta, MatiralMeta, PlanningMeta);
+                var modifyTask = await _taskManage.ModifyTask<TaskContent>(pIn.taskModify, CaptureMeta, ContentMeta, MatiralMeta, PlanningMeta, TaskSource.emUnknowTask);
                 //添加后如果开始时间在2分钟以内，需要调度一次
                 if ((DateTimeFormat.DateTimeFromString(pIn.taskModify.strBegin) - DateTime.Now).TotalSeconds < 120)
                     await _taskManage.UpdateComingTasks();
