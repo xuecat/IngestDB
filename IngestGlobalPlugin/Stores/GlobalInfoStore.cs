@@ -731,6 +731,7 @@ namespace IngestGlobalPlugin.Stores
             if (have != null)
             {
                 Context.DbpUserLoginInfo.Remove(have);
+                await Context.SaveChangesAsync();
                 return true;
             }
             return false;
@@ -742,6 +743,7 @@ namespace IngestGlobalPlugin.Stores
             if (have != null)
             {
                 Context.DbpUserLoginInfo.Remove(have);
+                await Context.SaveChangesAsync();
                 return true;
             }
             return false;
