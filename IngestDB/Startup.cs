@@ -252,7 +252,7 @@ namespace IngestDB
                 if (item.Attribute("module").Value.CompareTo("INGESTDB") == 0)
                 {
                     return string.Format(
-                "Server={0};Port={4};Database={1};Uid={2};Pwd={3};Pooling=true;minpoolsize=0;maxpoolsize=40;SslMode=none;ConnectionReset=True;ConnectionLifeTime=30",
+                "Server={0};Port={4};Database={1};Uid={2};Pwd={3};Pooling=true;minpoolsize=0;maxpoolsize=40;SslMode=none;ConnectionReset=True;ConnectionLifeTime=100",
                 vip, item.Element("Instance").Value,
                 item.Element("Username").Value,
                 IngestDBCore.Tool.Base64SQL.Base64_Decode(item.Element("Password").Value),
