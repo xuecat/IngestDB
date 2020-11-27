@@ -1962,7 +1962,6 @@ namespace IngestTaskPlugin.Controllers.v1
                 {
                     strBmp = @"\" + strBmp;
                 }
-                strBmp = strBmp.Replace("'", "''");
                 await _taskManage.SetTaskBmp(nTaskID, strBmp);
                 return Response;
             }
