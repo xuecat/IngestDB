@@ -3785,6 +3785,30 @@ namespace IngestTaskPlugin.Managers
             {
                 if (taskinfo.TaskContent.TaskType == TaskType.TT_PERIODIC)
                 {
+                    if (string.IsNullOrEmpty(taskinfo.TaskContent.Classify))
+                    {
+                        string sClassify = "D";
+                        if(taskinfo.ContentMeta.PeriodParam.Mode == 0)
+                        {
+                            sClassify = "D";
+                        }
+                        else if(taskinfo.ContentMeta.PeriodParam.Mode == 1)
+                        {
+                            foreach (int item in taskinfo.ContentMeta.PeriodParam.Params)
+                            {
+                                sClassify += $"W{item}+";
+                            }
+                        }
+                        else if(taskinfo.ContentMeta.PeriodParam.Mode == 2)
+                        {
+                            foreach (int item in taskinfo.ContentMeta.PeriodParam.Params)
+                            {
+                                sClassify += $"M{item}+";
+                            }
+                        }
+                        taskinfo.TaskContent.Classify = sClassify;
+                    }
+
                     DateTime EndTime = DateTime.Now;
                     if (taskinfo.ContentMeta == null || taskinfo.ContentMeta.PeriodParam == null)
                     {
