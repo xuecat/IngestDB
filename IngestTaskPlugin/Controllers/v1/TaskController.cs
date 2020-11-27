@@ -310,7 +310,7 @@ namespace IngestTaskPlugin.Controllers.v1
         [ApiExplorerSettings(GroupName = "v1")]
         public async Task<GroupTaskParam_OUT> DeleteGroupTaskById([FromQuery]int nTaskID)
         {
-            Logger.Info($"DeleteGroupTaskById {Request.Host.Host}{Request.Host.Value} nTaskID : {nTaskID} ");
+            Logger.Info($"DeleteGroupTaskById {Request.Host.Value} nTaskID : {nTaskID} ");
 
             var Response = new GroupTaskParam_OUT
             {
@@ -360,7 +360,7 @@ namespace IngestTaskPlugin.Controllers.v1
         [ApiExplorerSettings(GroupName = "v1")]
         public async Task<AddTaskExDb_out> AddTaskExDb([FromBody] AddTaskExDb_in pIn)
         {
-            Logger.Info($"AddTaskExDb AddTaskExDb_in {Request.Host.Host}{Request.Host.Value} : {JsonHelper.ToJson(pIn)} ");
+            Logger.Info($"AddTaskExDb AddTaskExDb_in {Request.Host.Value} : {JsonHelper.ToJson(pIn)} ");
 
             var Response = new AddTaskExDb_out
             {
@@ -432,7 +432,7 @@ namespace IngestTaskPlugin.Controllers.v1
         [ApiExplorerSettings(GroupName = "v1")]
         public async Task<AddTaskSvr_OUT> PostAddTaskSvr([FromBody] AddTaskSvr_IN pIn)
         {
-            Logger.Info($"PostAddTaskSvr AddTaskSvr_IN {Request.Host.Host}{Request.Host.Value}: {JsonHelper.ToJson(pIn)} ");
+            Logger.Info($"PostAddTaskSvr AddTaskSvr_IN {Request.Host.Value}: {JsonHelper.ToJson(pIn)} ");
 
             var Response = new AddTaskSvr_OUT
             {
@@ -523,7 +523,7 @@ namespace IngestTaskPlugin.Controllers.v1
         [ApiExplorerSettings(GroupName = "v1")]
         public async Task<AddTaskSvrPolicysAndBackupFlag_OUT> PostAddTaskSvrPolicysAndBackupFlag([FromBody] AddTaskSvrPolicysAndBackupFlag_IN pIn)
         {
-            Logger.Info($"PostAddTaskSvrPolicysAndBackupFlag AddTaskSvrPolicysAndBackupFlag_IN {Request.Host.Host}{Request.Host.Value} : {JsonHelper.ToJson(pIn)} ");
+            Logger.Info($"PostAddTaskSvrPolicysAndBackupFlag AddTaskSvrPolicysAndBackupFlag_IN {Request.Host.Value} : {JsonHelper.ToJson(pIn)} ");
 
             var Response = new AddTaskSvrPolicysAndBackupFlag_OUT
             {
@@ -750,7 +750,7 @@ namespace IngestTaskPlugin.Controllers.v1
         [ApiExplorerSettings(GroupName = "v1")]
         public async Task<PostModifyTaskDb_OUT> PostModifyTaskDb([FromBody]PostModifyTaskDb_IN pIn)
         {
-            Logger.Info($"PostModifyTaskDb PostModifyTaskDb_IN {Request.Host.Host}{Request.Host.Value} : {JsonHelper.ToJson(pIn)} ");
+            Logger.Info($"PostModifyTaskDb PostModifyTaskDb_IN {Request.Host.Value} : {JsonHelper.ToJson(pIn)} ");
 
             var Response = new PostModifyTaskDb_OUT
             {
@@ -794,7 +794,7 @@ namespace IngestTaskPlugin.Controllers.v1
         [ApiExplorerSettings(GroupName = "v1")]
         public async Task<ModifyTask_out> ModifyTask([FromBody] ModifyTask_in pIn)
         {
-            Logger.Info($"ModifyTask ModifyTask_in {Request.Host.Host}{Request.Host.Value} : {JsonHelper.ToJson(pIn)} ");
+            Logger.Info($"ModifyTask ModifyTask_in {Request.Host.Value} : {JsonHelper.ToJson(pIn)} ");
 
             var Response = new ModifyTask_out
             {
@@ -1183,7 +1183,7 @@ namespace IngestTaskPlugin.Controllers.v1
         [ApiExplorerSettings(GroupName = "v1")]
         public async Task<DelTaskDb_OUT> GetDelTaskDb([FromQuery]int nTaskID)
         {
-            Logger.Info($"GetDelTaskDb nTaskID {Request.Host.Host}{Request.Host.Value} : {nTaskID} ");
+            Logger.Info($"GetDelTaskDb nTaskID {Request.Host.Value} : {nTaskID} ");
 
             var Response = new DelTaskDb_OUT
             {
@@ -1431,7 +1431,7 @@ namespace IngestTaskPlugin.Controllers.v1
         [ApiExplorerSettings(GroupName = "v1")]
         public async Task<bool> PostCompleteRescheduleTasks([FromBody]TaskFullInfo rescheduleTask)
         {
-            Logger.Info($"PostCompleteRescheduleTasks TaskFullInfo : {JsonHelper.ToJson(rescheduleTask)} ");
+            Logger.Info($"PostCompleteRescheduleTasks TaskFullInfo {Request.Host.Value} : {JsonHelper.ToJson(rescheduleTask)} ");
 
             var Response = false;
 
@@ -1596,7 +1596,7 @@ namespace IngestTaskPlugin.Controllers.v1
         [ApiExplorerSettings(GroupName = "v1")]
         public async Task<SplitTask_OUT> SplitTask([FromBody]SplitTask_IN pIn)
         {
-            Logger.Info($"SplitTask SplitTask_IN : {JsonHelper.ToJson(pIn)} ");
+            Logger.Info($"SplitTask SplitTask_IN :{Request.Host.Value} {JsonHelper.ToJson(pIn)} ");
 
             var Response = new SplitTask_OUT()
             {
@@ -1639,7 +1639,7 @@ namespace IngestTaskPlugin.Controllers.v1
         [ApiExplorerSettings(GroupName = "v1")]
         public async Task<CreateNewTaskFromPeriodicTask_OUT> CreateNewTaskFromPeriodicTask([FromQuery]int periodicTaskId)
         {
-            Logger.Info($"CreateNewTaskFromPeriodicTask periodicTaskId : {periodicTaskId} ");
+            Logger.Info($"CreateNewTaskFromPeriodicTask periodicTaskId {Request.Host.Value}: {periodicTaskId} ");
 
             var Response = new CreateNewTaskFromPeriodicTask_OUT()
             {
@@ -1773,7 +1773,7 @@ namespace IngestTaskPlugin.Controllers.v1
         public async Task<ModifyPeriodTask_out> ModifyPeriodTask([FromQuery]int IsAll, [FromBody]TaskContent taskModify)
         {
             
-            Logger.Info($"ModifyPeriodTask IsAll : {Request.Host.Host}{Request.Host.Value} , TaskContent : { JsonHelper.ToJson(taskModify)}");
+            Logger.Info($"ModifyPeriodTask IsAll : {Request.Host.Value} , TaskContent : { JsonHelper.ToJson(taskModify)}");
 
             var Response = new ModifyPeriodTask_out()
             {
@@ -2035,7 +2035,7 @@ namespace IngestTaskPlugin.Controllers.v1
         [ApiExplorerSettings(GroupName = "v1")]
         public async Task<TaskOldResponseMessage<int>> AddReScheduleTaskSvr([FromBody] AddReScheduleTaskSvr_in pIn)
         {
-            Logger.Info($"AddReScheduleTaskSvr AddReScheduleTaskSvr_in : { JsonHelper.ToJson(pIn)}");
+            Logger.Info($"AddReScheduleTaskSvr AddReScheduleTaskSvr_in  {Request.Host.Value}: { JsonHelper.ToJson(pIn)}");
 
             var Response = new TaskOldResponseMessage<int>();
 
