@@ -1,4 +1,5 @@
 ﻿using AutoMapper;
+using IngestDBCore;
 using IngestDBCore.Dto;
 using IngestDBCore.Tool;
 using IngestGlobalPlugin.Dto;
@@ -64,7 +65,7 @@ namespace IngestGlobalPlugin
                 .ForMember(a => a.Disabled, (map) => map.MapFrom(b => b.disabled))
                 .ForMember(a => a.Email, (map) => map.MapFrom(b => b.email))
                 .ForMember(a => a.LoginName, (map) => map.MapFrom(b => b.loginname))
-                .ForMember(a => a.NickName, (map) => map.MapFrom(b => b.nickname));
+                .ForMember(a => a.NickName, (map) => map.MapFrom(b => b.nickname)).ReverseMap();
 
             CreateMap<DbpCaptureparamtemplate, OldCapParamTemplate>()
                 .ForMember(a => a.nID, (map) => map.MapFrom(b => b.Captureparamid))

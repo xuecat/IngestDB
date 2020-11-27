@@ -603,11 +603,11 @@ namespace IngestGlobalPlugin.Managers
         /// <typeparam name="TResponse"></typeparam>
         /// <param name="userCode"></param>
         /// <returns></returns>
-        public async Task<ResponseMessage<TResponse>> GetUserInfoByUserCodeAsync<TResponse>(string userCode)
+        public async Task<TResponse> GetUserInfoByUserCodeAsync<TResponse>(string userCode)
         {
             var userInfo = await _restClient.GetUserInfo(false, "admin", userCode);
 
-            return _mapper.Map<ResponseMessage<TResponse>>(userInfo);
+            return _mapper.Map<TResponse>(userInfo);
         }
 
 

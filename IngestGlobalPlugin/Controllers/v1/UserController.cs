@@ -369,10 +369,9 @@ namespace IngestGlobalPlugin.Controllers.v1
             res.extention = null;
             try
             {
-                ResponseMessage<CMUserInfo> reres = await _GlobalManager.GetUserInfoByUserCodeAsync<CMUserInfo>(strUserCode);
-                if (reres?.Code == ResponseCodeDefines.SuccessCode)
+                res.extention = await _GlobalManager.GetUserInfoByUserCodeAsync<CMUserInfo>(strUserCode);
+                if (res.extention != null)
                 {
-                    res.extention = reres.Ext;
                     res.message = "OK";
                     res.nCode = 1;
                 }

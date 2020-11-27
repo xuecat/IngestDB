@@ -31,46 +31,61 @@ namespace IngestDBCore.Tool
             _httpClient.DefaultRequestHeaders.Add("sobeyhive-http-tool", "INGESTSERVER");
         }
 
-        public void UseCodeHeader(string usercode)
+        public Dictionary<string, string> GetTokenHeader(string usertoken)
         {
-            if (_httpClient.DefaultRequestHeaders.Contains("sobeyhive-http-token"))
-            {
-                _httpClient.DefaultRequestHeaders.Remove("sobeyhive-http-token");
-            }
-
-            if (_httpClient.DefaultRequestHeaders.Contains("sobeyhive-http-secret"))
-            {
-                _httpClient.DefaultRequestHeaders.Remove("sobeyhive-http-secret");
-            }
-            if (_httpClient.DefaultRequestHeaders.Contains("current-user-code"))
-            {
-                _httpClient.DefaultRequestHeaders.Remove("current-user-code");
-            }
-
-            _httpClient.DefaultRequestHeaders.Add("sobeyhive-http-secret", RSAHelper.RSAstr());
-            _httpClient.DefaultRequestHeaders.Add("current-user-code", usercode);
+            return new Dictionary<string, string>() {
+                {"sobeyhive-http-token", usertoken }
+            };
         }
 
-        public void UseTokenHeader(string usertoken)
+        public Dictionary<string, string> GetCodeHeader(string usertoken)
         {
-            if (_httpClient.DefaultRequestHeaders.Contains("sobeyhive-http-secret"))
-            {
-                _httpClient.DefaultRequestHeaders.Remove("sobeyhive-http-secret");
-            }
-            if (_httpClient.DefaultRequestHeaders.Contains("current-user-code"))
-            {
-                _httpClient.DefaultRequestHeaders.Remove("current-user-code");
-            }
-
-            if (_httpClient.DefaultRequestHeaders.Contains("sobeyhive-http-token"))
-            {
-                _httpClient.DefaultRequestHeaders.Remove("sobeyhive-http-token");
-            }
-
-            _httpClient.DefaultRequestHeaders.Add("sobeyhive-http-token", usertoken);
+            return new Dictionary<string, string>() {
+                {"sobeyhive-http-secret", RSAHelper.RSAstr()},
+                {"current-user-code", usertoken }
+            };
         }
+       
+        //public void UseCodeHeader(string usercode)
+        //{
+        //    if (_httpClient.DefaultRequestHeaders.Contains("sobeyhive-http-token"))
+        //    {
+        //        _httpClient.DefaultRequestHeaders.Remove("sobeyhive-http-token");
+        //    }
 
-        public async Task<TResponse> Post<TResponse>(string url, object body, string method = "POST", NameValueCollection queryString = null, int timeout = 60)
+        //    if (_httpClient.DefaultRequestHeaders.Contains("sobeyhive-http-secret"))
+        //    {
+        //        _httpClient.DefaultRequestHeaders.Remove("sobeyhive-http-secret");
+        //    }
+        //    if (_httpClient.DefaultRequestHeaders.Contains("current-user-code"))
+        //    {
+        //        _httpClient.DefaultRequestHeaders.Remove("current-user-code");
+        //    }
+
+        //    _httpClient.DefaultRequestHeaders.Add("sobeyhive-http-secret", RSAHelper.RSAstr());
+        //    _httpClient.DefaultRequestHeaders.Add("current-user-code", usercode);
+        //}
+
+        //public void UseTokenHeader(string usertoken)
+        //{
+        //    if (_httpClient.DefaultRequestHeaders.Contains("sobeyhive-http-secret"))
+        //    {
+        //        _httpClient.DefaultRequestHeaders.Remove("sobeyhive-http-secret");
+        //    }
+        //    if (_httpClient.DefaultRequestHeaders.Contains("current-user-code"))
+        //    {
+        //        _httpClient.DefaultRequestHeaders.Remove("current-user-code");
+        //    }
+
+        //    if (_httpClient.DefaultRequestHeaders.Contains("sobeyhive-http-token"))
+        //    {
+        //        _httpClient.DefaultRequestHeaders.Remove("sobeyhive-http-token");
+        //    }
+
+        //    _httpClient.DefaultRequestHeaders.Add("sobeyhive-http-token", usertoken);
+        //}
+
+        public async Task<TResponse> Post<TResponse>(string url, object body, Dictionary<string, string> header, string method = "POST", NameValueCollection queryString = null, int timeout = 60)
             where TResponse : class, new()
         {
             TResponse response = null;
@@ -82,32 +97,29 @@ namespace IngestDBCore.Tool
                 {
                     queryString = new NameValueCollection();
                 }
-                if (String.IsNullOrEmpty(method))
-                {
-                    method = "POST";
-                }
+                
                 url = CreateUrl(url, queryString);
                 //Logger.Debug("请求：{0} {1}", method, url);
                 byte[] strData = Encoding.UTF8.GetBytes(json);
                 MemoryStream ms = new MemoryStream(strData);
-                StreamContent sc = new StreamContent(ms);
-                sc.Headers.ContentType = new MediaTypeWithQualityHeaderValue("application/json");
+                using (StreamContent sc = new StreamContent(ms))
+                {
+                    sc.Headers.ContentType = new MediaTypeWithQualityHeaderValue("application/json");
+                    if (header != null)
+                    {
+                        foreach (var item in header)
+                        {
+                            sc.Headers.Add(item.Key, item.Value);
+                        }
+                    }
 
-                //foreach (var item in _httpClient.DefaultRequestHeaders)
-                //{
-                //    Logger.Error("header :  " + item.Key + ":" + item.Value.FirstOrDefault());
-                //    foreach(var test in item.Value)
-                //    {
-                //        Logger.Error("test :  " + test);
-                //    }
-                //}
-
-                var res = await client.PostAsync(url, sc);
-                byte[] rData = await res.Content.ReadAsByteArrayAsync();
-                string rJson = Encoding.UTF8.GetString(rData);
-                Logger.Info("url body response：\r\n{0} {1} {2}", url, json, rJson);
-                response = JsonHelper.ToObject<TResponse>(rJson);
-                return response;
+                    var res = await client.PostAsync(url, sc).ConfigureAwait(true);
+                    byte[] rData = await res.Content.ReadAsByteArrayAsync().ConfigureAwait(true);
+                    string rJson = Encoding.UTF8.GetString(rData);
+                    //Logger.Debug("应答：\r\n{0}", rJson);
+                    response = JsonHelper.ToObject<TResponse>(rJson);
+                    return response;
+                }
             }
             catch (System.Exception e)
             {
@@ -159,7 +171,7 @@ namespace IngestDBCore.Tool
             return response;
         }
 
-        public async Task<TResponse> Get<TResponse>(string url, NameValueCollection queryString)
+        public async Task<TResponse> Get<TResponse>(string url, NameValueCollection queryString, Dictionary<string, string> header)
                     where TResponse : class, new()
         {
             TResponse response = null;
@@ -172,10 +184,20 @@ namespace IngestDBCore.Tool
                 }
                 url = CreateUrl(url, queryString);
                 //Logger.Debug("请求：{0} {1}", "GET", url);
-                byte[] rData = await client.GetByteArrayAsync(url);
-                string rJson = Encoding.UTF8.GetString(rData);
-                Logger.Info("url response：\r\n{0} {1}", url, rJson);
-                response = JsonHelper.ToObject<TResponse>(rJson);
+                using (var requestMessage = new HttpRequestMessage(HttpMethod.Get, url))
+                {
+                    if (header != null)
+                    {
+                        foreach (var item in header)
+                        {
+                            requestMessage.Headers.Add(item.Key, item.Value);
+                        }
+                    }
+                    var backinfo = await client.SendAsync(requestMessage).ConfigureAwait(true);
+                    var rJson = await backinfo.Content.ReadAsStringAsync().ConfigureAwait(true);
+                    Logger.Info("url response：\r\n{0} {1}", url, rJson);
+                    response = JsonHelper.ToObject<TResponse>(rJson);
+                }
             }
             catch (System.Exception e)
             {
@@ -213,45 +235,7 @@ namespace IngestDBCore.Tool
             return response;
         }
 
-        public async Task<TResponse> Post<TResponse>(string url, object body, Dictionary<string, string> header, string method = null, NameValueCollection queryString = null)
-        {
-            TResponse response = default(TResponse);
-            try
-            {
-                string json = JsonHelper.ToJson(body);
-                HttpClient client = _httpClient;
-                if (queryString == null)
-                {
-                    queryString = new NameValueCollection();
-                }
-
-                url = CreateUrl(url, queryString);
-                if (String.IsNullOrEmpty(method))
-                {
-                    method = "POST";
-                }
-                //Logger.Debug("请求：{0} {1}", method, url);
-                byte[] strData = Encoding.UTF8.GetBytes(json);
-                MemoryStream ms = new MemoryStream(strData);
-                StreamContent sc = new StreamContent(ms);
-                sc.Headers.ContentType = new MediaTypeWithQualityHeaderValue("application/json");
-                foreach (var item in header)
-                {
-                    sc.Headers.Add(item.Key, item.Value);
-                }
-                var res = await client.PostAsync(url, sc);
-                byte[] rData = await res.Content.ReadAsByteArrayAsync();
-                string rJson = Encoding.UTF8.GetString(rData);
-                //Logger.Debug("应答：\r\n{0}", rJson);
-                response = JsonHelper.ToObject<TResponse>(rJson);
-                return response;
-            }
-            catch (System.Exception e)
-            {
-                //Logger.Error("请求异常：\r\n{0}", e.ToString());
-                throw;
-            }
-        }
+        
 
         public async Task<string> Post(string url, object body, string method, NameValueCollection queryString)
         {
@@ -399,10 +383,11 @@ namespace IngestDBCore.Tool
         #region cmapi接口统一管理，方便后面修改
         public async Task<string> GetGlobalParam(bool usetokencode, string userTokenOrCode, string key)
         {
+            Dictionary<string, string> header = null;
             if (usetokencode)
-                UseTokenHeader(userTokenOrCode);
+                header = GetTokenHeader(userTokenOrCode);
             else
-                UseCodeHeader(userTokenOrCode);
+                header = GetCodeHeader(userTokenOrCode);
             var back = await AutoRetry.Run<ResponseMessage<CmParam>>(() =>
             {
                 DefaultParameter param = new DefaultParameter()
@@ -413,7 +398,7 @@ namespace IngestDBCore.Tool
                 };
                 return Post<ResponseMessage<CmParam>>(
                 string.Format("{0}/CMApi/api/basic/config/getsysparam", ApplicationContext.Current.CMServerUrl),
-                param);
+                param, header);
             });
 
             //if (back != null)
@@ -440,10 +425,11 @@ namespace IngestDBCore.Tool
 
         public async Task<int> GetUserParamTemplateID(bool usetokencode, string userTokenOrCode)
         {
+            Dictionary<string, string> header = null;
             if (usetokencode)
-                UseTokenHeader(userTokenOrCode);
+                header = GetTokenHeader(userTokenOrCode);
             else
-                UseCodeHeader(userTokenOrCode);
+                header = GetCodeHeader(userTokenOrCode);
 
             var back = await AutoRetry.Run<ResponseMessage<CmParam>>(() =>
                 {
@@ -455,7 +441,7 @@ namespace IngestDBCore.Tool
                     };
                     return Post<ResponseMessage<CmParam>>(
                     string.Format("{0}/CMApi/api/basic/config/getuserparam", ApplicationContext.Current.CMServerUrl),
-                    param);
+                    param, header);
 
                 });
 
@@ -479,10 +465,11 @@ namespace IngestDBCore.Tool
 
         public async Task<string> GetUserPath(bool usetokencode, string userTokenOrCode, string storagetype, string storagemark)
         {
+            Dictionary<string, string> header = null;
             if (usetokencode)
-                UseTokenHeader(userTokenOrCode);
+                header = GetTokenHeader(userTokenOrCode);
             else
-                UseCodeHeader(userTokenOrCode);
+                header = GetCodeHeader(userTokenOrCode);
 
 
             var back = await AutoRetry.Run<ResponseMessage<ExtParam>>(() =>
@@ -493,7 +480,7 @@ namespace IngestDBCore.Tool
                 v.Add("storagemark", storagemark);
                 return Get<ResponseMessage<ExtParam>>(
                     string.Format("{0}/CMApi/api/basic/user/getcurrentusercanwritepathbycondition", ApplicationContext.Current.CMServerUrl),
-                    v);
+                    v, header);
 
             });
                 //有polly重试了，手动重试放后面用
@@ -513,10 +500,11 @@ namespace IngestDBCore.Tool
 
         public async Task<CMUserInfo> GetUserInfo(bool usetokencode, string userTokenOrCode, string userCode)
         {
+            Dictionary<string, string> header = null;
             if (usetokencode)
-                UseTokenHeader(userTokenOrCode);
+                header = GetTokenHeader(userTokenOrCode);
             else
-                UseCodeHeader(userTokenOrCode);
+                header = GetCodeHeader(userTokenOrCode);
 
 
             var back = await AutoRetry.Run<ResponseMessage<CMUserInfo>>(() =>
@@ -526,7 +514,7 @@ namespace IngestDBCore.Tool
                 v.Add("usercode", userCode);
                 return Get<ResponseMessage<CMUserInfo>>(
                     string.Format("{0}/CMApi/api/basic/account/getuserinfobyusercode", ApplicationContext.Current.CMServerUrl),
-                    v);
+                    v, header);
             });
 
             //NameValueCollection v = new NameValueCollection();
