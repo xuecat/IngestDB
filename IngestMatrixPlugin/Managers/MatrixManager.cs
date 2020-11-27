@@ -633,7 +633,7 @@ namespace IngestMatrixPlugin.Managers
         /// <returns>标准调用提示信息</returns>
         public Task<MatrixOldResponseMessage> MatrixSwitch(MatrixParam param)
         {
-            return _restClient.Post<MatrixOldResponseMessage>($"{ApplicationContext.Current.IngestMatrixUrl}/api/G2MatrixWebCtrl/MatrixSwitch", param);
+            return _restClient.Post<MatrixOldResponseMessage>($"{ApplicationContext.Current.IngestMatrixUrl}/api/G2MatrixWebCtrl/MatrixSwitch", param, null);
         }
     }
 }

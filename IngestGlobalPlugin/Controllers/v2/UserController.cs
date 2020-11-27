@@ -636,7 +636,7 @@ namespace IngestGlobalPlugin.Controllers.v2
             ResponseMessage<DtoCMUserInfo> Response = new ResponseMessage<DtoCMUserInfo>();
             try
             {
-                Response = await _GlobalManager.GetUserInfoByUserCodeAsync<DtoCMUserInfo>(usercode);
+                Response.Ext = await _GlobalManager.GetUserInfoByUserCodeAsync<DtoCMUserInfo>(usercode);
             }
             catch (Exception e)//其他未知的异常，写异常日志
             {
