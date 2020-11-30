@@ -3814,7 +3814,7 @@ namespace IngestTaskPlugin.Managers
                             taskinfo.ContentMeta = ConverTaskContentMetaString(ContentMeta)?? taskinfo.ContentMeta;
                         }
 
-                        string sClassify = "D";
+                        string sClassify= string.Empty;
                         if(taskinfo.ContentMeta.PeriodParam.Mode == 0)
                         {
                             sClassify = "D";
@@ -4055,7 +4055,7 @@ namespace IngestTaskPlugin.Managers
                         {
                             taskinfo.ContentMeta = ConverTaskContentMetaString(ContentMeta)??taskinfo.ContentMeta;
                         }
-                        string sClassify = "D";
+                        string sClassify = string.Empty;
                         if (taskinfo.ContentMeta.PeriodParam.Mode == 0)
                         {
                             sClassify = "D";

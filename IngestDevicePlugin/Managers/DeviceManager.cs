@@ -671,7 +671,7 @@ namespace IngestDevicePlugin.Managers
                     }
                 }
                 var resList = tempList.OrderByDescending(a => a.Score).ToList();
-                //返回得分最低的
+                //返回得分最高的
                 if (resList != null && resList.Count > 0)
                 {
                     return resList[0].Id;
