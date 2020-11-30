@@ -57,7 +57,17 @@ namespace IngestTaskPlugin.Managers
             try
             {
                 var root = XDocument.Parse(data);
+                if (root == null)
+                {
+                    Logger.Error("ConverTaskMaterialMetaString error");
+                    return null;
+                }
                 var material = root.Element("MATERIAL");
+                if (material == null)
+                {
+                    Logger.Error("ConverTaskMaterialMetaString error");
+                    return null;
+                }
 
                 TaskMaterialMetaResponse ret = new TaskMaterialMetaResponse();
                 ret.Title = material?.Element("TITLE")?.Value;
@@ -156,8 +166,17 @@ namespace IngestTaskPlugin.Managers
             try
             {
                 var root = XDocument.Parse(data);
+                if (root == null)
+                {
+                    Logger.Error("ConverTaskContentMetaString error");
+                    return null;
+                }
                 var material = root.Element("TaskContentMetaData");
-
+                if (material == null)
+                {
+                    Logger.Error("ConverTaskContentMetaString error");
+                    return null;
+                }
                 TaskContentMetaResponse ret = new TaskContentMetaResponse();
                 int temp = 0;
                 if (int.TryParse(material?.Element("HOUSETC")?.Value, out temp))
@@ -3787,6 +3806,14 @@ namespace IngestTaskPlugin.Managers
                 {
                     if (string.IsNullOrEmpty(taskinfo.TaskContent.Classify))
                     {
+                        /*
+                         * 新接口这一般ContentMeta传空, 老接口这一般有值。反正只要没有就需要从字符串或者结构体里面解析构建，优先字符串
+                         */
+                        if (!string.IsNullOrEmpty(ContentMeta))
+                        {
+                            taskinfo.ContentMeta = ConverTaskContentMetaString(ContentMeta)?? taskinfo.ContentMeta;
+                        }
+
                         string sClassify = "D";
                         if(taskinfo.ContentMeta.PeriodParam.Mode == 0)
                         {
@@ -4021,6 +4048,13 @@ namespace IngestTaskPlugin.Managers
                 {
                     if (string.IsNullOrEmpty(taskinfo.TaskContent.Classify))
                     {
+                        /*
+                         * 新接口这一般ContentMeta传空, 老接口这一般有值。反正只要没有就需要从字符串或者结构体里面解析构建，优先字符串
+                         */
+                        if (!string.IsNullOrEmpty(ContentMeta))
+                        {
+                            taskinfo.ContentMeta = ConverTaskContentMetaString(ContentMeta)??taskinfo.ContentMeta;
+                        }
                         string sClassify = "D";
                         if (taskinfo.ContentMeta.PeriodParam.Mode == 0)
                         {
