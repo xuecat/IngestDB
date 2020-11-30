@@ -271,7 +271,7 @@ namespace IngestTaskPlugin.Stores
             return await Context.DbpTask.AsNoTracking().Where(a => string.IsNullOrEmpty(a.Tasklock)
             && ((a.NewEndtime < date
                 && (
-                     (a.DispatchState == (int)dispatchState.dpsDispatched && a.SyncState == (int)syncState.ssSync && a.State == (int)taskState.tsExecuting && (a.Tasktype != (int)TaskType.TT_MANUTASK && a.Tasktype != (int)TaskType.TT_TIEUP && a.Tasktype != (int)TaskType.TT_VTRUPLOAD))
+                     (a.DispatchState == (int)dispatchState.dpsDispatched && ((a.SyncState == (int)syncState.ssNot && a.OpType == (int)opType.otDel)||(a.SyncState == (int)syncState.ssSync && a.State == (int)taskState.tsExecuting && (a.Tasktype != (int)TaskType.TT_MANUTASK && a.Tasktype != (int)TaskType.TT_TIEUP && a.Tasktype != (int)TaskType.TT_VTRUPLOAD))))
                      || (a.Backtype == (int)CooperantType.emKamataki && a.SyncState == (int)syncState.ssSync)
                      || (a.Backtype == (int)CooperantType.emVTRBackup && a.SyncState == (int)syncState.ssSync && (a.Tasktype != (int)TaskType.TT_PERIODIC || (a.Tasktype == (int)TaskType.TT_PERIODIC && a.OldChannelid > 0)))
                    )
@@ -284,7 +284,8 @@ namespace IngestTaskPlugin.Stores
         public async Task<List<DbpTask>> GetNeedUnSynTasks()
         {
             var now = DateTime.Now;
-            var date = now.AddSeconds(60);
+            var endtime = now.AddMinutes(-3);//周期任务给endtime时间限定，都过时间了就不要再分裂了
+            var date = now.AddMinutes(3);//开始后3分钟没调度成功就认为是个错误任务
             var fdate = date.AddDays(-1);
             return await Context.DbpTask.AsNoTracking().Where(x => string.IsNullOrEmpty(x.Tasklock)
                 && x.DispatchState == (int)dispatchState.dpsDispatched
@@ -292,7 +293,7 @@ namespace IngestTaskPlugin.Stores
                 && x.Tasktype != (int)TaskType.TT_VTRUPLOAD
                 && x.State != (int)taskState.tsDelete
                 && ((x.State != (int)taskState.tsExecuting && x.State != (int)taskState.tsManuexecuting) || x.Backtype != (int)CooperantType.emKamataki)
-                && (x.NewBegintime > fdate && x.NewBegintime < date && x.Endtime > now)).ToListAsync();
+                && (x.NewBegintime > fdate && x.NewBegintime < date && x.Endtime > endtime)).ToListAsync();
         }
 
         public async Task UpdateTaskMetaDataAsync(int taskid, MetaDataType type, string metadata)

@@ -3043,7 +3043,7 @@ namespace IngestTaskPlugin.Managers
             var findtask = await Store.GetTaskAsync(a => a.Where(b => b.Taskid == periodicTaskId), true);
             TaskSource src = await GetTaskSource(periodicTaskId);
 
-            if (findtask.Category == "A")
+            if (findtask.Category == "A" && findtask.Endtime.AddDays(1) < DateTime.Now)
             {
                 SobeyRecException.ThrowSelfNoParam("CreateNewTaskFromPeriodicTask match ", GlobalDictionary.GLOBALDICT_CODE_TASK_IS_NOT_A_PERIODIC_TASK, Logger, null);
             }
@@ -3466,6 +3466,10 @@ namespace IngestTaskPlugin.Managers
                 }
 
                 TaskSource src = await GetTaskSource(findtask.Taskid);
+                if (src == TaskSource.emRtmpSwitchTask && newtaskinfo.Signalid >0)
+                {
+                    src = TaskSource.emMSVUploadTask;
+                }
 
                 var lsttaskmeta = await Store.GetTaskMetaDataListAsync(a => a.Where(b => b.Taskid == findtask.Taskid), true); ;
                 string strCapatureMetaData = string.Empty, strStoreMetaData = string.Empty, strContentMetaData = string.Empty, strPlanMetaData = string.Empty, strSplitMetaData = string.Empty;
