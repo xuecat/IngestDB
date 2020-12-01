@@ -3466,11 +3466,11 @@ namespace IngestTaskPlugin.Managers
                 }
 
                 TaskSource src = await GetTaskSource(findtask.Taskid);
-                if (src == TaskSource.emRtmpSwitchTask && newtaskinfo.Signalid >0)
+                if (newtaskinfo.Signalid >0)
                 {
                     src = TaskSource.emMSVUploadTask;
                 }
-
+                Logger.Info($"AutoAddTaskByOldTask {src} {newtaskinfo.Signalid}");
                 var lsttaskmeta = await Store.GetTaskMetaDataListAsync(a => a.Where(b => b.Taskid == findtask.Taskid), true); ;
                 string strCapatureMetaData = string.Empty, strStoreMetaData = string.Empty, strContentMetaData = string.Empty, strPlanMetaData = string.Empty, strSplitMetaData = string.Empty;
                 foreach (var item in lsttaskmeta)
@@ -3547,6 +3547,7 @@ namespace IngestTaskPlugin.Managers
                     var root = XElement.Parse(strContentMetaData);
                     root.Descendants("RealStampIndex")?.Remove();
                     root.Descendants("PERIODPARAM")?.Remove();
+                    root.Descendants("SIGNALRTMPURL")?.Remove();
                     strContentMetaData = root.ToString();
                 }
 

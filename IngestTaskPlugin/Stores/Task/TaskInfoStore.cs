@@ -1619,7 +1619,9 @@ namespace IngestTaskPlugin.Stores
                             || a.Category.Contains($"M{MDay}+") || a.Category.Contains($"M{ProvMDay}+") || a.Category.Contains($"M{NextMonthDay}+")
                             || a.Category.Contains($"D") || a.Category.Contains("A"))
                         && (a.DispatchState == (int)dispatchState.dpsNotDispatch || a.DispatchState == (int)dispatchState.dpsDispatched || a.DispatchState == (int)dispatchState.dpsInvalid || a.DispatchState == (int)dispatchState.dpsRedispatch)
-                        && (a.State == (int)taskState.tsReady || a.State == (int)taskState.tsComplete || a.State == (int)taskState.tsPause || a.State == (int)taskState.tsInvaild || a.State == (int)taskState.tsExecuting)) || ((ApplicationContext.Current.Limit24Hours ? a.Starttime >= subDays : true) && a.Starttime <= addDyas && a.State == (int)taskState.tsExecuting)
+                        && (a.State == (int)taskState.tsReady || a.State == (int)taskState.tsComplete || a.State == (int)taskState.tsPause || a.State == (int)taskState.tsInvaild || a.State == (int)taskState.tsExecuting)
+                        )
+                        || ((ApplicationContext.Current.Limit24Hours ? a.Starttime >= subDays : true) && a.Starttime <= addDyas && a.State == (int)taskState.tsExecuting)
                         /*
                          * @breif 老版本会对手动任务，open任务，tsExecuting附加上，不明白为啥，直接全部返回，我这里
                          */
