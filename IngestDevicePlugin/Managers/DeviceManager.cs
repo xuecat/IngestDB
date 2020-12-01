@@ -647,7 +647,7 @@ namespace IngestDevicePlugin.Managers
                                               arrMsvChannelState.Contains(a.nID));
                 if (taskContents !=null && taskContents.Count > 0)
                 {
-                    selectlist = selectlist.Where(a => taskContents.Any(x => x.State != taskStateInterface.tsExecuting && x.ChannelId == a.nID));
+                    selectlist = selectlist.Where(a => taskContents.Any(x => x.State != taskStateInterface.tsExecuting && x.State != taskStateInterface.tsManuexecuting && x.ChannelId == a.nID));
                 }
 
                 var tempList = selectlist.Select(a => new ChannelScore { Id = a.nID }).ToList();

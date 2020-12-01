@@ -336,13 +336,14 @@ namespace IngestDevicePlugin.Stores
                                                      matrix => matrix.Virtualoutport,
                                                      (rcdout, matrix) => new
                                                      {
+                                                         matrix.Virtualinport,
                                                          matrix.Virtualoutport,
                                                          rcdout.Channelid,
                                                          matrix.State,
                                                          matrix.Lastoprtime
                                                      })
                                                .Join(Context.DbpRcdindesc,
-                                                     join => join.Virtualoutport,
+                                                     join => join.Virtualinport,
                                                      rcdin => rcdin.Recinidx,
                                                      (join, rcdin) => new Channel2SignalSrcMap
                                                      {
