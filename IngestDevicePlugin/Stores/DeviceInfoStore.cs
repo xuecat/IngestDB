@@ -311,12 +311,12 @@ namespace IngestDevicePlugin.Stores
         public async Task<int> GetMatrixChannelBySignalAsync(int channelid)
         {
             return await Context.DbpRcdoutdesc.Where(rcdout => rcdout.Channelid == channelid)
-                                        .Join(Context.DbpVirtualmatrixportstate.Where(matrix => matrix.State == 1),
+                                        .Join(Context.DbpVirtualmatrixportstate.AsNoTracking().Where(matrix => matrix.State == 1),
                                               rcdout => rcdout.Recoutidx,
                                               matrix => matrix.Virtualoutport,
                                               (rcdout, matrix) => matrix.Virtualinport)
                                         .Join(Context.DbpRcdindesc,
-                                              outport => outport,
+                                              inport => inport,
                                               rcdin => rcdin.Recinidx,
                                               (outport, rcdin) => rcdin.Signalsrcid)
                                         .SingleOrDefaultAsync();
@@ -331,7 +331,7 @@ namespace IngestDevicePlugin.Stores
                 
         public Task<List<Channel2SignalSrcMap>> GetAllChannel2SignalSrcMapAsync()
         {
-            return Context.DbpRcdoutdesc.Join(Context.DbpVirtualmatrixportstate.Where(matrix => matrix.State == 1),
+            return Context.DbpRcdoutdesc.Join(Context.DbpVirtualmatrixportstate.AsNoTracking().Where(matrix => matrix.State == 1),
                                                      rcdout => rcdout.Recoutidx,
                                                      matrix => matrix.Virtualoutport,
                                                      (rcdout, matrix) => new
@@ -784,9 +784,9 @@ namespace IngestDevicePlugin.Stores
                                                .Join(Context.DbpVirtualmatrixportstate.AsNoTracking().Where(state => state.State == 1),
                                                      rcdout => rcdout.Recoutidx,
                                                      state => state.Virtualoutport,
-                                                     (state, port) => port.Virtualoutport)
+                                                     (state, port) => port.Virtualinport)
                                                .Join(Context.DbpVirtualmatrixinport.AsNoTracking(),
-                                                     state => state,
+                                                     inport => inport,
                                                      port => port.Virtualinport,
                                                      (state, port) => port.Signaltype)
                                                .SingleOrDefaultAsync();
