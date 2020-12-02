@@ -650,7 +650,8 @@ namespace IngestDevicePlugin.Managers
                 if (taskContents !=null && taskContents.Count > 0)
                 {
                     Logger.Info($"GetBestPreviewChnForSignalAsync taskinfo {string.Join(",", taskContents.Select(x =>x.TaskId).ToList())}");
-                    selectlist = selectlist.Where(a => taskContents.Any(x => x.State != taskStateInterface.tsExecuting && x.State != taskStateInterface.tsManuexecuting && x.ChannelId == a.nID));
+                    var lst = selectlist.Where(a => taskContents.Any(x => (x.State == taskStateInterface.tsExecuting || x.State == taskStateInterface.tsManuexecuting)&&x.ChannelId == a.nID)).Select(x=>x.nID).ToList();
+                    selectlist = selectlist.Where(x => !lst.Contains(x.nID));
                 }
 
                 var tempList = selectlist.Select(a => new ChannelScore { Id = a.nID }).ToList();
