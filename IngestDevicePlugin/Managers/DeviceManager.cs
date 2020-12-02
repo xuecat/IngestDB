@@ -633,9 +633,11 @@ namespace IngestDevicePlugin.Managers
                                                       a.state == Channel2SignalSrc_State.emConnection);
             if (map != null)
             {
+                Logger.Info($"GetBestPreviewChnForSignalAsync to map {map.nChannelID}");
                 return map.nChannelID;
             }
 
+            Logger.Info($"GetBestPreviewChnForSignalAsync 2 channel{string.Join(",", captureChannels.Select(x => x.nID).ToList() )} channelstate{string.Join(",", arrMsvChannelState)}");
             if (_taskInterface != null)
             {
                 TaskInternals re = new TaskInternals() { funtype = IngestDBCore.TaskInternals.FunctionType.WillBeginAndCapturingTasks };
@@ -647,10 +649,12 @@ namespace IngestDevicePlugin.Managers
                                               arrMsvChannelState.Contains(a.nID));
                 if (taskContents !=null && taskContents.Count > 0)
                 {
+                    Logger.Info($"GetBestPreviewChnForSignalAsync taskinfo {string.Join(",", taskContents.Select(x =>x.TaskId).ToList())}");
                     selectlist = selectlist.Where(a => taskContents.Any(x => x.State != taskStateInterface.tsExecuting && x.State != taskStateInterface.tsManuexecuting && x.ChannelId == a.nID));
                 }
 
                 var tempList = selectlist.Select(a => new ChannelScore { Id = a.nID }).ToList();
+                Logger.Info($"GetBestPreviewChnForSignalAsync lastall {string.Join(",", tempList.Select(x => x.Id).ToList())}");
 
                 if (tempList.Count <= 0)
                     return 0;
