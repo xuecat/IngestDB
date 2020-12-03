@@ -2082,12 +2082,12 @@ namespace IngestTaskPlugin.Managers
 
         public async Task<List<TResult>> QueryTaskContent<TResult>(int unitid, DateTime day, TimeLineType timetype)
         {
-            return _mapper.Map<List<TResult>>(await Store.GetTaskListWithMode(1, day, timetype));
+            return _mapper.Map<List<TResult>>(await Store.GetTaskListWithMode(unitid>0?unitid:1, day, timetype));
         }
 
         public async Task<List<TaskContentSignalUrlResponse>> QueryTaskSignalUrlContent(int unitid, DateTime day, TimeLineType timetype)
         {
-            var lst = _mapper.Map<List<TaskContentSignalUrlResponse>>(await Store.GetTaskListWithMode(1, day, timetype));
+            var lst = _mapper.Map<List<TaskContentSignalUrlResponse>>(await Store.GetTaskListWithMode(unitid > 0 ? unitid : 1, day, timetype));
 
             foreach (var item in lst)
             {
