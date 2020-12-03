@@ -966,15 +966,18 @@ namespace IngestTaskPlugin.Stores
                 ltask.NewEndtime = ltask.Endtime;
                 ltask.Recunitid = ltask.Recunitid | 0x8000;
 
+                
+
+                Context.Attach(ltask);
+                var entry = Context.Entry(ltask);
                 if (ltask.Tasktype == (int)TaskType.TT_MANUTASK
                     || ltask.Tasktype == (int)TaskType.TT_OPENEND
                     || ltask.Tasktype == (int)TaskType.TT_TIEUP)
                 {
                     ltask.Tasktype = (int)TaskType.TT_NORMAL;
+                    entry.Property(x => x.Tasktype).IsModified = true;
                 }
 
-                Context.Attach(ltask);
-                var entry = Context.Entry(ltask);
                 entry.Property(x => x.Endtime).IsModified = true;
                 entry.Property(x => x.NewEndtime).IsModified = true;
                 entry.Property(x => x.Recunitid).IsModified = true;
@@ -1028,15 +1031,19 @@ namespace IngestTaskPlugin.Stores
                         itm.NewEndtime = itm.Endtime;
                         itm.Recunitid = itm.Recunitid | 0x8000;
 
+                        
+
+                        Context.Attach(itm);
+                        var entry = Context.Entry(itm);
+
                         if (itm.Tasktype == (int)TaskType.TT_MANUTASK
                             || itm.Tasktype == (int)TaskType.TT_OPENEND
                             || itm.Tasktype == (int)TaskType.TT_TIEUP)
                         {
                             itm.Tasktype = (int)TaskType.TT_NORMAL;
+                            entry.Property(x => x.Tasktype).IsModified = true;
                         }
 
-                        Context.Attach(itm);
-                        var entry = Context.Entry(itm);
                         entry.Property(x => x.Endtime).IsModified = true;
                         entry.Property(x => x.NewEndtime).IsModified = true;
                         entry.Property(x => x.Recunitid).IsModified = true;
@@ -1145,6 +1152,11 @@ namespace IngestTaskPlugin.Stores
 
                     Context.Attach(ltask);
                     var entry = Context.Entry(ltask);
+                    entry.Property(x => x.OpType).IsModified = true;
+                    entry.Property(x => x.State).IsModified = true;
+
+                    entry.Property(x => x.DispatchState).IsModified = true;
+
                     entry.Property(x => x.Endtime).IsModified = true;
                     entry.Property(x => x.SyncState).IsModified = true;
                     entry.Property(x => x.NewEndtime).IsModified = true;
@@ -1265,6 +1277,9 @@ namespace IngestTaskPlugin.Stores
 
                             Context.Attach(itm);
                             var entry = Context.Entry(itm);
+                            entry.Property(x => x.DispatchState).IsModified = true;
+                            entry.Property(x => x.State).IsModified = true;
+                            entry.Property(x => x.OpType).IsModified = true;
                             entry.Property(x => x.Endtime).IsModified = true;
                             entry.Property(x => x.SyncState).IsModified = true;
                             entry.Property(x => x.NewEndtime).IsModified = true;
@@ -1744,7 +1759,7 @@ namespace IngestTaskPlugin.Stores
                                 continue;
                             }
                         }
-                        if (fakeTask != null)
+                        if (fakeTask != null && cut != 2)
                         {
                             if (fakeTask.State == (int)taskState.tsDelete)
                                 continue;
