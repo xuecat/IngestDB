@@ -891,7 +891,10 @@ namespace IngestTaskPlugin.Stores
             if(taskinfo.State == (int)taskState.tsComplete)
             {
                 Logger.Info("StopTask task is tscomplete : " + taskid);
-                return taskinfo;
+                /*
+                 * 运行再次修改任务的停止时间
+                 */
+                //return taskinfo;
             }
 
             Logger.Info("StopTask " + taskid);
