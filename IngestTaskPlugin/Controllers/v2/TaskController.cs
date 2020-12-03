@@ -1343,7 +1343,7 @@ namespace IngestTaskPlugin.Controllers.v2
         /// 最好的方法是修改数据库底层把signal改成string，这样搞要重新发网管，msg，task，客户端所有玩意。太坑了。
         /// 所以单独给webingest提供一个接口，当遇到rtmp url的任务时，多查询一次，并返回给他地址
         /// </remarks>
-        /// <param name="unitid">随便填</param>
+        /// <param name="unitid">1是客户查询任务，跨天每天任务做分裂，2是web查询任务，跨天每天任务不做分裂</param>
         /// <param name="day">查询时间yyyy/MM/dd HH:mm:ss </param>
         /// <param name="timemode">查询模式0是24小时模式，1是32小时模式</param>
         /// <returns>任务基础元数据</returns>
@@ -1387,7 +1387,7 @@ namespace IngestTaskPlugin.Controllers.v2
         /// 例子:
         ///
         /// </remarks>
-        /// <param name="unitid">1</param>
+        /// <param name="unitid">1是客户查询任务，跨天每天任务做分裂，2是web查询任务，跨天每天任务不做分裂</param>
         /// <param name="day">查询时间yyyy/MM/dd HH:mm:ss </param>
         /// <param name="timemode">查询模式0是24小时模式，1是32小时模式</param>
         /// <returns>任务基础元数据</returns>
