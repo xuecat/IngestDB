@@ -954,7 +954,11 @@ namespace IngestTaskPlugin.Controllers.v2
                     req.ContentMeta ==null?string.Empty:_taskManage.ConverTaskContentMetaString(req.ContentMeta),
                     req.MaterialMeta == null ? string.Empty : _taskManage.ConverTaskMaterialMetaString(req.MaterialMeta),
                     req.PlanningMeta == null ? string.Empty : _taskManage.ConverTaskPlanningMetaString(req.PlanningMeta), req.TaskSource);
-                await _taskManage.ModifyTaskSource(req.TaskContent.TaskId, req.TaskSource);
+                if(req.TaskSource != TaskSource.emUnknowTask)
+                {
+                    await _taskManage.ModifyTaskSource(req.TaskContent.TaskId, req.TaskSource);
+                }
+                
                 Response.Ext = _mapper.Map<TaskContentResponse>(modifyTask);
                 if (Response.Ext == null)
                 {
