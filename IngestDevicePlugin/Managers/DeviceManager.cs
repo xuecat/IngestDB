@@ -655,7 +655,6 @@ namespace IngestDevicePlugin.Managers
                 }
 
                 var tempList = selectlist.Select(a => new ChannelScore { Id = a.nID }).ToList();
-                Logger.Info($"GetBestPreviewChnForSignalAsync lastall {string.Join(",", tempList.Select(x => x.Id).ToList())}");
 
                 if (tempList.Count <= 0)
                     return 0;
