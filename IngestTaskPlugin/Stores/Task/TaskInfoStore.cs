@@ -1145,7 +1145,7 @@ namespace IngestTaskPlugin.Stores
                 if (isNeedDelFromDB)
                 {
                     Logger.Info("delete task", ltask.Taskid);
-                    //Context.Attach(ltask);
+                    Context.Attach(ltask);
                     Context.DbpTask.Remove(ltask);
                 }
                 else
