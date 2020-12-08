@@ -2331,13 +2331,14 @@ namespace IngestTaskPlugin.Managers
 
         public async ValueTask<int> GetTaskIDByTaskGUID(string taskguid)
         {
-            var task = await Store.GetTaskAsync(a => a.Where(b => b.Taskguid==taskguid).Select(f => f.Taskid), true);
-            if (task <= 0)
+            var task = await Store.GetTaskAsync(a => a.Where(b => b.Taskguid==taskguid), true);
+            if (task.Taskid <= 0)
             {
-                return await Store.GetTaskBackupAsync(a => a.Where(b => b.Taskguid==taskguid).Select(f => f.Taskid), true);
+                var backtask = await Store.GetTaskBackupAsync(a => a.Where(b => b.Taskguid==taskguid), true);
+                return backtask.Taskid;
             }
             else
-                return task;
+                return task.Taskid;
         }
 
         public async Task<List<TResult>> GetAllChannelCapturingTask<TResult>()

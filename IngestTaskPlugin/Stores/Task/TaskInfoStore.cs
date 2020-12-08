@@ -1559,8 +1559,9 @@ namespace IngestTaskPlugin.Stores
             {
                 case TimeLineType.em24HourDay:
                     {
+                        
                         List<DbpTaskBackup> backlst = null;
-                        lst = await Context.DbpTask.AsNoTracking().Where(a =>
+                        var onelst = Context.DbpTask.AsNoTracking().Where(a =>
                         (((a.Starttime >= dtDayBegin && a.Starttime <= dtDayEnd)
                         || (a.Endtime >= dtDayBegin && a.Endtime <= dtDayEnd)
                         || (a.Starttime <= dtDayBegin && a.Endtime >= dtDayEnd))
@@ -1568,15 +1569,22 @@ namespace IngestTaskPlugin.Stores
                             || a.Category.Contains($"M{MDay}+") || a.Category.Contains($"M{ProvMDay}+")
                             || a.Category.Contains($"D") || a.Category.Contains("A"))
                         && (a.DispatchState == (int)dispatchState.dpsNotDispatch || a.DispatchState == (int)dispatchState.dpsDispatched || a.DispatchState == (int)dispatchState.dpsInvalid || a.DispatchState == (int)dispatchState.dpsRedispatch)
-                        && (a.State == (int)taskState.tsReady || a.State == (int)taskState.tsComplete || a.State == (int)taskState.tsPause || a.State == (int)taskState.tsInvaild || a.State == (int)taskState.tsExecuting)) || ((ApplicationContext.Current.Limit24Hours? a.Starttime >= subDays : true) && a.Starttime <= addDyas && a.State == (int)taskState.tsExecuting)
+                        && (a.State == (int)taskState.tsReady || a.State == (int)taskState.tsComplete || a.State == (int)taskState.tsPause || a.State == (int)taskState.tsInvaild || a.State == (int)taskState.tsExecuting))
+                        || (/*(ApplicationContext.Current.Limit24Hours? a.Starttime >= subDays : true) &&*/ a.Starttime <= addDyas && a.State == (int)taskState.tsExecuting)
                         /*
                          * @breif 老版本会对手动任务，open任务，tsExecuting附加上，不明白为啥，直接全部返回，我这里
                          */
-                        ).ToListAsync();
+                        );
 
+                        if (ApplicationContext.Current.Limit24Hours)
+                        {
+                            onelst = onelst.Where(a => a.Starttime >= subDays);
+                        }
+
+                        lst = await onelst.ToListAsync();
                         if (lst == null || lst.Count <= 0)
                         {
-                            lst = await Context.DbpTaskBackup.AsNoTracking().Where(a =>
+                            var twolst = Context.DbpTaskBackup.AsNoTracking().Where(a =>
                                (((a.Starttime >= dtDayBegin && a.Starttime <= dtDayEnd)
                                || (a.Endtime >= dtDayBegin && a.Endtime <= dtDayEnd)
                                || (a.Starttime <= dtDayBegin && a.Endtime >= dtDayEnd))
@@ -1584,7 +1592,8 @@ namespace IngestTaskPlugin.Stores
                                    || a.Category.Contains($"M{MDay}+") || a.Category.Contains($"M{ProvMDay}+")
                                    || a.Category.Contains($"D") || a.Category.Contains("A"))
                                && (a.DispatchState == (int)dispatchState.dpsNotDispatch || a.DispatchState == (int)dispatchState.dpsDispatched || a.DispatchState == (int)dispatchState.dpsInvalid || a.DispatchState == (int)dispatchState.dpsRedispatch)
-                               && (a.State == (int)taskState.tsReady || a.State == (int)taskState.tsComplete || a.State == (int)taskState.tsPause || a.State == (int)taskState.tsInvaild || a.State == (int)taskState.tsExecuting)) || ((ApplicationContext.Current.Limit24Hours ? a.Starttime >= subDays : true) && a.Starttime <= addDyas && a.State == (int)taskState.tsExecuting)
+                               && (a.State == (int)taskState.tsReady || a.State == (int)taskState.tsComplete || a.State == (int)taskState.tsPause || a.State == (int)taskState.tsInvaild || a.State == (int)taskState.tsExecuting)) 
+                               || (/*(ApplicationContext.Current.Limit24Hours ? a.Starttime >= subDays : true) &&*/ a.Starttime <= addDyas && a.State == (int)taskState.tsExecuting)
                            /*
                             * @breif 老版本会对手动任务，open任务，tsExecuting附加上，不明白为啥，直接全部返回，我这里
                             */
@@ -1615,9 +1624,13 @@ namespace IngestTaskPlugin.Stores
                                Taskpriority = x.Taskpriority,
                                Stamptitleindex = x.Stamptitleindex,
                                Stampimagetype = x.Stampimagetype
-                           }).ToListAsync();
+                           });
 
-                            // = backlst.ToList();
+                            if (ApplicationContext.Current.Limit24Hours)
+                            {
+                                twolst = twolst.Where(a => a.Starttime >= subDays);
+                            }
+                            lst = await twolst.ToListAsync();
                         }
 
                         //Context.DbpTaskBackup;
@@ -1629,7 +1642,7 @@ namespace IngestTaskPlugin.Stores
                         dtDayEnd = new DateTime(dtDay.AddDays(1).Year, dtDay.AddDays(1).Month, dtDay.AddDays(1).Day, 7, 59, 59);
 
                         List<DbpTaskBackup> backlst = null;
-                        lst = await Context.DbpTask.AsNoTracking().Where(a =>
+                        var onelst = Context.DbpTask.AsNoTracking().Where(a =>
                         (((a.Starttime >= dtDayBegin && a.Starttime <= dtDayEnd)
                         || (a.Endtime >= dtDayBegin && a.Endtime <= dtDayEnd)
                         || (a.Starttime <= dtDayBegin && a.Endtime >= dtDayEnd))
@@ -1639,15 +1652,21 @@ namespace IngestTaskPlugin.Stores
                         && (a.DispatchState == (int)dispatchState.dpsNotDispatch || a.DispatchState == (int)dispatchState.dpsDispatched || a.DispatchState == (int)dispatchState.dpsInvalid || a.DispatchState == (int)dispatchState.dpsRedispatch)
                         && (a.State == (int)taskState.tsReady || a.State == (int)taskState.tsComplete || a.State == (int)taskState.tsPause || a.State == (int)taskState.tsInvaild || a.State == (int)taskState.tsExecuting)
                         )
-                        || ((ApplicationContext.Current.Limit24Hours ? a.Starttime >= subDays : true) && a.Starttime <= addDyas && a.State == (int)taskState.tsExecuting)
+                        || (/*(ApplicationContext.Current.Limit24Hours ? a.Starttime >= subDays : true) && */a.Starttime <= addDyas && a.State == (int)taskState.tsExecuting)
                         /*
                          * @breif 老版本会对手动任务，open任务，tsExecuting附加上，不明白为啥，直接全部返回，我这里
                          */
-                        ).ToListAsync();
+                        );
+
+                        if (ApplicationContext.Current.Limit24Hours)
+                        {
+                            onelst = onelst.Where(a => a.Starttime >= subDays);
+                        }
+                        lst = await onelst.ToListAsync();
 
                         if (lst == null || lst.Count <= 0)
                         {
-                            lst = await Context.DbpTaskBackup.AsNoTracking().Where(a =>
+                            var twolst = Context.DbpTaskBackup.AsNoTracking().Where(a =>
                                (((a.Starttime >= dtDayBegin && a.Starttime <= dtDayEnd)
                                || (a.Endtime >= dtDayBegin && a.Endtime <= dtDayEnd)
                                || (a.Starttime <= dtDayBegin && a.Endtime >= dtDayEnd))
@@ -1655,7 +1674,8 @@ namespace IngestTaskPlugin.Stores
                                    || a.Category.Contains($"M{MDay}+") || a.Category.Contains($"M{ProvMDay}+") || a.Category.Contains($"M{NextMonthDay}+")
                                    || a.Category.Contains($"D") || a.Category.Contains("A"))
                                && (a.DispatchState == (int)dispatchState.dpsNotDispatch || a.DispatchState == (int)dispatchState.dpsDispatched || a.DispatchState == (int)dispatchState.dpsInvalid || a.DispatchState == (int)dispatchState.dpsRedispatch)
-                               && (a.State == (int)taskState.tsReady || a.State == (int)taskState.tsComplete || a.State == (int)taskState.tsPause || a.State == (int)taskState.tsInvaild || a.State == (int)taskState.tsExecuting)) || ((ApplicationContext.Current.Limit24Hours ? a.Starttime >= subDays : true) && a.Starttime <= addDyas && a.State == (int)taskState.tsExecuting)
+                               && (a.State == (int)taskState.tsReady || a.State == (int)taskState.tsComplete || a.State == (int)taskState.tsPause || a.State == (int)taskState.tsInvaild || a.State == (int)taskState.tsExecuting)) 
+                               || (/*(ApplicationContext.Current.Limit24Hours ? a.Starttime >= subDays : true) &&*/ a.Starttime <= addDyas && a.State == (int)taskState.tsExecuting)
                            /*
                             * @breif 老版本会对手动任务，open任务，tsExecuting附加上，不明白为啥，直接全部返回，我这里
                             */
@@ -1686,7 +1706,13 @@ namespace IngestTaskPlugin.Stores
                                Taskpriority = x.Taskpriority,
                                Stamptitleindex = x.Stamptitleindex,
                                Stampimagetype = x.Stampimagetype
-                           }).ToListAsync();
+                           });
+
+                            if (ApplicationContext.Current.Limit24Hours)
+                            {
+                                twolst = twolst.Where(a => a.Starttime >= subDays);
+                            }
+                            lst = await twolst.ToListAsync();
 
                             //lst = backlst.ToList();
                         }
