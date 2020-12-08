@@ -631,7 +631,7 @@ namespace IngestDevicePlugin.Managers
             var map = channel2SignalSrcMaps.FirstOrDefault(a => ids.Contains(a.nChannelID) &&
                                                       a.nSignalSrcID == signalID &&
                                                       a.state == Channel2SignalSrc_State.emConnection);
-            if (map != null)
+            if (map != null && arrMsvChannelState.Contains(map.nChannelID))
             {
                 Logger.Info($"GetBestPreviewChnForSignalAsync to map {map.nChannelID}");
                 return map.nChannelID;
