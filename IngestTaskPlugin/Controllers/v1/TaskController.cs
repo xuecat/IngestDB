@@ -1455,7 +1455,7 @@ namespace IngestTaskPlugin.Controllers.v1
         public async Task<bool> GetLockTaskByID([FromQuery]int taskID)
         {
             var Response = false;
-
+            Logger.Info($"GetLockTaskByID TaskFullInfo {Request.Host.Value} : {taskID} ");
             try
             {
                 return await _taskManage.LockTask(taskID);
@@ -1498,7 +1498,7 @@ namespace IngestTaskPlugin.Controllers.v1
             {
                
                 //Response.errStr = "error info:" + e.ToString();
-                Logger.Error("GetLockTaskByID" + e.Message);
+                Logger.Error("GetModifyCooperTask" + e.Message);
                 return Response;
             }
             return Response;
