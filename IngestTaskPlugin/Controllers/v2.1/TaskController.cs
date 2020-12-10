@@ -28,7 +28,7 @@ namespace IngestTaskPlugin.Controllers.v2._1
         private readonly Lazy<IIngestGlobalInterface> _globalInterface;
         private readonly IMapper _mapper;
         private readonly NotifyClock _clock;
-        public TaskController(TaskManager task, IServiceProvider services, IMapper mapper, NotifyClock clock,)
+        public TaskController(TaskManager task, IServiceProvider services, IMapper mapper, NotifyClock clock)
         {
             _taskManage = task;
             _clock = clock;

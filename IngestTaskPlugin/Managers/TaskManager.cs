@@ -4513,35 +4513,35 @@ namespace IngestTaskPlugin.Managers
                     item.State = (int)taskState.tsReady;
                 }
 
-                string strCapatureMetaData = string.Empty, strStoreMetaData = string.Empty, strContentMetaData = string.Empty, strPlanMetaData = string.Empty, strSplitMetaData = string.Empty;
+                string CapatureMetaData = string.Empty, StoreMetaData = string.Empty, ContentMetaData = string.Empty, PlanMetaData = string.Empty, SplitMetaData = string.Empty;
                 var lstmeta = await Store.GetTaskMetaDataListAsync(a => a.Where(b => b.Taskid == oldtaskid), true);
                 foreach (var itm in lstmeta)
                 {
                     if (itm.Metadatatype == (int)MetaDataType.emCapatureMetaData)
                     {
-                        strCapatureMetaData = itm.Metadatalong;
+                        CapatureMetaData = itm.Metadatalong;
                     }
                     else if (itm.Metadatatype == (int)MetaDataType.emContentMetaData)
                     {
-                        strContentMetaData = itm.Metadatalong;
+                        ContentMetaData = itm.Metadatalong;
                     }
                     else if (itm.Metadatatype == (int)MetaDataType.emStoreMetaData)
                     {
-                        strStoreMetaData = itm.Metadatalong;
+                        StoreMetaData = itm.Metadatalong;
                     }
                     else if (itm.Metadatatype == (int)MetaDataType.emPlanMetaData)
                     {
-                        strPlanMetaData = itm.Metadatalong;
+                        PlanMetaData = itm.Metadatalong;
                     }
                     else if (itm.Metadatatype == (int)MetaDataType.emSplitData)
                     {
-                        strSplitMetaData = itm.Metadatalong;
+                        SplitMetaData = itm.Metadatalong;
                     }
                 }
 
-                if (string.IsNullOrEmpty(strStoreMetaData))
+                if (string.IsNullOrEmpty(StoreMetaData))
                 {
-                    var root = XDocument.Parse(strStoreMetaData);
+                    var root = XDocument.Parse(StoreMetaData);
                     if (root == null)
                     {
                         Logger.Error("ConverTaskMaterialMetaString error");
@@ -4561,16 +4561,21 @@ namespace IngestTaskPlugin.Managers
                         title.Value = item.Taskname;
                     }
 
-                    strStoreMetaData = root.ToString();
+                    StoreMetaData = root.ToString();
                 }
 
-                await AddTaskWithPolicy();
+                TaskInfoRequest addinfo = new TaskInfoRequest();
+                addinfo.TaskContent = _mapper.Map<TaskContentResponse>(item);
+                addinfo.BackUpTask = false;
+                addinfo.TaskSource = await GetTaskSource(oldtaskid);
+                var backinfo = await AddTaskWithPolicy(addinfo, false, CapatureMetaData, ContentMetaData, StoreMetaData, PlanMetaData, false);
+                return backinfo;
             }
             else
             {
                 SobeyRecException.ThrowSelfNoParam("AddReScheduleTaskSvr ", GlobalDictionary.GLOBALDICT_CODE_TASK_ID_DOES_NOT_EXIST, Logger, null);
             }
-
+            return null;
         }
 
     }
