@@ -33,7 +33,7 @@ namespace IngestDevicePlugin.Controllers.v2._1
         /// </summary>
         /// <remarks>包括设备ip，设备端口号等</remarks>
         /// <returns>采集设备集合</returns>
-        [HttpGet("device/all")]
+        [HttpGet("allocdevice")]
         [ApiExplorerSettings(GroupName = "v2.1")]
         public async Task<ResponseMessage<List<DeviceInfoResponse>>> AllDevicesForTask()
         {
@@ -70,7 +70,7 @@ namespace IngestDevicePlugin.Controllers.v2._1
         /// <param name="deviceid">设备ID</param>
         /// <remarks>包括设备ip，设备端口号等</remarks>
         /// <returns>采集设备单个信息</returns>
-        [HttpGet("device/{deviceid}")]
+        [HttpGet("allocdevice/{deviceid}")]
         [ApiExplorerSettings(GroupName = "v2.1")]
         public async Task<ResponseMessage<DeviceInfoResponse>> GetCaptureDeviceByidForTask([FromRoute, BindRequired, DefaultValue(39)]int deviceid)
         {
