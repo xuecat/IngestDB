@@ -268,17 +268,34 @@ namespace IngestTaskPlugin.Stores
 
             var fdate = DateTime.Now.AddSeconds(-86390);//提前10秒
 
-            return await Context.DbpTask.AsNoTracking().Where(a => string.IsNullOrEmpty(a.Tasklock)
+            if (ApplicationContext.Current.Limit24Hours)
+            {
+                return await Context.DbpTask.AsNoTracking().Where(a => string.IsNullOrEmpty(a.Tasklock)
             && ((a.NewEndtime < date
                 && (
-                     (a.DispatchState == (int)dispatchState.dpsDispatched && ((a.SyncState == (int)syncState.ssNot && a.OpType == (int)opType.otDel)||(a.SyncState == (int)syncState.ssSync && a.State == (int)taskState.tsExecuting && (a.Tasktype != (int)TaskType.TT_MANUTASK && a.Tasktype != (int)TaskType.TT_TIEUP && a.Tasktype != (int)TaskType.TT_VTRUPLOAD))))
+                     (a.DispatchState == (int)dispatchState.dpsDispatched && ((a.SyncState == (int)syncState.ssNot && a.OpType == (int)opType.otDel) || (a.SyncState == (int)syncState.ssSync && a.State == (int)taskState.tsExecuting && (a.Tasktype != (int)TaskType.TT_MANUTASK && a.Tasktype != (int)TaskType.TT_TIEUP && a.Tasktype != (int)TaskType.TT_VTRUPLOAD))))
                      || (a.Backtype == (int)CooperantType.emKamataki && a.SyncState == (int)syncState.ssSync)
                      || (a.Backtype == (int)CooperantType.emVTRBackup && a.SyncState == (int)syncState.ssSync && (a.Tasktype != (int)TaskType.TT_PERIODIC || (a.Tasktype == (int)TaskType.TT_PERIODIC && a.OldChannelid > 0)))
                    )
                 && a.State != (int)taskState.tsDelete
                 && a.Starttime != a.Endtime)
-               || ((a.State == (int)taskState.tsExecuting && (a.Tasktype == (int)TaskType.TT_MANUTASK || a.Tasktype == (int)TaskType.TT_OPENEND) && a.Starttime <= fdate) && ApplicationContext.Current.Limit24Hours ) )//这里本来是starttime..AddSeconds(86400) 怕翻译问题
+               || (a.State == (int)taskState.tsExecuting && (a.Tasktype == (int)TaskType.TT_MANUTASK || a.Tasktype == (int)TaskType.TT_OPENEND) && a.Starttime <= fdate))//这里本来是starttime..AddSeconds(86400) 怕翻译问题
                 ).ToListAsync();
+            }
+            else
+            {
+                return await Context.DbpTask.AsNoTracking().Where(a => string.IsNullOrEmpty(a.Tasklock)
+            && ((a.NewEndtime < date
+                && (
+                     (a.DispatchState == (int)dispatchState.dpsDispatched && ((a.SyncState == (int)syncState.ssNot && a.OpType == (int)opType.otDel) || (a.SyncState == (int)syncState.ssSync && a.State == (int)taskState.tsExecuting && (a.Tasktype != (int)TaskType.TT_MANUTASK && a.Tasktype != (int)TaskType.TT_TIEUP && a.Tasktype != (int)TaskType.TT_VTRUPLOAD))))
+                     || (a.Backtype == (int)CooperantType.emKamataki && a.SyncState == (int)syncState.ssSync)
+                     || (a.Backtype == (int)CooperantType.emVTRBackup && a.SyncState == (int)syncState.ssSync && (a.Tasktype != (int)TaskType.TT_PERIODIC || (a.Tasktype == (int)TaskType.TT_PERIODIC && a.OldChannelid > 0)))
+                   )
+                && a.State != (int)taskState.tsDelete
+                && a.Starttime != a.Endtime))//这里本来是starttime..AddSeconds(86400) 怕翻译问题
+                ).ToListAsync();
+            }
+
         }
 
         public async Task<List<DbpTask>> GetNeedUnSynTasks()
@@ -1144,7 +1161,8 @@ namespace IngestTaskPlugin.Stores
 
                 if (isNeedDelFromDB)
                 {
-                    Logger.Info("delete task", ltask.Taskid);
+                    int tasktempId = ltask.Taskid;
+                    Logger.Info("delete task", tasktempId);
                     Context.Attach(ltask);
                     Context.DbpTask.Remove(ltask);
                 }
