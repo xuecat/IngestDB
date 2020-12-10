@@ -174,7 +174,7 @@ namespace IngestDB
                     {
                         Version = "v2",
                         Title = "> 收录新版本网关接口文档",
-                        Description = "**Ingest Web API**(接口设计原则: `Post`->新加和修改，`Post`->新加；`Put`->修改, 所有路由和参数均是小写, 所有返回值均是驼峰(注释的是大写, 实际返回驼峰)) <hr><p>**返回Code类型:** <ul><li>SuccessCode = \"0\"</li><li> ModelStateInvalid = \"100\"</li><li>ArgumentNullError = \"101\"</li><li>ObjectAlreadyExists = \"102\"</li><li>PartialFailure = \"103\"</li><li>NotFound = \"404\"</li><li>NotAllow = \"403\"</li><li>ServiceError = \"500\"</li></ul> </p>",
+                        Description = "**Ingest Web API**(接口设计原则: `Post`->新加和修改，`Post`->新加；`Put`->修改, 所有路由和参数均是小写, 所有返回值均是驼峰(注释的是大写, 实际返回驼峰)) <hr><p>**返回Code类型:** <ul><li>SuccessCode = \"0\"</li><li> ModelStateInvalid = \"100\"</li><li>ArgumentNullError = \"101\"</li><li>ObjectAlreadyExists = \"102\"</li><li>PartialFailure = \"103\"</li><li>NotFound = \"404\"</li><li>NotAllow = \"403\"</li><li>ServiceError = \"500\"</li></ul> </p> <br/> v2路由写的真丑，为啥当时这么想呢!",
                         Contact = new OpenApiContact { Name = "XueCat", Email = "", Url = new Uri("http://ingest.com") },
                         License = new OpenApiLicense { Name = "Sobey", Url = new Uri("http://www.sobey.com") }
                         //TermsOfService = new Uri("None"),
