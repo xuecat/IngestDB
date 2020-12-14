@@ -21,6 +21,7 @@ namespace IngestDBCore.Tool
         private bool _disposed;
         public RestClient(IHttpClientFactory httpClientFactory, string httpClientName = "ApiClient")
         {
+            _disposed = false;
             _httpClient = httpClientFactory != null ? httpClientFactory.CreateClient(httpClientName) : new HttpClient();
             _httpClient.DefaultRequestHeaders.Connection.Clear();
             _httpClient.DefaultRequestHeaders.ConnectionClose = false;
