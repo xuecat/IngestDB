@@ -541,7 +541,8 @@ namespace IngestDevicePlugin.Stores
                                  BackState = (emBackupFlag)channel.rchn.chn.Backupflag,
                                  CpSignalType = channel.rchn.chn.Cpsignaltype ?? 0,
                                  OrderCode = channel.rchn.chn != null ? channel.rchn.Ordercode.GetValueOrDefault() : -1,
-                                 GroupId = g != null ? g.Groupid : -1
+                                 GroupId = g != null ? g.Groupid : -1,
+                                 DeviceState = channel.Devstate != null? (Device_State)channel.Devstate : Device_State.DISCONNECTTED
                              }).ToListAsync();
             }
             else
