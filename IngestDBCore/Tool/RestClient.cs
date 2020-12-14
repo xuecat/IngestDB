@@ -52,6 +52,7 @@ namespace IngestDBCore.Tool
             if (_httpClient != null)
             {
                 _httpClient.Dispose();
+                _httpClient = null;
             }
             _disposed = true;
         }
