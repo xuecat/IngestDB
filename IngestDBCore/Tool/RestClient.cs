@@ -13,12 +13,12 @@ using System.Threading.Tasks;
 
 namespace IngestDBCore.Tool
 {
-    public class RestClient
+    public class RestClient : IDisposable
     {
         ILogger Logger = LoggerManager.GetLogger("ApiClient");
 
-        private static HttpClient _httpClient = null;
-
+        private HttpClient _httpClient = null;
+        private bool _disposed;
         public RestClient(IHttpClientFactory httpClientFactory, string httpClientName = "ApiClient")
         {
             _httpClient = httpClientFactory != null ? httpClientFactory.CreateClient(httpClientName) : new HttpClient();
@@ -30,7 +30,31 @@ namespace IngestDBCore.Tool
             _httpClient.DefaultRequestHeaders.Add("sobeyhive-http-site", "S1");
             _httpClient.DefaultRequestHeaders.Add("sobeyhive-http-tool", "INGESTSERVER");
         }
+        public void Dispose()
+        {
+            Dispose(true);
+            GC.SuppressFinalize(this);
+        }
 
+        ~RestClient()
+        {
+            //必须为false
+            Dispose(false);
+        }
+
+        protected virtual void Dispose(bool disposing)
+        {
+            if (_disposed) return;
+            if (disposing)
+            {
+
+            }
+            if (_httpClient != null)
+            {
+                _httpClient.Dispose();
+            }
+            _disposed = true;
+        }
         public Dictionary<string, string> GetTokenHeader(string usertoken)
         {
             return new Dictionary<string, string>() {
