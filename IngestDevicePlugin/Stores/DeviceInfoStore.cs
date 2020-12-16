@@ -594,6 +594,7 @@ namespace IngestDevicePlugin.Stores
                                  CpSignalType = channel.rchn.chn.Cpsignaltype ?? 0,
                                  OrderCode = channel.rchn.chn != null ? channel.rchn.Ordercode.GetValueOrDefault() : -1,
                                  GroupId = g != null ? g.Groupid : -1
+                                 //DeviceState = (Device_State)channel.Devstate
                              }).ToListAsync();
             }
 
