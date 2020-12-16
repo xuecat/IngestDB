@@ -87,7 +87,7 @@ namespace IngestTaskPlugin.Dto.OldResponse
     }
 
     /// <summary>
-    /// 任务状态 就绪 = 0 正在执行任务 = 1 暂停标记 = 3 删除标记 = 4  冲突任务 = 5 无效任务 = 6 正在采集的手动任务 = 7 禁用的任务 = 8
+    /// 任务状态 就绪 = 0 正在执行任务 = 1 任务执行完成 = 2  暂停标记 = 3 删除标记 = 4  冲突任务 = 5 无效任务 = 6 正在采集的手动任务 = 7 禁用的任务 = 8
     /// </summary>
     public enum taskState
     {
