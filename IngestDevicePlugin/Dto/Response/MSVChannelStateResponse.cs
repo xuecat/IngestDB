@@ -31,7 +31,7 @@ namespace IngestDevicePlugin.Dto.Response
         /// <summary>上载模式</summary>
         public Upload_Mode UploadMode { get; set; } = Upload_Mode.NOUPLOAD;
 
-        /// <summary>通道索引</summary>
+        /// <summary>通道索引[这个没用了，我想废弃了]</summary>
         public int ChannelIndex { get; set; }
     }
 }
