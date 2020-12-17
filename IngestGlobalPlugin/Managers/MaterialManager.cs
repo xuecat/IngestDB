@@ -50,7 +50,12 @@ namespace IngestGlobalPlugin.Managers
             }
             return false;
         }
-        
+
+        public async Task<bool> DeleteMqMsgByTaskId(string taskid)
+        {
+            return await Store.DeleteMQMsgByTaskId(taskid);
+        }
+
         public async Task<T> FindFormateInfo<T>(string key)
         {
             var f= await Store.GetFormateInfoAsync(a => a.Where(b => b.Key == key), true);

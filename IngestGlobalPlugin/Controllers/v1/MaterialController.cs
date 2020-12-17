@@ -48,6 +48,25 @@ namespace IngestGlobalPlugin.Controllers.v1
             return false;
         }
 
+        [HttpDelete("DeleteMqMsgByTaskId/{taskid}"), MapToApiVersion("1.0")]
+        [ApiExplorerSettings(GroupName = "v1")]
+        public async Task<bool> DeleteMqMsgByTaskId([FromRoute] string taskid)
+        {
+            try
+            {
+                Logger.Error($"DeleteMqMsgByTaskId task: {taskid}");
+                return await _materialManage.DeleteMqMsgByTaskId(taskid);
+            }
+            catch (Exception ex)
+            {
+                //pOut.errStr = ex.Message;
+                Logger.Error("DeleteMqMsgByTaskId 异常发生: " + ex.ToString());
+                //pOut.bRet = false;
+            }
+
+            return false;
+        }
+
         /// <summary>
         /// 更新任务所有分段的入库状态
         /// </summary>

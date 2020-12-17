@@ -72,6 +72,26 @@ namespace IngestGlobalPlugin.Stores
             return true;
         }
 
+        public async Task<bool> DeleteMQMsgByTaskId(string taskid)
+        {
+            string queryStrId = $"<TaskID>{taskid}</TaskID>";
+            var result = await Context.DbpMsmqmsg.Where(x => x.Msgcontent.Contains(queryStrId)).ToListAsync();
+            if (result != null && result.Count > 0)
+            {
+                Context.DbpMsmqmsg.RemoveRange(result);
+
+                try
+                {
+                    await Context.SaveChangesAsync();
+                }
+                catch (Exception)
+                {
+                    throw;
+                }
+            }
+            return true;
+        }
+
         public async Task<TResult> GetMqMsgAsync<TResult>(Func<IQueryable<DbpMsmqmsg>, IQueryable<TResult>> query, bool notrack = false)
         {
             if (query == null)
@@ -182,15 +202,15 @@ namespace IngestGlobalPlugin.Stores
         public Task<List<FailedMessageParam>> GetMsgContentByTaskid(int taskid)
         {
             return (from mq in Context.DbpMsgFailedrecord.AsNoTracking()
-                               join fail in Context.DbpMsmqmsg.AsNoTracking() on mq.MsgGuid equals fail.Msgid  into ps
-                               from p in ps.DefaultIfEmpty()
-                               where mq.TaskId == taskid
-                               select new FailedMessageParam
-                               {
-                                   TaskID = mq.TaskId,
-                                   SectionID = mq.SectionId,
-                                   MsgContent = p!=null? p.Msgcontent:string.Empty
-                               }).ToListAsync();
+                    join fail in Context.DbpMsmqmsg.AsNoTracking() on mq.MsgGuid equals fail.Msgid into ps
+                    from p in ps.DefaultIfEmpty()
+                    where mq.TaskId == taskid
+                    select new FailedMessageParam
+                    {
+                        TaskID = mq.TaskId,
+                        SectionID = mq.SectionId,
+                        MsgContent = p != null ? p.Msgcontent : string.Empty
+                    }).ToListAsync();
         }
 
         public Task<int> CountFailedRecordTask(int taskid)
@@ -200,7 +220,7 @@ namespace IngestGlobalPlugin.Stores
 
         public Task<int> CountFailedRecordTaskAndSection(int taskid, int section)
         {
-            return Context.DbpMsgFailedrecord.AsNoTracking().CountAsync(a => a.TaskId == taskid&&a.SectionId != section);
+            return Context.DbpMsgFailedrecord.AsNoTracking().CountAsync(a => a.TaskId == taskid && a.SectionId != section);
         }
 
         public async Task AddMaterial(DbpMaterial pin, bool savechange)
@@ -219,7 +239,7 @@ namespace IngestGlobalPlugin.Stores
                     throw e;
                 }
             }
-            
+
         }
 
         public async Task SaveChangeAsync()
@@ -280,10 +300,10 @@ namespace IngestGlobalPlugin.Stores
             }
         }
 
-        
+
         public async Task RemoveMsgFailedRecord(int taskid, int sectionid)
         {
-            var f = await Context.DbpMsgFailedrecord.AsNoTracking().Where(a => a.TaskId == taskid && a.SectionId == sectionid).SingleOrDefaultAsync() ;
+            var f = await Context.DbpMsgFailedrecord.AsNoTracking().Where(a => a.TaskId == taskid && a.SectionId == sectionid).SingleOrDefaultAsync();
 
             if (f != null)
             {
@@ -304,7 +324,7 @@ namespace IngestGlobalPlugin.Stores
         public async Task UpdateFormateInfo(DbpFileformatinfo file)
         {
             var item = await Context.DbpFileformatinfo
-                .Where(x=> x.Key==file.Key)
+                .Where(x => x.Key == file.Key)
                 .SingleOrDefaultAsync();
             if (item == null)
             {
@@ -488,7 +508,7 @@ namespace IngestGlobalPlugin.Stores
                     return await Context.SaveChangesAsync() > 0;
                 }
                 return true;
-                
+
             }
             return false;
         }
@@ -541,7 +561,7 @@ namespace IngestGlobalPlugin.Stores
                     return await Context.SaveChangesAsync() > 0;
                 }
                 return true;
-                
+
             }
             return false;
         }
@@ -588,7 +608,7 @@ namespace IngestGlobalPlugin.Stores
         {
             return await QueryModel(query, notrack);
         }
-        
+
 
 
         #endregion
