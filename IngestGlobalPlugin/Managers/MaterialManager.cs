@@ -14,6 +14,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 using System.Xml.Linq;
 using FileFormateInfoRequest = IngestGlobalPlugin.Dto.Response.FileFormateInfoResponse;
@@ -45,13 +46,30 @@ namespace IngestGlobalPlugin.Managers
                 {
                     msg.Msgprocesstime = DateTime.Now;
                 }
+                if(msg.TaskId <= 0)
+                {
+                    string pattern = "<TaskID>(?<taskId>.*?)</TaskID>";
+                    Match match = Regex.Match(msg.Msgcontent, pattern);
+                    if (match != null)
+                    {
+                        try
+                        {
+                            msg.TaskId = int.Parse(match.Groups["taskId"]?.ToString());
+                        }
+                        catch(Exception ex)
+                        {
+                            Console.WriteLine(ex.Message);
+                        }
+                    }
+                }
+
                 await Store.AddMQMsg(msg);
                 return true;
             }
             return false;
         }
 
-        public async Task<bool> DeleteMqMsgByTaskId(string taskid)
+        public async Task<bool> DeleteMqMsgByTaskId(int taskid)
         {
             return await Store.DeleteMQMsgByTaskId(taskid);
         }

@@ -15,5 +15,6 @@ namespace IngestGlobalPlugin.Models
         public int? Msgtype { get; set; }
         public DateTime? Nextretry { get; set; }
         public string Lockdata { get; set; }
+        public int TaskId { get; set; }
     }
 }

@@ -14,7 +14,7 @@ namespace IngestGlobalPlugin.Stores
         int GetNextValId(string value);
         Task<int> DbContextSaveChange();
         Task<bool> AddMQMsg(DbpMsmqmsg info);
-        Task<bool> DeleteMQMsgByTaskId(string taskid);
+        Task<bool> DeleteMQMsgByTaskId(int taskid);
         Task<TResult> GetMqMsgAsync<TResult>(Func<IQueryable<DbpMsmqmsg>, IQueryable<TResult>> query, bool notrack = false);
 
         Task<List<TResult>> GetMaterialArchiveListAsync<TResult>(Func<IQueryable<DbpMaterialArchive>, IQueryable<TResult>> query, bool notrack = false);

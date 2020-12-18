@@ -106,6 +106,7 @@ namespace IngestGlobalPlugin
                 .ForMember(a => a.MsgProcessTime, (map) => map.MapFrom(b => b.Msgprocesstime))
                 .ForMember(a => a.type, (map) => map.MapFrom(b => b.Msgtype))
                 .ForMember(a => a.sNextRetry, (map) => map.MapFrom(b => b.Nextretry))
+                .ForMember(a=>a.TaskId,(map)=>map.MapFrom(b=>b.TaskId))
                 .ForMember(a => a.strLock, (map) => map.MapFrom(b => b.Lockdata)).ReverseMap();
 
             CreateMap<VideoInfoResponse, VideoInfo>()

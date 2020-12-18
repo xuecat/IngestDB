@@ -72,10 +72,10 @@ namespace IngestGlobalPlugin.Stores
             return true;
         }
 
-        public async Task<bool> DeleteMQMsgByTaskId(string taskid)
+        public async Task<bool> DeleteMQMsgByTaskId(int taskid)
         {
-            string queryStrId = $"<TaskID>{taskid}</TaskID>";
-            var result = await Context.DbpMsmqmsg.Where(x => x.Msgcontent.Contains(queryStrId)).ToListAsync();
+            //string queryStrId = $"<TaskID>{taskid}</TaskID>";
+            var result = await Context.DbpMsmqmsg.Where(x => x.TaskId == taskid).ToListAsync();
             if (result != null && result.Count > 0)
             {
                 Context.DbpMsmqmsg.RemoveRange(result);

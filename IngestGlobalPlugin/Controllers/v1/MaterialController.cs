@@ -50,7 +50,7 @@ namespace IngestGlobalPlugin.Controllers.v1
 
         [HttpDelete("DeleteMqMsgByTaskId/{taskid}"), MapToApiVersion("1.0")]
         [ApiExplorerSettings(GroupName = "v1")]
-        public async Task<bool> DeleteMqMsgByTaskId([FromRoute] string taskid)
+        public async Task<bool> DeleteMqMsgByTaskId([FromRoute] int taskid)
         {
             try
             {

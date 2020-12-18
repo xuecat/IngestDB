@@ -457,6 +457,8 @@ namespace IngestGlobalPlugin.Models
 
                 entity.ToTable("dbp_msmqmsg");
 
+                entity.HasIndex(x => x.TaskId);
+
                 entity.Property(e => e.Msgid)
                     .HasColumnName("MSGID")
                     .HasColumnType("varchar(64)");
@@ -502,6 +504,10 @@ namespace IngestGlobalPlugin.Models
                 entity.Property(e => e.Nextretry)
                     .HasColumnName("NEXTRETRY")
                     .HasColumnType("date");
+
+                entity.Property(e => e.TaskId)
+                    .HasColumnName("TASKID")
+                    .HasColumnType("int(11)");
             });
 
             modelBuilder.Entity<DbpMsmqmsgFailed>(entity =>

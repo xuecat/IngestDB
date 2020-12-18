@@ -240,6 +240,7 @@ namespace IngestGlobalPlugin.Dto.OldResponse
         public string sNextRetry { set; get; }//下次重试时间
         public string strLock;//加锁
         public int nActionID = -1;//对于没有处理过的消息，这个ID是0，失败重试的消息，这个ID是策略ID
+        public int TaskId = 0;
     }
     /// <summary>
     /// 素材状态 开始采集了,可以边采边编了	= 0 采集完成 = 1
