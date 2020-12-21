@@ -3224,10 +3224,15 @@ namespace IngestTaskPlugin.Managers
             var date= DateTime.Now.AddDays(-1);
             var dt = DateTime.Now.AddHours(1);
             TaskCondition condition = new TaskCondition();
+
+            /*
+             * 现在查询调度的任务变得严格了，所以周期任务调度查不出来
+             * 现在修改，当周期任务快要开始了就赶紧查下时间并更新状态
+             */
             var lst = await Store.GetTaskListAsync(c => c.Where(f => f.SyncState == (int)syncState.ssSync
             && f.DispatchState == (int)dispatchState.dpsNotDispatch
             && (f.State != (int)taskState.tsDelete && f.State != (int)taskState.tsConflict && f.State != (int)taskState.tsInvaild)
-            && (f.Starttime > date && f.Starttime < dt)));
+            && ((f.Starttime > date && f.Starttime < dt) || (f.Tasktype == (int)TaskType.TT_PERIODIC && f.NewBegintime > date && f.NewBegintime < dt)) ));
 
 
             if (lst != null && lst.Count > 0)
