@@ -2694,7 +2694,7 @@ namespace IngestTaskPlugin.Controllers.v2
             var Response = new ResponseMessage<TaskErrorInfoResponse>();
             try
             {
-                Response.Ext = await _taskManage.GetLastTaskErrorInfoAsync(taskid);
+                Response.Ext = await _taskManage.GetLastTaskErrorInfoAsync<TaskErrorInfoResponse>(taskid);
                 if (Response.Ext == null)
                 {
                     Response.Code = ResponseCodeDefines.NotFound;
@@ -2729,7 +2729,7 @@ namespace IngestTaskPlugin.Controllers.v2
             var Response = new ResponseMessage<TaskErrorInfoResponse>();
             try
             {
-                Response.Ext = await _taskManage.GetLastTaskErrorInfoAsync(taskid);
+                Response.Ext = await _taskManage.GetTaskErrorInfoByTypeAsync(taskid, type);
                 if (Response.Ext == null)
                 {
                     Response.Code = ResponseCodeDefines.NotFound;

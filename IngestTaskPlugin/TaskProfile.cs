@@ -204,6 +204,15 @@ namespace IngestTaskPlugin
                 .ForMember(x => x.WarningMessage, (y) => y.MapFrom(z => z.strWarningMessage)).ReverseMap();
 
             CreateMap<TaskErrorInfoResponse, DbpTaskErrorinfo>().ReverseMap();
+            CreateMap<DbpTaskErrorinfo, TaskErrorInfo > ()
+                .ForMember(x => x.nErrorCode, (y) => y.MapFrom(z => z.Errorcode))
+                .ForMember(x => x.nErrorLevel, (y) => y.MapFrom(z => z.Errlevel))
+                .ForMember(x => x.nErrorType, (y) => y.MapFrom(z => z.Errtype))
+                .ForMember(x => x.nTaskID, (y) => y.MapFrom(z => z.Taskid))
+                .ForMember(x => x.strErrDesc, (y) => y.MapFrom(z => z.Errdesc))
+                .ForMember(x => x.strErrInfoID, (y) => y.MapFrom(z => z.Infoid))
+                .ForMember(x => x.strErrModule, (y) => y.MapFrom(z => z.Errmodule))
+                .ForMember(x => x.strErrorTime, (y) => y.MapFrom(z => z.Errtime)).ReverseMap();
             //ReverseMap
         }
     }

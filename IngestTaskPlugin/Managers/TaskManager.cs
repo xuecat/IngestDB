@@ -4435,14 +4435,14 @@ namespace IngestTaskPlugin.Managers
                 && x.NewBegintime < now && x.NewEndtime > now), true));
         }
 
-        public async Task<TaskErrorInfoResponse> GetLastTaskErrorInfoAsync(int taskid)
+        public async Task<T> GetLastTaskErrorInfoAsync<T>(int taskid)
         {
             var lst = await Store.GetTaskErrorInfoListAsync(a => a.Where(b => b.Taskid == taskid), true);
             if (lst != null && lst.Count > 0)
             {
-                return _mapper.Map<TaskErrorInfoResponse>(lst.First());
+                return _mapper.Map<T>(lst.First());
             }
-            return null;
+            return default(T);
         }
 
         public async Task<TaskErrorInfoResponse> GetTaskErrorInfoByTypeAsync(int taskid, int type)

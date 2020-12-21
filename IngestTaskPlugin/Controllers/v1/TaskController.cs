@@ -2104,6 +2104,41 @@ namespace IngestTaskPlugin.Controllers.v1
             return Response;
 
         }
+
+        [HttpGet("GetLastTaskErrorInfo"), MapToApiVersion("1.0")]
+        [ApiExplorerSettings(GroupName = "v1")]
+        public async Task<TaskOldResponseMessage<TaskErrorInfo>> GetLastTaskErrorInfo([FromQuery]int taskid)
+        {
+            
+            var Response = new TaskOldResponseMessage<TaskErrorInfo>();
+
+            try
+            {
+                var task = await _taskManage.GetLastTaskErrorInfoAsync<TaskErrorInfo>(taskid);
+                if (task != null)
+                {
+                    Response.extention = task;
+                    Response.nCode = 1;
+                }
+                else
+                {
+                    Response.nCode = 0;
+                }
+                
+                return Response;
+            }
+            catch (Exception e)//其他未知的异常，写异常日志
+            {
+
+                //Response.nCode = 500;
+                //Response.errStr = "error info:" + e.ToString();
+                Response.nCode = 0;
+                Logger.Error("GetLastTaskErrorInfo" + e.ToString());
+                return Response;
+            }
+            return Response;
+
+        }
         ////////////////////////////
     }
 }
