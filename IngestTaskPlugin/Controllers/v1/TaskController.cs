@@ -871,6 +871,11 @@ namespace IngestTaskPlugin.Controllers.v1
             try
             {
                 Response.taskConten = await _taskManage.GetTaskInfoByID<TaskContent>(nTaskID, 0);
+                if (Response.taskConten == null)
+                {
+                    Logger.Error("GetTaskByID null info");
+                    Response.bRet = false;
+                }
                 return Response;
             }
             catch (Exception e)
