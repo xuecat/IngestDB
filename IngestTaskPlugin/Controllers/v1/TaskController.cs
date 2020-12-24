@@ -900,6 +900,11 @@ namespace IngestTaskPlugin.Controllers.v1
             try
             {
                 Response.taskConten = await _taskManage.GetTaskInfoByID<TaskContent>(nTaskID, 1);
+                if (Response.taskConten == null)
+                {
+                    Logger.Error("GetTaskByID null info");
+                    Response.bRet = false;
+                }
                 return Response;
             }
             catch (Exception e)
@@ -1076,9 +1081,13 @@ namespace IngestTaskPlugin.Controllers.v1
             {
                 Response.taskCon = await _taskManage.QueryTaskContent<TaskContent>(nUnitID, DateTimeFormat.DateTimeFromString(strDay), (TimeLineType)timeMode);
 
-                if (Response.taskCon != null)
+                if (Response.taskCon != null && Response.taskCon.Count > 0)
                 {
                     Response.nVaildDataCount = Response.taskCon.Count;
+                }
+                else
+                {
+                    Response.bRet = false;
                 }
 
                 return Response;
@@ -1172,6 +1181,10 @@ namespace IngestTaskPlugin.Controllers.v1
                     return Response;
                 }
                  Response.metaDataPair = await _taskManage.GetTaskMetadataListAsync<MetadataPair>(nTaskID);
+                if (Response.metaDataPair == null || Response.metaDataPair.Count <= 0)
+                {
+                    Response.bRet = false;
+                }
             }
             catch (Exception e)//其他未知的异常，写异常日志
             {
