@@ -3447,8 +3447,9 @@ namespace IngestTaskPlugin.Managers
                     var response1 = await _deviceInterface.Value.GetDeviceCallBack(new DeviceInternals()
                     {
                         funtype = DeviceInternals.FunctionType.SingnalIDByChannel,
-                        ChannelId = findtask.Channelid.GetValueOrDefault()
-                    });
+                        ChannelId = findtask.Channelid.GetValueOrDefault(),
+                        SignalStrict = true
+                    }) ;
                     if (response1.Code != ResponseCodeDefines.SuccessCode)
                     {
                         Logger.Error("AutoAddTaskByOldTask SingnalIDByChannel error");
@@ -3487,8 +3488,11 @@ namespace IngestTaskPlugin.Managers
                 {
                     if (item.Metadatatype == (int)MetaDataType.emCapatureMetaData)
                     {
-                        strCapatureMetaData = await GetCaptureTemplateBySignalIdAndUserCode(newtaskinfo.Signalid.GetValueOrDefault(), false, findtask.Usercode, global);
-
+                        if(newtaskinfo.Signalid > 0)
+                        {
+                            strCapatureMetaData = await GetCaptureTemplateBySignalIdAndUserCode(newtaskinfo.Signalid.GetValueOrDefault(), false, findtask.Usercode, global);
+                        }
+                        
                         if (string.IsNullOrEmpty(strCapatureMetaData))
                         {
                             strCapatureMetaData = item.Metadatalong;
@@ -3557,7 +3561,10 @@ namespace IngestTaskPlugin.Managers
                     var root = XElement.Parse(strContentMetaData);
                     root.Descendants("RealStampIndex")?.Remove();
                     root.Descendants("PERIODPARAM")?.Remove();
-                    root.Descendants("SIGNALRTMPURL")?.Remove();
+                    if(src != TaskSource.emRtmpSwitchTask)
+                    {
+                        root.Descendants("SIGNALRTMPURL")?.Remove();
+                    }
                     strContentMetaData = root.ToString();
                 }
 
@@ -3948,7 +3955,8 @@ namespace IngestTaskPlugin.Managers
                 {
                     if (_deviceInterface != null)
                     {
-                        DeviceInternals re = new DeviceInternals() { funtype = IngestDBCore.DeviceInternals.FunctionType.SingnalIDByChannel, ChannelId = taskinfo.TaskContent.ChannelId };
+                        DeviceInternals re = new DeviceInternals() { funtype = IngestDBCore.DeviceInternals.FunctionType.SingnalIDByChannel, ChannelId = taskinfo.TaskContent.ChannelId,
+                         SignalStrict = false};
                         var response1 = await _deviceInterface.Value.GetDeviceCallBack(re);
                         if (response1.Code != ResponseCodeDefines.SuccessCode)
                         {
@@ -4183,7 +4191,8 @@ namespace IngestTaskPlugin.Managers
                     {
                         var response1 = await _deviceInterface.Value.GetDeviceCallBack(new DeviceInternals() {
                             funtype = IngestDBCore.DeviceInternals.FunctionType.SingnalIDByChannel,
-                            ChannelId = taskinfo.TaskContent.ChannelId
+                            ChannelId = taskinfo.TaskContent.ChannelId,
+                             SignalStrict = false
                         });
 
                         if (response1.Code != ResponseCodeDefines.SuccessCode)

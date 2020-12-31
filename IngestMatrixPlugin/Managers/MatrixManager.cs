@@ -131,6 +131,9 @@ namespace IngestMatrixPlugin.Managers
 
                     Task.Run(() => { _clock.InvokeNotify(msvip, NotifyPlugin.Msv, NotifyAction.MSVRELOCATE, rtmpurl, msvport); });
 
+                    //更新链接表，将out的state值更新为0
+                    await Store.UpdateOutPortInfo(outPort, 0, true);
+
                     return true;
                //     var loginparam = (await Store.GetAllUserLoginInfos()).ToDictionary(x => x.Ip, y => y.Port);
                //     if (loginparam != null)
