@@ -1571,28 +1571,54 @@ namespace IngestTaskPlugin.Stores
             DateTime subDays = DateTime.Now.AddDays(-1);
             DateTime addDyas = DateTime.Now.AddSeconds(5);
 
+            bool queryexturingtask = true;
+            
             List<DbpTask> lst = null;
             List<DbpTask> retlst = new List<DbpTask>();
             switch (timetype)
             {
                 case TimeLineType.em24HourDay:
                     {
+                        if (addDyas < dtDayBegin)//今天查明天日期任务
+                        {
+                            queryexturingtask = false;
+                        }
+
+                        IQueryable<DbpTask> onelst = null;
+                        if (queryexturingtask)
+                        {
+                            onelst = Context.DbpTask.AsNoTracking().Where(a =>
+                            (((a.Starttime >= dtDayBegin && a.Starttime <= dtDayEnd)
+                            || (a.Endtime >= dtDayBegin && a.Endtime <= dtDayEnd)
+                            || (a.Starttime <= dtDayBegin && a.Endtime >= dtDayEnd))
+                            && (a.Category.Contains($"W{Week}+") || a.Category.Contains($"W{ProvWeek}+")
+                                || a.Category.Contains($"M{MDay}+") || a.Category.Contains($"M{ProvMDay}+")
+                                || a.Category.Contains($"D") || a.Category.Contains("A"))
+                            && (a.DispatchState == (int)dispatchState.dpsNotDispatch || a.DispatchState == (int)dispatchState.dpsDispatched || a.DispatchState == (int)dispatchState.dpsInvalid || a.DispatchState == (int)dispatchState.dpsRedispatch)
+                            && (a.State == (int)taskState.tsReady || a.State == (int)taskState.tsComplete || a.State == (int)taskState.tsPause || a.State == (int)taskState.tsInvaild || a.State == (int)taskState.tsExecuting))
+                            || (a.Tasktype == (int)TaskType.TT_MANUTASK && a.State == (int)taskState.tsExecuting && a.Starttime <= addDyas && a.Starttime <= dtDayEnd)
+                            /*
+                             * @breif 老版本会对手动任务，open任务，tsExecuting附加上，不明白为啥，直接全部返回，我这里
+                             */
+                            );
+                        }
+                        else
+                        {
+                            onelst = Context.DbpTask.AsNoTracking().Where(a =>
+                            (((a.Starttime >= dtDayBegin && a.Starttime <= dtDayEnd)
+                            || (a.Endtime >= dtDayBegin && a.Endtime <= dtDayEnd)
+                            || (a.Starttime <= dtDayBegin && a.Endtime >= dtDayEnd))
+                            && (a.Category.Contains($"W{Week}+") || a.Category.Contains($"W{ProvWeek}+")
+                                || a.Category.Contains($"M{MDay}+") || a.Category.Contains($"M{ProvMDay}+")
+                                || a.Category.Contains($"D") || a.Category.Contains("A"))
+                            && (a.DispatchState == (int)dispatchState.dpsNotDispatch || a.DispatchState == (int)dispatchState.dpsDispatched || a.DispatchState == (int)dispatchState.dpsInvalid || a.DispatchState == (int)dispatchState.dpsRedispatch)
+                            && (a.State == (int)taskState.tsReady || a.State == (int)taskState.tsComplete || a.State == (int)taskState.tsPause || a.State == (int)taskState.tsInvaild || a.State == (int)taskState.tsExecuting))
+                            /*
+                             * @breif 老版本会对手动任务，open任务，tsExecuting附加上，不明白为啥，直接全部返回，我这里
+                             */
+                            );
+                        }
                         
-                        List<DbpTaskBackup> backlst = null;
-                        var onelst = Context.DbpTask.AsNoTracking().Where(a =>
-                        (((a.Starttime >= dtDayBegin && a.Starttime <= dtDayEnd)
-                        || (a.Endtime >= dtDayBegin && a.Endtime <= dtDayEnd)
-                        || (a.Starttime <= dtDayBegin && a.Endtime >= dtDayEnd))
-                        && (a.Category.Contains($"W{Week}+") || a.Category.Contains($"W{ProvWeek}+")
-                            || a.Category.Contains($"M{MDay}+") || a.Category.Contains($"M{ProvMDay}+")
-                            || a.Category.Contains($"D") || a.Category.Contains("A"))
-                        && (a.DispatchState == (int)dispatchState.dpsNotDispatch || a.DispatchState == (int)dispatchState.dpsDispatched || a.DispatchState == (int)dispatchState.dpsInvalid || a.DispatchState == (int)dispatchState.dpsRedispatch)
-                        && (a.State == (int)taskState.tsReady || a.State == (int)taskState.tsComplete || a.State == (int)taskState.tsPause || a.State == (int)taskState.tsInvaild || a.State == (int)taskState.tsExecuting))
-                        || (/*(ApplicationContext.Current.Limit24Hours? a.Starttime >= subDays : true) &&*/ a.Starttime <= addDyas && a.State == (int)taskState.tsExecuting)
-                        /*
-                         * @breif 老版本会对手动任务，open任务，tsExecuting附加上，不明白为啥，直接全部返回，我这里
-                         */
-                        );
 
                         if (ApplicationContext.Current.Limit24Hours)
                         {
@@ -1602,47 +1628,94 @@ namespace IngestTaskPlugin.Stores
                         lst = await onelst.ToListAsync();
                         if (lst == null || lst.Count <= 0)
                         {
-                            var twolst = Context.DbpTaskBackup.AsNoTracking().Where(a =>
-                               (((a.Starttime >= dtDayBegin && a.Starttime <= dtDayEnd)
-                               || (a.Endtime >= dtDayBegin && a.Endtime <= dtDayEnd)
-                               || (a.Starttime <= dtDayBegin && a.Endtime >= dtDayEnd))
-                               && (a.Category.Contains($"W{Week}+") || a.Category.Contains($"W{ProvWeek}+")
-                                   || a.Category.Contains($"M{MDay}+") || a.Category.Contains($"M{ProvMDay}+")
-                                   || a.Category.Contains($"D") || a.Category.Contains("A"))
-                               && (a.DispatchState == (int)dispatchState.dpsNotDispatch || a.DispatchState == (int)dispatchState.dpsDispatched || a.DispatchState == (int)dispatchState.dpsInvalid || a.DispatchState == (int)dispatchState.dpsRedispatch)
-                               && (a.State == (int)taskState.tsReady || a.State == (int)taskState.tsComplete || a.State == (int)taskState.tsPause || a.State == (int)taskState.tsInvaild || a.State == (int)taskState.tsExecuting)) 
-                               || (/*(ApplicationContext.Current.Limit24Hours ? a.Starttime >= subDays : true) &&*/ a.Starttime <= addDyas && a.State == (int)taskState.tsExecuting)
-                           /*
-                            * @breif 老版本会对手动任务，open任务，tsExecuting附加上，不明白为啥，直接全部返回，我这里
-                            */
-                           ).Select(x => new DbpTask
-                           {
-                               Taskid = x.Taskid,
-                               Taskname = x.Taskname,
-                               Recunitid = x.Recunitid,
-                               Usercode = x.Usercode,
-                               Signalid = x.Signalid,
-                               Channelid = x.Channelid,
-                               OldChannelid = x.OldChannelid,
-                               State = x.State,
-                               Starttime = x.Starttime,
-                               Endtime = x.Endtime,
-                               NewBegintime = x.NewBegintime,
-                               NewEndtime = x.NewEndtime,
-                               Category = x.Category,
-                               Description = x.Description,
-                               Tasktype = x.Tasktype,
-                               Backtype = x.Backtype,
-                               DispatchState = x.DispatchState,
-                               SyncState = x.SyncState,
-                               OpType = x.OpType,
-                               Tasklock = x.Tasklock,
-                               Taskguid = x.Taskguid,
-                               Backupvtrid = x.Backupvtrid,
-                               Taskpriority = x.Taskpriority,
-                               Stamptitleindex = x.Stamptitleindex,
-                               Stampimagetype = x.Stampimagetype
-                           });
+                            IQueryable<DbpTask> twolst = null;
+                            if (queryexturingtask)
+                            {
+                                twolst = Context.DbpTaskBackup.AsNoTracking().Where(a =>
+                                   (((a.Starttime >= dtDayBegin && a.Starttime <= dtDayEnd)
+                                   || (a.Endtime >= dtDayBegin && a.Endtime <= dtDayEnd)
+                                   || (a.Starttime <= dtDayBegin && a.Endtime >= dtDayEnd))
+                                   && (a.Category.Contains($"W{Week}+") || a.Category.Contains($"W{ProvWeek}+")
+                                       || a.Category.Contains($"M{MDay}+") || a.Category.Contains($"M{ProvMDay}+")
+                                       || a.Category.Contains($"D") || a.Category.Contains("A"))
+                                   && (a.DispatchState == (int)dispatchState.dpsNotDispatch || a.DispatchState == (int)dispatchState.dpsDispatched || a.DispatchState == (int)dispatchState.dpsInvalid || a.DispatchState == (int)dispatchState.dpsRedispatch)
+                                   && (a.State == (int)taskState.tsReady || a.State == (int)taskState.tsComplete || a.State == (int)taskState.tsPause || a.State == (int)taskState.tsInvaild || a.State == (int)taskState.tsExecuting))
+                                   || (a.Tasktype == (int)TaskType.TT_MANUTASK && a.State == (int)taskState.tsExecuting && a.Starttime <= addDyas && a.Starttime <= dtDayEnd)
+                               /*
+                                * @breif 老版本会对手动任务，open任务，tsExecuting附加上，不明白为啥，直接全部返回，我这里
+                                */
+                               ).Select(x => new DbpTask
+                               {
+                                   Taskid = x.Taskid,
+                                   Taskname = x.Taskname,
+                                   Recunitid = x.Recunitid,
+                                   Usercode = x.Usercode,
+                                   Signalid = x.Signalid,
+                                   Channelid = x.Channelid,
+                                   OldChannelid = x.OldChannelid,
+                                   State = x.State,
+                                   Starttime = x.Starttime,
+                                   Endtime = x.Endtime,
+                                   NewBegintime = x.NewBegintime,
+                                   NewEndtime = x.NewEndtime,
+                                   Category = x.Category,
+                                   Description = x.Description,
+                                   Tasktype = x.Tasktype,
+                                   Backtype = x.Backtype,
+                                   DispatchState = x.DispatchState,
+                                   SyncState = x.SyncState,
+                                   OpType = x.OpType,
+                                   Tasklock = x.Tasklock,
+                                   Taskguid = x.Taskguid,
+                                   Backupvtrid = x.Backupvtrid,
+                                   Taskpriority = x.Taskpriority,
+                                   Stamptitleindex = x.Stamptitleindex,
+                                   Stampimagetype = x.Stampimagetype
+                               });
+                            }
+                            else
+                            {
+                                twolst = Context.DbpTaskBackup.AsNoTracking().Where(a =>
+                                   (((a.Starttime >= dtDayBegin && a.Starttime <= dtDayEnd)
+                                   || (a.Endtime >= dtDayBegin && a.Endtime <= dtDayEnd)
+                                   || (a.Starttime <= dtDayBegin && a.Endtime >= dtDayEnd))
+                                   && (a.Category.Contains($"W{Week}+") || a.Category.Contains($"W{ProvWeek}+")
+                                       || a.Category.Contains($"M{MDay}+") || a.Category.Contains($"M{ProvMDay}+")
+                                       || a.Category.Contains($"D") || a.Category.Contains("A"))
+                                   && (a.DispatchState == (int)dispatchState.dpsNotDispatch || a.DispatchState == (int)dispatchState.dpsDispatched || a.DispatchState == (int)dispatchState.dpsInvalid || a.DispatchState == (int)dispatchState.dpsRedispatch)
+                                   && (a.State == (int)taskState.tsReady || a.State == (int)taskState.tsComplete || a.State == (int)taskState.tsPause || a.State == (int)taskState.tsInvaild || a.State == (int)taskState.tsExecuting))
+                               /*
+                                * @breif 老版本会对手动任务，open任务，tsExecuting附加上，不明白为啥，直接全部返回，我这里
+                                */
+                               ).Select(x => new DbpTask
+                               {
+                                   Taskid = x.Taskid,
+                                   Taskname = x.Taskname,
+                                   Recunitid = x.Recunitid,
+                                   Usercode = x.Usercode,
+                                   Signalid = x.Signalid,
+                                   Channelid = x.Channelid,
+                                   OldChannelid = x.OldChannelid,
+                                   State = x.State,
+                                   Starttime = x.Starttime,
+                                   Endtime = x.Endtime,
+                                   NewBegintime = x.NewBegintime,
+                                   NewEndtime = x.NewEndtime,
+                                   Category = x.Category,
+                                   Description = x.Description,
+                                   Tasktype = x.Tasktype,
+                                   Backtype = x.Backtype,
+                                   DispatchState = x.DispatchState,
+                                   SyncState = x.SyncState,
+                                   OpType = x.OpType,
+                                   Tasklock = x.Tasklock,
+                                   Taskguid = x.Taskguid,
+                                   Backupvtrid = x.Backupvtrid,
+                                   Taskpriority = x.Taskpriority,
+                                   Stamptitleindex = x.Stamptitleindex,
+                                   Stampimagetype = x.Stampimagetype
+                               });
+                            }
 
                             if (ApplicationContext.Current.Limit24Hours)
                             {
@@ -1659,22 +1732,49 @@ namespace IngestTaskPlugin.Stores
                         dtDayBegin = new DateTime(dtDay.Year, dtDay.Month, dtDay.Day, 0, 0, 0);
                         dtDayEnd = new DateTime(dtDay.AddDays(1).Year, dtDay.AddDays(1).Month, dtDay.AddDays(1).Day, 7, 59, 59);
 
-                        List<DbpTaskBackup> backlst = null;
-                        var onelst = Context.DbpTask.AsNoTracking().Where(a =>
-                        (((a.Starttime >= dtDayBegin && a.Starttime <= dtDayEnd)
-                        || (a.Endtime >= dtDayBegin && a.Endtime <= dtDayEnd)
-                        || (a.Starttime <= dtDayBegin && a.Endtime >= dtDayEnd))
-                        && (a.Category.Contains($"W{Week}+") || a.Category.Contains($"W{ProvWeek}+") || a.Category.Contains($"W{NextWeekly}+")
-                            || a.Category.Contains($"M{MDay}+") || a.Category.Contains($"M{ProvMDay}+") || a.Category.Contains($"M{NextMonthDay}+")
-                            || a.Category.Contains($"D") || a.Category.Contains("A"))
-                        && (a.DispatchState == (int)dispatchState.dpsNotDispatch || a.DispatchState == (int)dispatchState.dpsDispatched || a.DispatchState == (int)dispatchState.dpsInvalid || a.DispatchState == (int)dispatchState.dpsRedispatch)
-                        && (a.State == (int)taskState.tsReady || a.State == (int)taskState.tsComplete || a.State == (int)taskState.tsPause || a.State == (int)taskState.tsInvaild || a.State == (int)taskState.tsExecuting)
-                        )
-                        || (/*(ApplicationContext.Current.Limit24Hours ? a.Starttime >= subDays : true) && */a.Starttime <= addDyas && a.State == (int)taskState.tsExecuting)
-                        /*
-                         * @breif 老版本会对手动任务，open任务，tsExecuting附加上，不明白为啥，直接全部返回，我这里
-                         */
-                        );
+                        if (addDyas < dtDayBegin)//今天查明天日期任务
+                        {
+                            queryexturingtask = false;
+                        }
+
+                        IQueryable<DbpTask> onelst = null;
+
+                        if (queryexturingtask)
+                        {
+                            onelst = Context.DbpTask.AsNoTracking().Where(a =>
+                            (((a.Starttime >= dtDayBegin && a.Starttime <= dtDayEnd)
+                            || (a.Endtime >= dtDayBegin && a.Endtime <= dtDayEnd)
+                            || (a.Starttime <= dtDayBegin && a.Endtime >= dtDayEnd))
+                            && (a.Category.Contains($"W{Week}+") || a.Category.Contains($"W{ProvWeek}+") || a.Category.Contains($"W{NextWeekly}+")
+                                || a.Category.Contains($"M{MDay}+") || a.Category.Contains($"M{ProvMDay}+") || a.Category.Contains($"M{NextMonthDay}+")
+                                || a.Category.Contains($"D") || a.Category.Contains("A"))
+                            && (a.DispatchState == (int)dispatchState.dpsNotDispatch || a.DispatchState == (int)dispatchState.dpsDispatched || a.DispatchState == (int)dispatchState.dpsInvalid || a.DispatchState == (int)dispatchState.dpsRedispatch)
+                            && (a.State == (int)taskState.tsReady || a.State == (int)taskState.tsComplete || a.State == (int)taskState.tsPause || a.State == (int)taskState.tsInvaild || a.State == (int)taskState.tsExecuting)
+                            )
+                            || (a.Tasktype == (int)TaskType.TT_MANUTASK && a.State == (int)taskState.tsExecuting && a.Starttime <= addDyas && a.Starttime <= dtDayEnd)
+                            /*
+                             * @breif 老版本会对手动任务，open任务，tsExecuting附加上，不明白为啥，直接全部返回，我这里
+                             */
+                            );
+                        }
+                        else
+                        {
+                            onelst = Context.DbpTask.AsNoTracking().Where(a =>
+                            (((a.Starttime >= dtDayBegin && a.Starttime <= dtDayEnd)
+                            || (a.Endtime >= dtDayBegin && a.Endtime <= dtDayEnd)
+                            || (a.Starttime <= dtDayBegin && a.Endtime >= dtDayEnd))
+                            && (a.Category.Contains($"W{Week}+") || a.Category.Contains($"W{ProvWeek}+") || a.Category.Contains($"W{NextWeekly}+")
+                                || a.Category.Contains($"M{MDay}+") || a.Category.Contains($"M{ProvMDay}+") || a.Category.Contains($"M{NextMonthDay}+")
+                                || a.Category.Contains($"D") || a.Category.Contains("A"))
+                            && (a.DispatchState == (int)dispatchState.dpsNotDispatch || a.DispatchState == (int)dispatchState.dpsDispatched || a.DispatchState == (int)dispatchState.dpsInvalid || a.DispatchState == (int)dispatchState.dpsRedispatch)
+                            && (a.State == (int)taskState.tsReady || a.State == (int)taskState.tsComplete || a.State == (int)taskState.tsPause || a.State == (int)taskState.tsInvaild || a.State == (int)taskState.tsExecuting)
+                            )
+                            /*
+                             * @breif 老版本会对手动任务，open任务，tsExecuting附加上，不明白为啥，直接全部返回，我这里
+                             */
+                            );
+                        }
+                        
 
                         if (ApplicationContext.Current.Limit24Hours)
                         {
@@ -1684,47 +1784,96 @@ namespace IngestTaskPlugin.Stores
 
                         if (lst == null || lst.Count <= 0)
                         {
-                            var twolst = Context.DbpTaskBackup.AsNoTracking().Where(a =>
-                               (((a.Starttime >= dtDayBegin && a.Starttime <= dtDayEnd)
-                               || (a.Endtime >= dtDayBegin && a.Endtime <= dtDayEnd)
-                               || (a.Starttime <= dtDayBegin && a.Endtime >= dtDayEnd))
-                               && (a.Category.Contains($"W{Week}+") || a.Category.Contains($"W{ProvWeek}+") || a.Category.Contains($"W{NextWeekly}+")
-                                   || a.Category.Contains($"M{MDay}+") || a.Category.Contains($"M{ProvMDay}+") || a.Category.Contains($"M{NextMonthDay}+")
-                                   || a.Category.Contains($"D") || a.Category.Contains("A"))
-                               && (a.DispatchState == (int)dispatchState.dpsNotDispatch || a.DispatchState == (int)dispatchState.dpsDispatched || a.DispatchState == (int)dispatchState.dpsInvalid || a.DispatchState == (int)dispatchState.dpsRedispatch)
-                               && (a.State == (int)taskState.tsReady || a.State == (int)taskState.tsComplete || a.State == (int)taskState.tsPause || a.State == (int)taskState.tsInvaild || a.State == (int)taskState.tsExecuting)) 
-                               || (/*(ApplicationContext.Current.Limit24Hours ? a.Starttime >= subDays : true) &&*/ a.Starttime <= addDyas && a.State == (int)taskState.tsExecuting)
-                           /*
-                            * @breif 老版本会对手动任务，open任务，tsExecuting附加上，不明白为啥，直接全部返回，我这里
-                            */
-                           ).Select(x => new DbpTask
-                           {
-                               Taskid = x.Taskid,
-                               Taskname = x.Taskname,
-                               Recunitid = x.Recunitid,
-                               Usercode = x.Usercode,
-                               Signalid = x.Signalid,
-                               Channelid = x.Channelid,
-                               OldChannelid = x.OldChannelid,
-                               State = x.State,
-                               Starttime = x.Starttime,
-                               Endtime = x.Endtime,
-                               NewBegintime = x.NewBegintime,
-                               NewEndtime = x.NewEndtime,
-                               Category = x.Category,
-                               Description = x.Description,
-                               Tasktype = x.Tasktype,
-                               Backtype = x.Backtype,
-                               DispatchState = x.DispatchState,
-                               SyncState = x.SyncState,
-                               OpType = x.OpType,
-                               Tasklock = x.Tasklock,
-                               Taskguid = x.Taskguid,
-                               Backupvtrid = x.Backupvtrid,
-                               Taskpriority = x.Taskpriority,
-                               Stamptitleindex = x.Stamptitleindex,
-                               Stampimagetype = x.Stampimagetype
-                           });
+
+                            IQueryable<DbpTask> twolst = null;
+                            if (queryexturingtask)
+                            {
+                                twolst = Context.DbpTaskBackup.AsNoTracking().Where(a =>
+                                   (((a.Starttime >= dtDayBegin && a.Starttime <= dtDayEnd)
+                                   || (a.Endtime >= dtDayBegin && a.Endtime <= dtDayEnd)
+                                   || (a.Starttime <= dtDayBegin && a.Endtime >= dtDayEnd))
+                                   && (a.Category.Contains($"W{Week}+") || a.Category.Contains($"W{ProvWeek}+") || a.Category.Contains($"W{NextWeekly}+")
+                                       || a.Category.Contains($"M{MDay}+") || a.Category.Contains($"M{ProvMDay}+") || a.Category.Contains($"M{NextMonthDay}+")
+                                       || a.Category.Contains($"D") || a.Category.Contains("A"))
+                                   && (a.DispatchState == (int)dispatchState.dpsNotDispatch || a.DispatchState == (int)dispatchState.dpsDispatched || a.DispatchState == (int)dispatchState.dpsInvalid || a.DispatchState == (int)dispatchState.dpsRedispatch)
+                                   && (a.State == (int)taskState.tsReady || a.State == (int)taskState.tsComplete || a.State == (int)taskState.tsPause || a.State == (int)taskState.tsInvaild || a.State == (int)taskState.tsExecuting))
+                                   || (a.Tasktype == (int)TaskType.TT_MANUTASK && a.State == (int)taskState.tsExecuting && a.Starttime <= addDyas && a.Starttime <= dtDayEnd)
+                               /*
+                                * @breif 老版本会对手动任务，open任务，tsExecuting附加上，不明白为啥，直接全部返回，我这里
+                                */
+                               ).Select(x => new DbpTask
+                               {
+                                   Taskid = x.Taskid,
+                                   Taskname = x.Taskname,
+                                   Recunitid = x.Recunitid,
+                                   Usercode = x.Usercode,
+                                   Signalid = x.Signalid,
+                                   Channelid = x.Channelid,
+                                   OldChannelid = x.OldChannelid,
+                                   State = x.State,
+                                   Starttime = x.Starttime,
+                                   Endtime = x.Endtime,
+                                   NewBegintime = x.NewBegintime,
+                                   NewEndtime = x.NewEndtime,
+                                   Category = x.Category,
+                                   Description = x.Description,
+                                   Tasktype = x.Tasktype,
+                                   Backtype = x.Backtype,
+                                   DispatchState = x.DispatchState,
+                                   SyncState = x.SyncState,
+                                   OpType = x.OpType,
+                                   Tasklock = x.Tasklock,
+                                   Taskguid = x.Taskguid,
+                                   Backupvtrid = x.Backupvtrid,
+                                   Taskpriority = x.Taskpriority,
+                                   Stamptitleindex = x.Stamptitleindex,
+                                   Stampimagetype = x.Stampimagetype
+                               });
+                            }
+                            else
+                            {
+                                twolst = Context.DbpTaskBackup.AsNoTracking().Where(a =>
+                                   (((a.Starttime >= dtDayBegin && a.Starttime <= dtDayEnd)
+                                   || (a.Endtime >= dtDayBegin && a.Endtime <= dtDayEnd)
+                                   || (a.Starttime <= dtDayBegin && a.Endtime >= dtDayEnd))
+                                   && (a.Category.Contains($"W{Week}+") || a.Category.Contains($"W{ProvWeek}+") || a.Category.Contains($"W{NextWeekly}+")
+                                       || a.Category.Contains($"M{MDay}+") || a.Category.Contains($"M{ProvMDay}+") || a.Category.Contains($"M{NextMonthDay}+")
+                                       || a.Category.Contains($"D") || a.Category.Contains("A"))
+                                   && (a.DispatchState == (int)dispatchState.dpsNotDispatch || a.DispatchState == (int)dispatchState.dpsDispatched || a.DispatchState == (int)dispatchState.dpsInvalid || a.DispatchState == (int)dispatchState.dpsRedispatch)
+                                   && (a.State == (int)taskState.tsReady || a.State == (int)taskState.tsComplete || a.State == (int)taskState.tsPause || a.State == (int)taskState.tsInvaild || a.State == (int)taskState.tsExecuting))
+                               /*
+                                * @breif 老版本会对手动任务，open任务，tsExecuting附加上，不明白为啥，直接全部返回，我这里
+                                */
+                               ).Select(x => new DbpTask
+                               {
+                                   Taskid = x.Taskid,
+                                   Taskname = x.Taskname,
+                                   Recunitid = x.Recunitid,
+                                   Usercode = x.Usercode,
+                                   Signalid = x.Signalid,
+                                   Channelid = x.Channelid,
+                                   OldChannelid = x.OldChannelid,
+                                   State = x.State,
+                                   Starttime = x.Starttime,
+                                   Endtime = x.Endtime,
+                                   NewBegintime = x.NewBegintime,
+                                   NewEndtime = x.NewEndtime,
+                                   Category = x.Category,
+                                   Description = x.Description,
+                                   Tasktype = x.Tasktype,
+                                   Backtype = x.Backtype,
+                                   DispatchState = x.DispatchState,
+                                   SyncState = x.SyncState,
+                                   OpType = x.OpType,
+                                   Tasklock = x.Tasklock,
+                                   Taskguid = x.Taskguid,
+                                   Backupvtrid = x.Backupvtrid,
+                                   Taskpriority = x.Taskpriority,
+                                   Stamptitleindex = x.Stamptitleindex,
+                                   Stampimagetype = x.Stampimagetype
+                               });
+                            }
+                            
 
                             if (ApplicationContext.Current.Limit24Hours)
                             {
