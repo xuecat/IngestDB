@@ -1356,7 +1356,7 @@ namespace IngestDevicePlugin.Controllers.v2
             try
             {
                 response.Ext = await _deviceManage.GetChannelSignalSrcAsync(channelid, SignalStrict);
-                if (response.Ext <= 0)
+                if (response.Ext < 0)
                 {
                     response.Code = ResponseCodeDefines.NotFound;
                     response.Msg = $"{System.Reflection.MethodBase.GetCurrentMethod().DeclaringType.FullName}:error info: not find data!";

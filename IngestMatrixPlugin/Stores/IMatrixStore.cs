@@ -91,6 +91,8 @@ namespace IngestMatrixPlugin.Stores
         /// <summary>更新端口信息 ture:1, false:0</summary>
         Task<bool> UpdatePortInfo(long lInPort, long lOutPort, int bState, bool savechange);
 
+        Task<bool> UpdateOutPortInfo(long lOutPort, int bState, bool savechange);
+
         Task<List<DbpUserLoginInfo>> GetAllUserLoginInfos();
     }
 }

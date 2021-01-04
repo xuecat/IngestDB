@@ -34,6 +34,8 @@ namespace IngestDBCore
         public int DeviceId { get; set; }
 
         public int Status { get; set; }
+
+        public bool SignalStrict { get; set; }
     }
     public class RecUnitMapInterface
     {

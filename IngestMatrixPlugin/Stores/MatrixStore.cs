@@ -335,6 +335,32 @@ namespace IngestMatrixPlugin.Stores
             return Context.DbpUserLoginInfo.AsNoTracking().ToListAsync();
         }
 
+        public async Task<bool> UpdateOutPortInfo(long lOutPort, int bState, bool savechange)
+        {
+
+            var hasDatas = await Context.DbpVirtualmatrixportstate.Where(a => a.Virtualoutport == lOutPort).ToListAsync();
+
+            foreach (var hasData in hasDatas)
+            {
+                hasData.State = bState;
+                hasData.Lastoprtime = DateTime.Now;
+            }
+
+            if (savechange)
+            {
+                try
+                {
+                    await Context.SaveChangesAsync();
+                }
+                catch (Exception e)
+                {
+
+                    throw e;
+                }
+            }
+
+            return true;
+        }
 
     }
 }
