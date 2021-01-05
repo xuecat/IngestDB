@@ -132,7 +132,24 @@ namespace IngestMatrixPlugin.Managers
                     Task.Run(() => { _clock.InvokeNotify(msvip, NotifyPlugin.Msv, NotifyAction.MSVRELOCATE, rtmpurl, msvport); });
 
                     //更新链接表，将out的state值更新为0
-                    await Store.UpdateOutPortInfo(outPort, 0, true);
+                    var infoList = await Store.QueryVirtualmatrixportstate(a => a.Where(x => x.Virtualoutport == outPort && x.State == 1), true);
+                    if (infoList.Count > 0)//一般只有1个outport只有1个inport状态为1.
+                    {
+                        foreach (var info in infoList)
+                        {
+                            var matrixroutList = await Store.QueryMatrixrout(a => a.Where(b => b.Virtualinport == info.Virtualinport && b.Virtualoutport == outPort));
+                            foreach (var item in matrixroutList)
+                            {
+                                item.State = 0;
+                            }
+                            await Store.UpdatePortInfo(info.Virtualinport, outPort, 0, true);
+                        }
+                    }
+                    else
+                    {
+                        Logger.Warn("In module MatrixService!virtualOutport is non-existence with state = 1 in DB,so no need to release in and out ports!,lOutPort");
+                    }
+                    //await Store.UpdateOutPortInfo(outPort, 0, true);
 
                     return true;
                //     var loginparam = (await Store.GetAllUserLoginInfos()).ToDictionary(x => x.Ip, y => y.Port);
