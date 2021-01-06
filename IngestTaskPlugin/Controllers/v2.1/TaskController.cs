@@ -141,7 +141,7 @@ namespace IngestTaskPlugin.Controllers.v2._1
         /// <returns>任务内容全部信息包含元数据</returns>
         [HttpPost("schedule/{taskid}")]
         [ApiExplorerSettings(GroupName = "v2.1")]
-        public async Task<ResponseMessage<TaskContentResponse>> AddRescheduleTaskByold([FromRoute, BindRequired]int taskid)
+        public async Task<ResponseMessage<TaskContentResponse>> AddRescheduleTaskByID([FromRoute, BindRequired]int taskid)
         {
             var Response = new ResponseMessage<TaskContentResponse>();
             if (taskid <= 0)
@@ -162,14 +162,68 @@ namespace IngestTaskPlugin.Controllers.v2._1
 
                 if (_globalInterface != null)
                 {
-                    GlobalInternals re = new GlobalInternals() { Funtype = IngestDBCore.GlobalInternals.FunctionType.SetGlobalState, State = GlobalStateName.ADDTASK, TaskID = addTask.Channelid.GetValueOrDefault() };
-                    var response1 = await _globalInterface.Value.SubmitGlobalCallBack(re);
-                    if (response1.Code != ResponseCodeDefines.SuccessCode)
-                    {
-                        Logger.Error("SetGlobalState modtask error");
-                    }
+                    //GlobalInternals re = new GlobalInternals() { Funtype = IngestDBCore.GlobalInternals.FunctionType.SetGlobalState, State = GlobalStateName.ADDTASK, TaskID = addTask.Channelid.GetValueOrDefault() };
+                    //var response1 = await _globalInterface.Value.SubmitGlobalCallBack(re);
+                    //if (response1.Code != ResponseCodeDefines.SuccessCode)
+                    //{
+                    //    Logger.Error("SetGlobalState modtask error");
+                    //}
 
                     Task.Run(() => { _clock.InvokeNotify(GlobalStateName.ADDTASK, NotifyPlugin.Kafka, NotifyAction.ADDTASK, addTask); });
+                }
+            }
+            catch (Exception e)
+            {
+                if (e.GetType() == typeof(SobeyRecException))//sobeyexcep会自动打印错误
+                {
+                    SobeyRecException se = e as SobeyRecException;
+                    Response.Code = se.ErrorCode.ToString();
+                    Response.Msg = se.Message;
+                }
+                else
+                {
+                    Response.Code = ResponseCodeDefines.ServiceError;
+                    Response.Msg = "AddRescheduleTaskByID 21 error info:" + e.Message;
+                    Logger.Error(Response.Msg);
+                }
+            }
+            return Response;
+        }
+
+        /// <summary>
+        /// 根据以前任务重新调度修改任务通道信息
+        /// </summary>
+        /// <remarks>
+        /// 例子:
+        ///
+        /// </remarks>
+        /// <param name="taskid">老任务id，</param>
+        /// <returns>任务内容全部信息包含元数据</returns>
+        [HttpPut("reschedule/channel/{taskid}")]
+        [ApiExplorerSettings(GroupName = "v2.1")]
+        public async Task<ResponseMessage<TaskContentResponse>> RescheduleTaskChannelByID([FromRoute, BindRequired]int taskid)
+        {
+            var Response = new ResponseMessage<TaskContentResponse>();
+            if (taskid <= 0)
+            {
+                Response.Code = ResponseCodeDefines.ModelStateInvalid;
+                Response.Msg = "request param error";
+            }
+
+            try
+            {
+                var addTask = await _taskManage.ReScheduleTaskChannel(taskid);
+
+                if (_globalInterface != null)
+                {
+                    //GlobalInternals re = new GlobalInternals() { Funtype = IngestDBCore.GlobalInternals.FunctionType.SetGlobalState, State = GlobalStateName.MODTASK, TaskID = addTask.Channelid.GetValueOrDefault() };
+                    //var response1 = await _globalInterface.Value.SubmitGlobalCallBack(re);
+                    //if (response1.Code != ResponseCodeDefines.SuccessCode)
+                    //{
+                    //    Logger.Error("SetGlobalState modtask error");
+                    //}
+
+                    Task.Run(() => { _clock.InvokeNotify(GlobalStateName.MODTASK, NotifyPlugin.Kafka, NotifyAction.MODIFYTASK, addTask); });
                 }
             }
             catch (Exception e)
