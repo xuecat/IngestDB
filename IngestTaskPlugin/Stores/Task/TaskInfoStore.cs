@@ -778,7 +778,7 @@ namespace IngestTaskPlugin.Stores
                 return null;
             }
 
-            if (taskinfo.OpType == (int)opType.otDel && (taskinfo.Recunitid& 0x8000)>0)
+            if (taskinfo.OpType == (int)opType.otDel && (taskinfo.Recunitid & 0x8000) > 0)
             {
                 SobeyRecException.ThrowSelfNoParam(taskid.ToString(), GlobalDictionary.GLOBALDICT_CODE_CAN_NOT_DELETE_DELETING_TASK,
                     Logger, null);
@@ -905,7 +905,7 @@ namespace IngestTaskPlugin.Stores
                 return null;
             }
 
-            if(taskinfo.State == (int)taskState.tsComplete)
+            if (taskinfo.State == (int)taskState.tsComplete)
             {
                 Logger.Info("StopTask task is tscomplete : " + taskid);
                 /*
@@ -986,7 +986,7 @@ namespace IngestTaskPlugin.Stores
                 ltask.NewEndtime = ltask.Endtime;
                 ltask.Recunitid = ltask.Recunitid | 0x8000;
 
-                
+
 
                 Context.Attach(ltask);
                 var entry = Context.Entry(ltask);
@@ -1051,7 +1051,7 @@ namespace IngestTaskPlugin.Stores
                         itm.NewEndtime = itm.Endtime;
                         itm.Recunitid = itm.Recunitid | 0x8000;
 
-                        
+
 
                         Context.Attach(itm);
                         var entry = Context.Entry(itm);
@@ -1326,7 +1326,7 @@ namespace IngestTaskPlugin.Stores
 
 
 
-        public async Task<List<int>> GetFreeChannels(List<int> lst, int nTaskID, DateTime begin, DateTime end, bool choosefilter = false)
+        public async Task<List<int>> GetFreeChannels(List<int> lst, int nTaskID, int backupVtrid, DateTime begin, DateTime end, bool choosefilter = false)
         {
             /*
              * @brief 老代码有个endtime > datetime.now, 我不明白为啥，应该没有道理的，我这里先屏蔽了看看
@@ -1338,7 +1338,7 @@ namespace IngestTaskPlugin.Stores
                                                                         && (x.State != (int)taskState.tsConflict && x.State != (int)taskState.tsDelete && x.State != (int)taskState.tsInvaild)
                                                                         && x.DispatchState != (int)dispatchState.dpsInvalid
                                                                         && x.OpType != (int)opType.otDel
-                                                                        && (x.Tasktype != (int)TaskType.TT_PERIODIC && x.Tasktype != (int)TaskType.TT_OPENEND && x.Tasktype != (int)TaskType.TT_OPENENDEX)) || (x.Tasktype == (int)TaskType.TT_MANUTASK && x.State == (int)taskState.tsExecuting && x.Starttime < begin && dtnow >begin))//禁止手动任务范围修改任务
+                                                                        && (x.Tasktype != (int)TaskType.TT_PERIODIC && x.Tasktype != (int)TaskType.TT_OPENEND && x.Tasktype != (int)TaskType.TT_OPENENDEX)) || (x.Tasktype == (int)TaskType.TT_MANUTASK && x.State == (int)taskState.tsExecuting && x.Starttime < begin && dtnow > begin))//禁止手动任务范围修改任务
                                                                         .ToListAsync();
 
             ConfictTaskInfo = string.Empty;
@@ -1432,6 +1432,25 @@ namespace IngestTaskPlugin.Stores
             if (nTaskID > 0)
             {
                 lsttask.RemoveAll(x => x.Taskid == nTaskID);
+            }
+
+            var lstbackvtr = lsttask.Select(x => x.Backupvtrid).ToList();
+            if (backupVtrid > 0 && lstbackvtr.Count > 0)
+            {
+                bool bfind = false;
+                foreach (var item in lstbackvtr)
+                {
+                    if (item == backupVtrid)
+                    {
+                        bfind = true;
+                        break;
+                    }
+                }
+
+                if (bfind)
+                {
+                    throw new Exception(" backup VTR has been used by other task.");
+                }
             }
 
             var lstchn = lsttask.Select(x => x.Channelid).ToList();
@@ -1572,7 +1591,7 @@ namespace IngestTaskPlugin.Stores
             DateTime addDyas = DateTime.Now.AddSeconds(5);
 
             bool queryexturingtask = true;
-            
+
             List<DbpTask> lst = null;
             List<DbpTask> retlst = new List<DbpTask>();
             switch (timetype)
@@ -1618,7 +1637,7 @@ namespace IngestTaskPlugin.Stores
                              */
                             );
                         }
-                        
+
 
                         if (ApplicationContext.Current.Limit24Hours)
                         {
@@ -1774,7 +1793,7 @@ namespace IngestTaskPlugin.Stores
                              */
                             );
                         }
-                        
+
 
                         if (ApplicationContext.Current.Limit24Hours)
                         {
@@ -1873,7 +1892,7 @@ namespace IngestTaskPlugin.Stores
                                    Stampimagetype = x.Stampimagetype
                                });
                             }
-                            
+
 
                             if (ApplicationContext.Current.Limit24Hours)
                             {
@@ -2125,7 +2144,7 @@ namespace IngestTaskPlugin.Stores
                                         item.Starttime.Hour, item.Starttime.Minute, item.Starttime.Second);
                                     DateTime dtnewitemend = new DateTime(dtStartCheck.Year, dtStartCheck.Month, dtStartCheck.Day,
                                         item.Endtime.Hour, item.Endtime.Minute, item.Endtime.Second);
-                                    if(dtnewitemend < dtnewitembegin)//处理跨天任务
+                                    if (dtnewitemend < dtnewitembegin)//处理跨天任务
                                     {
                                         dtnewitemend = dtnewitemend.AddDays(1);
                                     }
@@ -2134,7 +2153,7 @@ namespace IngestTaskPlugin.Stores
                                         begin.Hour, begin.Minute, begin.Second);
                                     DateTime dtend = new DateTime(dtStartCheck.Year, dtStartCheck.Month, dtStartCheck.Day,
                                         end.Hour, end.Minute, end.Second);
-                                    if(dtend < dtbegin)
+                                    if (dtend < dtbegin)
                                     {
                                         dtend = dtend.AddDays(1);
                                     }
@@ -2266,7 +2285,7 @@ namespace IngestTaskPlugin.Stores
                 DateTime NewBeginTime = task.NewBegintime;
                 DateTime NewEndTime = task.NewEndtime;
 
-               
+
                 bool bIsValid = true;
                 if (bPerodic2Next) //置为下一次的执行时间
                     bIsValid = SetPerodicTask2NextExectueTime(task.Starttime, task.Endtime, task.Category, ref NewBeginTime, ref NewEndTime);
@@ -2289,7 +2308,7 @@ namespace IngestTaskPlugin.Stores
                     {
                         task.Starttime = NewBeginTime;
                     }
-                    
+
                     //}
                     //else
                     //    task.Starttime = ;
@@ -2482,7 +2501,7 @@ namespace IngestTaskPlugin.Stores
                 task.Taskguid = Guid.NewGuid().ToString("N");
             }
 
-            Logger.Info(" AddTaskWithPolicys add source and policy "+ task.Taskid);
+            Logger.Info(" AddTaskWithPolicys add source and policy " + task.Taskid);
             if (bAddForInDB)
             {
                 await Context.DbpTaskSource.AddAsync(new DbpTaskSource() { Taskid = task.Taskid, Tasksource = (int)taskSrc });
@@ -2503,7 +2522,7 @@ namespace IngestTaskPlugin.Stores
                     await Context.DbpTaskSource.AddAsync(new DbpTaskSource() { Taskid = task.Taskid, Tasksource = (int)taskSrc });
                 }
 
-                if (!await Context.DbpPolicytask.AsNoTracking().AnyAsync(b=> b.Taskid == task.Taskid))
+                if (!await Context.DbpPolicytask.AsNoTracking().AnyAsync(b => b.Taskid == task.Taskid))
                 {
                     await Context.DbpPolicytask.AddAsync(new DbpPolicytask() { Policyid = 1, Taskid = task.Taskid });
                 }
@@ -3185,11 +3204,11 @@ namespace IngestTaskPlugin.Stores
             var task = await Context.DbpTask.Where(a => a.Taskid == taskid).SingleOrDefaultAsync();
             if (task != null)
             {
-                task.Recunitid =(task.Recunitid & 0x100);//后面八位都是给task显示error的
+                task.Recunitid = (task.Recunitid & 0x100);//后面八位都是给task显示error的
             }
 
             var info = Context.DbpTaskErrorinfo.Where(a => a.Taskid == taskid);
-            if (info != null && info.Count()>0)
+            if (info != null && info.Count() > 0)
             {
                 int ret = info.Count();
 
@@ -3312,7 +3331,7 @@ namespace IngestTaskPlugin.Stores
 
         public async Task<bool> AddTask(DbpTask tasks, bool savechange)
         {
-            if (tasks != null )
+            if (tasks != null)
             {
                 await Context.DbpTask.AddAsync(tasks);
             }
@@ -3362,7 +3381,7 @@ namespace IngestTaskPlugin.Stores
         }
         public async Task UpdateTaskAsync(DbpTask item, bool savechange)
         {
-            if (item != null )
+            if (item != null)
             {
                 Context.DbpTask.Update(item);
             }
@@ -3399,7 +3418,7 @@ namespace IngestTaskPlugin.Stores
                 }
             }
         }
-        
+
 
         public async Task UpdateTaskMetaDataAsync(int taskid, MetaDataType type, string metadata, bool submitFlag)
         {

@@ -1010,7 +1010,7 @@ namespace IngestTaskPlugin.Managers
                     {
                         var lstchn = await Store.GetFreeChannels(
                             rep.Ext.Where(b => b.BackState != BackupFlagInterface.emNoAllowBackUp).Select(a => a.Id).ToList(),
-                            taskinfo.Taskid,
+                            taskinfo.Taskid,0,
                             taskinfo.Starttime, taskinfo.Endtime);
 
                         if (lstchn.Count > 0)
@@ -1862,7 +1862,7 @@ namespace IngestTaskPlugin.Managers
                                 && a.DevState != Device_StateInterface.DISCONNECTTED
                                 && a.MsvMode != MSV_ModeInterface.LOCAL))
                         {
-                            var backlst = await Store.GetFreeChannels(new List<int>() { item }, 0, dtbegin, dtend);
+                            var backlst = await Store.GetFreeChannels(new List<int>() { item }, 0,0, dtbegin, dtend);
                             if (backlst != null && backlst.Count > 0)
                             {
                                 return backlst[0];
@@ -2685,7 +2685,7 @@ namespace IngestTaskPlugin.Managers
                 //                GetTaskDesc(conflictContent)), GlobalDictionary.GLOBALDICT_CODE_CAN_NOT_MODIFY_TIME_CONFLICT_TASKS);
                 //}
                 List<int> chl = new List<int>() { taskModify.ChannelId };
-                var freelst = await Store.GetFreeChannels(chl, taskModify.TaskId, modifybegin, modifyend);
+                var freelst = await Store.GetFreeChannels(chl, taskModify.TaskId,taskModify.BackupVtrId, modifybegin, modifyend);
                 if (freelst == null || freelst.Count < 1)
                 {
                     await Store.UnLockTask(findtask, true);
@@ -4255,7 +4255,7 @@ namespace IngestTaskPlugin.Managers
 
                 DateTime Begin = DateTimeFormat.DateTimeFromString(request.Begin);
                 DateTime End = DateTimeFormat.DateTimeFromString(request.End);
-                List<int> freeChannelIdList = await Store.GetFreeChannels(matchlst, request.TaskId, Begin, End, request.ChannelId != -1);
+                List<int> freeChannelIdList = await Store.GetFreeChannels(matchlst, request.TaskId,request.BackupVtrId, Begin, End, request.ChannelId != -1);
 
                 if (freeChannelIdList != null && freeChannelIdList.Count>0)
                 {
