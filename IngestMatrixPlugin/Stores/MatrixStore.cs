@@ -335,15 +335,26 @@ namespace IngestMatrixPlugin.Stores
             return Context.DbpUserLoginInfo.AsNoTracking().ToListAsync();
         }
 
-        public async Task<bool> UpdateOutPortInfo(long lOutPort, int bState, bool savechange)
+        public async Task<bool> UpdateMatrixStateRoutInfo(long lOutPort, int bState, bool savechange)
         {
-
-            var hasDatas = await Context.DbpVirtualmatrixportstate.Where(a => a.Virtualoutport == lOutPort).ToListAsync();
-
-            foreach (var hasData in hasDatas)
+            var infoList = await Context.DbpVirtualmatrixportstate.Where(x => x.Virtualoutport == lOutPort && x.State == 1).ToListAsync();
+            if (infoList.Count > 0)//一般只有1个outport只有1个inport状态为1.
             {
-                hasData.State = bState;
-                hasData.Lastoprtime = DateTime.Now;
+                foreach (var info in infoList)
+                {
+                    var matrixroutList = await Context.DbpMatrixrout.Where(b => b.Virtualinport == info.Virtualinport && b.Virtualoutport == lOutPort).ToListAsync();
+                    foreach (var item in matrixroutList)
+                    {
+                        item.State = bState;
+                    }
+                    //await UpdatePortInfo(info.Virtualinport, outPort, 0, true);
+                    info.State = bState;
+                    info.Lastoprtime = DateTime.Now;
+                }
+            }
+            else
+            {
+                Logger.Warn("In module MatrixService!virtualOutport is non-existence with state = 1 in DB,so no need to release in and out ports!,lOutPort");
             }
 
             if (savechange)
