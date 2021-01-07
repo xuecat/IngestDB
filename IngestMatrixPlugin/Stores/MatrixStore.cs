@@ -337,37 +337,48 @@ namespace IngestMatrixPlugin.Stores
 
         public async Task<bool> UpdateMatrixStateRoutInfo(long lOutPort, int bState, bool savechange)
         {
-            var infoList = await Context.DbpVirtualmatrixportstate.Where(x => x.Virtualoutport == lOutPort && x.State == 1).ToListAsync();
+            var LeftJoin = from virtualstate in Context.DbpVirtualmatrixportstate
+                           join matrixrout in Context.DbpMatrixrout
+                           on new { virtualstate.Virtualinport, virtualstate.Virtualoutport } equals new { matrixrout.Virtualinport,
+                           matrixrout.Virtualoutport} into JoinedEmpRout
+                           from matrixrout in JoinedEmpRout.DefaultIfEmpty()
+                           where virtualstate.Virtualoutport == lOutPort && virtualstate.State == 1
+                           select new
+                           {
+                               VirtualState = virtualstate,
+                               MatrixRout = matrixrout
+                           };
+
+            var infoList = await LeftJoin.ToListAsync();
+
             if (infoList.Count > 0)//一般只有1个outport只有1个inport状态为1.
             {
                 foreach (var info in infoList)
                 {
-                    var matrixroutList = await Context.DbpMatrixrout.Where(b => b.Virtualinport == info.Virtualinport && b.Virtualoutport == lOutPort).ToListAsync();
-                    foreach (var item in matrixroutList)
+                    info.VirtualState.State = bState;
+                    info.VirtualState.Lastoprtime = DateTime.Now;
+                    if (info.MatrixRout != null)
                     {
-                        item.State = bState;
+                        info.MatrixRout.State = bState;
                     }
-                    //await UpdatePortInfo(info.Virtualinport, outPort, 0, true);
-                    info.State = bState;
-                    info.Lastoprtime = DateTime.Now;
+                }
+
+                if (savechange)
+                {
+                    try
+                    {
+                        await Context.SaveChangesAsync();
+                    }
+                    catch (Exception e)
+                    {
+
+                        throw e;
+                    }
                 }
             }
             else
             {
                 Logger.Warn("In module MatrixService!virtualOutport is non-existence with state = 1 in DB,so no need to release in and out ports!,lOutPort");
-            }
-
-            if (savechange)
-            {
-                try
-                {
-                    await Context.SaveChangesAsync();
-                }
-                catch (Exception e)
-                {
-
-                    throw e;
-                }
             }
 
             return true;
