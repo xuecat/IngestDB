@@ -2092,6 +2092,8 @@ namespace IngestTaskPlugin.Managers
         {
             var lst = _mapper.Map<List<TaskContentSignalUrlResponse>>(await Store.GetTaskListWithMode(unitid > 0 ? unitid : 1, day, timetype));
 
+            lst.RemoveAll(x => x.TaskId <= 0);
+
             foreach (var item in lst)
             {
                 if (item.SignalId == -1)
@@ -2114,6 +2116,7 @@ namespace IngestTaskPlugin.Managers
 
                 }
             }
+
             return lst;
         }
 
