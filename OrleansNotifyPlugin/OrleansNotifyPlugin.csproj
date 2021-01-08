@@ -5,6 +5,11 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <PackageReference Include="IngestTask.Abstraction" Version="0.0.2-preview.0.1" />
+    <PackageReference Include="IngestTask.Dto" Version="0.0.2-preview.0.1" />
+  </ItemGroup>
+
+  <ItemGroup>
     <ProjectReference Include="..\IngestDBCore\IngestDBCore.csproj" />
   </ItemGroup>
 

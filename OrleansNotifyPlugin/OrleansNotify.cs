@@ -38,7 +38,7 @@ namespace OrleansNotifyPlugin
                             var grain = Client.GetGrain<IDispatcherGrain>(0);
                             try
                             {
-                                grain.AddTaskAsync();
+                                //grain.AddTaskAsync();
                             }
                             catch (Exception e)
                             {
