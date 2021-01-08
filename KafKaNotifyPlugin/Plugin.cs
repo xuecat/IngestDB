@@ -39,11 +39,7 @@ namespace KafKaNotifyPlugin
         public override Task<ResponseMessage> Init(ApplicationContext context)
         {
 
-            var notify = new KafKaNotify();
-            notify.Subscribe(context.NotifyClock);
-            context.Services.AddSingleton<KafKaNotify>(notify);
-
-
+            context.Services.AddSingleton<KafKaNotify>(new KafKaNotify().Subscribe<KafKaNotify>(context.NotifyClock));
             return base.Init(context);
         }
 

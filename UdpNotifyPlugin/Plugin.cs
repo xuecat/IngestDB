@@ -42,9 +42,7 @@ namespace UdpNotifyPlugin
             //context.Services.AddMassTransit();
             //context.Services.configure
            
-            var notify = new UdpNotify();
-            notify.Subscribe(context.NotifyClock);
-            context.Services.AddSingleton<UdpNotify>(notify);
+            context.Services.AddSingleton<UdpNotify>(new UdpNotify().Subscribe<UdpNotify>(context.NotifyClock));
 
             return base.Init(context);
         }

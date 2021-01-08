@@ -39,7 +39,13 @@ namespace IngestDBCore.Notify
             theClock.NotifyChange +=
                new NotifyClock.NotifyChangeHandler(ActionNotify);
         }
+        public T Subscribe<T>(NotifyClock theClock)
+        {
+            theClock.NotifyChange +=
+               new NotifyClock.NotifyChangeHandler(ActionNotify);
 
+            return (T)(object)this;
+        }
         public virtual void ActionNotify(
          object theClock, NotifyArgs ti)
         {

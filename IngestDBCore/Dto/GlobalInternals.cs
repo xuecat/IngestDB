@@ -6,12 +6,12 @@ namespace IngestDBCore
 {
     public class GlobalStateName
     {
-        static public string ADDTASK { get { return "TASK_ADD"; } }
-        static public string MODTASK { get { return "TASK_MOD"; } }
-        static public string DELTASK { get { return "TASK_DEL"; } }
-        static public string MLCRT { get { return "ML_CRT"; } }
-        static public string MLCPT { get { return "ML_CPT"; } }
-        static public string BACKUP { get { return "BACKUP"; } }
+        public const string ADDTASK = "TASK_ADD";
+        public const string MODTASK = "TASK_MOD";
+        public const string DELTASK = "TASK_DEL";
+        public const string MLCRT = "ML_CRT";
+        public const string MLCPT = "ML_CPT";
+        public const string BACKUP = "BACKUP";
     }
     public class ClientOperLabelName
     {

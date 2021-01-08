@@ -1,10 +1,14 @@
-﻿using IngestDBCore;
-using IngestDBCore.Plugin;
-using System;
-using System.Threading.Tasks;
+﻿
 
 namespace OrleansNotifyPlugin
 {
+    using IngestDBCore;
+    using IngestDBCore.Plugin;
+    using Microsoft.Extensions.DependencyInjection;
+    using Microsoft.Extensions.Hosting;
+    using Orleans;
+    using System;
+    using System.Threading.Tasks;
     public class Plugin : PluginBase
     {
         // {8D82BB78-EAB5-41E7-9EFE-2EE7A71C35CC}
@@ -37,10 +41,12 @@ namespace OrleansNotifyPlugin
 
         public override Task<ResponseMessage> Init(ApplicationContext context)
         {
-            
-            //context.Services.AddMassTransit();
-            //context.Services.configure
+            context.Services.AddSingleton<OrleansClientService>();
+            context.Services.AddSingleton<IHostedService>(sp => sp.GetService<OrleansClientService>());
+            context.Services.AddSingleton<IClusterClient>(sp => sp.GetService<OrleansClientService>().Client);
 
+            context.Services.AddSingleton<OrleansNotify>(sp => 
+            new OrleansNotify(sp.GetService<IClusterClient>()).Subscribe<OrleansNotify>(context.NotifyClock));
 
             return base.Init(context);
         }
