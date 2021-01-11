@@ -399,7 +399,7 @@ namespace IngestTaskPlugin.Stores
 
             var tasklst = await GetTaskListAsync(a => a.Where(b => b.Channelid == channelId
             && (b.State != (int)taskState.tsDelete && b.State != (int)taskState.tsInvaild)
-            && (b.Starttime > beginTime && b.Starttime < endTime)));// order by CHANNELID, STARTTIME 
+            && (b.Starttime > beginTime && b.Starttime < endTime)).OrderBy(x=>x.Starttime));// order by CHANNELID, STARTTIME 
 
             if (tasklst == null || tasklst.Count <= 0)
             {
