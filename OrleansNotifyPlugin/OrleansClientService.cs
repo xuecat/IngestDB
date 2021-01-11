@@ -9,6 +9,7 @@ namespace OrleansNotifyPlugin
     using Orleans;
     using Orleans.Configuration;
     using Orleans.Hosting;
+    using Sobey.Core.Log;
     using System;
     using System.Collections.Generic;
     using System.Text;
@@ -16,8 +17,9 @@ namespace OrleansNotifyPlugin
     using System.Threading.Tasks;
 
     public abstract class OrleansClientService : IHostedService, IDisposable
-    {       
+    {
         public IClusterClient Client { get; }
+        //private readonly ILogger Logger = LoggerManager.GetLogger("OrleansNotify");
         private bool _disposed;
         OrleansClientService()
         {
@@ -44,7 +46,15 @@ namespace OrleansNotifyPlugin
 
         public virtual async Task StartAsync(CancellationToken cancellationToken)
         {
-            await Client.Connect();
+            //try
+            //{
+            //    await Client.Connect();
+            //}
+            //catch (Exception e)
+            //{
+            //    Logger.Error("client connect error" + e.Message);
+            //}
+
         }
 
         public virtual async Task StopAsync(CancellationToken cancellationToken)
