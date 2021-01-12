@@ -919,7 +919,8 @@ namespace IngestTaskPlugin.Managers
             {
                 Logger.Info("begin to into filling vtr jugde modify!");
                 Logger.Info(string.Format("vtrTaskNow.strBegin:{0},vtrTask.strBegin:{1}, vtrTaskNow.strEnd:{2}, vtrTask.strEnd:{3},", vtrTaskNow.BeginTime, vtrTask.strBegin, vtrTaskNow.EndTime, vtrTask.strEnd));
-                Logger.Info(string.Format("vtrTaskNow.nTrimIn:{0},vtrTask.nTrimIn:{1}, vtrTaskNow.nTrimOut:{2}, vtrTask.strEnd:{3},", vtrTaskNow.TrimIn, vtrTask.nTrimIn, vtrTaskNow.TrimOut, vtrTask.nTrimOut));
+                Logger.Info(string.Format("vtrTaskNow.nTrimIn:{0},vtrTask.nTrimIn:{1}, vtrTaskNow.nTrimOut:{2}, vtrTask.nTrimOut:{3}, vtrTaskNow.TrimInCtl：{4}, vtrTask.nTrimInCTL:{5},vtrTaskNow.TrimOutCtl:{6},vtrTask.nTrimOutCTL:{7}",
+                    vtrTaskNow.TrimIn, vtrTask.nTrimIn, vtrTaskNow.TrimOut, vtrTask.nTrimOut, vtrTaskNow.TrimInCtl, vtrTask.nTrimInCTL, vtrTaskNow.TrimOutCtl, vtrTask.nTrimOutCTL));
                 Logger.Info(string.Format("vtrTaskNow.nChannelId:{0}, vtrTask.nChannelId:{1},vtrTaskNow.nSignalId:{2}, vtrTask.nSignalId:{3}, vtrTaskNow.nVtrId:{4},vtrTask.nVtrId:{5} ,", vtrTaskNow.ChannelId, vtrTask.nChannelId, vtrTaskNow.SignalId, vtrTask.nSignalId, vtrTaskNow.VtrId, vtrTask.nVtrId));
                 if (lMask <= 0)
                 {
