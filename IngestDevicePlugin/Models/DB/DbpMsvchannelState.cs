@@ -12,5 +12,6 @@ namespace IngestDevicePlugin.Models
         public string Curusercode { get; set; }
         public string Kamatakiinfo { get; set; }
         public int? Uploadstate { get; set; }
+        public int DeviceId { get; set; }
     }
 }

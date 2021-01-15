@@ -13,4 +13,12 @@ namespace IngestDevicePlugin.Dto.Response
         public int SignalSrcId { get; set; }
         public emSignalSource SignalSource { get; set; } = emSignalSource.emSatlitlleSource;//信号来源， 0:卫星 1:总控矩阵 2 视频服务器 3: VTR 4: MSV  5 蓝光  其他以后再扩展
     }
+
+    public class RouterInResponseEx : RouterInResponse
+    {
+        public int Area { get; set; }
+
+        public string SystemSite { get; set; }
+    }
+
 }

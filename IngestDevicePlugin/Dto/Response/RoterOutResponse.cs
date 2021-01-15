@@ -22,4 +22,18 @@ namespace IngestDevicePlugin.Dto.Response
         /// <summary>设备类型</summary>
         public emDeviceType DeviceType { get; set; } = emDeviceType.emDeviceMSV;
     }
+
+    public class RoterOutResponseEx : RoterOutResponse
+    { 
+        /// <summary>
+        /// 区域
+        /// </summary>
+        public int Area { get; set; }
+
+        /// <summary>
+        /// 站点
+        /// </summary>
+        public string SystemSite { get; set; }
+    }
+
 }

@@ -13,5 +13,6 @@ namespace IngestDevicePlugin.Models
         public int Devicetypeid { get; set; }
         public int? Backupflag { get; set; }
         public int? Cpsignaltype { get; set; }
+        public string SystemSite { get; set; }
     }
 }

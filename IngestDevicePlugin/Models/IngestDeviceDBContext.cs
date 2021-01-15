@@ -102,6 +102,10 @@ namespace IngestDevicePlugin.Models
                 entity.Property(e => e.Devicetypeid)
                     .HasColumnName("DEVICETYPEID")
                     .HasColumnType("int(11)");
+
+                entity.Property(e => e.SystemSite)
+                    .HasColumnName("SYSTEMSITE")
+                    .HasColumnType("varchar(128)");
             });
 
             modelBuilder.Entity<DbpCapturedevice>(entity =>
@@ -547,6 +551,10 @@ namespace IngestDevicePlugin.Models
                     .HasColumnName("SIGNALSOURCE")
                     .HasColumnType("int(11)")
                     .HasDefaultValueSql("'0'");
+
+                entity.Property(e => e.SystemSite)
+                    .HasColumnName("SYSTEMSITE")
+                    .HasColumnType("varchar(128)");
             });
 
             modelBuilder.Entity<DbpRcdoutdesc>(entity =>
@@ -570,6 +578,14 @@ namespace IngestDevicePlugin.Models
                 entity.Property(e => e.Devicetype)
                     .HasColumnName("DEVICETYPE")
                     .HasColumnType("int(11)");
+
+                entity.Property(e => e.Area)
+                    .HasColumnName("AREA")
+                    .HasColumnType("int(11)");
+
+                entity.Property(e => e.SystemSite)
+                    .HasColumnName("SYSTEMSITE")
+                    .HasColumnType("varchar(128)");
             });
 
             modelBuilder.Entity<DbpSignalDeviceMap>(entity =>
@@ -1287,6 +1303,11 @@ namespace IngestDevicePlugin.Models
                     .HasColumnName("UPLOADSTATE")
                     .HasColumnType("int(11)")
                     .HasDefaultValueSql("'0'");
+
+                entity.Property(e => e.DeviceId)
+                    .HasColumnName("DEVICEID")
+                    .HasColumnType("int(11)");
+
             });
 
             modelBuilder.Entity<VtrTapelist>(entity =>

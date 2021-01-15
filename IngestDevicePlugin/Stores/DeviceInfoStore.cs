@@ -114,7 +114,7 @@ namespace IngestDevicePlugin.Stores
         {
             return Context.DbpMatrixinfo.AsNoTracking().AnyAsync(a => a.Matrixid == 2 && a.Matrixtypeid != 6);//老版本NULL MATRIX是6，现在是2，难道老版本一直返回的是有矩阵？
         }
-        
+
         public async Task<bool> TrueHaveMatirxAsync()
         {
             return await Context.DbpMatrixinfo.AsNoTracking().AnyAsync(a => a.Matrixid == 2 && a.Matrixtypeid != 2);//老版本NULL MATRIX是6，现在是2，难道老版本一直返回的是有矩阵？
@@ -122,7 +122,7 @@ namespace IngestDevicePlugin.Stores
         }
 
 
-        
+
         public async Task<List<ProgrammeInfoDto>> GetAllProgrammeInfoAsync()
         {
             //var query = await (from sig in Context.DbpSignalsrc.AsNoTracking()
@@ -145,24 +145,24 @@ namespace IngestDevicePlugin.Stores
             //                   }).ToListAsync();
 
 
-            var query = await( from sig in Context.DbpSignalsrc.AsNoTracking().Join(Context.DbpRcdindesc.AsNoTracking(),
+            var query = await (from sig in Context.DbpSignalsrc.AsNoTracking().Join(Context.DbpRcdindesc.AsNoTracking(),
                 src => src.Signalsrcid,
                 rcin => rcin.Signalsrcid,
                 (src, rcin) => new { src, rcin.Signalsource })
-            join grp in Context.DbpSignalsrcgroupmap.AsNoTracking() on sig.src.Signalsrcid equals grp.Signalsrcid into pg
-            from g in pg.DefaultIfEmpty()
-            select new ProgrammeInfoDto
-            {
-                ProgrammeId = sig.src.Signalsrcid,
-                ProgrammeName = sig.src.Name,
-                ProgrammeDesc = sig.src.Signaldesc,
-                TypeId = sig.src.Signaltypeid,
-                PgmType = ProgrammeType.PT_SDI,
-                ImageType = (ImageType)sig.src.Imagetype,
-                PureAudio = sig.src.Pureaudio ?? 0,
-                SignalSourceType = sig.Signalsource == null ? 0 : (emSignalSource)sig.Signalsource.GetValueOrDefault(),
-                GroupId = g == null ? 0 : g.Groupid,
-            }).ToListAsync();
+                               join grp in Context.DbpSignalsrcgroupmap.AsNoTracking() on sig.src.Signalsrcid equals grp.Signalsrcid into pg
+                               from g in pg.DefaultIfEmpty()
+                               select new ProgrammeInfoDto
+                               {
+                                   ProgrammeId = sig.src.Signalsrcid,
+                                   ProgrammeName = sig.src.Name,
+                                   ProgrammeDesc = sig.src.Signaldesc,
+                                   TypeId = sig.src.Signaltypeid,
+                                   PgmType = ProgrammeType.PT_SDI,
+                                   ImageType = (ImageType)sig.src.Imagetype,
+                                   PureAudio = sig.src.Pureaudio ?? 0,
+                                   SignalSourceType = sig.Signalsource == null ? 0 : (emSignalSource)sig.Signalsource.GetValueOrDefault(),
+                                   GroupId = g == null ? 0 : g.Groupid,
+                               }).ToListAsync();
 
 
             if (query == null)
@@ -190,7 +190,7 @@ namespace IngestDevicePlugin.Stores
                         break;
                 }
             }
-            
+
             return query;
         }
         public async Task<List<ProgrammeInfoDto>> GetSignalInfoByListAsync(List<int> srcid)
@@ -217,7 +217,8 @@ namespace IngestDevicePlugin.Stores
             var query = await (from sig in Context.DbpSignalsrc.AsNoTracking().Join(Context.DbpRcdindesc.AsNoTracking(),
                 src => src.Signalsrcid,
                 rcin => rcin.Signalsrcid,
-                (src, rcin) =>  new { src, rcin.Signalsource }) where srcid.Contains(sig.src.Signalsrcid)
+                (src, rcin) => new { src, rcin.Signalsource })
+                               where srcid.Contains(sig.src.Signalsrcid)
                                join grp in Context.DbpSignalsrcgroupmap.AsNoTracking() on sig.src.Signalsrcid equals grp.Signalsrcid into pg
                                from g in pg.DefaultIfEmpty()
                                select new ProgrammeInfoDto
@@ -291,7 +292,7 @@ namespace IngestDevicePlugin.Stores
                 src => src.Signalsrcid,
                 rcin => rcin.Signalsrcid,
                 (src, rcin) => new { src, rcin.Signalsource })
-                               where srcid ==sig.src.Signalsrcid
+                               where srcid == sig.src.Signalsrcid
                                join grp in Context.DbpSignalsrcgroupmap.AsNoTracking() on sig.src.Signalsrcid equals grp.Signalsrcid into pg
                                from g in pg.DefaultIfEmpty()
                                select new ProgrammeInfoDto
@@ -393,7 +394,7 @@ namespace IngestDevicePlugin.Stores
             //              where p1.Virtualoutport == p3.Recoutidx && p1.State == 1
             //              select src.Signalsrcid).SingleOrDefaultAsync();
         }
-                
+
         public Task<List<Channel2SignalSrcMap>> GetAllChannel2SignalSrcMapAsync()
         {
             return Context.DbpRcdoutdesc.Join(Context.DbpVirtualmatrixportstate.AsNoTracking().Where(matrix => matrix.State == 1),
@@ -447,22 +448,22 @@ namespace IngestDevicePlugin.Stores
                chn => chn.Cpdeviceid,
                device => device.Cpdeviceid,
                (chn, device) => new { chn, device.Devicetypeid, device.Ordercode })
-                               where channelid == channel.chn.Channelid
-                               join grp in Context.DbpChannelgroupmap.AsNoTracking() on channel.chn.Channelid equals grp.Channelid into pg
-                               from g in pg.DefaultIfEmpty()
-                               select new CaptureChannelInfoDto
-                               {
-                                   Id = channel.chn.Channelid,
-                                   Name = channel.chn.Channelname,
-                                   Desc = channel.chn.Channeldesc,
-                                   CpDeviceId = channel.chn.Cpdeviceid,
-                                   ChannelIndex = channel.chn.Channelindex ?? 0,
-                                   DeviceTypeId = channel.Devicetypeid <= 0 ? (int)CaptureChannelType.emMsvChannel : channel.Devicetypeid,
-                                   BackState = (emBackupFlag)channel.chn.Backupflag,
-                                   CpSignalType = channel.chn.Cpsignaltype ?? 0,
-                                   OrderCode = channel != null ? channel.Ordercode.GetValueOrDefault() : -1,
-                                   GroupId = g != null ? g.Groupid : -1
-                               }).SingleOrDefaultAsync();
+                             where channelid == channel.chn.Channelid
+                             join grp in Context.DbpChannelgroupmap.AsNoTracking() on channel.chn.Channelid equals grp.Channelid into pg
+                             from g in pg.DefaultIfEmpty()
+                             select new CaptureChannelInfoDto
+                             {
+                                 Id = channel.chn.Channelid,
+                                 Name = channel.chn.Channelname,
+                                 Desc = channel.chn.Channeldesc,
+                                 CpDeviceId = channel.chn.Cpdeviceid,
+                                 ChannelIndex = channel.chn.Channelindex ?? 0,
+                                 DeviceTypeId = channel.Devicetypeid <= 0 ? (int)CaptureChannelType.emMsvChannel : channel.Devicetypeid,
+                                 BackState = (emBackupFlag)channel.chn.Backupflag,
+                                 CpSignalType = channel.chn.Cpsignaltype ?? 0,
+                                 OrderCode = channel != null ? channel.Ordercode.GetValueOrDefault() : -1,
+                                 GroupId = g != null ? g.Groupid : -1
+                             }).SingleOrDefaultAsync();
 
 
             if (lst == null)
@@ -527,7 +528,7 @@ namespace IngestDevicePlugin.Stores
                               (rchn, rcout) => rchn).Join(Context.DbpMsvchannelState.AsNoTracking(),
                               chn => chn.chn.Channelid,
                               msvstate => msvstate.Channelid,
-                              (rchn, msvstate) => new { rchn, msvstate.Devstate})
+                              (rchn, msvstate) => new { rchn, msvstate.Devstate })
                              join grp in Context.DbpChannelgroupmap.AsNoTracking() on channel.rchn.chn.Channelid equals grp.Channelid into pg
                              from g in pg.DefaultIfEmpty()
                              select new CaptureChannelInfoDto
@@ -542,7 +543,7 @@ namespace IngestDevicePlugin.Stores
                                  CpSignalType = channel.rchn.chn.Cpsignaltype ?? 0,
                                  OrderCode = channel.rchn.chn != null ? channel.rchn.Ordercode.GetValueOrDefault() : -1,
                                  GroupId = g != null ? g.Groupid : -1,
-                                 DeviceState = channel.Devstate != null? (Device_State)channel.Devstate : Device_State.DISCONNECTTED
+                                 DeviceState = channel.Devstate != null ? (Device_State)channel.Devstate : Device_State.DISCONNECTTED
                              }).ToListAsync();
             }
             else
@@ -963,7 +964,7 @@ namespace IngestDevicePlugin.Stores
 
         public Task<TResult> GetUserSettingAsync<TResult>(Func<IQueryable<DbpUsersettings>, Task<TResult>> query, bool notrack = false)
         {
-            return QueryModelAsync(Context.DbpUsersetting,query,notrack);
+            return QueryModelAsync(Context.DbpUsersetting, query, notrack);
         }
 
 
@@ -971,6 +972,161 @@ namespace IngestDevicePlugin.Stores
         {
             return QueryListAsync(Context.DbpXdcamDevice, query, notrack);
         }
+
+        #region 2.1
+
+        public async Task<List<DbpMsvchannelState>> GetMsvchannelStateBySiteAsync(string site)
+        {
+            var query = from channels in Context.DbpCapturechannels
+                        join devices in Context.DbpCapturedevice
+                           on channels.Cpdeviceid equals devices.Cpdeviceid into chDevice
+                        from devices in chDevice.DefaultIfEmpty()
+                        join msvstate in Context.DbpMsvchannelState
+                            on devices.Cpdeviceid equals msvstate.DeviceId into devMsvstate
+                        from msvstate in devMsvstate.DefaultIfEmpty()
+                        where channels.SystemSite == site
+                        select new DbpMsvchannelState
+                        {
+                            Channelid = channels.Channelid,
+                            Devstate = msvstate != null ? msvstate.Devstate : 1,
+                            Msvmode = msvstate != null ? msvstate.Msvmode : 1,
+                            Sourcevtrid = msvstate != null ? msvstate.Sourcevtrid : 0,
+                            Curusercode = msvstate != null ? msvstate.Curusercode : "",
+                            Kamatakiinfo = msvstate != null ? msvstate.Kamatakiinfo : "",
+                            Uploadstate = msvstate != null ? msvstate.Uploadstate : 1
+                        };
+
+            return await query.AsNoTracking().ToListAsync();
+        }
+
+        public async Task<List<CaptureChannelInfoDto>> GetAllCaptureChannelsBySiteAsync(int status, string site)
+        {
+            //device按nOrderCode排升序
+            //channel 按RECOUTIDX排序
+            List<CaptureChannelInfoDto> lst = null;
+            if (status == 0)
+            {
+                lst = await (from channel in Context.DbpCapturechannels.AsNoTracking().Join(Context.DbpRcdoutdesc.AsNoTracking(),
+                                chn => chn.Channelid,
+                                rout => rout.Channelid,
+                                (chn, rout) => chn).Where(x => x.SystemSite == site)
+                             join devices in Context.DbpCapturedevice.AsNoTracking().Join(Context.DbpMsvchannelState.AsNoTracking(),
+                                 devs => devs.Cpdeviceid,
+                                 msvstate => msvstate.DeviceId,
+                                 (device, msvs) => new { device, msvs } )
+                             on channel.Cpdeviceid equals devices.device.Cpdeviceid into devres
+                             from dev in devres.DefaultIfEmpty()
+                             join grp in Context.DbpChannelgroupmap.AsNoTracking() on channel.Channelid equals grp.Channelid into pg
+                             from g in pg.DefaultIfEmpty()
+                             select new CaptureChannelInfoDto
+                             {
+                                 Id = channel.Channelid,
+                                 Name = channel.Channelname,
+                                 Desc = channel.Channeldesc,
+                                 CpDeviceId = channel.Cpdeviceid,
+                                 ChannelIndex = channel.Channelindex ?? 0,
+                                 DeviceTypeId = channel.Devicetypeid <= 0 ? (int)CaptureChannelType.emMsvChannel : channel.Devicetypeid,
+                                 BackState = (emBackupFlag)channel.Backupflag,
+                                 CpSignalType = channel.Cpsignaltype ?? 0,
+                                 OrderCode = dev != null && dev.device!= null && dev.device.Ordercode != null ? dev.device.Ordercode.GetValueOrDefault() : -1,
+                                 GroupId = g != null ? g.Groupid : -1,
+                                 DeviceState = dev != null && dev.msvs != null ? (Device_State)dev.msvs.Devstate : Device_State.CONNECTED
+                             }).ToListAsync();
+
+            }
+            else
+            {
+                lst = await (from channel in Context.DbpCapturechannels.AsNoTracking().Join(Context.DbpRcdoutdesc.AsNoTracking(),
+                                chn => chn.Channelid,
+                                rout => rout.Channelid,
+                                (chn, rout) => chn).Where(x => x.SystemSite == site)
+                             join devices in Context.DbpCapturedevice.AsNoTracking().Join(Context.DbpMsvchannelState.AsNoTracking(),
+                                 devs => devs.Cpdeviceid,
+                                 msvstate => msvstate.DeviceId,
+                                 (device, msvs) => new { device, msvs }).Where(x => x.msvs.Devstate != (int)Device_State.DISCONNECTTED && x.msvs.Msvmode != (int)MSV_Mode.LOCAL)
+                             on channel.Cpdeviceid equals devices.device.Cpdeviceid into devres
+                             from dev in devres.DefaultIfEmpty()
+                             join grp in Context.DbpChannelgroupmap.AsNoTracking() on channel.Channelid equals grp.Channelid into pg
+                             from g in pg.DefaultIfEmpty()
+                             select new CaptureChannelInfoDto
+                             {
+                                 Id = channel.Channelid,
+                                 Name = channel.Channelname,
+                                 Desc = channel.Channeldesc,
+                                 CpDeviceId = channel.Cpdeviceid,
+                                 ChannelIndex = channel.Channelindex ?? 0,
+                                 DeviceTypeId = channel.Devicetypeid <= 0 ? (int)CaptureChannelType.emMsvChannel : channel.Devicetypeid,
+                                 BackState = (emBackupFlag)channel.Backupflag,
+                                 CpSignalType = channel.Cpsignaltype ?? 0,
+                                 OrderCode = dev != null && dev.device != null && dev.device.Ordercode != null ? dev.device.Ordercode.GetValueOrDefault() : -1,
+                                 GroupId = g != null ? g.Groupid : -1
+                             }).ToListAsync();
+
+            }
+
+
+            if (lst == null || lst.Count < 1)
+            {
+                Logger.Error("GetAllCaptureChannelsAsync Site lst error");
+                return null;
+            }
+
+            return lst.OrderBy(x => x.OrderCode).ToList();
+        }
+
+        public async Task<List<ProgrammeInfoDto>> GetAllProgrammeInfoBySiteAsync(string site)
+        {
+
+            var query = await (from sig in Context.DbpSignalsrc.AsNoTracking().Join(Context.DbpRcdindesc.AsNoTracking(),
+                src => src.Signalsrcid,
+                rcin => rcin.Signalsrcid,
+                (src, rcin) => new { src, rcin.Signalsource, rcin.SystemSite }).Where(x=> x.SystemSite == site)
+                               join grp in Context.DbpSignalsrcgroupmap.AsNoTracking() on sig.src.Signalsrcid equals grp.Signalsrcid into pg
+                               from g in pg.DefaultIfEmpty()
+                               select new ProgrammeInfoDto
+                               {
+                                   ProgrammeId = sig.src.Signalsrcid,
+                                   ProgrammeName = sig.src.Name,
+                                   ProgrammeDesc = sig.src.Signaldesc,
+                                   TypeId = sig.src.Signaltypeid,
+                                   PgmType = ProgrammeType.PT_SDI,
+                                   ImageType = (ImageType)sig.src.Imagetype,
+                                   PureAudio = sig.src.Pureaudio ?? 0,
+                                   SignalSourceType = sig.Signalsource == null ? 0 : (emSignalSource)sig.Signalsource.GetValueOrDefault(),
+                                   GroupId = g == null ? 0 : g.Groupid,
+                               }).ToListAsync();
+
+
+            if (query == null)
+            {
+                return null;
+            }
+            foreach (var item in query)
+            {
+                switch (item.PgmType)
+                {
+                    case ProgrammeType.PT_SDI:
+                        { }
+                        break;//上面已经赋值了
+                    case ProgrammeType.PT_IPTS:
+                        {
+                            item.SignalSourceType = emSignalSource.emIPTS;
+                        }
+                        break;
+                    case ProgrammeType.PT_StreamMedia:
+                        {
+                            item.SignalSourceType = emSignalSource.emStreamMedia;
+                        }
+                        break;
+                    default:
+                        break;
+                }
+            }
+
+            return query;
+        }
+
+        #endregion
 
     }
 }

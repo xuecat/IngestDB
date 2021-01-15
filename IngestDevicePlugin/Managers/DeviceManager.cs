@@ -129,6 +129,7 @@ namespace IngestDevicePlugin.Managers
             return _mapper.Map<List<TResult>>(await Store.GetAllCaptureChannelsAsync(0));
         }
 
+
         /// <summary> 根据 通道ID 获取采集通道 </summary>
         /// <param name="id">通道Id</param>
         public virtual async Task<TResult> GetCaptureChannelByIDAsync<TResult>(int id)
@@ -272,6 +273,7 @@ namespace IngestDevicePlugin.Managers
         {
             return _mapper.Map<List<TResult>>(await Store.GetMsvchannelStateAsync(a => a, true));
         }
+
 
         /// <summary> 获得所有信号源分组 </summary>
         public virtual async Task<List<TResult>> GetAllSignalGroupAsync<TResult>()
@@ -939,6 +941,45 @@ namespace IngestDevicePlugin.Managers
         {
             var dbpXdcams = await Store.GetXdcamDeviceListAsync(a => a, true);
             return _mapper.Map<List<TResult>>(dbpXdcams);
+        }
+
+        #endregion
+
+
+
+        #region 2.1
+
+        public virtual async Task<List<TResult>> GetAllChannelStateBySiteAsync<TResult>(string site)
+        {
+            return _mapper.Map<List<TResult>>(await Store.GetMsvchannelStateBySiteAsync(site));
+        }
+
+        public virtual async Task<List<TResult>> GetAllCaptureChannelsBySiteAsync<TResult>(string site)
+        {
+            return _mapper.Map<List<TResult>>(await Store.GetAllCaptureChannelsBySiteAsync(0, site));
+        }
+
+        public virtual async Task<List<TResult>> GetAllProgrammeInfosBySiteAsync<TResult>(string site)
+        {
+            var programmeInfos = _mapper.Map<List<TResult>>(await Store.GetAllProgrammeInfoBySiteAsync(site));
+
+            //先暂时删掉，看起来这2个表没有数据，后面需要再修改表结构DbpIpProgramme,DbpStreamMedia
+            //var allTSPgmInfo = _mapper.Map<List<TResult>>(await Store.GetIpProgrammeAsync(a => a, true));
+            //programmeInfos.AddRange(allTSPgmInfo);
+            //var allStreamMedia = _mapper.Map<List<TResult>>(await Store.GetStreamMediaAsync(a => a, true));
+            //programmeInfos.AddRange(allStreamMedia);
+
+            return programmeInfos.CustomSortT().ToList();
+        }
+
+        public virtual async Task<List<TResult>> GetAllRouterOutPortBySiteAsync<TResult>(string site)
+        {
+            return _mapper.Map<List<TResult>>(await Store.GetRcdoutdescAsync(a => a.Where(x=>x.SystemSite == site), true));
+        }
+
+        public virtual async Task<List<TResult>> GetAllRouterInPortBySiteAsync<TResult>(string site)
+        {
+            return _mapper.Map<List<TResult>>(await Store.GetRcdindescAsync(a => a.Where(x => x.SystemSite == site), true));
         }
 
         #endregion

@@ -9,5 +9,9 @@ namespace IngestDevicePlugin.Models
         public int Rcdeviceid { get; set; }
         public int Recinidx { get; set; }
         public int? Signalsource { get; set; }
+
+        public int? Area { get; set; } 
+
+        public string SystemSite { get; set; }
     }
 }

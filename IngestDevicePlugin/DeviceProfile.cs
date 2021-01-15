@@ -28,6 +28,15 @@ namespace IngestDevicePlugin
                     .ForMember(a => a.UploadMode, (map) => map.MapFrom(b => b.Uploadstate));
 
             #region DbpRcdindesc To RoterInportDesc、RouterInResponse
+            //V2.1
+            CreateMap<DbpRcdindesc, RouterInResponseEx>()
+                .ForMember(a => a.RcDeviceId, (map) => map.MapFrom(b => b.Rcdeviceid))
+                .ForMember(a => a.RcInportIdx, (map) => map.MapFrom(b => b.Recinidx))
+                .ForMember(a => a.SignalSource, (map) => map.MapFrom(b => b.Signalsource))
+                .ForMember(a => a.SignalSrcId, (map) => map.MapFrom(b => b.Signalsrcid))
+                .ForMember(a => a.Area, (map) => map.MapFrom(b => b.Area))
+                .ForMember(a => a.SystemSite, (map) => map.MapFrom(b => b.SystemSite));
+
             //V2
             CreateMap<DbpRcdindesc, RouterInResponse>()
                //.ForMember(a => a.RCDeviceID, (map) => map.MapFrom(b => b.Rcdeviceid))
@@ -43,6 +52,15 @@ namespace IngestDevicePlugin
             #endregion
 
             #region DbpRcdoutdesc To RoterOutDesc、RoterOutResponse
+            //V2.1
+            CreateMap<DbpRcdoutdesc, RoterOutResponseEx>()
+                .ForMember(a => a.RcDeviceId, (map) => map.MapFrom(b => b.Rcdeviceid))
+                .ForMember(a => a.RcOutportIdx, (map) => map.MapFrom(b => b.Recoutidx))
+                .ForMember(a => a.ChannelId, (map) => map.MapFrom(b => b.Channelid))
+                .ForMember(a => a.DeviceType, (map) => map.MapFrom(b => b.Devicetype))
+                .ForMember(a => a.Area, (map) => map.MapFrom(b=>b.Area))
+                .ForMember(a => a.SystemSite, (map) => map.MapFrom(b => b.SystemSite));
+
             //V2
             CreateMap<DbpRcdoutdesc, RoterOutResponse>()
                 .ForMember(a => a.RcDeviceId, (map) => map.MapFrom(b => b.Rcdeviceid))

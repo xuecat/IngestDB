@@ -198,5 +198,14 @@ namespace IngestDevicePlugin.Stores
 
         /// <summary>获取XDCamDevice列表</summary>
         Task<List<TResult>> GetXdcamDeviceListAsync<TResult>(Func<IQueryable<DbpXdcamDevice>, IQueryable<TResult>> query, bool notrack = false);
+
+
+        #region 2.1
+
+        Task<List<DbpMsvchannelState>> GetMsvchannelStateBySiteAsync(string site);
+        Task<List<CaptureChannelInfoDto>> GetAllCaptureChannelsBySiteAsync(int status, string site);
+        Task<List<ProgrammeInfoDto>> GetAllProgrammeInfoBySiteAsync(string site);
+        #endregion
+
     }
 }
