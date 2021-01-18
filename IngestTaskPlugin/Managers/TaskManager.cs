@@ -4523,7 +4523,15 @@ namespace IngestTaskPlugin.Managers
             return Store.UpdateTaskBmp(taskPmp);
         }
 
-        
+
+        #region v3.0
+
+        public async Task<List<TResult>> QueryTaskContentBySite<TResult>(int unitid, DateTime day, TimeLineType timetype, string site)
+        {
+            return _mapper.Map<List<TResult>>(await Store.GetTaskListWithMode(unitid > 0 ? unitid : 1, day, timetype));
+        }
+
+        #endregion
 
     }
 }

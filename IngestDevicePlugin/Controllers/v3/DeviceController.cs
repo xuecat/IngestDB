@@ -14,14 +14,14 @@ using Sobey.Core.Log;
 using SignalDeviceRequest = IngestDevicePlugin.Dto.Response.SignalDeviceMapResponse;
 using TsDeviceInfoResponse = IngestDevicePlugin.Dto.OldResponse.TSDeviceInfo;
 
-namespace IngestDevicePlugin.Controllers.v2._1
+namespace IngestDevicePlugin.Controllers.v3
 {
     [Route("api/v{version:apiVersion}/[controller]")]
-    [ApiVersion("2.1")]
+    [ApiVersion("3.0")]
     [ApiController]
-    public class DeviceController : ControllerBase
+    public partial class DeviceController : ControllerBase
     {
-        private readonly ILogger Logger = LoggerManager.GetLogger("DeviceInfo21");
+        private readonly ILogger Logger = LoggerManager.GetLogger("DeviceInfo3");
         private readonly DeviceManager _deviceManage;
         //private readonly RestClient _restClient;
 
@@ -34,7 +34,7 @@ namespace IngestDevicePlugin.Controllers.v2._1
         /// <remarks>包括设备ip，设备端口号等</remarks>
         /// <returns>采集设备集合</returns>
         [HttpGet("allocdevice")]
-        [ApiExplorerSettings(GroupName = "v2.1")]
+        [ApiExplorerSettings(GroupName = "v3.0")]
         public async Task<ResponseMessage<List<DeviceInfoResponse>>> AllDevicesForTask()
         {
             ResponseMessage<List<DeviceInfoResponse>> response = new ResponseMessage<List<DeviceInfoResponse>>();
@@ -71,7 +71,7 @@ namespace IngestDevicePlugin.Controllers.v2._1
         /// <remarks>包括设备ip，设备端口号等</remarks>
         /// <returns>采集设备单个信息</returns>
         [HttpGet("allocdevice/{deviceid}")]
-        [ApiExplorerSettings(GroupName = "v2.1")]
+        [ApiExplorerSettings(GroupName = "v3.0")]
         public async Task<ResponseMessage<DeviceInfoResponse>> GetCaptureDeviceByidForTask([FromRoute, BindRequired, DefaultValue(39)]int deviceid)
         {
             ResponseMessage<DeviceInfoResponse> response = new ResponseMessage<DeviceInfoResponse>();
@@ -108,7 +108,7 @@ namespace IngestDevicePlugin.Controllers.v2._1
         /// <remarks>原方法 GetAllChannelState</remarks>
         /// <returns>最优通道Id</returns>
         [HttpGet("channelstate/all")]
-        [ApiExplorerSettings(GroupName = "v2.1")]
+        [ApiExplorerSettings(GroupName = "v3.0")]
         public async Task<ResponseMessage<List<MSVChannelStateResponse>>> AllChannelState([FromHeader(Name = "sobeyhive-http-site"), BindRequired, DefaultValue("S1")]string site)
         {
             ResponseMessage<List<MSVChannelStateResponse>> response = new ResponseMessage<List<MSVChannelStateResponse>>();
@@ -145,7 +145,7 @@ namespace IngestDevicePlugin.Controllers.v2._1
         /// <remarks>原方法 GetAllCaptureChannels</remarks>
         /// <returns>采集通道集合</returns>
         [HttpGet("capturechannel/all")]
-        [ApiExplorerSettings(GroupName = "v2.1")]
+        [ApiExplorerSettings(GroupName = "v3.0")]
         public async Task<ResponseMessage<List<CaptureChannelInfoResponse>>> AllCaptureChannels([FromHeader(Name = "sobeyhive-http-site"), BindRequired, DefaultValue("S1")] string site)
         {
             ResponseMessage<List<CaptureChannelInfoResponse>> response = new ResponseMessage<List<CaptureChannelInfoResponse>>();
@@ -182,7 +182,7 @@ namespace IngestDevicePlugin.Controllers.v2._1
         /// <remarks>原方法 GetAllProgrammeInfos</remarks>
         /// <returns>节目集合</returns>
         [HttpGet("programme/all")]
-        [ApiExplorerSettings(GroupName = "v2.1")]
+        [ApiExplorerSettings(GroupName = "v3.0")]
         public async Task<ResponseMessage<List<ProgrammeInfoResponse>>> AllProgrammeInfos([FromHeader(Name = "sobeyhive-http-site"), BindRequired, DefaultValue("S1")] string site)
         {
             ResponseMessage<List<ProgrammeInfoResponse>> response = new ResponseMessage<List<ProgrammeInfoResponse>>();
@@ -219,7 +219,7 @@ namespace IngestDevicePlugin.Controllers.v2._1
         /// <remarks>原方法 AllRouterOutPortInfos</remarks>
         /// <returns>输出端口的集合</returns>
         [HttpGet("routeroutport/all")]
-        [ApiExplorerSettings(GroupName = "v2.1")]
+        [ApiExplorerSettings(GroupName = "v3.0")]
         public async Task<ResponseMessage<List<RoterOutResponseEx>>> AllRouterOutPortInfos([FromHeader(Name = "sobeyhive-http-site"), BindRequired, DefaultValue("S1")] string site)
         {
             ResponseMessage<List<RoterOutResponseEx>> response = new ResponseMessage<List<RoterOutResponseEx>>();
@@ -257,7 +257,7 @@ namespace IngestDevicePlugin.Controllers.v2._1
         /// <returns>输入端口的集合</returns>
         [HttpGet("routerinport/all")]
         //device有点特殊，做了监听端口的所以不能全类检验
-        [ApiExplorerSettings(GroupName = "v2.1")]
+        [ApiExplorerSettings(GroupName = "v3.0")]
         public async Task<ResponseMessage<List<RouterInResponseEx>>> AllRouterInPortInfos([FromHeader(Name = "sobeyhive-http-site"), BindRequired, DefaultValue("S1")] string site)
         {
             ResponseMessage<List<RouterInResponseEx>> response = new ResponseMessage<List<RouterInResponseEx>>();
@@ -271,6 +271,82 @@ namespace IngestDevicePlugin.Controllers.v2._1
                 }
                 Logger.Error($"AllRouterInPortInfos Site Result : {Newtonsoft.Json.JsonConvert.SerializeObject(response.Ext)}");
 
+            }
+            catch (Exception e)
+            {
+                if (e is SobeyRecException se)//sobeyexcep会自动打印错误
+                {
+                    response.Code = se.ErrorCode.ToString();
+                    response.Msg = se.Message;
+                }
+                else
+                {
+                    response.Code = ResponseCodeDefines.ServiceError;
+                    response.Msg = $"{System.Reflection.MethodBase.GetCurrentMethod().DeclaringType.FullName}:error info:{e.Message}";
+                    Logger.Error(response.Msg);
+                }
+            }
+            return response;
+        }
+
+        /// <summary>
+        /// 根据 信号源Id 获取绑定的采集参数 id
+        /// </summary>
+        /// <remarks>原方法 GetCaptureTemplateIDBySignalID</remarks>
+        /// <param name="signalid">信号ID</param>
+        /// <returns>采集参数</returns>
+        /// <example>1111</example>
+        [HttpGet("capturetemplate/id/{signalid}")]
+        [ApiExplorerSettings(GroupName = "v3.0")]
+        public async Task<ResponseMessage<int>> CaptureTemplateId([FromRoute, BindRequired, DefaultValue(39)] int signalid)
+        {
+            ResponseMessage<int> response = new ResponseMessage<int>();
+            try
+            {
+                response.Ext = await _deviceManage.GetSignalCaptureTemplateAsync(signalid);
+                if (response.Ext <= 0)
+                {
+                    response.Code = ResponseCodeDefines.NotFound;
+                    response.Msg = $"{System.Reflection.MethodBase.GetCurrentMethod().DeclaringType.FullName}:error info: not find data!";
+                }
+
+            }
+            catch (Exception e)
+            {
+                if (e is SobeyRecException se)//sobeyexcep会自动打印错误
+                {
+                    response.Code = se.ErrorCode.ToString();
+                    response.Msg = se.Message;
+                }
+                else
+                {
+                    response.Code = ResponseCodeDefines.ServiceError;
+                    response.Msg = $"{System.Reflection.MethodBase.GetCurrentMethod().DeclaringType.FullName}:error info:{e.Message}";
+                    Logger.Error(response.Msg);
+                }
+            }
+            return response;
+        }
+
+        /// <summary>
+        /// 获取所有信号源
+        /// </summary>
+        /// <remarks>原方法 GetAllSignalSrcs</remarks>
+        /// <returns>信号源信息集合</returns>
+        [HttpGet("signalsrc/all")]
+        [ApiExplorerSettings(GroupName = "v3.0")]
+        public async Task<ResponseMessage<List<SignalSrcResponse>>> AllSignalSrcs([FromHeader(Name = "sobeyhive-http-site"), BindRequired, DefaultValue("S1")] string site)
+        {
+            ResponseMessage<List<SignalSrcResponse>> response = new ResponseMessage<List<SignalSrcResponse>>();
+            try
+            {
+                response.Ext = await _deviceManage.GetAllSignalSrcsBySiteAsync<SignalSrcResponse>(site);
+                if (response.Ext == null || response.Ext?.Count <= 0)
+                {
+                    response.Code = ResponseCodeDefines.NotFound;
+                    response.Msg = $"{System.Reflection.MethodBase.GetCurrentMethod().DeclaringType.FullName}:error info: not find data!";
+                }
+                Logger.Error($"AllSignalSrcs Site result : {Newtonsoft.Json.JsonConvert.SerializeObject(response.Ext)}");
             }
             catch (Exception e)
             {

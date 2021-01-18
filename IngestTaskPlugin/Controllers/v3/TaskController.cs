@@ -12,18 +12,19 @@ using Microsoft.Extensions.DependencyInjection;
 using Sobey.Core.Log;
 using System;
 using System.Collections.Generic;
+using System.ComponentModel;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace IngestTaskPlugin.Controllers.v2._1
+namespace IngestTaskPlugin.Controllers.v3
 {
     
     [Route("api/v{version:apiVersion}/[controller]")]
-    [ApiVersion("2.1")]
+    [ApiVersion("3.0")]
     [ApiController]
     public partial class TaskController : ControllerBase
     {
-        private readonly ILogger Logger = LoggerManager.GetLogger("TaskInfo21");
+        private readonly ILogger Logger = LoggerManager.GetLogger("TaskInfo3");
         private readonly TaskManager _taskManage;
         private readonly Lazy<IIngestGlobalInterface> _globalInterface;
         private readonly IMapper _mapper;
@@ -46,7 +47,7 @@ namespace IngestTaskPlugin.Controllers.v2._1
         /// <param name="taskid">任务id，</param>
         /// <returns>任务内容全部信息包含元数据</returns>
         [HttpGet("{taskid}")]
-        [ApiExplorerSettings(GroupName = "v2.1")]
+        [ApiExplorerSettings(GroupName = "v3.0")]
         public async Task<ResponseMessage<TaskFullInfoResponse>> GetTaskFullInfoByID([FromRoute, BindRequired]int taskid)
         {
             var Response = new ResponseMessage<TaskFullInfoResponse>();
@@ -93,7 +94,7 @@ namespace IngestTaskPlugin.Controllers.v2._1
         /// <param name="taskid">任务id，</param>
         /// <returns>任务内容全部信息包含元数据</returns>
         [HttpGet("db/{taskid}")]
-        [ApiExplorerSettings(GroupName = "v2.1")]
+        [ApiExplorerSettings(GroupName = "vv3.0")]
         public async Task<ResponseMessage<Models.DbpTask>> GetTaskDBInfoByID([FromRoute, BindRequired]int taskid)
         {
             var Response = new ResponseMessage<Models.DbpTask>();
@@ -140,7 +141,7 @@ namespace IngestTaskPlugin.Controllers.v2._1
         /// <param name="taskid">老任务id，</param>
         /// <returns>任务内容全部信息包含元数据</returns>
         [HttpPost("schedule/{taskid}")]
-        [ApiExplorerSettings(GroupName = "v2.1")]
+        [ApiExplorerSettings(GroupName = "v3.0")]
         public async Task<ResponseMessage<TaskContentResponse>> AddRescheduleTaskByID([FromRoute, BindRequired]int taskid)
         {
             var Response = new ResponseMessage<TaskContentResponse>();
@@ -200,7 +201,7 @@ namespace IngestTaskPlugin.Controllers.v2._1
         /// <param name="taskid">老任务id，</param>
         /// <returns>任务内容全部信息包含元数据</returns>
         [HttpPut("reschedule/channel/{taskid}")]
-        [ApiExplorerSettings(GroupName = "v2.1")]
+        [ApiExplorerSettings(GroupName = "v3.0")]
         public async Task<ResponseMessage<TaskContentResponse>> RescheduleTaskChannelByID([FromRoute, BindRequired]int taskid)
         {
             var Response = new ResponseMessage<TaskContentResponse>();
@@ -243,5 +244,51 @@ namespace IngestTaskPlugin.Controllers.v2._1
             }
             return Response;
         }
+
+
+        /// <summary>
+        /// 查询1天的任务
+        /// </summary>
+        /// <remarks>
+        /// 例子:
+        ///
+        /// </remarks>
+        /// <param name="unitid">1是客户查询任务，跨天每天任务做分裂，2是web查询任务，跨天每天任务不做分裂</param>
+        /// <param name="day">查询时间yyyy/MM/dd HH:mm:ss </param>
+        /// <param name="timemode">查询模式0是24小时模式，1是32小时模式</param>
+        /// <returns>任务基础元数据</returns>
+        [HttpGet("onedaytask")]
+        [ApiExplorerSettings(GroupName = "v3.0")]
+        public async Task<ResponseMessage<List<TaskContentResponse>>> QueryTaskContent([FromQuery, BindRequired] int unitid, [FromQuery, BindRequired] string day, [FromQuery, BindRequired] int timemode, [FromHeader(Name = "sobeyhive-http-site"), BindRequired, DefaultValue("S1")] string site)
+        {
+            var Response = new ResponseMessage<List<TaskContentResponse>>();
+
+            try
+            {
+                Response.Ext = await _taskManage.QueryTaskContent<TaskContentResponse>(unitid, DateTimeFormat.DateTimeFromString(day), (TimeLineType)timemode);
+                if (Response.Ext == null)
+                {
+                    Response.Code = ResponseCodeDefines.NotFound;
+                    Response.Msg = $"{System.Reflection.MethodBase.GetCurrentMethod().DeclaringType.FullName}:error info: not find data!";
+                }
+            }
+            catch (Exception e)
+            {
+                if (e.GetType() == typeof(SobeyRecException))//sobeyexcep会自动打印错误
+                {
+                    SobeyRecException se = e as SobeyRecException;
+                    Response.Code = se.ErrorCode.ToString();
+                    Response.Msg = se.Message;
+                }
+                else
+                {
+                    Response.Code = ResponseCodeDefines.ServiceError;
+                    Response.Msg = "QueryTaskContent error info:" + e.Message;
+                    Logger.Error(Response.Msg);
+                }
+            }
+            return Response;
+        }
+
     }
 }

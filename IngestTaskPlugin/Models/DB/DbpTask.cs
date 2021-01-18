@@ -31,5 +31,7 @@ namespace IngestTaskPlugin.Models
         public int? Stamptitleindex { get; set; }
         public int? Stampimagetype { get; set; }
         public int? Sgroupcolor { get; set; }
+
+        public string SystemSite { get; set; }
     }
 }
