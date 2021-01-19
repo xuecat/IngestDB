@@ -60,7 +60,8 @@ namespace IngestDBCore.Tool
         public Dictionary<string, string> GetTokenHeader(string usertoken)
         {
             return new Dictionary<string, string>() {
-                {"sobeyhive-http-token", usertoken }
+                {"sobeyhive-http-token", usertoken },
+                {"sobeyhive-http-request-id", Guid.NewGuid().ToString("N")}
             };
         }
 
@@ -68,7 +69,8 @@ namespace IngestDBCore.Tool
         {
             return new Dictionary<string, string>() {
                 {"sobeyhive-http-secret", RSAHelper.RSAstr()},
-                {"current-user-code", usertoken }
+                {"current-user-code", usertoken },
+                {"sobeyhive-http-request-id", Guid.NewGuid().ToString("N")}
             };
         }
        

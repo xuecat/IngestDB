@@ -3495,11 +3495,7 @@ namespace IngestTaskPlugin.Stores
 
         #region 3.0
 
-        public async Task<List<DbpTask>> GetTaskListWithModeBySite(int cut, DateTime day, TimeLineType timetype, string site)
-        {
-            return (await GetTaskListWithMode(cut, day, timetype)).Where(x => x.SystemSite == site).ToList();
-        }
-
+        
         #endregion
 
     }

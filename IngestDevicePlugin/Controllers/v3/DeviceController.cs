@@ -107,7 +107,7 @@ namespace IngestDevicePlugin.Controllers.v3
         /// </summary>
         /// <remarks>原方法 GetAllChannelState</remarks>
         /// <returns>最优通道Id</returns>
-        [HttpGet("channelstate/all")]
+        [HttpGet("channelstate")]
         [ApiExplorerSettings(GroupName = "v3.0")]
         public async Task<ResponseMessage<List<MSVChannelStateResponse>>> AllChannelState([FromHeader(Name = "sobeyhive-http-site"), BindRequired, DefaultValue("S1")]string site)
         {
@@ -144,7 +144,7 @@ namespace IngestDevicePlugin.Controllers.v3
         /// </summary>
         /// <remarks>原方法 GetAllCaptureChannels</remarks>
         /// <returns>采集通道集合</returns>
-        [HttpGet("capturechannel/all")]
+        [HttpGet("channel")]
         [ApiExplorerSettings(GroupName = "v3.0")]
         public async Task<ResponseMessage<List<CaptureChannelInfoResponse>>> AllCaptureChannels([FromHeader(Name = "sobeyhive-http-site"), BindRequired, DefaultValue("S1")] string site)
         {
@@ -181,7 +181,7 @@ namespace IngestDevicePlugin.Controllers.v3
         /// </summary>
         /// <remarks>原方法 GetAllProgrammeInfos</remarks>
         /// <returns>节目集合</returns>
-        [HttpGet("programme/all")]
+        [HttpGet("programme")]
         [ApiExplorerSettings(GroupName = "v3.0")]
         public async Task<ResponseMessage<List<ProgrammeInfoResponse>>> AllProgrammeInfos([FromHeader(Name = "sobeyhive-http-site"), BindRequired, DefaultValue("S1")] string site)
         {
@@ -218,7 +218,7 @@ namespace IngestDevicePlugin.Controllers.v3
         /// </summary>
         /// <remarks>原方法 AllRouterOutPortInfos</remarks>
         /// <returns>输出端口的集合</returns>
-        [HttpGet("routeroutport/all")]
+        [HttpGet("routeroutport")]
         [ApiExplorerSettings(GroupName = "v3.0")]
         public async Task<ResponseMessage<List<RoterOutResponseEx>>> AllRouterOutPortInfos([FromHeader(Name = "sobeyhive-http-site"), BindRequired, DefaultValue("S1")] string site)
         {
@@ -255,7 +255,7 @@ namespace IngestDevicePlugin.Controllers.v3
         /// </summary>
         /// <remarks>原方法 AllRouterInPortInfos</remarks>
         /// <returns>输入端口的集合</returns>
-        [HttpGet("routerinport/all")]
+        [HttpGet("routerinport")]
         //device有点特殊，做了监听端口的所以不能全类检验
         [ApiExplorerSettings(GroupName = "v3.0")]
         public async Task<ResponseMessage<List<RouterInResponseEx>>> AllRouterInPortInfos([FromHeader(Name = "sobeyhive-http-site"), BindRequired, DefaultValue("S1")] string site)
@@ -296,7 +296,7 @@ namespace IngestDevicePlugin.Controllers.v3
         /// <param name="signalid">信号ID</param>
         /// <returns>采集参数</returns>
         /// <example>1111</example>
-        [HttpGet("capturetemplate/id/{signalid}")]
+        [HttpGet("capturetemplate/{signalid}")]
         [ApiExplorerSettings(GroupName = "v3.0")]
         public async Task<ResponseMessage<int>> CaptureTemplateId([FromRoute, BindRequired, DefaultValue(39)] int signalid)
         {
@@ -333,7 +333,7 @@ namespace IngestDevicePlugin.Controllers.v3
         /// </summary>
         /// <remarks>原方法 GetAllSignalSrcs</remarks>
         /// <returns>信号源信息集合</returns>
-        [HttpGet("signalsrc/all")]
+        [HttpGet("signalsrc")]
         [ApiExplorerSettings(GroupName = "v3.0")]
         public async Task<ResponseMessage<List<SignalSrcResponse>>> AllSignalSrcs([FromHeader(Name = "sobeyhive-http-site"), BindRequired, DefaultValue("S1")] string site)
         {

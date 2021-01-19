@@ -101,6 +101,7 @@ namespace IngestDB
                     applicationContext.ConnectionString = CreateDBConnect(ps, applicationContext.VIP);
                     applicationContext.Limit24Hours = Convert.ToBoolean(Configuration["Limit24Hours"]);
                     applicationContext.NotifyUdpInfomation = Convert.ToBoolean(Configuration["NotifyUdpInfomation"]);
+                    applicationContext.GlobalNotify = Convert.ToBoolean(Configuration["GlobalNotify"]);
 
                     logger.Info(path + sys.ToString() + applicationContext.ConnectionString);
                 }

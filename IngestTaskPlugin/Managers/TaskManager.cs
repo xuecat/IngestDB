@@ -4528,7 +4528,7 @@ namespace IngestTaskPlugin.Managers
 
         public async Task<List<TResult>> QueryTaskContentBySite<TResult>(int unitid, DateTime day, TimeLineType timetype, string site)
         {
-            return _mapper.Map<List<TResult>>(await Store.GetTaskListWithMode(unitid > 0 ? unitid : 1, day, timetype));
+            return _mapper.Map<List<TResult>>((await Store.GetTaskListWithMode(unitid > 0 ? unitid : 1, day, timetype)).Where(x=> x.SystemSite == site));
         }
 
         #endregion
