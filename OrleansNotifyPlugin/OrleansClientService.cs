@@ -6,6 +6,7 @@ namespace OrleansNotifyPlugin
     using IngestTask.Abstraction.Constants;
     using IngestTask.Abstraction.Grains;
     using Microsoft.Extensions.Hosting;
+    using Microsoft.Extensions.Logging;
     using Orleans;
     using Orleans.Configuration;
     using Orleans.Hosting;
@@ -16,12 +17,12 @@ namespace OrleansNotifyPlugin
     using System.Threading;
     using System.Threading.Tasks;
 
-    public abstract class OrleansClientService : IHostedService, IDisposable
+    public class OrleansClientService : IHostedService
     {
         public IClusterClient Client { get; }
         //private readonly ILogger Logger = LoggerManager.GetLogger("OrleansNotify");
         private bool _disposed;
-        OrleansClientService()
+        public OrleansClientService(ILoggerProvider loggerProvider)
         {
             Client = new ClientBuilder()
             .Configure<ClusterOptions>(options =>
@@ -38,8 +39,7 @@ namespace OrleansNotifyPlugin
             .Configure<GatewayOptions>(opts => opts.GatewayListRefreshPeriod = TimeSpan.FromMinutes(3))
             .ConfigureApplicationParts(
                     parts => parts
-                        .AddApplicationPart(typeof(IDispatcherGrain).Assembly)
-                        .WithReferences())
+                        .AddApplicationPart(typeof(IDispatcherGrain).Assembly))
             //.AddSimpleMessageStreamProvider(StreamProviderName.Default);
             .Build();
         }
