@@ -10,25 +10,27 @@ namespace IngestDBCore
 {
     public static class CoreCollectionExtensions
     {
-        public static void AddToolDefined(this IServiceCollection services, IHttpClientFactory httpClientFactory)
+        public static void AddToolDefined(this IServiceCollection services)
         {
             if (services == null)
             {
                 throw new ArgumentNullException(nameof(services));
             }
-            var client = new RestClient(httpClientFactory);
-            ApplicationContext.Current.KafkaUrl = client.GetGlobalParam(false, "admin", "KafkaAddress").Result;
-            ApplicationContext.Current.IngestMatrixUrl = "http://"+ client.GetGlobalParam(false, "admin", "IngestDeviceCtrlIP").Result;
-            ApplicationContext.Current.IngestMatrixUrl += ":";
-            ApplicationContext.Current.IngestMatrixUrl += client.GetGlobalParam(false, "admin", "IngestDeviceCtrlPort").Result;
+            
 
             if (!string.IsNullOrEmpty(ApplicationContext.Current.KafkaUrl))
             {
                 ApplicationContext.Current.KafkaUrl = ApplicationContext.Current.KafkaUrl.Replace(";", ",");
             }
-            
 
-            services.AddSingleton<RestClient>(client);
+            using (var client = new RestClient())
+            {
+                ApplicationContext.Current.KafkaUrl = client.GetGlobalParam(false, "admin", "KafkaAddress").Result;
+                ApplicationContext.Current.IngestMatrixUrl = "http://" + client.GetGlobalParam(false, "admin", "IngestDeviceCtrlIP").Result;
+                ApplicationContext.Current.IngestMatrixUrl += ":";
+                ApplicationContext.Current.IngestMatrixUrl += client.GetGlobalParam(false, "admin", "IngestDeviceCtrlPort").Result;
+            }
+            services.AddSingleton<RestClient>(provider => new RestClient(provider.GetService<IHttpClientFactory>()));
            
             ApplicationContext.Current.NotifyClock = new NotifyClock();
             services.AddSingleton<NotifyClock>(ApplicationContext.Current.NotifyClock);

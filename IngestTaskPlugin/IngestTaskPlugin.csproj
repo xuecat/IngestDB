@@ -1,19 +1,19 @@
-<Project Sdk="Microsoft.NET.Sdk">
+﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
-    <TargetFramework>netcoreapp2.1</TargetFramework>
+    <TargetFramework>netcoreapp3.1</TargetFramework>
     <AppendTargetFrameworkToOutputPath>false</AppendTargetFrameworkToOutputPath>
   </PropertyGroup>
 
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
-    <OutputPath>..\Bin\netcoreapp2.1\Plugin</OutputPath>
-    <DocumentationFile>..\Bin\netcoreapp2.1\Plugin\IngestTaskPlugin.xml</DocumentationFile>
+    <OutputPath>..\Bin\Plugin</OutputPath>
+    <DocumentationFile>..\Bin\Plugin\IngestTaskPlugin.xml</DocumentationFile>
     <NoWarn>1701;1702;1591;CS1584;CS1658</NoWarn>
   </PropertyGroup>
 
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|AnyCPU'">
-    <OutputPath>..\BinU\netcoreapp2.1\Plugin</OutputPath>
-    <DocumentationFile>..\BinU\netcoreapp2.1\Plugin\IngestTaskPlugin.xml</DocumentationFile>
+    <OutputPath>..\BinU\Plugin</OutputPath>
+    <DocumentationFile>..\BinU\Plugin\IngestTaskPlugin.xml</DocumentationFile>
   </PropertyGroup>
 
   <ItemGroup>

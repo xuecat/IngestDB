@@ -16,7 +16,9 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.ApplicationParts;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Hosting;
 using Microsoft.OpenApi.Models;
+using Newtonsoft.Json;
 using Newtonsoft.Json.Serialization;
 using Swashbuckle.AspNetCore.SwaggerGen;
 
@@ -62,9 +64,22 @@ namespace IngestDB
 
             var logger = Sobey.Core.Log.LoggerManager.GetLogger("Startup");
             services.AddSingleton<IConfigurationRoot>(cfg);
-            services.AddMvc(option => { option.Filters.Add(typeof(IngestAuthentication)); })
-                .SetCompatibilityVersion(CompatibilityVersion.Version_2_1)
-                .AddJsonOptions(options => { options.SerializerSettings.ContractResolver = new ShouldSerializeContractResolver(); });
+
+            //services.AddMvc(option => { option.Filters.Add(typeof(IngestAuthentication)); })
+            //    .SetCompatibilityVersion(CompatibilityVersion.Version_3_0)
+            //    .AddJsonOptions(options => { options.SerializerSettings.ContractResolver = new ShouldSerializeContractResolver(); });
+
+            services
+                .AddControllers(option => {
+                option.Filters.Add(typeof(IngestAuthentication));
+                })
+                .SetCompatibilityVersion(CompatibilityVersion.Version_3_0)
+                .AddNewtonsoftJson(opt =>
+                {
+                    opt.SerializerSettings.ContractResolver = new ShouldSerializeContractResolver();
+                    opt.SerializerSettings.DateFormatHandling = DateFormatHandling.MicrosoftDateFormat;
+                });
+
             //.AddJsonOptions(options =>//为swagger加的
             //options.SerializerSettings.Converters.Add(new StringEnumConverter()));
             string fileName = "publicsetting.xml";
@@ -134,7 +149,7 @@ namespace IngestDB
             }
             
             //单例注入RestClient等
-            services.AddToolDefined(services.BuildServiceProvider().GetService<IHttpClientFactory>());
+            services.AddToolDefined();
             bool InitIsOk = applicationContext.Init().Result;
 
             services.AddApiVersioning(o =>
@@ -241,7 +256,6 @@ namespace IngestDB
             }
             else
                 return "http://" + str;
-            return "";
         }
 
         public string CreateDBConnect(XElement config, string vip)
@@ -264,7 +278,7 @@ namespace IngestDB
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
-        public void Configure(IApplicationBuilder app, IHostingEnvironment env)
+        public void Configure(IApplicationBuilder app, IWebHostEnvironment env)
         {
             if (env.IsDevelopment())
             {
@@ -275,13 +289,7 @@ namespace IngestDB
                 app.UseHsts();
             }
             //跨域
-            app.UseCors(options =>
-            {
-                options.AllowAnyHeader();
-                options.AllowAnyMethod();
-                options.AllowAnyOrigin();
-                options.AllowCredentials();
-            });
+            app.UseCors("CorsPolicy");
 
             if (applicationContext.UseSwagger)
             {
@@ -304,7 +312,14 @@ namespace IngestDB
             //});
 
             //app.UseHttpsRedirection();
-            app.UseMvc();
+            //app.UseMvc();
+            app.UseRouting();
+            app.UseEndpoints(endpoints =>
+            {
+                endpoints.MapDefaultControllerRoute();
+                endpoints.MapControllerRoute("default", "{controller=Home}/{action=Index}/{id?}");
+            });
+
             applicationContext.AppServiceProvider = app.ApplicationServices;
             using (var scope = app.ApplicationServices.GetRequiredService<IServiceScopeFactory>().CreateScope())
             {
@@ -312,7 +327,7 @@ namespace IngestDB
                 //var context = scope.ServiceProvider.GetRequiredService<ApplicationDbContext>();
                 //var pluginFactory = scope.ServiceProvider.GetRequiredService<IPluginFactory>();
             }
-            applicationContext.Start();
+            applicationContext.Start().GetAwaiter();
         }
     }
 }

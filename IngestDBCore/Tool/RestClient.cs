@@ -31,6 +31,18 @@ namespace IngestDBCore.Tool
             _httpClient.DefaultRequestHeaders.Add("sobeyhive-http-site", "S1");
             _httpClient.DefaultRequestHeaders.Add("sobeyhive-http-tool", "INGESTSERVER");
         }
+        public RestClient()
+        {
+            _disposed = false;
+            _httpClient =  new HttpClient();
+            _httpClient.DefaultRequestHeaders.Connection.Clear();
+            _httpClient.DefaultRequestHeaders.ConnectionClose = false;
+            _httpClient.Timeout = TimeSpan.FromSeconds(15);
+            _httpClient.DefaultRequestHeaders.Accept.Add(new MediaTypeWithQualityHeaderValue("application/json"));
+            _httpClient.DefaultRequestHeaders.Add("sobeyhive-http-system", "INGESTSERVER");
+            _httpClient.DefaultRequestHeaders.Add("sobeyhive-http-site", "S1");
+            _httpClient.DefaultRequestHeaders.Add("sobeyhive-http-tool", "INGESTSERVER");
+        }
         public void Dispose()
         {
             Dispose(true);

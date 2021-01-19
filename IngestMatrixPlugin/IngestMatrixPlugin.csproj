@@ -1,24 +1,24 @@
-<Project Sdk="Microsoft.NET.Sdk">
+﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
-    <TargetFramework>netcoreapp2.1</TargetFramework>
+    <TargetFramework>netcoreapp3.1</TargetFramework>
     <RootNamespace>IngestMatrixPlugin</RootNamespace>
     <AssemblyName>IngestMatrixPlugin</AssemblyName>
     <AppendTargetFrameworkToOutputPath>false</AppendTargetFrameworkToOutputPath>
   </PropertyGroup>
 
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
-    <OutputPath>..\Bin\netcoreapp2.1\Plugin</OutputPath>
+    <OutputPath>..\Bin\Plugin</OutputPath>
   </PropertyGroup>
 
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|AnyCPU'">
-    <OutputPath>..\BinU\netcoreapp2.1\Plugin</OutputPath>
-    <DocumentationFile>..\BinU\netcoreapp2.1\Plugin\IngestMatrixPlugin.xml</DocumentationFile>
+    <OutputPath>..\BinU\Plugin</OutputPath>
+    <DocumentationFile>..\BinU\Plugin\IngestMatrixPlugin.xml</DocumentationFile>
   </PropertyGroup>
 
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
-    <DocumentationFile>..\Bin\netcoreapp2.1\Plugin\IngestMatrixPlugin.xml</DocumentationFile>
-    <OutputPath>..\Bin\netcoreapp2.1\Plugin\</OutputPath>
+    <DocumentationFile>..\Bin\Plugin\IngestMatrixPlugin.xml</DocumentationFile>
+    <OutputPath>..\Bin\Plugin\</OutputPath>
     <AppendTargetFrameworkToOutputPath>false</AppendTargetFrameworkToOutputPath>
     <CheckForOverflowUnderflow>false</CheckForOverflowUnderflow>
   </PropertyGroup>
