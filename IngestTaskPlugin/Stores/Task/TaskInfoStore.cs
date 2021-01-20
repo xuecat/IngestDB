@@ -3492,5 +3492,11 @@ namespace IngestTaskPlugin.Stores
             return false;
         }
 
+
+        #region 3.0
+
+        
+        #endregion
+
     }
 }

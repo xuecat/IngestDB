@@ -3670,7 +3670,7 @@ namespace IngestTaskPlugin.Managers
             return false;
         }
 
-        public async Task<DbpTask> AddTaskWithPolicy<TResult>(TResult info, bool backup, string CaptureMeta, string ContentMeta, string MatiralMeta, string PlanningMeta, bool isOnlyLocalChannel = true)
+        public async Task<DbpTask> AddTaskWithPolicy<TResult>(TResult info, bool backup, string CaptureMeta, string ContentMeta, string MatiralMeta, string PlanningMeta, bool isOnlyLocalChannel = true, string site = "")
         {
             var taskinfo = _mapper.Map<TaskInfoRequest>(info);
 
@@ -3824,6 +3824,7 @@ namespace IngestTaskPlugin.Managers
                             dest.SyncState = (int)syncState.ssNot;
                             dest.Tasklock = string.Empty;
                             dest.Taskid = -1;
+                            dest.SystemSite = site;
                         })), true, TaskSource.emMSVUploadTask,
                         string.IsNullOrEmpty(CaptureMeta) ? taskinfo.CaptureMeta : CaptureMeta,
                         string.IsNullOrEmpty(ContentMeta) ? ConverTaskContentMetaString(taskinfo.ContentMeta, opType.otAdd) : ContentMeta,
@@ -3994,6 +3995,7 @@ namespace IngestTaskPlugin.Managers
                     dest.SyncState = (int)syncState.ssSync;
                     dest.Tasklock = string.Empty;
                     dest.Taskid = -1;
+                    dest.SystemSite = site;
                 })), true, taskinfo.TaskSource,
                 string.IsNullOrEmpty(CaptureMeta) ? taskinfo.CaptureMeta : CaptureMeta,
                 string.IsNullOrEmpty(ContentMeta) ? ConverTaskContentMetaString(taskinfo.ContentMeta, opType.otAdd) : ContentMeta,
@@ -4523,7 +4525,15 @@ namespace IngestTaskPlugin.Managers
             return Store.UpdateTaskBmp(taskPmp);
         }
 
-        
+
+        #region v3.0
+
+        public async Task<List<TResult>> QueryTaskContentBySite<TResult>(int unitid, DateTime day, TimeLineType timetype, string site)
+        {
+            return _mapper.Map<List<TResult>>((await Store.GetTaskListWithMode(unitid > 0 ? unitid : 1, day, timetype)).Where(x=> x.SystemSite == site));
+        }
+
+        #endregion
 
     }
 }

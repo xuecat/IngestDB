@@ -1126,6 +1126,15 @@ namespace IngestDevicePlugin.Stores
             return query;
         }
 
+        public Task<List<DbpSignalsrc>> GetAllSignalsrcForRcdinBySiteAsync(string site, bool notrack = false)
+        {
+            return QueryListAsync(Context.DbpSignalsrc,
+                                        a => a.Join(Context.DbpRcdindesc.Where(x=>x.SystemSite == site).Select(rcdin => rcdin.Signalsrcid),
+                                                    src => src.Signalsrcid,
+                                                    rcdin => rcdin,
+                                                    (src, rcdin) => src),
+                                        notrack);
+        }
         #endregion
 
     }

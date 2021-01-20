@@ -982,6 +982,12 @@ namespace IngestDevicePlugin.Managers
             return _mapper.Map<List<TResult>>(await Store.GetRcdindescAsync(a => a.Where(x => x.SystemSite == site), true));
         }
 
+        /// <summary> 获取所有信号源 </summary>
+        public virtual async Task<List<TResult>> GetAllSignalSrcsBySiteAsync<TResult>(string site)
+        {
+            return _mapper.Map<List<TResult>>((await Store.GetAllSignalsrcForRcdinBySiteAsync(site, true)).CustomSort().ToList());
+        }
+
         #endregion
 
     }

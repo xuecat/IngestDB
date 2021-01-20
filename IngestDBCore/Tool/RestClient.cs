@@ -72,7 +72,8 @@ namespace IngestDBCore.Tool
         public Dictionary<string, string> GetTokenHeader(string usertoken)
         {
             return new Dictionary<string, string>() {
-                {"sobeyhive-http-token", usertoken }
+                {"sobeyhive-http-token", usertoken },
+                {"sobeyhive-http-request-id", Guid.NewGuid().ToString("N")}
             };
         }
 
@@ -80,7 +81,8 @@ namespace IngestDBCore.Tool
         {
             return new Dictionary<string, string>() {
                 {"sobeyhive-http-secret", RSAHelper.RSAstr()},
-                {"current-user-code", usertoken }
+                {"current-user-code", usertoken },
+                {"sobeyhive-http-request-id", Guid.NewGuid().ToString("N")}
             };
         }
        
@@ -461,13 +463,18 @@ namespace IngestDBCore.Tool
         }
 
 
-        public async Task<int> GetUserParamTemplateID(bool usetokencode, string userTokenOrCode)
+        public async Task<int> GetUserParamTemplateID(bool usetokencode, string userTokenOrCode, string site = "")
         {
             Dictionary<string, string> header = null;
             if (usetokencode)
                 header = GetTokenHeader(userTokenOrCode);
             else
                 header = GetCodeHeader(userTokenOrCode);
+
+            if (!string.IsNullOrEmpty(site))
+            {
+                header.Add("sobeyhive-http-site", site);
+            }
 
             var back = await AutoRetry.Run<ResponseMessage<CmParam>>(() =>
                 {

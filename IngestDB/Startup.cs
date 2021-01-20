@@ -116,6 +116,7 @@ namespace IngestDB
                     applicationContext.ConnectionString = CreateDBConnect(ps, applicationContext.VIP);
                     applicationContext.Limit24Hours = Convert.ToBoolean(Configuration["Limit24Hours"]);
                     applicationContext.NotifyUdpInfomation = Convert.ToBoolean(Configuration["NotifyUdpInfomation"]);
+                    applicationContext.GlobalNotify = Convert.ToBoolean(Configuration["GlobalNotify"]);
 
                     logger.Info(path + sys.ToString() + applicationContext.ConnectionString);
                 }
@@ -195,9 +196,9 @@ namespace IngestDB
                         //TermsOfService = new Uri("None"),
                     });
 
-                    c.SwaggerDoc("v2.1", new OpenApiInfo
+                    c.SwaggerDoc("v3", new OpenApiInfo
                     {
-                        Version = "v2.1",
+                        Version = "v3",
                         Title = "> 收录新版本网关接口文档(部分为task服务的接口)",
                         Description = "**Ingest Web API**(接口设计原则: `Post`->新加和修改，`Post`->新加；`Put`->修改, 所有路由和参数均是小写, 所有返回值均是驼峰(注释的是大写, 实际返回驼峰))",
                         Contact = new OpenApiContact { Name = "XueCat", Email = "", Url = new Uri("http://ingest.com") },
@@ -223,6 +224,7 @@ namespace IngestDB
 
                     c.DocInclusionPredicate((version, desc) =>
                     {
+                        //if (version != desc.GroupName) return false; //先暂时这样修改，防止v2.1接口出现在v2下面造成swaager url冲突
 
                         if (!desc.TryGetMethodInfo(out System.Reflection.MethodInfo methodInfo)) return false;
                         var versions = methodInfo.DeclaringType
@@ -237,8 +239,9 @@ namespace IngestDB
                             .SelectMany(attr => attr.Versions)
                             .ToArray();
 
-                        return versions.Any(v => $"v{v.MajorVersion.ToString()}" == version || $"v{v.MajorVersion.ToString()}.{v.MinorVersion.ToString()}" == version)
+                        var result = versions.Any(v => $"v{v.MajorVersion.ToString()}" == version || $"v{v.MajorVersion.ToString()}.{v.MinorVersion.ToString()}" == version)
                                && (!maps.Any() || maps.Any(v => $"v{v.MajorVersion.ToString()}" == version));
+                        return result;
                     });
                 });
             }
@@ -298,7 +301,7 @@ namespace IngestDB
                     
                     c.SwaggerEndpoint("/swagger/v1/swagger.json", "IngestGateway API V1");
                     c.SwaggerEndpoint("/swagger/v2/swagger.json", "IngestGateway API V2");
-                    c.SwaggerEndpoint("/swagger/v2.1/swagger.json", "IngestGateway API V2.1");
+                    c.SwaggerEndpoint("/swagger/v3/swagger.json", "IngestGateway API V3");
                     //c.ShowRequestHeaders();
                 });
             }

@@ -205,6 +205,9 @@ namespace IngestDevicePlugin.Stores
         Task<List<DbpMsvchannelState>> GetMsvchannelStateBySiteAsync(string site);
         Task<List<CaptureChannelInfoDto>> GetAllCaptureChannelsBySiteAsync(int status, string site);
         Task<List<ProgrammeInfoDto>> GetAllProgrammeInfoBySiteAsync(string site);
+
+        /// <summary>获取所有输入宽口信号源</summary>
+        Task<List<DbpSignalsrc>> GetAllSignalsrcForRcdinBySiteAsync(string site, bool notrack = false);
         #endregion
 
     }

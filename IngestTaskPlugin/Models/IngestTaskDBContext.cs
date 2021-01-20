@@ -407,6 +407,10 @@ namespace IngestTaskPlugin.Models
                     .HasColumnName("USERCODE")
                     .HasColumnType("varchar(256)")
                     .HasDefaultValueSql("''");
+
+                entity.Property(e => e.SystemSite)
+                    .HasColumnName("SYSTEMSITE")
+                    .HasColumnType("varchar(128)");
             });
 
             modelBuilder.Entity<DbpTaskBackup>(entity =>
