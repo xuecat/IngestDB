@@ -54,7 +54,7 @@ namespace IngestGlobalPlugin.Controllers.v1
         {
             try
             {
-                Logger.Error($"DeleteMqMsgByTaskId task: {taskid}");
+                Logger.Info($"DeleteMqMsgByTaskId task: {taskid}");
                 return await _materialManage.DeleteMqMsgByTaskId(taskid);
             }
             catch (Exception ex)
