@@ -30,6 +30,8 @@ namespace IngestDBCore.Notify
 
 
         static public string MSVRELOCATE { get { return "MSVRELOCATE"; } }
+
+        static public string CREATEPERIODICTASK { get { return "CREATEPERIODICTASK"; } }
     }
 
     public class SubNotify
