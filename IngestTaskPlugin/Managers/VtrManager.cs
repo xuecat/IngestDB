@@ -113,9 +113,12 @@ namespace IngestTaskPlugin.Managers
         /// <returns>The 默认磁带ID<see cref="Task{int}"/>.</returns>
         public async ValueTask<int> GetVtrTapeItemAsync(int vtrId)
         {
-            return await VtrStore.GetTapeVtrMap(a => a.Where(x => x.Vtrid == vtrId)
+            Logger.Info($"GetVtrTapeItemAsync {vtrId}");
+            var result = await VtrStore.GetTapeVtrMap(a => a.Where(x => x.Vtrid == vtrId)
                 .Select(x => x.Tapeid)
-                .FirstOrDefaultAsync());
+                .FirstOrDefaultAsync(), true);
+            Logger.Info($"GetVtrTapeItemAsync end.");
+            return result;
         }
 
         /// <summary>
@@ -125,7 +128,10 @@ namespace IngestTaskPlugin.Managers
         /// <returns>磁带信息.</returns>
         public async Task<T> GetTapeInfoByIDAsync<T>(int tapeId)
         {
-            return Mapper.Map<T>(await VtrStore.GetTapelist(a => a.FirstOrDefaultAsync(x => x.Tapeid == tapeId)));
+            Logger.Info("GetTapeInfoByIDAsync before query");
+            var result = await VtrStore.GetTapelist(a => a.FirstOrDefaultAsync(x => x.Tapeid == tapeId), true);
+            Logger.Info("GetTapeInfoByIDAsync end query");
+            return Mapper.Map<T>(result);
         }
 
         /// <summary>
@@ -184,7 +190,7 @@ namespace IngestTaskPlugin.Managers
                 {
                     upload.Tapeid = await VtrStore.GetTapeVtrMap(a => a.Where(x => x.Vtrid == upload.Vtrid)
                         .Select(x => x.Tapeid)
-                        .SingleOrDefaultAsync());
+                        .SingleOrDefaultAsync(), true);
                 }
 
                 //SB_TimeCode tcIn = new SB_TimeCode((uint)upload.Trimin);
@@ -252,7 +258,7 @@ namespace IngestTaskPlugin.Managers
                 {
                     upload.Tapeid = await VtrStore.GetTapeVtrMap(a => a.Where(x => x.Vtrid == upload.Vtrid)
                         .Select(x => x.Tapeid)
-                        .SingleOrDefaultAsync());
+                        .SingleOrDefaultAsync(), true);
                 }
                 
                 await VtrStore.UpdateUploadtask(upload);
@@ -447,7 +453,12 @@ namespace IngestTaskPlugin.Managers
         /// </summary>
         /// <returns>The 所有vtr信息<see cref="Task{List{TResult}}"/>.</returns>
         public async Task<List<TResult>> GetUsableVtrListAsync<TResult>()
-        { return Mapper.Map<List<TResult>>(await VtrStore.GetDetailinfo(a => a, true)); }
+        {
+            Logger.Debug("before get Detailinfo.");
+            var result = await VtrStore.GetDetailinfo(a => a, true);
+            Logger.Debug($"after get Detailinfo. {result.Count}");
+            return Mapper.Map<List<TResult>>(result); 
+        }
 
         /// <summary>
         /// The 获得需要即将调度的VTR任务.
@@ -1766,7 +1777,7 @@ namespace IngestTaskPlugin.Managers
                 {
                     if (vtrId > 0)
                     {
-                        VtrDetailinfo vtrInfo = (await VtrStore.GetDetailinfo(a => a.Where(x => x.Vtrid == vtrId))).FirstOrDefault();
+                        VtrDetailinfo vtrInfo = (await VtrStore.GetDetailinfo(a => a.Where(x => x.Vtrid == vtrId), true)).FirstOrDefault();
                         msg = string.Format("{0} has been used by other tasks", vtrInfo.Vtrname);
                     }
                 }
@@ -2497,7 +2508,7 @@ namespace IngestTaskPlugin.Managers
                 {
                     if (vtrId > 0)
                     {
-                        VtrDetailinfo vtrInfo = (await VtrStore.GetDetailinfo(a => a.Where(x => x.Vtrid == vtrId))).FirstOrDefault();
+                        VtrDetailinfo vtrInfo = (await VtrStore.GetDetailinfo(a => a.Where(x => x.Vtrid == vtrId), true)).FirstOrDefault();
                         msg = string.Format("{0} has been used by other tasks", vtrInfo.Vtrname);
                     }
                 }

@@ -758,7 +758,7 @@
         [HttpGet("CommitVTRUploadTask")]
         public async Task<TaskOldResponseMessage<int>> CommitVTRUploadTask([FromQuery] int taskId)
         {
-            Logger.Error($"CommitVTRUploadTask vtrTask taskId : {taskId}");
+            Logger.Info($"CommitVTRUploadTask vtrTask taskId : {taskId}");
 
             TaskOldResponseMessage<int> res = new TaskOldResponseMessage<int>();
             res.message = no_err;
@@ -903,7 +903,7 @@
         [HttpPost("AddVTRUploadTask")]
         public async Task<TaskOldResponseMessage<Dto.OldResponse.OldVtr.AddVTRUploadTask_out>> AddVTRUploadTask([FromBody]AddVTRUploadTask_in pIn)
         {
-            Logger.Error($"AddVTRUploadTask : {Newtonsoft.Json.JsonConvert.SerializeObject(pIn)}");
+            Logger.Info($"AddVTRUploadTask : {Newtonsoft.Json.JsonConvert.SerializeObject(pIn)}");
 
             TaskOldResponseMessage<AddVTRUploadTask_out> response = new TaskOldResponseMessage<AddVTRUploadTask_out>();
             response.extention = new AddVTRUploadTask_out();
@@ -999,7 +999,7 @@
         [Route("AddVTRBatchUploadTasks")]
         public async Task<TaskOldResponseMessage<VtrBatchUploadTask>> AddVTRBatchUploadTasks([FromBody] AddVTRBatchUploadTasks_in pIn)
         {
-            Logger.Error($"AddVTRBatchUploadTasks : {Newtonsoft.Json.JsonConvert.SerializeObject(pIn)}");
+            Logger.Info($"AddVTRBatchUploadTasks : {Newtonsoft.Json.JsonConvert.SerializeObject(pIn)}");
 
             TaskOldResponseMessage<VtrBatchUploadTask> res = new TaskOldResponseMessage<VtrBatchUploadTask>();
             res.extention = new VtrBatchUploadTask();
