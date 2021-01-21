@@ -105,6 +105,9 @@ namespace IngestTaskPlugin.Stores
         Task UpdateTaskMetaDataListAsync(List<Dto.Request.SubmitMetadata> metadatas);
         Task<bool> UpdateTaskBmp(Dictionary<int, string> taskPmp);
 
+        #region 3.0
+        Task<List<DbpTask>> GetTaskListWithModeBySite(int cut, DateTime day, TimeLineType timetype, string site);
 
+        #endregion
     }
 }

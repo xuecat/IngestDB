@@ -26,57 +26,6 @@ namespace IngestGlobalPlugin.Controllers.v3
             //_restClient = rsc;
         }
 
-        /// <summary>
-        /// 获取captureparamtemplate指定captureid的值，返回param
-        /// </summary>
-        /// <param name="captureparamid">模板id</param>
-        /// <returns>Captureparam结果</returns>
-        /// <remarks>
-        /// 例子:
-        /// Get api/v2.1/global/captureparamtemplate/{nCaptureParamID}
-        /// </remarks>
-        [HttpGet("captureparamtemplate/{captureparamid}")]
-        [ApiExplorerSettings(GroupName = "v3")]
-        public async Task<ResponseMessage<string>> GetParamTemplateStringByID([FromRoute, BindRequired, DefaultValue(1)] int captureparamid)
-        {
-            ResponseMessage<string> Response = new ResponseMessage<string>();
-            try
-            {
-                //读取采集参数模板
-                string temp = await _GlobalManager.GetCapParamTemplateByIDAsync(captureparamid);
-                if (string.IsNullOrEmpty(temp))
-                {
-                    Response.Msg = "There's no CaptureParam!";
-                    Response.Code = ResponseCodeDefines.PartialFailure;
-                    return Response;
-                }
-                Response.Ext = temp;
-                if (string.IsNullOrEmpty(Response.Ext))
-                {
-                    Response.Code = ResponseCodeDefines.NotFound;
-                    Response.Msg = $"{System.Reflection.MethodBase.GetCurrentMethod().DeclaringType.FullName}:error info: not find data!";
-                }
-                else
-                    Response.Code = ResponseCodeDefines.SuccessCode;
-            }
-            catch (Exception e)//其他未知的异常，写异常日志
-            {
-                if (e.GetType() == typeof(SobeyRecException))//sobeyexcep会自动打印错误
-                {
-                    SobeyRecException se = e as SobeyRecException;
-                    Response.Code = se.ErrorCode.ToString();
-                    Response.Msg = se.Message;
-                }
-                else
-                {
-                    Response.Code = ResponseCodeDefines.ServiceError;
-                    Response.Msg = "error info:" + e.Message;
-                    Logger.Error("GetParamTemplateStringByID : " + Response.Msg);
-                }
-            }
-            return Response;
-        }
-
 
         /// <remarks>
         /// 例子:
@@ -88,8 +37,8 @@ namespace IngestGlobalPlugin.Controllers.v3
         /// <param name="usertoken">用户usertoken</param>
         /// <param name="flag">nFlag:0为标清，1为高清</param>
         /// <returns>采集参数</returns>
-        [HttpGet("captureparamtemplate/highorstandard")]
-        [ApiExplorerSettings(GroupName = "v3")]
+        [HttpGet("capturetemplate/param/highorstandard")]
+        [ApiExplorerSettings(GroupName = "v3.0")]
         public async Task<ResponseMessage<string>> GetUserHighOrStandardCapParam([FromQuery, DefaultValue("897cd4f79531e3c04c2c9a371e4db4ea")] string usertoken, [FromQuery, DefaultValue(0)] int flag, [FromHeader(Name = "sobeyhive-http-site"), BindRequired, DefaultValue("S1")] string site)//nFlag:0为标清，1为高清
         {
             ResponseMessage<string> Response = new ResponseMessage<string>();
@@ -136,30 +85,33 @@ namespace IngestGlobalPlugin.Controllers.v3
         /// 例子:
         /// Get api/v2/global/captureparamtemplate/{nCaptureParamID}
         /// </remarks>
-        [HttpGet("captureparamtemplate/flag/{captureparamid}")]
-        [ApiExplorerSettings(GroupName = "v3")]
-        public async Task<ResponseMessage<string>> GetParamTemplateByID([FromRoute, DefaultValue(1)] int captureparamid, [FromQuery, DefaultValue(0)] int flag)
+        [HttpGet("capturetemplate/param/{captureparamid}")]
+        [ApiExplorerSettings(GroupName = "v3.0")]
+        public async Task<ResponseMessage<string>> GetParamTemplateByID([FromRoute, DefaultValue(1)] int captureparamid, [FromQuery] int? flag)
         {
             ResponseMessage<string> Response = new ResponseMessage<string>();
             try
             {
                 //读取采集参数模板
                 string temp = await _GlobalManager.GetCapParamTemplateByIDAsync(captureparamid);
-                temp = _GlobalManager.DealCaptureParam(temp, flag);
-                if (string.IsNullOrEmpty(temp))
+                if (flag != null)
+                {
+                    temp = _GlobalManager.DealCaptureParam(temp, (int)flag);
+                }
+                Response.Ext = temp;
+                if (string.IsNullOrEmpty(Response.Ext))
                 {
                     Response.Msg = "There's no CaptureParam!";
                     Response.Code = ResponseCodeDefines.PartialFailure;
                     return Response;
                 }
-                Response.Ext = temp;
-                if (string.IsNullOrEmpty(Response.Ext))
-                {
-                    Response.Code = ResponseCodeDefines.NotFound;
-                    Response.Msg = $"{System.Reflection.MethodBase.GetCurrentMethod().DeclaringType.FullName}:error info: not find data!";
-                }
                 else
+                {
                     Response.Code = ResponseCodeDefines.SuccessCode;
+                }
+
+                Logger.Info($"GetParamTemplateByID Site captureparamid : {captureparamid}, flag: {flag}, Result : {Response.Ext}" );
+
             }
             catch (Exception e)//其他未知的异常，写异常日志
             {

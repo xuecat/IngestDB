@@ -6,7 +6,9 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using ProgrammeInfoDto = IngestDevicePlugin.Dto.Response.ProgrammeInfoResponse;
+using ProgrammeInfoExDto = IngestDevicePlugin.Dto.Response.ProgrammeInfoExResponse;
 using CaptureChannelInfoDto = IngestDevicePlugin.Dto.Response.CaptureChannelInfoResponse;
+using CaptureChannelInfoExDto = IngestDevicePlugin.Dto.Response.CaptureChannelInfoExResponse;
 using DeviceInfoDto = IngestDevicePlugin.Dto.Response.DeviceInfoResponse;
 using IngestDevicePlugin.Dto.Response;
 using IngestDevicePlugin.Dto.OldResponse;
@@ -200,14 +202,19 @@ namespace IngestDevicePlugin.Stores
         Task<List<TResult>> GetXdcamDeviceListAsync<TResult>(Func<IQueryable<DbpXdcamDevice>, IQueryable<TResult>> query, bool notrack = false);
 
 
-        #region 2.1
+        #region 3.0
 
         Task<List<DbpMsvchannelState>> GetMsvchannelStateBySiteAsync(string site);
-        Task<List<CaptureChannelInfoDto>> GetAllCaptureChannelsBySiteAsync(int status, string site);
-        Task<List<ProgrammeInfoDto>> GetAllProgrammeInfoBySiteAsync(string site);
+        Task<List<CaptureChannelInfoExDto>> GetAllCaptureChannelsBySiteAsync(int status, string site);
+        Task<List<CaptureChannelInfoExDto>> GetAllChannelsBySiteAreaAsync(int status, string site, int area);
+        Task<List<ProgrammeInfoExDto>> GetAllProgrammeInfoBySiteAsync(string site);
+
+        Task<ProgrammeInfoExDto> GetSignalInfoOnAreaSiteAsync(int srcid);
 
         /// <summary>获取所有输入宽口信号源</summary>
         Task<List<DbpSignalsrc>> GetAllSignalsrcForRcdinBySiteAsync(string site, bool notrack = false);
+
+        Task<CaptureChannelInfoDto> GetSiteCaptureChannelByIDAsync(int channelid);
         #endregion
 
     }
