@@ -624,7 +624,7 @@ namespace IngestGlobalPlugin.Managers
 
         #endregion
 
-        #region v2.1
+        #region v3.0
 
         /// <summary>
         /// 调用cmapi获取paramvalue

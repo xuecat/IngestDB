@@ -13,13 +13,16 @@ namespace IngestTaskInterfacePlugin
 {
     public class IngestDeviceInterfaceImplement : IIngestDeviceInterface
     {
-        public IngestDeviceInterfaceImplement(IMapper mapper, DeviceController controller)
+        public IngestDeviceInterfaceImplement(IMapper mapper, DeviceController controller, IngestDevicePlugin.Controllers.v3.DeviceController control3)
         {
             _mapper = mapper ?? throw new ArgumentNullException(nameof(mapper));
             _controller = controller;
+            _controllerv3 = control3;
         }
 
         private DeviceController _controller { get; }
+
+        IngestDevicePlugin.Controllers.v3.DeviceController _controllerv3 { get; set; }
         protected IMapper _mapper { get; }
         public async Task<ResponseMessage> GetDeviceCallBack(DeviceInternals examineResponse)
         {
@@ -94,6 +97,11 @@ namespace IngestTaskInterfacePlugin
                     return _mapper.Map<ResponseMessage<List<CaptureDeviceInfoInterface>>>(await _controller.AllCaptureDevices());
                 case FunctionType.RtmpCaptureChannels:
                     return _mapper.Map<ResponseMessage<List<CaptureChannelInfoInterface>>>(await _controller.RtmpCaptureChannels());
+                case FunctionType.RtmpCaptureChannelsV3:
+                    return _mapper.Map<ResponseMessage<List<CaptureChannelInfoInterface>>>(await _controllerv3.RtmpCaptureChannels(examineResponse.SystemSite));
+                case FunctionType.ChannelInfoBySrcV3:
+                    return _mapper.Map<ResponseMessage<List<CaptureChannelInfoInterface>>>(
+                            await _controllerv3.ChannelsOnAreaByProgrammeId(examineResponse.SrcId, examineResponse.Status));
                 default:
                     break;
             }

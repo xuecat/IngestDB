@@ -120,7 +120,7 @@ namespace IngestDevicePlugin.Controllers.v3
                     response.Code = ResponseCodeDefines.NotFound;
                     response.Msg = $"{System.Reflection.MethodBase.GetCurrentMethod().DeclaringType.FullName}:error info: not find data!";
                 }
-                Logger.Error($"AllChannelState Site Result : {Newtonsoft.Json.JsonConvert.SerializeObject(response.Ext)}");
+                Logger.Info($"AllChannelState Site Result : {Newtonsoft.Json.JsonConvert.SerializeObject(response.Ext)}");
             }
             catch (Exception e)
             {
@@ -157,7 +157,45 @@ namespace IngestDevicePlugin.Controllers.v3
                     response.Code = ResponseCodeDefines.NotFound;
                     response.Msg = $"{System.Reflection.MethodBase.GetCurrentMethod().DeclaringType.FullName}:error info: not find data!";
                 }
-                Logger.Error($"AllCaptureChannels Site Result : {Newtonsoft.Json.JsonConvert.SerializeObject(response.Ext)} ");
+                Logger.Info($"AllCaptureChannels Site Result : {Newtonsoft.Json.JsonConvert.SerializeObject(response.Ext)} ");
+            }
+            catch (Exception e)
+            {
+                if (e is SobeyRecException se)//sobeyexcep会自动打印错误
+                {
+                    response.Code = se.ErrorCode.ToString();
+                    response.Msg = se.Message;
+                }
+                else
+                {
+                    response.Code = ResponseCodeDefines.ServiceError;
+                    response.Msg = $"{System.Reflection.MethodBase.GetCurrentMethod().DeclaringType.FullName}:error info:{e.Message}";
+                    Logger.Error(response.Msg);
+                }
+            }
+            return response;
+        }
+
+        /// <summary>
+        /// 通过 通道ID 获取采集通道
+        /// </summary>
+        /// <remarks>原方法 GetCaptureChannelByID</remarks>
+        /// <param name="channelid">通道Id</param>
+        /// <returns>采集通道</returns>
+        [HttpGet("channel/{channelid}")]
+        [ApiExplorerSettings(GroupName = "v3.0")]
+        public async Task<ResponseMessage<CaptureChannelInfoResponse>> CaptureChannelByID([FromRoute, BindRequired, DefaultValue(2)] int channelid)
+        {
+            ResponseMessage<CaptureChannelInfoResponse> response = new ResponseMessage<CaptureChannelInfoResponse>();
+            try
+            {
+                response.Ext = await _deviceManage.GetSiteCaptureChannelByIDAsync<CaptureChannelInfoResponse>(channelid);
+                if (response.Ext == null)
+                {
+                    response.Code = ResponseCodeDefines.NotFound;
+                    response.Msg = $"{System.Reflection.MethodBase.GetCurrentMethod().DeclaringType.FullName}:error info: not find data!";
+                }
+                Logger.Info($"CaptureChannelByID Site chnId : {channelid} , Result : {Newtonsoft.Json.JsonConvert.SerializeObject(response.Ext)}");
             }
             catch (Exception e)
             {
@@ -194,7 +232,7 @@ namespace IngestDevicePlugin.Controllers.v3
                     response.Code = ResponseCodeDefines.NotFound;
                     response.Msg = $"{System.Reflection.MethodBase.GetCurrentMethod().DeclaringType.FullName}:error info: not find data!";
                 }
-                Logger.Error($"AllProgrammeInfos Site Result : {Newtonsoft.Json.JsonConvert.SerializeObject(response.Ext)}");
+                Logger.Info($"AllProgrammeInfos Site Result : {Newtonsoft.Json.JsonConvert.SerializeObject(response.Ext)}");
             }
             catch (Exception e)
             {
@@ -214,6 +252,86 @@ namespace IngestDevicePlugin.Controllers.v3
         }
 
         /// <summary>
+        /// 根据节目ID获取相应的通道，有矩阵模式和无矩阵模式的区别
+        /// </summary>
+        /// <remarks>
+        ///
+        /// </remarks>
+        /// <param name="programmeid">信号源id</param>
+        /// <param name="status">int 0是不选返回所有通道信息，1是选通道和msv连接正常的通道信息</param>
+        /// <returns>当前信号源匹配通道，是list</returns>
+        [HttpGet("programme/{programmeid}")]
+        //device有点特殊，做了监听端口的所以不能全类检验
+        [ApiExplorerSettings(GroupName = "v3.0")]
+        public async Task<ResponseMessage<List<CaptureChannelInfoResponse>>> ChannelsOnAreaByProgrammeId([FromRoute, BindRequired, DefaultValue(39)] int programmeid, [FromQuery, BindRequired, DefaultValue("0")] int status)
+        {
+            ResponseMessage<List<CaptureChannelInfoResponse>> response = new ResponseMessage<List<CaptureChannelInfoResponse>>();
+            try
+            {
+                response.Ext = await _deviceManage.GetChannelsOnAreaByProgrammeIdAsync<CaptureChannelInfoResponse>(programmeid,
+                                                                                                             status);
+                if (response.Ext == null || response.Ext?.Count <= 0)
+                {
+                    response.Code = ResponseCodeDefines.NotFound;
+                    response.Msg = $"{System.Reflection.MethodBase.GetCurrentMethod().DeclaringType.FullName}:error info: not find data!";
+                }
+            }
+            catch (Exception e)
+            {
+                if (e is SobeyRecException se)//sobeyexcep会自动打印错误
+                {
+                    response.Code = se.ErrorCode.ToString();
+                    response.Msg = se.Message;
+                }
+                else
+                {
+                    response.Code = ResponseCodeDefines.ServiceError;
+                    response.Msg = $"{System.Reflection.MethodBase.GetCurrentMethod().DeclaringType.FullName}:error info:{e.Message}";
+                    Logger.Error(response.Msg);
+                }
+            }
+            return response;
+        }
+
+
+        /// <summary>
+        /// 获取Rtmp的采集设备信息
+        /// </summary>
+        /// <remarks></remarks>
+        /// <returns>采集设备集合</returns>
+        [HttpGet("channel/rtmp")]
+        [ApiExplorerSettings(GroupName = "v3.0")]
+        public async Task<ResponseMessage<List<CaptureChannelInfoInterface>>> RtmpCaptureChannels([FromHeader(Name = "sobeyhive-http-site"), BindRequired] string site)
+        {
+            ResponseMessage<List<CaptureChannelInfoInterface>> response = new ResponseMessage<List<CaptureChannelInfoInterface>>();
+            try
+            {
+                response.Ext = await _deviceManage.GetRtmpCaptureChannelsBySiteAreaAsync<CaptureChannelInfoInterface>(site, -1);
+                if (response.Ext == null)
+                {
+                    response.Code = ResponseCodeDefines.NotFound;
+                    response.Msg = $"{System.Reflection.MethodBase.GetCurrentMethod().DeclaringType.FullName}:error info: not find data!";
+                }
+            }
+            catch (Exception e)
+            {
+                if (e is SobeyRecException se)//sobeyexcep会自动打印错误
+                {
+                    response.Code = se.ErrorCode.ToString();
+                    response.Msg = se.Message;
+                }
+                else
+                {
+                    response.Code = ResponseCodeDefines.ServiceError;
+                    response.Msg = $"{System.Reflection.MethodBase.GetCurrentMethod().DeclaringType.FullName}:error info:{e.Message}";
+                    Logger.Error(response.Msg);
+                }
+            }
+            return response;
+        }
+
+
+        /// <summary>
         /// 获取输出端口与信号源的映射
         /// </summary>
         /// <remarks>原方法 AllRouterOutPortInfos</remarks>
@@ -231,7 +349,7 @@ namespace IngestDevicePlugin.Controllers.v3
                     response.Code = ResponseCodeDefines.NotFound;
                     response.Msg = $"{System.Reflection.MethodBase.GetCurrentMethod().DeclaringType.FullName}:error info: not find data!";
                 }
-                Logger.Error($"AllRouterOutPortInfos Site Result : {Newtonsoft.Json.JsonConvert.SerializeObject(response.Ext)}");
+                Logger.Info($"AllRouterOutPortInfos Site Result : {Newtonsoft.Json.JsonConvert.SerializeObject(response.Ext)}");
             }
             catch (Exception e)
             {
@@ -269,7 +387,7 @@ namespace IngestDevicePlugin.Controllers.v3
                     response.Code = ResponseCodeDefines.NotFound;
                     response.Msg = $"{System.Reflection.MethodBase.GetCurrentMethod().DeclaringType.FullName}:error info: not find data!";
                 }
-                Logger.Error($"AllRouterInPortInfos Site Result : {Newtonsoft.Json.JsonConvert.SerializeObject(response.Ext)}");
+                Logger.Info($"AllRouterInPortInfos Site Result : {Newtonsoft.Json.JsonConvert.SerializeObject(response.Ext)}");
 
             }
             catch (Exception e)
@@ -295,7 +413,7 @@ namespace IngestDevicePlugin.Controllers.v3
         /// <param name="signalid">信号ID</param>
         /// <returns>采集参数</returns>
         /// <example>1111</example>
-        [HttpGet("capturetemplate/{signalid}")]
+        [HttpGet("capturetemplate/id/{signalid}")]
         [ApiExplorerSettings(GroupName = "v3.0")]
         public async Task<ResponseMessage<int>> CaptureTemplateId([FromRoute, BindRequired, DefaultValue(39)] int signalid)
         {
@@ -345,7 +463,7 @@ namespace IngestDevicePlugin.Controllers.v3
                     response.Code = ResponseCodeDefines.NotFound;
                     response.Msg = $"{System.Reflection.MethodBase.GetCurrentMethod().DeclaringType.FullName}:error info: not find data!";
                 }
-                Logger.Error($"AllSignalSrcs Site result : {Newtonsoft.Json.JsonConvert.SerializeObject(response.Ext)}");
+                Logger.Info($"AllSignalSrcs Site : {site}, result  : {Newtonsoft.Json.JsonConvert.SerializeObject(response.Ext)}");
             }
             catch (Exception e)
             {

@@ -167,7 +167,7 @@ namespace IngestDevicePlugin.Managers
         public virtual async Task<List<TResult>> GetRtmpCaptureChannelsAsync<TResult>()
         {
             var allChannels = await Store.GetAllCaptureChannelsAsync(1);
-            return _mapper.Map<List<TResult>>(allChannels.Where(x=>x.DeviceTypeId == (int)emDeviceType.emDeviceRTMP).OrderBy(x => x.OrderCode));
+            return _mapper.Map<List<TResult>>(allChannels.Where(x => x.DeviceTypeId == (int)emDeviceType.emDeviceRTMP).OrderBy(x => x.OrderCode));
         }
 
         /// <summary>获取所有TS设备信息</summary>
@@ -425,10 +425,10 @@ namespace IngestDevicePlugin.Managers
 
             int resultSignal = 0;
             resultSignal = await Store.GetMatrixChannelBySignalAsync(channelid);
-            if(!SignalStrict && resultSignal <= 0)
+            if (!SignalStrict && resultSignal <= 0)
             {
                 var rcdindesc = (await Store.GetAllProgrammeInfoAsync()).FirstOrDefault();
-                resultSignal = rcdindesc != null? rcdindesc.ProgrammeId : 1;
+                resultSignal = rcdindesc != null ? rcdindesc.ProgrammeId : 1;
             }
             return resultSignal;
         }
@@ -448,7 +448,7 @@ namespace IngestDevicePlugin.Managers
             if (_taskInterface != null)
             {
                 var channelIds = await GetUserHiddenChannels(userCode);     //获得该用户的隐藏通道
-                List<DbpMsvchannelState> arrMsvChannelState = await Store.GetMsvchannelStateAsync(async a => 
+                List<DbpMsvchannelState> arrMsvChannelState = await Store.GetMsvchannelStateAsync(async a =>
                 await a.Where(b => b.Devstate.GetValueOrDefault() != (int)Device_State.DISCONNECTTED).ToListAsync(),
                     true); //获得所有通道的状态，查看是否在做KAMATAKI任务
                 //获得所有采集通道
@@ -624,8 +624,8 @@ namespace IngestDevicePlugin.Managers
                 return 0;
             }
             //获得所有通道的状态，查看是否在做KAMATAKI任务
-            var arrMsvChannelState = (await GetAllChannelStateAsync<MSVChannelState>()).Where(a => 
-            a.emMSVMode == MSV_Mode.NETWORK && a.emDevState != Device_State.DISCONNECTTED).Select(x=> x.nChannelID).ToList();
+            var arrMsvChannelState = (await GetAllChannelStateAsync<MSVChannelState>()).Where(a =>
+            a.emMSVMode == MSV_Mode.NETWORK && a.emDevState != Device_State.DISCONNECTTED).Select(x => x.nChannelID).ToList();
 
             var channel2SignalSrcMaps = await Store.GetAllChannel2SignalSrcMapAsync();//获得当前通道与信号源的映射
 
@@ -639,7 +639,7 @@ namespace IngestDevicePlugin.Managers
                 return map.nChannelID;
             }
 
-            Logger.Info($"GetBestPreviewChnForSignalAsync 2 channel{string.Join(",", captureChannels.Select(x => x.nID).ToList() )} channelstate{string.Join(",", arrMsvChannelState)}");
+            Logger.Info($"GetBestPreviewChnForSignalAsync 2 channel{string.Join(",", captureChannels.Select(x => x.nID).ToList())} channelstate{string.Join(",", arrMsvChannelState)}");
             if (_taskInterface != null)
             {
                 TaskInternals re = new TaskInternals() { funtype = IngestDBCore.TaskInternals.FunctionType.WillBeginAndCapturingTasks };
@@ -649,10 +649,10 @@ namespace IngestDevicePlugin.Managers
                 var selectlist = captureChannels.Where(a => (a.nDeviceTypeID == (int)CaptureChannelType.emMsvChannel ||
                                                             a.nDeviceTypeID == (int)CaptureChannelType.emDefualtChannel) &&
                                               arrMsvChannelState.Contains(a.nID));
-                if (taskContents !=null && taskContents.Count > 0)
+                if (taskContents != null && taskContents.Count > 0)
                 {
-                    Logger.Info($"GetBestPreviewChnForSignalAsync taskinfo {string.Join(",", taskContents.Select(x =>x.TaskId).ToList())}");
-                    var lst = selectlist.Where(a => taskContents.Any(x => (x.State == taskStateInterface.tsExecuting || x.State == taskStateInterface.tsManuexecuting)&&x.ChannelId == a.nID)).Select(x=>x.nID).ToList();
+                    Logger.Info($"GetBestPreviewChnForSignalAsync taskinfo {string.Join(",", taskContents.Select(x => x.TaskId).ToList())}");
+                    var lst = selectlist.Where(a => taskContents.Any(x => (x.State == taskStateInterface.tsExecuting || x.State == taskStateInterface.tsManuexecuting) && x.ChannelId == a.nID)).Select(x => x.nID).ToList();
                     selectlist = selectlist.Where(x => !lst.Contains(x.nID));
                 }
 
@@ -767,7 +767,7 @@ namespace IngestDevicePlugin.Managers
             }
             // Add by chenzhi 2013-07-09
             // TODO: 通道需要排序，同一个分组的排在前面，无分组的排在后面
-            if (lstchn.Count>0)
+            if (lstchn.Count > 0)
             {
                 lstchn.OrderBy(x => x.GroupId);
                 return _mapper.Map<List<TResult>>(lstchn);
@@ -947,7 +947,7 @@ namespace IngestDevicePlugin.Managers
 
 
 
-        #region 2.1
+        #region 3.0
 
         public virtual async Task<List<TResult>> GetAllChannelStateBySiteAsync<TResult>(string site)
         {
@@ -974,7 +974,7 @@ namespace IngestDevicePlugin.Managers
 
         public virtual async Task<List<TResult>> GetAllRouterOutPortBySiteAsync<TResult>(string site)
         {
-            return _mapper.Map<List<TResult>>(await Store.GetRcdoutdescAsync(a => a.Where(x=>x.SystemSite == site), true));
+            return _mapper.Map<List<TResult>>(await Store.GetRcdoutdescAsync(a => a.Where(x => x.SystemSite == site), true));
         }
 
         public virtual async Task<List<TResult>> GetAllRouterInPortBySiteAsync<TResult>(string site)
@@ -986,6 +986,86 @@ namespace IngestDevicePlugin.Managers
         public virtual async Task<List<TResult>> GetAllSignalSrcsBySiteAsync<TResult>(string site)
         {
             return _mapper.Map<List<TResult>>((await Store.GetAllSignalsrcForRcdinBySiteAsync(site, true)).CustomSort().ToList());
+        }
+
+        /// <summary> 根据 通道ID 获取采集通道 </summary>
+        /// <param name="id">通道Id</param>
+        public virtual async Task<TResult> GetSiteCaptureChannelByIDAsync<TResult>(int id)
+        {
+            var captureChannel = _mapper.Map<TResult>(await Store.GetSiteCaptureChannelByIDAsync(id));
+            if (captureChannel == null)
+            {
+                SobeyRecException.ThrowSelfNoParam(nameof(GetCaptureChannelByIDAsync), GlobalDictionary.GLOBALDICT_CODE_CHANNEL_ID_DOES_NOT_EXIST, Logger, null);
+            }
+
+
+            return captureChannel;
+        }
+
+        public async virtual Task<List<TResult>> GetChannelsOnAreaByProgrammeIdAsync<TResult>(int programmid, int state)
+        {
+            //判断是否是无矩阵
+            bool isHaveMatrix = await HaveMatrixAsync();
+            var programinfo = await Store.GetSignalInfoOnAreaSiteAsync(programmid);
+
+            var channels = await Store.GetAllChannelsBySiteAreaAsync(state, programinfo.SystemSite, programinfo.Area);
+            List<CaptureChannelInfoResponse> channelInfoList = new List<CaptureChannelInfoResponse>();
+            foreach (var item in channels)
+            {
+                ////类型匹配
+                if (!((programinfo.PgmType == ProgrammeType.PT_SDI && item.DeviceTypeId == (int)CaptureChannelType.emMsvChannel && programinfo.SignalSourceType != emSignalSource.emStreamMedia)
+                     || (programinfo.PgmType == ProgrammeType.PT_SDI && programinfo.SignalSourceType == emSignalSource.emStreamMedia && item.DeviceTypeId == (int)CaptureChannelType.emStreamChannel)
+                     || ((programinfo.PgmType == ProgrammeType.PT_IPTS) && (item.DeviceTypeId == (int)CaptureChannelType.emIPTSChannel))
+                     || ((programinfo.PgmType == ProgrammeType.PT_StreamMedia) && (item.DeviceTypeId == (int)CaptureChannelType.emStreamChannel))))
+                {
+                    continue;
+                }
+
+                //高标清匹配
+                if (item.CpSignalType > 0)//0表示Auto，可以任意匹配，不需要处理,1:SD, 2:HD
+                {
+                    if (item.CpSignalType == 1)//SD
+                    {
+                        if (programinfo.TypeId == 1)//排除HD，Auto和SD可以匹配
+                            continue;
+                    }
+                    else if (item.CpSignalType == 2)//HD
+                    {
+                        if (programinfo.TypeId == 0)//排除SD，保留HD和Auto
+                            continue;
+                    }
+                }
+
+                bool isNeedAdd = true;
+                if (programinfo.PgmType == ProgrammeType.PT_SDI)
+                {
+                    if (!isHaveMatrix)
+                    {
+                        //需要根据列表对通道进行判断
+                        var channelIdListInNotMatrix = await Store.GetChannelIdsBySignalIdForNotMatrix(programmid);
+
+                        isNeedAdd = false;
+                        if (channelIdListInNotMatrix.Any(x => x == item.Id))
+                        {
+                            isNeedAdd = true;
+                        }
+                    }
+                }
+
+                if (isNeedAdd)
+                {
+                    channelInfoList.Add(item);
+                }
+            }
+
+            return _mapper.Map<List<TResult>>(channelInfoList);
+        }
+
+
+        public virtual async Task<List<TResult>> GetRtmpCaptureChannelsBySiteAreaAsync<TResult>(string site, int area)
+        {
+            var allChannels = await Store.GetAllChannelsBySiteAreaAsync(1, site, area);
+            return _mapper.Map<List<TResult>>(allChannels.Where(x => x.DeviceTypeId == (int)emDeviceType.emDeviceRTMP).OrderBy(x => x.OrderCode));
         }
 
         #endregion
@@ -1005,7 +1085,7 @@ namespace IngestDevicePlugin.Managers
             })
             .OrderBy(x => x.SortStr)
             .Select(x => x.OrgStr);
-        } 
+        }
         public static IEnumerable<TResult> CustomSortT<TResult>(this IEnumerable<TResult> list)
         {
             int maxLen = list.Select(s => s.GetType().GetProperty("ProgrammeName").GetValue(s).ToString().Length).Max();//ProgrammeName
@@ -1015,7 +1095,7 @@ namespace IngestDevicePlugin.Managers
                 SortStr = Regex.Replace(s.GetType().GetProperty("ProgrammeName").GetValue(s).ToString(), @"(\d+)|(\D+)", m => m.Value.PadLeft(maxLen, char.IsDigit(m.Value[0]) ? ' ' : '\xffff'))
             })
             .OrderBy(x => x.SortStr)
-            .Select(x => x.OrgStr); 
+            .Select(x => x.OrgStr);
         }
 
     }

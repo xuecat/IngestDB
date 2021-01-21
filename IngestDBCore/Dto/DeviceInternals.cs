@@ -23,7 +23,9 @@ namespace IngestDBCore
             AllCaptureChannels,
             AllRouterInPort,
             AllCaptureDevice,
-            RtmpCaptureChannels
+            RtmpCaptureChannels,
+            RtmpCaptureChannelsV3,
+            ChannelInfoBySrcV3
             /////////////////////////////set信息//
         }
 
@@ -36,6 +38,8 @@ namespace IngestDBCore
         public int Status { get; set; }
 
         public bool SignalStrict { get; set; }
+
+        public string SystemSite { get; set; }
     }
     public class RecUnitMapInterface
     {
