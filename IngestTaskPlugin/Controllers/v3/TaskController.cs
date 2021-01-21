@@ -297,53 +297,7 @@ namespace IngestTaskPlugin.Controllers.v3
 
 
 
-        /// <summary>
-        /// 获取任务全部的元数据
-        /// </summary>
-        /// <remarks>
-        /// 例子:
-        ///
-        /// </remarks>
-        /// <param name="taskid">任务id，</param>
-        /// <returns>任务内容全部信息包含元数据</returns>
-        [HttpGet("taskinfo/{taskid}")]
-        [ApiExplorerSettings(GroupName = "v3")]
-        public async Task<ResponseMessage<TaskInfoResponse>> GetTaskInfoAllByID([FromRoute, BindRequired] int taskid)
-        {
-            var Response = new ResponseMessage<TaskInfoResponse>();
-            if (taskid <= 0)
-            {
-                Response.Code = ResponseCodeDefines.ModelStateInvalid;
-                Response.Msg = "request param error";
-            }
-
-            try
-            {
-                Response.Ext = await _taskManage.GetTaskInfoAll<TaskInfoResponse>(taskid);
-                if (Response.Ext == null)
-                {
-                    Response.Code = ResponseCodeDefines.NotFound;
-                    Response.Msg = $"{System.Reflection.MethodBase.GetCurrentMethod().DeclaringType.FullName}:error info: not find data!";
-                }
-                Logger.Error($"GetTaskInfoAllByID Site taskid : {taskid} Result : {Newtonsoft.Json.JsonConvert.SerializeObject(Response.Ext)}");
-            }
-            catch (Exception e)
-            {
-                if (e.GetType() == typeof(SobeyRecException))//sobeyexcep会自动打印错误
-                {
-                    SobeyRecException se = e as SobeyRecException;
-                    Response.Code = se.ErrorCode.ToString();
-                    Response.Msg = se.Message;
-                }
-                else
-                {
-                    Response.Code = ResponseCodeDefines.ServiceError;
-                    Response.Msg = "GetTaskInfoAllByID error info:" + e.Message;
-                    Logger.Error(Response.Msg);
-                }
-            }
-            return Response;
-        }
+        
 
 
         /// <summary>
