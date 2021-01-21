@@ -29,7 +29,7 @@ namespace KafKaNotifyPlugin
                 {
                     try
                     {
-                        var f = p.ProduceAsync("ingestdbnotify", new Message<Null, string> { Value = JsonHelper.ToJson(ti) }).Result;
+                        p.Produce("ingestdbnotify", new Message<Null, string> { Value = JsonHelper.ToJson(ti) });
                     }
                     catch (Exception e)
                     {
