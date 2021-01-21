@@ -11,6 +11,7 @@ namespace IngestDBCore.Notify
         static public int Msv { get { return 0x10; } }
         static public int Orleans { get { return 0x100; } }
         static public int Udp { get { return 0x1000; } }
+        static public int NotifyTask { get { return Kafka | Orleans; } }
         static public int All { get { return Kafka | Msv | Orleans; } }
     }
     public class NotifyAction
@@ -33,8 +34,7 @@ namespace IngestDBCore.Notify
 
         static public string CREATEPERIODICTASK { get { return "CREATEPERIODICTASK"; } }
     }
-
-    public class SubNotify
+    public interface ISubNotify
     {
         public void Subscribe(NotifyClock theClock)
         {
@@ -48,7 +48,7 @@ namespace IngestDBCore.Notify
 
             return (T)(object)this;
         }
-        public virtual void ActionNotify(
+        public void ActionNotify(
          object theClock, NotifyArgs ti)
         {
             

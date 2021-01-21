@@ -324,12 +324,12 @@ namespace IngestDB
             });
 
             applicationContext.AppServiceProvider = app.ApplicationServices;
-            using (var scope = app.ApplicationServices.GetRequiredService<IServiceScopeFactory>().CreateScope())
-            {
-                //applicationContext.ServiceProvider = scope.ServiceProvider;
-                //var context = scope.ServiceProvider.GetRequiredService<ApplicationDbContext>();
-                //var pluginFactory = scope.ServiceProvider.GetRequiredService<IPluginFactory>();
-            }
+            //using (var scope = app.ApplicationServices.GetRequiredService<IServiceScopeFactory>().CreateScope())
+            //{
+            //    //applicationContext.ServiceProvider = scope.ServiceProvider;
+            //    //var context = scope.ServiceProvider.GetRequiredService<ApplicationDbContext>();
+            //    //var pluginFactory = scope.ServiceProvider.GetRequiredService<IPluginFactory>();
+            //}
             applicationContext.Start().GetAwaiter();
         }
     }

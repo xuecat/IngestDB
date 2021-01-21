@@ -13,7 +13,7 @@ namespace OrleansNotifyPlugin
     using System.Collections.Generic;
     using System.Reflection;
     using System.Text;
-    public class OrleansNotify : SubNotify
+    public class OrleansNotify : ISubNotify
     {
         private readonly ILogger Logger = LoggerManager.GetLogger("OrleansNotify");
 
@@ -23,7 +23,7 @@ namespace OrleansNotifyPlugin
             Client = client;
         }
 
-        public override void ActionNotify(object theClock, NotifyArgs ti)
+        public void ActionNotify(object theClock, NotifyArgs ti)
         {
             try
             {
@@ -36,6 +36,7 @@ namespace OrleansNotifyPlugin
             catch (Exception e)
             {
                 Logger.Error("client connect error" + e.Message);
+                return;
             }
 
             //发送通知

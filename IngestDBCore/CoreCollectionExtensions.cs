@@ -32,8 +32,7 @@ namespace IngestDBCore
             }
             services.AddSingleton<RestClient>(provider => new RestClient(provider.GetService<IHttpClientFactory>()));
            
-            ApplicationContext.Current.NotifyClock = new NotifyClock();
-            services.AddSingleton<NotifyClock>(ApplicationContext.Current.NotifyClock);
+            services.AddSingleton<NotifyClock>();
         }
     }
 }
