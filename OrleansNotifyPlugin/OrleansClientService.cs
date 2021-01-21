@@ -39,7 +39,7 @@ namespace OrleansNotifyPlugin
             .Configure<GatewayOptions>(opts => opts.GatewayListRefreshPeriod = TimeSpan.FromMinutes(3))
             .ConfigureApplicationParts(
                     parts => parts
-                        .AddApplicationPart(typeof(IDispatcherGrain).Assembly))
+                        .AddApplicationPart(typeof(IDispatcherGrain).Assembly).WithReferences())
             //.AddSimpleMessageStreamProvider(StreamProviderName.Default);
             .Build();
         }
