@@ -30,12 +30,7 @@ namespace OrleansNotifyPlugin
                 options.ClusterId = Cluster.ClusterId;
                 options.ServiceId = Cluster.ServiceId;
             })
-            .UseAdoNetClustering(
-            options =>
-            {
-                options.Invariant = "MySql.Data.MySqlClient";
-                options.ConnectionString = ApplicationContext.Current.ConnectionString;
-            })
+            .UseStaticClustering(ApplicationContext.Current.IngestTask)
             .Configure<GatewayOptions>(opts => opts.GatewayListRefreshPeriod = TimeSpan.FromMinutes(3))
             .ConfigureApplicationParts(
                     parts => parts

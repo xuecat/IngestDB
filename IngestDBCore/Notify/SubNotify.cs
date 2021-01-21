@@ -5,34 +5,34 @@ using System.Text;
 namespace IngestDBCore.Notify
 {
 
-    public class NotifyPlugin
+    public static class NotifyPlugin
     {
-        static public int Kafka { get { return 0x01; } }
-        static public int Msv { get { return 0x10; } }
-        static public int Orleans { get { return 0x100; } }
-        static public int Udp { get { return 0x1000; } }
-        static public int NotifyTask { get { return Kafka | Orleans; } }
-        static public int All { get { return Kafka | Msv | Orleans; } }
+        public const int Kafka = 0x01;
+        public const int Msv = 0x10;
+        public const int Orleans = 0x100;
+        public const int Udp = 0x1000;
+        public const int NotifyTask = Kafka | Orleans;
+        public const int All = Kafka | Msv | Orleans;
     }
-    public class NotifyAction
+    public static class NotifyAction
     {
-        static public string STOPTASK { get { return "STOPTASK"; } }
-        static public string STOPGROUPTASK { get { return "STOPGROUPTASK"; } }
-        static public string DELETETASK { get { return "DELETETASK"; } }
-        static public string DELETEGROUPTASK { get { return "DELETEGROUPTASK"; } }
-        static public string ADDTASK { get { return "ADDTASK"; } }
-        static public string MODIFYTASK { get { return "MODIFYTASK"; } }
-        static public string MODIFYCOOPERTASK { get { return "MODIFYCOOPERTASK"; } }
-        static public string MODIFYPERIODCTASK { get { return "MODIFYPERIODCTASK"; } }
-        static public string MODIFYTASKCOOPTYPE { get { return "MODIFYTASKCOOPTYPE"; } }
-        static public string MODIFYTASKNAME { get { return "MODIFYTASKNAME"; } }
-        static public string MODIFYTASKSTARTTIME { get { return "MODIFYTASKSTARTTIME"; } }
-        static public string MODIFYTASKSTATE { get { return "MODIFYTASKSTATE"; } }
+        public const string STOPTASK = "STOPTASK";
+        public const string STOPGROUPTASK = "STOPGROUPTASK";
+        public const string DELETETASK = "DELETETASK";
+        public const string DELETEGROUPTASK = "DELETEGROUPTASK";
+        public const string ADDTASK = "ADDTASK";
+        public const string MODIFYTASK = "MODIFYTASK";
+        public const string MODIFYCOOPERTASK = "MODIFYCOOPERTASK";
+        public const string MODIFYPERIODCTASK = "MODIFYPERIODCTASK";
+        public const string MODIFYTASKCOOPTYPE = "MODIFYTASKCOOPTYPE";
+        public const string MODIFYTASKNAME = "MODIFYTASKNAME";
+        public const string MODIFYTASKSTARTTIME = "MODIFYTASKSTARTTIME";
+        public const string MODIFYTASKSTATE = "MODIFYTASKSTATE";
 
 
-        static public string MSVRELOCATE { get { return "MSVRELOCATE"; } }
+        public const string MSVRELOCATE = "MSVRELOCATE";
 
-        static public string CREATEPERIODICTASK { get { return "CREATEPERIODICTASK"; } }
+        public const string CREATEPERIODICTASK = "CREATEPERIODICTASK";
     }
     public interface ISubNotify
     {

@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Net;
 using System.Reflection;
 using System.Text;
 
@@ -20,5 +21,6 @@ namespace IngestDBCore
         public bool NotifyUdpInfomation { get; set; }
 
         public bool GlobalNotify { get; set; }
+        public IPEndPoint[] IngestTask { get; set; }
     }
 }

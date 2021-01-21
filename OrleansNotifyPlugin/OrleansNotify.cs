@@ -11,6 +11,7 @@ namespace OrleansNotifyPlugin
     using Sobey.Core.Log;
     using System;
     using System.Collections.Generic;
+    using System.Linq;
     using System.Reflection;
     using System.Text;
     public class OrleansNotify : ISubNotify
@@ -18,6 +19,7 @@ namespace OrleansNotifyPlugin
         private readonly ILogger Logger = LoggerManager.GetLogger("OrleansNotify");
 
         public IClusterClient Client { get; }
+        private string[] excludeNotifyAction = { NotifyAction.MODIFYTASKNAME, NotifyAction.MODIFYTASKSTATE};
         public OrleansNotify(IClusterClient client)
         {
             Client = client;
@@ -25,23 +27,23 @@ namespace OrleansNotifyPlugin
 
         public void ActionNotify(object theClock, NotifyArgs ti)
         {
-            try
+            //发送通知
+            if ((ti.Intent & NotifyPlugin.Orleans) > 0 && !excludeNotifyAction.Contains(ti.Action))
             {
-                if (!Client.IsInitialized)
+                try
                 {
-                    Client.Connect().Wait();
+                    if (!Client.IsInitialized)
+                    {
+                        Client.Connect().Wait();
+                    }
+
+                }
+                catch (Exception e)
+                {
+                    Logger.Error("client connect error" + e.Message);
+                    return;
                 }
 
-            }
-            catch (Exception e)
-            {
-                Logger.Error("client connect error" + e.Message);
-                return;
-            }
-
-            //发送通知
-            if ((ti.Intent & NotifyPlugin.Orleans) > 0)
-            {
                 switch (ti.Type)
                 {
                     case GlobalStateName.ADDTASK:
@@ -51,7 +53,7 @@ namespace OrleansNotifyPlugin
                             {
                                 DispatchTask task = new DispatchTask();
                                 ObjectTool.CopyObjectData(ti.Param, task, "", BindingFlags.Public | BindingFlags.Instance);
-                                grain.AddTaskAsync(task).Wait();
+                                AutoRetry.RunSync(() => grain.AddTaskAsync(task).Wait());
                             }
                             catch (Exception e)
                             {
@@ -66,7 +68,8 @@ namespace OrleansNotifyPlugin
                             {
                                 DispatchTask task = new DispatchTask();
                                 ObjectTool.CopyObjectData(ti.Param, task, "", BindingFlags.Public | BindingFlags.Instance);
-                                grain.UpdateTaskAsync(task).Wait();
+                                AutoRetry.RunSync(() => grain.UpdateTaskAsync(task).Wait());
+                                
                             }
                             catch (Exception e)
                             {
@@ -81,7 +84,8 @@ namespace OrleansNotifyPlugin
                             {
                                 DispatchTask task = new DispatchTask();
                                 ObjectTool.CopyObjectData(ti.Param, task, "", BindingFlags.Public | BindingFlags.Instance);
-                                grain.DeleteTaskAsync(task).Wait();
+                                AutoRetry.RunSync(() => grain.DeleteTaskAsync(task).Wait());
+                                
                             }
                             catch (Exception e)
                             {
