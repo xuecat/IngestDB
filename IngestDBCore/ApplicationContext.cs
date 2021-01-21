@@ -23,7 +23,6 @@ namespace IngestDBCore
         public IApplicationBuilder ApplicationBuilder { get; set; }
 
 
-        public NotifyClock NotifyClock { get; set;}
         public ApplicationContext(IServiceCollection serviceContainer)
         {
             Current = this;

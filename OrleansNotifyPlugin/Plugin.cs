@@ -3,6 +3,7 @@
 namespace OrleansNotifyPlugin
 {
     using IngestDBCore;
+    using IngestDBCore.Notify;
     using IngestDBCore.Plugin;
     using Microsoft.Extensions.DependencyInjection;
     using Microsoft.Extensions.Hosting;
@@ -45,8 +46,13 @@ namespace OrleansNotifyPlugin
             context.Services.AddSingleton<IHostedService>(sp => sp.GetService<OrleansClientService>());
             context.Services.AddSingleton<IClusterClient>(sp => sp.GetService<OrleansClientService>().Client);
 
-            context.Services.AddSingleton<OrleansNotify>(sp => 
-            new OrleansNotify(sp.GetService<IClusterClient>()).Subscribe<OrleansNotify>(context.NotifyClock));
+            context.Services.AddSingleton<ISubNotify, OrleansNotify>();
+            //using (var scope = context.Services.BuildServiceProvider())
+            //{
+            //    var client = scope.GetService<IClusterClient>();
+                
+            //}
+            
 
             return base.Init(context);
         }

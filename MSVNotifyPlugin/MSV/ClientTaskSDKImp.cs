@@ -20,29 +20,18 @@ namespace MsvClientSDK
         private object _msvfunclock = null;
         private G2UdpMsvCtrl m_udpMsv = null;
         public static ILogger Logger = LoggerManager.GetLogger("MSvNotifyInfo");
-        public CClientTaskSDKImp(int nTimeOut = 5000, int iPort = 3100)
+        public CClientTaskSDKImp()
         {
 
-            m_nTimeOut = nTimeOut;
+            m_nTimeOut = 5000;
             m_error_desc = "";
-            m_iCtrlPort = iPort;
+            m_iCtrlPort = 3100;
             //m_nComtype = nComType;
             _msvfunclock = new object();
             m_udpMsv = new G2UdpMsvCtrl();
             _xml = new XmlDocument();
         }
-        public CClientTaskSDKImp(string ip, int iPort /*= 3100*/, int nTimeOut /*= 5000*/)
-        {
-
-            m_nTimeOut = nTimeOut;
-            m_error_desc = "";
-            m_iCtrlIp = ip;
-            m_iCtrlPort = iPort;
-            //m_nComtype = nComType;
-            _msvfunclock = new object();
-            m_udpMsv = new G2UdpMsvCtrl();
-            _xml = new XmlDocument();
-        }
+        
         ~CClientTaskSDKImp()
         {
         }

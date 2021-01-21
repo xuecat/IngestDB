@@ -46,14 +46,14 @@ namespace OrleansNotifyPlugin
 
         public virtual async Task StartAsync(CancellationToken cancellationToken)
         {
-            //try
-            //{
-            //    await Client.Connect();
-            //}
-            //catch (Exception e)
-            //{
-            //    Logger.Error("client connect error" + e.Message);
-            //}
+            try
+            {
+                //await Client.Connect();
+            }
+            catch (Exception e)
+            {
+                
+            }
 
         }
 

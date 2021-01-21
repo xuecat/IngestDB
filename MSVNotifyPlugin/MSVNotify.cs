@@ -10,7 +10,7 @@ using System.Text;
 
 namespace MSVNotifyPlugin
 {
-    public class MSVNotify : SubNotify
+    public class MSVNotify : ISubNotify
     {
         private readonly ILogger Logger = LoggerManager.GetLogger("MsvNotify");
         protected CClientTaskSDKImp _sDKImp { get; }
@@ -20,7 +20,7 @@ namespace MSVNotifyPlugin
             _sDKImp = sDKImp;
         }
 
-        public override void ActionNotify(object theClock, NotifyArgs ti)
+        public void ActionNotify(object theClock, NotifyArgs ti)
         {
             //发送通知
             if ((ti.Intent & NotifyPlugin.Msv) > 0)
