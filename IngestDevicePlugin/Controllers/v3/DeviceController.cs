@@ -27,6 +27,11 @@ namespace IngestDevicePlugin.Controllers.v3
 
         public DeviceController(DeviceManager task) { _deviceManage = task; }
 
+        [HttpGet]
+        public IEnumerable<string> Get()
+        {
+            return new string[] { "value1 from Version 3", "value3 from Version 3" };
+        }
 
         /// <summary>
         /// 获取所有的采集设备全信息(区别于2.0的capturedevice)
@@ -102,6 +107,7 @@ namespace IngestDevicePlugin.Controllers.v3
         }
 
 
+        #region channel
         /// <summary>
         /// 获得所有通道的状态
         /// </summary>
@@ -177,6 +183,43 @@ namespace IngestDevicePlugin.Controllers.v3
         }
 
         /// <summary>
+        /// 获取通道的扩展数据
+        /// </summary>
+        /// <remarks>原方法 PostUpdateChnExtData</remarks>
+        /// <returns>是否成功</returns>
+        [HttpGet("channel/extenddata/{channelid}")]
+        [ApiExplorerSettings(GroupName = "v3.0")]
+        public async Task<ResponseMessage<string>> GetChannelExtendData([FromRoute, BindRequired, DefaultValue(24)] int channelid,
+                                                                        [FromQuery, BindRequired, DefaultValue(2)] int type)
+        {
+            ResponseMessage<string> response = new ResponseMessage<string>();
+            try
+            {
+                response.Ext = await _deviceManage.GetChannelExtendData(channelid, type);
+                if (string.IsNullOrEmpty(response.Ext))
+                {
+                    response.Code = ResponseCodeDefines.NotFound;
+                    response.Msg = $"{System.Reflection.MethodBase.GetCurrentMethod().DeclaringType.FullName}:error info: not find data!";
+                }
+            }
+            catch (Exception e)
+            {
+                if (e is SobeyRecException se)//sobeyexcep会自动打印错误
+                {
+                    response.Code = se.ErrorCode.ToString();
+                    response.Msg = se.Message;
+                }
+                else
+                {
+                    response.Code = ResponseCodeDefines.ServiceError;
+                    response.Msg = $"{System.Reflection.MethodBase.GetCurrentMethod().DeclaringType.FullName}:error info:{e.Message}";
+                    Logger.Error(response.Msg);
+                }
+            }
+            return response;
+        }
+
+        /// <summary>
         /// 通过 通道ID 获取采集通道
         /// </summary>
         /// <remarks>原方法 GetCaptureChannelByID</remarks>
@@ -213,6 +256,43 @@ namespace IngestDevicePlugin.Controllers.v3
             }
             return response;
         }
+
+        /// <summary>
+        /// 获取Rtmp的采集设备信息
+        /// </summary>
+        /// <remarks></remarks>
+        /// <returns>采集设备集合</returns>
+        [HttpGet("channel/rtmp")]
+        [ApiExplorerSettings(GroupName = "v3.0")]
+        public async Task<ResponseMessage<List<CaptureChannelInfoInterface>>> RtmpCaptureChannels([FromHeader(Name = "sobeyhive-http-site"), BindRequired] string site)
+        {
+            ResponseMessage<List<CaptureChannelInfoInterface>> response = new ResponseMessage<List<CaptureChannelInfoInterface>>();
+            try
+            {
+                response.Ext = await _deviceManage.GetRtmpCaptureChannelsBySiteAreaAsync<CaptureChannelInfoInterface>(site, -1);
+                if (response.Ext == null)
+                {
+                    response.Code = ResponseCodeDefines.NotFound;
+                    response.Msg = $"{System.Reflection.MethodBase.GetCurrentMethod().DeclaringType.FullName}:error info: not find data!";
+                }
+            }
+            catch (Exception e)
+            {
+                if (e is SobeyRecException se)//sobeyexcep会自动打印错误
+                {
+                    response.Code = se.ErrorCode.ToString();
+                    response.Msg = se.Message;
+                }
+                else
+                {
+                    response.Code = ResponseCodeDefines.ServiceError;
+                    response.Msg = $"{System.Reflection.MethodBase.GetCurrentMethod().DeclaringType.FullName}:error info:{e.Message}";
+                    Logger.Error(response.Msg);
+                }
+            }
+            return response;
+        }
+        #endregion
 
         /// <summary>
         /// 获取所有节目
@@ -294,42 +374,6 @@ namespace IngestDevicePlugin.Controllers.v3
         }
 
 
-        /// <summary>
-        /// 获取Rtmp的采集设备信息
-        /// </summary>
-        /// <remarks></remarks>
-        /// <returns>采集设备集合</returns>
-        [HttpGet("channel/rtmp")]
-        [ApiExplorerSettings(GroupName = "v3.0")]
-        public async Task<ResponseMessage<List<CaptureChannelInfoInterface>>> RtmpCaptureChannels([FromHeader(Name = "sobeyhive-http-site"), BindRequired] string site)
-        {
-            ResponseMessage<List<CaptureChannelInfoInterface>> response = new ResponseMessage<List<CaptureChannelInfoInterface>>();
-            try
-            {
-                response.Ext = await _deviceManage.GetRtmpCaptureChannelsBySiteAreaAsync<CaptureChannelInfoInterface>(site, -1);
-                if (response.Ext == null)
-                {
-                    response.Code = ResponseCodeDefines.NotFound;
-                    response.Msg = $"{System.Reflection.MethodBase.GetCurrentMethod().DeclaringType.FullName}:error info: not find data!";
-                }
-            }
-            catch (Exception e)
-            {
-                if (e is SobeyRecException se)//sobeyexcep会自动打印错误
-                {
-                    response.Code = se.ErrorCode.ToString();
-                    response.Msg = se.Message;
-                }
-                else
-                {
-                    response.Code = ResponseCodeDefines.ServiceError;
-                    response.Msg = $"{System.Reflection.MethodBase.GetCurrentMethod().DeclaringType.FullName}:error info:{e.Message}";
-                    Logger.Error(response.Msg);
-                }
-            }
-            return response;
-        }
-
 
         /// <summary>
         /// 获取输出端口与信号源的映射
@@ -376,7 +420,7 @@ namespace IngestDevicePlugin.Controllers.v3
         [HttpGet("routerinport")]
         //device有点特殊，做了监听端口的所以不能全类检验
         [ApiExplorerSettings(GroupName = "v3.0")]
-        public async Task<ResponseMessage<List<RouterInResponseEx>>> AllRouterInPortInfos([FromHeader(Name = "sobeyhive-http-site"), BindRequired, DefaultValue("S1")] string site)
+        public async Task<ResponseMessage<List<RouterInResponseEx>>> AllRouterInPortInfos([FromHeader(Name = "sobeyhive-http-site"), BindRequired] string site)
         {
             ResponseMessage<List<RouterInResponseEx>> response = new ResponseMessage<List<RouterInResponseEx>>();
             try
@@ -464,6 +508,247 @@ namespace IngestDevicePlugin.Controllers.v3
                     response.Msg = $"{System.Reflection.MethodBase.GetCurrentMethod().DeclaringType.FullName}:error info: not find data!";
                 }
                 Logger.Info($"AllSignalSrcs Site : {site}, result  : {Newtonsoft.Json.JsonConvert.SerializeObject(response.Ext)}");
+            }
+            catch (Exception e)
+            {
+                if (e is SobeyRecException se)//sobeyexcep会自动打印错误
+                {
+                    response.Code = se.ErrorCode.ToString();
+                    response.Msg = se.Message;
+                }
+                else
+                {
+                    response.Code = ResponseCodeDefines.ServiceError;
+                    response.Msg = $"{System.Reflection.MethodBase.GetCurrentMethod().DeclaringType.FullName}:error info:{e.Message}";
+                    Logger.Error(response.Msg);
+                }
+            }
+            return response;
+        }
+
+        /// <summary>
+        /// 获取指定采集设备信息(这个暂时是内部接口，其他模块没有用，这个信息毕竟全，有通道和ip等信息)
+        /// </summary>
+        /// <remarks></remarks>
+        /// <returns>采集设备单个信息</returns>
+        [HttpGet("device/{deviceid}")]
+        [ApiExplorerSettings(GroupName = "v3.0")]
+        public async Task<ResponseMessage<DeviceInfoResponse>> GetCaptureDeviceByID([FromRoute, BindRequired] int deviceid)
+        {
+            ResponseMessage<DeviceInfoResponse> response = new ResponseMessage<DeviceInfoResponse>();
+            try
+            {
+                response.Ext = await _deviceManage.GetDeviceInfoByIDAsync<DeviceInfoResponse>(deviceid);
+                if (response.Ext == null)
+                {
+                    response.Code = ResponseCodeDefines.NotFound;
+                    response.Msg = $"{System.Reflection.MethodBase.GetCurrentMethod().DeclaringType.FullName}:error info: not find data!";
+                }
+            }
+            catch (Exception e)
+            {
+                if (e is SobeyRecException se)//sobeyexcep会自动打印错误
+                {
+                    response.Code = se.ErrorCode.ToString();
+                    response.Msg = se.Message;
+                }
+                else
+                {
+                    response.Code = ResponseCodeDefines.ServiceError;
+                    response.Msg = $"{System.Reflection.MethodBase.GetCurrentMethod().DeclaringType.FullName}:error info:{e.Message}";
+                    Logger.Error(response.Msg);
+                }
+            }
+            return response;
+        }
+
+        /// <summary>
+        /// 根据通道ID获取相应的信号源id
+        /// </summary>
+        /// <remarks>
+        ///
+        /// </remarks>
+        /// <param name="channelid">通道id</param>
+        /// <param name="SignalStrict">根据可选参数来判断是否要有返回</param>
+        [HttpGet("signalsrc/id/{channelid}")]
+        //device有点特殊，做了监听端口的所以不能全类检验
+        [ApiExplorerSettings(GroupName = "v3.0")]
+        public async Task<ResponseMessage<int>> GetChannelSignalSrc([FromRoute, BindRequired, DefaultValue(16)] int channelid, [FromQuery] bool SignalStrict = true)
+        {
+            ResponseMessage<int> response = new ResponseMessage<int>();
+            try
+            {
+                response.Ext = await _deviceManage.GetChannelSignalSrcAsync(channelid, SignalStrict);
+                if (response.Ext < 0)
+                {
+                    response.Code = ResponseCodeDefines.NotFound;
+                    response.Msg = $"{System.Reflection.MethodBase.GetCurrentMethod().DeclaringType.FullName}:error info: not find data!";
+                }
+            }
+            catch (Exception e)
+            {
+                if (e is SobeyRecException se)//sobeyexcep会自动打印错误
+                {
+                    response.Code = se.ErrorCode.ToString();
+                    response.Msg = se.Message;
+                }
+                else
+                {
+                    response.Code = ResponseCodeDefines.ServiceError;
+                    response.Msg = $"{System.Reflection.MethodBase.GetCurrentMethod().DeclaringType.FullName}:error info:{e.Message}";
+                    Logger.Error(response.Msg);
+                }
+            }
+            return response;
+        }
+
+        /// <summary>
+        ///
+        /// </summary>
+        /// <remarks>
+        ///
+        /// </remarks>
+        /// GetAllChannelUnitMap
+        [HttpGet("unitid/{channelid}")]
+        //device有点特殊，做了监听端口的所以不能全类检验
+        [ApiExplorerSettings(GroupName = "v3.0")]
+        public async Task<ResponseMessage<int>> GetChannelUnitMapID([FromRoute, BindRequired, DefaultValue(911)] int channelid)
+        {
+            ResponseMessage<int> response = new ResponseMessage<int>();
+            try
+            {
+                var f = await _deviceManage.GetChannelUnitMap(channelid);
+                if (f != null)
+                {
+                    response.Ext = f.UnitId;
+                }
+                else
+                    response.Ext = -1;
+                if (response.Ext <= 0)
+                {
+                    response.Code = ResponseCodeDefines.NotFound;
+                    response.Msg = $"{System.Reflection.MethodBase.GetCurrentMethod().DeclaringType.FullName}:error info: not find data!";
+                }
+            }
+            catch (Exception e)
+            {
+                if (e is SobeyRecException se)//sobeyexcep会自动打印错误
+                {
+                    response.Code = se.ErrorCode.ToString();
+                    response.Msg = se.Message;
+                }
+                else
+                {
+                    response.Code = ResponseCodeDefines.ServiceError;
+                    response.Msg = $"{System.Reflection.MethodBase.GetCurrentMethod().DeclaringType.FullName}error info:{e.Message}";
+                    Logger.Error(response.Msg);
+                }
+            }
+            return response;
+        }
+
+
+        /// <summary>
+        ///
+        /// </summary>
+        /// <remarks>
+        ///
+        /// </remarks>
+        /// GetAllChannelUnitMap
+        [HttpGet("signalsrc/backsignal/{mastersignalid}")]
+        //device有点特殊，做了监听端口的所以不能全类检验
+        [ApiExplorerSettings(GroupName = "v3.0")]
+        public async Task<ResponseMessage<ProgrammeInfoResponse>> GetBackProgramInfoBySrgid([FromRoute, BindRequired, DefaultValue(20)] int mastersignalid)
+        {
+            var Response = new ResponseMessage<ProgrammeInfoResponse>();
+
+            try
+            {
+                Response.Ext = await _deviceManage.GetBackProgramInfoBySrgid(mastersignalid);
+                if (Response.Ext == null)
+                {
+                    Response.Code = ResponseCodeDefines.NotFound;
+                    Response.Msg = $"{System.Reflection.MethodBase.GetCurrentMethod().DeclaringType.FullName}:error info: not find data!";
+                }
+            }
+            catch (Exception e)
+            {
+                if (e.GetType() == typeof(SobeyRecException))//sobeyexcep会自动打印错误
+                {
+                    SobeyRecException se = e as SobeyRecException;
+                    Response.Code = se.ErrorCode.ToString();
+                    Response.Msg = se.Message;
+                }
+                else
+                {
+                    Response.Code = ResponseCodeDefines.ServiceError;
+                    Response.Msg = "GetBackProgramInfoBySrgid error info:" + e.ToString();
+                    Logger.Error(Response.Msg);
+                }
+            }
+            return Response;
+        }
+
+
+        /// <summary>
+        ///
+        /// </summary>
+        /// <remarks>
+        ///
+        /// </remarks>
+        /// GetAllChannelUnitMap
+        [HttpGet("signal/{signalid}")]
+        //device有点特殊，做了监听端口的所以不能全类检验
+        [ApiExplorerSettings(GroupName = "v3.0")]
+        public async Task<ResponseMessage<ProgrammeInfoResponse>> GetProgramInfoBySrgid([FromRoute, BindRequired, DefaultValue(40)] int signalid)
+        {
+            var Response = new ResponseMessage<ProgrammeInfoResponse>();
+
+            try
+            {
+                Response.Ext = await _deviceManage.GetProgrammeInfoByIdAsync(signalid);
+                if (Response.Ext == null)
+                {
+                    Response.Code = ResponseCodeDefines.NotFound;
+                    Response.Msg = $"{System.Reflection.MethodBase.GetCurrentMethod().DeclaringType.FullName}:error info: not find data!";
+                }
+            }
+            catch (Exception e)
+            {
+                if (e.GetType() == typeof(SobeyRecException))//sobeyexcep会自动打印错误
+                {
+                    SobeyRecException se = e as SobeyRecException;
+                    Response.Code = se.ErrorCode.ToString();
+                    Response.Msg = se.Message;
+                }
+                else
+                {
+                    Response.Code = ResponseCodeDefines.ServiceError;
+                    Response.Msg = "GetProgramInfoBySrgid error info:" + e.ToString();
+                    Logger.Error(Response.Msg);
+                }
+            }
+            return Response;
+        }
+
+        /// <summary>
+        /// 获取所有的采集设备信息
+        /// </summary>
+        /// <remarks>原方法 GetAllCaptureDevices</remarks>
+        /// <returns>采集设备集合</returns>
+        [HttpGet("device")]
+        [ApiExplorerSettings(GroupName = "v3.0")]
+        public async Task<ResponseMessage<List<CaptureDeviceInfoResponse>>> AllCaptureDevices()
+        {
+            ResponseMessage<List<CaptureDeviceInfoResponse>> response = new ResponseMessage<List<CaptureDeviceInfoResponse>>();
+            try
+            {
+                response.Ext = await _deviceManage.GetAllCaptureDevicesAsync<CaptureDeviceInfoResponse>();
+                if (response.Ext == null)
+                {
+                    response.Code = ResponseCodeDefines.NotFound;
+                    response.Msg = $"{System.Reflection.MethodBase.GetCurrentMethod().DeclaringType.FullName}:error info: not find data!";
+                }
             }
             catch (Exception e)
             {

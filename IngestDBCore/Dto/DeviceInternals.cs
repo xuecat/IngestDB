@@ -23,9 +23,7 @@ namespace IngestDBCore
             AllCaptureChannels,
             AllRouterInPort,
             AllCaptureDevice,
-            RtmpCaptureChannels,
-            RtmpCaptureChannelsV3,
-            ChannelInfoBySrcV3
+            RtmpCaptureChannels
             /////////////////////////////set信息//
         }
 

@@ -205,7 +205,6 @@ namespace IngestDevicePlugin.Stores
         #region 3.0
 
         Task<List<DbpMsvchannelState>> GetMsvchannelStateBySiteAsync(string site);
-        Task<List<CaptureChannelInfoExDto>> GetAllCaptureChannelsBySiteAsync(int status, string site);
         Task<List<CaptureChannelInfoExDto>> GetAllChannelsBySiteAreaAsync(int status, string site, int area);
         Task<List<ProgrammeInfoExDto>> GetAllProgrammeInfoBySiteAsync(string site);
 

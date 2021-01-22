@@ -956,7 +956,7 @@ namespace IngestDevicePlugin.Managers
 
         public virtual async Task<List<TResult>> GetAllCaptureChannelsBySiteAsync<TResult>(string site)
         {
-            return _mapper.Map<List<TResult>>(await Store.GetAllCaptureChannelsBySiteAsync(0, site));
+            return _mapper.Map<List<TResult>>(await Store.GetAllChannelsBySiteAreaAsync(0, site, -1));
         }
 
         public virtual async Task<List<TResult>> GetAllProgrammeInfosBySiteAsync<TResult>(string site)
@@ -979,7 +979,17 @@ namespace IngestDevicePlugin.Managers
 
         public virtual async Task<List<TResult>> GetAllRouterInPortBySiteAsync<TResult>(string site)
         {
-            return _mapper.Map<List<TResult>>(await Store.GetRcdindescAsync(a => a.Where(x => x.SystemSite == site), true));
+            List<DbpRcdindesc> rcdin = null;
+            if (!string.IsNullOrEmpty(site))
+            {
+                rcdin = await Store.GetRcdindescAsync(a => a.Where(x => x.SystemSite == site), true);
+            }
+            else
+            {
+                rcdin = await Store.GetRcdindescAsync(a => a, true);
+            }
+
+            return _mapper.Map<List<TResult>>(rcdin);
         }
 
         /// <summary> 获取所有信号源 </summary>
