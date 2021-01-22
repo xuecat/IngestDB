@@ -27,6 +27,12 @@ namespace IngestDevicePlugin.Controllers.v2
 
         public DeviceController(DeviceManager task) { _deviceManage = task; }
 
+        [HttpGet]
+        public IEnumerable<string> Get()
+        {
+            return new string[] { "value1 from Version 2", "value2 from Version 2" };
+        }
+
         #region Capture
 
         /// <summary>

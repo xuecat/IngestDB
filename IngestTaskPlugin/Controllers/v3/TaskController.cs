@@ -137,6 +137,47 @@ namespace IngestTaskPlugin.Controllers.v3
         }
 
         /// <summary>
+        /// 重新调度任务, 所有失败的任务, 筛选通道要改为筛选设备
+        /// </summary>
+        /// <remarks>
+        /// 例子:
+        ///
+        /// </remarks>
+        /// <returns>所有重新调度的任务列表</returns>
+        [HttpGet("reschedule")]
+        [ApiExplorerSettings(GroupName = "v3.0")]
+        public async Task<ResponseMessage<List<RescheduledTaskInfoResponse>>> RescheduleTasks()
+        {
+            var Response = new ResponseMessage<List<RescheduledTaskInfoResponse>>();
+
+            try
+            {
+                Response.Ext = await _taskManage.RescheduleTasks<RescheduledTaskInfoResponse>();
+                if (Response.Ext == null || Response.Ext.Count <= 0)
+                {
+                    Response.Code = ResponseCodeDefines.NotFound;
+                    Response.Msg = $"{System.Reflection.MethodBase.GetCurrentMethod().DeclaringType.FullName}:error info: not find data!";
+                }
+            }
+            catch (Exception e)
+            {
+                if (e.GetType() == typeof(SobeyRecException))//sobeyexcep会自动打印错误
+                {
+                    SobeyRecException se = e as SobeyRecException;
+                    Response.Code = se.ErrorCode.ToString();
+                    Response.Msg = se.Message;
+                }
+                else
+                {
+                    Response.Code = ResponseCodeDefines.ServiceError;
+                    Response.Msg = "RescheduleTasks error info:" + e.Message;
+                    Logger.Error(Response.Msg);
+                }
+            }
+            return Response;
+        }
+
+        /// <summary>
         /// 根据以前任务添加重调度任务, 一般任务调度失败，开始msv失败才会调，这样产生新的任务重新开始采集
         /// </summary>
         /// <remarks>
@@ -706,7 +747,7 @@ namespace IngestTaskPlugin.Controllers.v3
         /// </remarks>
         /// <param name="taskid">周期任务id</param>
         /// <returns>分裂后的任务</returns>
-        [HttpPost("periodic/{taskid}")]
+        [HttpPost("periodic/childtask/{taskid}")]
         [ApiExplorerSettings(GroupName = "v3")]
         public async Task<ResponseMessage<TaskContentResponse>> CreatePeriodicTask([FromRoute, BindRequired] int taskid)
         {

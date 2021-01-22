@@ -956,7 +956,7 @@ namespace IngestDevicePlugin.Managers
 
         public virtual async Task<List<TResult>> GetAllCaptureChannelsBySiteAsync<TResult>(string site)
         {
-            return _mapper.Map<List<TResult>>(await Store.GetAllCaptureChannelsBySiteAsync(0, site));
+            return _mapper.Map<List<TResult>>(await Store.GetAllChannelsBySiteAreaAsync(0, site, -1));
         }
 
         public virtual async Task<List<TResult>> GetAllProgrammeInfosBySiteAsync<TResult>(string site)

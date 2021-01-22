@@ -27,6 +27,11 @@ namespace IngestDevicePlugin.Controllers.v3
 
         public DeviceController(DeviceManager task) { _deviceManage = task; }
 
+        [HttpGet]
+        public IEnumerable<string> Get()
+        {
+            return new string[] { "value1 from Version 3", "value3 from Version 3" };
+        }
 
         /// <summary>
         /// 获取所有的采集设备全信息(区别于2.0的capturedevice)
@@ -102,6 +107,7 @@ namespace IngestDevicePlugin.Controllers.v3
         }
 
 
+        #region channel
         /// <summary>
         /// 获得所有通道的状态
         /// </summary>
@@ -109,7 +115,7 @@ namespace IngestDevicePlugin.Controllers.v3
         /// <returns>最优通道Id</returns>
         [HttpGet("channel/state")]
         [ApiExplorerSettings(GroupName = "v3.0")]
-        public async Task<ResponseMessage<List<MSVChannelStateResponse>>> AllChannelState([FromHeader(Name = "sobeyhive-http-site"), BindRequired]string site)
+        public async Task<ResponseMessage<List<MSVChannelStateResponse>>> AllChannelState([FromHeader(Name = "sobeyhive-http-site"), BindRequired, DefaultValue("S1")]string site)
         {
             ResponseMessage<List<MSVChannelStateResponse>> response = new ResponseMessage<List<MSVChannelStateResponse>>();
             try
@@ -146,7 +152,7 @@ namespace IngestDevicePlugin.Controllers.v3
         /// <returns>采集通道集合</returns>
         [HttpGet("channel")]
         [ApiExplorerSettings(GroupName = "v3.0")]
-        public async Task<ResponseMessage<List<CaptureChannelInfoResponse>>> AllCaptureChannels([FromHeader(Name = "sobeyhive-http-site"), BindRequired] string site)
+        public async Task<ResponseMessage<List<CaptureChannelInfoResponse>>> AllCaptureChannels([FromHeader(Name = "sobeyhive-http-site"), BindRequired, DefaultValue("S1")] string site)
         {
             ResponseMessage<List<CaptureChannelInfoResponse>> response = new ResponseMessage<List<CaptureChannelInfoResponse>>();
             try
@@ -158,6 +164,43 @@ namespace IngestDevicePlugin.Controllers.v3
                     response.Msg = $"{System.Reflection.MethodBase.GetCurrentMethod().DeclaringType.FullName}:error info: not find data!";
                 }
                 Logger.Info($"AllCaptureChannels Site Result : {Newtonsoft.Json.JsonConvert.SerializeObject(response.Ext)} ");
+            }
+            catch (Exception e)
+            {
+                if (e is SobeyRecException se)//sobeyexcep会自动打印错误
+                {
+                    response.Code = se.ErrorCode.ToString();
+                    response.Msg = se.Message;
+                }
+                else
+                {
+                    response.Code = ResponseCodeDefines.ServiceError;
+                    response.Msg = $"{System.Reflection.MethodBase.GetCurrentMethod().DeclaringType.FullName}:error info:{e.Message}";
+                    Logger.Error(response.Msg);
+                }
+            }
+            return response;
+        }
+
+        /// <summary>
+        /// 获取通道的扩展数据
+        /// </summary>
+        /// <remarks>原方法 PostUpdateChnExtData</remarks>
+        /// <returns>是否成功</returns>
+        [HttpGet("channel/extenddata/{channelid}")]
+        [ApiExplorerSettings(GroupName = "v3.0")]
+        public async Task<ResponseMessage<string>> GetChannelExtendData([FromRoute, BindRequired, DefaultValue(24)] int channelid,
+                                                                        [FromQuery, BindRequired, DefaultValue(2)] int type)
+        {
+            ResponseMessage<string> response = new ResponseMessage<string>();
+            try
+            {
+                response.Ext = await _deviceManage.GetChannelExtendData(channelid, type);
+                if (string.IsNullOrEmpty(response.Ext))
+                {
+                    response.Code = ResponseCodeDefines.NotFound;
+                    response.Msg = $"{System.Reflection.MethodBase.GetCurrentMethod().DeclaringType.FullName}:error info: not find data!";
+                }
             }
             catch (Exception e)
             {
@@ -213,6 +256,43 @@ namespace IngestDevicePlugin.Controllers.v3
             }
             return response;
         }
+
+        /// <summary>
+        /// 获取Rtmp的采集设备信息
+        /// </summary>
+        /// <remarks></remarks>
+        /// <returns>采集设备集合</returns>
+        [HttpGet("channel/rtmp")]
+        [ApiExplorerSettings(GroupName = "v3.0")]
+        public async Task<ResponseMessage<List<CaptureChannelInfoInterface>>> RtmpCaptureChannels([FromHeader(Name = "sobeyhive-http-site"), BindRequired] string site)
+        {
+            ResponseMessage<List<CaptureChannelInfoInterface>> response = new ResponseMessage<List<CaptureChannelInfoInterface>>();
+            try
+            {
+                response.Ext = await _deviceManage.GetRtmpCaptureChannelsBySiteAreaAsync<CaptureChannelInfoInterface>(site, -1);
+                if (response.Ext == null)
+                {
+                    response.Code = ResponseCodeDefines.NotFound;
+                    response.Msg = $"{System.Reflection.MethodBase.GetCurrentMethod().DeclaringType.FullName}:error info: not find data!";
+                }
+            }
+            catch (Exception e)
+            {
+                if (e is SobeyRecException se)//sobeyexcep会自动打印错误
+                {
+                    response.Code = se.ErrorCode.ToString();
+                    response.Msg = se.Message;
+                }
+                else
+                {
+                    response.Code = ResponseCodeDefines.ServiceError;
+                    response.Msg = $"{System.Reflection.MethodBase.GetCurrentMethod().DeclaringType.FullName}:error info:{e.Message}";
+                    Logger.Error(response.Msg);
+                }
+            }
+            return response;
+        }
+        #endregion
 
         /// <summary>
         /// 获取所有节目
@@ -293,42 +373,6 @@ namespace IngestDevicePlugin.Controllers.v3
             return response;
         }
 
-
-        /// <summary>
-        /// 获取Rtmp的采集设备信息
-        /// </summary>
-        /// <remarks></remarks>
-        /// <returns>采集设备集合</returns>
-        [HttpGet("channel/rtmp")]
-        [ApiExplorerSettings(GroupName = "v3.0")]
-        public async Task<ResponseMessage<List<CaptureChannelInfoInterface>>> RtmpCaptureChannels([FromHeader(Name = "sobeyhive-http-site"), BindRequired] string site)
-        {
-            ResponseMessage<List<CaptureChannelInfoInterface>> response = new ResponseMessage<List<CaptureChannelInfoInterface>>();
-            try
-            {
-                response.Ext = await _deviceManage.GetRtmpCaptureChannelsBySiteAreaAsync<CaptureChannelInfoInterface>(site, -1);
-                if (response.Ext == null)
-                {
-                    response.Code = ResponseCodeDefines.NotFound;
-                    response.Msg = $"{System.Reflection.MethodBase.GetCurrentMethod().DeclaringType.FullName}:error info: not find data!";
-                }
-            }
-            catch (Exception e)
-            {
-                if (e is SobeyRecException se)//sobeyexcep会自动打印错误
-                {
-                    response.Code = se.ErrorCode.ToString();
-                    response.Msg = se.Message;
-                }
-                else
-                {
-                    response.Code = ResponseCodeDefines.ServiceError;
-                    response.Msg = $"{System.Reflection.MethodBase.GetCurrentMethod().DeclaringType.FullName}:error info:{e.Message}";
-                    Logger.Error(response.Msg);
-                }
-            }
-            return response;
-        }
 
 
         /// <summary>
@@ -645,42 +689,6 @@ namespace IngestDevicePlugin.Controllers.v3
             return Response;
         }
 
-        /// <summary>
-        /// 获取通道的扩展数据
-        /// </summary>
-        /// <remarks>原方法 PostUpdateChnExtData</remarks>
-        /// <returns>是否成功</returns>
-        [HttpGet("channel/extenddata/{channelid}")]
-        [ApiExplorerSettings(GroupName = "v3.0")]
-        public async Task<ResponseMessage<string>> GetChannelExtendData([FromRoute, BindRequired, DefaultValue(24)] int channelid,
-                                                                        [FromQuery, BindRequired, DefaultValue(2)] int type)
-        {
-            ResponseMessage<string> response = new ResponseMessage<string>();
-            try
-            {
-                response.Ext = await _deviceManage.GetChannelExtendData(channelid, type);
-                if (string.IsNullOrEmpty(response.Ext))
-                {
-                    response.Code = ResponseCodeDefines.NotFound;
-                    response.Msg = $"{System.Reflection.MethodBase.GetCurrentMethod().DeclaringType.FullName}:error info: not find data!";
-                }
-            }
-            catch (Exception e)
-            {
-                if (e is SobeyRecException se)//sobeyexcep会自动打印错误
-                {
-                    response.Code = se.ErrorCode.ToString();
-                    response.Msg = se.Message;
-                }
-                else
-                {
-                    response.Code = ResponseCodeDefines.ServiceError;
-                    response.Msg = $"{System.Reflection.MethodBase.GetCurrentMethod().DeclaringType.FullName}:error info:{e.Message}";
-                    Logger.Error(response.Msg);
-                }
-            }
-            return response;
-        }
 
         /// <summary>
         ///
