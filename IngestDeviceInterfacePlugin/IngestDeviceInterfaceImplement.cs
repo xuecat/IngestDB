@@ -1,7 +1,6 @@
 ﻿using AutoMapper;
 using IngestDBCore;
 using IngestDBCore.Interface;
-using IngestDevicePlugin.Controllers.v2;
 using Microsoft.Extensions.DependencyInjection;
 using System;
 using System.Collections.Generic;
@@ -13,16 +12,16 @@ namespace IngestTaskInterfacePlugin
 {
     public class IngestDeviceInterfaceImplement : IIngestDeviceInterface
     {
-        public IngestDeviceInterfaceImplement(IMapper mapper, DeviceController controller, IngestDevicePlugin.Controllers.v3.DeviceController control3)
+        public IngestDeviceInterfaceImplement(IMapper mapper, IngestDevicePlugin.Controllers.v3.DeviceController control3)
         {
             _mapper = mapper ?? throw new ArgumentNullException(nameof(mapper));
-            _controller = controller;
-            _controllerv3 = control3;
+            //_controller = controller;
+            _controller = control3;
         }
 
-        private DeviceController _controller { get; }
+        //private DeviceController _controller { get; }
 
-        IngestDevicePlugin.Controllers.v3.DeviceController _controllerv3 { get; set; }
+        IngestDevicePlugin.Controllers.v3.DeviceController _controller { get; set; }
         protected IMapper _mapper { get; }
         public async Task<ResponseMessage> GetDeviceCallBack(DeviceInternals examineResponse)
         {
@@ -31,9 +30,8 @@ namespace IngestTaskInterfacePlugin
                 case FunctionType.ChannelInfoBySrc:
                     {
                         return _mapper.Map<ResponseMessage<List<CaptureChannelInfoInterface>>>(
-                            await _controller.ChannelsByProgrammeId(examineResponse.SrcId, examineResponse.Status));
+                            await _controller.ChannelsOnAreaByProgrammeId(examineResponse.SrcId, examineResponse.Status));
                     }
-                    break;
                 case FunctionType.DeviceInfoByID:
                     {
                         return _mapper.Map<ResponseMessage<DeviceInfoInterface>>(
@@ -65,7 +63,7 @@ namespace IngestTaskInterfacePlugin
                 case FunctionType.AllChannelState:
                     {
                         return _mapper.Map<ResponseMessage<List<MSVChannelStateInterface>>>(
-                            await _controller.AllChannelState()
+                            await _controller.AllChannelState(examineResponse.SystemSite)
                             );
                     }
                     break;
@@ -85,23 +83,18 @@ namespace IngestTaskInterfacePlugin
                 case FunctionType.AllCaptureChannels:
                     {
                         return _mapper.Map<ResponseMessage<List<CaptureChannelInfoInterface>>>(
-                            await _controller.AllCaptureChannels()
+                            await _controller.AllCaptureChannels(examineResponse.SystemSite)
                             );
                     }
                     break;
                 case FunctionType.AllRouterInPort:
                     return _mapper.Map<ResponseMessage<List<RouterInInterface>>>(
-                            await _controller.AllRouterInPortInfos()
+                            await _controller.AllRouterInPortInfos(examineResponse.SystemSite)
                             );
                 case FunctionType.AllCaptureDevice:
                     return _mapper.Map<ResponseMessage<List<CaptureDeviceInfoInterface>>>(await _controller.AllCaptureDevices());
                 case FunctionType.RtmpCaptureChannels:
-                    return _mapper.Map<ResponseMessage<List<CaptureChannelInfoInterface>>>(await _controller.RtmpCaptureChannels());
-                case FunctionType.RtmpCaptureChannelsV3:
-                    return _mapper.Map<ResponseMessage<List<CaptureChannelInfoInterface>>>(await _controllerv3.RtmpCaptureChannels(examineResponse.SystemSite));
-                case FunctionType.ChannelInfoBySrcV3:
-                    return _mapper.Map<ResponseMessage<List<CaptureChannelInfoInterface>>>(
-                            await _controllerv3.ChannelsOnAreaByProgrammeId(examineResponse.SrcId, examineResponse.Status));
+                    return _mapper.Map<ResponseMessage<List<CaptureChannelInfoInterface>>>(await _controller.RtmpCaptureChannels(examineResponse.SystemSite));
                 default:
                     break;
             }

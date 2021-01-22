@@ -2605,7 +2605,7 @@ namespace IngestTaskPlugin.Managers
 
                     if (taskModify.SignalId <= 0 && taskSource == TaskSource.emRtmpSwitchTask)
                     {
-                        re = new DeviceInternals() { funtype = DeviceInternals.FunctionType.RtmpCaptureChannels };
+                        re = new DeviceInternals() { funtype = DeviceInternals.FunctionType.RtmpCaptureChannels , SystemSite = "" };
                     }
                     else if (taskModify.SignalId > 0)
                     {
@@ -4428,11 +4428,11 @@ namespace IngestTaskPlugin.Managers
 
                 if (SignalID <= 0 && tasksource == TaskSource.emRtmpSwitchTask)
                 {
-                    re = new DeviceInternals() { funtype = DeviceInternals.FunctionType.RtmpCaptureChannelsV3 , SystemSite = condition.SystemSite };
+                    re = new DeviceInternals() { funtype = DeviceInternals.FunctionType.RtmpCaptureChannels , SystemSite = condition.SystemSite };
                 }
                 else if (SignalID > 0)
                 {
-                    re = new DeviceInternals() { funtype = condition.SelChnOnArea ? DeviceInternals.FunctionType.ChannelInfoBySrcV3 : DeviceInternals.FunctionType.ChannelInfoBySrc, SrcId = SignalID, Status = condition.CheckCHCurState ? 1 : 0 };
+                    re = new DeviceInternals() { funtype = DeviceInternals.FunctionType.ChannelInfoBySrc, SrcId = SignalID, Status = condition.CheckCHCurState ? 1 : 0 };
                 }
                 else
                 {

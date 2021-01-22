@@ -23,7 +23,7 @@ namespace IngestTaskInterfacePlugin
         public override Task<ResponseMessage> Init(ApplicationContext context)
         {
             context.Services.AddScoped<IIngestDeviceInterface, IngestDeviceInterfaceImplement>();
-            context.Services.AddScoped<IngestDevicePlugin.Controllers.v2.DeviceController>();
+            //context.Services.AddScoped<IngestDevicePlugin.Controllers.v2.DeviceController>();
             context.Services.AddScoped<IngestDevicePlugin.Controllers.v3.DeviceController>();
             return base.Init(context);
         }
