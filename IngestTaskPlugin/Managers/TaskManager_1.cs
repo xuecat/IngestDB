@@ -116,7 +116,7 @@ namespace IngestTaskPlugin.Managers
             if (item != null && item.Signalid > 0)
             {
                 var matchlst = await GetMatchedChannelForSignal(item.Signalid.GetValueOrDefault(), item.Channelid.GetValueOrDefault(),
-                    new CHSelCondition() { BackupCHSel = false}, TaskSource.emMSVUploadTask);
+                    new CHSelCondition() { BackupCHSel = true}, TaskSource.emMSVUploadTask);//重调度任务不允许在禁止通道上调度
 
                 if (matchlst != null && matchlst.Count > 0)
                 {

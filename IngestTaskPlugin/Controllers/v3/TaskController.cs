@@ -221,7 +221,7 @@ namespace IngestTaskPlugin.Controllers.v3
             {
                 var addTask = await _taskManage.ReScheduleTaskChannel(taskid);
 
-                if (_globalInterface != null)
+                if (_globalInterface != null && addTask != null)
                 {
                     //GlobalInternals re = new GlobalInternals() { Funtype = IngestDBCore.GlobalInternals.FunctionType.SetGlobalState, State = GlobalStateName.MODTASK, TaskID = addTask.Channelid.GetValueOrDefault() };
                     //var response1 = await _globalInterface.Value.SubmitGlobalCallBack(re);
