@@ -290,7 +290,7 @@ namespace IngestDevicePlugin.Stores
             var query = await (from sig in Context.DbpSignalsrc.AsNoTracking().Join(Context.DbpRcdindesc.AsNoTracking(),
                 src => src.Signalsrcid,
                 rcin => rcin.Signalsrcid,
-                (src, rcin) => new { src, rcin.Signalsource })
+                (src, rcin) => new { src, rcin.Signalsource, rcin.Area })
                                where srcid ==sig.src.Signalsrcid
                                join grp in Context.DbpSignalsrcgroupmap.AsNoTracking() on sig.src.Signalsrcid equals grp.Signalsrcid into pg
                                from g in pg.DefaultIfEmpty()
@@ -305,6 +305,7 @@ namespace IngestDevicePlugin.Stores
                                    PureAudio = sig.src.Pureaudio ?? 0,
                                    SignalSourceType = sig.Signalsource == null ? 0 : (emSignalSource)sig.Signalsource.GetValueOrDefault(),
                                    GroupId = g == null ? 0 : g.Groupid,
+                                   Area = sig.Area ?? 0
                                }).SingleOrDefaultAsync();
 
 
@@ -486,6 +487,41 @@ namespace IngestDevicePlugin.Stores
         }
 
         //老接口GetAllCaptureChannels
+        private IQueryable<CaptureChannelInfoDto> GetChannelQuery(int status, int Area)
+        {
+           
+            var query = from channel in Context.DbpCapturechannels.AsNoTracking().Join(Context.DbpCapturedevice.AsNoTracking(),
+                              chn => chn.Cpdeviceid,
+                              device => device.Cpdeviceid,
+                              (chn, device) => new { chn, device.Devicetypeid, device.Ordercode }).Join(Context.DbpRcdoutdesc.AsNoTracking(),
+                              chn => chn.chn.Channelid,
+                              rcout => rcout.Channelid,
+                              (rchn, rcout) => new { rchn, rcout.Area }).Join(Context.DbpMsvchannelState.AsNoTracking(),
+                              chn => chn.rchn.chn.Channelid,
+                              msvstate => msvstate.Channelid,
+                              (rchn, msvstate) => new { rchn, msvstate.Devstate })
+                        join grp in Context.DbpChannelgroupmap.AsNoTracking() on channel.rchn.rchn.chn.Channelid equals grp.Channelid into pg
+                        from g in pg.DefaultIfEmpty()
+                        select new CaptureChannelInfoDto
+                        {
+                            Id = channel.rchn.rchn.chn.Channelid,
+                            Name = channel.rchn.rchn.chn.Channelname,
+                            Desc = channel.rchn.rchn.chn.Channeldesc,
+                            CpDeviceId = channel.rchn.rchn.chn.Cpdeviceid,
+                            ChannelIndex = channel.rchn.rchn.chn.Channelindex ?? 0,
+                            DeviceTypeId = channel.rchn.rchn.chn.Devicetypeid <= 0 ? (int)CaptureChannelType.emMsvChannel : channel.rchn.rchn.Devicetypeid,
+                            BackState = (emBackupFlag)channel.rchn.rchn.chn.Backupflag,
+                            CpSignalType = channel.rchn.rchn.chn.Cpsignaltype ?? 0,
+                            OrderCode = channel.rchn.rchn.chn != null ? channel.rchn.rchn.Ordercode.GetValueOrDefault() : -1,
+                            GroupId = g != null ? g.Groupid : -1,
+                            DeviceState = channel.Devstate != null ? (Device_State)channel.Devstate : Device_State.DISCONNECTTED,
+                            Area = channel.rchn.Area ?? 0
+                        };
+
+
+            return query;
+
+        }
 
         public async Task<List<CaptureChannelInfoDto>> GetAllCaptureChannelsAsync(int status)
         {
@@ -524,25 +560,26 @@ namespace IngestDevicePlugin.Stores
                               (chn, device) => new { chn, device.Devicetypeid, device.Ordercode }).Join(Context.DbpRcdoutdesc.AsNoTracking(),
                               chn => chn.chn.Channelid,
                               rcout => rcout.Channelid,
-                              (rchn, rcout) => rchn).Join(Context.DbpMsvchannelState.AsNoTracking(),
-                              chn => chn.chn.Channelid,
+                              (rchn, rcout) => new { rchn, rcout.Area } ).Join(Context.DbpMsvchannelState.AsNoTracking(),
+                              chn => chn.rchn.chn.Channelid,
                               msvstate => msvstate.Channelid,
                               (rchn, msvstate) => new { rchn, msvstate.Devstate})
-                             join grp in Context.DbpChannelgroupmap.AsNoTracking() on channel.rchn.chn.Channelid equals grp.Channelid into pg
+                             join grp in Context.DbpChannelgroupmap.AsNoTracking() on channel.rchn.rchn.chn.Channelid equals grp.Channelid into pg
                              from g in pg.DefaultIfEmpty()
                              select new CaptureChannelInfoDto
                              {
-                                 Id = channel.rchn.chn.Channelid,
-                                 Name = channel.rchn.chn.Channelname,
-                                 Desc = channel.rchn.chn.Channeldesc,
-                                 CpDeviceId = channel.rchn.chn.Cpdeviceid,
-                                 ChannelIndex = channel.rchn.chn.Channelindex ?? 0,
-                                 DeviceTypeId = channel.rchn.chn.Devicetypeid <= 0 ? (int)CaptureChannelType.emMsvChannel : channel.rchn.Devicetypeid,
-                                 BackState = (emBackupFlag)channel.rchn.chn.Backupflag,
-                                 CpSignalType = channel.rchn.chn.Cpsignaltype ?? 0,
-                                 OrderCode = channel.rchn.chn != null ? channel.rchn.Ordercode.GetValueOrDefault() : -1,
+                                 Id = channel.rchn.rchn.chn.Channelid,
+                                 Name = channel.rchn.rchn.chn.Channelname,
+                                 Desc = channel.rchn.rchn.chn.Channeldesc,
+                                 CpDeviceId = channel.rchn.rchn.chn.Cpdeviceid,
+                                 ChannelIndex = channel.rchn.rchn.chn.Channelindex ?? 0,
+                                 DeviceTypeId = channel.rchn.rchn.chn.Devicetypeid <= 0 ? (int)CaptureChannelType.emMsvChannel : channel.rchn.rchn.Devicetypeid,
+                                 BackState = (emBackupFlag)channel.rchn.rchn.chn.Backupflag,
+                                 CpSignalType = channel.rchn.rchn.chn.Cpsignaltype ?? 0,
+                                 OrderCode = channel.rchn.rchn.chn != null ? channel.rchn.rchn.Ordercode.GetValueOrDefault() : -1,
                                  GroupId = g != null ? g.Groupid : -1,
-                                 DeviceState = channel.Devstate != null? (Device_State)channel.Devstate : Device_State.DISCONNECTTED
+                                 DeviceState = channel.Devstate != null? (Device_State)channel.Devstate : Device_State.DISCONNECTTED,
+                                 Area = channel.rchn.Area ?? 0
                              }).ToListAsync();
             }
             else

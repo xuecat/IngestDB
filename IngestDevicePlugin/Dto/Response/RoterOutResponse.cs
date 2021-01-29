@@ -21,5 +21,9 @@ namespace IngestDevicePlugin.Dto.Response
 
         /// <summary>设备类型</summary>
         public emDeviceType DeviceType { get; set; } = emDeviceType.emDeviceMSV;
+        /// <summary>
+        /// out口区域
+        /// </summary>
+        public int Area { get; set; }
     }
 }

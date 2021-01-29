@@ -22,5 +22,6 @@ namespace IngestDevicePlugin.Dto.Response
         // 分组Id
         public int GroupId { get; set; }    // Add by chenzhi 2103-07-04
         public Device_State DeviceState { get; set; }
+        public int Area { get; set; }
     }
 }

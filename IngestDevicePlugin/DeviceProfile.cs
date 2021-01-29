@@ -31,7 +31,8 @@ namespace IngestDevicePlugin
             //V2
             CreateMap<DbpRcdindesc, RouterInResponse>()
                //.ForMember(a => a.RCDeviceID, (map) => map.MapFrom(b => b.Rcdeviceid))
-               .ForMember(a => a.RcInportIdx, (map) => map.MapFrom(b => b.Recinidx));
+               .ForMember(a => a.RcInportIdx, (map) => map.MapFrom(b => b.Recinidx))
+               .ForMember(a => a.Area, (map) => map.MapFrom(b => b.Area));
             //.ForMember(a => a.SignalSource, (map) => map.MapFrom(b => b.Signalsource))
             //.ForMember(a => a.SignalSrcID, (map) => map.MapFrom(b => b.Signalsrcid));
             //V1
@@ -48,7 +49,8 @@ namespace IngestDevicePlugin
                 .ForMember(a => a.RcDeviceId, (map) => map.MapFrom(b => b.Rcdeviceid))
                 .ForMember(a => a.RcOutportIdx, (map) => map.MapFrom(b => b.Recoutidx))
                 .ForMember(a => a.ChannelId, (map) => map.MapFrom(b => b.Channelid))
-                .ForMember(a => a.DeviceType, (map) => map.MapFrom(b => b.Devicetype));
+                .ForMember(a => a.DeviceType, (map) => map.MapFrom(b => b.Devicetype))
+                .ForMember(a => a.Area, (map) => map.MapFrom(b => b.Area));
             //V1
             CreateMap<DbpRcdoutdesc, RoterOutDesc>()
                 .ForMember(a => a.nRCDeviceID, (map) => map.MapFrom(b => b.Rcdeviceid))
