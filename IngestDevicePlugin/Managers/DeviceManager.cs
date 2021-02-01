@@ -869,7 +869,7 @@ namespace IngestDevicePlugin.Managers
             bool isHaveMatrix = await HaveMatrixAsync();
             var programinfo = await GetProgrammeInfoByIdAsync(programmid);
 
-            var channels = await Store.GetAllCaptureChannelsAsync(state);
+            var channels = await Store.GetAllCaptureChannelsAsync(state, programinfo.Area);
             List<CaptureChannelInfoResponse> channelInfoList = new List<CaptureChannelInfoResponse>();
             foreach (var item in channels)
             {

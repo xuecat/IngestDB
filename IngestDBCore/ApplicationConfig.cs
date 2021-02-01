@@ -18,5 +18,7 @@ namespace IngestDBCore
         public string KafkaUrl { get; set; }
         public bool Limit24Hours { get; set; }
         public bool NotifyUdpInfomation { get; set; }
+        public string SplitTaskNameTemplate { get; set; }
+        public int SplitTaskNameType { get; set; }
     }
 }

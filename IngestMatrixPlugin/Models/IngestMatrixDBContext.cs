@@ -210,6 +210,10 @@ namespace IngestMatrixPlugin.Models
                 entity.Property(e => e.Ipaddress)
                     .HasColumnName("IPADDRESS")
                     .HasColumnType("varchar(255)");
+
+                entity.Property(e => e.Area)
+                    .HasColumnName("AREA")
+                    .HasColumnType("int(11)");
             });
 
             modelBuilder.Entity<DbpRcdoutdesc>(entity =>
@@ -232,6 +236,10 @@ namespace IngestMatrixPlugin.Models
 
                 entity.Property(e => e.Devicetype)
                     .HasColumnName("DEVICETYPE")
+                    .HasColumnType("int(11)");
+
+                entity.Property(e => e.Area)
+                    .HasColumnName("AREA")
                     .HasColumnType("int(11)");
             });
 

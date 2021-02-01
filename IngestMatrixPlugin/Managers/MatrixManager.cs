@@ -299,6 +299,17 @@ namespace IngestMatrixPlugin.Managers
                     }
                 }
 
+                if(dbpRcdindesc.Area != dbpRcdoutdesc.Area) //先不修改赋值，直接判断不等的结果，感觉赋值先不用改 
+                {
+                    Logger.Error($"call DBAccessMatrixInfo::SwitchInOutByArea(), in area not equal out area.");
+                    if (!await RecoverReleasedRoutAndPort(releasedVirtualPortList, releasedRoutList))
+                    {
+                        Logger.Error("In module MatrixService!call CIVirtualMatrix::SwitchInOut(),recover the released rout and port failed!");
+                    }
+                    return false;
+                }
+                
+
                 MatrixOldResponseMessage msg = null;
                 if (dbpRcdindesc.Signalsource == 7)
                 {

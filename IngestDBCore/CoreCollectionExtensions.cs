@@ -26,7 +26,10 @@ namespace IngestDBCore
             {
                 ApplicationContext.Current.KafkaUrl = ApplicationContext.Current.KafkaUrl.Replace(";", ",");
             }
-            
+
+            //获取配置的网管配置CLIP_SUFFIX， DEFAULT_SUFFIX_CHECKBOX
+            ApplicationContext.Current.SplitTaskNameTemplate = client.GetGlobalParam(false, "admin", "CLIP_SUFFIX").Result;
+            ApplicationContext.Current.SplitTaskNameType = int.Parse(client.GetGlobalParam(false, "admin", "DEFAULT_SUFFIX_CHECKBOX").Result);
 
             services.AddSingleton<RestClient>(client);
            

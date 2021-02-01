@@ -58,6 +58,8 @@ namespace IngestDevicePlugin.Models
 
         public virtual DbSet<VtrTypeinfo> VtrTypeinfo { get; set; }
 
+        public virtual DbSet<DbpArea> DbpArea { get; set; }
+
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
             modelBuilder.Entity<DbpCapturechannels>(entity =>
@@ -1360,6 +1362,20 @@ namespace IngestDevicePlugin.Models
                     .HasColumnType("varchar(128)");
             });
 
+
+            //modelBuilder.Entity<DbpArea>(entity => {
+
+            //    entity.HasKey(e => e.Id);
+
+            //    entity.ToTable("dbp_area");
+
+            //    entity.Property(e => e.Id)
+            //        .HasColumnName("ID")
+            //        .HasColumnType("int(11)");
+
+            //    entity.Property(e => e.Name).ha
+            
+            //});
 
         }
     }

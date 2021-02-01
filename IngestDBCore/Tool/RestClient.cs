@@ -414,6 +414,9 @@ namespace IngestDBCore.Tool
                 header = GetTokenHeader(userTokenOrCode);
             else
                 header = GetCodeHeader(userTokenOrCode);
+
+            header.Add( "sobeyhive-http-request-id", Guid.NewGuid().ToString("N"));
+
             var back = await AutoRetry.Run<ResponseMessage<CmParam>>(() =>
             {
                 DefaultParameter param = new DefaultParameter()

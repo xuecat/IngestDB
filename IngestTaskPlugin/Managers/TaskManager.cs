@@ -3540,7 +3540,63 @@ namespace IngestTaskPlugin.Managers
                         else
                             orgtitle = sptitle.Value;
 
-                        root.Descendants("VTRSTART")?.Remove();
+                        //root.Descendants("VTRSTART")?.Remove();
+
+                        sptitle = root.Element("VTRSTART");
+                        if (sptitle == null)
+                        {
+                            root.Add(new XElement("VTRSTART", starttime.ToLongTimeString()));
+                        }
+                        else
+                        {
+                            sptitle.Value = starttime.ToLongTimeString();
+                        }
+
+                        var SplitNameSuffix0 = root.Element("SplitNameSuffix0");
+                        if (SplitNameSuffix0 == null)//add
+                        {
+                            root.Add(new XElement("SplitNameSuffix0", "_HHmmss"));
+                        }
+                        else
+                        {
+                            SplitNameSuffix0.Value = "_HHmmss";
+                        }
+
+                        var SplitNameSuffix1 = root.Element("SplitNameSuffix1");
+                        string splitSuffix1 = string.Empty;
+                        splitSuffix1 = ApplicationContext.Current.SplitTaskNameTemplate;
+
+                        if (splitSuffix1.IndexOf("%site%") >= 0)
+                        { 
+                            splitSuffix1 = splitSuffix1.Replace("%site%", DEVICESACCESS.GetSiteInfo(findtask.Area).SiteName);//replace就算不存在也会调后面得函数，居然这样
+                        }
+
+                        if (splitSuffix1.IndexOf("%channel%") >= 0)
+                        {
+                            splitSuffix1 = splitSuffix1.Replace("%channel%", DEVICESACCESS.GetCaptureChannelByID((int)oldTaskFullInfo.taskContent.nChannelID).strName);//replace就算不存在也会调后面得函数，居然这样
+                        }
+                        if (SplitNameSuffix1 == null)
+                        {
+                            var splittype = docs.CreateElement("SplitNameSuffix1");
+                            splittype.InnerText = splitSuffix1;
+                            taskcontentnode.AppendChild(splittype);
+                        }
+                        else
+                        {
+                            SplitNameSuffix1.InnerText = splitSuffix1;
+                        }
+
+                        XmlNode xmlsplitclip = taskcontentnode.SelectSingleNode("SplitClips");
+                        if (xmlsplitclip != null)
+                        {
+                            taskcontentnode.RemoveChild(xmlsplitclip);
+                        }
+                        xmlsplitclip = taskcontentnode.SelectSingleNode("MLTOTASKGUID");
+                        if (xmlsplitclip != null)
+                        {
+                            taskcontentnode.RemoveChild(xmlsplitclip);
+                        }
+                        
 
                         strSplitMetaData = root.ToString();
                     }

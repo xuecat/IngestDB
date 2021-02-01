@@ -9,5 +9,6 @@ namespace IngestMatrixPlugin.Models.DB
         public int Rcdeviceid { get; set; }
         public int Recoutidx { get; set; }
         public int? Devicetype { get; set; }
+        public int? Area { get; set; }
     }
 }
