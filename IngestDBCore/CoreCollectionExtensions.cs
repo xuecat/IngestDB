@@ -3,6 +3,7 @@ using IngestDBCore.Tool;
 using Microsoft.Extensions.DependencyInjection;
 using System;
 using System.Collections.Generic;
+using System.Net;
 using System.Net.Http;
 using System.Text;
 
@@ -10,31 +11,38 @@ namespace IngestDBCore
 {
     public static class CoreCollectionExtensions
     {
-        public static void AddToolDefined(this IServiceCollection services, IHttpClientFactory httpClientFactory)
+        public static void AddToolDefined(this IServiceCollection services)
         {
             if (services == null)
             {
                 throw new ArgumentNullException(nameof(services));
             }
-            var client = new RestClient(httpClientFactory);
+            if (!string.IsNullOrEmpty(ApplicationContext.Current.KafkaUrl))
+            {
+                ApplicationContext.Current.KafkaUrl = ApplicationContext.Current.KafkaUrl.Replace(";", ",");
+            }
+            using (var client = new RestClient())
+            {
             ApplicationContext.Current.KafkaUrl = client.GetGlobalParam(false, "admin", "KafkaAddress").Result;
             ApplicationContext.Current.IngestMatrixUrl = "http://"+ client.GetGlobalParam(false, "admin", "IngestDeviceCtrlIP").Result;
             ApplicationContext.Current.IngestMatrixUrl += ":";
             ApplicationContext.Current.IngestMatrixUrl += client.GetGlobalParam(false, "admin", "IngestDeviceCtrlPort").Result;
 
-            if (!string.IsNullOrEmpty(ApplicationContext.Current.KafkaUrl))
+                var endpoint = client.GetGlobalParam(false, "admin", "IngestTaskEndPoints").Result;
+                if (!string.IsNullOrEmpty(endpoint))
             {
-                ApplicationContext.Current.KafkaUrl = ApplicationContext.Current.KafkaUrl.Replace(";", ",");
+                    var points = endpoint.Split(";");
+                    ApplicationContext.Current.IngestTask = new System.Net.IPEndPoint[points.Length];
+                    for (int i = 0; i < points.Length; i++)
+                    {
+                        var ipinfo = points[i].Split(":");
+                        ApplicationContext.Current.IngestTask[i] = new System.Net.IPEndPoint(IPAddress.Parse(ipinfo[0]), int.Parse(ipinfo[1]));
             }
-
-            //获取配置的网管配置CLIP_SUFFIX， DEFAULT_SUFFIX_CHECKBOX
-            ApplicationContext.Current.SplitTaskNameTemplate = client.GetGlobalParam(false, "admin", "CLIP_SUFFIX").Result;
-            ApplicationContext.Current.SplitTaskNameType = int.Parse(client.GetGlobalParam(false, "admin", "DEFAULT_SUFFIX_CHECKBOX").Result);
-
-            services.AddSingleton<RestClient>(client);
+                }
+            }
+            services.AddSingleton<RestClient>(provider => new RestClient(provider.GetService<IHttpClientFactory>()));
            
-            ApplicationContext.Current.NotifyClock = new NotifyClock();
-            services.AddSingleton<NotifyClock>(ApplicationContext.Current.NotifyClock);
+            services.AddSingleton<NotifyClock>();
         }
     }
 }

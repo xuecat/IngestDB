@@ -30,7 +30,6 @@ namespace IngestTaskInterfacePlugin
                         return _mapper.Map<ResponseMessage<List<CaptureChannelInfoInterface>>>(
                             await _controller.ChannelsByProgrammeId(examineResponse.SrcId, examineResponse.Status));
                     }
-                    break;
                 case FunctionType.DeviceInfoByID:
                     {
                         return _mapper.Map<ResponseMessage<DeviceInfoInterface>>(

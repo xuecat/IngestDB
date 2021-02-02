@@ -1,4 +1,5 @@
 ﻿using IngestDBCore;
+using IngestDBCore.Notify;
 using IngestDBCore.Plugin;
 using Microsoft.Extensions.DependencyInjection;
 using System;
@@ -39,11 +40,7 @@ namespace KafKaNotifyPlugin
         public override Task<ResponseMessage> Init(ApplicationContext context)
         {
 
-            var notify = new KafKaNotify();
-            notify.Subscribe(context.NotifyClock);
-            context.Services.AddSingleton<KafKaNotify>(notify);
-
-
+            context.Services.AddSingleton<ISubNotify,KafKaNotify>();
             return base.Init(context);
         }
 

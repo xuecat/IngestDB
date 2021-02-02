@@ -10,7 +10,7 @@ using System.Text;
 namespace KafKaNotifyPlugin
 {
     
-    public class KafKaNotify : SubNotify
+    public class KafKaNotify : ISubNotify
     {
         protected readonly ProducerConfig _config;
         private readonly ILogger Logger = LoggerManager.GetLogger("KafKaNotify");
@@ -20,7 +20,7 @@ namespace KafKaNotifyPlugin
 
             Logger.Info($"kafka init {ApplicationContext.Current.KafkaUrl}");
         }
-        public override void ActionNotify(object theClock, NotifyArgs ti)
+        public void ActionNotify(object theClock, NotifyArgs ti)
         {
             //发送通知
             if ((ti.Intent & NotifyPlugin.Kafka) > 0)

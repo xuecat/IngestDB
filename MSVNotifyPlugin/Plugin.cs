@@ -38,11 +38,9 @@ namespace MSVNotifyPlugin
 
         public override Task<ResponseMessage> Init(ApplicationContext context)
         {
-            var notify = new MSVNotify(new MsvClientSDK.CClientTaskSDKImp());
-            notify.Subscribe(context.NotifyClock);
-            context.Services.AddSingleton<MSVNotify>(notify);
-            context.Services.AddSingleton<MsvClientSDK.CClientTaskSDKImp>();
-            
+            context.Services.AddSingleton<MsvClientSDK.CClientTaskSDKImp>(); 
+            context.Services.AddSingleton<ISubNotify,MSVNotify>();
+
 
             return base.Init(context);
         }

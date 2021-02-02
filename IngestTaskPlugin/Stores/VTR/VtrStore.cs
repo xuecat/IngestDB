@@ -170,9 +170,9 @@
         /// <param name="query">The query<see cref="Func{IQueryable{VtrTapelist}, Task{TResult}}"/>.</param>
         /// <param name="notrack">The notrack<see cref="bool"/>.</param>
         /// <returns>The <see cref="Task{TResult}"/>.</returns>
-        public Task<TResult> GetTapelist<TResult>(Func<IQueryable<VtrTapelist>, Task<TResult>> query, bool notrack = false)
+        public async Task<TResult> GetTapelist<TResult>(Func<IQueryable<VtrTapelist>, Task<TResult>> query, bool notrack = false)
         {
-            return this.QueryModelAsync(query, notrack);
+            return await this.QueryModelAsync(query, notrack);
         }
 
         /// <summary>
@@ -237,9 +237,9 @@
         /// <param name="query">The query<see cref="Func{IQueryable{VtrTapeVtrMap}, Task{TResult}}"/>.</param>
         /// <param name="notrack">The notrack<see cref="bool"/>.</param>
         /// <returns>The <see cref="Task{TResult}"/>.</returns>
-        public Task<TResult> GetTapeVtrMap<TResult>(Func<IQueryable<VtrTapeVtrMap>, Task<TResult>> query, bool notrack = false)
+        public async Task<TResult> GetTapeVtrMap<TResult>(Func<IQueryable<VtrTapeVtrMap>, Task<TResult>> query, bool notrack = false)
         {
-            return this.QueryModelAsync(query, notrack);
+            return await this.QueryModelAsync(query, notrack);
         }
 
         /// <summary>

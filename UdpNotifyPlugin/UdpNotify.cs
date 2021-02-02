@@ -8,14 +8,14 @@ using System.Text;
 
 namespace UdpNotifyPlugin
 {
-    public class UdpNotify : SubNotify
+    public class UdpNotify : ISubNotify
     {
         private readonly ILogger Logger = LoggerManager.GetLogger("UdpNotify");
         public UdpNotify()
         {
 
         }
-        public override void ActionNotify(object theClock, NotifyArgs ti)
+        public void ActionNotify(object theClock, NotifyArgs ti)
         {
             //发送通知
             if ((ti.Intent & NotifyPlugin.Udp) > 0)

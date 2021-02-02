@@ -1,20 +1,25 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Net.Http;
+using System.Threading.Tasks;
 using System.Xml.Linq;
 using AutoMapper;
 using IngestDBCore;
 using IngestDBCore.Basic;
 using IngestDBCore.Plugin;
+using IngestDBCore.Tool;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.ApplicationParts;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Hosting;
 using Microsoft.OpenApi.Models;
 using Newtonsoft.Json;
+using Newtonsoft.Json.Serialization;
 using Swashbuckle.AspNetCore.SwaggerGen;
 
 namespace IngestDB
@@ -110,6 +115,7 @@ namespace IngestDB
                     applicationContext.ConnectionString = CreateDBConnect(ps, applicationContext.VIP);
                     applicationContext.Limit24Hours = Convert.ToBoolean(Configuration["Limit24Hours"]);
                     applicationContext.NotifyUdpInfomation = Convert.ToBoolean(Configuration["NotifyUdpInfomation"]);
+                    applicationContext.GlobalNotify = Convert.ToBoolean(Configuration["GlobalNotify"]);
 
                     logger.Info(path + sys.ToString() + applicationContext.ConnectionString);
                 }
@@ -143,7 +149,7 @@ namespace IngestDB
             }
             
             //单例注入RestClient等
-            services.AddToolDefined(services.BuildServiceProvider().GetService<IHttpClientFactory>());
+            services.AddToolDefined();
             bool InitIsOk = applicationContext.Init().Result;
 
             services.AddApiVersioning(o =>
@@ -250,7 +256,6 @@ namespace IngestDB
             }
             else
                 return "http://" + str;
-            return "";
         }
 
         public string CreateDBConnect(XElement config, string vip)
@@ -273,7 +278,7 @@ namespace IngestDB
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
-        public void Configure(IApplicationBuilder app, IHostingEnvironment env)
+        public void Configure(IApplicationBuilder app, IWebHostEnvironment env)
         {
             if (env.IsDevelopment())
             {
@@ -329,7 +334,7 @@ namespace IngestDB
             //    //var context = scope.ServiceProvider.GetRequiredService<ApplicationDbContext>();
             //    //var pluginFactory = scope.ServiceProvider.GetRequiredService<IPluginFactory>();
             //}
-            applicationContext.Start();
+            applicationContext.Start().GetAwaiter();
         }
     }
 }

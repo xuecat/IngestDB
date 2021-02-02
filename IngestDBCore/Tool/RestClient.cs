@@ -31,6 +31,18 @@ namespace IngestDBCore.Tool
             _httpClient.DefaultRequestHeaders.Add("sobeyhive-http-site", "S1");
             _httpClient.DefaultRequestHeaders.Add("sobeyhive-http-tool", "INGESTSERVER");
         }
+        public RestClient()
+        {
+            _disposed = false;
+            _httpClient =  new HttpClient();
+            _httpClient.DefaultRequestHeaders.Connection.Clear();
+            _httpClient.DefaultRequestHeaders.ConnectionClose = false;
+            _httpClient.Timeout = TimeSpan.FromSeconds(15);
+            _httpClient.DefaultRequestHeaders.Accept.Add(new MediaTypeWithQualityHeaderValue("application/json"));
+            _httpClient.DefaultRequestHeaders.Add("sobeyhive-http-system", "INGESTSERVER");
+            _httpClient.DefaultRequestHeaders.Add("sobeyhive-http-site", "S1");
+            _httpClient.DefaultRequestHeaders.Add("sobeyhive-http-tool", "INGESTSERVER");
+        }
         public void Dispose()
         {
             Dispose(true);
@@ -60,7 +72,8 @@ namespace IngestDBCore.Tool
         public Dictionary<string, string> GetTokenHeader(string usertoken)
         {
             return new Dictionary<string, string>() {
-                {"sobeyhive-http-token", usertoken }
+                {"sobeyhive-http-token", usertoken },
+                {"sobeyhive-http-request-id", Guid.NewGuid().ToString("N")}
             };
         }
 
@@ -68,7 +81,8 @@ namespace IngestDBCore.Tool
         {
             return new Dictionary<string, string>() {
                 {"sobeyhive-http-secret", RSAHelper.RSAstr()},
-                {"current-user-code", usertoken }
+                {"current-user-code", usertoken },
+                {"sobeyhive-http-request-id", Guid.NewGuid().ToString("N")}
             };
         }
        
@@ -415,7 +429,6 @@ namespace IngestDBCore.Tool
             else
                 header = GetCodeHeader(userTokenOrCode);
 
-            header.Add( "sobeyhive-http-request-id", Guid.NewGuid().ToString("N"));
 
             var back = await AutoRetry.Run<ResponseMessage<CmParam>>(() =>
             {

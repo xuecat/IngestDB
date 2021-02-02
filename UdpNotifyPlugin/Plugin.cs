@@ -1,4 +1,5 @@
 ﻿using IngestDBCore;
+using IngestDBCore.Notify;
 using IngestDBCore.Plugin;
 using Microsoft.Extensions.DependencyInjection;
 using System;
@@ -42,9 +43,7 @@ namespace UdpNotifyPlugin
             //context.Services.AddMassTransit();
             //context.Services.configure
            
-            var notify = new UdpNotify();
-            notify.Subscribe(context.NotifyClock);
-            context.Services.AddSingleton<UdpNotify>(notify);
+            context.Services.AddSingleton<ISubNotify, UdpNotify>();
 
             return base.Init(context);
         }
