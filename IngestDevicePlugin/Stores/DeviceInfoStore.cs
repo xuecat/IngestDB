@@ -148,7 +148,7 @@ namespace IngestDevicePlugin.Stores
             var query = await( from sig in Context.DbpSignalsrc.AsNoTracking().Join(Context.DbpRcdindesc.AsNoTracking(),
                 src => src.Signalsrcid,
                 rcin => rcin.Signalsrcid,
-                (src, rcin) => new { src, rcin.Signalsource })
+                (src, rcin) => new { src, rcin.Signalsource, rcin.Area })
             join grp in Context.DbpSignalsrcgroupmap.AsNoTracking() on sig.src.Signalsrcid equals grp.Signalsrcid into pg
             from g in pg.DefaultIfEmpty()
             select new ProgrammeInfoDto
@@ -162,6 +162,7 @@ namespace IngestDevicePlugin.Stores
                 PureAudio = sig.src.Pureaudio ?? 0,
                 SignalSourceType = sig.Signalsource == null ? 0 : (emSignalSource)sig.Signalsource.GetValueOrDefault(),
                 GroupId = g == null ? 0 : g.Groupid,
+                 Area = sig.Area ?? 0
             }).ToListAsync();
 
 

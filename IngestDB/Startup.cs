@@ -195,9 +195,9 @@ namespace IngestDB
                         //TermsOfService = new Uri("None"),
                     });
 
-                    c.SwaggerDoc("v2.1", new OpenApiInfo
+                    c.SwaggerDoc("v3", new OpenApiInfo
                     {
-                        Version = "v2.1",
+                        Version = "v3",
                         Title = "> 收录新版本网关接口文档(部分为task服务的接口)",
                         Description = "**Ingest Web API**(接口设计原则: `Post`->新加和修改，`Post`->新加；`Put`->修改, 所有路由和参数均是小写, 所有返回值均是驼峰(注释的是大写, 实际返回驼峰))",
                         Contact = new OpenApiContact { Name = "XueCat", Email = "", Url = new Uri("http://ingest.com") },
@@ -305,7 +305,7 @@ namespace IngestDB
                     
                     c.SwaggerEndpoint("/swagger/v1/swagger.json", "IngestGateway API V1");
                     c.SwaggerEndpoint("/swagger/v2/swagger.json", "IngestGateway API V2");
-                    c.SwaggerEndpoint("/swagger/v2.1/swagger.json", "IngestGateway API V2.1");
+                    c.SwaggerEndpoint("/swagger/v3/swagger.json", "IngestGateway API V3");
                     //c.ShowRequestHeaders();
                 });
             }

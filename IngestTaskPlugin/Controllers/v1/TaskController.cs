@@ -31,7 +31,7 @@ namespace IngestTaskPlugin.Controllers.v1
         {
             _clock = new Lazy<NotifyClock>(() => services.GetRequiredService<NotifyClock>());
             _taskManage = task;
-            _globalInterface = new Lazy<IIngestGlobalInterface>(() => services.GetRequiredService<IIngestGlobalInterface>());
+            _globalInterface = ApplicationContext.Current.GlobalNotify ? new Lazy<IIngestGlobalInterface>(() => services.GetRequiredService<IIngestGlobalInterface>()) : null;
             //_mapper = mapper ?? throw new ArgumentNullException(nameof(mapper));
         }
 
