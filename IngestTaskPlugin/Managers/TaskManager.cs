@@ -2170,7 +2170,10 @@ namespace IngestTaskPlugin.Managers
                         item.SyncState = (int)syncState.ssSync;//过期的任务置为已同步状态。
                         item.Tasklock = string.Empty;//解锁
 
-                        lstModify.Add(item);
+                        if(item.Taskid > 0)
+                        {
+                            lstModify.Add(item);
+                        }
                         //zmj2009-01-09过期任务置无效后，就不应该被返回到任务总控那边进行操作
                         continue;
                     }
