@@ -503,6 +503,48 @@ namespace IngestTaskPlugin.Managers
             return xdoc.ToString();
         }
 
+        public string ConvertTaskSplitMetaString(TaskSplitResponse re, int channelId = -1)
+        {
+            if (re == null)
+            {
+                return null;
+            }
+
+            XDocument xdoc = new XDocument(new XElement("SplitMetaData"));
+            var root = xdoc.Root;
+
+            if (!string.IsNullOrEmpty(re.VtrStart))
+            {
+                root.Add(new XElement("VTRSTART", re.VtrStart));
+            }
+            if (!string.IsNullOrEmpty(re.SplitNameSuffix0))
+            {
+                root.Add(new XElement("SplitNameSuffix0", re.SplitNameSuffix0));
+            }
+            if (!string.IsNullOrEmpty(re.SplitNameSuffix1))
+            {
+                if (channelId > 0)
+                {
+                    re.SplitNameSuffix1 = DealSplitNameSuffix(channelId, re.SplitNameSuffix1);
+                }
+                root.Add(new XElement("SplitNameSuffix1", re.SplitNameSuffix1));
+            }
+            if (!string.IsNullOrEmpty(re.SplitClips))
+            {
+                root.Add(new XElement("SplitClips", re.SplitClips));
+            }
+            if (!string.IsNullOrEmpty(re.OrgTitle))
+            {
+                root.Add(new XElement("ORGTITLE", re.OrgTitle));
+            }
+            if (!string.IsNullOrEmpty(re.MlToTaskGuid))
+            {
+                root.Add(new XElement("MLTOTASKGUID", re.MlToTaskGuid));
+            }
+
+            return xdoc.ToString();
+        }
+
         public TaskSplitResponse ConverTaskSplitMetaString(string data)
         {
             try
@@ -3939,6 +3981,15 @@ namespace IngestTaskPlugin.Managers
                         string.IsNullOrEmpty(PlanningMeta) ? ConverTaskPlanningMetaString(taskinfo.PlanningMeta) : PlanningMeta,
                         null);
 
+                        if (back.Taskid > 0)
+                        {
+                            string splitMeta = ConvertTaskSplitMetaString(taskinfo.SplitMeta, back.Channelid ?? -1);
+                            if (!string.IsNullOrEmpty(splitMeta))
+                            {
+                                await Store.UpdateTaskMetaDataAsync(back.Taskid, MetaDataType.emSplitData, splitMeta);
+                            }
+                        }
+
                         return back;
                     }
                 }
@@ -4113,6 +4164,11 @@ namespace IngestTaskPlugin.Managers
 
                 if (back.Taskid > 0)
                 {
+                    string splitMeta = ConvertTaskSplitMetaString(taskinfo.SplitMeta, back.Channelid ?? -1);
+                    if (!string.IsNullOrEmpty(splitMeta))
+                    {
+                        await Store.UpdateTaskMetaDataAsync(back.Taskid, MetaDataType.emSplitData, splitMeta);
+                    }
                     //存metadata
                 }
 
@@ -4188,6 +4244,15 @@ namespace IngestTaskPlugin.Managers
                         string.IsNullOrEmpty(PlanningMeta) ? ConverTaskPlanningMetaString(taskinfo.PlanningMeta) : PlanningMeta,
                         null);
                         //return _mapper.Map<TaskContentResponse>(back);
+                        if (back.Taskid > 0)
+                        {
+                            string splitMeta = ConvertTaskSplitMetaString(taskinfo.SplitMeta, back.Channelid ?? -1);
+                            if (!string.IsNullOrEmpty(splitMeta))
+                            {
+                                await Store.UpdateTaskMetaDataAsync(back.Taskid, MetaDataType.emSplitData, splitMeta);
+                            }
+                        }
+
                         return back;
                     }
                 }
@@ -4353,6 +4418,11 @@ namespace IngestTaskPlugin.Managers
 
                 if (back.Taskid > 0)
                 {
+                    string splitMeta = ConvertTaskSplitMetaString(taskinfo.SplitMeta, back.Channelid ?? -1);
+                    if (!string.IsNullOrEmpty(splitMeta))
+                    {
+                        await Store.UpdateTaskMetaDataAsync(back.Taskid, MetaDataType.emSplitData, splitMeta);
+                    }
                     //存metadata
                 }
 

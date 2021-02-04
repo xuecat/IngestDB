@@ -165,6 +165,17 @@ namespace IngestTaskPlugin.Dto.Response
     public class TaskSplitResponse
     {
         public string VtrStart { get; set; }
+
+        public string SplitNameSuffix0 { get; set; }
+
+        public string SplitNameSuffix1 { get; set; }
+
+        public string SplitClips { get; set; }
+
+        public string MlToTaskGuid { get; set; }
+
+        public string OrgTitle { get; set; }
+
     }
 
     public class PeriodParamResponse
