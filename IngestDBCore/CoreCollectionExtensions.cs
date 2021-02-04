@@ -41,7 +41,12 @@ namespace IngestDBCore
                 }
 
                 ApplicationContext.Current.SplitTaskNameTemplate = client.GetGlobalParam(false, "admin", "CLIP_SUFFIX").Result;
-                ApplicationContext.Current.SplitTaskNameType = int.Parse(client.GetGlobalParam(false, "admin", "").Result);
+                //var info = client.GetGlobalParam(false, "admin", "").Result;
+                //if (!string.IsNullOrEmpty(info))
+                //{
+                //    ApplicationContext.Current.SplitTaskNameType = int.Parse(info);
+                //}
+                
 
             }
             services.AddSingleton<RestClient>(provider => new RestClient(provider.GetService<IHttpClientFactory>()));

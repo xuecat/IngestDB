@@ -4,6 +4,7 @@ using System.Threading.Tasks;
 using IngestDBCore;
 using IngestDBCore.Basic;
 using IngestDevicePlugin.Dto;
+using IngestDevicePlugin.Dto.Enum;
 using IngestDevicePlugin.Dto.OldResponse;
 using IngestDevicePlugin.Dto.Request;
 using IngestDevicePlugin.Dto.Response;
@@ -267,6 +268,37 @@ namespace IngestDevicePlugin.Controllers.v3
                     response.Msg = $"{System.Reflection.MethodBase.GetCurrentMethod().DeclaringType.FullName}:error info: not find data!";
                 }
                 Logger.Info($"AllCaptureChannels v3 Result : {Newtonsoft.Json.JsonConvert.SerializeObject(response.Ext)}");
+            }
+            catch (Exception e)
+            {
+                if (e is SobeyRecException se)//sobeyexcep会自动打印错误
+                {
+                    response.Code = se.ErrorCode.ToString();
+                    response.Msg = se.Message;
+                }
+                else
+                {
+                    response.Code = ResponseCodeDefines.ServiceError;
+                    response.Msg = $"{System.Reflection.MethodBase.GetCurrentMethod().DeclaringType.FullName}:error info:{e.Message}";
+                    Logger.Error(response.Msg);
+                }
+            }
+            return response;
+        }
+
+        /// <summary>
+        /// 通知设备变化消息
+        /// </summary>
+        /// <returns></returns>
+        [HttpPut("notify/{type}")]
+        [ApiExplorerSettings(GroupName = "v3")]
+        public async Task<ResponseMessage> NotifyDeviceChange([FromRoute, BindRequired]DeviceNotify type)
+        {
+            ResponseMessage response = new ResponseMessage();
+            try
+            {
+                
+                Logger.Info($"NotifyDeviceChange v3 Result ok");
             }
             catch (Exception e)
             {
