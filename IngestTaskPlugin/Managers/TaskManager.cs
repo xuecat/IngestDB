@@ -4633,6 +4633,40 @@ namespace IngestTaskPlugin.Managers
         }
 
 
+        #region v3.0
+
+        public async Task<List<TaskContentSignalUrlResponse>> QueryTaskSignalUrlContentBySite(int unitid, DateTime day, TimeLineType timetype, string site)
+        {
+            var lst = _mapper.Map<List<TaskContentSignalUrlResponse>>(await Store.GetTaskListWithModeBySite(unitid > 0 ? unitid : 1, day, timetype, site));
+
+            foreach (var item in lst)
+            {
+                if (item.SignalId == -1)
+                {
+                    var content = await Store.GetTaskMetaDataAsync(a => a
+                               .Where(b => b.Taskid == item.TaskId && b.Metadatatype == (int)MetaDataType.emContentMetaData)
+                               .Select(x => x.Metadatalong), true);
+
+                    if (!string.IsNullOrEmpty(content))
+                    {
+                        var root = XDocument.Parse(content);
+                        var material = root.Element("TaskContentMetaData");
+                        var signal = material.Element("SIGNALRTMPURL");
+                        if (signal != null)
+                        {
+                            item.SignalUrl = signal.Value;
+                        }
+
+                    }
+
+                }
+            }
+
+            return lst;
+        }
+
+
+        #endregion
 
     }
 }

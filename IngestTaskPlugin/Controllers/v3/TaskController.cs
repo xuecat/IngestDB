@@ -14,8 +14,12 @@ using Microsoft.Extensions.DependencyInjection;
 using Sobey.Core.Log;
 using System;
 using System.Collections.Generic;
+using System.ComponentModel;
 using System.Text;
 using System.Threading.Tasks;
+
+using TaskInfoRequest = IngestTaskPlugin.Dto.Response.TaskInfoResponse;
+using TaskContentRequest = IngestTaskPlugin.Dto.Response.TaskContentResponse;
 
 namespace IngestTaskPlugin.Controllers.v3
 {
@@ -278,7 +282,7 @@ namespace IngestTaskPlugin.Controllers.v3
         }
 
 
-/// <summary>
+        /// <summary>
         /// 查询1天的任务
         /// </summary>
         /// <remarks>
@@ -294,13 +298,15 @@ namespace IngestTaskPlugin.Controllers.v3
         /// <returns>任务基础元数据</returns>
         [HttpGet("onedaytask/rtmpsignal")]
         [ApiExplorerSettings(GroupName = "v3.0")]
-        public async Task<ResponseMessage<List<TaskContentSignalUrlResponse>>> QueryTaskContentForRtmpUrl([FromQuery, BindRequired] int unitid, [FromQuery, BindRequired] string day, [FromQuery, BindRequired] int timemode, [FromHeader(Name = "sobeyhive-http-site"), BindRequired, DefaultValue("S1")] string site)
+        public async Task<ResponseMessage<List<TaskContentSignalUrlResponse>>> QueryTaskContentForRtmpUrl([FromQuery, BindRequired] int unitid, [FromQuery, BindRequired] string day, [FromQuery, BindRequired] int timemode
+            //,[FromHeader(Name = "sobeyhive-http-site"), BindRequired, DefaultValue("S1")] string site
+            )
         {
             var Response = new ResponseMessage<List<TaskContentSignalUrlResponse>>();
 
             try
             {
-                Response.Ext = await _taskManage.QueryTaskSignalUrlContentBySite(unitid, DateTimeFormat.DateTimeFromString(day), (TimeLineType)timemode, site);
+                Response.Ext = await _taskManage.QueryTaskSignalUrlContent(unitid, DateTimeFormat.DateTimeFromString(day), (TimeLineType)timemode);//_taskManage.QueryTaskSignalUrlContentBySite(unitid, DateTimeFormat.DateTimeFromString(day), (TimeLineType)timemode, site);
                 if (Response.Ext == null)
                 {
                     Response.Code = ResponseCodeDefines.NotFound;
@@ -333,7 +339,7 @@ namespace IngestTaskPlugin.Controllers.v3
         ///
         /// </remarks>
         /// <returns></returns>
-        [HttpGet("needsync")]
+        [HttpGet("sync/ready")]  
         [ApiExplorerSettings(GroupName = "v3")]
         public async Task<ResponseMessage<List<TaskContentResponse>>> GetNeedSyncTasks()
         {
@@ -365,8 +371,47 @@ namespace IngestTaskPlugin.Controllers.v3
             return Response;
         }
 
+        /// <summary>
+        /// 完成同步任务并置相应状态(-1表示不修改该状态)，解锁
+        /// </summary>
+        /// <remarks>
+        /// 例子:
+        ///
+        /// </remarks>
+        /// <param name="req">请求结构体</param>
+        /// <returns></returns>
+        [HttpPut("sync/complete")]
+        [ApiExplorerSettings(GroupName = "v3")]
+        public async Task<ResponseMessage> CompleteSyncTasks([FromBody, BindRequired] CompleteSyncTaskRequest req)
+        {
+            Logger.Info($"CompleteSynTasks v3 CompleteSyncTaskRequest : {req}");
 
-/// <summary>
+            var Response = new ResponseMessage();
+
+            try
+            {
+                await _taskManage.CompleteSynTasks(req);
+            }
+            catch (Exception e)
+            {
+                if (e.GetType() == typeof(SobeyRecException))//sobeyexcep会自动打印错误
+                {
+                    SobeyRecException se = e as SobeyRecException;
+                    Response.Code = se.ErrorCode.ToString();
+                    Response.Msg = se.Message;
+                }
+                else
+                {
+                    Response.Code = ResponseCodeDefines.ServiceError;
+                    Response.Msg = "CompleteSynTasks error info:" + e.Message;
+                    Logger.Error(Response.Msg);
+                }
+            }
+            return Response;
+        }
+
+
+        /// <summary>
         /// 添加任务附加策略和备份信息
         /// </summary>
         /// <remarks>
@@ -412,7 +457,9 @@ namespace IngestTaskPlugin.Controllers.v3
             try
             {
                 //Response.Ext = await _taskManage.AddTaskWithPolicy(task, false, string.Empty, string.Empty, string.Empty, string.Empty);
-                DbpTask addTask = addTask = await _taskManage.AddTaskWithPolicy(task, false, string.Empty, string.Empty, string.Empty, string.Empty, true, site);
+                DbpTask addTask = addTask = await _taskManage.AddTaskWithPolicy(task, false, string.Empty, string.Empty, string.Empty, string.Empty, true
+                    //, site
+                    );
                 
                 Response.Ext = _mapper.Map<TaskContentResponse>(addTask);
                 if (Response.Ext == null)
@@ -424,7 +471,9 @@ namespace IngestTaskPlugin.Controllers.v3
                 if (task.BackUpTask)
                 {
                     task.TaskContent = Response.Ext;
-                    var backtask = await _taskManage.AddTaskWithPolicy(task, true, string.Empty, string.Empty, string.Empty, string.Empty, false, site);
+                    var backtask = await _taskManage.AddTaskWithPolicy(task, true, string.Empty, string.Empty, string.Empty, string.Empty, false
+                        //, site
+                        );
                     await _taskManage.UpdateBackupTaskMetadata(Response.Ext.TaskId, backtask.Taskid, task.ContentMeta);
                 }
 
@@ -516,8 +565,57 @@ namespace IngestTaskPlugin.Controllers.v3
             return Response;
         }
 
+        /// <summary>
+        /// 分裂周期任务
+        /// </summary>
+        /// <remarks>
+        /// Decivce通讯接口
+        /// </remarks>
+        /// <param name="taskid">周期任务id</param>
+        /// <returns>分裂后的任务</returns>
+        [HttpPost("periodic/{taskid}")]
+        [ApiExplorerSettings(GroupName = "v3")]
+        public async Task<ResponseMessage<TaskContentResponse>> CreatePeriodicTask([FromRoute, BindRequired] int taskid)
+        {
+            Logger.Info($"CreatePeriodicTask  taskid :{Request.Host.Value} {taskid}");
 
- /// <summary>
+            var Response = new ResponseMessage<TaskContentResponse>();
+
+            try
+            {
+                Response.Ext = await _taskManage.CreateNewTaskFromPeriodicTask<TaskContentResponse>(taskid);
+                if (Response.Ext == null)
+                {
+                    Response.Code = ResponseCodeDefines.NotFound;
+                    Response.Msg = $"{System.Reflection.MethodBase.GetCurrentMethod().DeclaringType.FullName}:error info: not find data!";
+                    return Response;
+                }
+                var custom = await _taskManage.GetCustomMetadataAsync<TaskCustomMetadataResponse>(taskid);
+                if (custom != null)
+                {
+                    await _taskManage.UpdateCustomMetadataAsync(Response.Ext.TaskId, custom.Metadata);
+                }
+
+                //await _taskManage.
+            }
+            catch (Exception e)
+            {
+                if (e is SobeyRecException se)//sobeyexcep会自动打印错误
+                {
+                    Response.Code = se.ErrorCode.ToString();
+                    Response.Msg = se.Message;
+                }
+                else
+                {
+                    Response.Code = ResponseCodeDefines.ServiceError;
+                    Response.Msg = $"CreateNewTaskFromPeriodicTask error info:{e.Message}";
+                    Logger.Error(Response.Msg);
+                }
+            }
+            return Response;
+        }
+
+        /// <summary>
         /// 修改周期任务
         /// </summary>
         /// <remarks>
@@ -526,7 +624,7 @@ namespace IngestTaskPlugin.Controllers.v3
         /// <param name="isall">是否全部修改</param>
         /// <param name="req">请求任务元数据基础结构体 体</param>
         /// <returns>任务id</returns>
-        [HttpPost("periodic/{taskid}")]
+        [HttpPut("periodic/{taskid}")]
         [ApiExplorerSettings(GroupName = "v3")]
         public async Task<ResponseMessage<int>> ModifyPeriodTaskInfo([FromQuery, BindRequired] int isall, [FromBody, BindRequired] TaskContentRequest req)
         {
@@ -665,45 +763,7 @@ namespace IngestTaskPlugin.Controllers.v3
             return Response;
         }
 
-        /// <summary>
-        /// 完成同步任务并置相应状态(-1表示不修改该状态)，解锁
-        /// </summary>
-        /// <remarks>
-        /// 例子:
-        ///
-        /// </remarks>
-        /// <param name="req">请求结构体</param>
-        /// <returns></returns>
-        [HttpPut("completesync")]
-        [ApiExplorerSettings(GroupName = "v3")]
-        public async Task<ResponseMessage> CompleteSyncTasks([FromBody, BindRequired] CompleteSyncTaskRequest req)
-        {
-            Logger.Info($"CompleteSynTasks v3 CompleteSyncTaskRequest : {req}");
-
-            var Response = new ResponseMessage();
-
-            try
-            {
-                await _taskManage.CompleteSynTasks(req);
-            }
-            catch (Exception e)
-            {
-                if (e.GetType() == typeof(SobeyRecException))//sobeyexcep会自动打印错误
-                {
-                    SobeyRecException se = e as SobeyRecException;
-                    Response.Code = se.ErrorCode.ToString();
-                    Response.Msg = se.Message;
-                }
-                else
-                {
-                    Response.Code = ResponseCodeDefines.ServiceError;
-                    Response.Msg = "CompleteSynTasks error info:" + e.Message;
-                    Logger.Error(Response.Msg);
-                }
-            }
-            return Response;
-        }
-
+        
         /// <summary>
         /// 删除任务
         /// </summary>
@@ -816,56 +876,6 @@ namespace IngestTaskPlugin.Controllers.v3
             return Response;
         }
 
-
-        /// <summary>
-        /// 分裂周期任务
-        /// </summary>
-        /// <remarks>
-        /// Decivce通讯接口
-        /// </remarks>
-        /// <param name="taskid">周期任务id</param>
-        /// <returns>分裂后的任务</returns>
-        [HttpPost("periodic/{taskid}")]
-        [ApiExplorerSettings(GroupName = "v3")]
-        public async Task<ResponseMessage<TaskContentResponse>> CreatePeriodicTask([FromRoute, BindRequired] int taskid)
-        {
-            Logger.Info($"CreatePeriodicTask  taskid :{Request.Host.Value} {taskid}");
-
-            var Response = new ResponseMessage<TaskContentResponse>();
-
-            try
-            {
-                Response.Ext = await _taskManage.CreateNewTaskFromPeriodicTask<TaskContentResponse>(taskid);
-                if (Response.Ext == null)
-                {
-                    Response.Code = ResponseCodeDefines.NotFound;
-                    Response.Msg = $"{System.Reflection.MethodBase.GetCurrentMethod().DeclaringType.FullName}:error info: not find data!";
-                    return Response;
-                }
-                var custom = await _taskManage.GetCustomMetadataAsync<TaskCustomMetadataResponse>(taskid);
-                if (custom != null)
-                {
-                    await _taskManage.UpdateCustomMetadataAsync(Response.Ext.TaskId, custom.Metadata);
-                }
-
-                //await _taskManage.
-            }
-            catch (Exception e)
-            {
-                if (e is SobeyRecException se)//sobeyexcep会自动打印错误
-                {
-                    Response.Code = se.ErrorCode.ToString();
-                    Response.Msg = se.Message;
-                }
-                else
-                {
-                    Response.Code = ResponseCodeDefines.ServiceError;
-                    Response.Msg = $"CreateNewTaskFromPeriodicTask error info:{e.Message}";
-                    Logger.Error(Response.Msg);
-                }
-            }
-            return Response;
-        }
 		
 		 /// <summary>
         /// 根据任务id停止任务
@@ -968,7 +978,7 @@ namespace IngestTaskPlugin.Controllers.v3
             }
             return Response;
         }
-/// <summary>
+        /// <summary>
         /// 根据传入的任务ID(占位任务ID),修改任务类型,开始占位任务的执行
         /// </summary>
         /// <remarks>
