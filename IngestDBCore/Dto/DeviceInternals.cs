@@ -23,7 +23,8 @@ namespace IngestDBCore
             AllCaptureChannels,
             AllRouterInPort,
             AllCaptureDevice,
-            RtmpCaptureChannels
+            RtmpCaptureChannels,
+            AreaInfoByChannelId
             /////////////////////////////set信息//
         }
 
@@ -283,6 +284,19 @@ namespace IngestDBCore
 
         /// <summary>序号</summary>
         public int OrderCode { get; set; }
+    }
+
+
+    public class AreaInfoInterface
+    {
+        public int Id { get; set; }
+        public string Name { get; set; }
+        public int MatrixTypeId { get; set; }
+        public string MatrixName { get; set; }
+        public int ComPort { get; set; }
+        public int ComPortBaud { get; set; }
+        public string DeviceCtrlIp { get; set; }
+        public string DeviceCtrlPort { get; set; }
     }
 
 }

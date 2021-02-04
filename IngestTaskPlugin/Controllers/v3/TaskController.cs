@@ -536,7 +536,7 @@ namespace IngestTaskPlugin.Controllers.v3
         /// </remarks>
         /// <param name="taskid">周期任务id</param>
         /// <returns>分裂后的任务</returns>
-        [HttpPost("periodic/createtask/{taskid}")]
+        [HttpPost("periodic/{taskid}")]
         [ApiExplorerSettings(GroupName = "v3")]
         public async Task<ResponseMessage<TaskContentResponse>> CreatePeriodicTask([FromRoute, BindRequired] int taskid)
         {

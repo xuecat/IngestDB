@@ -943,6 +943,13 @@ namespace IngestDevicePlugin.Managers
 
         #endregion
 
+
+        public async Task<TResult> GetAreaInfoByChannelId<TResult>(int id)
+        {
+            return _mapper.Map<TResult>(await Store.GetDbpAreaByChannelId(id));
+
+        }
+
     }
 
     public static class MyDbpSignalsrcExtensions

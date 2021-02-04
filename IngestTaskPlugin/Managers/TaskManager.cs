@@ -2170,7 +2170,7 @@ namespace IngestTaskPlugin.Managers
                         item.SyncState = (int)syncState.ssSync;//过期的任务置为已同步状态。
                         item.Tasklock = string.Empty;//解锁
 
-                        if(item.Taskid > 0)
+                        if (item.Taskid > 0)
                         {
                             lstModify.Add(item);
                         }
@@ -3200,7 +3200,40 @@ namespace IngestTaskPlugin.Managers
             await Store.ModifyTask(findtask, true, false, false, string.Empty, string.Empty, string.Empty, string.Empty);
 
             await Store.AddTaskWithPolicys(addtask, true, src, strCapatureMetaData, strContentMetaData, strStoreMetaData, strPlanMetaData, null);
+
+            if (!string.IsNullOrEmpty(strSplitMetaData))
+            {
+                strSplitMetaData = DealSplitNameSuffix(addtask.Channelid ?? 0, strSplitMetaData);
+
+                await Store.UpdateTaskMetaDataAsync(addtask.Taskid, MetaDataType.emSplitData, strSplitMetaData);
+            }
+
             return _mapper.Map<TResult>(addtask);
+
+        }
+
+        private string DealSplitNameSuffix(int channelId, string strSplitMetaData)
+        {
+            var root = XElement.Parse(strSplitMetaData);
+            if (root != null)
+            {
+                var spdata = root.Element("SplitNameSuffix0");
+                if (spdata == null)//add
+                    root.Add(new XElement("SplitNameSuffix0", "_HHmmss"));
+                else
+                    spdata.Value = "_HHmmss";
+
+                spdata = root.Element("SplitNameSuffix1");
+                var splitSuffix1 = GetSplitNameSuffix1(channelId);
+                if (spdata == null)
+                    root.Add(new XElement("SplitNameSuffix1", splitSuffix1));
+                else
+                    spdata.Value = splitSuffix1;
+
+                strSplitMetaData = root.ToString();
+            }
+
+            return strSplitMetaData;
         }
 
         public async ValueTask<bool> SetPeriodTaskToNextTime()
@@ -3534,77 +3567,40 @@ namespace IngestTaskPlugin.Managers
                     var root = XElement.Parse(strSplitMetaData);
                     if (root != null)
                     {
-                        var sptitle = root.Element("ORGTITLE");
-                        if (sptitle == null)
+                        var spdata = root.Element("ORGTITLE");
+                        if (spdata == null)
                         {
                             root.Add(new XElement("ORGTITLE", findtask.Taskname));
                             orgtitle = findtask.Taskname;
                         }
                         else
-                            orgtitle = sptitle.Value;
+                            orgtitle = spdata.Value;
 
-                        //root.Descendants("VTRSTART")?.Remove();
+                        spdata = root.Element("VTRSTART");
+                        if (spdata == null)
+                            root.Add(new XElement("VTRSTART", starttime.ToLongTimeString()));
+                        else
+                            spdata.Value = starttime.ToLongTimeString();
 
-                        //sptitle = root.Element("VTRSTART");
-                        //if (sptitle == null)
-                        //{
-                        //    root.Add(new XElement("VTRSTART", starttime.ToLongTimeString()));
-                        //}
-                        //else
-                        //{
-                        //    sptitle.Value = starttime.ToLongTimeString();
-                        //}
+                        spdata = root.Element("SplitNameSuffix0");
+                        if (spdata == null)//add
+                            root.Add(new XElement("SplitNameSuffix0", "_HHmmss"));
+                        else
+                            spdata.Value = "_HHmmss";
 
-                        //var SplitNameSuffix0 = root.Element("SplitNameSuffix0");
-                        //if (SplitNameSuffix0 == null)//add
-                        //{
-                        //    root.Add(new XElement("SplitNameSuffix0", "_HHmmss"));
-                        //}
-                        //else
-                        //{
-                        //    SplitNameSuffix0.Value = "_HHmmss";
-                        //}
+                        spdata = root.Element("SplitNameSuffix1");
+                        var splitSuffix1 = GetSplitNameSuffix1(findtask.Channelid ?? 0);
+                        if (spdata == null)
+                            root.Add(new XElement("SplitNameSuffix1", splitSuffix1));
+                        else
+                            spdata.Value = splitSuffix1;
 
-                        //var SplitNameSuffix1 = root.Element("SplitNameSuffix1");
-                        //string splitSuffix1 = string.Empty;
-                        //splitSuffix1 = ApplicationContext.Current.SplitTaskNameTemplate;
-
-                        //if (splitSuffix1.IndexOf("%site%") >= 0)
-                        //{ 
-                        //    splitSuffix1 = splitSuffix1.Replace("%site%", DEVICESACCESS.GetSiteInfo(findtask.Area).SiteName);//replace就算不存在也会调后面得函数，居然这样
-                        //}
-
-                        //if (splitSuffix1.IndexOf("%channel%") >= 0)
-                        //{
-                        //    splitSuffix1 = splitSuffix1.Replace("%channel%", DEVICESACCESS.GetCaptureChannelByID((int)oldTaskFullInfo.taskContent.nChannelID).strName);//replace就算不存在也会调后面得函数，居然这样
-                        //}
-                        //if (SplitNameSuffix1 == null)
-                        //{
-                        //    var splittype = docs.CreateElement("SplitNameSuffix1");
-                        //    splittype.InnerText = splitSuffix1;
-                        //    taskcontentnode.AppendChild(splittype);
-                        //}
-                        //else
-                        //{
-                        //    SplitNameSuffix1.InnerText = splitSuffix1;
-                        //}
-
-                        //XmlNode xmlsplitclip = taskcontentnode.SelectSingleNode("SplitClips");
-                        //if (xmlsplitclip != null)
-                        //{
-                        //    taskcontentnode.RemoveChild(xmlsplitclip);
-                        //}
-                        //xmlsplitclip = taskcontentnode.SelectSingleNode("MLTOTASKGUID");
-                        //if (xmlsplitclip != null)
-                        //{
-                        //    taskcontentnode.RemoveChild(xmlsplitclip);
-                        //}
-                        
+                        root.Descendants("SplitClips")?.Remove();
+                        root.Descendants("MLTOTASKGUID")?.Remove();
 
                         strSplitMetaData = root.ToString();
                     }
                 }
-
 
                 newtaskinfo.Taskname = CreateClipName(findtask.Taskname, orgtitle);
 
@@ -3653,6 +3649,59 @@ namespace IngestTaskPlugin.Managers
 
             return null;
         }
+
+        private string GetSplitNameSuffix1(int channelid)
+        {
+            string splitSuffix1 = string.Empty;
+            splitSuffix1 = ApplicationContext.Current.SplitTaskNameTemplate;
+
+            if (splitSuffix1.IndexOf("%site%") >= 0)
+            {
+                if (_deviceInterface != null)
+                {
+                    var response1 = _deviceInterface.Value.GetDeviceCallBack(new DeviceInternals()
+                    {
+                        funtype = DeviceInternals.FunctionType.AreaInfoByChannelId,
+                        ChannelId = channelid
+                    }).Result;
+                    if (response1.Code != ResponseCodeDefines.SuccessCode)
+                    {
+                        Logger.Error("AutoAddTaskByOldTask areainfo chanid error");
+                        return null;
+                    }
+                    var fr = response1 as ResponseMessage<AreaInfoInterface>;
+                    if (fr != null && fr.Ext != null)
+                    {
+                        splitSuffix1 = splitSuffix1.Replace("%site%", fr.Ext.Name);//replace就算不存在也会调后面得函数，居然这样
+                    }
+                }
+            }
+
+            if (splitSuffix1.IndexOf("%channel%") >= 0)
+            {
+                if (_deviceInterface != null)
+                {
+                    var response1 = _deviceInterface.Value.GetDeviceCallBack(new DeviceInternals()
+                    {
+                        funtype = DeviceInternals.FunctionType.AllCaptureChannels
+                    }).Result;
+                    if (response1.Code != ResponseCodeDefines.SuccessCode)
+                    {
+                        Logger.Error("AutoAddTaskByOldTask SingnalIDByChannel error");
+                        return null;
+                    }
+                    var fr = response1 as ResponseMessage<List<CaptureChannelInfoInterface>>;
+                    if (fr != null && fr.Ext != null)
+                    {
+                        var chan = fr.Ext.Where(x => x.Id == channelid).FirstOrDefault();
+                        splitSuffix1 = splitSuffix1.Replace("%channel%", chan?.Name);//replace就算不存在也会调后面得函数，居然这样
+                    }
+                }
+
+            }
+            return splitSuffix1;
+        }
+
 
         public string CreateClipName(string lastname, string orgname)
         {
@@ -3889,6 +3938,7 @@ namespace IngestTaskPlugin.Managers
                         string.IsNullOrEmpty(MatiralMeta) ? ConverTaskMaterialMetaString(taskinfo.MaterialMeta) : MatiralMeta,
                         string.IsNullOrEmpty(PlanningMeta) ? ConverTaskPlanningMetaString(taskinfo.PlanningMeta) : PlanningMeta,
                         null);
+
                         return back;
                     }
                 }
@@ -4582,7 +4632,7 @@ namespace IngestTaskPlugin.Managers
             return Store.UpdateTaskBmp(taskPmp);
         }
 
-        
+
 
     }
 }

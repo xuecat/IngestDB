@@ -1455,5 +1455,35 @@ namespace IngestDevicePlugin.Controllers.v2
             }
             return response;
         }
+    
+        public async Task<ResponseMessage<Models.DbpArea>> GetAreaNameByChannelId(int channelid)
+        {
+            ResponseMessage<Models.DbpArea> response = new ResponseMessage<Models.DbpArea>();
+            try
+            {
+                response.Ext = await _deviceManage.GetAreaInfoByChannelId<Models.DbpArea>(channelid);
+                if (response.Ext == null)
+                {
+                    response.Code = ResponseCodeDefines.NotFound;
+                    response.Msg = $"{System.Reflection.MethodBase.GetCurrentMethod().DeclaringType.FullName}:error info: not find data!";
+                }
+            }
+            catch (Exception e)
+            {
+                if (e is SobeyRecException se)//sobeyexcep会自动打印错误
+                {
+                    response.Code = se.ErrorCode.ToString();
+                    response.Msg = se.Message;
+                }
+                else
+                {
+                    response.Code = ResponseCodeDefines.ServiceError;
+                    response.Msg = $"{System.Reflection.MethodBase.GetCurrentMethod().DeclaringType.FullName}error info:{e.Message}";
+                    Logger.Error(response.Msg);
+                }
+            }
+            return response;
+        }
+    
     }
 }
