@@ -399,7 +399,7 @@ namespace IngestTaskPlugin.Stores
 
             var tasklst = await GetTaskListAsync(a => a.Where(b => b.Channelid == channelId
             && (b.State != (int)taskState.tsDelete && b.State != (int)taskState.tsInvaild)
-            && (b.Starttime > beginTime && b.Starttime < endTime)).OrderBy(x=>x.Starttime));// order by CHANNELID, STARTTIME 
+            && (b.Starttime > beginTime && b.Starttime < endTime)).OrderBy(x => x.Starttime));// order by CHANNELID, STARTTIME 
 
             if (tasklst == null || tasklst.Count <= 0)
             {
@@ -1486,7 +1486,7 @@ namespace IngestTaskPlugin.Stores
                 && x.OpType != (int)opType.otDel
                 && x.Tasktype == (int)TaskType.TT_PERIODIC
                 && x.DispatchState != (int)dispatchState.dpsInvalid
-                &&  x.State != (int)taskState.tsDelete 
+                && x.State != (int)taskState.tsDelete
                 ).ToListAsync();
             }
             else
@@ -2263,7 +2263,7 @@ namespace IngestTaskPlugin.Stores
             return lst;
         }
 
-        public async Task<DbpTask> ModifyTask(DbpTask task, bool bPerodic2Next, bool autoupdate, bool savechange, string CaptureMeta, string ContentMeta, string MatiralMeta, string PlanningMeta)
+        public async Task<DbpTask> ModifyTask(DbpTask task, bool bPerodic2Next, bool autoupdate, bool savechange, string CaptureMeta, string ContentMeta, string MatiralMeta, string PlanningMeta, string SplitMeta = "")
         {
             Logger.Info($"ModifyTask {task.Taskid} {task.State} {task.SyncState} {task.Starttime} {task.Endtime}");
             if (task.Tasktype != (int)TaskType.TT_PERIODIC)
@@ -2446,6 +2446,37 @@ namespace IngestTaskPlugin.Stores
                         item.Metadatalong = PlanningMeta;
                     }
 
+                }
+            }
+
+            if (!string.IsNullOrEmpty(SplitMeta))
+            {
+                var item = Context.DbpTaskMetadata.Where(x => x.Taskid == task.Taskid && x.Metadatatype == (int)MetaDataType.emSplitData).SingleOrDefault();
+                if (item != null)
+                {
+
+                    if (autoupdate)
+                    {
+                        var org = XDocument.Parse(item.Metadatalong);
+                        var modify = XDocument.Parse(SplitMeta);
+
+                        foreach (var m in modify.Element("SplitMetaData").Elements())
+                        {
+                            var f = org.Element("SplitMetaData").Elements().FirstOrDefault(x => x.Name == m.Name);
+                            if (f != null)
+                            {
+                                //f.Value = m.Value;
+                                f.Remove();
+                            }
+                            org.Element("SplitMetaData").Add(m);
+                        }
+
+                        item.Metadatalong = org.ToString();
+                    }
+                    else
+                    {
+                        item.Metadatalong = SplitMeta;
+                    }
                 }
             }
 
@@ -3493,6 +3524,7 @@ namespace IngestTaskPlugin.Stores
             }
             return false;
         }
+
 
         #region 3.0
 

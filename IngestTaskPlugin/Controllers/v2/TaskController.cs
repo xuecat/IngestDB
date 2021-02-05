@@ -953,7 +953,7 @@ namespace IngestTaskPlugin.Controllers.v2
                 var modifyTask = await _taskManage.ModifyTask<TaskContentResponse>(req.TaskContent, req.CaptureMeta,
                     req.ContentMeta ==null?string.Empty:_taskManage.ConverTaskContentMetaString(req.ContentMeta),
                     req.MaterialMeta == null ? string.Empty : _taskManage.ConverTaskMaterialMetaString(req.MaterialMeta),
-                    req.PlanningMeta == null ? string.Empty : _taskManage.ConverTaskPlanningMetaString(req.PlanningMeta), req.TaskSource);
+                    req.PlanningMeta == null ? string.Empty : _taskManage.ConverTaskPlanningMetaString(req.PlanningMeta), req.TaskSource, req.SplitMeta == null ? string.Empty : _taskManage.ConvertTaskSplitMetaString(req.SplitMeta));
                 if(req.TaskSource != TaskSource.emUnknowTask)
                 {
                     await _taskManage.ModifyTaskSource(req.TaskContent.TaskId, req.TaskSource);

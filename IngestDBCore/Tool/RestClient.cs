@@ -465,13 +465,14 @@ namespace IngestDBCore.Tool
         }
 
 
-        public async Task<int> GetUserParamTemplateID(bool usetokencode, string userTokenOrCode)
+        public async Task<int> GetUserParamTemplateID(bool usetokencode, string userTokenOrCode, string site = "")
         {
             Dictionary<string, string> header = null;
             if (usetokencode)
                 header = GetTokenHeader(userTokenOrCode);
             else
                 header = GetCodeHeader(userTokenOrCode);
+
 
             var back = await AutoRetry.Run<ResponseMessage<CmParam>>(() =>
                 {

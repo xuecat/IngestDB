@@ -2,9 +2,11 @@
 using IngestGlobalPlugin.Dto.Response;
 using IngestGlobalPlugin.Managers;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Mvc.ModelBinding;
 using Sobey.Core.Log;
 using System;
 using System.Collections.Generic;
+using System.ComponentModel;
 using System.Text;
 using System.Threading.Tasks;
 

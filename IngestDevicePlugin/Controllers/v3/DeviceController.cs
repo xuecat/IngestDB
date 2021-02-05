@@ -70,7 +70,7 @@ namespace IngestDevicePlugin.Controllers.v3
         /// </summary>
         /// <remarks>包括设备ip，设备端口号等</remarks>
         /// <returns>采集设备集合</returns>
-        [HttpGet("devicechannel")] //直接用device不能和上面区分，返回值也不一样
+        [HttpGet("device-channel")] //直接用device不能和上面区分，返回值也不一样
         [ApiExplorerSettings(GroupName = "v3")]
         public async Task<ResponseMessage<List<DeviceInfoResponse>>> AllDevicesForTask()
         {
@@ -108,7 +108,7 @@ namespace IngestDevicePlugin.Controllers.v3
         /// <param name="deviceid">设备ID</param>
         /// <remarks>包括设备ip，设备端口号等</remarks>
         /// <returns>采集设备单个信息</returns>
-        [HttpGet("devicechannel/{deviceid}")]
+        [HttpGet("device-channel/{deviceid}")]
         [ApiExplorerSettings(GroupName = "v3")]
         public async Task<ResponseMessage<DeviceInfoResponse>> GetCaptureDeviceByidForTask([FromRoute, BindRequired, DefaultValue(39)]int deviceid)
         {

@@ -503,6 +503,25 @@ namespace IngestTaskPlugin.Managers
             return xdoc.ToString();
         }
 
+        public TaskSplitResponse ConverTaskSplitMetaString(string data)
+        {
+            try
+            {
+                var root = XDocument.Parse(data);
+                var material = root.Element("SplitMetaData");
+
+                TaskSplitResponse ret = new TaskSplitResponse();
+                ret.VtrStart = material?.Element("VTRSTART")?.Value;
+
+                return ret;
+            }
+            catch (Exception e)
+            {
+                SobeyRecException.ThrowSelfNoParam("ConverTaskSplitMetaString", GlobalDictionary.GLOBALDICT_CODE_FILL_GETTASKMETADATA_EXCEPTION, Logger, e);
+            }
+            return null;
+        }
+
         public string ConvertTaskSplitMetaString(TaskSplitResponse re, int channelId = -1)
         {
             if (re == null)
@@ -545,24 +564,6 @@ namespace IngestTaskPlugin.Managers
             return xdoc.ToString();
         }
 
-        public TaskSplitResponse ConverTaskSplitMetaString(string data)
-        {
-            try
-            {
-                var root = XDocument.Parse(data);
-                var material = root.Element("SplitMetaData");
-
-                TaskSplitResponse ret = new TaskSplitResponse();
-                ret.VtrStart = material?.Element("VTRSTART")?.Value;
-
-                return ret;
-            }
-            catch (Exception e)
-            {
-                SobeyRecException.ThrowSelfNoParam("ConverTaskSplitMetaString", GlobalDictionary.GLOBALDICT_CODE_FILL_GETTASKMETADATA_EXCEPTION, Logger, e);
-            }
-            return null;
-        }
         public async virtual Task<TaskMaterialMetaResponse> GetTaskMaterialMetadataAsync(int taskid)
         {
             var f = await Store.GetTaskMetaDataAsync(a => a
@@ -1237,7 +1238,52 @@ namespace IngestTaskPlugin.Managers
             await Store.UpdateTaskMetaDataAsync(taskid, type, metadata);
         }
 
+        public async Task<string> SetTaskMetaDataProperty(int taskid, MetaDataType type, string metadata, string typeid, string extmetaproperty, string exttypevalue)
+        {
+            if (metadata != null && metadata.Length > 0)
+            {
+                var taskMetadata = await Store.GetTaskMetaDataAsync(a => a.Where(x => x.Taskid == taskid && x.Metadatatype == (int)type));
+                if (taskMetadata != null)
+                {
+                    string dbmetadata = taskMetadata.Metadatalong;
 
+                    if (!string.IsNullOrEmpty(dbmetadata) && !string.IsNullOrEmpty(metadata))
+                    {
+                        var dbroot = XElement.Parse(dbmetadata);
+                        var taskcontentnode = dbroot;
+
+                        var splits = metadata.Split(new[] { '/' }, StringSplitOptions.RemoveEmptyEntries);
+                        for (int i = 0; i < splits.Length; i++)
+                        {
+                            var node = dbroot.Element(splits[i]);
+                            if (node != null)
+                            {
+                                taskcontentnode = node;
+                                if (i == splits.Length - 1)
+                                {
+                                    node.Value = typeid;
+                                }
+                            }
+                            else
+                            {
+                                var nodec = dbroot.Element(splits[i]);
+                                if (i == splits.Length - 1)
+                                {
+                                    nodec.Value = typeid;
+                                }
+                                taskcontentnode.Add(nodec);
+                                taskcontentnode = nodec;
+                            }
+                        }
+                        taskMetadata.Metadatalong = dbroot.ToString();
+                        await Store.SaveChangeAsync();
+                        return dbmetadata;
+                    }
+                }
+                
+            }
+            return "";
+        }
 
         public async virtual ValueTask<string> UpdateMetadataPropertyAsync(int taskid, MetaDataType type, List<PropertyResponse> lst)
         {
@@ -1567,7 +1613,7 @@ namespace IngestTaskPlugin.Managers
             return string.Empty;
         }
 
-        public async ValueTask<string> Update24HoursTask(int ntaskid, long oldlen, int oldclipnum, string newname, string newguid, int index)
+        public async ValueTask<string> Update24HoursTask(int ntaskid, long oldlen, int oldclipnum, string newname, string newguid, int index, string codetime = "")
         {
             Logger.Info(string.Format("Update24HoursTask {0} {1} {2} {3}", ntaskid, newname, oldlen, newguid));
 
@@ -1610,8 +1656,58 @@ namespace IngestTaskPlugin.Managers
                 taskcontentnode.Add(splits);
             }
 
+            string orgtitle = string.Empty;
+            var splitorgtitle = taskcontentnode.Element("ORGTITLE");
+            if (splitorgtitle == null)
+            {
+                if (index == 1)
+                    taskcontentnode.Add(new XElement("ORGTITLE", taskinfo.Taskname));
+                orgtitle = taskinfo.Taskname;
+            }
+            else
+            {
+                if (index == 1)
+                    splitorgtitle.Value = taskinfo.Taskname;
+                orgtitle = splitorgtitle.Value;
+            }
+
+            int nsplitnametype = 0;
+            var splitnametype = taskcontentnode.Element("SplitNameType");
+            if (splitnametype == null)
+            {
+                taskcontentnode.Add(new XElement("SplitNameType", ApplicationContext.Current.SplitTaskNameType));
+                nsplitnametype = ApplicationContext.Current.SplitTaskNameType;
+            }
+            else
+            {
+                int.TryParse(splitnametype.Value, out nsplitnametype);
+            }
+
+            codetime = codetime.Length > 8 ? codetime.Substring(0, 8) : codetime;
+            DateTime nowtime = Convert.ToDateTime(codetime);
+
+            string splitSuffix0 = "_" + nowtime.ToString("HHmmss");
+            string splittile = string.Empty;
+            string splitSuffix1 = GetSplitNameSuffix1(taskinfo.Channelid ?? 0, nowtime);
+            switch (nsplitnametype)
+            {
+                case 0:
+                    {
+                        splittile = orgtitle + splitSuffix0;
+                    }
+                    break;
+                case 1:
+                case 2:
+                    {
+                        splittile = orgtitle + splitSuffix1;
+                    }
+                    break;
+                default:
+                    break;
+            }
+
             var splititem = new XElement("SplitItem");
-            splititem.Add(new XElement("SplitGuid", newguid), new XElement("SplitClipNum", oldclipnum), new XElement("SplitLen", oldlen));
+            splititem.Add(new XElement("SplitGuid", newguid), new XElement("SplitTitle", splittile), new XElement("SplitClipNum", oldclipnum), new XElement("SplitLen", oldlen), new XElement("SplitTime", nowtime.ToString()));
             splits.Add(splititem);
 
             var mlguid = taskcontentnode.Element("MLTOTASKGUID");
@@ -1622,22 +1718,24 @@ namespace IngestTaskPlugin.Managers
             else
                 mlguid.Value = newguid;
 
-            if (index == 1)
-            {
-                var orgtitle = taskcontentnode.Element("ORGTITLE");
-                if (orgtitle == null)
-                {
-                    taskcontentnode.Add(new XElement("ORGTITLE", taskinfo.Taskname));
-                }
-                else
-                    orgtitle.Value = taskinfo.Taskname;
-            }
+            var splitnamesuffix = taskcontentnode.Element("SplitNameSuffix0");
+            if (splitnamesuffix == null)
+                taskcontentnode.Add(new XElement("SplitNameSuffix0", splitSuffix0));
+            else
+                splitnamesuffix.Value = splitSuffix0;
+
+            splitnamesuffix = taskcontentnode.Element("SplitNameSuffix1");
+            if (splitnamesuffix == null)
+                taskcontentnode.Add(new XElement("SplitNameSuffix1", splitSuffix1));
+            else
+                splitnamesuffix.Value = splitSuffix1;
 
             if (materilmeta != null)
             {
                 var mroot = XDocument.Parse(materilmeta.Metadatalong);
                 if (mroot != null)
                 {
+                    newname = splittile;
                     var title = mroot?.Element("MATERIAL")?.Element("TITLE");
                     if (title == null)
                     {
@@ -2614,7 +2712,7 @@ namespace IngestTaskPlugin.Managers
             return findtask;
         }
 
-        public async Task<DbpTask> ModifyTask<TResult>(TResult task, string CaptureMeta, string ContentMeta, string MatiralMeta, string PlanningMeta, TaskSource taskSource)
+        public async Task<DbpTask> ModifyTask<TResult>(TResult task, string CaptureMeta, string ContentMeta, string MatiralMeta, string PlanningMeta, TaskSource taskSource, string SplitMeta = "")
         {
             var taskModify = _mapper.Map<TaskContentRequest>(task);
 
@@ -2856,7 +2954,7 @@ namespace IngestTaskPlugin.Managers
             try
             {
                 //return _mapper.Map<TaskContentResponse>(await Store.ModifyTask(findtask, false, true, true,CaptureMeta, ContentMeta, MatiralMeta, PlanningMeta));
-                return await Store.ModifyTask(findtask, false, true, true, CaptureMeta, ContentMeta, MatiralMeta, PlanningMeta);
+                return await Store.ModifyTask(findtask, false, true, true, CaptureMeta, ContentMeta, MatiralMeta, PlanningMeta, SplitMeta);
             }
             catch (Exception e)
             {
@@ -3266,7 +3364,7 @@ namespace IngestTaskPlugin.Managers
                     spdata.Value = "_HHmmss";
 
                 spdata = root.Element("SplitNameSuffix1");
-                var splitSuffix1 = GetSplitNameSuffix1(channelId);
+                var splitSuffix1 = GetSplitNameSuffix1(channelId, DateTime.MinValue);
                 if (spdata == null)
                     root.Add(new XElement("SplitNameSuffix1", splitSuffix1));
                 else
@@ -3631,7 +3729,7 @@ namespace IngestTaskPlugin.Managers
                             spdata.Value = "_HHmmss";
 
                         spdata = root.Element("SplitNameSuffix1");
-                        var splitSuffix1 = GetSplitNameSuffix1(findtask.Channelid ?? 0);
+                        var splitSuffix1 = GetSplitNameSuffix1(findtask.Channelid ?? 0, DateTime.MinValue);
                         if (spdata == null)
                             root.Add(new XElement("SplitNameSuffix1", splitSuffix1));
                         else
@@ -3692,7 +3790,7 @@ namespace IngestTaskPlugin.Managers
             return null;
         }
 
-        private string GetSplitNameSuffix1(int channelid)
+        private string GetSplitNameSuffix1(int channelid, DateTime nowtime)
         {
             string splitSuffix1 = string.Empty;
             splitSuffix1 = ApplicationContext.Current.SplitTaskNameTemplate;
@@ -3739,8 +3837,37 @@ namespace IngestTaskPlugin.Managers
                         splitSuffix1 = splitSuffix1.Replace("%channel%", chan?.Name);//replace就算不存在也会调后面得函数，居然这样
                     }
                 }
-
             }
+
+            if (nowtime != DateTime.MinValue)
+            {
+                if (splitSuffix1.IndexOf("%yyyy%") >= 0)
+                {
+                    splitSuffix1 = splitSuffix1.Replace("%yyyy%", nowtime.Year.ToString());
+                }
+                if (splitSuffix1.IndexOf("%MM%") >= 0)
+                {
+                    splitSuffix1 = splitSuffix1.Replace("%MM%", nowtime.Month.ToString("D2"));//replace就算不存在也会调后面得函数，居然这样
+                }
+                if (splitSuffix1.IndexOf("%dd%") >= 0)
+                {
+                    splitSuffix1 = splitSuffix1.Replace("%dd%", nowtime.Day.ToString("D2"));
+                }
+                if (splitSuffix1.IndexOf("%hh%") >= 0)
+                {
+                    splitSuffix1 = splitSuffix1.Replace("%hh%", nowtime.Hour.ToString("D2"));
+                }
+                if (splitSuffix1.IndexOf("%mm%") >= 0)
+                {
+                    splitSuffix1 = splitSuffix1.Replace("%mm%", nowtime.Minute.ToString("D2"));//replace就算不存在也会调后面得函数，居然这样
+                }
+
+                if (splitSuffix1.IndexOf("%ss%") >= 0)
+                {
+                    splitSuffix1 = splitSuffix1.Replace("%ss%", nowtime.Second.ToString("D2"));
+                }
+            }
+
             return splitSuffix1;
         }
 
