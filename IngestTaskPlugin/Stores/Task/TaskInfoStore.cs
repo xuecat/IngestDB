@@ -2497,7 +2497,7 @@ namespace IngestTaskPlugin.Stores
         }
 
         public async Task<DbpTask> AddTaskWithPolicys(DbpTask task, bool bAddForInDB, TaskSource taskSrc,
-            string CaptureMeta, string ContentMeta, string MatiralMeta, string PlanningMeta, int[] arrPolicys)
+            string CaptureMeta, string ContentMeta, string MatiralMeta, string PlanningMeta, string SplitMeta, int[] arrPolicys)
         {
             if (task.Taskid <= 0)
             {
@@ -2579,6 +2579,10 @@ namespace IngestTaskPlugin.Stores
             if (!string.IsNullOrEmpty(CaptureMeta))
             {
                 Context.DbpTaskMetadata.Add(new DbpTaskMetadata() { Taskid = task.Taskid, Metadatatype = (int)MetaDataType.emCapatureMetaData, Metadatalong = CaptureMeta });
+            }
+            if (!string.IsNullOrEmpty(SplitMeta))
+            {
+                Context.DbpTaskMetadata.Add(new DbpTaskMetadata() { Taskid = task.Taskid, Metadatatype = (int)MetaDataType.emSplitData, Metadatalong = SplitMeta });
             }
 
             try
