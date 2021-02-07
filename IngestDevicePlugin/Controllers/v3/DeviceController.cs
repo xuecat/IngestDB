@@ -74,13 +74,13 @@ namespace IngestDevicePlugin.Controllers.v3
         }
 
 
-        /// <summary>
+        /// <summary> 
         /// 获取所有的采集设备全信息(区别于2.0的capturedevice)
         /// </summary>
         /// <remarks>包括设备ip，设备端口号等</remarks>
         /// <returns>采集设备集合</returns>
-        [HttpGet("device-channel")] //直接用device不能和上面区分，返回值也不一样
-        [ApiExplorerSettings(GroupName = "v3")]
+        [HttpGet("device/state")] //直接用device不能和上面区分，返回值也不一样
+        [ApiExplorerSettings(GroupName = "v3.0")]
         public async Task<ResponseMessage<List<DeviceInfoResponse>>> AllDevicesForTask()
         {
             ResponseMessage<List<DeviceInfoResponse>> response = new ResponseMessage<List<DeviceInfoResponse>>();
@@ -117,8 +117,8 @@ namespace IngestDevicePlugin.Controllers.v3
         /// <param name="deviceid">设备ID</param>
         /// <remarks>包括设备ip，设备端口号等</remarks>
         /// <returns>采集设备单个信息</returns>
-        [HttpGet("device-channel/{deviceid}")]
-        [ApiExplorerSettings(GroupName = "v3")]
+        [HttpGet("device/state/{deviceid}")]
+        [ApiExplorerSettings(GroupName = "v3.0")]
         public async Task<ResponseMessage<DeviceInfoResponse>> GetCaptureDeviceByidForTask([FromRoute, BindRequired, DefaultValue(39)]int deviceid)
         {
             ResponseMessage<DeviceInfoResponse> response = new ResponseMessage<DeviceInfoResponse>();
@@ -157,8 +157,8 @@ namespace IngestDevicePlugin.Controllers.v3
         /// </summary>
         /// <remarks>原方法 GetAllSignalSrcs</remarks>
         /// <returns>信号源信息集合</returns>
-        [HttpGet("in/signal")]
-        [ApiExplorerSettings(GroupName = "v3")]
+        [HttpGet("signal")]
+        [ApiExplorerSettings(GroupName = "v3.0")]
         public async Task<ResponseMessage<List<SignalSrcResponse>>> AllSignalSrcs(
             //[FromHeader(Name = "sobeyhive-http-site"), BindRequired, DefaultValue("S1")] string site
             )
@@ -199,8 +199,8 @@ namespace IngestDevicePlugin.Controllers.v3
         /// </summary>
         /// <remarks>原方法 GetAllProgrammeInfos</remarks>
         /// <returns>节目集合</returns>
-        [HttpGet("in/signal-in-group")]//关于节目的url不太好
-        [ApiExplorerSettings(GroupName = "v3")]
+        [HttpGet("signal/group")]//关于节目的url不太好
+        [ApiExplorerSettings(GroupName = "v3.0")]
         public async Task<ResponseMessage<List<ProgrammeInfoResponse>>> AllProgrammeInfos(
             //[FromHeader(Name = "sobeyhive-http-site"), BindRequired, DefaultValue("S1")] string site
             )
@@ -241,7 +241,7 @@ namespace IngestDevicePlugin.Controllers.v3
         ///
         /// </remarks>
         /// GetAllChannelUnitMap
-        [HttpGet("in/backup/{mastersignalid}")]//关于节目的url不太好
+        [HttpGet("signal/backup/{mastersignalid}")]//关于节目的url不太好
         //device有点特殊，做了监听端口的所以不能全类检验
         [ApiExplorerSettings(GroupName = "v3.0")]
         public async Task<ResponseMessage<ProgrammeInfoResponse>> GetBackProgramInfoBySrgid([FromRoute, BindRequired, DefaultValue(20)] int mastersignalid)
@@ -285,7 +285,7 @@ namespace IngestDevicePlugin.Controllers.v3
         /// <param name="signalid">信号源id</param>
         /// <param name="status">int 0是不选返回所有通道信息，1是选通道和msv连接正常的通道信息</param>
         /// <returns>当前信号源匹配通道，是list</returns>
-        [HttpGet("in/{signalid}/channel")]
+        [HttpGet("signal/{signalid}/channel")]
         //device有点特殊，做了监听端口的所以不能全类检验
         [ApiExplorerSettings(GroupName = "v3.0")]
         public async Task<ResponseMessage<List<CaptureChannelInfoResponse>>> ChannelsOnAreaByProgrammeId([FromRoute, BindRequired, DefaultValue(39)] int signalid, [FromQuery, BindRequired, DefaultValue("0")] int status)
@@ -328,7 +328,7 @@ namespace IngestDevicePlugin.Controllers.v3
         ///
         /// </remarks>
         /// GetAllChannelUnitMap
-        [HttpGet("in/{signalid}")]
+        [HttpGet("signal/{signalid}")]
         //device有点特殊，做了监听端口的所以不能全类检验
         [ApiExplorerSettings(GroupName = "v3.0")]
         public async Task<ResponseMessage<ProgrammeInfoResponse>> GetProgramInfoBySrgid([FromRoute, BindRequired, DefaultValue(40)] int signalid)
@@ -452,7 +452,7 @@ namespace IngestDevicePlugin.Controllers.v3
         /// <param name="signalid">信号ID</param>
         /// <returns>采集参数</returns>
         /// <example>1111</example>
-        [HttpGet("in/{signalid}/capturetemplate/id")]
+        [HttpGet("signal/{signalid}/capturetemplate/id")]
         [ApiExplorerSettings(GroupName = "v3.0")]
         public async Task<ResponseMessage<int>> CaptureTemplateId([FromRoute, BindRequired, DefaultValue(39)] int signalid)
         {
@@ -493,7 +493,7 @@ namespace IngestDevicePlugin.Controllers.v3
         /// <remarks>原方法 GetAllCaptureChannels</remarks>
         /// <returns>采集通道集合</returns>
         [HttpGet("channel")]
-        [ApiExplorerSettings(GroupName = "v3")]
+        [ApiExplorerSettings(GroupName = "v3.0")]
         public async Task<ResponseMessage<List<CaptureChannelInfoResponse>>> AllCaptureChannels()
         {
             ResponseMessage<List<CaptureChannelInfoResponse>> response = new ResponseMessage<List<CaptureChannelInfoResponse>>();
@@ -531,7 +531,7 @@ namespace IngestDevicePlugin.Controllers.v3
         /// <remarks>原方法 GetAllChannelState</remarks>
         /// <returns>最优通道Id</returns>
         [HttpGet("channel/state")]
-        [ApiExplorerSettings(GroupName = "v3")]
+        [ApiExplorerSettings(GroupName = "v3.0")]
         public async Task<ResponseMessage<List<MSVChannelStateResponse>>> AllChannelState()
         {
             ResponseMessage<List<MSVChannelStateResponse>> response = new ResponseMessage<List<MSVChannelStateResponse>>();
@@ -570,7 +570,7 @@ namespace IngestDevicePlugin.Controllers.v3
         /// <param name="data">更新的对象</param>
         /// <returns>是否成功</returns>
         [HttpPost("channel/{id}/state")]
-        [ApiExplorerSettings(GroupName = "v3")]
+        [ApiExplorerSettings(GroupName = "v3.0")]
         public async Task<ResponseMessage<bool>> UpdateMSVChannelState([FromRoute, BindRequired, DefaultValue(20)] int id,
                                                                        [FromBody, BindRequired] DeviceMSVChannelStateRequest data)
         {
@@ -760,7 +760,7 @@ namespace IngestDevicePlugin.Controllers.v3
         /// </summary>
         /// <returns></returns>
         [HttpPut("notify/{type}")]
-        [ApiExplorerSettings(GroupName = "v3")]
+        [ApiExplorerSettings(GroupName = "v3.0")]
         public async Task<ResponseMessage> NotifyDeviceChange([FromRoute, BindRequired]DeviceNotify type, [FromQuery, BindRequired]int data)
         {
             ResponseMessage response = new ResponseMessage();
