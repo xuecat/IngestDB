@@ -1,22 +1,26 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Threading.Tasks;
-using IngestDBCore;
-using IngestDBCore.Basic;
-using IngestDevicePlugin.Dto;
-using IngestDevicePlugin.Dto.Enum;
-using IngestDevicePlugin.Dto.OldResponse;
-using IngestDevicePlugin.Dto.Request;
-using IngestDevicePlugin.Dto.Response;
-using IngestDevicePlugin.Managers;
-using Microsoft.AspNetCore.Mvc;
-using Microsoft.AspNetCore.Mvc.ModelBinding;
-using Sobey.Core.Log;
-using SignalDeviceRequest = IngestDevicePlugin.Dto.Response.SignalDeviceMapResponse;
-using TsDeviceInfoResponse = IngestDevicePlugin.Dto.OldResponse.TSDeviceInfo;
+﻿
 
 namespace IngestDevicePlugin.Controllers.v3
 {
+    using System;
+    using System.Collections.Generic;
+    using System.Threading.Tasks;
+    using IngestDBCore;
+    using IngestDBCore.Basic;
+    using IngestDBCore.Notify;
+    using IngestDevicePlugin.Dto;
+    using IngestDevicePlugin.Dto.Enum;
+    using IngestDevicePlugin.Dto.OldResponse;
+    using IngestDevicePlugin.Dto.Request;
+    using IngestDevicePlugin.Dto.Response;
+    using IngestDevicePlugin.Managers;
+    using Microsoft.AspNetCore.Mvc;
+    using Microsoft.AspNetCore.Mvc.ModelBinding;
+    using Microsoft.Extensions.DependencyInjection;
+    using Sobey.Core.Log;
+    using SignalDeviceRequest = IngestDevicePlugin.Dto.Response.SignalDeviceMapResponse;
+    using TsDeviceInfoResponse = IngestDevicePlugin.Dto.OldResponse.TSDeviceInfo;
+
     [Route("api/v{version:apiVersion}/[controller]")]
     [ApiVersion("3.0")]
     [ApiController]
@@ -25,8 +29,12 @@ namespace IngestDevicePlugin.Controllers.v3
         private readonly ILogger Logger = LoggerManager.GetLogger("DeviceInfo3");
         private readonly DeviceManager _deviceManage;
         //private readonly RestClient _restClient;
-
-        public DeviceController(DeviceManager task) { _deviceManage = task; }
+        private readonly Lazy<NotifyClock> _clock;
+        public DeviceController(DeviceManager task, IServiceProvider services)
+        { 
+            _deviceManage = task;
+            _clock = new Lazy<NotifyClock>(() => services.GetRequiredService<NotifyClock>());
+        }
 
 
         /// <summary>
@@ -292,13 +300,52 @@ namespace IngestDevicePlugin.Controllers.v3
         /// <returns></returns>
         [HttpPut("notify/{type}")]
         [ApiExplorerSettings(GroupName = "v3")]
-        public async Task<ResponseMessage> NotifyDeviceChange([FromRoute, BindRequired]DeviceNotify type)
+        public async Task<ResponseMessage> NotifyDeviceChange([FromRoute, BindRequired]DeviceNotify type, [FromQuery, BindRequired]int data)
         {
             ResponseMessage response = new ResponseMessage();
             try
             {
+                string notifyaction = string.Empty;
+                switch (type)
+                {
+                    case DeviceNotify.ChannelChange:
+                        notifyaction = GlobalStateName.CHANNELCHANGE;
+                        break;
+                    case DeviceNotify.ChannelDelete:
+                        notifyaction = GlobalStateName.CHANNELDELETE;
+                        break;
+                    case DeviceNotify.DeviceChange:
+                        notifyaction = GlobalStateName.DEVICECHANGE;
+                        break;
+                    case DeviceNotify.DeviceDelete:
+                        notifyaction = GlobalStateName.DEVICEDELETE;
+                        break;
+                    case DeviceNotify.InChange:
+                        notifyaction = GlobalStateName.INCHANGE;
+                        break;
+                    case DeviceNotify.InDelete:
+                        notifyaction = GlobalStateName.INDELETE;
+                        break;
+                    case DeviceNotify.OutChange:
+                        notifyaction = GlobalStateName.OUTCHANGE;
+                        break;
+                    case DeviceNotify.OutDelete:
+                        notifyaction = GlobalStateName.OUTDELETE;
+                        break;
+                    default:
+                        break;
+                }
+                if (!string.IsNullOrEmpty(notifyaction))
+                {
+                    Task.Run(() =>
+                    {
+                        _clock.Value.InvokeNotify(notifyaction, NotifyPlugin.Orleans,
+                                                    NotifyAction.STOPGROUPTASK, data);
+                    });
+                }
                 
-                Logger.Info($"NotifyDeviceChange v3 Result ok");
+
+                Logger.Info($"NotifyDeviceChange v3 Result ok {type}");
             }
             catch (Exception e)
             {

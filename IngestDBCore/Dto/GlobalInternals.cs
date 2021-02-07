@@ -10,6 +10,14 @@ namespace IngestDBCore
         public const string ADDTASK = "TASK_ADD";
         public const string MODTASK = "TASK_MOD";
         public const string DELTASK = "TASK_DEL";
+        public const string INCHANGE = "INCHANGE";
+        public const string INDELETE = "INDELETE";
+        public const string OUTCHANGE = "OUTCHANGE";
+        public const string OUTDELETE = "OUTDELETE";
+        public const string DEVICECHANGE = "DEVICECHANGE";
+        public const string DEVICEDELETE = "DEVICEDELETE";
+        public const string CHANNELCHANGE = "CHANNELCHANGE";
+        public const string CHANNELDELETE = "CHANNELDELETE";
         public const string MLCRT = "ML_CRT";
         public const string MLCPT = "ML_CPT";
         public const string BACKUP = "BACKUP";
