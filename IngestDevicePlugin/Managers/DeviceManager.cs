@@ -943,6 +943,161 @@ namespace IngestDevicePlugin.Managers
 
         #endregion
 
+
+        public async Task<TResult> GetAreaInfoByChannelId<TResult>(int id)
+        {
+            return _mapper.Map<TResult>(await Store.GetDbpAreaByChannelId(id));
+
+        }
+
+        #region 3.0
+
+        public virtual async Task<List<TResult>> GetAllChannelStateBySiteAsync<TResult>(string site)
+        {
+            return _mapper.Map<List<TResult>>(await Store.GetMsvchannelStateBySiteAsync(site));
+        }
+
+        public virtual async Task<List<TResult>> GetAllCaptureChannelsBySiteAsync<TResult>(string site)
+        {
+            return _mapper.Map<List<TResult>>(await Store.GetAllChannelsBySiteAreaAsync(0, site, -1));
+        }
+
+        public virtual async Task<List<TResult>> GetAllProgrammeInfosBySiteAsync<TResult>(string site)
+        {
+            var programmeInfos = _mapper.Map<List<TResult>>(await Store.GetAllProgrammeInfoBySiteAsync(site));
+
+            //先暂时删掉，看起来这2个表没有数据，后面需要再修改表结构DbpIpProgramme,DbpStreamMedia
+            //var allTSPgmInfo = _mapper.Map<List<TResult>>(await Store.GetIpProgrammeAsync(a => a, true));
+            //programmeInfos.AddRange(allTSPgmInfo);
+            //var allStreamMedia = _mapper.Map<List<TResult>>(await Store.GetStreamMediaAsync(a => a, true));
+            //programmeInfos.AddRange(allStreamMedia);
+
+            return programmeInfos.CustomSortT().ToList();
+        }
+
+        public virtual async Task<List<TResult>> GetAllRouterOutPortBySiteAsync<TResult>(string site)
+        {
+            return _mapper.Map<List<TResult>>(await Store.GetRcdoutdescAsync(a => a
+            //.Where(x => x.SystemSite == site)
+            , true));
+        }
+
+        public virtual async Task<List<TResult>> GetAllRouterInPortBySiteAsync<TResult>(string site)
+        {
+            List<DbpRcdindesc> rcdin = null;
+            if (!string.IsNullOrEmpty(site))
+            {
+                rcdin = await Store.GetRcdindescAsync(a => a
+                //.Where(x => x.SystemSite == site)
+                , true);
+            }
+            else
+            {
+                rcdin = await Store.GetRcdindescAsync(a => a, true);
+            }
+
+            return _mapper.Map<List<TResult>>(rcdin);
+        }
+
+        /// <summary> 获取所有信号源 </summary>
+        public virtual async Task<List<TResult>> GetAllSignalSrcsBySiteAsync<TResult>(string site)
+        {
+            return _mapper.Map<List<TResult>>((await Store.GetAllSignalsrcForRcdinBySiteAsync(site, true)).CustomSort().ToList());
+        }
+
+        /// <summary> 根据 通道ID 获取采集通道 </summary>
+        /// <param name="id">通道Id</param>
+        public virtual async Task<TResult> GetSiteCaptureChannelByIDAsync<TResult>(int id)
+        {
+            var captureChannel = _mapper.Map<TResult>(await Store.GetSiteCaptureChannelByIDAsync(id));
+            if (captureChannel == null)
+            {
+                SobeyRecException.ThrowSelfNoParam(nameof(GetCaptureChannelByIDAsync), GlobalDictionary.GLOBALDICT_CODE_CHANNEL_ID_DOES_NOT_EXIST, Logger, null);
+            }
+
+
+            return captureChannel;
+        }
+
+        public async virtual Task<List<TResult>> GetChannelsOnAreaByProgrammeIdAsync<TResult>(int programmid, int state)
+        {
+            //判断是否是无矩阵
+            bool isHaveMatrix = await HaveMatrixAsync();
+            var programinfo = await Store.GetSignalInfoOnAreaSiteAsync(programmid);
+
+            if (programinfo == null)
+            {
+                return null;
+            }
+
+            var channels = await Store.GetAllChannelsBySiteAreaAsync(state, ""
+                //programinfo.SystemSite
+                , programinfo.Area);
+            if (channels == null)
+            {
+                return null;
+            }
+            List<CaptureChannelInfoResponse> channelInfoList = new List<CaptureChannelInfoResponse>();
+            foreach (var item in channels)
+            {
+                ////类型匹配
+                if (!((programinfo.PgmType == ProgrammeType.PT_SDI && item.DeviceTypeId == (int)CaptureChannelType.emMsvChannel && programinfo.SignalSourceType != emSignalSource.emStreamMedia)
+                     || (programinfo.PgmType == ProgrammeType.PT_SDI && programinfo.SignalSourceType == emSignalSource.emStreamMedia && item.DeviceTypeId == (int)CaptureChannelType.emStreamChannel)
+                     || ((programinfo.PgmType == ProgrammeType.PT_IPTS) && (item.DeviceTypeId == (int)CaptureChannelType.emIPTSChannel))
+                     || ((programinfo.PgmType == ProgrammeType.PT_StreamMedia) && (item.DeviceTypeId == (int)CaptureChannelType.emStreamChannel))))
+                {
+                    continue;
+                }
+
+                //高标清匹配
+                if (item.CpSignalType > 0)//0表示Auto，可以任意匹配，不需要处理,1:SD, 2:HD
+                {
+                    if (item.CpSignalType == 1)//SD
+                    {
+                        if (programinfo.TypeId == 1)//排除HD，Auto和SD可以匹配
+                            continue;
+                    }
+                    else if (item.CpSignalType == 2)//HD
+                    {
+                        if (programinfo.TypeId == 0)//排除SD，保留HD和Auto
+                            continue;
+                    }
+                }
+
+                bool isNeedAdd = true;
+                if (programinfo.PgmType == ProgrammeType.PT_SDI)
+                {
+                    if (!isHaveMatrix)
+                    {
+                        //需要根据列表对通道进行判断
+                        var channelIdListInNotMatrix = await Store.GetChannelIdsBySignalIdForNotMatrix(programmid);
+
+                        isNeedAdd = false;
+                        if (channelIdListInNotMatrix.Any(x => x == item.Id))
+                        {
+                            isNeedAdd = true;
+                        }
+                    }
+                }
+
+                if (isNeedAdd)
+                {
+                    channelInfoList.Add(item);
+                }
+            }
+
+            return _mapper.Map<List<TResult>>(channelInfoList);
+        }
+
+
+        public virtual async Task<List<TResult>> GetRtmpCaptureChannelsBySiteAreaAsync<TResult>(string site, int area)
+        {
+            var allChannels = await Store.GetAllChannelsBySiteAreaAsync(1, site, area);
+            return _mapper.Map<List<TResult>>(allChannels.Where(x => x.DeviceTypeId == (int)emDeviceType.emDeviceRTMP).OrderBy(x => x.OrderCode));
+        }
+
+        #endregion
+
     }
 
     public static class MyDbpSignalsrcExtensions

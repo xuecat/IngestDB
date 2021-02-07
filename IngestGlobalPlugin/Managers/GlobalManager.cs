@@ -627,5 +627,21 @@ namespace IngestGlobalPlugin.Managers
 
         #endregion
 
+        #region v3.0
+
+        /// <summary>
+        /// 调用cmapi获取paramvalue
+        /// </summary>
+        /// <param name="useTokenCode"></param>
+        /// <param name="userCode"></param>
+        /// <param name="site"></param>
+        /// <returns></returns>
+        public async Task<int> GetUserParamTemplateIDBySiteAsync(bool useTokenCode, string userCode, string site)
+        {
+            return await _restClient.GetUserParamTemplateID(useTokenCode, userCode, site);
+        }
+
+        #endregion
+
     }
 }

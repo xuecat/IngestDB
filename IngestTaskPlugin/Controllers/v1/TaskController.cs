@@ -70,6 +70,56 @@ namespace IngestTaskPlugin.Controllers.v1
             
         }
 
+        [HttpPost("PostSetOneTaskMetaDataProperty"), MapToApiVersion("1.0")]
+        [ApiExplorerSettings(GroupName = "v1")]
+        public async Task<PostSetTaskMetaData_OUT> PostSetOneTaskMetaDataProperty([FromQuery] string extringproperty, [FromQuery] string extringvalue, [FromBody] PostSetTaskMetaData_IN pIn)
+        {
+            Logger.Info($"PostSetOneTaskMetaDataProperty extringproperty : {extringproperty} , extringvalue : {extringvalue}, pIn : {Newtonsoft.Json.JsonConvert.SerializeObject(pIn)}");
+            if (pIn == null)
+            {
+                var Response = new PostSetTaskMetaData_OUT
+                {
+                    bRet = false,
+                    errStr = "OK"
+                };
+                return Response;
+            }
+            //MutexFactory mf = new MutexForTaskId(pIn.nTaskID);
+            try
+            {
+                PostSetTaskMetaData_OUT pOut = new PostSetTaskMetaData_OUT();
+                if (pIn.MateData == null)
+                {
+                    pOut.errStr = "MetaData";
+                    pOut.bRet = false;
+                }
+
+                if (pIn.MateData.Length <= 0 && pIn.Type != MetaDataType.emAmfsData)
+                {
+                    pOut.errStr = "MetaData";
+                    pOut.bRet = false;
+                }
+
+                if (pIn.Type == MetaDataType.emAmfsData)
+                    pIn.MateData = System.Guid.NewGuid().ToString("N");
+                await _taskManage.SetTaskMetaDataProperty(pIn.nTaskID, pIn.Type, pIn.MateData, pIn.TypeID, extringproperty, extringvalue);
+                pOut.bRet = true;
+                return pOut;
+            }
+            catch (Exception ex)//其他未知的异常，写异常日志
+            {
+                var Response = new PostSetTaskMetaData_OUT()
+                {
+                    bRet = false
+                };
+
+                Response.errStr = "PostSetOneTaskMetaDataProperty error info:" + ex.Message;
+                Logger.Error(Response.errStr);
+                return Response;
+            }
+        }
+
+
         [HttpPost("PostAddTaskMetaDataPropety"), MapToApiVersion("1.0")]
         [ApiExplorerSettings(GroupName = "v1")]
         public async Task<PostSetTaskMetaData_OUT> PostAddTaskMetaDataPropety([FromBody]PostSetTaskMetaData_IN pIn)
@@ -1391,18 +1441,18 @@ namespace IngestTaskPlugin.Controllers.v1
 
         [HttpPost("Update24HoursTask"), MapToApiVersion("1.0")]
         [ApiExplorerSettings(GroupName = "v1")]
-        public async Task<string> Update24HoursTask([FromQuery]int ntaskid, [FromQuery]long oldlen, [FromQuery]int oldclipnum, [FromQuery]string newname, [FromQuery]string newguid, [FromQuery]int index)
+        public async Task<string> Update24HoursTask([FromQuery]int ntaskid, [FromQuery]long oldlen, [FromQuery]int oldclipnum, [FromQuery]string newname, [FromQuery]string newguid, [FromQuery]int index, [FromQuery]string codetime)
         {
             //var Response = new GetNeedSynTasks2_OUT
             //{
             //    bRet = true,
             //    errStr = "OK",
             //};
-            Logger.Info($"Update24HoursTask ntaskid : {ntaskid} , oldlen : {oldlen} , oldclipnum : {oldclipnum} , newname : {newname} ,  newguid: {newguid} , index : {index} ");
+            Logger.Info($"Update24HoursTask ntaskid : {ntaskid} , oldlen : {oldlen} , oldclipnum : {oldclipnum} , newname : {newname} ,  newguid: {newguid} , index : {index}, codetime : {codetime} ");
 
             try
             {
-                return await _taskManage.Update24HoursTask(ntaskid, oldlen, oldclipnum, newname, newguid, index);
+                return await _taskManage.Update24HoursTask(ntaskid, oldlen, oldclipnum, newname, newguid, index, codetime);
             }
             catch (Exception e)//其他未知的异常，写异常日志
             {
@@ -2158,5 +2208,7 @@ namespace IngestTaskPlugin.Controllers.v1
 
         }
         ////////////////////////////
+
+
     }
 }
