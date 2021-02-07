@@ -755,7 +755,6 @@ namespace IngestDevicePlugin.Controllers.v3
             return response;
         }
 
-<<<<<<< HEAD
         /// <summary>
         /// 通知设备变化消息
         /// </summary>
@@ -825,10 +824,7 @@ namespace IngestDevicePlugin.Controllers.v3
             }
             return response;
         }
-=======
         #endregion
-
->>>>>>> 8f86358c256d4067442e199da66e0db189606290
 
     }
 }
