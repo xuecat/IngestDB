@@ -281,4 +281,15 @@
         /// <summary>最高优先级</summary>
         TP_Highest
     }
+    public enum DeviceNotify
+    {
+        ChannelChange,
+        ChannelDelete,
+        DeviceChange,
+        DeviceDelete,
+        InChange,
+        InDelete,
+        OutChange,
+        OutDelete
+    }
 }

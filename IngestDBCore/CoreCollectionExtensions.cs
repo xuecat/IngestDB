@@ -41,12 +41,22 @@ namespace IngestDBCore
                 }
 
                 ApplicationContext.Current.SplitTaskNameTemplate = client.GetGlobalParam(false, "admin", "CLIP_SUFFIX").Result;
+<<<<<<< HEAD
+                //var info = client.GetGlobalParam(false, "admin", "").Result;
+                //if (!string.IsNullOrEmpty(info))
+                //{
+                //    ApplicationContext.Current.SplitTaskNameType = int.Parse(info);
+                //}
+                
+
+=======
                 int splittype;
                 if(int.TryParse(client.GetGlobalParam(false, "admin", "DEFAULT_SUFFIX_CHECKBOX").Result, out splittype))
                 {
                     ApplicationContext.Current.SplitTaskNameType = splittype;
                 }
                 
+>>>>>>> 8f86358c256d4067442e199da66e0db189606290
             }
             services.AddSingleton<RestClient>(provider => new RestClient(provider.GetService<IHttpClientFactory>()));
 

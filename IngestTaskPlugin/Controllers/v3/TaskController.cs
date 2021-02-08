@@ -52,7 +52,7 @@ namespace IngestTaskPlugin.Controllers.v3
         /// <param name="taskid">任务id，</param>
         /// <returns>任务内容全部信息包含元数据</returns>
         [HttpGet("{taskid}")]
-        [ApiExplorerSettings(GroupName = "v3")]
+        [ApiExplorerSettings(GroupName = "v3.0")]
         public async Task<ResponseMessage<TaskFullInfoResponse>> GetTaskFullInfoByID([FromRoute, BindRequired]int taskid)
         {
             var Response = new ResponseMessage<TaskFullInfoResponse>();
@@ -99,7 +99,7 @@ namespace IngestTaskPlugin.Controllers.v3
         /// <param name="taskid">任务id，</param>
         /// <returns>任务内容全部信息包含元数据</returns>
         [HttpGet("db/{taskid}")]
-        [ApiExplorerSettings(GroupName = "v3")]
+        [ApiExplorerSettings(GroupName = "v3.0")]
         public async Task<ResponseMessage<Models.DbpTask>> GetTaskDBInfoByID([FromRoute, BindRequired]int taskid)
         {
             var Response = new ResponseMessage<Models.DbpTask>();
@@ -177,7 +177,7 @@ namespace IngestTaskPlugin.Controllers.v3
         /// <param name="taskid">老任务id，</param>
         /// <returns>任务内容全部信息包含元数据</returns>
         [HttpPost("schedule/{taskid}")]
-        [ApiExplorerSettings(GroupName = "v3")]
+        [ApiExplorerSettings(GroupName = "v3.0")]
         public async Task<ResponseMessage<TaskContentResponse>> AddRescheduleTaskByID([FromRoute, BindRequired]int taskid)
         {
             var Response = new ResponseMessage<TaskContentResponse>();
@@ -237,7 +237,7 @@ namespace IngestTaskPlugin.Controllers.v3
         /// <param name="taskid">老任务id，</param>
         /// <returns>任务内容全部信息包含元数据</returns>
         [HttpPut("reschedule/channel/{taskid}")]
-        [ApiExplorerSettings(GroupName = "v3")]
+        [ApiExplorerSettings(GroupName = "v3.0")]
         public async Task<ResponseMessage<TaskContentResponse>> RescheduleTaskChannelByID([FromRoute, BindRequired]int taskid)
         {
             var Response = new ResponseMessage<TaskContentResponse>();
@@ -340,7 +340,7 @@ namespace IngestTaskPlugin.Controllers.v3
         /// </remarks>
         /// <returns></returns>
         [HttpGet("sync/ready")]  
-        [ApiExplorerSettings(GroupName = "v3")]
+        [ApiExplorerSettings(GroupName = "v3.0")]
         public async Task<ResponseMessage<List<TaskContentResponse>>> GetNeedSyncTasks()
         {
             var Response = new ResponseMessage<List<TaskContentResponse>>();
@@ -381,7 +381,7 @@ namespace IngestTaskPlugin.Controllers.v3
         /// <param name="req">请求结构体</param>
         /// <returns></returns>
         [HttpPut("sync/complete")]
-        [ApiExplorerSettings(GroupName = "v3")]
+        [ApiExplorerSettings(GroupName = "v3.0")]
         public async Task<ResponseMessage> CompleteSyncTasks([FromBody, BindRequired] CompleteSyncTaskRequest req)
         {
             Logger.Info($"CompleteSynTasks v3 CompleteSyncTaskRequest : {req}");
@@ -428,7 +428,7 @@ namespace IngestTaskPlugin.Controllers.v3
         /// <param name="task">添加任务数据</param>
         /// <returns>基本任务信息附带任务id</returns>
         [HttpPost("withpolicy")]
-        [ApiExplorerSettings(GroupName = "v3")]
+        [ApiExplorerSettings(GroupName = "v3.0")]
         public async Task<ResponseMessage<TaskContentResponse>> AddTaskWithPolicy([FromBody, BindRequired] TaskInfoRequest task, [FromHeader(Name = "sobeyhive-http-site"), BindRequired, DefaultValue("S1")] string site)
         {
             Logger.Info($"AddTaskWithPolicy Site task {Request.Host.Value} : {JsonHelper.ToJson(task)}");
@@ -527,7 +527,7 @@ namespace IngestTaskPlugin.Controllers.v3
         /// <param name="channelid">通道信息</param>
         /// <returns>当前正在采集的任务</returns>
         [HttpGet("capturing/{channelid}")]
-        [ApiExplorerSettings(GroupName = "v3")]
+        [ApiExplorerSettings(GroupName = "v3.0")]
         public async Task<ResponseMessage<TaskContentResponse>> GetChannelCapturingTaskInfo([FromRoute, BindRequired] int channelid, [FromQuery] int newest)
         {
             var Response = new ResponseMessage<TaskContentResponse>();
@@ -574,7 +574,7 @@ namespace IngestTaskPlugin.Controllers.v3
         /// <param name="taskid">周期任务id</param>
         /// <returns>分裂后的任务</returns>
         [HttpPost("periodic/{taskid}")]
-        [ApiExplorerSettings(GroupName = "v3")]
+        [ApiExplorerSettings(GroupName = "v3.0")]
         public async Task<ResponseMessage<TaskContentResponse>> CreatePeriodicTask([FromRoute, BindRequired] int taskid)
         {
             Logger.Info($"CreatePeriodicTask  taskid :{Request.Host.Value} {taskid}");
@@ -625,7 +625,7 @@ namespace IngestTaskPlugin.Controllers.v3
         /// <param name="req">请求任务元数据基础结构体 体</param>
         /// <returns>任务id</returns>
         [HttpPut("periodic/{taskid}")]
-        [ApiExplorerSettings(GroupName = "v3")]
+        [ApiExplorerSettings(GroupName = "v3.0")]
         public async Task<ResponseMessage<int>> ModifyPeriodTaskInfo([FromQuery, BindRequired] int isall, [FromBody, BindRequired] TaskContentRequest req)
         {
             Logger.Info($"ModifyPeriodTaskInfo  isall {Request.Host.Value}: {isall}, TaskContentRequest : {JsonHelper.ToJson(req)}");
@@ -687,7 +687,7 @@ namespace IngestTaskPlugin.Controllers.v3
         /// <param name="taskid">查询任务id</param>
         /// <returns>任务来源source 枚举</returns>
         [HttpGet("{taskid}/tasksource")]
-        [ApiExplorerSettings(GroupName = "v3")]
+        [ApiExplorerSettings(GroupName = "v3.0")]
         public async Task<ResponseMessage<TaskSource>> GetTaskSourceById([FromRoute, BindRequired] int taskid)
         {
             var Response = new ResponseMessage<TaskSource>();
@@ -728,8 +728,8 @@ namespace IngestTaskPlugin.Controllers.v3
         /// <param name="newguid">新id</param>
         /// <param name="newname">新名字</param>
         /// <returns>任务信息元数据</returns>
-        [HttpPost("splittask/{taskid}")]
-        [ApiExplorerSettings(GroupName = "v3")]
+        [HttpPost("split/{taskid}")]
+        [ApiExplorerSettings(GroupName = "v3.0")]
         public async Task<ResponseMessage<TaskContentResponse>> SplitTaskInfo([FromRoute, BindRequired] int taskid, [FromQuery, BindRequired] string newguid, [FromQuery, BindRequired] string newname)
         {
             Logger.Info($"SplitTaskInfo  taskid : {taskid}, newguid : {newguid}, newname : {newname}");
@@ -774,7 +774,7 @@ namespace IngestTaskPlugin.Controllers.v3
         /// <param name="taskid">任务id</param>
         /// <returns>任务id</returns>
         [HttpDelete("{taskid}")]
-        [ApiExplorerSettings(GroupName = "v2")]
+        [ApiExplorerSettings(GroupName = "v3.0")]
         public async Task<ResponseMessage<int>> DeleteTask([FromRoute, BindRequired] int taskid)
         {
             var Response = new ResponseMessage<int>();
@@ -834,7 +834,7 @@ namespace IngestTaskPlugin.Controllers.v3
         /// <param name="state">任务状态</param>
         /// <returns>任务id</returns>
         [HttpPut("{taskid}/state")]
-        [ApiExplorerSettings(GroupName = "v3")]
+        [ApiExplorerSettings(GroupName = "v3.0")]
         public async Task<ResponseMessage<int>> SetTaskState([FromRoute, BindRequired] int taskid, [FromQuery, BindRequired] int state)
         {
             Logger.Info($"SetTaskState taskid : {taskid}, state : {state}");
@@ -886,8 +886,8 @@ namespace IngestTaskPlugin.Controllers.v3
         /// </remarks>
         /// <param name="taskid">任务id，</param>
         /// <returns>任务id</returns>
-        [HttpPut("stoptask/{taskid}")]
-        [ApiExplorerSettings(GroupName = "v3")]
+        [HttpPut("stop/{taskid}")]
+        [ApiExplorerSettings(GroupName = "v3.0")]
         public async Task<ResponseMessage<int>> StopTask([FromRoute, BindRequired] int taskid)
         {
             Logger.Info($"StopTask taskid {Request.Host.Value}: {taskid}");
@@ -941,43 +941,7 @@ namespace IngestTaskPlugin.Controllers.v3
             return Response;
         }
 
-        [HttpGet("{taskid}/taskandmetadata")]
-        [ApiExplorerSettings(GroupName = "v3.0")]
-        public async Task<ResponseMessage<TaskInfoResponse>> GetTaskInfoAllByID([FromRoute, BindRequired] int taskid)
-        {
-            var Response = new ResponseMessage<TaskInfoResponse>();
-            if (taskid <= 0)
-            {
-                Response.Code = ResponseCodeDefines.ModelStateInvalid;
-                Response.Msg = "request param error";
-            }
-
-            try
-            {
-                Response.Ext = await _taskManage.GetTaskInfoAll<TaskInfoResponse>(taskid);
-                if (Response.Ext == null)
-                {
-                    Response.Code = ResponseCodeDefines.NotFound;
-                    Response.Msg = $"{System.Reflection.MethodBase.GetCurrentMethod().DeclaringType.FullName}:error info: not find data!";
-                }
-            }
-            catch (Exception e)
-            {
-                if (e.GetType() == typeof(SobeyRecException))//sobeyexcep会自动打印错误
-                {
-                    SobeyRecException se = e as SobeyRecException;
-                    Response.Code = se.ErrorCode.ToString();
-                    Response.Msg = se.Message;
-                }
-                else
-                {
-                    Response.Code = ResponseCodeDefines.ServiceError;
-                    Response.Msg = "GetTaskInfoAllByID error info:" + e.Message;
-                    Logger.Error(Response.Msg);
-                }
-            }
-            return Response;
-        }
+       
         /// <summary>
         /// 根据传入的任务ID(占位任务ID),修改任务类型,开始占位任务的执行
         /// </summary>
@@ -987,7 +951,7 @@ namespace IngestTaskPlugin.Controllers.v3
         /// <param name="taskid">占位任务id</param>
         /// <returns>分裂后的任务</returns>
         [HttpPost("starttieup/{taskid}")]
-        [ApiExplorerSettings(GroupName = "v3")]
+        [ApiExplorerSettings(GroupName = "v3.0")]
         public async Task<ResponseMessage<bool>> StartTieUpTask([FromRoute, BindRequired] int taskid)
         {
             Logger.Info($"StartTieUpTask  taskid : {taskid}");

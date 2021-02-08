@@ -102,6 +102,70 @@ namespace OrleansNotifyPlugin
                     case GlobalStateName.BACKUP:
                         { }
                         break;
+                    case GlobalStateName.INCHANGE:
+                        {}
+                        break;
+                    case GlobalStateName.INDELETE:
+                        { }
+                        break;
+                    case GlobalStateName.OUTCHANGE:
+                        { }
+                        break;
+                    case GlobalStateName.OUTDELETE:
+                        { }
+                        break;
+                    case GlobalStateName.CHANNELCHANGE:
+                        {
+                            var grain = Client.GetGrain<IDeviceInspections>(0);
+                            try
+                            {
+                                AutoRetry.RunSync(() => grain.NotifyDeviceChangeAsync().Wait());
+                            }
+                            catch (Exception e)
+                            {
+                                Logger.Error("CHANNELCHANGE" + e.Message);
+                            }
+                        }
+                        break;
+                    case GlobalStateName.CHANNELDELETE:
+                        {
+                            var grain = Client.GetGrain<IDeviceInspections>(0);
+                            try
+                            {
+                                AutoRetry.RunSync(() => grain.NotifyChannelDeleteAsync((int)ti.Param).Wait());
+                            }
+                            catch (Exception e)
+                            {
+                                Logger.Error("CHANNELDELETE" + e.Message);
+                            }
+                        }
+                        break;
+                    case GlobalStateName.DEVICECHANGE:
+                        {
+                            var grain = Client.GetGrain<IDeviceInspections>(0);
+                            try
+                            {
+                                AutoRetry.RunSync(() => grain.NotifyDeviceDeleteAsync((int)ti.Param).Wait());
+                            }
+                            catch (Exception e)
+                            {
+                                Logger.Error("DEVICECHANGE" + e.Message);
+                            }
+                        }
+                        break;
+                    case GlobalStateName.DEVICEDELETE:
+                        {
+                            var grain = Client.GetGrain<IDeviceInspections>(0);
+                            try
+                            {
+                                AutoRetry.RunSync(() => grain.NotifyDeviceChangeAsync().Wait());
+                            }
+                            catch (Exception e)
+                            {
+                                Logger.Error("DEVICEDELETE" + e.Message);
+                            }
+                        }
+                        break;
                     default:
                         break;
                 }
