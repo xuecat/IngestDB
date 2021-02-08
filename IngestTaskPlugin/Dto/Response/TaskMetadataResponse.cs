@@ -175,7 +175,20 @@ namespace IngestTaskPlugin.Dto.Response
         public string MlToTaskGuid { get; set; }
 
         public string OrgTitle { get; set; }
+        public int SplitNameType { get; set; }
 
+        public SplitItemResponse SplitItem { get; set; }
+
+    }
+
+    public class SplitItemResponse
+    {
+        public string SplitGuid { get; set; }
+
+        public string SplitTitle { get; set; }
+        public int SplitClipNum { get; set; }
+        public long SplitLen { get; set; }
+        public string SplitTime { get; set; }
     }
 
     public class PeriodParamResponse

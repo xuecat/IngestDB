@@ -509,9 +509,36 @@ namespace IngestTaskPlugin.Managers
             {
                 var root = XDocument.Parse(data);
                 var material = root.Element("SplitMetaData");
+                int temp;
 
                 TaskSplitResponse ret = new TaskSplitResponse();
                 ret.VtrStart = material?.Element("VTRSTART")?.Value;
+                ret.MlToTaskGuid = material?.Element("MLTOTASKGUID")?.Value;
+                ret.OrgTitle = material?.Element("ORGTITLE")?.Value;
+                ret.SplitClips = material?.Element("SplitClips")?.Value;
+                ret.SplitNameSuffix0 = material?.Element("SplitNameSuffix0")?.Value;
+                ret.SplitNameSuffix1 = material?.Element("SplitNameSuffix1")?.Value;
+                if (int.TryParse(material?.Element("SplitNameType")?.Value, out temp))
+                {
+                    ret.SplitNameType = temp;
+                }
+
+                var splititem = material?.Element("SplitItem");
+                if (splititem != null)
+                {
+                    ret.SplitItem = new SplitItemResponse();
+                    if (int.TryParse(splititem?.Element("SplitClipNum")?.Value, out temp))
+                    {
+                        ret.SplitItem.SplitClipNum = temp;
+                    }
+                    ret.SplitItem.SplitGuid = splititem?.Element("SplitGuid")?.Value;
+                    ret.SplitItem.SplitTime = splititem?.Element("SplitTime")?.Value;
+                    if (int.TryParse(splititem?.Element("SplitLen")?.Value, out temp))
+                    {
+                        ret.SplitItem.SplitLen = temp;
+                    }
+                    ret.SplitItem.SplitTitle = splititem?.Element("SplitTitle")?.Value;
+                }
 
                 return ret;
             }
@@ -544,7 +571,7 @@ namespace IngestTaskPlugin.Managers
             {
                 if (channelId > 0)
                 {
-                    re.SplitNameSuffix1 = DealSplitNameSuffix(channelId, re.SplitNameSuffix1);
+                    re.SplitNameSuffix1 = GetSplitNameSuffix1(channelId, DateTime.MinValue);
                 }
                 root.Add(new XElement("SplitNameSuffix1", re.SplitNameSuffix1));
             }
@@ -559,6 +586,32 @@ namespace IngestTaskPlugin.Managers
             if (!string.IsNullOrEmpty(re.MlToTaskGuid))
             {
                 root.Add(new XElement("MLTOTASKGUID", re.MlToTaskGuid));
+            }
+
+            if (re.SplitItem != null)
+            {
+                var per = new XElement("SplitItem");
+                if (!string.IsNullOrEmpty(re.SplitItem.SplitGuid))
+                {
+                    per.Add(new XElement("SplitGuid", re.SplitItem.SplitGuid));
+                }
+                if (re.SplitItem.SplitClipNum > 0)
+                {
+                    per.Add(new XElement("SplitClipNum", re.SplitItem.SplitClipNum));
+                }
+                if (re.SplitItem.SplitLen > 0)
+                {
+                    per.Add(new XElement("SplitLen", re.SplitItem.SplitLen));
+                }
+                if (!string.IsNullOrEmpty(re.SplitItem.SplitTime))
+                {
+                    per.Add(new XElement("SplitTime", re.SplitItem.SplitTime));
+                }
+                if (!string.IsNullOrEmpty(re.SplitItem.SplitTitle))
+                {
+                    per.Add(new XElement("SplitTitle", re.SplitItem.SplitTitle));
+                }
+                root.Add(per);
             }
 
             return xdoc.ToString();
@@ -1280,7 +1333,7 @@ namespace IngestTaskPlugin.Managers
                         return dbmetadata;
                     }
                 }
-                
+
             }
             return "";
         }
@@ -1646,41 +1699,19 @@ namespace IngestTaskPlugin.Managers
                 splitmeta = new DbpTaskMetadata() { Taskid = ntaskid, Metadatatype = (int)MetaDataType.emSplitData, Metadatalong = "<SplitMetaData></SplitMetaData>" };
             }
 
-            var root = XDocument.Parse(splitmeta.Metadatalong);
-            var taskcontentnode = root.Element("SplitMetaData");
+            var splitRe = ConverTaskSplitMetaString(splitmeta.Metadatalong);
 
-            var splits = taskcontentnode.Element("SplitClips");
-            if (splits == null)
+            string orgtitle = string.IsNullOrEmpty(splitRe.OrgTitle) ? taskinfo.Taskname : splitRe.OrgTitle;
+            if (index == 1)
             {
-                splits = new XElement("SplitClips");
-                taskcontentnode.Add(splits);
+                splitRe.OrgTitle = taskinfo.Taskname;
             }
 
-            string orgtitle = string.Empty;
-            var splitorgtitle = taskcontentnode.Element("ORGTITLE");
-            if (splitorgtitle == null)
+            int nsplitnametype = splitRe.SplitNameType;
+            if (splitRe.SplitNameType < 0)
             {
-                if (index == 1)
-                    taskcontentnode.Add(new XElement("ORGTITLE", taskinfo.Taskname));
-                orgtitle = taskinfo.Taskname;
-            }
-            else
-            {
-                if (index == 1)
-                    splitorgtitle.Value = taskinfo.Taskname;
-                orgtitle = splitorgtitle.Value;
-            }
-
-            int nsplitnametype = 0;
-            var splitnametype = taskcontentnode.Element("SplitNameType");
-            if (splitnametype == null)
-            {
-                taskcontentnode.Add(new XElement("SplitNameType", ApplicationContext.Current.SplitTaskNameType));
+                splitRe.SplitNameType = ApplicationContext.Current.SplitTaskNameType;
                 nsplitnametype = ApplicationContext.Current.SplitTaskNameType;
-            }
-            else
-            {
-                int.TryParse(splitnametype.Value, out nsplitnametype);
             }
 
             codetime = codetime.Length > 8 ? codetime.Substring(0, 8) : codetime;
@@ -1706,30 +1737,21 @@ namespace IngestTaskPlugin.Managers
                     break;
             }
 
-            var splititem = new XElement("SplitItem");
-            splititem.Add(new XElement("SplitGuid", newguid), new XElement("SplitTitle", splittile), new XElement("SplitClipNum", oldclipnum), new XElement("SplitLen", oldlen), new XElement("SplitTime", nowtime.ToString()));
-            splits.Add(splititem);
-
-            var mlguid = taskcontentnode.Element("MLTOTASKGUID");
-            if (mlguid == null)
+            if (splitRe.SplitItem == null)
             {
-                taskcontentnode.Add(new XElement("MLTOTASKGUID", newguid));
+                splitRe.SplitItem = new SplitItemResponse();
             }
-            else
-                mlguid.Value = newguid;
+            splitRe.SplitItem.SplitClipNum = oldclipnum;
+            splitRe.SplitItem.SplitGuid = newguid;
+            splitRe.SplitItem.SplitTitle = splittile;
+            splitRe.SplitItem.SplitLen = oldlen;
+            splitRe.SplitItem.SplitTime = nowtime.ToString();
 
-            var splitnamesuffix = taskcontentnode.Element("SplitNameSuffix0");
-            if (splitnamesuffix == null)
-                taskcontentnode.Add(new XElement("SplitNameSuffix0", splitSuffix0));
-            else
-                splitnamesuffix.Value = splitSuffix0;
+            splitRe.MlToTaskGuid = newguid;
+            splitRe.SplitNameSuffix0 = splitSuffix0;
 
-            splitnamesuffix = taskcontentnode.Element("SplitNameSuffix1");
-            if (splitnamesuffix == null)
-                taskcontentnode.Add(new XElement("SplitNameSuffix1", splitSuffix1));
-            else
-                splitnamesuffix.Value = splitSuffix1;
-
+            splitRe.SplitNameSuffix1 = splitSuffix1;
+            
             if (materilmeta != null)
             {
                 var mroot = XDocument.Parse(materilmeta.Metadatalong);
@@ -1752,7 +1774,7 @@ namespace IngestTaskPlugin.Managers
             taskinfo.Taskname = newname;
             taskinfo.Taskguid = newguid;
 
-            splitmeta.Metadatalong = root.ToString();
+            splitmeta.Metadatalong = ConvertTaskSplitMetaString(splitRe);
 
             await Store.SaveChangeAsync();
             return newguid;
@@ -1952,11 +1974,11 @@ namespace IngestTaskPlugin.Managers
                 //addinfo.TaskSource = taskSrc;
                 //addinfo.TaskContent = _mapper.Map<TaskContentRequest>(findtask);
 
-                var backinfo = await Store.AddTaskWithPolicys(findtask, true, taskSrc, strCapatureMetaData, strContentMetaData, strStoreMetaData, strPlanMetaData, null);
-                if (backinfo != null)
-                {
-                    await Store.UpdateTaskMetaDataAsync(findtask.Taskid, MetaDataType.emSplitData, strSplitMetaData);
-                }
+                var backinfo = await Store.AddTaskWithPolicys(findtask, true, taskSrc, strCapatureMetaData, strContentMetaData, strStoreMetaData, strPlanMetaData, strSplitMetaData, null);
+                //if (backinfo != null)
+                //{
+                //    await Store.UpdateTaskMetaDataAsync(findtask.Taskid, MetaDataType.emSplitData, strSplitMetaData);
+                //}
 
                 //var backinfo = await AddTaskWithoutPolicy(addinfo, strCapatureMetaData, strContentMetaData, strStoreMetaData, strPlanMetaData);
 
@@ -3091,7 +3113,7 @@ namespace IngestTaskPlugin.Managers
                     des.SyncState = (int)syncState.ssSync;
                     des.DispatchState = (int)dispatchState.dpsDispatched;
                 })
-                ), false, TaskSource.emVTRUploadTask, string.Empty, string.Empty, string.Empty, string.Empty, null);
+                ), false, TaskSource.emVTRUploadTask, string.Empty, string.Empty, string.Empty, string.Empty, string.Empty, null);
             }
 
         }
@@ -3339,38 +3361,62 @@ namespace IngestTaskPlugin.Managers
             findtask.Tasklock = string.Empty;
             await Store.ModifyTask(findtask, true, false, false, string.Empty, string.Empty, string.Empty, string.Empty);
 
-            await Store.AddTaskWithPolicys(addtask, true, src, strCapatureMetaData, strContentMetaData, strStoreMetaData, strPlanMetaData, null);
-
-            if (!string.IsNullOrEmpty(strSplitMetaData))
-            {
-                strSplitMetaData = DealSplitNameSuffix(addtask.Channelid ?? 0, strSplitMetaData);
-
-                await Store.UpdateTaskMetaDataAsync(addtask.Taskid, MetaDataType.emSplitData, strSplitMetaData);
-            }
+            string orgtitle = "";
+            await Store.AddTaskWithPolicys(addtask, true, src, strCapatureMetaData, strContentMetaData, strStoreMetaData, strPlanMetaData, DealSplitNameSuffix(strSplitMetaData, addtask.Channelid ?? 0, string.Empty, ref orgtitle, string.Empty), null);
 
             return _mapper.Map<TResult>(addtask);
 
         }
 
-        private string DealSplitNameSuffix(int channelId, string strSplitMetaData)
+        private string DealSplitNameSuffix(string strSplitMetaData, int channelId, string taskname, ref string orgtitle, string starttime)
         {
-            var root = XElement.Parse(strSplitMetaData);
-            if (root != null)
+            if (!string.IsNullOrEmpty(strSplitMetaData))
             {
-                var spdata = root.Element("SplitNameSuffix0");
-                if (spdata == null)//add
-                    root.Add(new XElement("SplitNameSuffix0", "_HHmmss"));
-                else
-                    spdata.Value = "_HHmmss";
+                var root = XElement.Parse(strSplitMetaData);
+                if (root != null)
+                {
+                    if (!string.IsNullOrEmpty(taskname))
+                    {
+                        var sptitle = root.Element("ORGTITLE");
+                        if (sptitle == null)
+                        {
+                            root.Add(new XElement("ORGTITLE", taskname));
+                            orgtitle = taskname;
+                        }
+                        else
+                            orgtitle = sptitle.Value;
+                    }
 
-                spdata = root.Element("SplitNameSuffix1");
-                var splitSuffix1 = GetSplitNameSuffix1(channelId, DateTime.MinValue);
-                if (spdata == null)
-                    root.Add(new XElement("SplitNameSuffix1", splitSuffix1));
-                else
-                    spdata.Value = splitSuffix1;
+                    if (!string.IsNullOrEmpty(starttime))
+                    {
+                        var spdata = root.Element("VTRSTART");
+                        if (spdata == null)
+                            root.Add(new XElement("VTRSTART", starttime));
+                        else
+                            spdata.Value = starttime;
+                    }
 
-                strSplitMetaData = root.ToString();
+                    if (channelId > 0)
+                    {
+                        var spdata = root.Element("SplitNameSuffix0");
+                        if (spdata == null)//add
+                            root.Add(new XElement("SplitNameSuffix0", "_HHmmss"));
+                        else
+                            spdata.Value = "_HHmmss";
+
+                        spdata = root.Element("SplitNameSuffix1");
+                        var splitSuffix1 = GetSplitNameSuffix1(channelId, DateTime.MinValue);
+                        if (spdata == null)
+                            root.Add(new XElement("SplitNameSuffix1", splitSuffix1));
+                        else
+                            spdata.Value = splitSuffix1;
+                    }
+
+                    root.Descendants("SplitClips")?.Remove();
+                    root.Descendants("MLTOTASKGUID")?.Remove();
+
+                    strSplitMetaData = root.ToString();
+                }
             }
 
             return strSplitMetaData;
@@ -3702,45 +3748,7 @@ namespace IngestTaskPlugin.Managers
 
                 string orgtitle = string.Empty;
 
-                if (!string.IsNullOrEmpty(strSplitMetaData))
-                {
-                    var root = XElement.Parse(strSplitMetaData);
-                    if (root != null)
-                    {
-                        var spdata = root.Element("ORGTITLE");
-                        if (spdata == null)
-                        {
-                            root.Add(new XElement("ORGTITLE", findtask.Taskname));
-                            orgtitle = findtask.Taskname;
-                        }
-                        else
-                            orgtitle = spdata.Value;
-
-                        spdata = root.Element("VTRSTART");
-                        if (spdata == null)
-                            root.Add(new XElement("VTRSTART", starttime.ToLongTimeString()));
-                        else
-                            spdata.Value = starttime.ToLongTimeString();
-
-                        spdata = root.Element("SplitNameSuffix0");
-                        if (spdata == null)//add
-                            root.Add(new XElement("SplitNameSuffix0", "_HHmmss"));
-                        else
-                            spdata.Value = "_HHmmss";
-
-                        spdata = root.Element("SplitNameSuffix1");
-                        var splitSuffix1 = GetSplitNameSuffix1(findtask.Channelid ?? 0, DateTime.MinValue);
-                        if (spdata == null)
-                            root.Add(new XElement("SplitNameSuffix1", splitSuffix1));
-                        else
-                            spdata.Value = splitSuffix1;
-
-                        root.Descendants("SplitClips")?.Remove();
-                        root.Descendants("MLTOTASKGUID")?.Remove();
-
-                        strSplitMetaData = root.ToString();
-                    }
-                }
+                strSplitMetaData = DealSplitNameSuffix(strSplitMetaData, findtask.Channelid ?? 0, findtask.Taskname, ref orgtitle, starttime.ToLongTimeString());
 
                 newtaskinfo.Taskname = CreateClipName(findtask.Taskname, orgtitle);
 
@@ -3776,12 +3784,7 @@ namespace IngestTaskPlugin.Managers
                                                             strCapatureMetaData,
                                                             strContentMetaData,
                                                             strStoreMetaData,
-                                                            strPlanMetaData, null);
-
-                if (!string.IsNullOrEmpty(strSplitMetaData))
-                {
-                    await Store.UpdateTaskMetaDataAsync(info.Taskid, MetaDataType.emSplitData, strSplitMetaData);
-                }
+                                                            strPlanMetaData, strSplitMetaData, null);
 
                 //return _mapper.Map<TaskContentResponse>(info);
                 return info;
@@ -3947,7 +3950,7 @@ namespace IngestTaskPlugin.Managers
             return false;
         }
 
-        public async Task<DbpTask> AddTaskWithPolicy<TResult>(TResult info, bool backup, string CaptureMeta, string ContentMeta, string MatiralMeta, string PlanningMeta, bool isOnlyLocalChannel = true)
+        public async Task<DbpTask> AddTaskWithPolicy<TResult>(TResult info, bool backup, string CaptureMeta, string ContentMeta, string MatiralMeta, string PlanningMeta, bool isOnlyLocalChannel = true, string SplitMeta = "")
         {
             var taskinfo = _mapper.Map<TaskInfoRequest>(info);
 
@@ -4106,16 +4109,9 @@ namespace IngestTaskPlugin.Managers
                         string.IsNullOrEmpty(ContentMeta) ? ConverTaskContentMetaString(taskinfo.ContentMeta, opType.otAdd) : ContentMeta,
                         string.IsNullOrEmpty(MatiralMeta) ? ConverTaskMaterialMetaString(taskinfo.MaterialMeta) : MatiralMeta,
                         string.IsNullOrEmpty(PlanningMeta) ? ConverTaskPlanningMetaString(taskinfo.PlanningMeta) : PlanningMeta,
+                        string.IsNullOrEmpty(SplitMeta) ? ConvertTaskSplitMetaString(taskinfo.SplitMeta, taskinfo.TaskContent.ChannelId) : SplitMeta,
                         null);
 
-                        if (back.Taskid > 0)
-                        {
-                            string splitMeta = ConvertTaskSplitMetaString(taskinfo.SplitMeta, back.Channelid ?? -1);
-                            if (!string.IsNullOrEmpty(splitMeta))
-                            {
-                                await Store.UpdateTaskMetaDataAsync(back.Taskid, MetaDataType.emSplitData, splitMeta);
-                            }
-                        }
 
                         return back;
                     }
@@ -4286,18 +4282,9 @@ namespace IngestTaskPlugin.Managers
                 string.IsNullOrEmpty(ContentMeta) ? ConverTaskContentMetaString(taskinfo.ContentMeta, opType.otAdd) : ContentMeta,
                 string.IsNullOrEmpty(MatiralMeta) ? ConverTaskMaterialMetaString(taskinfo.MaterialMeta) : MatiralMeta,
                 string.IsNullOrEmpty(PlanningMeta) ? ConverTaskPlanningMetaString(taskinfo.PlanningMeta) : PlanningMeta,
+                string.IsNullOrEmpty(SplitMeta) ? ConvertTaskSplitMetaString(taskinfo.SplitMeta, taskinfo.TaskContent.ChannelId) : SplitMeta,
                 null);
                 //taskinfo.TaskContent.
-
-                if (back.Taskid > 0)
-                {
-                    string splitMeta = ConvertTaskSplitMetaString(taskinfo.SplitMeta, back.Channelid ?? -1);
-                    if (!string.IsNullOrEmpty(splitMeta))
-                    {
-                        await Store.UpdateTaskMetaDataAsync(back.Taskid, MetaDataType.emSplitData, splitMeta);
-                    }
-                    //存metadata
-                }
 
                 //return _mapper.Map<TaskContentResponse>(back);
                 return back;
@@ -4306,7 +4293,7 @@ namespace IngestTaskPlugin.Managers
             return null;
         }
 
-        public async Task<DbpTask> AddTaskWithoutPolicy<TResult>(TResult info, string CaptureMeta, string ContentMeta, string MatiralMeta, string PlanningMeta)
+        public async Task<DbpTask> AddTaskWithoutPolicy<TResult>(TResult info, string CaptureMeta, string ContentMeta, string MatiralMeta, string PlanningMeta, string SplitMeta = "")
         {
             var taskinfo = _mapper.Map<TaskInfoRequest>(info);
             if (info.GetType() == typeof(AddTaskExDb_in))
@@ -4369,16 +4356,9 @@ namespace IngestTaskPlugin.Managers
                         string.IsNullOrEmpty(ContentMeta) ? ConverTaskContentMetaString(taskinfo.ContentMeta, opType.otAdd) : ContentMeta,
                         string.IsNullOrEmpty(MatiralMeta) ? ConverTaskMaterialMetaString(taskinfo.MaterialMeta) : MatiralMeta,
                         string.IsNullOrEmpty(PlanningMeta) ? ConverTaskPlanningMetaString(taskinfo.PlanningMeta) : PlanningMeta,
+                        string.IsNullOrEmpty(SplitMeta) ? ConvertTaskSplitMetaString(taskinfo.SplitMeta, taskinfo.TaskContent.ChannelId) : SplitMeta,
                         null);
                         //return _mapper.Map<TaskContentResponse>(back);
-                        if (back.Taskid > 0)
-                        {
-                            string splitMeta = ConvertTaskSplitMetaString(taskinfo.SplitMeta, back.Channelid ?? -1);
-                            if (!string.IsNullOrEmpty(splitMeta))
-                            {
-                                await Store.UpdateTaskMetaDataAsync(back.Taskid, MetaDataType.emSplitData, splitMeta);
-                            }
-                        }
 
                         return back;
                     }
@@ -4540,18 +4520,9 @@ namespace IngestTaskPlugin.Managers
                 string.IsNullOrEmpty(ContentMeta) ? ConverTaskContentMetaString(taskinfo.ContentMeta, opType.otAdd) : ContentMeta,
                 string.IsNullOrEmpty(MatiralMeta) ? ConverTaskMaterialMetaString(taskinfo.MaterialMeta) : MatiralMeta,
                 string.IsNullOrEmpty(PlanningMeta) ? ConverTaskPlanningMetaString(taskinfo.PlanningMeta) : PlanningMeta,
+                string.IsNullOrEmpty(SplitMeta) ? ConvertTaskSplitMetaString(taskinfo.SplitMeta, taskinfo.TaskContent.ChannelId) : SplitMeta,
                 null);
                 //taskinfo.TaskContent.
-
-                if (back.Taskid > 0)
-                {
-                    string splitMeta = ConvertTaskSplitMetaString(taskinfo.SplitMeta, back.Channelid ?? -1);
-                    if (!string.IsNullOrEmpty(splitMeta))
-                    {
-                        await Store.UpdateTaskMetaDataAsync(back.Taskid, MetaDataType.emSplitData, splitMeta);
-                    }
-                    //存metadata
-                }
 
                 //return _mapper.Map<TaskContentResponse>(back);
                 return back;
