@@ -23,6 +23,10 @@ namespace OrleansNotifyPlugin
         public OrleansNotify(IClusterClient client)
         {
             Client = client;
+            if (client == null)
+            {
+                Logger.Error("ingesttask cofig error");
+            }
         }
 
         public void ActionNotify(object theClock, NotifyArgs ti)
@@ -32,7 +36,7 @@ namespace OrleansNotifyPlugin
             {
                 try
                 {
-                    if (!Client.IsInitialized)
+                    if (Client != null && !Client.IsInitialized)
                     {
                         Client.Connect().Wait();
                     }

@@ -24,19 +24,23 @@ namespace OrleansNotifyPlugin
         private bool _disposed;
         public OrleansClientService(ILoggerProvider loggerProvider)
         {
-            Client = new ClientBuilder()
-            .Configure<ClusterOptions>(options =>
+            if (ApplicationContext.Current.IngestTask != null)
             {
-                options.ClusterId = Cluster.ClusterId;
-                options.ServiceId = Cluster.ServiceId;
-            })
-            .UseStaticClustering(ApplicationContext.Current.IngestTask)
-            .Configure<GatewayOptions>(opts => opts.GatewayListRefreshPeriod = TimeSpan.FromMinutes(3))
-            .ConfigureApplicationParts(
-                    parts => parts
-                        .AddApplicationPart(typeof(IDispatcherGrain).Assembly).WithReferences())
-            //.AddSimpleMessageStreamProvider(StreamProviderName.Default);
-            .Build();
+                Client = new ClientBuilder()
+                .Configure<ClusterOptions>(options =>
+                {
+                    options.ClusterId = Cluster.ClusterId;
+                    options.ServiceId = Cluster.ServiceId;
+                })
+                .UseStaticClustering(ApplicationContext.Current.IngestTask)
+                .Configure<GatewayOptions>(opts => opts.GatewayListRefreshPeriod = TimeSpan.FromMinutes(3))
+                .ConfigureApplicationParts(
+                        parts => parts
+                            .AddApplicationPart(typeof(IDispatcherGrain).Assembly).WithReferences())
+                //.AddSimpleMessageStreamProvider(StreamProviderName.Default);
+                .Build();
+            }
+            
         }
 
         public virtual async Task StartAsync(CancellationToken cancellationToken)
