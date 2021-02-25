@@ -72,7 +72,7 @@ namespace IngestDB
                 .AddControllers(option => {
                     option.Filters.Add(typeof(IngestAuthentication));
                 })
-                .SetCompatibilityVersion(CompatibilityVersion.Version_3_0)
+                //.SetCompatibilityVersion(CompatibilityVersion.Version_3_0)
                 .AddNewtonsoftJson(opt =>
                 {
                     opt.SerializerSettings.ContractResolver = new ShouldSerializeContractResolver();
