@@ -13,7 +13,7 @@
     <OutputPath>..\BinU</OutputPath>
   </PropertyGroup>
 
-  <ItemGroup>
+  <ItemGroup> 
     <Compile Remove="wwwroot\**" />
     <Content Remove="wwwroot\**" />
     <EmbeddedResource Remove="wwwroot\**" />
