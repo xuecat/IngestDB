@@ -1455,7 +1455,10 @@ namespace IngestDevicePlugin.Controllers.v2
             }
             return response;
         }
-    
+
+        [HttpGet("area/{channelid}/name")]
+        //device有点特殊，做了监听端口的所以不能全类检验
+        [ApiExplorerSettings(GroupName = "v2")]
         public async Task<ResponseMessage<Models.DbpArea>> GetAreaNameByChannelId(int channelid)
         {
             ResponseMessage<Models.DbpArea> response = new ResponseMessage<Models.DbpArea>();
