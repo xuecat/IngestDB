@@ -1188,9 +1188,8 @@ namespace IngestTaskPlugin.Controllers.v2
                     {
                         Logger.Error("SetGlobalState modtask error");
                     }
-
-                    Task.Run(() => { _clock.Value.InvokeNotify(GlobalStateName.MODTASK, NotifyPlugin.NotifyTask, NotifyAction.STOPTASK, task ); });
                 }
+                Task.Run(() => { _clock.Value.InvokeNotify(GlobalStateName.MODTASK, NotifyPlugin.NotifyTask, NotifyAction.STOPTASK, task); });
             }
             catch (Exception e)
             {
