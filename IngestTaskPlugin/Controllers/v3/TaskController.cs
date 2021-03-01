@@ -205,9 +205,9 @@ namespace IngestTaskPlugin.Controllers.v3
                     //{
                     //    Logger.Error("SetGlobalState modtask error");
                     //}
-
-                    Task.Run(() => { _clock.Value.InvokeNotify(GlobalStateName.ADDTASK, NotifyPlugin.Kafka, NotifyAction.ADDTASK, addTask); });
                 }
+                Task.Run(() => { _clock.Value.InvokeNotify(GlobalStateName.ADDTASK, NotifyPlugin.Kafka, NotifyAction.ADDTASK, addTask); });
+
             }
             catch (Exception e)
             {
@@ -259,9 +259,9 @@ namespace IngestTaskPlugin.Controllers.v3
                     //{
                     //    Logger.Error("SetGlobalState modtask error");
                     //}
-
-                    Task.Run(() => { _clock.Value.InvokeNotify(GlobalStateName.MODTASK, NotifyPlugin.Kafka, NotifyAction.MODIFYTASK, addTask); });
                 }
+
+                Task.Run(() => { _clock.Value.InvokeNotify(GlobalStateName.MODTASK, NotifyPlugin.Kafka, NotifyAction.MODIFYTASK, addTask); });
             }
             catch (Exception e)
             {
@@ -647,7 +647,7 @@ namespace IngestTaskPlugin.Controllers.v3
                 if ((DateTimeFormat.DateTimeFromString(req.Begin) - DateTime.Now).TotalSeconds < 120)
                     await _taskManage.UpdateComingTasks();
 
-                if (ApplicationContext.Current.GlobalNotify && _globalInterface != null)
+                if (_globalInterface != null)
                 {
                     GlobalInternals re = new GlobalInternals() { Funtype = IngestDBCore.GlobalInternals.FunctionType.SetGlobalState, State = GlobalStateName.MODTASK };
                     var response1 = await _globalInterface.Value.SubmitGlobalCallBack(re);
@@ -791,15 +791,15 @@ namespace IngestTaskPlugin.Controllers.v3
                     {
                         Logger.Error("SetGlobalState modtask error");
                     }
+                }
 
-                    if (task == null)
-                    {
-                        Task.Run(() => { _clock.Value.InvokeNotify(GlobalStateName.DELTASK, NotifyPlugin.NotifyTask, NotifyAction.DELETETASK, new DbpTask() { Taskid = taskid }); });
-                    }
-                    else
-                    {
-                        Task.Run(() => { _clock.Value.InvokeNotify(GlobalStateName.MODTASK, NotifyPlugin.NotifyTask, NotifyAction.DELETETASK, task); });
-                    }
+                if (task == null)
+                {
+                    Task.Run(() => { _clock.Value.InvokeNotify(GlobalStateName.DELTASK, NotifyPlugin.NotifyTask, NotifyAction.DELETETASK, new DbpTask() { Taskid = taskid }); });
+                }
+                else
+                {
+                    Task.Run(() => { _clock.Value.InvokeNotify(GlobalStateName.MODTASK, NotifyPlugin.NotifyTask, NotifyAction.DELETETASK, task); });
                 }
 
                 Response.Ext = taskid;
@@ -910,7 +910,7 @@ namespace IngestTaskPlugin.Controllers.v3
 
                 Response.Ext = task.Taskid;
 
-                if (ApplicationContext.Current.GlobalNotify && _globalInterface != null)
+                if (_globalInterface != null)
                 {
                     GlobalInternals re = new GlobalInternals() { Funtype = IngestDBCore.GlobalInternals.FunctionType.SetGlobalState, State = GlobalStateName.MODTASK };
                     var response1 = await _globalInterface.Value.SubmitGlobalCallBack(re);
@@ -964,7 +964,7 @@ namespace IngestTaskPlugin.Controllers.v3
                 var tieupTask = await _taskManage.StartTieupTask(taskid);
                 Response.Ext = (tieupTask != null && tieupTask.Tasktype == (int)TaskType.TT_TIEUP) ? true : false;
 
-                if (ApplicationContext.Current.GlobalNotify && _globalInterface != null)
+                if (_globalInterface != null)
                 {
                     GlobalInternals re = new GlobalInternals() { Funtype = IngestDBCore.GlobalInternals.FunctionType.SetGlobalState, State = GlobalStateName.MODTASK };
                     var response1 = await _globalInterface.Value.SubmitGlobalCallBack(re);
