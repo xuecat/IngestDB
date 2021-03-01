@@ -24,7 +24,7 @@ namespace IngestDevicePlugin.Models
         [Column("DEVICECTRLIP", TypeName = "varchar(11)")]
         public string DeviceCtrlIp { get; set; }
         [Column("DEVICECTRLPORT", TypeName = "int(11)")]
-        public string DeviceCtrlPort { get; set; }
+        public int DeviceCtrlPort { get; set; }
 
     }
 }
