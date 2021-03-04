@@ -47,7 +47,10 @@ namespace IngestDB
                 LogFileTemplate = LogFileTemplates.PerDayDirAndLogger,
                 LogContentTemplate = LogLayoutTemplates.SimpleLayout,
                 DeleteDay = maxDays.ToString(),
+#if DEBUG
+#else
                 TargetConsole = true
+#endif
             });
             LoggerManager.SetLoggerAboveLevels(logLevel);
 
