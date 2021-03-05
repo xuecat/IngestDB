@@ -78,9 +78,20 @@ namespace IngestDB
                     tempExcption = (System.Net.Sockets.SocketException)e.Exception;
                 }
 
-                if (tempExcption == null || (tempExcption.ErrorCode != 125 && tempExcption.ErrorCode != 111 && tempExcption.ErrorCode != 104))
+                if (tempExcption == null ||
+                    (tempExcption.ErrorCode != 125 && tempExcption.ErrorCode != 111
+                    && tempExcption.ErrorCode != 104 && tempExcption.ErrorCode != 10054))
                 {
-                    ExceptionLogger.Error("Exception: {0} ", e.Exception.ToString());
+
+                    if (e.Exception is ObjectDisposedException)
+                    {
+                        var info = e.Exception as ObjectDisposedException;
+                        if (info.ObjectName == "System.Net.Sockets.Socket")
+                        {
+                            return;
+                        }
+                    }
+                    ExceptionLogger.Error("Exception: {0} {1}", e.Exception.ToString());
                 }
             }
         }
