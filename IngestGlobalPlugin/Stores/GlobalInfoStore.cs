@@ -249,13 +249,7 @@ namespace IngestGlobalPlugin.Stores
 
                 return ret;
             }
-            catch (MySqlException ex)
-            {
-                Logger.Error(ex.ToString());
-                string message = "UnLockObject";
-                SobeyRecException.ThrowSelfNoParam(message, GlobalDictionary.GLOBALDICT_CODE_IN_SETUNLOCKOBJECT_READ_DATA_FAILED, Logger, ex);
-                return false;
-            }
+            
             catch (System.Exception ex)
             {
                 Logger.Error(ex.ToString());
@@ -510,11 +504,9 @@ namespace IngestGlobalPlugin.Stores
                 }
 
             }
-            catch (MySqlException ex)
+            catch (Exception ex)
             {
-                Logger.Error("UnLock发生异常:" + ex.Message);
-                string message = "UnLock发生异常";
-                SobeyRecException.ThrowSelfNoParam(message, GlobalDictionary.GLOBALDICT_CODE_EXECUTE_COMMAND_ERROR, Logger, ex);
+                Logger.Error(ex.Message);
             }
         }
 
@@ -569,7 +561,7 @@ namespace IngestGlobalPlugin.Stores
 
                 return retLst.ToList();
             }
-            catch (MySqlException ex)
+            catch (Exception ex)
             {
                 Logger.Error("LockSelect 发生异常:" + ex.Message);
                 string message = "LockSelect";
@@ -638,14 +630,8 @@ namespace IngestGlobalPlugin.Stores
                 return ret;
 
             }
-            catch (MySqlException ex)
-            {
-                Logger.Error(ex.ToString());
-                string message = "UnLockObject";
-                SobeyRecException.ThrowSelfNoParam(message, GlobalDictionary.GLOBALDICT_CODE_IN_SETUNLOCKOBJECT_READ_DATA_FAILED, Logger, ex);
-                return false;
-            }
-            catch (System.Exception ex)
+            
+            catch (Exception ex)
             {
                 Logger.Error(ex.ToString());
                 string message = "UnLockObject";

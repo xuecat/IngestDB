@@ -20,6 +20,7 @@ using Microsoft.Extensions.Hosting;
 using Microsoft.OpenApi.Models;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Serialization;
+using Sobey.Core.Xml;
 using Swashbuckle.AspNetCore.SwaggerGen;
 
 namespace IngestDB
@@ -265,6 +266,14 @@ namespace IngestDB
             {
                 if (item.Attribute("module").Value.CompareTo("INGESTDB") == 0)
                 {
+                    string ip = string.Empty;
+                    if (item.IsExistsChild("Server"))
+                    {
+                        ip = item.Element("Server").Value;
+                    }
+                    else
+                        ip = vip;
+
                     return string.Format(
                 "Server={0};Port={4};Database={1};Uid={2};Pwd={3};Pooling=true;minpoolsize=0;maxpoolsize=40;SslMode=none;",//ConnectionReset=True;ConnectionLifeTime=120",
                 vip, item.Element("Instance").Value,
