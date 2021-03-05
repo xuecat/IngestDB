@@ -276,7 +276,7 @@ namespace IngestDB
 
                     return string.Format(
                 "Server={0};Port={4};Database={1};Uid={2};Pwd={3};Pooling=true;minpoolsize=0;maxpoolsize=40;SslMode=none;",//ConnectionReset=True;ConnectionLifeTime=120",
-                vip, item.Element("Instance").Value,
+                ip, item.Element("Instance").Value,
                 item.Element("Username").Value,
                 IngestDBCore.Tool.Base64SQL.Base64_Decode(item.Element("Password").Value),
                 item.Element("Port").Value);
