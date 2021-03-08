@@ -2756,7 +2756,13 @@ namespace IngestTaskPlugin.Managers
                 && findtask.SyncState == (int)syncState.ssSync)
             {
                 await Store.UnLockTask(findtask, true);
-                SobeyRecException.ThrowSelfNoParam("ModifyTask findtask empty", GlobalDictionary.GLOBALDICT_CODE_TASK_IS_LOCKED, Logger, null);
+                SobeyRecException.ThrowSelfNoParam("ModifyTask error", GlobalDictionary.GLOBALDICT_CODE_TASK_IS_LOCKED, Logger, null);
+            }
+
+            if (findtask.State == (int)taskState.tsComplete 
+                || findtask.State == (int)taskState.tsDelete)
+            {
+                SobeyRecException.ThrowSelfNoParam("", GlobalDictionary.GLOBALDICT_CODE_CANNOTMODIFYTASK_WHERE_STOPING, Logger, null);
             }
 
             //如果是改变了信号源或者通道，判断一下信号源和通道是不是匹配的
@@ -2804,6 +2810,7 @@ namespace IngestTaskPlugin.Managers
                 }
             }
 
+           
             //如果是手动任务改成自动任务，强行改成已调度已同步状态
             if (findtask.Tasktype == (int)TaskType.TT_MANUTASK && taskModify.TaskType == TaskType.TT_NORMAL)
             {
