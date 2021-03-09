@@ -91,7 +91,7 @@ namespace IngestDB
                             return;
                         }
                     }
-                    ExceptionLogger.Error("Exception: {0} {1}", e.Exception.ToString());
+                    ExceptionLogger.Error("Exception: {0}", e.Exception.ToString());
                 }
             }
         }
