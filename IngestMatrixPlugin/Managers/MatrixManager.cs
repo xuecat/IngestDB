@@ -27,7 +27,7 @@ namespace IngestMatrixPlugin.Managers
             Store = store;
             _mapper = mapper ?? throw new ArgumentNullException(nameof(mapper));
             _deviceInterface = new Lazy<IIngestDeviceInterface>(() => services.GetRequiredService<IIngestDeviceInterface>()); ;
-            _clock = clock;
+            _clock = clock.Register(services);
         }
 
         private readonly ILogger Logger = LoggerManager.GetLogger("Matrixinfo");
