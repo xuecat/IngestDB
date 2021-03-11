@@ -545,7 +545,7 @@ namespace IngestTaskPlugin.Controllers.v3
                     Response.Msg = $"{System.Reflection.MethodBase.GetCurrentMethod().DeclaringType.FullName}:error info: not find data!";
                 }
 
-                Logger.Info($"GetChannelCapturingTaskInfo v3 channelid : {channelid} , newest : {newest} , result : {Newtonsoft.Json.JsonConvert.SerializeObject(Response.Ext)}");
+                //Logger.Info($"GetChannelCapturingTaskInfo v3 channelid : {channelid} , newest : {newest} , result : {Newtonsoft.Json.JsonConvert.SerializeObject(Response.Ext)}");
             }
             catch (Exception e)
             {
