@@ -29,11 +29,11 @@ namespace IngestDevicePlugin.Controllers.v3
         private readonly ILogger Logger = LoggerManager.GetLogger("DeviceInfo3");
         private readonly DeviceManager _deviceManage;
         //private readonly RestClient _restClient;
-        private readonly Lazy<NotifyClock> _clock;
+        private readonly NotifyClock _clock;
         public DeviceController(DeviceManager task, IServiceProvider services)
         { 
             _deviceManage = task;
-            _clock = new Lazy<NotifyClock>(() => services.GetRequiredService<NotifyClock>());
+            _clock = services.GetRequiredService<NotifyClock>().Register(services);
         }
 
         #region Device
@@ -800,7 +800,7 @@ namespace IngestDevicePlugin.Controllers.v3
                 {
                     Task.Run(() =>
                     {
-                        _clock.Value.InvokeNotify(notifyaction, NotifyPlugin.Orleans,
+                        _clock.InvokeNotify(notifyaction, NotifyPlugin.Orleans,
                                                     NotifyAction.STOPGROUPTASK, data);
                     });
                 }
