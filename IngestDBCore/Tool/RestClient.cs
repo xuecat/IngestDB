@@ -27,7 +27,7 @@ namespace IngestDBCore.Tool
             _httpClient.DefaultRequestHeaders.ConnectionClose = false;
             _httpClient.Timeout = TimeSpan.FromSeconds(15);
             _httpClient.DefaultRequestHeaders.Accept.Add(new MediaTypeWithQualityHeaderValue("application/json"));
-            _httpClient.DefaultRequestHeaders.Add("sobeyhive-http-system", "INGESTSERVER");
+            _httpClient.DefaultRequestHeaders.Add("sobeyhive-http-system", "INGEST");
             _httpClient.DefaultRequestHeaders.Add("sobeyhive-http-site", "S1");
             _httpClient.DefaultRequestHeaders.Add("sobeyhive-http-tool", "INGESTSERVER");
         }
@@ -39,7 +39,7 @@ namespace IngestDBCore.Tool
             _httpClient.DefaultRequestHeaders.ConnectionClose = false;
             _httpClient.Timeout = TimeSpan.FromSeconds(15);
             _httpClient.DefaultRequestHeaders.Accept.Add(new MediaTypeWithQualityHeaderValue("application/json"));
-            _httpClient.DefaultRequestHeaders.Add("sobeyhive-http-system", "INGESTSERVER");
+            _httpClient.DefaultRequestHeaders.Add("sobeyhive-http-system", "INGEST");
             _httpClient.DefaultRequestHeaders.Add("sobeyhive-http-site", "S1");
             _httpClient.DefaultRequestHeaders.Add("sobeyhive-http-tool", "INGESTSERVER");
         }
@@ -139,7 +139,7 @@ namespace IngestDBCore.Tool
                 }
                 
                 url = CreateUrl(url, queryString);
-                //Logger.Debug("请求：{0} {1}", method, url);
+                Logger.Info("request：{0} {1}", method, url);
                 byte[] strData = Encoding.UTF8.GetBytes(json);
                 MemoryStream ms = new MemoryStream(strData);
                 using (StreamContent sc = new StreamContent(ms))
@@ -156,7 +156,7 @@ namespace IngestDBCore.Tool
                     var res = await client.PostAsync(url, sc).ConfigureAwait(true);
                     byte[] rData = await res.Content.ReadAsByteArrayAsync().ConfigureAwait(true);
                     string rJson = Encoding.UTF8.GetString(rData);
-                    //Logger.Debug("应答：\r\n{0}", rJson);
+                    Logger.Info("response：\r\n{0}", rJson);
                     response = JsonHelper.ToObject<TResponse>(rJson);
                     return response;
                 }
