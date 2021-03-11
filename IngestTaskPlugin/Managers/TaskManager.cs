@@ -4139,25 +4139,31 @@ namespace IngestTaskPlugin.Managers
                         }
 
                         string sClassify = string.Empty;
-                        if (taskinfo.ContentMeta.PeriodParam.Mode == 0)
+                        if (taskinfo.ContentMeta.PeriodParam != null)
                         {
-                            sClassify = "D";
-                        }
-                        else if (taskinfo.ContentMeta.PeriodParam.Mode == 1)
-                        {
-                            foreach (int item in taskinfo.ContentMeta.PeriodParam.Params)
+                            if (taskinfo.ContentMeta.PeriodParam.Mode == 0)
                             {
-                                sClassify += $"W{item}+";
+                                sClassify = "D";
                             }
-                        }
-                        else if (taskinfo.ContentMeta.PeriodParam.Mode == 2)
-                        {
-                            foreach (int item in taskinfo.ContentMeta.PeriodParam.Params)
+                            else if (taskinfo.ContentMeta.PeriodParam.Mode == 1)
                             {
-                                sClassify += $"M{item}+";
+                                foreach (int item in taskinfo.ContentMeta.PeriodParam.Params)
+                                {
+                                    sClassify += $"W{item}+";
+                                }
                             }
+                            else if (taskinfo.ContentMeta.PeriodParam.Mode == 2)
+                            {
+                                foreach (int item in taskinfo.ContentMeta.PeriodParam.Params)
+                                {
+                                    sClassify += $"M{item}+";
+                                }
+                            }
+                            taskinfo.TaskContent.Classify = sClassify;
                         }
-                        taskinfo.TaskContent.Classify = sClassify;
+                        else
+                            taskinfo.TaskContent.Classify = "A";
+                        
                     }
 
                     DateTime EndTime = DateTime.Now;
