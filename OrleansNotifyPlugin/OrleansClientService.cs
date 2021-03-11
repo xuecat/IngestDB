@@ -24,7 +24,7 @@ namespace OrleansNotifyPlugin
         private bool _disposed;
         public OrleansClientService(ILoggerProvider loggerProvider)
         {
-            if (ApplicationContext.Current.IngestTask != null)
+            try
             {
                 Client = new ClientBuilder()
                 .Configure<ClusterOptions>(options =>
@@ -32,7 +32,8 @@ namespace OrleansNotifyPlugin
                     options.ClusterId = Cluster.ClusterId;
                     options.ServiceId = Cluster.ServiceId;
                 })
-                .UseAdoNetClustering(opt => {
+                .UseAdoNetClustering(opt =>
+                {
                     opt.Invariant = "MySql.Data.MySqlClient";
                     opt.ConnectionString = ApplicationContext.Current.ConnectionString;
                 })
@@ -44,6 +45,12 @@ namespace OrleansNotifyPlugin
                 //.AddSimpleMessageStreamProvider(StreamProviderName.Default);
                 .Build();
             }
+            catch (Exception e)
+            {
+                Console.WriteLine(e.Message);
+            }
+                
+            
             
         }
 
