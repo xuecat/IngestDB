@@ -2361,14 +2361,14 @@ namespace IngestTaskPlugin.Managers
 
             var taskinfo = await Store.GetTaskAsync(a => a.Where(b => b.Taskid == req.TaskID));
 
-            Logger.Info($"CompleteSynTasks {req.DispatchState} {req.TaskID} {req.TaskState} {taskinfo.State} {req.SynState} {taskinfo.SyncState}");
-
             if (taskinfo == null)
             {
                 Logger.Error("CompleteSynTasks no find" + req.TaskID);
                 SobeyRecException.ThrowSelfNoParam("", GlobalDictionary.GLOBALDICT_CODE_TASK_ID_DOES_NOT_EXIST, Logger, null);
             }
-
+            
+            Logger.Info($"CompleteSynTasks {req.DispatchState} {req.TaskID} {req.TaskState} {taskinfo.State} {req.SynState} {taskinfo.SyncState}");
+            
             if (req.DispatchState >= 0)
             {
                 taskinfo.DispatchState = req.DispatchState;
