@@ -206,6 +206,7 @@ namespace IngestTaskPlugin.Controllers.v3
                     //    Logger.Error("SetGlobalState modtask error");
                     //}
                 }
+                Logger.Info($"AddRescheduleTaskByID v3 result : {taskid} ");
                 Task.Run(() => { _clock.Value.InvokeNotify(GlobalStateName.ADDTASK, NotifyPlugin.Kafka, NotifyAction.ADDTASK, addTask); });
 
             }
@@ -260,7 +261,7 @@ namespace IngestTaskPlugin.Controllers.v3
                     //    Logger.Error("SetGlobalState modtask error");
                     //}
                 }
-
+                Logger.Info($"RescheduleTaskChannelByID v3 result : {taskid} ");
                 Task.Run(() => { _clock.Value.InvokeNotify(GlobalStateName.MODTASK, NotifyPlugin.Kafka, NotifyAction.MODIFYTASK, addTask); });
             }
             catch (Exception e)
@@ -351,7 +352,7 @@ namespace IngestTaskPlugin.Controllers.v3
 
                 Response.Ext = await _taskManage.GetNeedSynTasksNew<TaskContentResponse>();
 
-                Logger.Info($"GetNeedSyncTasks v3 result : {Newtonsoft.Json.JsonConvert.SerializeObject(Response.Ext)} ");
+                //Logger.Info($"GetNeedSyncTasks v3 result : {Newtonsoft.Json.JsonConvert.SerializeObject(Response.Ext)} ");
             }
             catch (Exception e)
             {
@@ -696,7 +697,7 @@ namespace IngestTaskPlugin.Controllers.v3
             {
                 Response.Ext = await _taskManage.GetTaskSource(taskid);
 
-                Logger.Info($"GetTaskSourceById v3 taskid : {taskid} , result : {Newtonsoft.Json.JsonConvert.SerializeObject(Response.Ext)}");
+                //Logger.Info($"GetTaskSourceById v3 taskid : {taskid} , result : {Newtonsoft.Json.JsonConvert.SerializeObject(Response.Ext)}");
             }
             catch (Exception e)
             {
