@@ -38,7 +38,7 @@ namespace OrleansNotifyPlugin
                     opt.ConnectionString = ApplicationContext.Current.ConnectionString;
                 })
                 //.UseStaticClustering(ApplicationContext.Current.IngestTask)
-                .Configure<GatewayOptions>(opts => opts.GatewayListRefreshPeriod = TimeSpan.FromMinutes(3))
+                .Configure<GatewayOptions>(opts => opts.GatewayListRefreshPeriod = TimeSpan.FromSeconds(30))
                 .ConfigureApplicationParts(
                         parts => parts
                             .AddApplicationPart(typeof(IDispatcherGrain).Assembly).WithReferences())
