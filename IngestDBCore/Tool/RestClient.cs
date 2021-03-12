@@ -139,7 +139,7 @@ namespace IngestDBCore.Tool
                 }
                 
                 url = CreateUrl(url, queryString);
-                Logger.Info("request：{0} {1}", method, url);
+                //Logger.Info("request：{0} {1}", method, url);
                 byte[] strData = Encoding.UTF8.GetBytes(json);
                 MemoryStream ms = new MemoryStream(strData);
                 using (StreamContent sc = new StreamContent(ms))

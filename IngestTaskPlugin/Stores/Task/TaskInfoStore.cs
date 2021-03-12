@@ -3223,7 +3223,12 @@ namespace IngestTaskPlugin.Stores
 
         public int GetNextValId(string value)
         {
-            return Context.DbpTask.Select(x => IngestTaskDBContext.next_val(value)).FirstOrDefault();
+            var f = Context.DbpTask.Select(x => IngestTaskDBContext.next_val(value)).FirstOrDefault();
+            if (f > 0)
+            {
+                return f;
+            }
+            return ++f;
         }
 
         public async Task<bool> AddTaskSource(DbpTaskSource taskSource)

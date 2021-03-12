@@ -615,7 +615,12 @@ namespace IngestGlobalPlugin.Stores
 
         public int GetNextValId(string value)
         {
-            return Context.DbpMaterial.Select(x => IngestGlobalDBContext.next_val(value)).FirstOrDefault();
+            int f = Context.DbpGlobal.Select(x => IngestGlobalDBContext.next_val(value)).FirstOrDefault();
+            if (f > 0)
+            {
+                return f;
+            }
+            return ++f;
         }
     }
 }
