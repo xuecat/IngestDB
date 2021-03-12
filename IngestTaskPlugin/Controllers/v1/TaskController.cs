@@ -23,13 +23,13 @@ namespace IngestTaskPlugin.Controllers.v1
     {
         private readonly ILogger Logger = LoggerManager.GetLogger("TaskInfo");
         private readonly TaskManager _taskManage;
-        private readonly Lazy<NotifyClock> _clock;
+        private readonly NotifyClock _clock;
         private readonly Lazy<IIngestGlobalInterface> _globalInterface;
         //private readonly IMapper _mapper;
 
         public TaskController(TaskManager task, IServiceProvider services/*, IMapper mapper*/)
         {
-            _clock = new Lazy<NotifyClock>(() => services.GetRequiredService<NotifyClock>());
+            _clock = services.GetRequiredService<NotifyClock>().Register(services);
             _taskManage = task;
             _globalInterface = ApplicationContext.Current.GlobalNotify ? new Lazy<IIngestGlobalInterface>(() => services.GetRequiredService<IIngestGlobalInterface>()) : null;
             //_mapper = mapper ?? throw new ArgumentNullException(nameof(mapper));
@@ -339,7 +339,7 @@ namespace IngestTaskPlugin.Controllers.v1
 
                 foreach (var item in Response.taskResults)
                 {
-                    Task.Run(() => { _clock.Value.InvokeNotify(GlobalStateName.MODTASK, NotifyPlugin.NotifyTask, NotifyAction.STOPGROUPTASK, new DbpTask { Taskid = item }); });
+                    Task.Run(() => { _clock.InvokeNotify(GlobalStateName.MODTASK, NotifyPlugin.NotifyTask, NotifyAction.STOPGROUPTASK, new DbpTask { Taskid = item }); });
                 }
 
                 return Response;
@@ -391,7 +391,7 @@ namespace IngestTaskPlugin.Controllers.v1
 
                 foreach (var item in Response.taskResults)
                 {
-                    Task.Run(() => { _clock.Value.InvokeNotify(GlobalStateName.MODTASK, NotifyPlugin.NotifyTask, NotifyAction.DELETEGROUPTASK, new DbpTask() { Taskid = item }); });
+                    Task.Run(() => { _clock.InvokeNotify(GlobalStateName.MODTASK, NotifyPlugin.NotifyTask, NotifyAction.DELETEGROUPTASK, new DbpTask() { Taskid = item }); });
                 }
 
                 return Response;
@@ -465,7 +465,7 @@ namespace IngestTaskPlugin.Controllers.v1
 
                 }
 
-                Task.Run(() => { _clock.Value.InvokeNotify(GlobalStateName.ADDTASK, NotifyPlugin.NotifyTask, NotifyAction.ADDTASK, f); });
+                Task.Run(() => { _clock.InvokeNotify(GlobalStateName.ADDTASK, NotifyPlugin.NotifyTask, NotifyAction.ADDTASK, f); });
 
                 return Response;
             }
@@ -557,7 +557,7 @@ namespace IngestTaskPlugin.Controllers.v1
 
                 }
 
-                Task.Run(() => { _clock.Value.InvokeNotify(GlobalStateName.ADDTASK, NotifyPlugin.NotifyTask, NotifyAction.ADDTASK, f); });
+                Task.Run(() => { _clock.InvokeNotify(GlobalStateName.ADDTASK, NotifyPlugin.NotifyTask, NotifyAction.ADDTASK, f); });
 
                 return Response;
             }
@@ -659,7 +659,7 @@ namespace IngestTaskPlugin.Controllers.v1
                    
                 }
 
-                Task.Run(() => { _clock.Value.InvokeNotify(GlobalStateName.ADDTASK, NotifyPlugin.NotifyTask, NotifyAction.ADDTASK, f);});
+                Task.Run(() => { _clock.InvokeNotify(GlobalStateName.ADDTASK, NotifyPlugin.NotifyTask, NotifyAction.ADDTASK, f);});
 
                 return Response;
             }
@@ -787,7 +787,7 @@ namespace IngestTaskPlugin.Controllers.v1
 
                 }
 
-                Task.Run(() => { _clock.Value.InvokeNotify(GlobalStateName.MODTASK, NotifyPlugin.NotifyTask, NotifyAction.MODIFYTASK, modifyTask); });
+                Task.Run(() => { _clock.InvokeNotify(GlobalStateName.MODTASK, NotifyPlugin.NotifyTask, NotifyAction.MODIFYTASK, modifyTask); });
 
                 return Response;
             }
@@ -832,7 +832,7 @@ namespace IngestTaskPlugin.Controllers.v1
 
                 }
 
-                Task.Run(() => { _clock.Value.InvokeNotify(GlobalStateName.MODTASK, NotifyPlugin.NotifyTask, NotifyAction.MODIFYTASK, modifyTask); });
+                Task.Run(() => { _clock.InvokeNotify(GlobalStateName.MODTASK, NotifyPlugin.NotifyTask, NotifyAction.MODIFYTASK, modifyTask); });
 
                 return Response;
             }
@@ -901,7 +901,7 @@ namespace IngestTaskPlugin.Controllers.v1
 
                 }
 
-                Task.Run(() => { _clock.Value.InvokeNotify(GlobalStateName.MODTASK, NotifyPlugin.NotifyTask, NotifyAction.MODIFYTASK, modifyTask); });
+                Task.Run(() => { _clock.InvokeNotify(GlobalStateName.MODTASK, NotifyPlugin.NotifyTask, NotifyAction.MODIFYTASK, modifyTask); });
 
                 return Response;
             }
@@ -1031,7 +1031,7 @@ namespace IngestTaskPlugin.Controllers.v1
                     }
                 }
 
-                Task.Run(() => { _clock.Value.InvokeNotify(GlobalStateName.MODTASK, NotifyPlugin.NotifyTask, NotifyAction.STOPTASK, task); });
+                Task.Run(() => { _clock.InvokeNotify(GlobalStateName.MODTASK, NotifyPlugin.NotifyTask, NotifyAction.STOPTASK, task); });
 
                 return Response;
             }
@@ -1083,7 +1083,7 @@ namespace IngestTaskPlugin.Controllers.v1
                     }
                 }
 
-                Task.Run(() => { _clock.Value.InvokeNotify(GlobalStateName.MODTASK, NotifyPlugin.NotifyTask, NotifyAction.STOPTASK, task); });
+                Task.Run(() => { _clock.InvokeNotify(GlobalStateName.MODTASK, NotifyPlugin.NotifyTask, NotifyAction.STOPTASK, task); });
 
                 return Response;
             }
@@ -1111,7 +1111,7 @@ namespace IngestTaskPlugin.Controllers.v1
                 int result = await _taskManage.SetTaskState(nTaskID, nState);
                 if(result > 0)
                 {
-                    Task.Run(() => { _clock.Value.InvokeNotify(GlobalStateName.MODTASK, NotifyPlugin.NotifyTask, NotifyAction.MODIFYTASKSTATE, new DbpTask() { Taskid = nTaskID, State = nState } ); });
+                    Task.Run(() => { _clock.InvokeNotify(GlobalStateName.MODTASK, NotifyPlugin.NotifyTask, NotifyAction.MODIFYTASKSTATE, new DbpTask() { Taskid = nTaskID, State = nState } ); });
 
                 }
                 return Response;
@@ -1206,7 +1206,7 @@ namespace IngestTaskPlugin.Controllers.v1
                 int result = await _taskManage.TrimTaskBeginTime(nTaskID, strStartTime);
                 if(result > 0)
                 {
-                    Task.Run(() => { _clock.Value.InvokeNotify(GlobalStateName.MODTASK, NotifyPlugin.NotifyTask, NotifyAction.MODIFYTASKSTARTTIME, new DbpTask() { Taskid = nTaskID, Starttime = DateTimeFormat.DateTimeFromString(strStartTime) } ); });
+                    Task.Run(() => { _clock.InvokeNotify(GlobalStateName.MODTASK, NotifyPlugin.NotifyTask, NotifyAction.MODIFYTASKSTARTTIME, new DbpTask() { Taskid = nTaskID, Starttime = DateTimeFormat.DateTimeFromString(strStartTime) } ); });
                 }
             }
             catch (Exception e)//其他未知的异常，写异常日志
@@ -1288,11 +1288,11 @@ namespace IngestTaskPlugin.Controllers.v1
 
                 if (task == null)
                 {
-                    Task.Run(() => { _clock.Value.InvokeNotify(GlobalStateName.DELTASK, NotifyPlugin.NotifyTask, NotifyAction.DELETETASK, new DbpTask() { Taskid = nTaskID }); });
+                    Task.Run(() => { _clock.InvokeNotify(GlobalStateName.DELTASK, NotifyPlugin.NotifyTask, NotifyAction.DELETETASK, new DbpTask() { Taskid = nTaskID }); });
                 }
                 else
                 {
-                    Task.Run(() => { _clock.Value.InvokeNotify(GlobalStateName.MODTASK, NotifyPlugin.NotifyTask, NotifyAction.DELETETASK, task); });
+                    Task.Run(() => { _clock.InvokeNotify(GlobalStateName.MODTASK, NotifyPlugin.NotifyTask, NotifyAction.DELETETASK, task); });
                 }
 
             }
@@ -1570,7 +1570,7 @@ namespace IngestTaskPlugin.Controllers.v1
 
                 }
 
-                Task.Run(() => { _clock.Value.InvokeNotify(GlobalStateName.MODTASK, NotifyPlugin.NotifyTask, NotifyAction.MODIFYTASKCOOPTYPE, new DbpTask() { Taskid = nTaskID, Backtype = emCoopType }); });
+                Task.Run(() => { _clock.InvokeNotify(GlobalStateName.MODTASK, NotifyPlugin.NotifyTask, NotifyAction.MODIFYTASKCOOPTYPE, new DbpTask() { Taskid = nTaskID, Backtype = emCoopType }); });
 
                 return back;
             }
@@ -1778,7 +1778,7 @@ namespace IngestTaskPlugin.Controllers.v1
 
                 }
 
-                Task.Run(() => { _clock.Value.InvokeNotify(GlobalStateName.MODTASK, NotifyPlugin.NotifyTask, NotifyAction.MODIFYTASK, tieupTask); });
+                Task.Run(() => { _clock.InvokeNotify(GlobalStateName.MODTASK, NotifyPlugin.NotifyTask, NotifyAction.MODIFYTASK, tieupTask); });
 
                 return Response;
             }
@@ -1886,7 +1886,7 @@ namespace IngestTaskPlugin.Controllers.v1
 
                 }
 
-                Task.Run(() => { _clock.Value.InvokeNotify(GlobalStateName.MODTASK, NotifyPlugin.NotifyTask, NotifyAction.MODIFYPERIODCTASK, newTask); });
+                Task.Run(() => { _clock.InvokeNotify(GlobalStateName.MODTASK, NotifyPlugin.NotifyTask, NotifyAction.MODIFYPERIODCTASK, newTask); });
 
                 return Response;
             }
@@ -2098,8 +2098,8 @@ namespace IngestTaskPlugin.Controllers.v1
 
                 }
 
-                Task.Run(() => { _clock.Value.InvokeNotify(GlobalStateName.MODTASK, NotifyPlugin.NotifyTask, NotifyAction.STOPTASK, new DbpTask() { Taskid = nOldTaskID, Endtime = DateTimeFormat.DateTimeFromString(strStartTime) }); });
-                Task.Run(() => { _clock.Value.InvokeNotify(GlobalStateName.ADDTASK, NotifyPlugin.NotifyTask, NotifyAction.ADDTASK, task); });
+                Task.Run(() => { _clock.InvokeNotify(GlobalStateName.MODTASK, NotifyPlugin.NotifyTask, NotifyAction.STOPTASK, new DbpTask() { Taskid = nOldTaskID, Endtime = DateTimeFormat.DateTimeFromString(strStartTime) }); });
+                Task.Run(() => { _clock.InvokeNotify(GlobalStateName.ADDTASK, NotifyPlugin.NotifyTask, NotifyAction.ADDTASK, task); });
 
                 return Response;
             }
@@ -2177,7 +2177,7 @@ namespace IngestTaskPlugin.Controllers.v1
 
                 }
 
-                Task.Run(() => { _clock.Value.InvokeNotify(GlobalStateName.ADDTASK, NotifyPlugin.NotifyTask, NotifyAction.ADDTASK, f); });
+                Task.Run(() => { _clock.InvokeNotify(GlobalStateName.ADDTASK, NotifyPlugin.NotifyTask, NotifyAction.ADDTASK, f); });
 
                 Response.extention = f.Taskid;
                 return Response;
