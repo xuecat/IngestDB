@@ -584,7 +584,8 @@ namespace IngestTaskPlugin.Controllers.v3
 
             try
             {
-                Response.Ext = await _taskManage.CreateNewTaskFromPeriodicTask<TaskContentResponse>(taskid);
+                var addtask = await _taskManage.CreateNewTaskFromPeriodicTask<DbpTask>(taskid);
+                Response.Ext = _mapper.Map<TaskContentResponse>(addtask);
                 if (Response.Ext == null)
                 {
                     Response.Code = ResponseCodeDefines.NotFound;
@@ -597,7 +598,12 @@ namespace IngestTaskPlugin.Controllers.v3
                     await _taskManage.UpdateCustomMetadataAsync(Response.Ext.TaskId, custom.Metadata);
                 }
 
-                //await _taskManage.
+                var modifytask = await _taskManage.GetTaskInfoByID<DbpTask>(taskid, 0);
+                Task.Run(() =>
+                {
+                    _clock.InvokeNotify(GlobalStateName.MODTASK, NotifyPlugin.NotifyTask, NotifyAction.MODIFYPERIODCTASK, modifytask);
+                    _clock.InvokeNotify(GlobalStateName.ADDTASK, NotifyPlugin.NotifyTask, NotifyAction.ADDTASK, addtask);
+                });
             }
             catch (Exception e)
             {
