@@ -576,32 +576,31 @@ namespace IngestTaskPlugin.Controllers.v3
         /// <returns>分裂后的任务</returns>
         [HttpPost("periodic/{taskid}")]
         [ApiExplorerSettings(GroupName = "v3.0")]
-        public async Task<ResponseMessage<TaskContentResponse>> CreatePeriodicTask([FromRoute, BindRequired] int taskid)
+        public async Task<ResponseMessage<DbpTask>> CreatePeriodicTask([FromRoute, BindRequired] int taskid)
         {
             Logger.Info($"CreatePeriodicTask  taskid :{Request.Host.Value} {taskid}");
 
-            var Response = new ResponseMessage<TaskContentResponse>();
+            var Response = new ResponseMessage<DbpTask>();
 
             try
             {
                 var addtask = await _taskManage.CreateNewTaskFromPeriodicTask<DbpTask>(taskid);
-                Response.Ext = _mapper.Map<TaskContentResponse>(addtask);
-                if (Response.Ext == null)
+
+                if (addtask == null)
                 {
                     Response.Code = ResponseCodeDefines.NotFound;
                     Response.Msg = $"{System.Reflection.MethodBase.GetCurrentMethod().DeclaringType.FullName}:error info: not find data!";
                     return Response;
                 }
+                Response.Ext = await _taskManage.GetTaskInfoByID<DbpTask>(taskid, 0);
                 var custom = await _taskManage.GetCustomMetadataAsync<TaskCustomMetadataResponse>(taskid);
                 if (custom != null)
                 {
-                    await _taskManage.UpdateCustomMetadataAsync(Response.Ext.TaskId, custom.Metadata);
+                    await _taskManage.UpdateCustomMetadataAsync(addtask.Taskid, custom.Metadata);
                 }
-
-                var modifytask = await _taskManage.GetTaskInfoByID<DbpTask>(taskid, 0);
+                
                 Task.Run(() =>
                 {
-                    _clock.InvokeNotify(GlobalStateName.MODTASK, NotifyPlugin.NotifyTask, NotifyAction.MODIFYPERIODCTASK, modifytask);
                     _clock.InvokeNotify(GlobalStateName.ADDTASK, NotifyPlugin.NotifyTask, NotifyAction.ADDTASK, addtask);
                 });
             }
