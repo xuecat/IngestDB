@@ -3804,6 +3804,10 @@ namespace IngestTaskPlugin.Managers
         {
             string splitSuffix1 = string.Empty;
             splitSuffix1 = ApplicationContext.Current.SplitTaskNameTemplate;
+            if (string.IsNullOrEmpty(splitSuffix1))
+            {
+                return channelid.ToString();
+            }
 
             if (splitSuffix1.IndexOf("%site%") >= 0)
             {

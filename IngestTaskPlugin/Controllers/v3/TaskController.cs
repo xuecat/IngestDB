@@ -385,7 +385,7 @@ namespace IngestTaskPlugin.Controllers.v3
         [ApiExplorerSettings(GroupName = "v3.0")]
         public async Task<ResponseMessage> CompleteSyncTasks([FromBody, BindRequired] CompleteSyncTaskRequest req)
         {
-            Logger.Info($"CompleteSynTasks v3 CompleteSyncTaskRequest : {req}");
+            Logger.Info($"CompleteSynTasks v3 CompleteSyncTaskRequest : {JsonHelper.ToJson(req)}");
 
             var Response = new ResponseMessage();
 
