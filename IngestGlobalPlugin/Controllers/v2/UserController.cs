@@ -250,13 +250,18 @@ namespace IngestGlobalPlugin.Controllers.v2
         /// </remarks>
         [HttpGet("captureparamtemplate/flag/{captureparamid}")]
         [ApiExplorerSettings(GroupName = "v2")]
-        public async Task<ResponseMessage<string>> GetParamTemplateByID([FromRoute, DefaultValue(1)]int captureparamid, [FromQuery, DefaultValue(0)]int flag)
+        public async Task<ResponseMessage<string>> GetParamTemplateByID([FromRoute, DefaultValue(1)]int captureparamid, [FromQuery, DefaultValue(0)]int flag, [FromQuery, DefaultValue(0)]int defaultcapture)
         {
             ResponseMessage<string> Response = new ResponseMessage<string>();
             try
             {
                 //读取采集参数模板
                 string temp = await _GlobalManager.GetCapParamTemplateByIDAsync(captureparamid);
+                if(string.IsNullOrEmpty(temp) && defaultcapture == 1) //设置defaultcapture为1去获取默认模板
+                {
+                    temp = await _GlobalManager.GetDefaultCapParamTemplateAsync();
+                }
+
                 temp = _GlobalManager.DealCaptureParam(temp, flag);
                 if (string.IsNullOrEmpty(temp))
                 {
@@ -679,7 +684,7 @@ namespace IngestGlobalPlugin.Controllers.v2
                 nCaptureParamID = await _GlobalManager.GetUserParamTemplateIDAsync(true, usertoken);
                 if (nCaptureParamID != -1)
                 {
-                    Response = await GetParamTemplateByID(nCaptureParamID, flag);
+                    Response = await GetParamTemplateByID(nCaptureParamID, flag, 1);
                 }
                 else
                 {
