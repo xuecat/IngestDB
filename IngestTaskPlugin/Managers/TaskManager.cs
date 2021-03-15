@@ -4068,12 +4068,41 @@ namespace IngestTaskPlugin.Managers
             {
                 if (_deviceInterface != null)
                 {
+
                     DeviceInternals re = new DeviceInternals()
                     {
                         funtype = IngestDBCore.DeviceInternals.FunctionType.ChannelUnitMap,
                         ChannelId = taskinfo.TaskContent.ChannelId
                     };
 
+                    if (taskinfo.TaskContent.ChannelId == -1)
+                    {
+                        if (taskinfo.TaskContent.SignalId <= 0 && taskinfo.TaskSource== TaskSource.emRtmpSwitchTask)
+                        {
+                            re = new DeviceInternals() { funtype = DeviceInternals.FunctionType.RtmpCaptureChannels };
+                        }
+                        else if (taskinfo.TaskContent.SignalId > 0)
+                        {
+                            re = new DeviceInternals() { funtype = IngestDBCore.DeviceInternals.FunctionType.ChannelInfoBySrc, SrcId = taskinfo.TaskContent.SignalId, Status = 1 };
+                        }
+
+                        var response = await _deviceInterface.Value.GetDeviceCallBack(re);
+                        if (response.Code != ResponseCodeDefines.SuccessCode)
+                        {
+                            Logger.Error("AddmanutaskTaskWithPolicy ChannelInfoBySrc error");
+                            SobeyRecException.ThrowSelfNoParam("manutask", GlobalDictionary.GLOBALDICT_CODE_ALL_USEABLE_CHANNELS_ARE_BUSY, Logger, null);
+                            return null;
+                        }
+
+                        var fresponse = response as ResponseMessage<List<CaptureChannelInfoInterface>>;
+                        if (fresponse != null && fresponse.Ext != null)
+                        {
+                            taskinfo.TaskContent.ChannelId = fresponse.Ext.First().Id;
+                        }
+                    }
+
+                    re.funtype = IngestDBCore.DeviceInternals.FunctionType.ChannelUnitMap;
+                    re.ChannelId = taskinfo.TaskContent.ChannelId;
                     var response1 = await _deviceInterface.Value.GetDeviceCallBack(re);
                     if (response1.Code != ResponseCodeDefines.SuccessCode)
                     {
