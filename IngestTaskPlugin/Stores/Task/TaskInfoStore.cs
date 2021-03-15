@@ -1486,7 +1486,7 @@ namespace IngestTaskPlugin.Stores
                 && x.OpType != (int)opType.otDel
                 && x.Tasktype == (int)TaskType.TT_PERIODIC
                 && x.DispatchState != (int)dispatchState.dpsInvalid
-                && x.State != (int)taskState.tsDelete
+                && (x.State != (int)taskState.tsConflict && x.State != (int)taskState.tsDelete && x.State != (int)taskState.tsInvaild)
                 ).ToListAsync();
             }
             else
@@ -1502,7 +1502,7 @@ namespace IngestTaskPlugin.Stores
                 && x.OpType != (int)opType.otDel
                 && x.Tasktype == (int)TaskType.TT_PERIODIC
                 && x.DispatchState != (int)dispatchState.dpsInvalid
-                && x.State != (int)taskState.tsDelete  //删除周期任务时，会分一个D的tsDelete任务，不应该被当坐冲突任务
+                && (x.State != (int)taskState.tsConflict && x.State != (int)taskState.tsDelete && x.State != (int)taskState.tsInvaild)  //删除周期任务时，会分一个D的tsDelete任务，不应该被当坐冲突任务，除了删除任务，冲突和无效任务也应该排除
                 ).ToListAsync();
 
             }
