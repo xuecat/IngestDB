@@ -296,6 +296,27 @@ namespace IngestGlobalPlugin.Managers
 
             return capturetemplate.Captureparam;
         }
+
+        public async Task<string> GetDefaultCapParamTemplateAsync()
+        {
+            var capturetemplate = await Store.GetCaptureparamtemplateAsync(a => a.Where(x => x.Captureparamid == 255), true);
+
+            if (capturetemplate == null || string.IsNullOrEmpty(capturetemplate.Captureparam))
+            {
+                return string.Empty;
+            }
+
+            int captureid = -1;
+            if(int.TryParse(capturetemplate.Captureparam, out captureid))
+            {
+                return await GetCapParamTemplateByIDAsync(captureid);
+            }
+            else
+            {
+                return string.Empty;
+            }
+        }
+
         //deal captureparam xml
         public string DealCaptureParam(string captureparam, int nFlag)
         {
