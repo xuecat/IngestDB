@@ -4107,7 +4107,7 @@ namespace IngestTaskPlugin.Managers
                         {
                             dest.OpType = (int)opType.otAdd;
                             dest.DispatchState = (int)dispatchState.dpsDispatched;
-                            dest.State = (int)taskState.tsExecuting;
+                            dest.State = (int)taskinfo.TaskContent.State;
                             dest.SyncState = (int)syncState.ssNot;
                             dest.Tasklock = string.Empty;
                             dest.Taskid = -1;
