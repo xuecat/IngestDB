@@ -14,6 +14,8 @@ namespace OrleansNotifyPlugin
     using System.Linq;
     using System.Reflection;
     using System.Text;
+    using System.Threading.Tasks;
+
     public class OrleansNotify : ISubNotify
     {
         private readonly ILogger Logger = LoggerManager.GetLogger("OrleansNotify");
@@ -34,19 +36,25 @@ namespace OrleansNotifyPlugin
             //发送通知
             if ((ti.Intent & NotifyPlugin.Orleans) > 0 && !excludeNotifyAction.Contains(ti.Action))
             {
-                try
+                for (int i = 0; i < 3; i++)
                 {
-                    if (Client != null && !Client.IsInitialized)
+                    try
                     {
-                        Client.Connect().Wait();
-                    }
+                        if (Client != null && !Client.IsInitialized)
+                        {
+                            Client.Connect().Wait();
+                            break;
+                        }
 
+                    }
+                    catch (Exception e)
+                    {
+                        Logger.Error("client connect error" + e.Message);
+                        return;
+                    }
+                    Task.Delay(1000);
                 }
-                catch (Exception e)
-                {
-                    Logger.Error("client connect error" + e.Message);
-                    return;
-                }
+                
 
                 switch (ti.Type)
                 {
