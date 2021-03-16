@@ -49,6 +49,7 @@ namespace OrleansNotifyPlugin
                     }
                     catch (Exception e)
                     {
+                        Client.Close().Wait();
                         Logger.Error("client connect error" + e.Message);
                         return;
                     }
