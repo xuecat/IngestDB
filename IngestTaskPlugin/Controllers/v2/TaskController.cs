@@ -1741,15 +1741,15 @@ namespace IngestTaskPlugin.Controllers.v2
             [FromQuery, BindRequired]int oldclipnum,
             [FromQuery, BindRequired]string newname,
             [FromQuery, BindRequired]string newguid,
-            [FromQuery, BindRequired]int index)
+            [FromQuery, BindRequired]int index,
+            [FromQuery, BindRequired]string codetime)
         {
-            Logger.Info($"SplitClip  taskid : {taskid}, oldlen : {oldlen}, oldclipnum : {oldclipnum}, newname : {newname}, newguid : {newguid}, index : {index}");
 
             var Response = new ResponseMessage<string>();
 
             try
             {
-                Response.Ext = await _taskManage.Update24HoursTask(taskid, oldlen, oldclipnum, newname, newguid, index);
+                Response.Ext = await _taskManage.Update24HoursTask(taskid, oldlen, oldclipnum, newname, newguid, index, codetime);
             }
             catch (Exception e)
             {
@@ -1762,7 +1762,7 @@ namespace IngestTaskPlugin.Controllers.v2
                 else
                 {
                     Response.Code = ResponseCodeDefines.ServiceError;
-                    Response.Msg = "CompleteSynTasks error info:" +e.Message;
+                    Response.Msg = "SplitClip error info:" + e.Message;
                     Logger.Error(Response.Msg);
                 }
             }

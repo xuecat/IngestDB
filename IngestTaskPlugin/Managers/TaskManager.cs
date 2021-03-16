@@ -1697,7 +1697,7 @@ namespace IngestTaskPlugin.Managers
             return string.Empty;
         }
 
-        public async ValueTask<string> Update24HoursTask(int ntaskid, long oldlen, int oldclipnum, string newname, string newguid, int index, string codetime = "")
+        public async ValueTask<string> Update24HoursTask(int ntaskid, long oldlen, int oldclipnum, string newname, string newguid, int index, string codetime)
         {
             Logger.Info(string.Format("Update24HoursTask {0} {1} {2} {3}", ntaskid, newname, oldlen, newguid));
 
@@ -3827,10 +3827,7 @@ namespace IngestTaskPlugin.Managers
             return null;
         }
 
-        private string GetSplitNameSuffix0(string title, DateTime nowtime)
-        {
-            return title + "_" + nowtime.ToString("HHmmss");
-        }
+        
 
         private string GetSplitNameSuffix1(string splittemplate, int channelid, DateTime nowtime)
         {
