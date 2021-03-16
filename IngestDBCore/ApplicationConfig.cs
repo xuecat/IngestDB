@@ -23,6 +23,5 @@ namespace IngestDBCore
         public bool GlobalNotify { get; set; }
         public IPEndPoint[] IngestTask { get; set; }
         public string SplitTaskNameTemplate { get; set; }
-        public int SplitTaskNameType { get; set; }
     }
 }

@@ -1459,12 +1459,12 @@ namespace IngestDevicePlugin.Controllers.v2
         [HttpGet("area/{channelid}/name")]
         //device有点特殊，做了监听端口的所以不能全类检验
         [ApiExplorerSettings(GroupName = "v2")]
-        public async Task<ResponseMessage<Models.DbpArea>> GetAreaNameByChannelId(int channelid)
+        public async Task<ResponseMessage<Tuple<string, string>>> GetChannelAreaInfoById(int channelid)
         {
-            ResponseMessage<Models.DbpArea> response = new ResponseMessage<Models.DbpArea>();
+            ResponseMessage<Tuple<string, string>> response = new ResponseMessage<Tuple<string, string>>();
             try
             {
-                response.Ext = await _deviceManage.GetAreaInfoByChannelId<Models.DbpArea>(channelid);
+                response.Ext = await _deviceManage.GetChannelAreaInfoById(channelid);
                 if (response.Ext == null)
                 {
                     response.Code = ResponseCodeDefines.NotFound;

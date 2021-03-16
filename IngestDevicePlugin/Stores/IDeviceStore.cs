@@ -199,7 +199,7 @@ namespace IngestDevicePlugin.Stores
         /// <summary>获取XDCamDevice列表</summary>
         Task<List<TResult>> GetXdcamDeviceListAsync<TResult>(Func<IQueryable<DbpXdcamDevice>, IQueryable<TResult>> query, bool notrack = false);
 
-        Task<DbpArea> GetDbpAreaByChannelId(int channelid);
+        Task<Tuple<string, string>> GetChannelAreaInfoById(int channelid);
 
 
         #region 3.0

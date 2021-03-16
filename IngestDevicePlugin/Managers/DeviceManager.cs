@@ -944,9 +944,9 @@ namespace IngestDevicePlugin.Managers
         #endregion
 
 
-        public async Task<TResult> GetAreaInfoByChannelId<TResult>(int id)
+        public async Task<Tuple<string, string>> GetChannelAreaInfoById(int id)
         {
-            return _mapper.Map<TResult>(await Store.GetDbpAreaByChannelId(id));
+            return await Store.GetChannelAreaInfoById(id);
 
         }
 

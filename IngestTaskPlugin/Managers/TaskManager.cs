@@ -528,7 +528,6 @@ namespace IngestTaskPlugin.Managers
                 ret.VtrStart = material?.Element("VTRSTART")?.Value;
                 ret.MlToTaskGuid = material?.Element("MLTOTASKGUID")?.Value;
                 ret.OrgTitle = material?.Element("ORGTITLE")?.Value;
-                ret.SplitClips = material?.Element("SplitClips")?.Value;
                 ret.SplitNameSuffix0 = material?.Element("SplitNameSuffix0")?.Value;
                 ret.SplitNameSuffix1 = material?.Element("SplitNameSuffix1")?.Value;
                 if (int.TryParse(material?.Element("SplitNameType")?.Value, out temp))
@@ -536,21 +535,16 @@ namespace IngestTaskPlugin.Managers
                     ret.SplitNameType = temp;
                 }
 
-                var splititem = material?.Element("SplitItem");
-                if (splititem != null)
+                var splititems = material?.Element("SplitClips");//.Select(x => int.Parse(x.Value)).ToList();
+                if (splititems != null && splititems.HasElements)
                 {
-                    ret.SplitItem = new SplitItemResponse();
-                    if (int.TryParse(splititem?.Element("SplitClipNum")?.Value, out temp))
-                    {
-                        ret.SplitItem.SplitClipNum = temp;
-                    }
-                    ret.SplitItem.SplitGuid = splititem?.Element("SplitGuid")?.Value;
-                    ret.SplitItem.SplitTime = splititem?.Element("SplitTime")?.Value;
-                    if (int.TryParse(splititem?.Element("SplitLen")?.Value, out temp))
-                    {
-                        ret.SplitItem.SplitLen = temp;
-                    }
-                    ret.SplitItem.SplitTitle = splititem?.Element("SplitTitle")?.Value;
+                    ret.SplitItems = (from item in material?.Descendants("SplitItem") select new SplitItemResponse() {
+                        SplitGuid = item.Element("SplitGuid")?.Value,
+                        SplitTime = item.Element("SplitTime")?.Value,
+                        SplitLen = int.Parse(item.Element("SplitLen")?.Value),
+                        SplitClipNum = int.Parse(item.Element("SplitClipNum")?.Value),
+                        SplitTitle = item.Element("SplitTitle")?.Value,
+                    }).ToList();
                 }
 
                 return ret;
@@ -576,22 +570,36 @@ namespace IngestTaskPlugin.Managers
             {
                 root.Add(new XElement("VTRSTART", re.VtrStart));
             }
-            if (!string.IsNullOrEmpty(re.SplitNameSuffix0))
+
+            if (re.SplitNameType > 0)
             {
-                root.Add(new XElement("SplitNameSuffix0", re.SplitNameSuffix0));
-            }
-            if (!string.IsNullOrEmpty(re.SplitNameSuffix1))
-            {
-                if (channelId > 0)
+                if (!string.IsNullOrEmpty(re.SplitNameSuffix0))
                 {
-                    re.SplitNameSuffix1 = GetSplitNameSuffix1(channelId, DateTime.MinValue);
+                    root.Add(new XElement("SplitNameSuffix0", re.SplitNameSuffix0));
                 }
-                root.Add(new XElement("SplitNameSuffix1", re.SplitNameSuffix1));
+                else//强制写入分裂功能
+                {
+                    re.SplitNameSuffix0 = "_HHmmss";
+                    root.Add(new XElement("SplitNameSuffix0", "_HHmmss"));
+                }
+
+                if (!string.IsNullOrEmpty(re.SplitNameSuffix1))
+                {
+                    //if (channelId > 0)
+                    //{
+                    //    re.SplitNameSuffix1 = GetSplitNameSuffix1(string.Empty, channelId, DateTime.MinValue);
+                    //}
+                    root.Add(new XElement("SplitNameSuffix1", re.SplitNameSuffix1));
+                }
+                else
+                {
+                    re.SplitNameSuffix1 = GetSplitNameSuffix1(string.Empty, channelId, DateTime.MinValue);
+                    root.Add(new XElement("SplitNameSuffix1", re.SplitNameSuffix1));
+                }
+
+                root.Add(new XElement("SplitNameType", re.SplitNameType));
             }
-            if (!string.IsNullOrEmpty(re.SplitClips))
-            {
-                root.Add(new XElement("SplitClips", re.SplitClips));
-            }
+            
             if (!string.IsNullOrEmpty(re.OrgTitle))
             {
                 root.Add(new XElement("ORGTITLE", re.OrgTitle));
@@ -601,30 +609,37 @@ namespace IngestTaskPlugin.Managers
                 root.Add(new XElement("MLTOTASKGUID", re.MlToTaskGuid));
             }
 
-            if (re.SplitItem != null)
+            if (re.SplitItems != null && re.SplitItems.Count > 0)
             {
-                var per = new XElement("SplitItem");
-                if (!string.IsNullOrEmpty(re.SplitItem.SplitGuid))
+                var clips = new XElement("SplitClips");
+
+                foreach (var item in re.SplitItems)
                 {
-                    per.Add(new XElement("SplitGuid", re.SplitItem.SplitGuid));
+                    var per = new XElement("SplitItem");
+                    if (!string.IsNullOrEmpty(item.SplitGuid))
+                    {
+                        per.Add(new XElement("SplitGuid", item.SplitGuid));
+                    }
+                    if (item.SplitClipNum > 0)
+                    {
+                        per.Add(new XElement("SplitClipNum", item.SplitClipNum));
+                    }
+                    if (item.SplitLen > 0)
+                    {
+                        per.Add(new XElement("SplitLen", item.SplitLen));
+                    }
+                    if (!string.IsNullOrEmpty(item.SplitTime))
+                    {
+                        per.Add(new XElement("SplitTime", item.SplitTime));
+                    }
+                    if (!string.IsNullOrEmpty(item.SplitTitle))
+                    {
+                        per.Add(new XElement("SplitTitle", item.SplitTitle));
+                    }
+                    clips.Add(per);
                 }
-                if (re.SplitItem.SplitClipNum > 0)
-                {
-                    per.Add(new XElement("SplitClipNum", re.SplitItem.SplitClipNum));
-                }
-                if (re.SplitItem.SplitLen > 0)
-                {
-                    per.Add(new XElement("SplitLen", re.SplitItem.SplitLen));
-                }
-                if (!string.IsNullOrEmpty(re.SplitItem.SplitTime))
-                {
-                    per.Add(new XElement("SplitTime", re.SplitItem.SplitTime));
-                }
-                if (!string.IsNullOrEmpty(re.SplitItem.SplitTitle))
-                {
-                    per.Add(new XElement("SplitTitle", re.SplitItem.SplitTitle));
-                }
-                root.Add(per);
+                
+                root.Add(clips);
             }
 
             return xdoc.ToString();
@@ -1712,38 +1727,34 @@ namespace IngestTaskPlugin.Managers
 
             if (splitmeta == null)
             {
-                splitmeta = new DbpTaskMetadata() { Taskid = ntaskid, Metadatatype = (int)MetaDataType.emSplitData, Metadatalong = "<SplitMetaData></SplitMetaData>" };
+                Logger.Error("not have split info");
             }
 
             var splitRe = ConverTaskSplitMetaString(splitmeta.Metadatalong);
-
-            string orgtitle = string.IsNullOrEmpty(splitRe.OrgTitle) ? taskinfo.Taskname : splitRe.OrgTitle;
+            
             if (index == 1)
             {
                 splitRe.OrgTitle = taskinfo.Taskname;
             }
 
-            int nsplitnametype = splitRe.SplitNameType;
-            if (splitRe.SplitNameType < 0)
-            {
-                splitRe.SplitNameType = ApplicationContext.Current.SplitTaskNameType;
-                nsplitnametype = ApplicationContext.Current.SplitTaskNameType;
-            }
-
+            string orgtitle = string.IsNullOrEmpty(splitRe.OrgTitle) ? taskinfo.Taskname : splitRe.OrgTitle;
             codetime = codetime.Length > 8 ? codetime.Substring(0, 8) : codetime;
             DateTime nowtime = Convert.ToDateTime(codetime);
 
             string splitSuffix0 = "_" + nowtime.ToString("HHmmss");
             string splittile = string.Empty;
-            string splitSuffix1 = GetSplitNameSuffix1(taskinfo.Channelid ?? 0, nowtime);
-            switch (nsplitnametype)
+            string splitSuffix1 = GetSplitNameSuffix1(splitRe.SplitNameSuffix1, taskinfo.Channelid.Value, nowtime);
+            switch (splitRe.SplitNameType)
             {
                 case 0:
                     {
-                        splittile = orgtitle + splitSuffix0;
+                        splittile = orgtitle;
                     }
                     break;
                 case 1:
+                    {
+                        splittile = orgtitle + splitSuffix0;
+                    } break;
                 case 2:
                     {
                         splittile = orgtitle + splitSuffix1;
@@ -1753,20 +1764,20 @@ namespace IngestTaskPlugin.Managers
                     break;
             }
 
-            if (splitRe.SplitItem == null)
+            if (splitRe.SplitItems == null)
             {
-                splitRe.SplitItem = new SplitItemResponse();
+                splitRe.SplitItems = new List<SplitItemResponse>();
             }
-            splitRe.SplitItem.SplitClipNum = oldclipnum;
-            splitRe.SplitItem.SplitGuid = newguid;
-            splitRe.SplitItem.SplitTitle = splittile;
-            splitRe.SplitItem.SplitLen = oldlen;
-            splitRe.SplitItem.SplitTime = nowtime.ToString();
-
+            splitRe.SplitItems.Add(new SplitItemResponse()
+            {
+                SplitClipNum = oldclipnum,
+                SplitGuid = newguid,
+                SplitTitle = splittile,
+                SplitLen = oldlen,
+                SplitTime = nowtime.ToString()
+            });
+            
             splitRe.MlToTaskGuid = newguid;
-            splitRe.SplitNameSuffix0 = splitSuffix0;
-
-            splitRe.SplitNameSuffix1 = splitSuffix1;
             
             if (materilmeta != null)
             {
@@ -1793,7 +1804,7 @@ namespace IngestTaskPlugin.Managers
             splitmeta.Metadatalong = ConvertTaskSplitMetaString(splitRe);
 
             await Store.SaveChangeAsync();
-            return newguid;
+            return splittile;
         }
 
 
@@ -3428,7 +3439,7 @@ namespace IngestTaskPlugin.Managers
                             spdata.Value = "_HHmmss";
 
                         spdata = root.Element("SplitNameSuffix1");
-                        var splitSuffix1 = GetSplitNameSuffix1(channelId, DateTime.MinValue);
+                        var splitSuffix1 = GetSplitNameSuffix1(string.Empty, channelId, DateTime.MinValue);
                         if (spdata == null)
                             root.Add(new XElement("SplitNameSuffix1", splitSuffix1));
                         else
@@ -3816,57 +3827,58 @@ namespace IngestTaskPlugin.Managers
             return null;
         }
 
-        private string GetSplitNameSuffix1(int channelid, DateTime nowtime)
+        private string GetSplitNameSuffix0(string title, DateTime nowtime)
+        {
+            return title + "_" + nowtime.ToString("HHmmss");
+        }
+
+        private string GetSplitNameSuffix1(string splittemplate, int channelid, DateTime nowtime)
         {
             string splitSuffix1 = string.Empty;
-            splitSuffix1 = ApplicationContext.Current.SplitTaskNameTemplate;
+            if (string.IsNullOrEmpty(splittemplate))
+            {
+                splitSuffix1 = ApplicationContext.Current.SplitTaskNameTemplate;
+            }
+            else
+            {
+                splitSuffix1 = splittemplate;
+            }
+            
             if (string.IsNullOrEmpty(splitSuffix1))
             {
                 return channelid.ToString();
             }
 
-            if (splitSuffix1.IndexOf("%site%") >= 0)
+            if (_deviceInterface != null)
             {
-                if (_deviceInterface != null)
+                var response1 = _deviceInterface.Value.GetDeviceCallBack(new DeviceInternals()
                 {
-                    var response1 = _deviceInterface.Value.GetDeviceCallBack(new DeviceInternals()
-                    {
-                        funtype = DeviceInternals.FunctionType.AreaInfoByChannelId,
-                        ChannelId = channelid
-                    }).Result;
-                    if (response1.Code != ResponseCodeDefines.SuccessCode)
-                    {
-                        Logger.Error("AutoAddTaskByOldTask areainfo chanid error");
-                        return null;
-                    }
-                    var fr = response1 as ResponseMessage<AreaInfoInterface>;
-                    if (fr != null && fr.Ext != null)
-                    {
-                        splitSuffix1 = splitSuffix1.Replace("%site%", fr.Ext.Name);//replace就算不存在也会调后面得函数，居然这样
-                    }
+                    funtype = DeviceInternals.FunctionType.AreaInfoByChannelId,
+                    ChannelId = channelid
+                }).Result;
+                if (response1.Code != ResponseCodeDefines.SuccessCode)
+                {
+                    Logger.Error("AutoAddTaskByOldTask areainfo chanid error");
+                    return null;
                 }
-            }
+                var fr = response1 as ResponseMessage<Tuple<string, string>>;
 
-            if (splitSuffix1.IndexOf("%channel%") >= 0)
-            {
-                if (_deviceInterface != null)
+                if (fr != null && fr.Ext != null)
                 {
-                    var response1 = _deviceInterface.Value.GetDeviceCallBack(new DeviceInternals()
+                    if (splitSuffix1.IndexOf("%site%") >= 0)
                     {
-                        funtype = DeviceInternals.FunctionType.AllCaptureChannels
-                    }).Result;
-                    if (response1.Code != ResponseCodeDefines.SuccessCode)
-                    {
-                        Logger.Error("AutoAddTaskByOldTask SingnalIDByChannel error");
-                        return null;
+                        splitSuffix1 = splitSuffix1.Replace("%site%", fr.Ext.Item1);//replace就算不存在也会调后面得函数，居然这样
                     }
-                    var fr = response1 as ResponseMessage<List<CaptureChannelInfoInterface>>;
-                    if (fr != null && fr.Ext != null)
+
+                    if (splitSuffix1.IndexOf("%channel%") >= 0)
                     {
-                        var chan = fr.Ext.Where(x => x.Id == channelid).FirstOrDefault();
-                        splitSuffix1 = splitSuffix1.Replace("%channel%", chan?.Name);//replace就算不存在也会调后面得函数，居然这样
+                        if (_deviceInterface != null)
+                        {
+                            splitSuffix1 = splitSuffix1.Replace("%channel%", fr.Ext.Item2);//replace就算不存在也会调后面得函数，居然这样
+                        }
                     }
                 }
+                
             }
 
             if (nowtime != DateTime.MinValue)

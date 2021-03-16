@@ -1060,17 +1060,18 @@ namespace IngestDevicePlugin.Stores
             return QueryListAsync(Context.DbpXdcamDevice, query, notrack);
         }
 
-        public Task<DbpArea> GetDbpAreaByChannelId(int channelid)
+        public Task<Tuple<string, string>> GetChannelAreaInfoById(int channelid)
         {
-            return  Context.DbpCapturechannels.AsNoTracking().Where(chan => chan.Channelid == channelid)
+            return Context.DbpCapturechannels.AsNoTracking().Where(chan => chan.Channelid == channelid)
                                                .Join(Context.DbpRcdoutdesc.AsNoTracking(),
                                                      chan => chan.Channelid,
                                                      rout => rout.Channelid,
-                                                     (chan, rout) => rout.Area)
+                                                     (chan, rout) => new { rout.Area, chan.Channelname })
                                                .Join(Context.DbpArea.AsNoTracking(),
-                                                     areaid => areaid,
+                                                     areaid => areaid.Area.Value,
                                                      area => area.Id,
-                                                     (areaid, area) => area)
+                                                     (areaid, area) =>new { area, areaid.Channelname})
+                                               .Select(x=> new Tuple<string, string>(x.area.Name, x.Channelname))
                                                .SingleOrDefaultAsync();
 
         }

@@ -176,14 +176,12 @@ namespace IngestTaskPlugin.Dto.Response
 
         public string SplitNameSuffix1 { get; set; }
 
-        public string SplitClips { get; set; }
-
         public string MlToTaskGuid { get; set; }
 
         public string OrgTitle { get; set; }
         public int SplitNameType { get; set; }
 
-        public SplitItemResponse SplitItem { get; set; }
+        public List<SplitItemResponse> SplitItems { get; set; }
 
     }
 
