@@ -1993,7 +1993,7 @@ namespace IngestTaskPlugin.Controllers.v2
 
             try
             {
-                Response.Ext = await _taskManage.GetChannelCapturingLowMaterial(channelid, _globalInterface.Value);
+                Response.Ext = await _taskManage.GetChannelCapturingLowMaterial(channelid, _globalInterface==null?null: _globalInterface.Value);
                 if (string.IsNullOrEmpty(Response.Ext))
                 {
                     Response.Code = ResponseCodeDefines.NotFound;
@@ -2614,7 +2614,7 @@ namespace IngestTaskPlugin.Controllers.v2
                 Logger.Info($"AddTaskByOld  oldtaskid:{oldtaskid}, starttime:{starttime}.");
 
                 //Response.Ext = await _taskManage.AutoAddTaskByOldTask(oldtaskid, DateTimeFormat.DateTimeFromString(starttime), _globalInterface.Value);
-                var task = await _taskManage.AutoAddTaskByOldTask(oldtaskid, DateTimeFormat.DateTimeFromString(starttime), _globalInterface.Value);
+                var task = await _taskManage.AutoAddTaskByOldTask(oldtaskid, DateTimeFormat.DateTimeFromString(starttime), _globalInterface==null?null: _globalInterface.Value);
                 Response.Ext = _mapper.Map<TaskContentResponse>(task);
                 if (Response.Ext == null)
                 {

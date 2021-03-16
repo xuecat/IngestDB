@@ -1656,7 +1656,7 @@ namespace IngestTaskPlugin.Controllers.v1
 
             try
             {
-                Response.strLowFileName = await _taskManage.GetChannelCapturingLowMaterial(channelID, _globalInterface.Value);
+                Response.strLowFileName = await _taskManage.GetChannelCapturingLowMaterial(channelID, _globalInterface==null?null:_globalInterface.Value);
                 return Response;
             }
             catch (Exception e)//其他未知的异常，写异常日志
