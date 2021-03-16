@@ -464,6 +464,49 @@ namespace IngestDBCore.Tool
             return string.Empty;
         }
 
+        public async Task<string> GetUserParam(bool usetokencode, string userTokenOrCode, string key)
+        {
+            Dictionary<string, string> header = null;
+            if (usetokencode)
+                header = GetTokenHeader(userTokenOrCode);
+            else
+                header = GetCodeHeader(userTokenOrCode);
+
+
+            var back = await AutoRetry.Run<ResponseMessage<CmParam>>(() =>
+            {
+                DefaultParameter param = new DefaultParameter()
+                {
+                    tool = "DEFAULT",
+                    paramname = key,
+                    system = "INGEST"
+                };
+                return Post<ResponseMessage<CmParam>>(
+                string.Format("{0}/CMApi/api/basic/config/getuserparam", ApplicationContext.Current.CMServerUrl),
+                param, header);
+            });
+
+            //if (back != null)
+            //{
+            //    return back.Ext?.paramvalue;
+            //}
+            //有polly重试了，手动重试放后面用
+            //DefaultParameter param = new DefaultParameter()
+            //{
+            //    tool = "DEFAULT",
+            //    paramname = key,
+            //    system = "INGEST"
+            //};
+            //var back = await Post<ResponseMessage<CmParam>>(
+            //string.Format("{0}/CMApi/api/basic/config/getsysparam", ApplicationContext.Current.CMServerUrl),
+            //param);
+            if (back != null)
+            {
+                return back.Ext?.paramvalue;
+            }
+            return string.Empty;
+        }
+
 
         public async Task<int> GetUserParamTemplateID(bool usetokencode, string userTokenOrCode, string site = "")
         {

@@ -40,7 +40,7 @@ namespace IngestDBCore
                 //    }
                 //}
 
-                ApplicationContext.Current.SplitTaskNameTemplate = client.GetGlobalParam(false, "admin", "CLIP_SUFFIX").Result;
+                ApplicationContext.Current.SplitTaskNameTemplate = client.GetUserParam(false, "admin", "CLIP_SUFFIX").Result;
 
                 //var info = client.GetGlobalParam(false, "admin", "").Result;
                 //if (!string.IsNullOrEmpty(info))
