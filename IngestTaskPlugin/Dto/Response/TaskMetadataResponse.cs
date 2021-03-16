@@ -48,8 +48,14 @@ namespace IngestTaskPlugin.Dto.Response
         /// <example>string</example>
         public string ProgramName {get;set;}
         /// <summary>暂时无</summary>
+        /// <example>string</example>
+        public string MarkSource { get; set; }
+        /// <summary>暂时无</summary>
+        /// <example>string</example>
+        public string MarkOrigin { get; set; }
+        /// <summary>暂时无</summary>
         /// <example>0</example>
-        public int Datefolder { get; set; }
+        public int DateFolder { get; set; }
     }
 
     public class TaskContentMetaResponse

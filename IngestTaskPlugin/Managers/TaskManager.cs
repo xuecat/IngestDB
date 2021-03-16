@@ -89,8 +89,11 @@ namespace IngestTaskPlugin.Managers
 
                 if (int.TryParse(material?.Element("DATEFOLDER")?.Value, out temp))
                 {
-                    ret.Datefolder = temp;
+                    ret.DateFolder = temp;
                 }
+
+                ret.MarkSource = material?.Element("MARKER_SOURCE")?.Value;
+                ret.MarkOrigin = material?.Element("MARKER_ORIGIN")?.Value;
 
                 return ret;
             }
@@ -154,9 +157,19 @@ namespace IngestTaskPlugin.Managers
             {
                 root.Add(new XElement("PROGRAMNAME", re.ProgramName));
             }
-            if (re.Datefolder >= 0)
+            if (re.DateFolder >= 0)
             {
-                root.Add(new XElement("DATEFOLDER", re.Datefolder));
+                root.Add(new XElement("DATEFOLDER", re.DateFolder));
+            }
+
+            if (!string.IsNullOrEmpty(re.MarkSource))
+            {
+                root.Add(new XElement("MARKER_SOURCE", re.MarkSource));
+            }
+
+            if (!string.IsNullOrEmpty(re.MarkOrigin))
+            {
+                root.Add(new XElement("MARKER_ORIGIN", re.MarkOrigin));
             }
 
             return xdoc.ToString();
@@ -648,8 +661,11 @@ namespace IngestTaskPlugin.Managers
 
                 if (int.TryParse(material?.Element("DATEFOLDER")?.Value, out temp))
                 {
-                    ret.Datefolder = temp;
+                    ret.DateFolder = temp;
                 }
+
+                ret.MarkSource = material?.Element("MARKER_SOURCE")?.Value;
+                ret.MarkOrigin = material?.Element("MARKER_ORIGIN")?.Value;
 
                 return ret;
             }
