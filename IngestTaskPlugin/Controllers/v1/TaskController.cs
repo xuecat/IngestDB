@@ -2080,7 +2080,7 @@ namespace IngestTaskPlugin.Controllers.v1
 
             try
             {
-                var task = await _taskManage.AutoAddTaskByOldTask(nOldTaskID, DateTimeFormat.DateTimeFromString(strStartTime),_globalInterface.Value);
+                var task = await _taskManage.AutoAddTaskByOldTask(nOldTaskID, DateTimeFormat.DateTimeFromString(strStartTime),_globalInterface!=null? _globalInterface.Value:null);
                 if (task != null)
                 {
                     Response.extention = task.Taskid;
