@@ -137,10 +137,7 @@ namespace IngestTaskPlugin.Managers
             {
                 root.Add(new XElement("FOLDERID", re.FolderId));
             }
-            if (!string.IsNullOrEmpty(re.Destination))
-            {
-                root.Add(new XElement("DESTINATION", re.Destination));
-            }
+           
             if (!string.IsNullOrEmpty(re.ItemName))
             {
                 root.Add(new XElement("ITEMNAME", re.ItemName));
