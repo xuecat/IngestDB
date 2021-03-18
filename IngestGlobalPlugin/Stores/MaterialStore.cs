@@ -92,6 +92,19 @@ namespace IngestGlobalPlugin.Stores
             return true;
         }
 
+        public async Task<List<TResult>> GetMqMsgListAsync<TResult>(Func<IQueryable<DbpMsmqmsg>, IQueryable<TResult>> query, bool notrack = false)
+        {
+            if (query == null)
+            {
+                throw new ArgumentNullException(nameof(query));
+            }
+            if (notrack)
+            {
+                return await query.Invoke(Context.DbpMsmqmsg.AsNoTracking()).ToListAsync();
+            }
+            return await query.Invoke(Context.DbpMsmqmsg).ToListAsync();
+        }
+
         public async Task<TResult> GetMqMsgAsync<TResult>(Func<IQueryable<DbpMsmqmsg>, IQueryable<TResult>> query, bool notrack = false)
         {
             if (query == null)

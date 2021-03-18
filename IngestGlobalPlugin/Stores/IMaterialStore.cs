@@ -16,7 +16,7 @@ namespace IngestGlobalPlugin.Stores
         Task<bool> AddMQMsg(DbpMsmqmsg info);
         Task<bool> DeleteMQMsgByTaskId(int taskid);
         Task<TResult> GetMqMsgAsync<TResult>(Func<IQueryable<DbpMsmqmsg>, IQueryable<TResult>> query, bool notrack = false);
-
+        Task<List<TResult>> GetMqMsgListAsync<TResult>(Func<IQueryable<DbpMsmqmsg>, IQueryable<TResult>> query, bool notrack = false);
         Task<List<TResult>> GetMaterialArchiveListAsync<TResult>(Func<IQueryable<DbpMaterialArchive>, IQueryable<TResult>> query, bool notrack = false);
         Task<List<TResult>> GetMaterialListAsync<TResult>(Func<IQueryable<DbpMaterial>, IQueryable<TResult>> query, bool notrack = false);
 

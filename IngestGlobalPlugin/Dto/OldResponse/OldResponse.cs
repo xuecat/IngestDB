@@ -224,6 +224,16 @@ namespace IngestGlobalPlugin.Dto.OldResponse
         MsgForSDICapture,
         MsgForFileImport
     }
+    
+    /// <summary>
+    /// 消息处理方式：查询数据库或者直接创建默认
+    /// </summary>
+    public enum KafkaMode
+    {
+        CreateDefaultKafka = 1,
+        GetKafkaFromDb
+    }
+
     /// <summary>
     /// 消息结构
     /// </summary>
