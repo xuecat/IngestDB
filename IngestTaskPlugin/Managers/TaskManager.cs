@@ -3654,13 +3654,13 @@ namespace IngestTaskPlugin.Managers
                 var newtaskinfo = Store.DeepClone(findtask);
 
                 //新版本task已经不需要这种逻辑了
-                /*if (findtask.Tasktype == (int)TaskType.TT_MANUTASK
+                if (findtask.Tasktype == (int)TaskType.TT_MANUTASK
                 || findtask.Tasktype == (int)TaskType.TT_OPENEND)
                 {
                     //yangchuang20111017原来直接不支持手动任务，如果是手动任务，这里可以重新创建一个OpenEnd类型的任务
-                    newtaskinfo.Tasktype = (int)TaskType.TT_OPENEND;
+                    //newtaskinfo.Tasktype = (int)TaskType.TT_OPENEND;
                 }
-                else*/ if (findtask.Endtime <= starttime.AddSeconds(5))
+                else if (findtask.Endtime <= starttime.AddSeconds(5))
                 {
                     // Delete by chenzhi 2013-08-01
                     // TODO: 这种情况是系统正常的处理过程，不应该作为错误处理
