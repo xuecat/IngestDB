@@ -1995,22 +1995,39 @@ namespace IngestTaskPlugin.Stores
                     #region 外部用的饿，这里不会用
                     if (cut > 0)
                     {
-                        if (item.Tasktype == (int)TaskType.TT_MANUTASK && (item.State == (int)taskState.tsExecuting || item.State == (int)taskState.tsInvaild))
+                        if (item.Tasktype == (int)TaskType.TT_MANUTASK)
                         {
-                            item.Endtime = DateTime.Now;
+                            if (item.State == (int)taskState.tsExecuting)
+                            {
+                                item.Endtime = DateTime.Now;
+                            }
+                            else if (item.State == (int)taskState.tsInvaild && cut == 2)
+                            {
+                                item.Endtime = DateTime.Now;
+                            }
                         }
-
-                        if (item.Tasktype == (int)TaskType.TT_OPENEND && (item.State == (int)taskState.tsExecuting || item.State == (int)taskState.tsInvaild))
+                        else if (item.Tasktype == (int)TaskType.TT_OPENEND)
                         {
-                            item.Endtime = DateTime.Now;
+                            if (item.State == (int)taskState.tsExecuting)
+                            {
+                                item.Endtime = DateTime.Now;
+                            }
+                            else if (item.State == (int)taskState.tsInvaild && cut == 2)
+                            {
+                                item.Endtime = DateTime.Now;
+                            }
                         }
-
-                        // Add by chenzhi 2012-07-25
-                        if (item.Tasktype == (int)TaskType.TT_OPENENDEX && item.State == (int)taskState.tsExecuting)
+                        else if (item.Tasktype == (int)TaskType.TT_OPENENDEX)
                         {
-                            item.Endtime = DateTime.Now;
+                            if (item.State == (int)taskState.tsExecuting)
+                            {
+                                item.Endtime = DateTime.Now;
+                            }
+                            else if (item.State == (int)taskState.tsInvaild && cut == 2)
+                            {
+                                item.Endtime = DateTime.Now;
+                            }
                         }
-
                         //如果是开始时间等于结束时间并且正在执行，是个OpenEnd的自动任务
                         if (item.Starttime == item.Endtime && item.Backtype == (int)CooperantType.emKamataki && item.State == (int)taskState.tsExecuting)
                         {
