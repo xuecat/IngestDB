@@ -46,7 +46,7 @@ namespace IngestGlobalPlugin.Managers
                 {
                     msg.Msgprocesstime = DateTime.Now;
                 }
-                if(msg.TaskId <= 0)
+                if (msg.TaskId <= 0)
                 {
                     string pattern = "<TaskID>(?<taskId>.*?)</TaskID>";
                     Match match = Regex.Match(msg.Msgcontent, pattern);
@@ -56,7 +56,7 @@ namespace IngestGlobalPlugin.Managers
                         {
                             msg.TaskId = int.Parse(match.Groups["taskId"]?.ToString());
                         }
-                        catch(Exception ex)
+                        catch (Exception ex)
                         {
                             Console.WriteLine(ex.Message);
                         }
@@ -76,7 +76,7 @@ namespace IngestGlobalPlugin.Managers
 
         public async Task<T> FindFormateInfo<T>(string key)
         {
-            var f= await Store.GetFormateInfoAsync(a => a.Where(b => b.Key == key), true);
+            var f = await Store.GetFormateInfoAsync(a => a.Where(b => b.Key == key), true);
 
             if (f != null)
             {
@@ -95,7 +95,7 @@ namespace IngestGlobalPlugin.Managers
         {
             var info = _mapper.Map<FileFormatInfo_in>(pin);
 
-            await Store.UpdateFormateInfo(new DbpFileformatinfo() { Key = info.key, Formatinfo = JsonHelper.ToJson(info)});
+            await Store.UpdateFormateInfo(new DbpFileformatinfo() { Key = info.key, Formatinfo = JsonHelper.ToJson(info) });
 
             return _mapper.Map<TR>(info);
         }
@@ -104,7 +104,7 @@ namespace IngestGlobalPlugin.Managers
         {
             return _mapper.Map<List<TResult>>(await Store.GetMsgContentByTaskid(taskid));
         }
-        
+
         public async Task<int> CountFailedRecordTask(int taskid)
         {
             return await Store.CountFailedRecordTask(taskid);
@@ -166,11 +166,11 @@ namespace IngestGlobalPlugin.Managers
             if (nSectionID >= 0)
             {
                 var mlst = await Store.GetMaterialListAsync(a => a.Where(b => b.Taskid == nTaskID && b.Sectionid == nSectionID), true);
-                if (mlst != null && mlst.Count>0)
+                if (mlst != null && mlst.Count > 0)
                 {
                     var midlst = mlst.Select(z => z.Materialid);
-                    var aclst = await Store.GetMaterialArchiveListAsync(a => a.Where(b => 
-                    (nPolicyID <= 0 ||b.Policyid == nPolicyID)
+                    var aclst = await Store.GetMaterialArchiveListAsync(a => a.Where(b =>
+                    (nPolicyID <= 0 || b.Policyid == nPolicyID)
                     && midlst.Contains(b.Materialid)
                     ));
 
@@ -189,7 +189,7 @@ namespace IngestGlobalPlugin.Managers
                         finditem = aclst.FirstOrDefault();
                         findmaterial = true;
                     }
-                        
+
                 }
 
             }
@@ -219,9 +219,9 @@ namespace IngestGlobalPlugin.Managers
                         findmaterial = true;
                         finditem = aclst.FirstOrDefault();
                     }
-                        
+
                 }
-                
+
             }
 
             if (!findmaterial)
@@ -261,7 +261,7 @@ namespace IngestGlobalPlugin.Managers
                         Archiveresult = strResult
                     }, true);
                 }
-                
+
                 return;
             }
             else
@@ -287,7 +287,7 @@ namespace IngestGlobalPlugin.Managers
                     }
 
 
-                    if (finditem.Archivestate< (int)SAVE_IN_DB_STATE.SECOND_READY && state >= SAVE_IN_DB_STATE.SECOND_READY)
+                    if (finditem.Archivestate < (int)SAVE_IN_DB_STATE.SECOND_READY && state >= SAVE_IN_DB_STATE.SECOND_READY)
                         nFailedCount = 0;
 
                     DateTime dtRetry = DateTime.Now;
@@ -325,10 +325,10 @@ namespace IngestGlobalPlugin.Managers
                     }
 
                     finditem.Lastresult = Convert.ToInt32(bResult);
-                    finditem.Isprocessing= Convert.ToInt32(bIsProcessing);
-                    finditem.Failedtimes= nFailedCount;
+                    finditem.Isprocessing = Convert.ToInt32(bIsProcessing);
+                    finditem.Failedtimes = nFailedCount;
                     finditem.Lastupdatetime = DateTime.Now;
-                    finditem.Nextretry= dtRetry;
+                    finditem.Nextretry = dtRetry;
 
                     await Store.SaveChangeAsync();
                 }
@@ -498,19 +498,19 @@ namespace IngestGlobalPlugin.Managers
                 var material = await Store.GetMaterial(a => a.SingleOrDefaultAsync(x => x.Materialid == materialID));
                 material.Clipstate = mtrl.nClipState;
                 await Store.DbContextSaveChange();
-                return  materialID;
+                return materialID;
             }
 
             int nId = Store.GetNextValId("DBP_SQ_MATERIALID");
 
             //添加素材
             mtrl.strGUID = Guid.NewGuid().ToString("N");
-            
+
             mtrl.nID = nId;
             await Store.AddMaterial(_mapper.Map<DbpMaterial>(mtrl), false);
 
             //添加视频信息
-            if (mtrl.videos != null && mtrl.videos.Count> 0)
+            if (mtrl.videos != null && mtrl.videos.Count > 0)
             {
                 await Store.AddMaterialVideo(mtrl.nID, mtrl.videos, false);
             }
@@ -614,6 +614,63 @@ namespace IngestGlobalPlugin.Managers
             var listIds = await Store.GetPolicyTask(a => a.Where(x => x.Taskid == taskId && x.Policyid == -1).Select(x => x.Taskid), true);
             return _mapper.Map<List<MetaDataPolicy>>(await Store.GetMetadataPolicy(a => a.Where(x => listIds.Contains(x.Policyid)), true));
         }
+
+        #region v3.0
+
+        public List<string> GetKafkaInfoByCreateDefault(int taskid, int kafkacmd)
+        {
+            List<string> result = new List<string>();
+            string sendtime = DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss");
+            if ((kafkacmd & IngestDBCore.Notify.IngestCmd.StartCapture) > 0)
+            {
+                string starttime = DateTime.Now.TimeOfDay.ToString().Split('.')[0] + ":00";
+
+                string startcmd = $"<?xml version=\"1.0\" encoding=\"UTF-8\" ?><Notify><NotifyType>StartCapture</NotifyType><TaskID>{taskid}</TaskID><StartTime>{starttime}</StartTime><TCMode>1</TCMode><NameV0><![CDATA[\\\\172.16.0.202\\hivefiles\\sobeyhive\\buckets\\u-x583i30f58xanx8w\\hv_res\\2021-03-03\\Untitled_Ingest_2021-03-03_11_49_37_20210303114844_0_0_224_5504__000__high.mxf]]></NameV0><NameV1><![CDATA[\\\\172.16.0.202\\hivefiles\\sobeyhive\\buckets\\u-x583i30f58xanx8w\\lv_res\\2021-03-03\\Untitled_Ingest_2021-03-03_11_49_37_20210303114844_0_0_224_5504__000__low.mpd]]></NameV1><NameA0><![CDATA[\\\\172.16.0.202\\hivefiles\\sobeyhive\\buckets\\u-x583i30f58xanx8w\\hv_res\\2021-03-03\\Untitled_Ingest_2021-03-03_11_49_37_20210303114844_0_0_224_5504__000__high.mxf]]></NameA0><NameA1><![CDATA[\\\\172.16.0.202\\hivefiles\\sobeyhive\\buckets\\u-x583i30f58xanx8w\\lv_res\\2021-03-03\\Untitled_Ingest_2021-03-03_11_49_37_20210303114844_0_0_224_5504__000__low.a3.wav]]></NameA1><GOPCount>15</GOPCount><IFrame>1</IFrame><BFrame>2</BFrame><PFrame>4</PFrame><CloseGOP>0</CloseGOP><ErrorCode>0</ErrorCode><Winter_TaskID></Winter_TaskID><GUID>{Guid.NewGuid().ToString("N")}</GUID><SendTime>{sendtime}</SendTime></Notify>";
+
+                result.Add(startcmd);
+            }
+
+            if ((kafkacmd & IngestDBCore.Notify.IngestCmd.StopCapture) > 0)
+            {
+                string stopcmd = $"<?xml version=\"1.0\" encoding=\"UTF-8\" ?><Notify><NotifyType>StopCapture</NotifyType><TaskID>{taskid}</TaskID><ClipSum>1</ClipSum><StreamEndTime>-1</StreamEndTime><ErrorCode>0</ErrorCode><GUID>{Guid.NewGuid().ToString("N")}</GUID><SendTime>{sendtime}</SendTime></Notify>";
+
+                result.Add(stopcmd);
+            }
+
+            return result;
+        }
+
+        public async Task<List<string>> GetKafkaInfoFromDb(int taskid, int kafkacmd)
+        {
+            List<string> kfkcmds = new List<string>();
+            if ((kafkacmd & IngestDBCore.Notify.IngestCmd.StartCapture) > 0)
+            {
+                kfkcmds.Add("StartCapture");
+            }
+            if ((kafkacmd & IngestDBCore.Notify.IngestCmd.StopCapture) > 0)
+            {
+                kfkcmds.Add("StopCapture");
+            }
+            if ((kafkacmd & IngestDBCore.Notify.IngestCmd.CutClip) > 0)
+            {
+                kfkcmds.Add("CutClip");
+            }
+            if ((kafkacmd & IngestDBCore.Notify.IngestCmd.HaveSendBMP) > 0)
+            {
+                kfkcmds.Add("HaveSendBMP");
+            }
+            if ((kafkacmd & IngestDBCore.Notify.IngestCmd.ClipFinish) > 0)
+            {
+                kfkcmds.Add("ClipFinish");
+            }
+
+            var mqmsglist = await Store.GetMqMsgListAsync(a => a.Where(x => x.TaskId == taskid && kfkcmds.Exists(cmd => x.Msgcontent.Contains($"<NotifyType>{cmd}</NotifyType>"))).OrderBy(x => x.Msgrevtime).Select(x => x.Msgcontent), true);
+
+            return mqmsglist;
+        }
+
+
+        #endregion
     }
 
     public static class DistinctByClass

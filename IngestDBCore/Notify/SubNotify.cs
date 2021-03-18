@@ -34,6 +34,15 @@ namespace IngestDBCore.Notify
         public const string CREATEPERIODICTASK = "CREATEPERIODICTASK";
     }
 
+    public static class IngestCmd
+    {
+        public const int StartCapture = 0x01;
+        public const int StopCapture = 0x10;
+        public const int CutClip = 0x100;
+        public const int HaveSendBMP = 0x1000;
+        public const int ClipFinish = 0x10000;
+    }
+
     public interface ISubNotify
     {
         public void Subscribe(NotifyClock theClock)

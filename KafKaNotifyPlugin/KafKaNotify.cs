@@ -9,14 +9,14 @@ using System.Text;
 
 namespace KafKaNotifyPlugin
 {
-    
+
     public class KafKaNotify : ISubNotify
     {
         protected readonly ProducerConfig _config;
         private readonly ILogger Logger = LoggerManager.GetLogger("KafKaNotify");
         public KafKaNotify()
         {
-            _config = new ProducerConfig() { BootstrapServers = ApplicationContext.Current.KafkaUrl};
+            _config = new ProducerConfig() { BootstrapServers = ApplicationContext.Current.KafkaUrl };
 
             Logger.Info($"kafka init {ApplicationContext.Current.KafkaUrl}");
         }
@@ -25,16 +25,34 @@ namespace KafKaNotifyPlugin
             //发送通知
             if ((ti.Intent & NotifyPlugin.Kafka) > 0)
             {
-                using (var p = new ProducerBuilder<Null, string>(_config).Build())
+                if(ti.Port == 1)//先暂时用1表示
                 {
-                    try
+                    using (var p = new ProducerBuilder<Null, byte[]>(_config).Build())
                     {
-                        p.Produce("ingestdbnotify", new Message<Null, string> { Value = JsonHelper.ToJson(ti) });
-                    }
-                    catch (Exception e)
-                    {
+                        try
+                        {
+                            p.Produce("MSV_NOTIFY", new Message<Null, byte[]> { Value = Encoding.Unicode.GetBytes(ti.Param.ToString()) });
+                        }
+                        catch (Exception e)
+                        {
 
-                        Logger.Error("KafKaNotify error " + ti.Type + e.Message);
+                            Logger.Error("KafKaNotify MSV_NOTIFY error " + ti.Type + e.Message);
+                        }
+                    }
+                }
+                else
+                {
+                    using (var p = new ProducerBuilder<Null, string>(_config).Build())
+                    {
+                        try
+                        {
+                            p.Produce("ingestdbnotify", new Message<Null, string> { Value = JsonHelper.ToJson(ti) });
+                        }
+                        catch (Exception e)
+                        {
+
+                            Logger.Error("KafKaNotify error " + ti.Type + e.Message);
+                        }
                     }
                 }
             }
