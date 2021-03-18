@@ -1995,12 +1995,12 @@ namespace IngestTaskPlugin.Stores
                     #region 外部用的饿，这里不会用
                     if (cut > 0)
                     {
-                        if (item.Tasktype == (int)TaskType.TT_MANUTASK && item.State == (int)taskState.tsExecuting)
+                        if (item.Tasktype == (int)TaskType.TT_MANUTASK && (item.State == (int)taskState.tsExecuting || item.State == (int)taskState.tsInvaild))
                         {
                             item.Endtime = DateTime.Now;
                         }
 
-                        if (item.Tasktype == (int)TaskType.TT_OPENEND && item.State == (int)taskState.tsExecuting)
+                        if (item.Tasktype == (int)TaskType.TT_OPENEND && (item.State == (int)taskState.tsExecuting || item.State == (int)taskState.tsInvaild))
                         {
                             item.Endtime = DateTime.Now;
                         }
