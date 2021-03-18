@@ -137,10 +137,7 @@ namespace IngestTaskPlugin.Managers
             {
                 root.Add(new XElement("FOLDERID", re.FolderId));
             }
-            if (!string.IsNullOrEmpty(re.Destination))
-            {
-                root.Add(new XElement("DESTINATION", re.Destination));
-            }
+           
             if (!string.IsNullOrEmpty(re.ItemName))
             {
                 root.Add(new XElement("ITEMNAME", re.ItemName));
@@ -2761,6 +2758,40 @@ namespace IngestTaskPlugin.Managers
             return findtask;
         }
 
+        public async Task<TaskContentResponse> ModifyTaskDB(TaskContentRequest task)
+        {
+            var findtask = await Store.GetTaskAsync(a => a.Where(b => b.Taskid == task.TaskId));
+            if (findtask != null)
+            {
+                if (!string.IsNullOrEmpty(task.TaskName))
+                {
+                    findtask.Taskname = task.TaskName;
+                }
+                if (task.SignalId > 0)
+                {
+                    findtask.Signalid = task.SignalId;
+                }
+                if (task.Unit > 0)
+                {
+                    findtask.Recunitid = task.Unit;
+                }
+                if (task.ChannelId > 0)
+                {
+                    findtask.Channelid = task.ChannelId;
+                }
+                if (!string.IsNullOrEmpty(task.Classify))
+                {
+                    findtask.Category = task.Classify;
+                }
+
+                await Store.SaveChangeAsync();
+                return _mapper.Map< TaskContentResponse >(findtask);
+            }
+            else
+                SobeyRecException.ThrowSelfNoParam("ModifyTaskDB findtask empty", GlobalDictionary.GLOBALDICT_CODE_TASKSET_IS_NULL, Logger, null);
+            return null;
+        }
+
         public async Task<DbpTask> ModifyTask<TResult>(TResult task, string CaptureMeta, string ContentMeta, string MatiralMeta, string PlanningMeta, TaskSource taskSource, string SplitMeta = "")
         {
             var taskModify = _mapper.Map<TaskContentRequest>(task);
@@ -3656,11 +3687,12 @@ namespace IngestTaskPlugin.Managers
             {
                 var newtaskinfo = Store.DeepClone(findtask);
 
+                //新版本task已经不需要这种逻辑了
                 if (findtask.Tasktype == (int)TaskType.TT_MANUTASK
                 || findtask.Tasktype == (int)TaskType.TT_OPENEND)
                 {
                     //yangchuang20111017原来直接不支持手动任务，如果是手动任务，这里可以重新创建一个OpenEnd类型的任务
-                    newtaskinfo.Tasktype = (int)TaskType.TT_OPENEND;
+                    //newtaskinfo.Tasktype = (int)TaskType.TT_OPENEND;
                 }
                 else if (findtask.Endtime <= starttime.AddSeconds(5))
                 {
@@ -3734,7 +3766,7 @@ namespace IngestTaskPlugin.Managers
                 newtaskinfo.State = (int)taskState.tsReady;//先改成准备状态
 
                 //OpenEnd任务的结束时间和开始时间一样
-                if (newtaskinfo.Tasktype == (int)TaskType.TT_OPENEND)
+                if (newtaskinfo.Tasktype == (int)TaskType.TT_OPENEND || newtaskinfo.Tasktype == (int)TaskType.TT_MANUTASK)
                 {
                     newtaskinfo.Endtime = newtaskinfo.Starttime;
                     newtaskinfo.NewEndtime = newtaskinfo.Starttime;
