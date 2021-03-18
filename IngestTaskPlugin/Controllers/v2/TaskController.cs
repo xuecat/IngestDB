@@ -924,6 +924,57 @@ namespace IngestTaskPlugin.Controllers.v2
         }
 
         /// <summary>
+        /// 修改任务元数据，单纯修改不涉及逻辑判断(这个暂时支持信号，名字，通道，unit，周期属性的修改。(时间和id不支持)
+        /// </summary>
+        /// <remarks>
+        /// 例子:
+        /// int类型请大于0，string类型请不为空
+        /// </remarks>
+        /// <param name="req">修改请求体，请填入taskid信息</param>
+        /// <returns>任务信息</returns>
+        [HttpPatch("content/db/{taskid}")]
+        [ApiExplorerSettings(GroupName = "v2")]
+        public async Task<ResponseMessage<TaskContentResponse>> ModifyDBTask([FromBody, BindRequired]TaskContentRequest req)
+        {
+            Logger.Info($"ModifyDBTask taskid {Request.Host.Value}: req {JsonHelper.ToJson(req)}");
+            var Response = new ResponseMessage<TaskContentResponse>();
+            if (req == null || req.TaskId < 1)
+            {
+                Response.Code = ResponseCodeDefines.ModelStateInvalid;
+                Response.Msg = "request param error";
+                return Response;
+            }
+
+            try
+            {
+                Response.Ext = await _taskManage.ModifyTaskDB(req);
+                if (Response.Ext == null)
+                {
+                    Response.Code = ResponseCodeDefines.NotFound;
+                    Response.Msg = $"{System.Reflection.MethodBase.GetCurrentMethod().DeclaringType.FullName}:error info: not find data!";
+                    return Response;
+                }
+               
+            }
+            catch (Exception e)
+            {
+                if (e.GetType() == typeof(SobeyRecException))//sobeyexcep会自动打印错误
+                {
+                    SobeyRecException se = e as SobeyRecException;
+                    Response.Code = se.ErrorCode.ToString();
+                    Response.Msg = se.Message;
+                }
+                else
+                {
+                    Response.Code = ResponseCodeDefines.ServiceError;
+                    Response.Msg = "ModifyDBTask error info:" + e.Message;
+                    Logger.Error(Response.Msg);
+                }
+            }
+            return Response;
+        }
+
+        /// <summary>
         /// 修改任务所有的全元数据，包括任务metadata数据（注意metadata传入的数据要做判断空处理，当成员属性为空时，就不会更新进去， 注意:采集参数还是全更新）
         /// </summary>
         /// <remarks>

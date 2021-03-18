@@ -2758,6 +2758,40 @@ namespace IngestTaskPlugin.Managers
             return findtask;
         }
 
+        public async Task<TaskContentResponse> ModifyTaskDB(TaskContentRequest task)
+        {
+            var findtask = await Store.GetTaskAsync(a => a.Where(b => b.Taskid == task.TaskId));
+            if (findtask != null)
+            {
+                if (!string.IsNullOrEmpty(task.TaskName))
+                {
+                    findtask.Taskname = task.TaskName;
+                }
+                if (task.SignalId > 0)
+                {
+                    findtask.Signalid = task.SignalId;
+                }
+                if (task.Unit > 0)
+                {
+                    findtask.Recunitid = task.Unit;
+                }
+                if (task.ChannelId > 0)
+                {
+                    findtask.Channelid = task.ChannelId;
+                }
+                if (!string.IsNullOrEmpty(task.Classify))
+                {
+                    findtask.Category = task.Classify;
+                }
+
+                await Store.SaveChangeAsync();
+                return _mapper.Map< TaskContentResponse >(findtask);
+            }
+            else
+                SobeyRecException.ThrowSelfNoParam("ModifyTaskDB findtask empty", GlobalDictionary.GLOBALDICT_CODE_TASKSET_IS_NULL, Logger, null);
+            return null;
+        }
+
         public async Task<DbpTask> ModifyTask<TResult>(TResult task, string CaptureMeta, string ContentMeta, string MatiralMeta, string PlanningMeta, TaskSource taskSource, string SplitMeta = "")
         {
             var taskModify = _mapper.Map<TaskContentRequest>(task);
