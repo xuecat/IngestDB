@@ -32,6 +32,8 @@ namespace IngestDBCore.Notify
 
         public const string MSVRELOCATE = "MSVRELOCATE";
         public const string CREATEPERIODICTASK = "CREATEPERIODICTASK";
+
+        public const string SENDMSVNOTIFY = "SENDMSVNOTIFY";
     }
 
     public static class IngestCmd
