@@ -64,7 +64,7 @@ namespace IngestGlobalPlugin.Controllers.v3
                     {
                         foreach (var item in kafkainfos)
                         {
-                            _clock.InvokeNotify(null, NotifyPlugin.Kafka, null, item, 1);//先用1表示传到MSV_NOTIFY主题
+                            _clock.InvokeNotify(null, NotifyPlugin.Kafka, NotifyAction.SENDMSVNOTIFY, item);//先用NotifyAction.SENDMSVNOTIFY表示传到MSV_NOTIFY主题
                         }
                     });
                 }

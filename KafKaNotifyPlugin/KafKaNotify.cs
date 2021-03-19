@@ -25,37 +25,46 @@ namespace KafKaNotifyPlugin
             //发送通知
             if ((ti.Intent & NotifyPlugin.Kafka) > 0)
             {
-                if(ti.Port == 1)//先暂时用1表示
+                try
                 {
-                    using (var p = new ProducerBuilder<Null, byte[]>(_config).Build())
+                    if (ti.Action == NotifyAction.SENDMSVNOTIFY)//先暂时用表示
                     {
-                        try
+                        Logger.Error("MSV_NOTIFY Log : " + ApplicationContext.Current.KafkaUrl + ", Action :" + ti.Action + ", " + ti.Param);
+                        using (var p = new ProducerBuilder<Null, byte[]>(_config).Build())
                         {
-                            p.Produce("MSV_NOTIFY", new Message<Null, byte[]> { Value = Encoding.Unicode.GetBytes(ti.Param.ToString()) });
-                        }
-                        catch (Exception e)
-                        {
+                            try
+                            {
+                                p.Produce("MSV_NOTIFY", new Message<Null, byte[]> { Value = Encoding.Unicode.GetBytes(ti.Param.ToString()) });
+                            }
+                            catch (Exception e)
+                            {
 
-                            Logger.Error("KafKaNotify MSV_NOTIFY error " + ti.Type + e.Message);
+                                Logger.Error("KafKaNotify MSV_NOTIFY error " + ti.Type + e.Message);
+                            }
+                        }
+                    }
+                    else
+                    {
+                        using (var p = new ProducerBuilder<Null, string>(_config).Build())
+                        {
+                            try
+                            {
+                                p.Produce("ingestdbnotify", new Message<Null, string> { Value = JsonHelper.ToJson(ti) });
+                            }
+                            catch (Exception e)
+                            {
+
+                                Logger.Error("KafKaNotify error " + ti.Type + e.Message);
+                            }
                         }
                     }
                 }
-                else
+                catch (Exception ex)
                 {
-                    using (var p = new ProducerBuilder<Null, string>(_config).Build())
-                    {
-                        try
-                        {
-                            p.Produce("ingestdbnotify", new Message<Null, string> { Value = JsonHelper.ToJson(ti) });
-                        }
-                        catch (Exception e)
-                        {
-
-                            Logger.Error("KafKaNotify error " + ti.Type + e.Message);
-                        }
-                    }
+                    Logger.Error("KafKaNotify_ex MSV_NOTIFY error " + ti.Type + ex.Message);
                 }
             }
+
         }
     }
 }

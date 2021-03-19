@@ -11,7 +11,7 @@ namespace IngestDBCore.Notify
         public const int Msv = 0x10;
         public const int Orleans = 0x100;
         public const int Udp = 0x1000;
-        public const int NotifyTask = Kafka | Orleans;
+        public const int NotifyTask = Orleans;
         public const int All = Kafka | Msv | Orleans;
     }
     public static class NotifyAction
@@ -32,6 +32,8 @@ namespace IngestDBCore.Notify
 
         public const string MSVRELOCATE = "MSVRELOCATE";
         public const string CREATEPERIODICTASK = "CREATEPERIODICTASK";
+
+        public const string SENDMSVNOTIFY = "SENDMSVNOTIFY";
     }
 
     public static class IngestCmd

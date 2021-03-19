@@ -5,6 +5,7 @@ using Microsoft.EntityFrameworkCore;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Linq.Expressions;
 using System.Text;
 using System.Threading.Tasks;
 
@@ -210,6 +211,58 @@ namespace IngestGlobalPlugin.Stores
         public Task<List<DbpMsmqmsg>> GetNeedProcessMsg(int statu, DateTime dtnext)
         {
             return Context.DbpMsmqmsg.AsNoTracking().Where(a => a.Msgstatus == statu && a.Nextretry < dtnext).ToListAsync();
+        }
+
+        public async Task<List<string>> GetMsmqmsgsContentByCmd(int taskid, int kfkcmd)
+        {
+            IQueryable<DbpMsmqmsg> msmqmsgs = Context.DbpMsmqmsg.AsNoTracking().Where(x=> x.TaskId == taskid);
+            List<string> kfkcmds = new List<string>();
+
+            Expression<Func<DbpMsmqmsg, bool>> expression = null;
+            Expression<Func<DbpMsmqmsg, bool>> tempexpression = null;
+
+            if ((kfkcmd & IngestDBCore.Notify.IngestCmd.StartCapture) > 0)
+            {
+                kfkcmds.Add("%<NotifyType>StartCapture</NotifyType>%");
+            }
+            if ((kfkcmd & IngestDBCore.Notify.IngestCmd.StopCapture) > 0)
+            {
+                kfkcmds.Add("%<NotifyType>StopCapture</NotifyType>%");
+            }
+            if ((kfkcmd & IngestDBCore.Notify.IngestCmd.CutClip) > 0)
+            {
+                kfkcmds.Add("%<NotifyType>CutClip</NotifyType>%");
+            }
+            if ((kfkcmd & IngestDBCore.Notify.IngestCmd.HaveSendBMP) > 0)
+            {
+                kfkcmds.Add("%<NotifyType>HaveSendBMP</NotifyType>%");
+            }
+            if ((kfkcmd & IngestDBCore.Notify.IngestCmd.ClipFinish) > 0)
+            {
+                kfkcmds.Add("%<NotifyType>ClipFinish</NotifyType>%");
+            }
+
+            foreach (var item in kfkcmds)
+            {
+                tempexpression = x => EF.Functions.Like(x.Msgcontent, item); 
+                if (expression == null) 
+                {
+                    expression = tempexpression;
+                }
+                else
+                {
+                    expression = Expression.Lambda<Func<DbpMsmqmsg, bool>>
+                        (Expression.Or(expression.Body, Expression.Invoke(tempexpression, expression.Parameters.Cast<Expression>())), expression.Parameters);
+                }
+            }
+
+            if(expression == null)
+            {
+                return null;
+            }
+
+            return await msmqmsgs.Where(expression).OrderBy(x => x.Msgrevtime).Select(x => x.Msgcontent).ToListAsync();
+
         }
 
         public Task<List<FailedMessageParam>> GetMsgContentByTaskid(int taskid)
