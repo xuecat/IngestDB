@@ -2429,9 +2429,14 @@ namespace IngestTaskPlugin.Managers
 
             if (taskinfo.Tasktype != (int)TaskType.TT_PERIODIC)
             {
-                taskinfo.Category = "A";
                 taskinfo.NewBegintime = taskinfo.Starttime;
                 taskinfo.NewEndtime = taskinfo.Endtime;
+
+                if (taskinfo.Tasktype == (int)TaskType.TT_MANUTASK && req.DispatchState == (int)dispatchState.dpsRedispatch)
+                {
+                    Logger.Info($"update manutask endtime {taskinfo.Taskid}");
+                    taskinfo.Endtime = DateTime.Now;
+                }
             }
             else
             {

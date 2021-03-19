@@ -2003,7 +2003,7 @@ namespace IngestTaskPlugin.Stores
                             }
                             else if (item.State == (int)taskState.tsInvaild && cut == 2)
                             {
-                                item.Endtime = DateTime.Now;
+                                //item.Endtime = DateTime.Now;
                             }
                         }
                         else if (item.Tasktype == (int)TaskType.TT_OPENEND)
@@ -2014,7 +2014,7 @@ namespace IngestTaskPlugin.Stores
                             }
                             else if (item.State == (int)taskState.tsInvaild && cut == 2)
                             {
-                                item.Endtime = DateTime.Now;
+                                //item.Endtime = DateTime.Now;
                             }
                         }
                         else if (item.Tasktype == (int)TaskType.TT_OPENENDEX)
@@ -2025,7 +2025,7 @@ namespace IngestTaskPlugin.Stores
                             }
                             else if (item.State == (int)taskState.tsInvaild && cut == 2)
                             {
-                                item.Endtime = DateTime.Now;
+                                //item.Endtime = DateTime.Now;
                             }
                         }
                         //如果是开始时间等于结束时间并且正在执行，是个OpenEnd的自动任务
