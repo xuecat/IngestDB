@@ -29,6 +29,7 @@ namespace KafKaNotifyPlugin
                 {
                     if (ti.Action == NotifyAction.SENDMSVNOTIFY)//先暂时用表示
                     {
+                        Logger.Error("MSV_NOTIFY Log : " + ApplicationContext.Current.KafkaUrl + ", Action :" + ti.Action + ", " + ti.Param);
                         using (var p = new ProducerBuilder<Null, byte[]>(_config).Build())
                         {
                             try
