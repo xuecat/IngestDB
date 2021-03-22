@@ -14,9 +14,13 @@ namespace KafKaNotifyPlugin
     {
         protected readonly ProducerConfig _config;
         private readonly ILogger Logger = LoggerManager.GetLogger("KafKaNotify");
+        private readonly IProducer<Null, byte[]> _producer;
+
         public KafKaNotify()
         {
             _config = new ProducerConfig() { BootstrapServers = ApplicationContext.Current.KafkaUrl };
+
+            _producer = new ProducerBuilder<Null, byte[]>(_config).Build();
 
             Logger.Info($"kafka init {ApplicationContext.Current.KafkaUrl}");
         }
@@ -30,18 +34,18 @@ namespace KafKaNotifyPlugin
                     if (ti.Action == NotifyAction.SENDMSVNOTIFY)//先暂时用表示
                     {
                         Logger.Error("MSV_NOTIFY Log : " + ApplicationContext.Current.KafkaUrl + ", Action :" + ti.Action + ", " + ti.Param);
-                        using (var p = new ProducerBuilder<Null, byte[]>(_config).Build())
-                        {
+                        //using (var p = new ProducerBuilder<Null, byte[]>(_config).Build())
+                        //{
                             try
                             {
-                                p.Produce("MSV_NOTIFY", new Message<Null, byte[]> { Value = Encoding.Unicode.GetBytes(ti.Param.ToString()) });
+                                _producer.Produce("MSV_NOTIFY", new Message<Null, byte[]> { Value = Encoding.Unicode.GetBytes(ti.Param.ToString()) });
                             }
                             catch (Exception e)
                             {
 
                                 Logger.Error("KafKaNotify MSV_NOTIFY error " + ti.Type + e.Message);
                             }
-                        }
+                        //}
                     }
                     else
                     {
