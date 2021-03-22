@@ -94,5 +94,8 @@ namespace IngestMatrixPlugin.Stores
         Task<bool> UpdateMatrixStateRoutInfo(long lOutPort, int bState, bool savechange);
 
         Task<List<DbpUserLoginInfo>> GetAllUserLoginInfos();
+
+        Task<TResult> QueryDbpArea<TResult>(Func<IQueryable<DbpArea>, Task<TResult>> query, bool notrack = false);
+
     }
 }

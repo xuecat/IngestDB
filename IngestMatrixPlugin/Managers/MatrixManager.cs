@@ -19,7 +19,7 @@ using MatrixOldResponseMessage = IngestMatrixPlugin.Dto.OldResponse.v1.MatrixOld
 
 namespace IngestMatrixPlugin.Managers
 {
-    public class MatrixManager
+    public partial class MatrixManager
     {
         public MatrixManager(IMatrixStore store, IMapper mapper, RestClient client, IServiceProvider services, NotifyClock clock)
         {

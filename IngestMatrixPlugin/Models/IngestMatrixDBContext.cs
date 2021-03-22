@@ -22,6 +22,7 @@ namespace IngestMatrixPlugin.Models
         public virtual DbSet<DbpRcdoutdesc> DbpRcdoutdesc { get; set; }
         public virtual DbSet<DbpVirtualmatrixportstate> DbpVirtualmatrixportstate { get; set; }
         public virtual DbSet<DbpUserLoginInfo> DbpUserLoginInfo { get; set; }
+        public virtual DbSet<DbpArea> DbpArea { get; set; }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
