@@ -16,15 +16,7 @@ namespace KafKaNotifyPlugin
         private readonly ILogger Logger = LoggerManager.GetLogger("KafKaNotify");
         public KafKaNotify()
         {
-            string tempUrl = string.Empty;
-            foreach (var item in ApplicationContext.Current.KafkaUrl.Split(";"))
-            {
-                tempUrl = tempUrl + item + ",";
-            }
-
-            tempUrl = tempUrl.Substring(0, tempUrl.Length - 1);
-
-            _config = new ProducerConfig() { BootstrapServers = tempUrl };
+            _config = new ProducerConfig() { BootstrapServers = ApplicationContext.Current.KafkaUrl };
 
             Logger.Info($"kafka init {ApplicationContext.Current.KafkaUrl}");
         }

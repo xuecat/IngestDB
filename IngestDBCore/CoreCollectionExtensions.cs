@@ -17,10 +17,7 @@ namespace IngestDBCore
             {
                 throw new ArgumentNullException(nameof(services));
             }
-            if (!string.IsNullOrEmpty(ApplicationContext.Current.KafkaUrl))
-            {
-                ApplicationContext.Current.KafkaUrl = ApplicationContext.Current.KafkaUrl.Replace(";", ",");
-            }
+            
             using (var client = new RestClient())
             {
                 ApplicationContext.Current.KafkaUrl = client.GetGlobalParam(false, "admin", "KafkaAddress").Result;
@@ -55,6 +52,12 @@ namespace IngestDBCore
                 //    ApplicationContext.Current.SplitTaskNameType = splittype;
                 //}
             }
+
+            if (!string.IsNullOrEmpty(ApplicationContext.Current.KafkaUrl))
+            {
+                ApplicationContext.Current.KafkaUrl = ApplicationContext.Current.KafkaUrl.Replace(";", ",");
+            }
+
             services.AddSingleton<RestClient>(provider => new RestClient(provider.GetService<IHttpClientFactory>()));
 
             services.AddScoped<NotifyClock>();
