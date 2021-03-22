@@ -50,10 +50,15 @@ namespace IngestDBCore
             {
                 Console.WriteLine($"服务{name}断路器开启，异常消息：{ex.Exception?.Message}");
                 Console.WriteLine($"服务{name}断路器开启时间：{ts.TotalSeconds}s");
-                if (options.CircuitBreakerAction != null)
+                
+                if (ex.Result.RequestMessage.RequestUri.AbsolutePath.IndexOf("G2MatrixWebCtrl") > 0)
                 {
-                    options.ActionAchieve<object>(options.CircuitBreakerAction, ++HttpClientPollyOptions.CircuitBreakerOpenTriggerCount);
+                    if (options.CircuitBreakerAction != null)
+                    {
+                        options.ActionAchieve<object>(options.CircuitBreakerAction, ++HttpClientPollyOptions.CircuitBreakerOpenTriggerCount);
+                    }
                 }
+                
                 logger.Warn($"服务{name}断路器开启，异常消息：{ex.Exception?.Message} {ts.TotalSeconds}");
             }, () =>
             {
