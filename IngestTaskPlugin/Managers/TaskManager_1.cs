@@ -145,5 +145,13 @@ namespace IngestTaskPlugin.Managers
 
             return null;
         }
+
+        public async Task<List<TResult>> GetNeedSynTasks<TResult>()
+        {
+            return _mapper.Map<List<TResult>>(await Store.GetTaskListAsync(x => x.Where(y => y.State == (int)taskState.tsReady 
+                                                                                             && DateTime.Now < y.Endtime
+                                                                                             && y.OpType != (int)opType.otDel), true));
+        }
+
     }
 }

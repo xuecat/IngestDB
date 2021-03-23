@@ -373,6 +373,44 @@ namespace IngestTaskPlugin.Controllers.v3
         }
 
         /// <summary>
+        /// 获取需要同步的任务(短时间
+        /// </summary>
+        /// <remarks>
+        /// 例子:
+        ///
+        /// </remarks>
+        /// <returns></returns>
+        [HttpGet("sync/schedule")]
+        [ApiExplorerSettings(GroupName = "v3.0")]
+        public async Task<ResponseMessage<List<DbpTask>>> GetNeedSyncScheduleTasks()
+        {
+            var Response = new ResponseMessage<List<DbpTask>>();
+
+            try
+            {
+                Response.Ext = await _taskManage.GetNeedSynTasks<DbpTask>();
+
+                //Logger.Info($"GetNeedSyncTasks v3 result : {Newtonsoft.Json.JsonConvert.SerializeObject(Response.Ext)} ");
+            }
+            catch (Exception e)
+            {
+                if (e.GetType() == typeof(SobeyRecException))//sobeyexcep会自动打印错误
+                {
+                    SobeyRecException se = e as SobeyRecException;
+                    Response.Code = se.ErrorCode.ToString();
+                    Response.Msg = se.Message;
+                }
+                else
+                {
+                    Response.Code = ResponseCodeDefines.ServiceError;
+                    Response.Msg = "GetNeedSyncScheduleTasks error info:" + e.Message;
+                    Logger.Error(Response.Msg);
+                }
+            }
+            return Response;
+        }
+
+        /// <summary>
         /// 完成同步任务并置相应状态(-1表示不修改该状态)，解锁
         /// </summary>
         /// <remarks>
