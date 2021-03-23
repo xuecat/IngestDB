@@ -384,5 +384,9 @@ namespace IngestMatrixPlugin.Stores
             return true;
         }
 
+        public async Task<TResult> QueryDbpArea<TResult>(Func<IQueryable<DbpArea>, Task<TResult>> query, bool notrack = false)
+        {
+            return await QueryModel(query, notrack);
+        }
     }
 }

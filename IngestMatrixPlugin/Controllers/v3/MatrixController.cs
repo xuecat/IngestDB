@@ -44,7 +44,7 @@ namespace IngestMatrixPlugin.Controllers.v3
                     throw new Exception("Switch failed！ param is invailed");
                 }
 
-                response.Ext = await _matrixManage.SwitchInOutAsync(inport, outport, null, null);
+                response.Ext = await _matrixManage.SwitchInOutByAreaAsync(inport, outport, null, null);
 
             }
             catch (Exception e)
@@ -84,7 +84,7 @@ namespace IngestMatrixPlugin.Controllers.v3
                     throw new Exception("SwitchSignalChannel failed！ param is invailed");
                 }
 
-                response.Ext = await _matrixManage.SwitchSignalChannelAsync(signal, channel);
+                response.Ext = await _matrixManage.SwitchSignalChannelByAreaAsync(signal, channel);
 
             }
             catch (Exception e)
