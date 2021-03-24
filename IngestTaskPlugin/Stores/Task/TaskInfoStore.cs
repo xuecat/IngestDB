@@ -928,7 +928,7 @@ namespace IngestTaskPlugin.Stores
                     //taskinfo.Tasktype = (int)TaskType.TT_NORMAL;
 
                     //手动任务也这么搞？试试把
-                    taskinfo.State = (int)taskState.tsComplete;
+                    //taskinfo.State = (int)taskState.tsComplete;
                 }
             }
             else
@@ -940,7 +940,7 @@ namespace IngestTaskPlugin.Stores
 
                 taskinfo.Endtime = dt;
                 taskinfo.NewEndtime = taskinfo.Endtime;
-                taskinfo.State = (int)taskState.tsComplete;
+                //taskinfo.State = (int)taskState.tsComplete;
             }
 
 
