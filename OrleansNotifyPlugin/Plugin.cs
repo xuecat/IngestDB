@@ -9,6 +9,7 @@ namespace OrleansNotifyPlugin
     using Microsoft.Extensions.Hosting;
     using Orleans;
     using System;
+    using System.Linq;
     using System.Threading.Tasks;
     public class Plugin : PluginBase
     {
@@ -42,17 +43,32 @@ namespace OrleansNotifyPlugin
 
         public override Task<ResponseMessage> Init(ApplicationContext context)
         {
-            context.Services.AddSingleton<OrleansClientService>();
-            context.Services.AddSingleton<IHostedService>(sp => sp.GetService<OrleansClientService>());
-            context.Services.AddSingleton<IClusterClient>(sp => sp.GetService<OrleansClientService>().Client);
+            //context.Services.AddSingleton<OrleansClientService>();
+            //context.Services.AddSingleton<IHostedService>(sp => sp.GetService<OrleansClientService>());
+            //context.Services.AddSingleton<IClusterClient>(sp => sp.GetService<OrleansClientService>().Client);
+            //context.Services.AddSingleton<IClientBuilder>(sp => sp.GetService<OrleansClientService>().Builder);
 
             context.Services.AddSingleton<ISubNotify, OrleansNotify>();
+            context.Services.AddSingleton<IHostedService>(sp => {
+                var back = sp.GetServices<ISubNotify>();
+                if (back != null && back.Count() > 0)
+                {
+                    foreach (var item in back)
+                    {
+                        if (typeof(OrleansNotify) == item.GetType())
+                        {
+                            return (IHostedService)item;
+                        }
+                    }
+                }
+                return null;
+            });
             //using (var scope = context.Services.BuildServiceProvider())
             //{
             //    var client = scope.GetService<IClusterClient>();
-                
+
             //}
-            
+
 
             return base.Init(context);
         }

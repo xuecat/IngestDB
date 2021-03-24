@@ -2,33 +2,103 @@
 
 namespace OrleansNotifyPlugin
 {
+    using Confluent.Kafka;
     using IngestDBCore;
     using IngestDBCore.Notify;
     using IngestDBCore.Tool;
+    using IngestTask.Abstraction.Constants;
     using IngestTask.Abstraction.Grains;
     using IngestTask.Dto;
+    using Microsoft.Extensions.Hosting;
     using Orleans;
+    using Orleans.Configuration;
+    using Orleans.Hosting;
     using Sobey.Core.Log;
     using System;
     using System.Collections.Generic;
     using System.Linq;
     using System.Reflection;
     using System.Text;
+    using System.Threading;
     using System.Threading.Tasks;
 
-    public class OrleansNotify : ISubNotify
+    public class OrleansNotify : ISubNotify, IHostedService
     {
         private readonly ILogger Logger = LoggerManager.GetLogger("OrleansNotify");
 
-        public IClusterClient Client { get; }
+        private IClusterClient Client;
         private string[] excludeNotifyAction = { NotifyAction.MODIFYTASKNAME, NotifyAction.MODIFYTASKSTATE};
-        public OrleansNotify(IClusterClient client)
+        private bool _disposed;
+        public OrleansNotify()
         {
-            Client = client;
-            if (client == null)
+            _disposed = true;
+        }
+
+        public virtual async Task StartAsync(CancellationToken cancellationToken)
+        {
+            try
             {
-                Logger.Error("ingesttask cofig error");
+                
+                Client = new ClientBuilder()
+                            .Configure<ClusterOptions>(options =>
+                            {
+                                options.ClusterId = Cluster.ClusterId;
+                                options.ServiceId = Cluster.ServiceId;
+                            })
+                            .UseAdoNetClustering(opt =>
+                            {
+                                opt.Invariant = "MySql.Data.MySqlClient";
+                                opt.ConnectionString = ApplicationContext.Current.ConnectionString;
+                            })
+                            //.UseStaticClustering(ApplicationContext.Current.IngestTask)
+                            .Configure<GatewayOptions>(opts => opts.GatewayListRefreshPeriod = TimeSpan.FromSeconds(30))
+                            .ConfigureApplicationParts(
+                                    parts => parts
+                                        .AddApplicationPart(typeof(IDispatcherGrain).Assembly).WithReferences())
+                            .Build();
+                
             }
+            catch (Exception e)
+            {
+                Logger.Error($"orleannotify error {e.Message}");
+            }
+
+        }
+        public virtual async Task StopAsync(CancellationToken cancellationToken)
+        {
+            if (Client != null)
+            {
+                await Client.Close();
+                Client.Dispose();
+            }
+            
+            _disposed = true;
+        }
+
+        public void Dispose()
+        {
+            Dispose(true);
+            GC.SuppressFinalize(this);
+        }
+
+        ~OrleansNotify()
+        {
+            //必须为false
+            Dispose(false);
+        }
+
+        protected virtual void Dispose(bool disposing)
+        {
+            if (_disposed) return;
+            if (disposing)
+            {
+
+            }
+            if (Client != null)
+            {
+                Client.Dispose();
+            }
+            _disposed = true;
         }
 
         public void ActionNotify(object theClock, NotifyArgs ti)
@@ -36,26 +106,49 @@ namespace OrleansNotifyPlugin
             //发送通知
             if ((ti.Intent & NotifyPlugin.Orleans) > 0 && !excludeNotifyAction.Contains(ti.Action))
             {
-                for (int i = 0; i < 3; i++)
-                {
-                    try
-                    {
-                        if (Client != null && !Client.IsInitialized)
-                        {
-                            Client.Connect().Wait();
-                            break;
-                        }
-
-                    }
-                    catch (Exception e)
-                    {
-                        Client.Close().Wait();
-                        Logger.Error("client connect error" + e.Message);
-                        return;
-                    }
-                    Task.Delay(1000);
-                }
                 
+                try
+                {
+                    if (Client != null && !Client.IsInitialized)
+                    {
+                        Client.Connect().Wait();
+                       
+                    }
+                }
+                catch (Exception e)
+                {
+                    Task.Delay(1000).Wait();
+                    if (Client != null)
+                    {
+                        Client.Dispose();
+                        Client = new ClientBuilder()
+                            .Configure<ClusterOptions>(options =>
+                            {
+                                options.ClusterId = Cluster.ClusterId;
+                                options.ServiceId = Cluster.ServiceId;
+                            })
+                            .UseAdoNetClustering(opt =>
+                            {
+                                opt.Invariant = "MySql.Data.MySqlClient";
+                                opt.ConnectionString = ApplicationContext.Current.ConnectionString;
+                            })
+                            //.UseStaticClustering(ApplicationContext.Current.IngestTask)
+                            .Configure<GatewayOptions>(opts => opts.GatewayListRefreshPeriod = TimeSpan.FromSeconds(30))
+                            .ConfigureApplicationParts(
+                                    parts => parts
+                                        .AddApplicationPart(typeof(IDispatcherGrain).Assembly).WithReferences())
+                            .Build();
+                        Client.Connect().Wait();
+                    }
+                        
+                    Logger.Error("client connect error retryed" + e.Message);
+                }
+
+                if (Client == null)
+                {
+                    Logger.Error("orlean client null");
+                    return;
+                }
 
                 switch (ti.Type)
                 {
@@ -70,7 +163,7 @@ namespace OrleansNotifyPlugin
                             }
                             catch (Exception e)
                             {
-                                Logger.Error("ADDTASK" + e.Message);
+                                Logger.Error("orleans client error ADDTASK" + e.Message);
                             }
                         }
                         break;
@@ -86,7 +179,7 @@ namespace OrleansNotifyPlugin
                             }
                             catch (Exception e)
                             {
-                                Logger.Error("MODTASK" + e.Message);
+                                Logger.Error("orleans client error MODTASK" + e.Message);
                             }
                         }
                         break;
@@ -102,7 +195,7 @@ namespace OrleansNotifyPlugin
                             }
                             catch (Exception e)
                             {
-                                Logger.Error("DELTASK" + e.Message);
+                                Logger.Error("orleans client error DELTASK" + e.Message);
                             }
                         }
                         break;
@@ -136,7 +229,7 @@ namespace OrleansNotifyPlugin
                             }
                             catch (Exception e)
                             {
-                                Logger.Error("CHANNELCHANGE" + e.Message);
+                                Logger.Error("orleans client error CHANNELCHANGE" + e.Message);
                             }
                         }
                         break;
@@ -149,7 +242,7 @@ namespace OrleansNotifyPlugin
                             }
                             catch (Exception e)
                             {
-                                Logger.Error("CHANNELDELETE" + e.Message);
+                                Logger.Error("orleans client error CHANNELDELETE" + e.Message);
                             }
                         }
                         break;
@@ -162,7 +255,7 @@ namespace OrleansNotifyPlugin
                             }
                             catch (Exception e)
                             {
-                                Logger.Error("DEVICECHANGE" + e.Message);
+                                Logger.Error("orleans client errorDEVICECHANGE" + e.Message);
                             }
                         }
                         break;
@@ -175,7 +268,7 @@ namespace OrleansNotifyPlugin
                             }
                             catch (Exception e)
                             {
-                                Logger.Error("DEVICEDELETE" + e.Message);
+                                Logger.Error("orleans client error DEVICEDELETE" + e.Message);
                             }
                         }
                         break;
