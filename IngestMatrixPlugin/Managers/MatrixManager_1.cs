@@ -167,7 +167,7 @@ namespace IngestMatrixPlugin.Managers
 
                     Logger.Error($"call SwitchInOutAsync, msvip: {msvip},msvport:{msvport}, dbpRcdindesc.Ipaddress:{dbpRcdindesc.Ipaddress}.");
 
-                    Task.Run(() => { _clock.InvokeNotify(msvip, NotifyPlugin.Msv, NotifyAction.MSVRELOCATE, dbpRcdindesc.Ipaddress, msvport); });
+                    await Task.Run(() => { _clock.InvokeNotify(msvip, NotifyPlugin.Msv, NotifyAction.MSVRELOCATE, dbpRcdindesc.Ipaddress, msvport); }).ConfigureAwait(true);
 
                     //if (!ApplicationContext.Current.CtrlSDK.Relecate(msvip, msvport, dbpRcdindesc.Ipaddress))
                     //{
