@@ -13,7 +13,6 @@ using IngestDevicePlugin.Models;
 using IngestDevicePlugin.Stores;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
-using Remotion.Linq.Parsing;
 using Sobey.Core.Log;
 using taskState = IngestDevicePlugin.Dto.Enum.taskState;
 using ProgrammeInfoDto = IngestDevicePlugin.Dto.Response.ProgrammeInfoResponse;

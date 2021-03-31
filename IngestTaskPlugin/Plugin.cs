@@ -1,4 +1,5 @@
-﻿using IngestDBCore;
+﻿using EFCore.Sharding;
+using IngestDBCore;
 using IngestDBCore.Plugin;
 using IngestTaskPlugin.Managers;
 using IngestTaskPlugin.Stores;
@@ -48,6 +49,10 @@ namespace IngestTaskPlugin
             context.Services.AddScoped<IPolicyStore, PolicyStore>();
             context.Services.AddScoped<VtrManager>();
             context.Services.AddScoped<PolicyManager>();
+
+            context.Services.AddEFCoreSharding(config => {
+                config.AddDataSource(context.ConnectionString, ReadWriteType.Read|ReadWriteType.Write, DatabaseType.MySql);
+            });
 
             return base.Init(context);
         }
