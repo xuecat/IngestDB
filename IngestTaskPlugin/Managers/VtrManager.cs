@@ -238,11 +238,13 @@ namespace IngestTaskPlugin.Managers
                 await VtrStore.AddUploadtask(upload);
 
                 //填充任务来源表
-                var taskSource = new DbpTaskSource();
-                taskSource.Taskid = info.VtrTaskId;
-                taskSource.Tasksource = (int)TaskSource.emVTRUploadTask;
+                //vtr uploadtask只能是emVTRUploadTask还有别的选择？
 
-                await TaskStore.AddTaskSource(taskSource);
+                //var taskSource = new DbpTaskSource();
+                //taskSource.Taskid = info.VtrTaskId;
+                //taskSource.Tasksource = (int)TaskSource.emVTRUploadTask;
+
+                //await TaskStore.AddTaskSource(taskSource);
 
                 await AddPolicyTaskByUserCode(info.UserCode, info.VtrTaskId);
             }
@@ -1256,6 +1258,7 @@ namespace IngestTaskPlugin.Managers
                 dbpTask.Tasktype = (int)TaskType.TT_VTRUPLOAD;
                 dbpTask.Usercode = task.strUserCode;
                 dbpTask.Taskguid = task.strTaskGUID;
+                dbpTask.Tasksource = (int)TaskSource.emVTRUploadTask;
                 dbpTask.Backupvtrid = 0;
             }
             else
@@ -1526,8 +1529,9 @@ namespace IngestTaskPlugin.Managers
             await VtrStore.AddUploadtask(vtrUploadtask, false);
 
             //更新任务来源表
-            Logger.Info("In ModifyNormalTaskToVTRUploadTask.Before Updating DBP_TASK_SOURCE");
-            await TaskStore.UpdateTaskSource(new DbpTaskSource() { Taskid = vtrTask.nTaskId, Tasksource = (int)TaskSource.emVTRUploadTask }, true);
+            //vtr uploadtask只能是emVTRUploadTask还有别的选择？
+            //Logger.Info("In ModifyNormalTaskToVTRUploadTask.Before Updating DBP_TASK_SOURCE");
+            //await TaskStore.UpdateTaskSource(new DbpTaskSource() { Taskid = vtrTask.nTaskId, Tasksource = (int)TaskSource.emVTRUploadTask }, true);
 
             Logger.Info("In ModifyNormalTaskToVTRUploadTask.Before Updating dataset");
             // 更新MetaData
