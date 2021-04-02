@@ -21,6 +21,7 @@ using IngestTaskPlugin.Extend;
 using IngestTaskPlugin.Dto.Response;
 using IngestTaskPlugin.Dto.OldResponse;
 using IngestTaskPlugin.Dto;
+using System.Reflection;
 
 namespace IngestTaskPlugin.Managers
 {
@@ -907,12 +908,8 @@ namespace IngestTaskPlugin.Managers
                     }
                 }
 
-
-                var taskSource = await Store.GetTaskSourceAsync(a => a.Where(x => x.Taskid == taskid), true);
-                if (taskSource != null)
-                {
-                    backobj.TaskSource = (TaskSource)taskSource.Tasksource;
-                }
+                backobj.TaskSource = (TaskSource)item.Tasksource;
+                
 
             }
 
@@ -1243,7 +1240,8 @@ namespace IngestTaskPlugin.Managers
                         else
                         {
                             //原通道不用可时
-                            var copyitem = Store.DeepClone(item);
+                            var copyitem = ObjectTool.CopyObjectData(item, "", BindingFlags.Public | BindingFlags.Instance);
+
                             int newchannelid = await GetRescheduleChannel(copyitem, fresponse.Ext);
                             if (newchannelid > 0)
                             {
@@ -1873,8 +1871,7 @@ namespace IngestTaskPlugin.Managers
                     await SetTaskCooperType(nOldTaskID, CooperantType.emVTRBackupFinish);
                 }
 
-                TaskSource taskSrc = await GetTaskSource(nOldTaskID);
-
+               
                 //MetaDataPolicy[] arrMetaDataPolicy = PPLICYACCESS.GetPolicyByTaskID(nTaskID);
                 //List<int> listPolicyId = new List<int>();
                 //foreach (MetaDataPolicy item in arrMetaDataPolicy)
@@ -1998,7 +1995,7 @@ namespace IngestTaskPlugin.Managers
                 //addinfo.TaskSource = taskSrc;
                 //addinfo.TaskContent = _mapper.Map<TaskContentRequest>(findtask);
 
-                var backinfo = await Store.AddTaskWithPolicys(findtask, true, taskSrc, strCapatureMetaData, strContentMetaData, strStoreMetaData, strPlanMetaData, strSplitMetaData, null);
+                var backinfo = await Store.AddTaskWithPolicys(findtask, true, strCapatureMetaData, strContentMetaData, strStoreMetaData, strPlanMetaData, strSplitMetaData, null);
                 //if (backinfo != null)
                 //{
                 //    await Store.UpdateTaskMetaDataAsync(findtask.Taskid, MetaDataType.emSplitData, strSplitMetaData);
@@ -2308,7 +2305,7 @@ namespace IngestTaskPlugin.Managers
 
         public async Task<TaskSource> GetTaskSource(int taskid)
         {
-            return (TaskSource)(await Store.GetTaskSourceAsync(a => a.Where(b => b.Taskid == taskid).Select(x => x.Tasksource), true));
+            return (TaskSource)(await Store.GetTaskAsync(a => a.Where(b => b.Taskid == taskid).Select(c => c.Tasksource), true));
         }
 
         public async Task<List<TResult>> GetNeedSynTasksNew<TResult>()
@@ -2719,7 +2716,7 @@ namespace IngestTaskPlugin.Managers
                     //newTaskId = AddTaskWithoutPolicy(taskModify, TaskSource.emUnknowTask, metadatas, false, null);
                     var addinfo = new TaskInfoRequest();
                     addinfo.BackUpTask = false;
-                    addinfo.TaskSource = (TaskSource)(await Store.GetTaskSourceAsync(a => a.Where(b => b.Taskid == realTask.Taskid))).Tasksource;//TaskSource.emUnknowTask;
+                    addinfo.TaskSource = (TaskSource)realTask.Tasksource;//TaskSource.emUnknowTask;
                     addinfo.TaskContent = modifyinfo;
                     var backinfo = await AddTaskWithPolicy(addinfo, false, strCapatureMetaData, strContentMetaData, strStoreMetaData, strPlanMetaData);
                     //return backinfo.TaskID;
@@ -3058,11 +3055,6 @@ namespace IngestTaskPlugin.Managers
 
         }
 
-        public async Task ModifyTaskSource(int taskId, TaskSource taskSource)
-        {
-            await Store.UpdateTaskSource(new DbpTaskSource() { Taskid = taskId, Tasksource = (int)taskSource }, true);
-        }
-
         public async Task<TResult> IsVTRCollide<TResult>(int VTR_ID, string begintime, string endtime, int TaskID)
         {
             //返回true，证明有冲突
@@ -3182,8 +3174,9 @@ namespace IngestTaskPlugin.Managers
                     //des.State = (int)taskState.tsReady;
                     des.SyncState = (int)syncState.ssSync;
                     des.DispatchState = (int)dispatchState.dpsDispatched;
+                    des.Tasksource = (int)TaskSource.emVTRUploadTask;
                 })
-                ), false, TaskSource.emVTRUploadTask, string.Empty, string.Empty, string.Empty, string.Empty, string.Empty, null);
+                ), false, string.Empty, string.Empty, string.Empty, string.Empty, string.Empty, null);
             }
 
         }
@@ -3289,7 +3282,6 @@ namespace IngestTaskPlugin.Managers
         public async Task<TResult> CreateNewTaskFromPeriodicTask<TResult>(int periodicTaskId)
         {
             var findtask = await Store.GetTaskAsync(a => a.Where(b => b.Taskid == periodicTaskId), true);
-            TaskSource src = await GetTaskSource(periodicTaskId);
 
             if (findtask.Category == "A" && findtask.Endtime.AddDays(1) < DateTime.Now)
             {
@@ -3298,7 +3290,7 @@ namespace IngestTaskPlugin.Managers
 
             string strmetadata = await IsNeedModPeriodicTaskName(periodicTaskId);
 
-            var addtask = Store.DeepClone(findtask);
+            var addtask = ObjectTool.CopyObjectData(findtask,"", BindingFlags.Public | BindingFlags.Instance);
 
             string newTaskName = findtask.Taskname;
             if (!string.IsNullOrEmpty(strmetadata))
@@ -3432,7 +3424,7 @@ namespace IngestTaskPlugin.Managers
             await Store.ModifyTask(findtask, true, false, false, string.Empty, string.Empty, string.Empty, string.Empty);
 
             string orgtitle = "";
-            await Store.AddTaskWithPolicys(addtask, true, src, strCapatureMetaData, strContentMetaData, strStoreMetaData, strPlanMetaData, DealSplitNameSuffix(strSplitMetaData, addtask.Channelid ?? 0, string.Empty, ref orgtitle, string.Empty), null);
+            await Store.AddTaskWithPolicys(addtask, true, strCapatureMetaData, strContentMetaData, strStoreMetaData, strPlanMetaData, DealSplitNameSuffix(strSplitMetaData, addtask.Channelid ?? 0, string.Empty, ref orgtitle, string.Empty), null);
 
             return _mapper.Map<TResult>(addtask);
 
@@ -3690,7 +3682,7 @@ namespace IngestTaskPlugin.Managers
 
             if (findtask != null)
             {
-                var newtaskinfo = Store.DeepClone(findtask);
+                var newtaskinfo = ObjectTool.CopyObjectData(findtask, "", BindingFlags.Public | BindingFlags.Instance);
 
                 //新版本task已经不需要这种逻辑了
                 if (findtask.Tasktype == (int)TaskType.TT_MANUTASK
@@ -3777,12 +3769,11 @@ namespace IngestTaskPlugin.Managers
                     newtaskinfo.NewEndtime = newtaskinfo.Starttime;
                 }
 
-                TaskSource src = await GetTaskSource(findtask.Taskid);
                 if (newtaskinfo.Signalid > 0)
                 {
-                    src = TaskSource.emMSVUploadTask;
+                    newtaskinfo.Tasksource = (int)TaskSource.emMSVUploadTask;
                 }
-                Logger.Info($"AutoAddTaskByOldTask {src} {newtaskinfo.Signalid}");
+                Logger.Info($"AutoAddTaskByOldTask {newtaskinfo.Tasksource} {newtaskinfo.Signalid}");
                 var lsttaskmeta = await Store.GetTaskMetaDataListAsync(a => a.Where(b => b.Taskid == findtask.Taskid), true); ;
                 string strCapatureMetaData = string.Empty, strStoreMetaData = string.Empty, strContentMetaData = string.Empty, strPlanMetaData = string.Empty, strSplitMetaData = string.Empty;
                 foreach (var item in lsttaskmeta)
@@ -3843,7 +3834,7 @@ namespace IngestTaskPlugin.Managers
                     var root = XElement.Parse(strContentMetaData);
                     root.Descendants("RealStampIndex")?.Remove();
                     root.Descendants("PERIODPARAM")?.Remove();
-                    if (src != TaskSource.emRtmpSwitchTask)
+                    if (newtaskinfo.Tasksource != (int)TaskSource.emRtmpSwitchTask)
                     {
                         root.Descendants("SIGNALRTMPURL")?.Remove();
                     }
@@ -3851,7 +3842,7 @@ namespace IngestTaskPlugin.Managers
                 }
 
 
-                var info = await Store.AddTaskWithPolicys(newtaskinfo, true, src,
+                var info = await Store.AddTaskWithPolicys(newtaskinfo, true,
                                                             strCapatureMetaData,
                                                             strContentMetaData,
                                                             strStoreMetaData,
@@ -4206,7 +4197,8 @@ namespace IngestTaskPlugin.Managers
                             dest.SyncState = (int)syncState.ssNot;
                             dest.Tasklock = string.Empty;
                             dest.Taskid = -1;
-                        })), true, TaskSource.emMSVUploadTask,
+                            dest.Tasksource = (int)TaskSource.emMSVUploadTask;
+                        })), true,
                         string.IsNullOrEmpty(CaptureMeta) ? taskinfo.CaptureMeta : CaptureMeta,
                         string.IsNullOrEmpty(ContentMeta) ? ConverTaskContentMetaString(taskinfo.ContentMeta, opType.otAdd) : ContentMeta,
                         string.IsNullOrEmpty(MatiralMeta) ? ConverTaskMaterialMetaString(taskinfo.MaterialMeta) : MatiralMeta,
@@ -4385,7 +4377,8 @@ namespace IngestTaskPlugin.Managers
                     dest.SyncState = (int)syncState.ssSync;
                     dest.Tasklock = string.Empty;
                     dest.Taskid = -1;
-                })), true, taskinfo.TaskSource,
+                    dest.Tasksource = (int)taskinfo.TaskSource;
+                })), true,
                 string.IsNullOrEmpty(CaptureMeta) ? taskinfo.CaptureMeta : CaptureMeta,
                 string.IsNullOrEmpty(ContentMeta) ? ConverTaskContentMetaString(taskinfo.ContentMeta, opType.otAdd) : ContentMeta,
                 string.IsNullOrEmpty(MatiralMeta) ? ConverTaskMaterialMetaString(taskinfo.MaterialMeta) : MatiralMeta,
@@ -4459,7 +4452,8 @@ namespace IngestTaskPlugin.Managers
                             dest.SyncState = (int)syncState.ssNot;
                             dest.Tasklock = string.Empty;
                             dest.Taskid = -1;
-                        })), true, TaskSource.emMSVUploadTask,
+                            dest.Tasksource = (int)TaskSource.emMSVUploadTask;
+                        })), true,
                         string.IsNullOrEmpty(CaptureMeta) ? taskinfo.CaptureMeta : CaptureMeta,
                         string.IsNullOrEmpty(ContentMeta) ? ConverTaskContentMetaString(taskinfo.ContentMeta, opType.otAdd) : ContentMeta,
                         string.IsNullOrEmpty(MatiralMeta) ? ConverTaskMaterialMetaString(taskinfo.MaterialMeta) : MatiralMeta,
@@ -4623,7 +4617,8 @@ namespace IngestTaskPlugin.Managers
                     dest.SyncState = (int)syncState.ssSync;
                     dest.Tasklock = string.Empty;
                     dest.Taskid = -1;
-                })), true, taskinfo.TaskSource,
+                    dest.Tasksource = (int)taskinfo.TaskSource;
+                })), true,
                 string.IsNullOrEmpty(CaptureMeta) ? taskinfo.CaptureMeta : CaptureMeta,
                 string.IsNullOrEmpty(ContentMeta) ? ConverTaskContentMetaString(taskinfo.ContentMeta, opType.otAdd) : ContentMeta,
                 string.IsNullOrEmpty(MatiralMeta) ? ConverTaskMaterialMetaString(taskinfo.MaterialMeta) : MatiralMeta,

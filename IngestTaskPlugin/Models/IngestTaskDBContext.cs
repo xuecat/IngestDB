@@ -20,7 +20,7 @@ namespace IngestTaskPlugin.Models
         public virtual DbSet<DbpTaskMetadata> DbpTaskMetadata { get; set; }
         public virtual DbSet<DbpTaskMetadataBackup> DbpTaskMetadataBackup { get; set; }
         public virtual DbSet<DbpTaskSignalsrcBackuptask> DbpTaskSignalsrcBackuptask { get; set; }
-        public virtual DbSet<DbpTaskSource> DbpTaskSource { get; set; }
+        
         public virtual DbSet<VtrTaskinfo> VtrTaskinfo { get; set; }
         public virtual DbSet<VtrTaskInout> VtrTaskInout { get; set; }
         public virtual DbSet<VtrTaskMeatdata> VtrTaskMeatdata { get; set; }
@@ -345,6 +345,11 @@ namespace IngestTaskPlugin.Models
 
                 entity.Property(e => e.Sgroupcolor)
                     .HasColumnName("SGROUPCOLOR")
+                    .HasColumnType("int(11)")
+                    .HasDefaultValueSql("'0'");
+
+                entity.Property(e => e.Tasksource)
+                    .HasColumnName("TASKSOURCE")
                     .HasColumnType("int(11)")
                     .HasDefaultValueSql("'0'");
 
@@ -729,21 +734,7 @@ namespace IngestTaskPlugin.Models
                     .HasColumnType("int(11)");
             });
 
-            modelBuilder.Entity<DbpTaskSource>(entity =>
-            {
-                entity.HasKey(e => e.Taskid);
-
-                entity.ToTable("dbp_task_source");
-
-                entity.Property(e => e.Taskid)
-                    .HasColumnName("TASKID")
-                    .HasColumnType("int(11)");
-
-                entity.Property(e => e.Tasksource)
-                    .HasColumnName("TASKSOURCE")
-                    .HasColumnType("int(11)")
-                    .HasDefaultValueSql("'0'");
-            });
+            
             modelBuilder.Entity<DbpXdcamTask>(entity =>
             {
                 entity.HasKey(e => e.Taskid);

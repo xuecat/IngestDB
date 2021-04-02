@@ -1,10 +1,14 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations;
+using System.ComponentModel.DataAnnotations.Schema;
 
 namespace IngestTaskPlugin.Models
 {
+    [Table("dbp_task")]
     public partial class DbpTask
     {
+        [Key]
         public int Taskid { get; set; }
         public string Taskname { get; set; }
         public int? Recunitid { get; set; }
@@ -31,5 +35,6 @@ namespace IngestTaskPlugin.Models
         public int? Stamptitleindex { get; set; }
         public int? Stampimagetype { get; set; }
         public int? Sgroupcolor { get; set; }
+        public int? Tasksource { get; set; }
     }
 }

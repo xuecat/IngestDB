@@ -91,7 +91,8 @@ namespace IngestTaskPlugin
                 .ForMember(a => a.SyncState, (map) => map.MapFrom(b => b.SyncState))
                 .ForMember(a => a.OpType, (map) => map.MapFrom(b => b.OpType))
                 .ForMember(a => a.NewBeginTime, (map) => map.MapFrom(b => b.NewBegintime))
-                .ForMember(a => a.NewEndTime, (map) => map.MapFrom(b => b.NewEndtime));
+                .ForMember(a => a.NewEndTime, (map) => map.MapFrom(b => b.NewEndtime))
+                .ForMember(a => a.TaskSource, (map) => map.MapFrom(b => b.Tasksource));
 
 
             CreateMap<DbpTask, TaskContent>()

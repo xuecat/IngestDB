@@ -8,6 +8,12 @@ namespace IngestDBCore.Tool
 {
     public static class ObjectTool
     {
+        public static T CopyObjectData<T>(T source, string excludedProperties, BindingFlags memberAccess) where T : class, new()
+        {
+            dynamic destobj = new T();
+            CopyObjectData(source, destobj, excludedProperties, memberAccess);
+            return destobj;
+        }
         public static void CopyObjectData(object source, object target, string excludedProperties, BindingFlags memberAccess)
         {
             string[] excluded = null;

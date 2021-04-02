@@ -42,7 +42,6 @@ namespace IngestTaskPlugin.Stores
         Task UpdateTaskCutomMetaDataAsync(int taskid, string metadata);
         Task<List<TResult>> GetTaskListAsync<TResult>(Func<IQueryable<DbpTask>, IQueryable<TResult>> query, bool notrack = false);
         Task<TResult> GetTaskAsync<TResult>(Func<IQueryable<DbpTask>, IQueryable<TResult>> query, bool notrack = false);
-        Task<TResult> GetTaskSourceAsync<TResult>(Func<IQueryable<DbpTaskSource>, IQueryable<TResult>> query, bool notrack = false);
         Task<TResult> GetVtrUploadTaskAsync<TResult>(Func<IQueryable<VtrUploadtask>, IQueryable<TResult>> query, bool notrack = false);
         Task<List<TResult>> GetVtrUploadTaskListAsync<TResult>(Func<IQueryable<VtrUploadtask>, IQueryable<TResult>> query, bool notrack = false);
         Task<TResult> GetTaskBackupAsync<TResult>(Func<IQueryable<DbpTaskBackup>, IQueryable<TResult>> query, bool notrack = false);
@@ -72,14 +71,13 @@ namespace IngestTaskPlugin.Stores
 
         Task<List<int>> GetFreeChannels(List<int> lst, int nTaskID,int backVtrId, DateTime begin, DateTime end, bool choosefilter = false);
         Task<List<int>> GetFreePerodiChannels(List<int> lst, int nTaskID, int nUnitID, int nSigID, int nChannelID, string Category, DateTime begin, DateTime end);
-        Task<DbpTask> AddTaskWithPolicys(DbpTask task, bool bAddForInDB, TaskSource taskSrc, string CaptureMeta, string ContentMeta, string MatiralMeta, string PlanningMeta, string SplitMeta, int[] arrPolicys);
+        Task<DbpTask> AddTaskWithPolicys(DbpTask task, bool bAddForInDB, string CaptureMeta, string ContentMeta, string MatiralMeta, string PlanningMeta, string SplitMeta, int[] arrPolicys);
         Task<DbpTask> ModifyTask(DbpTask task, bool bPerodic2Next, bool autoupdate, bool savechange, string CaptureMeta, string ContentMeta, string MatiralMeta, string PlanningMeta, string SplitMeta = "");
 
         Task UnLockAllTask();
         Task LockTask(int taskid);
         Task UnLockTask(int taskid);
         Task UnLockTask(DbpTask taskid, bool savechange);
-        DbpTask DeepClone(DbpTask obj);
         bool GetPerodicTaskNextExectueTime(DateTime tmBegin, DateTime tmEnd, string strPerodicDesc, ref DateTime tmExecuteBegin, ref DateTime tmExecuteEnd);
         List<DateTime> GetDateTimeFromString(string str);
         bool IsInvalidPerodicTask(string strClassify, DateTime begin);
@@ -89,13 +87,10 @@ namespace IngestTaskPlugin.Stores
 
         Task<bool> AddTaskErrorInfo(DbpTaskErrorinfo taskSource);
 
-        Task<bool> AddTaskSource(DbpTaskSource taskSource);
 
         Task<bool> AddPolicyTask(List<DbpPolicytask> policytasks);
 
-        Task<bool> UpdateTaskSource(DbpTaskSource taskSource, bool submitFlag);
 
-        Task<bool> AddTaskSourceList(List<DbpTaskSource> taskSources, bool submitFlag);
         Task<bool> AddTask(DbpTask tasks, bool savechange);
         Task<bool> AddTaskList(List<DbpTask> tasks, bool savechange);
         Task<bool> AddPolicyTask(List<DbpPolicytask> policytasks, bool submitFlag);

@@ -68,3 +68,15 @@ UdpNotifyPlugin/bin/
 
 /IngestVtrPlugin/obj
 /UdpNotifyPlugin/obj
+
+EFCore.Sharding/obj/
+EFCore.Sharding/bin/
+
+EFCore.Sharding.MySql/obj/
+EFCore.Sharding.MySql/bin/
+
+EFCore3.Sharding/obj/
+EFCore3.Sharding/bin/
+
+EFCore3.Sharding.MySql/obj/
+EFCore3.Sharding.MySql/bin/

@@ -1,7 +1,9 @@
 ﻿using EFCore.Sharding;
 using IngestDBCore;
 using IngestDBCore.Plugin;
+using IngestDBCore.Tool;
 using IngestTaskPlugin.Managers;
+using IngestTaskPlugin.Models;
 using IngestTaskPlugin.Stores;
 using IngestTaskPlugin.Stores.Policy;
 using IngestTaskPlugin.Stores.VTR;
@@ -51,8 +53,12 @@ namespace IngestTaskPlugin
             context.Services.AddScoped<PolicyManager>();
 
             context.Services.AddEFCoreSharding(config => {
+                config.CreateShardingTableOnStarting(false);
+                config.EnableShardingMigration(true);
                 config.AddDataSource(context.ConnectionString, ReadWriteType.Read|ReadWriteType.Write, DatabaseType.MySql);
+                config.SetDateSharding<DbpTask>(nameof(DbpTask.Endtime), ExpandByDateMode.PerMinute, DateTimeFormat.DateTimeFromString("2021-03-19 10:06:54"));
             });
+
 
             return base.Init(context);
         }

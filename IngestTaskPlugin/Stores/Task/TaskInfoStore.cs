@@ -1,9 +1,11 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Reflection;
 using System.Text;
 using System.Threading.Tasks;
 using System.Xml.Linq;
+using EFCore.Sharding;
 using IngestDBCore;
 using IngestDBCore.Tool;
 using IngestTaskPlugin.Dto;
@@ -22,13 +24,17 @@ namespace IngestTaskPlugin.Stores
     public class TaskInfoStore : ITaskStore
     {
 
-        public TaskInfoStore(IngestTaskDBContext baseDataDbContext)
+        public TaskInfoStore(IngestTaskDBContext baseDataDbContext, IShardingDbAccessor shard)
         {
+            _shardDbAcces = shard;
             Context = baseDataDbContext;
         }
 
         protected string ConfictTaskInfo { get; set; }
         protected IngestTaskDBContext Context { get; }
+
+        protected IShardingDbAccessor _shardDbAcces { get; }
+
         private readonly ILogger Logger = LoggerManager.GetLogger("TaskInfo");
         public async Task<TResult> GetTaskAsync<TResult>(Func<IQueryable<DbpTask>, IQueryable<TResult>> query, bool notrack = false)
         {
@@ -43,18 +49,7 @@ namespace IngestTaskPlugin.Stores
             return await query.Invoke(Context.DbpTask).SingleOrDefaultAsync();
         }
 
-        public async Task<TResult> GetTaskSourceAsync<TResult>(Func<IQueryable<DbpTaskSource>, IQueryable<TResult>> query, bool notrack = false)
-        {
-            if (query == null)
-            {
-                throw new ArgumentNullException(nameof(query));
-            }
-            if (notrack)
-            {
-                return await query.Invoke(Context.DbpTaskSource.AsNoTracking()).SingleOrDefaultAsync();
-            }
-            return await query.Invoke(Context.DbpTaskSource).SingleOrDefaultAsync();
-        }
+       
 
         public async Task<TResult> GetVtrUploadTaskAsync<TResult>(Func<IQueryable<VtrUploadtask>, IQueryable<TResult>> query, bool notrack = false)
         {
@@ -1395,10 +1390,7 @@ namespace IngestTaskPlugin.Stores
                             }
                             else if (dtNeedJudgeEnd < DateTime.Now)//流媒体任务如果结束时间都已经过了，但是还是采集状态的，当成openend任务处理，不能占用
                             {
-                                TaskSource srcType = TaskSource.emUnknowTask;
-
-                                await GetTaskSourceAsync(a => a.Where(b => b.Taskid == item.Taskid), true);
-                                if (TaskSource.emStreamMediaUploadTask == srcType)
+                                if (TaskSource.emStreamMediaUploadTask == (TaskSource)item.Tasksource)
                                 {
                                     dtNeedJudgeEnd = DateTime.Now.AddSeconds(5);//每次都加5秒作为估计要结束的时间，这样在重调度判断时间冲突的时候错开当前通道
                                 }
@@ -2516,7 +2508,7 @@ namespace IngestTaskPlugin.Stores
             return task;
         }
 
-        public async Task<DbpTask> AddTaskWithPolicys(DbpTask task, bool bAddForInDB, TaskSource taskSrc,
+        public async Task<DbpTask> AddTaskWithPolicys(DbpTask task, bool bAddForInDB,
             string CaptureMeta, string ContentMeta, string MatiralMeta, string PlanningMeta, string SplitMeta, int[] arrPolicys)
         {
             if (task.Taskid <= 0)
@@ -2557,8 +2549,7 @@ namespace IngestTaskPlugin.Stores
             Logger.Info(" AddTaskWithPolicys add source and policy " + task.Taskid);
             if (bAddForInDB)
             {
-                await Context.DbpTaskSource.AddAsync(new DbpTaskSource() { Taskid = task.Taskid, Tasksource = (int)taskSrc });
-
+                
                 //目前只有一种入库策略，何必再写，全部省略
 
                 //MetaDataPolicy[] PolicyList = PPLICYACCESS.GetPolicyByUserID(taskInfo.taskContent.strUserCode);
@@ -2570,11 +2561,7 @@ namespace IngestTaskPlugin.Stores
             }
             else
             {
-                if (!await Context.DbpTaskSource.AsNoTracking().AnyAsync(a => a.Taskid == task.Taskid))
-                {
-                    await Context.DbpTaskSource.AddAsync(new DbpTaskSource() { Taskid = task.Taskid, Tasksource = (int)taskSrc });
-                }
-
+                
                 if (!await Context.DbpPolicytask.AsNoTracking().AnyAsync(b => b.Taskid == task.Taskid))
                 {
                     await Context.DbpPolicytask.AddAsync(new DbpPolicytask() { Policyid = 1, Taskid = task.Taskid });
@@ -2582,7 +2569,9 @@ namespace IngestTaskPlugin.Stores
             }
 
             Logger.Info(" AddTaskWithPolicys add task " + task.Taskid);
-            Context.DbpTask.Add(task);
+            //Context.DbpTask.Add(task);
+
+            await _shardDbAcces.InsertAsync(task);
 
             if (!string.IsNullOrEmpty(ContentMeta))
             {
@@ -2910,37 +2899,7 @@ namespace IngestTaskPlugin.Stores
             return taskList;
         }
 
-        public DbpTask DeepClone(DbpTask obj)
-        {
-            var f = new DbpTask();
-            f.Backtype = obj.Backtype;
-            f.Backupvtrid = obj.Backupvtrid;
-            f.Category = obj.Category;
-            f.Channelid = obj.Channelid;
-            f.Description = obj.Description;
-            f.DispatchState = obj.DispatchState;
-            f.Endtime = obj.Endtime;
-            f.NewBegintime = obj.NewBegintime;
-            f.NewEndtime = obj.NewEndtime;
-            f.OldChannelid = obj.OldChannelid;
-            f.OpType = obj.OpType;
-            f.Recunitid = obj.Recunitid;
-            f.Sgroupcolor = obj.Sgroupcolor;
-            f.Signalid = obj.Signalid;
-            f.Stampimagetype = obj.Stampimagetype;
-            f.Stamptitleindex = obj.Stamptitleindex;
-            f.Starttime = obj.Starttime;
-            f.State = obj.State;
-            f.SyncState = obj.SyncState;
-            f.Taskguid = obj.Taskguid;
-            f.Taskid = obj.Taskid;
-            f.Tasklock = obj.Tasklock;
-            f.Taskname = obj.Taskname;
-            f.Taskpriority = obj.Taskpriority;
-            f.Tasktype = obj.Tasktype;
-            f.Usercode = obj.Usercode;
-            return f;
-        }
+        
         public DbpTask FixPeroidcTaskTimeDisplay(DbpTask taskContent, DateTime tmDay, TimeLineType nTimeMode, ref bool isAdd2)
         {
             DbpTask fakeTask = null;
@@ -3008,7 +2967,7 @@ namespace IngestTaskPlugin.Stores
                             if (taskContent.State != (int)taskState.tsReady && outPutDateTimeBegin32 < DateTime.Now)
                                 return null;
 
-                            fakeTask = DeepClone(taskContent);
+                            fakeTask = ObjectTool.CopyObjectData(taskContent, "", BindingFlags.Public | BindingFlags.Instance);
 
                             fakeTask.Taskid *= -1;
                             fakeTask.Starttime = new DateTime(tmDay.AddDays(1).Year, tmDay.AddDays(1).Month, tmDay.AddDays(1).Day, DBTaskDateTimeBegin.Hour, DBTaskDateTimeBegin.Minute, DBTaskDateTimeBegin.Second);
@@ -3050,7 +3009,7 @@ namespace IngestTaskPlugin.Stores
                 else if (bTodayExec && bYesterDayExec) //C
                 {
                     //					Trace.WriteLine("[DBA]"+taskContent.strTaskName+tmDay.ToString()+"今天和昨天是执行日！");
-                    fakeTask = DeepClone(taskContent);
+                    fakeTask = ObjectTool.CopyObjectData(taskContent, "", BindingFlags.Public | BindingFlags.Instance);
                     fakeTask.Taskid *= -1;
                     fakeTask.Starttime = new DateTime(tmDay.AddDays(-1).Year, tmDay.AddDays(-1).Month, tmDay.AddDays(-1).Day, DBTaskDateTimeBegin.Hour, DBTaskDateTimeBegin.Minute, DBTaskDateTimeBegin.Second);
                     fakeTask.Endtime = new DateTime(tmDay.Year, tmDay.Month, tmDay.Day, DBTaskDateTimeEnd.Hour, DBTaskDateTimeEnd.Minute, DBTaskDateTimeEnd.Second);
@@ -3065,13 +3024,13 @@ namespace IngestTaskPlugin.Stores
                     //开始时间位于0-8点之间
                     if (DBTaskDateTimeBegin.TimeOfDay >= new DateTime(1, 1, 1, 0, 0, 0).TimeOfDay && DBTaskDateTimeBegin.TimeOfDay < new DateTime(1, 1, 1, 8, 0, 0).TimeOfDay)
                     {
-                        fakeTask = DeepClone(taskContent);
+                        fakeTask = ObjectTool.CopyObjectData(taskContent, "", BindingFlags.Public | BindingFlags.Instance);
                         fakeTask.Starttime = new DateTime(tmDay.AddDays(1).Year, tmDay.AddDays(1).Month, tmDay.AddDays(1).Day, DBTaskDateTimeBegin.Hour, DBTaskDateTimeBegin.Minute, DBTaskDateTimeBegin.Second);
                         fakeTask.Endtime = new DateTime(tmDay.AddDays(2).Year, tmDay.AddDays(2).Month, tmDay.AddDays(2).Day, DBTaskDateTimeEnd.Hour, DBTaskDateTimeEnd.Minute, DBTaskDateTimeEnd.Second);
                     }
                     else
                     {
-                        fakeTask = DeepClone(taskContent);
+                        fakeTask = ObjectTool.CopyObjectData(taskContent, "", BindingFlags.Public | BindingFlags.Instance);
                         fakeTask.State = (int)taskState.tsDelete;
                     }
                 }
@@ -3251,15 +3210,6 @@ namespace IngestTaskPlugin.Stores
             return ++f;
         }
 
-        public async Task<bool> AddTaskSource(DbpTaskSource taskSource)
-        {
-            if (taskSource != null)
-            {
-                await Context.DbpTaskSource.AddAsync(taskSource);
-                return await Context.SaveChangesAsync() > 0;
-            }
-            return false;
-        }
 
         public async Task<int> ResetTaskErrorInfo(int taskid)
         {
@@ -3317,79 +3267,6 @@ namespace IngestTaskPlugin.Stores
         }
         /////////////////////
         ///
-        public async Task<bool> UpdateTaskSource(DbpTaskSource taskSource)
-        {
-            try
-            {
-
-                var dbpCapParam = await GetTaskSourceAsync(a => a.Where(x => x.Taskid == taskSource.Taskid), true);
-                if (dbpCapParam == null)
-                {
-                    //add
-                    Context.DbpTaskSource.Add(taskSource);
-                }
-                else
-                {
-                    //update
-                    Context.Attach(taskSource);
-                    Context.Entry(taskSource).Property(x => x.Tasksource).IsModified = true;
-                }
-                await Context.SaveChangesAsync();
-            }
-            catch (System.Exception ex)
-            {
-                Logger.Error("UpdateGlobalValueAsync : " + ex.ToString());
-                throw ex;
-            }
-            return true;
-        }
-
-        public async Task<bool> UpdateTaskSource(DbpTaskSource taskSource, bool submitFlag)
-        {
-            try
-            {
-
-                var dbpCapParam = await GetTaskSourceAsync(a => a.Where(x => x.Taskid == taskSource.Taskid), true);
-                if (dbpCapParam == null)
-                {
-                    //add
-                    Context.DbpTaskSource.Add(taskSource);
-                }
-                else
-                {
-                    //update
-                    Context.Attach(taskSource);
-                    Context.Entry(taskSource).Property(x => x.Tasksource).IsModified = true;
-                }
-
-                if (submitFlag)
-                {
-                    await Context.SaveChangesAsync();
-                }
-            }
-            catch (System.Exception ex)
-            {
-                Logger.Error("UpdateGlobalValueAsync : " + ex.ToString());
-                throw ex;
-            }
-            return true;
-        }
-
-
-        public async Task<bool> AddTaskSourceList(List<DbpTaskSource> taskSources, bool submitFlag)
-        {
-            if (taskSources != null && taskSources.Count > 0)
-            {
-                await Context.DbpTaskSource.AddRangeAsync(taskSources);
-            }
-
-            if (submitFlag)
-            {
-                return await Context.SaveChangesAsync() > 0;
-            }
-
-            return true;
-        }
 
         public async Task<bool> AddTask(DbpTask tasks, bool savechange)
         {
@@ -3578,7 +3455,7 @@ namespace IngestTaskPlugin.Stores
             DateTime addDyas = DateTime.Now.AddSeconds(5);
 
             bool queryexturingtask = true;
-            IQueryable<DbpTask> onelst = null;
+            IShardingQueryable<DbpTask> onelst = null;
 
             switch (timetype)
             {
@@ -3593,7 +3470,7 @@ namespace IngestTaskPlugin.Stores
                         {
                             if (queryexturingtask)
                             {
-                                onelst = Context.DbpTask.AsNoTracking().Where(a =>
+                                onelst = _shardDbAcces.GetIShardingQueryable<DbpTask>().Where(a =>
                                 (((a.Starttime >= dtDayBegin && a.Starttime <= dtDayEnd)
                                 || (a.Endtime >= dtDayBegin && a.Endtime <= dtDayEnd)
                                 || (a.Starttime <= dtDayBegin && a.Endtime >= dtDayEnd))
