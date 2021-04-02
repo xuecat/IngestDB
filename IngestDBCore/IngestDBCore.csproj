@@ -45,4 +45,9 @@
     <Folder Include="Exception\" />
   </ItemGroup>
 
+  <ItemGroup>
+    <ProjectReference Include="..\EFCore3.Sharding.MySql\EFCore3.Sharding.MySql.csproj" />
+    <ProjectReference Include="..\EFCore3.Sharding\EFCore3.Sharding.csproj" />
+  </ItemGroup>
+
 </Project>
