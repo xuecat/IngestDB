@@ -329,6 +329,9 @@ namespace IngestDB
 
             //app.UseHttpsRedirection();
             //app.UseMvc();
+            var shardingBootstrapper = app.ApplicationServices.GetRequiredService<ShardingCore.IShardingBootstrapper>();
+            shardingBootstrapper.Start();
+
             app.UseRouting();
             app.UseEndpoints(endpoints =>
             {

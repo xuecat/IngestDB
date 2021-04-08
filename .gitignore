@@ -80,3 +80,15 @@ EFCore3.Sharding/bin/
 
 EFCore3.Sharding.MySql/obj/
 EFCore3.Sharding.MySql/bin/
+
+ShardingCore/obj/
+ShardingCore/bin/
+
+ShardingCore.3x/obj/
+ShardingCore.3x/bin/
+
+ShardingCore.MySql/obj/
+ShardingCore.MySql/bin/
+
+ShardingCore.MySql.3x/obj/
+ShardingCore.MySql.3x/bin/

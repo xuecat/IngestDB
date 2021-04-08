@@ -2343,7 +2343,6 @@ namespace IngestTaskPlugin.Managers
         private async Task<List<int>> SetVBUT2DataSetAsync(List<VTRUploadTaskContent> vbuTasks, List<VTR_UPLOAD_MetadataPair> metadatas, bool isAdd2DB, List<int> taskIds)
         {
             List<DbpTask> submitTasks = new List<DbpTask>();
-            List<DbpTaskSource> submitTaskSource = new List<DbpTaskSource>();
             List<DbpPolicytask> submitPolicy = new List<DbpPolicytask>();
             List<VtrUploadtask> vtrUploadtasks = new List<VtrUploadtask>();
 
@@ -2387,8 +2386,6 @@ namespace IngestTaskPlugin.Managers
                     submitTasks.Add(dbpTask);
                     vtrUploadtasks.Add(Mapper.Map<VtrUploadtask>(task));
 
-                    submitTaskSource.Add(new DbpTaskSource() { Taskid = task.nTaskId, Tasksource = (int)TaskSource.emVTRUploadTask });
-
                     /*policy现在就一个，写死*/
                     submitPolicy.Add(new DbpPolicytask() { Policyid= 1, Taskid= task.nTaskId });
                     //List<DbpMetadatapolicy> dbpMetadatapolicies = await VtrStore.GetMetadatapoliciesByUserCode(task.strUserCode);
@@ -2421,7 +2418,6 @@ namespace IngestTaskPlugin.Managers
             {
                 await TaskStore.AddTaskList(submitTasks, false);
                 await VtrStore.AddUploadListtask(vtrUploadtasks, false);
-                await TaskStore.AddTaskSourceList(submitTaskSource, false);
                 await TaskStore.AddPolicyTask(submitPolicy, true);
             }
             else

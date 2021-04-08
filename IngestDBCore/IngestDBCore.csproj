@@ -48,6 +48,8 @@
   <ItemGroup>
     <ProjectReference Include="..\EFCore3.Sharding.MySql\EFCore3.Sharding.MySql.csproj" />
     <ProjectReference Include="..\EFCore3.Sharding\EFCore3.Sharding.csproj" />
+    <ProjectReference Include="..\ShardingCore.3x\ShardingCore.3x.csproj" />
+    <ProjectReference Include="..\ShardingCore.MySql.3x\ShardingCore.MySql.3x.csproj" />
   </ItemGroup>
 
 </Project>

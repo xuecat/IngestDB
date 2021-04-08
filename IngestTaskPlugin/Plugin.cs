@@ -12,6 +12,8 @@ using Microsoft.Extensions.DependencyInjection;
 using System;
 using System.Threading.Tasks;
 
+using ShardingCore.MySql;
+
 namespace IngestTaskPlugin
 {
     
@@ -52,13 +54,21 @@ namespace IngestTaskPlugin
             context.Services.AddScoped<VtrManager>();
             context.Services.AddScoped<PolicyManager>();
 
-            context.Services.AddEFCoreSharding(config => {
-                config.CreateShardingTableOnStarting(false);
-                config.EnableShardingMigration(true);
-                config.AddDataSource(context.ConnectionString, ReadWriteType.Read|ReadWriteType.Write, DatabaseType.MySql);
-                config.SetDateSharding<DbpTask>(nameof(DbpTask.Endtime), ExpandByDateMode.PerMinute, DateTimeFormat.DateTimeFromString("2021-03-19 10:06:54"));
+            //context.Services.AddEFCoreSharding(config => {
+            //    config.CreateShardingTableOnStarting(true);
+            //    config.EnableShardingMigration(true);
+            //    config.AddDataSource(context.ConnectionString, ReadWriteType.Read|ReadWriteType.Write, DatabaseType.MySql);
+            //    config.SetDateSharding<DbpTask>(nameof(DbpTask.Endtime), ExpandByDateMode.PerMonth, DateTimeFormat.DateTimeFromString("2021-03-19 10:06:54"));
+            //});
+            context.Services.AddShardingMySql(o =>{
+                o.EnsureCreatedWithOutShardingTable = true;
+                o.CreateShardingTableOnStart = true;
+                o.AddShardingDbContextWithShardingTable<DBTaskContext>("dbptask", context.ConnectionString, config => 
+                {
+                    config.AddShardingTableRoute<DBTaskRoute>();
+                });
+                o.IgnoreCreateTableError = true;
             });
-
 
             return base.Init(context);
         }

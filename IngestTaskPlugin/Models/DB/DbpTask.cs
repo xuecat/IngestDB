@@ -1,14 +1,14 @@
-﻿using System;
+﻿using ShardingCore.Core;
+using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 
 namespace IngestTaskPlugin.Models
 {
-    [Table("dbp_task")]
-    public partial class DbpTask
+    public partial class DbpTask: IShardingTable
     {
-        [Key]
+        
         public int Taskid { get; set; }
         public string Taskname { get; set; }
         public int? Recunitid { get; set; }
@@ -18,6 +18,7 @@ namespace IngestTaskPlugin.Models
         public int? OldChannelid { get; set; }
         public int? State { get; set; }
         public DateTime Starttime { get; set; }
+        [ShardingTableKey]
         public DateTime Endtime { get; set; }
         public DateTime NewBegintime { get; set; }
         public DateTime NewEndtime { get; set; }

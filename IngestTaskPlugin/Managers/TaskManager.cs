@@ -3040,6 +3040,11 @@ namespace IngestTaskPlugin.Managers
             findtask.Stampimagetype = taskModify.StampImageType;
             findtask.Tasklock = string.Empty;
 
+            if (taskSource != TaskSource.emUnknowTask)
+            {
+                findtask.Tasksource = (int)TaskSource.emUnknowTask;
+            }
+
             try
             {
                 //return _mapper.Map<TaskContentResponse>(await Store.ModifyTask(findtask, false, true, true,CaptureMeta, ContentMeta, MatiralMeta, PlanningMeta));

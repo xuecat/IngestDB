@@ -11,6 +11,7 @@
     using IngestTaskPlugin.Dto.Response;
     using IngestTaskPlugin.Models;
     using Microsoft.EntityFrameworkCore;
+    using ShardingCore.DbContexts.VirtualDbContexts;
     using Sobey.Core.Log;
 
     /// <summary>
@@ -22,8 +23,9 @@
         /// Initializes a new instance of the <see cref="VtrStore"/> class.
         /// </summary>
         /// <param name="baseDataDbContext">The baseDataDbContext<see cref="IngestTaskDBContext"/>.</param>
-        public VtrStore(IngestTaskDBContext baseDataDbContext)
+        public VtrStore(IngestTaskDBContext baseDataDbContext, IVirtualDbContext shard)
         {
+            _virtualDbContext = shard;
             Context = baseDataDbContext;
         }
 
@@ -36,7 +38,7 @@
         /// Gets the Context.
         /// </summary>
         protected IngestTaskDBContext Context { get; }
-
+        private readonly IVirtualDbContext _virtualDbContext;
         /// <summary>
         /// The QueryListAsync.
         /// </summary>
@@ -364,7 +366,7 @@
             if (!string.IsNullOrEmpty(Condition.UserToken)) query = query.Where(a => a.Usertoken == Condition.UserToken);
             if (Condition.MaxCommitTime != DateTime.MinValue) query = query.Where(a => a.Committime <= Condition.MaxCommitTime);
             if (Condition.MinCommitTime != DateTime.MinValue) query = query.Where(a => a.Committime >= Condition.MinCommitTime);
-            return await GetUploadTaskContent(query, Context.DbpTask.AsNoTracking());
+            return await GetUploadTaskContent(query, _virtualDbContext.Set<DbpTask>().AsNoTracking());
         }
 
         /// <summary>
@@ -378,7 +380,7 @@
             var dt2 = dtBegin.AddDays(-1);
             IQueryable<VtrUploadtask> uploadQuery = Context.VtrUploadtask.AsNoTracking().Where(a => a.Vtrtasktype == (int)VTRUPLOADTASKTYPE.VTR_SCHEDULE_UPLOAD 
                                                                                                     && a.Taskstate == (int)VTRUPLOADTASKSTATE.VTR_UPLOAD_COMMIT);
-            IQueryable<DbpTask> taskQeruy = Context.DbpTask.AsNoTracking().Where(a => a.Tasktype == (int)TaskType.TT_VTRUPLOAD &&
+            IQueryable<DbpTask> taskQeruy = _virtualDbContext.Set<DbpTask>().AsNoTracking().Where(a => a.Tasktype == (int)TaskType.TT_VTRUPLOAD &&
                                  string.IsNullOrEmpty(a.Tasklock) &&
                                  a.SyncState == (int)syncState.ssNot &&
                                  a.Starttime < dt1 &&
@@ -405,7 +407,7 @@
             var dt2 = dtNow.AddDays(-1);
             IQueryable<VtrUploadtask> uploadQuery = Context.VtrUploadtask.AsNoTracking();
             uploadQuery.Where(a => a.Vtrtasktype == (int)VTRUPLOADTASKTYPE.VTR_SCHEDULE_UPLOAD && a.Taskstate == (int)VTRUPLOADTASKSTATE.VTR_UPLOAD_COMMIT);
-            IQueryable<DbpTask> taskQeruy = Context.DbpTask.AsNoTracking();
+            IQueryable<DbpTask> taskQeruy = _virtualDbContext.Set<DbpTask>().AsNoTracking();
             taskQeruy.Where(a => a.Tasktype == (int)TaskType.TT_VTRUPLOAD &&
                                  string.IsNullOrEmpty(a.Tasklock) &&
                                  a.SyncState == (int)syncState.ssNot &&
