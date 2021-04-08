@@ -362,11 +362,14 @@ namespace IngestTaskPlugin.Stores
             }
         }
 
-        public async Task SaveChangeAsync()
+        public async Task SaveChangeAsync(int content)
         {
             try
             {
-                await Context.SaveChangesAsync();
+                if ((content & ITaskStore.VirtualContent) > 0)
+                    await _virtualDbContext.SaveChangesAsync();
+                if ((content & ITaskStore.DBContent) > 0)
+                    await Context.SaveChangesAsync();
             }
             catch (DbUpdateException e)
             {

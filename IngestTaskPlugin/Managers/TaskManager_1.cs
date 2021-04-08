@@ -8,6 +8,7 @@ namespace IngestTaskPlugin.Managers
     using IngestTaskPlugin.Dto.OldResponse;
     using IngestTaskPlugin.Dto.Response;
     using IngestTaskPlugin.Models;
+    using IngestTaskPlugin.Stores;
     using System.Collections.Generic;
     using System.Linq;
     using System.Text;
@@ -134,7 +135,7 @@ namespace IngestTaskPlugin.Managers
                         item.SyncState = (int)syncState.ssNot;
                         item.DispatchState = (int)dispatchState.dpsDispatched;
 
-                        await Store.SaveChangeAsync();
+                        await Store.SaveChangeAsync(ITaskStore.VirtualContent);
                         return item;
                     }
 

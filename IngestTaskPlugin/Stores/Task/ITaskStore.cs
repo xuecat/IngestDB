@@ -25,10 +25,14 @@ namespace IngestTaskPlugin.Stores
             return obj == (int)TaskType.TT_VTRUPLOAD ?1:0;
         }
     }
+    
     public interface ITaskStore
     {
+        public const int VirtualContent = 2;
+        public const int DBContent = 4;
+
         //IQueryable<TaskInfo> SimpleQuery { get; }
-        Task SaveChangeAsync();
+        Task SaveChangeAsync(int content);
         int GetNextValId(string value);
         Task<List<DbpTask>> GetTaskListAsync(TaskCondition condition , bool Track, bool uselock);
 

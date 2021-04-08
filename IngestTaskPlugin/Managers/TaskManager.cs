@@ -1267,7 +1267,7 @@ namespace IngestTaskPlugin.Managers
                     }
                     if (isUpdateGlobalState)
                     {
-                        await Store.SaveChangeAsync();
+                        await Store.SaveChangeAsync(ITaskStore.VirtualContent);
                     }
 
                     return lstback;
@@ -1308,7 +1308,7 @@ namespace IngestTaskPlugin.Managers
             var findtask = await Store.GetTaskAsync(a => a.Where(b => b.Taskid == taskid));
             findtask.Description = bmppath;
 
-            await Store.SaveChangeAsync();
+            await Store.SaveChangeAsync(ITaskStore.VirtualContent);
         }
 
         //这个接口是为老写的
@@ -1355,7 +1355,7 @@ namespace IngestTaskPlugin.Managers
                             }
                         }
                         taskMetadata.Metadatalong = dbroot.ToString();
-                        await Store.SaveChangeAsync();
+                        await Store.SaveChangeAsync(ITaskStore.DBContent);
                         return dbmetadata;
                     }
                 }
@@ -1406,7 +1406,7 @@ namespace IngestTaskPlugin.Managers
                     }
 
                     f.Metadatalong = root.ToString();
-                    await Store.SaveChangeAsync();
+                    await Store.SaveChangeAsync(ITaskStore.DBContent);
                     return f.Metadatalong;
                 }
             }
@@ -1422,7 +1422,7 @@ namespace IngestTaskPlugin.Managers
         {
             var findtask = await Store.GetTaskAsync(a => a.Where(b => b.Taskid == taskid));
             findtask.Backtype = (int)ct;
-            await Store.SaveChangeAsync();
+            await Store.SaveChangeAsync(ITaskStore.VirtualContent);
             return true;
         }
 
@@ -1798,7 +1798,7 @@ namespace IngestTaskPlugin.Managers
 
             splitmeta.Metadatalong = ConvertTaskSplitMetaString(splitRe);
 
-            await Store.SaveChangeAsync();
+            await Store.SaveChangeAsync(ITaskStore.VirtualContent& ITaskStore.DBContent);
             return splittile;
         }
 
@@ -2081,7 +2081,7 @@ namespace IngestTaskPlugin.Managers
                 findtask.SyncState = (int)syncState.ssNot;
                 findtask.DispatchState = (int)dispatchState.dpsDispatched;
 
-                await Store.SaveChangeAsync();
+                await Store.SaveChangeAsync(ITaskStore.VirtualContent);
                 return true;
                 /*
                  * @brief emKamataki现没用，所以我去了
@@ -2133,7 +2133,7 @@ namespace IngestTaskPlugin.Managers
         {
             var taskinf = await Store.GetTaskAsync(a => a.Where(b => b.Taskid == taskid));
             taskinf.Category = classify;
-            await Store.SaveChangeAsync();
+            await Store.SaveChangeAsync(ITaskStore.VirtualContent);
             return taskid;
         }
 
@@ -2187,7 +2187,7 @@ namespace IngestTaskPlugin.Managers
             }
             taskinfo.State = state;
             //zmj 2010-11-22 不该把锁去掉，会导致再次被调用出来
-            await Store.SaveChangeAsync();
+            await Store.SaveChangeAsync(ITaskStore.VirtualContent);
             return taskid;
         }
 
@@ -2261,7 +2261,7 @@ namespace IngestTaskPlugin.Managers
                     Logger.Info(string.Format("In TrimTaskBeginTime,Other,TaskID = {0},StartTime = {1},STARTTIME = {2},ENDTIME = {3}", taskinfo.Taskid, dtNow.ToString(), taskinfo.Starttime.ToString(), taskinfo.Endtime.ToString()));
                 }
 
-                await Store.SaveChangeAsync();
+                await Store.SaveChangeAsync(ITaskStore.VirtualContent);
             }
             return taskid;
         }
@@ -2473,7 +2473,7 @@ namespace IngestTaskPlugin.Managers
                 //    taskInfo.taskContent.emState = (int)taskState.tsDelete;
                 //}
             }
-            await Store.SaveChangeAsync();
+            await Store.SaveChangeAsync(ITaskStore.VirtualContent);
         }
 
         public async Task<List<int>> StopGroupTaskAsync(int taskid)
@@ -2593,7 +2593,7 @@ namespace IngestTaskPlugin.Managers
                 findtask.Taskname = taskname;
 
 
-                await Store.SaveChangeAsync();
+                await Store.SaveChangeAsync(ITaskStore.VirtualContent);
             }
             else
                 SobeyRecException.ThrowSelfOneParam(taskid.ToString(), GlobalDictionary.GLOBALDICT_CODE_CAN_NOT_FIND_THE_TASK_ONEPARAM, Logger, taskid, null);
@@ -2756,7 +2756,7 @@ namespace IngestTaskPlugin.Managers
             }
 
             findtask.Endtime = endtime;
-            await Store.SaveChangeAsync();
+            await Store.SaveChangeAsync(ITaskStore.VirtualContent);
             return findtask;
         }
 
@@ -2786,7 +2786,7 @@ namespace IngestTaskPlugin.Managers
                     findtask.Category = task.Classify;
                 }
 
-                await Store.SaveChangeAsync();
+                await Store.SaveChangeAsync(ITaskStore.VirtualContent);
                 return _mapper.Map< TaskContentResponse >(findtask);
             }
             else
@@ -3619,7 +3619,7 @@ namespace IngestTaskPlugin.Managers
             findtask.SyncState = (int)syncState.ssNot;
             findtask.DispatchState = (int)dispatchState.dpsDispatched;
 
-            await Store.SaveChangeAsync();
+            await Store.SaveChangeAsync(ITaskStore.VirtualContent);
             //return true;
             return findtask;
         }
@@ -4893,7 +4893,7 @@ namespace IngestTaskPlugin.Managers
                 }
             }
             else if (needsave)
-                await Store.SaveChangeAsync();
+                await Store.SaveChangeAsync(ITaskStore.VirtualContent);
 
             return false;
         }
