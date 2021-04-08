@@ -45,6 +45,8 @@ namespace IngestTaskPlugin.Stores
             {
                 throw new ArgumentNullException(nameof(query));
             }
+            var fi = _virtualDbContext.Set<DbpTask>().Where(a => a.Taskid == 65859).SingleOrDefault();
+            var fa = _virtualDbContext.Set<DbpTask>().Where(a => a.Taskid == 65859).ToList();
             if (notrack)
             {
                 return await query.Invoke(_virtualDbContext.Set<DbpTask>().AsNoTracking()).SingleOrDefaultAsync();
