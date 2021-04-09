@@ -178,7 +178,7 @@ namespace IngestTaskPlugin.Models
     }
     public class DBTaskContext : DbContext, IShardingTableDbContext
     {
-        public DBTaskContext(ShardingDbContextOptions shardingDbContextOptions) : base(shardingDbContextOptions.DbContextOptions)
+        public DBTaskContext(DbContextOptions<DBTaskContext> opt) : base(opt)
         {
 
         }

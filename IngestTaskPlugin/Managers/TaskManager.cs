@@ -2592,7 +2592,6 @@ namespace IngestTaskPlugin.Managers
 
                 findtask.Taskname = taskname;
 
-
                 await Store.SaveChangeAsync(ITaskStore.VirtualContent);
             }
             else

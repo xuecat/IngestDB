@@ -15,6 +15,7 @@ using IngestTaskPlugin.Models;
 using Microsoft.EntityFrameworkCore;
 using ShardingCore.DbContexts.VirtualDbContexts;
 using Sobey.Core.Log;
+using ShardingCore.Extensions;
 using CooperantType = IngestTaskPlugin.Dto.OldResponse.CooperantType;
 using taskState = IngestTaskPlugin.Dto.OldResponse.taskState;
 using TaskType = IngestTaskPlugin.Dto.OldResponse.TaskType;
@@ -45,13 +46,13 @@ namespace IngestTaskPlugin.Stores
             {
                 throw new ArgumentNullException(nameof(query));
             }
-            var fi = _virtualDbContext.Set<DbpTask>().Where(a => a.Taskid == 65859).SingleOrDefault();
-            var fa = _virtualDbContext.Set<DbpTask>().Where(a => a.Taskid == 65859).ToList();
-            if (notrack)
-            {
-                return await query.Invoke(_virtualDbContext.Set<DbpTask>().AsNoTracking()).SingleOrDefaultAsync();
-            }
-            return await query.Invoke(_virtualDbContext.Set<DbpTask>()).SingleOrDefaultAsync();
+
+            //if (notrack)没有用了沃日
+            //{
+            //    return await query.Invoke(_virtualDbContext.Set<DbpTask>().AsNoTracking()).SingleOrDefaultAsync();
+            //}
+
+            return await query.Invoke(_virtualDbContext.Set<DbpTask>()).ShardingFirstOrDefaultAsync();
         }
 
        
