@@ -29,12 +29,19 @@ namespace IngestTaskPlugin.Stores
     public interface ITaskStore
     {
         public const int VirtualContent = 2;
-        public const int DBContent = 4;
+        public const int DefaultContent = 4;
 
         //IQueryable<TaskInfo> SimpleQuery { get; }
         Task SaveChangeAsync(int content);
         int GetNextValId(string value);
-        Task<List<DbpTask>> GetTaskListAsync(TaskCondition condition , bool Track, bool uselock);
+
+
+        Task<List<DbpTask>> GetLocalTaskListNotrackAsync(TaskCondition condition , bool Track, bool uselock);
+        Task<List<TResult>> GetLocalTaskListNotrackAsync<TResult>(Func<IQueryable<DbpTask>, IQueryable<TResult>> query, bool notrack = false);
+        Task<TResult> GetLocalTaskNotrackAsync<TResult>(Func<IQueryable<DbpTask>, IQueryable<TResult>> query, bool notrack = false);
+
+        Task<List<TResult>> GetShardingTaskListNotrackAsync<TResult>(Func<IQueryable<DbpTask>, IQueryable<TResult>> query, bool notrack = false);
+        Task<TResult> GetShardingTaskNotrackAsync<TResult>(Func<IQueryable<DbpTask>, IQueryable<TResult>> query, bool notrack = false);
 
         Task UpdateTaskAsync(DbpTask item, bool savechange);
         Task UpdateTaskListAsync(List<DbpTask> lst);
@@ -44,8 +51,6 @@ namespace IngestTaskPlugin.Stores
         Task<TResult> GetTaskCustomMetaDataAsync<TResult>(Func<IQueryable<DbpTaskCustommetadata>, IQueryable<TResult>> query, bool notrack = false);
         Task UpdateTaskMetaDataAsync(int taskid, MetaDataType type, string metadata);
         Task UpdateTaskCutomMetaDataAsync(int taskid, string metadata);
-        Task<List<TResult>> GetTaskListAsync<TResult>(Func<IQueryable<DbpTask>, IQueryable<TResult>> query, bool notrack = false);
-        Task<TResult> GetTaskAsync<TResult>(Func<IQueryable<DbpTask>, IQueryable<TResult>> query, bool notrack = false);
         Task<TResult> GetVtrUploadTaskAsync<TResult>(Func<IQueryable<VtrUploadtask>, IQueryable<TResult>> query, bool notrack = false);
         Task<List<TResult>> GetVtrUploadTaskListAsync<TResult>(Func<IQueryable<VtrUploadtask>, IQueryable<TResult>> query, bool notrack = false);
         Task<TResult> GetTaskBackupAsync<TResult>(Func<IQueryable<DbpTaskBackup>, IQueryable<TResult>> query, bool notrack = false);

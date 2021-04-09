@@ -47,12 +47,12 @@ namespace IngestTaskPlugin.Stores
                 throw new ArgumentNullException(nameof(query));
             }
 
-            //if (notrack)没有用了沃日
-            //{
-            //    return await query.Invoke(_virtualDbContext.Set<DbpTask>().AsNoTracking()).SingleOrDefaultAsync();
-            //}
+            if (notrack)
+            {
+                return await query.Invoke(_virtualDbContext.Set<DbpTask>().AsNoTracking()).SingleOrDefaultAsync();
+            }
 
-            return await query.Invoke(_virtualDbContext.Set<DbpTask>()).ShardingFirstOrDefaultAsync();
+            return await query.Invoke(_virtualDbContext.Set<DbpTask>()).SingleOrDefaultAsync();
         }
 
        
@@ -371,7 +371,7 @@ namespace IngestTaskPlugin.Stores
             {
                 if ((content & ITaskStore.VirtualContent) > 0)
                     await _virtualDbContext.SaveChangesAsync();
-                if ((content & ITaskStore.DBContent) > 0)
+                if ((content & ITaskStore.DefaultContent) > 0)
                     await Context.SaveChangesAsync();
             }
             catch (DbUpdateException e)
