@@ -36,15 +36,12 @@ namespace IngestTaskPlugin.Stores
         int GetNextValId(string value);
 
 
-        Task<List<DbpTask>> GetLocalTaskListNotrackAsync(TaskCondition condition , bool Track, bool uselock);
-        Task<List<TResult>> GetLocalTaskListNotrackAsync<TResult>(Func<IQueryable<DbpTask>, IQueryable<TResult>> query, bool notrack = false);
-        Task<TResult> GetLocalTaskNotrackAsync<TResult>(Func<IQueryable<DbpTask>, IQueryable<TResult>> query, bool notrack = false);
+        Task<List<DbpTask>> GetTaskListNotrackAsync(TaskCondition condition , bool uselock, bool sharding);
+        Task<List<TResult>> GetTaskListNotrackAsync<TResult>(Func<IQueryable<DbpTask>, IQueryable<TResult>> query, bool sharding);
+        Task<TResult> GetTaskNotrackAsync<TResult>(Func<IQueryable<DbpTask>, IQueryable<TResult>> query, bool sharding);
 
-        Task<List<TResult>> GetShardingTaskListNotrackAsync<TResult>(Func<IQueryable<DbpTask>, IQueryable<TResult>> query, bool notrack = false);
-        Task<TResult> GetShardingTaskNotrackAsync<TResult>(Func<IQueryable<DbpTask>, IQueryable<TResult>> query, bool notrack = false);
-
-        Task UpdateTaskAsync(DbpTask item, bool savechange);
-        Task UpdateTaskListAsync(List<DbpTask> lst);
+        Task UpdateTaskAsync(DbpTask item, bool savechange, params string[] type);
+        Task UpdateTaskListAsync(List<DbpTask> lst, bool savechange, params string[] type);
 
         Task<TResult> GetTaskMetaDataAsync<TResult>(Func<IQueryable<DbpTaskMetadata>, IQueryable<TResult>> query, bool notrack = false);
         Task<List<TResult>> GetTaskMetaDataListAsync<TResult>(Func<IQueryable<DbpTaskMetadata>, IQueryable<TResult>> query, bool notrack = false);
@@ -103,7 +100,6 @@ namespace IngestTaskPlugin.Stores
         Task<bool> AddTask(DbpTask tasks, bool savechange);
         Task<bool> AddTaskList(List<DbpTask> tasks, bool savechange);
         Task<bool> AddPolicyTask(List<DbpPolicytask> policytasks, bool submitFlag);
-        Task UpdateTaskListAsync(List<DbpTask> lst, bool submitFlag);
         
         Task UpdateTaskMetaDataAsync(int taskid, MetaDataType type, string metadata, bool submitFlag);
         Task UpdateTaskMetaDataListAsync(List<Dto.Request.SubmitMetadata> metadatas);

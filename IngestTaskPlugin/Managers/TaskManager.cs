@@ -843,7 +843,7 @@ namespace IngestTaskPlugin.Managers
 
         public async Task<TResult> GetTaskInfoByID<TResult>(int taskid, int change)
         {
-            var item = await Store.GetTaskAsync(a => a.Where(b => b.Taskid == taskid), true);
+            var item = await Store.GetTaskNotrackAsync(a => a.Where(b => b.Taskid == taskid), true);
             if (item != null)
             {
                 if (item.DispatchState == (int)dispatchState.dpsInvalid)
@@ -863,7 +863,7 @@ namespace IngestTaskPlugin.Managers
         {
             dynamic backobj = new T();
 
-            var item = await Store.GetTaskAsync(a => a.Where(b => b.Taskid == taskid), true);
+            var item = await Store.GetTaskNotrackAsync(a => a.Where(b => b.Taskid == taskid), true);
             if (item != null)
             {
                 if (item.DispatchState == (int)dispatchState.dpsInvalid)
@@ -920,18 +920,18 @@ namespace IngestTaskPlugin.Managers
         {
             var now = DateTime.Now;
             var dt = now.AddDays(1).AddMinutes(1);
-            return _mapper.Map<List<TResult>>(await Store.GetTaskListAsync(a => a.Where(b =>
+            return _mapper.Map<List<TResult>>(await Store.GetTaskListNotrackAsync(a => a.Where(b =>
                         (b.DispatchState == (int)dispatchState.dpsDispatchFailed || b.DispatchState == (int)dispatchState.dpsRedispatch)
                         && b.State != (int)taskState.tsDelete
                         && (b.Endtime > now && b.Endtime < dt)
-                        && (b.Tasktype != (int)TaskType.TT_OPENEND && b.Tasktype != (int)TaskType.TT_OPENENDEX)), true));
+                        && (b.Tasktype != (int)TaskType.TT_OPENEND && b.Tasktype != (int)TaskType.TT_OPENENDEX)), false));
         }
 
         public async Task<int> GetTieUpTaskIDByChannelId(int channelid)
         {
             DateTime now = DateTime.Now;
-            return await Store.GetTaskAsync(a => a.Where(b => b.Channelid == channelid &&
-            b.Tasktype == (int)TaskType.TT_TIEUP && (b.Starttime <= now && b.Endtime >= now)).Select(f => f.Taskid), true);
+            return await Store.GetTaskNotrackAsync(a => a.Where(b => b.Channelid == channelid &&
+            b.Tasktype == (int)TaskType.TT_TIEUP && (b.Starttime <= now && b.Endtime >= now)).Select(f => f.Taskid), false);
         }
 
         public async Task<List<T>> GetAutoManuConflict<T>(int channel)
