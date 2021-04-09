@@ -338,7 +338,7 @@ namespace IngestTaskPlugin.Managers
 
             if (isSubmit)
             {
-                await TaskStore.SaveChangeAsync(ITaskStore.VirtualContent& ITaskStore.DBContent);
+                await TaskStore.SaveChangeAsync(ITaskStore.VirtualContent& ITaskStore.DefaultContent);
             }
 
         }
