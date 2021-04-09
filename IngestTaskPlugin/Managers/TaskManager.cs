@@ -1355,7 +1355,7 @@ namespace IngestTaskPlugin.Managers
                             }
                         }
                         taskMetadata.Metadatalong = dbroot.ToString();
-                        await Store.SaveChangeAsync(ITaskStore.DBContent);
+                        await Store.SaveChangeAsync(ITaskStore.DefaultContent);
                         return dbmetadata;
                     }
                 }
@@ -1406,7 +1406,7 @@ namespace IngestTaskPlugin.Managers
                     }
 
                     f.Metadatalong = root.ToString();
-                    await Store.SaveChangeAsync(ITaskStore.DBContent);
+                    await Store.SaveChangeAsync(ITaskStore.DefaultContent);
                     return f.Metadatalong;
                 }
             }
@@ -1798,7 +1798,7 @@ namespace IngestTaskPlugin.Managers
 
             splitmeta.Metadatalong = ConvertTaskSplitMetaString(splitRe);
 
-            await Store.SaveChangeAsync(ITaskStore.VirtualContent& ITaskStore.DBContent);
+            await Store.SaveChangeAsync(ITaskStore.VirtualContent& ITaskStore.DefaultContent);
             return splittile;
         }
 
