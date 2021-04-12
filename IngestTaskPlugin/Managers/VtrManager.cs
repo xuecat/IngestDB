@@ -1046,7 +1046,7 @@ namespace IngestTaskPlugin.Managers
                 vtrTask.strEnd = DateTimeFormat.DateTimeToString(vtrTaskNow.EndTime);
             }
 
-            var dbptask = (await TaskStore.GetTaskListAsync(a => a.Where(x => x.Taskid == vtrTask.nTaskId))).FirstOrDefault();
+            var dbptask = (await TaskStore.GetTaskNotrackAsync(a => a.Where(x => x.Taskid == vtrTask.nTaskId), true));
 
             if (dbptask == null)
             {
@@ -1057,7 +1057,7 @@ namespace IngestTaskPlugin.Managers
             VtrUploadtask vtrUploadtaskResult = Mapper.Map<VtrUploadtask>(vtrTaskNow);
             vtrUploadtaskResult = VTRUploadTaskContent2VTRUPLOADTASK(vtrTask, vtrUploadtaskResult, lMask);
 
-            await TaskStore.UpdateTaskListAsync(new List<DbpTask> { dbptask }, false);
+            await TaskStore.UpdateTaskAsync(dbptask, false);
             await VtrStore.UpdateUploadtask(vtrUploadtaskResult);
 
             if (metadatas != null && metadatas.Count > 0)
@@ -2397,7 +2397,7 @@ namespace IngestTaskPlugin.Managers
                 }
                 else
                 {
-                    DbpTask dbpTask = await TaskStore.GetTaskAsync(a => a.Where(x => x.Taskid == task.nTaskId));
+                    DbpTask dbpTask = await TaskStore.GetTaskNotrackAsync(a => a.Where(x => x.Taskid == task.nTaskId), true);
                     if (dbpTask != null)
                     {
                         dbpTask = VTRUploadTaskContent2Dbptask(true, task, dbpTask, -1);
@@ -2580,7 +2580,7 @@ namespace IngestTaskPlugin.Managers
                     return;
                 }
 
-                var task = await TaskStore.GetTaskAsync(a => a.Where(x => x.Taskid == taskId));
+                var task = await TaskStore.GetTaskNotrackAsync(a => a.Where(x => x.Taskid == taskId), true);
 
                 if (task != null)
                 {

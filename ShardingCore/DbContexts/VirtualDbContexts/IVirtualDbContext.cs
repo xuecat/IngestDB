@@ -33,7 +33,8 @@ namespace ShardingCore.DbContexts.VirtualDbContexts
         int Delete<T>(T entity) where T : class;
         int DeleteRange<T>(ICollection<T> entities) where T : class;
         int SaveChanges();
-        
+
+        Microsoft.EntityFrameworkCore.DbContext GetContextSet<T>(T entity) where T : class;
         
         #region 批处理
 

@@ -189,16 +189,22 @@ namespace IngestTaskPlugin.Stores
         /*
          * 由于按照endtime分表，一定要传enditme才找得到物理表
          */
-        public async Task UpdateTaskAsync(DbpTask item, bool savechange, params string[] type)
+        public async Task UpdateTaskAsync(DbpTask item, bool savechange, params string[] types)
         {
             if (item != null)
             {
-                
-                foreach (var itm in type)
+                var context = _virtualDbContext.GetContextSet(item);
+                if (types != null)
                 {
-                    
+                    context.Set<DbpTask>().Attach(item);
+                    foreach (var it in types)
+                    {
+                        context.Entry(item).Property(it).IsModified = true;
+                    }
                 }
-                await _virtualDbContext.UpdateAsync(item);
+
+                context.SaveChanges();
+                //await _virtualDbContext.UpdateAsync(item);
             }
 
             if (savechange)
@@ -1096,6 +1102,10 @@ namespace IngestTaskPlugin.Stores
 
         public async Task<List<int>> StopCapturingListChannelAsync(List<int> lstChaneel)
         {
+            /*
+            * wqtest
+            */
+            return null;
             //List<int> lstnreture = new List<int>();
             ////获取采集中任务列表
             //var lsttask = await GetTaskListAsync<DbpTask>(a => a
@@ -3485,13 +3495,16 @@ namespace IngestTaskPlugin.Stores
 
         public async Task<bool> UpdateTaskBmp(Dictionary<int, string> taskPmp)
         {
-            var taskIds = taskPmp.Select(a => a.Key).ToList();
-            var tasks = await _virtualDbContext.Set<DbpTask>().Where(a => taskIds.Contains(a.Taskid)).ToListAsync();
-            if (tasks != null && tasks.Count > 0)
-            {
-                tasks.ForEach(a => a.Description = taskPmp.First(x => x.Key == a.Taskid).Value);
-                return await Context.SaveChangesAsync() > 0;
-            }
+            /*
+             * wqtest
+             */
+            //var taskIds = taskPmp.Select(a => a.Key).ToList();
+            //var tasks = await _virtualDbContext.Set<DbpTask>().Where(a => taskIds.Contains(a.Taskid)).ToListAsync();
+            //if (tasks != null && tasks.Count > 0)
+            //{
+            //    tasks.ForEach(a => a.Description = taskPmp.First(x => x.Key == a.Taskid).Value);
+            //    return await Context.SaveChangesAsync() > 0;
+            //}
             return false;
         }
 

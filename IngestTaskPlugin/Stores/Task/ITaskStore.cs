@@ -36,7 +36,7 @@ namespace IngestTaskPlugin.Stores
         int GetNextValId(string value);
 
 
-        Task<List<DbpTask>> GetTaskListNotrackAsync(TaskCondition condition , bool uselock, bool sharding);
+        //Task<List<DbpTask>> GetTaskListNotrackAsync(TaskCondition condition , bool uselock, bool sharding);
         Task<List<TResult>> GetTaskListNotrackAsync<TResult>(Func<IQueryable<DbpTask>, IQueryable<TResult>> query, bool sharding);
         Task<TResult> GetTaskNotrackAsync<TResult>(Func<IQueryable<DbpTask>, IQueryable<TResult>> query, bool sharding);
 

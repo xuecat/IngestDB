@@ -2607,6 +2607,8 @@ namespace IngestTaskPlugin.Managers
             /*
              * wqtest
              */
+            
+            await Store.UpdateTaskAsync(new DbpTask() { Taskid = taskid, Taskname = taskname, Endtime = DateTimeFormat.DateTimeFromString("2021-04-07 18:30:41")}, true, nameof(DbpTask.Taskname));
             //var taskmeta = await Store.GetTaskMetaDataAsync(a => a.Where(b => b.Taskid == taskid && b.Metadatatype == (int)MetaDataType.emStoreMetaData));
 
             //if (taskmeta != null && !string.IsNullOrEmpty(taskmeta.Metadatalong))
@@ -2645,7 +2647,7 @@ namespace IngestTaskPlugin.Managers
             /*
              * wqtest
              */
-
+            return null;
             //if (isall)
             //{
             //    var f = await ModifyTask<TResult>(taskmodify, string.Empty, string.Empty, string.Empty, string.Empty, TaskSource.emUnknowTask);
@@ -2779,324 +2781,336 @@ namespace IngestTaskPlugin.Managers
 
         public async Task<DbpTask> ModifyTaskEndTimeInSecurity(int taskid, DateTime endtime)
         {
-            var findtask = await Store.GetTaskAsync(a => a.Where(b => b.Taskid == taskid));
+            /*
+             * wqtest
+             */
+            return null;
+            //var findtask = await Store.GetTaskAsync(a => a.Where(b => b.Taskid == taskid));
 
-            if (findtask == null)
-            {
-                SobeyRecException.ThrowSelfNoParam("ModifyTaskEndTime findtask empty", GlobalDictionary.GLOBALDICT_CODE_TASKSET_IS_NULL, Logger, null);
-            }
+            //if (findtask == null)
+            //{
+            //    SobeyRecException.ThrowSelfNoParam("ModifyTaskEndTime findtask empty", GlobalDictionary.GLOBALDICT_CODE_TASKSET_IS_NULL, Logger, null);
+            //}
 
-            if ((endtime - findtask.Starttime).TotalSeconds < 3)
-            {
-                SobeyRecException.ThrowSelfNoParam("", GlobalDictionary.GLOBALDICT_CODE_TASK_END_TIME_IS_SMALLER_THAN_BEING_TIME, Logger, null);
-            }
+            //if ((endtime - findtask.Starttime).TotalSeconds < 3)
+            //{
+            //    SobeyRecException.ThrowSelfNoParam("", GlobalDictionary.GLOBALDICT_CODE_TASK_END_TIME_IS_SMALLER_THAN_BEING_TIME, Logger, null);
+            //}
 
-            if ((findtask.Recunitid & 0x8000) > 0)
-            {
-                SobeyRecException.ThrowSelfNoParam(taskid.ToString(), GlobalDictionary.GLOBALDICT_CODE_CANNOTMODIFYTASK_WHERE_STOPING, Logger, null);
-            }
+            //if ((findtask.Recunitid & 0x8000) > 0)
+            //{
+            //    SobeyRecException.ThrowSelfNoParam(taskid.ToString(), GlobalDictionary.GLOBALDICT_CODE_CANNOTMODIFYTASK_WHERE_STOPING, Logger, null);
+            //}
 
-            findtask.Endtime = endtime;
-            await Store.SaveChangeAsync(ITaskStore.VirtualContent);
-            return findtask;
+            //findtask.Endtime = endtime;
+            //await Store.SaveChangeAsync(ITaskStore.VirtualContent);
+            //return findtask;
         }
 
         public async Task<TaskContentResponse> ModifyTaskDB(TaskContentRequest task)
         {
-            var findtask = await Store.GetTaskAsync(a => a.Where(b => b.Taskid == task.TaskId));
-            if (findtask != null)
-            {
-                if (!string.IsNullOrEmpty(task.TaskName))
-                {
-                    findtask.Taskname = task.TaskName;
-                }
-                if (task.SignalId > 0)
-                {
-                    findtask.Signalid = task.SignalId;
-                }
-                if (task.Unit > 0)
-                {
-                    findtask.Recunitid = task.Unit;
-                }
-                if (task.ChannelId > 0)
-                {
-                    findtask.Channelid = task.ChannelId;
-                }
-                if (!string.IsNullOrEmpty(task.Classify))
-                {
-                    findtask.Category = task.Classify;
-                }
+            //var findtask = await Store.GetTaskAsync(a => a.Where(b => b.Taskid == task.TaskId));
+            //if (findtask != null)
+            //{
+            //    if (!string.IsNullOrEmpty(task.TaskName))
+            //    {
+            //        findtask.Taskname = task.TaskName;
+            //    }
+            //    if (task.SignalId > 0)
+            //    {
+            //        findtask.Signalid = task.SignalId;
+            //    }
+            //    if (task.Unit > 0)
+            //    {
+            //        findtask.Recunitid = task.Unit;
+            //    }
+            //    if (task.ChannelId > 0)
+            //    {
+            //        findtask.Channelid = task.ChannelId;
+            //    }
+            //    if (!string.IsNullOrEmpty(task.Classify))
+            //    {
+            //        findtask.Category = task.Classify;
+            //    }
 
-                await Store.SaveChangeAsync(ITaskStore.VirtualContent);
-                return _mapper.Map< TaskContentResponse >(findtask);
-            }
-            else
-                SobeyRecException.ThrowSelfNoParam("ModifyTaskDB findtask empty", GlobalDictionary.GLOBALDICT_CODE_TASKSET_IS_NULL, Logger, null);
+            //    await Store.SaveChangeAsync(ITaskStore.VirtualContent);
+            //    return _mapper.Map< TaskContentResponse >(findtask);
+            //}
+            //else
+            //    SobeyRecException.ThrowSelfNoParam("ModifyTaskDB findtask empty", GlobalDictionary.GLOBALDICT_CODE_TASKSET_IS_NULL, Logger, null);
+
+            /*
+             * wqtest
+             */
             return null;
         }
 
         public async Task<DbpTask> ModifyTask<TResult>(TResult task, string CaptureMeta, string ContentMeta, string MatiralMeta, string PlanningMeta, TaskSource taskSource, string SplitMeta = "")
         {
-            var taskModify = _mapper.Map<TaskContentRequest>(task);
+            /*
+             * wqtest
+             */
 
-            if (DateTimeFormat.DateTimeFromString(taskModify.End) < DateTimeFormat.DateTimeFromString(taskModify.Begin))
-            {
-                SobeyRecException.ThrowSelfNoParam("ModifyTask time empty", GlobalDictionary.GLOBALDICT_CODE_TASK_END_TIME_IS_SMALLER_THAN_BEING_TIME, Logger, null);
-            }
+            //var taskModify = _mapper.Map<TaskContentRequest>(task);
 
-            var findtask = await Store.GetTaskAsync(a => a.Where(b => b.Taskid == taskModify.TaskId));
+            //if (DateTimeFormat.DateTimeFromString(taskModify.End) < DateTimeFormat.DateTimeFromString(taskModify.Begin))
+            //{
+            //    SobeyRecException.ThrowSelfNoParam("ModifyTask time empty", GlobalDictionary.GLOBALDICT_CODE_TASK_END_TIME_IS_SMALLER_THAN_BEING_TIME, Logger, null);
+            //}
 
-            if (findtask == null)
-            {
-                SobeyRecException.ThrowSelfNoParam("ModifyTask findtask empty", GlobalDictionary.GLOBALDICT_CODE_TASKSET_IS_NULL, Logger, null);
-            }
+            //var findtask = await Store.GetTaskAsync(a => a.Where(b => b.Taskid == taskModify.TaskId));
 
-            //如果是已分发、已同步的任务，不允许改变通道
-            if (findtask.Channelid != taskModify.ChannelId
-                && findtask.DispatchState == (int)dispatchState.dpsDispatched
-                && findtask.SyncState == (int)syncState.ssSync)
-            {
-                await Store.UnLockTask(findtask, true);
-                SobeyRecException.ThrowSelfNoParam("ModifyTask error", GlobalDictionary.GLOBALDICT_CODE_TASK_IS_LOCKED, Logger, null);
-            }
+            //if (findtask == null)
+            //{
+            //    SobeyRecException.ThrowSelfNoParam("ModifyTask findtask empty", GlobalDictionary.GLOBALDICT_CODE_TASKSET_IS_NULL, Logger, null);
+            //}
 
-            if (findtask.State == (int)taskState.tsComplete 
-                || findtask.State == (int)taskState.tsDelete)
-            {
-                SobeyRecException.ThrowSelfNoParam("", GlobalDictionary.GLOBALDICT_CODE_CANNOTMODIFYTASK_WHERE_STOPING, Logger, null);
-            }
+            ////如果是已分发、已同步的任务，不允许改变通道
+            //if (findtask.Channelid != taskModify.ChannelId
+            //    && findtask.DispatchState == (int)dispatchState.dpsDispatched
+            //    && findtask.SyncState == (int)syncState.ssSync)
+            //{
+            //    await Store.UnLockTask(findtask, true);
+            //    SobeyRecException.ThrowSelfNoParam("ModifyTask error", GlobalDictionary.GLOBALDICT_CODE_TASK_IS_LOCKED, Logger, null);
+            //}
 
-            //如果是改变了信号源或者通道，判断一下信号源和通道是不是匹配的
-            bool match = false;
-            if (findtask.Channelid != taskModify.ChannelId || findtask.Signalid != taskModify.SignalId)
-            {
+            //if (findtask.State == (int)taskState.tsComplete 
+            //    || findtask.State == (int)taskState.tsDelete)
+            //{
+            //    SobeyRecException.ThrowSelfNoParam("", GlobalDictionary.GLOBALDICT_CODE_CANNOTMODIFYTASK_WHERE_STOPING, Logger, null);
+            //}
 
-                if (_deviceInterface != null)
-                {
-                    DeviceInternals re = null;
+            ////如果是改变了信号源或者通道，判断一下信号源和通道是不是匹配的
+            //bool match = false;
+            //if (findtask.Channelid != taskModify.ChannelId || findtask.Signalid != taskModify.SignalId)
+            //{
 
-                    if (taskModify.SignalId <= 0 && taskSource == TaskSource.emRtmpSwitchTask)
-                    {
-                        re = new DeviceInternals() { funtype = DeviceInternals.FunctionType.RtmpCaptureChannels };
-                    }
-                    else if (taskModify.SignalId > 0)
-                    {
-                        re = new DeviceInternals() { funtype = IngestDBCore.DeviceInternals.FunctionType.ChannelInfoBySrc, SrcId = taskModify.SignalId, Status = 1 };
-                    }
-                    else
-                    {
-                        return null;
-                    }
+            //    if (_deviceInterface != null)
+            //    {
+            //        DeviceInternals re = null;
 
-                    var response1 = await _deviceInterface.Value.GetDeviceCallBack(re);
+            //        if (taskModify.SignalId <= 0 && taskSource == TaskSource.emRtmpSwitchTask)
+            //        {
+            //            re = new DeviceInternals() { funtype = DeviceInternals.FunctionType.RtmpCaptureChannels };
+            //        }
+            //        else if (taskModify.SignalId > 0)
+            //        {
+            //            re = new DeviceInternals() { funtype = IngestDBCore.DeviceInternals.FunctionType.ChannelInfoBySrc, SrcId = taskModify.SignalId, Status = 1 };
+            //        }
+            //        else
+            //        {
+            //            return null;
+            //        }
 
-                    if (response1.Code != ResponseCodeDefines.SuccessCode)
-                    {
-                        Logger.Error("GetMatchedChannelForSignal ChannelInfoBySrc error");
-                        return null;
-                    }
+            //        var response1 = await _deviceInterface.Value.GetDeviceCallBack(re);
 
-                    var fresponse = response1 as ResponseMessage<List<CaptureChannelInfoInterface>>;
-                    if (fresponse != null && fresponse.Ext?.Count > 0)
-                    {
-                        if (fresponse.Ext.Any(x => x.Id == taskModify.ChannelId))
-                            match = true;
-                    }
-                }
+            //        if (response1.Code != ResponseCodeDefines.SuccessCode)
+            //        {
+            //            Logger.Error("GetMatchedChannelForSignal ChannelInfoBySrc error");
+            //            return null;
+            //        }
 
-                if (!match)
-                {
-                    await Store.UnLockTask(findtask, true);
-                    SobeyRecException.ThrowSelfNoParam("ModifyTask match empty", GlobalDictionary.GLOBALDICT_CODE_SIGNAL_AND_CHANNEL_IS_MISMATCHED, Logger, null);
-                }
-            }
+            //        var fresponse = response1 as ResponseMessage<List<CaptureChannelInfoInterface>>;
+            //        if (fresponse != null && fresponse.Ext?.Count > 0)
+            //        {
+            //            if (fresponse.Ext.Any(x => x.Id == taskModify.ChannelId))
+            //                match = true;
+            //        }
+            //    }
 
-           
-            //如果是手动任务改成自动任务，强行改成已调度已同步状态
-            if (findtask.Tasktype == (int)TaskType.TT_MANUTASK && taskModify.TaskType == TaskType.TT_NORMAL)
-            {
-                findtask.SyncState = (int)syncState.ssSync;
-                findtask.DispatchState = (int)dispatchState.dpsDispatched;
-            }
-
-            if (findtask.Tasktype == (int)TaskType.TT_VTRUPLOAD)
-            {
-                var vtrtask = await Store.GetVtrUploadTaskAsync(a => a.Where(b => b.Taskid == findtask.Taskid), true);
-                if (vtrtask == null)
-                {
-                    await Store.UnLockTask(findtask, true);
-                    SobeyRecException.ThrowSelfOneParam("ModifyTask vtrtask empty", GlobalDictionary.GLOBALDICT_CODE_CAN_NOT_FIND_THE_TASK_ONEPARAM, Logger, findtask.Taskid, null);
-                }
-
-                VTRTimePeriods vtrFreeTimePeriods = new VTRTimePeriods(vtrtask.Vtrid.GetValueOrDefault());
-                vtrFreeTimePeriods.Periods = new List<TimePeriod>();
-                await GetFreeTimePeriodByVtrId(vtrFreeTimePeriods, findtask.Taskid, DateTimeFormat.DateTimeFromString(taskModify.Begin), vtrtask);
-
-                TimePeriod tp = new TimePeriod(vtrtask.Vtrid.GetValueOrDefault(), DateTimeFormat.DateTimeFromString(taskModify.Begin), DateTimeFormat.DateTimeFromString(taskModify.End));
-                if (!IsTimePeriodInVTRTimePeriods(tp, vtrFreeTimePeriods))
-                {
-                    //VTRDetailInfo vtrInfo = new VTRDetailInfo();
-                    //vtrInfo = vtrOper.GetVTRDetailInfoByID(vtrTasks[0].nVtrId);
-                    await Store.UnLockTask(findtask, true);
-                    //SobeyRecException.ThrowSelf(Locallanguage.LoadString(vtrInfo.szVTRDetailName + " has been used by other tasks"), 3);
-                    SobeyRecException.ThrowSelfOneParam("ModifyTask match empty", GlobalDictionary.GLOBALDICT_CODE_VTR_HAS_BEEN_USED_BY_OTHER_TASKS_ONEPARAM, Logger, vtrtask.Vtrid, null);
-                }
-            }
-
-            DateTime modifybegin = DateTimeFormat.DateTimeFromString(taskModify.Begin);
-            DateTime modifyend = DateTimeFormat.DateTimeFromString(taskModify.End);
-
-            //List<TaskContentResponse> lsttask = null;
-            //看修改的时间是否冲突,如果是周期任务，传入真实的beginTime.EndTime
-            if (taskModify.TaskType != TaskType.TT_PERIODIC)
-            {
-                //获取冲突任务列表
-                //if (conflictContent.Length == 1 && conflictContent[0].nTaskID == info.taskContent.nTaskID)
-                //{
-
-                //}
-                //else
-                //{
-                //    TASKOPER.UnlockTask(taskModify.nTaskID);
-                //    //SobeyRecException.ThrowSelf(Locallanguage.LoadString("Can Not Modify Time,Conflict Tasks:")
-                //    //    +GetTaskDesc(conflictContent),2);
-                //    SobeyRecException.ThrowSelf(string.Format(GlobalDictionary.Instance.GetMessageByCode(GlobalDictionary.GLOBALDICT_CODE_CAN_NOT_MODIFY_TIME_CONFLICT_TASKS),
-                //                GetTaskDesc(conflictContent)), GlobalDictionary.GLOBALDICT_CODE_CAN_NOT_MODIFY_TIME_CONFLICT_TASKS);
-                //}
-                List<int> chl = new List<int>() { taskModify.ChannelId };
-                var freelst = await Store.GetFreeChannels(chl, taskModify.TaskId, taskModify.BackupVtrId, modifybegin, modifyend);
-                if (freelst == null || freelst.Count < 1)
-                {
-                    await Store.UnLockTask(findtask, true);
-                    SobeyRecException.ThrowSelfOneParam("ModifyTask GetFreeChannels empty",
-                        GlobalDictionary.GLOBALDICT_CODE_CAN_NOT_MODIFY_TIME_CONFLICT_TASKS_ONEPARAM, Logger, taskModify.TaskId, null);
-
-                }
-            }
-            else
-            {
-                //不论是否为分出来的还是不是分出来的任务，都要进行冲突判断
-                if (findtask.OldChannelid <= 0)
-                {
-                    /*
-                     * @brief 老版本会跨天判断，并多次查询，跨天的会分俩次查询，我大胆使用新的代码
-                     */
-                    if (findtask.Starttime.Date == findtask.Endtime.Date)
-                    {
-                    }
-
-                    List<int> chl = new List<int>() { taskModify.ChannelId };
-
-                    DateTime dtTmpModiStart = new DateTime(findtask.Starttime.Year, findtask.Starttime.Month, findtask.Starttime.Day,
-                            modifybegin.Hour, modifybegin.Minute, modifybegin.Second);
-                    DateTime dtTmpModiEnd = new DateTime(findtask.Endtime.Year, findtask.Endtime.Month, findtask.Endtime.Day,
-                        modifyend.Hour, modifyend.Minute, modifyend.Second);
-
-                    var freelst = await Store.GetFreePerodiChannels(chl, taskModify.TaskId, taskModify.Unit, taskModify.SignalId,
-                        taskModify.ChannelId, taskModify.Classify, dtTmpModiStart, dtTmpModiEnd);
-
-                    if (freelst == null || freelst.Count < 1)
-                    {
-                        await Store.UnLockTask(findtask, true);
-                        SobeyRecException.ThrowSelfOneParam("ModifyTask GetFreePerodiChannels1 empty",
-                            GlobalDictionary.GLOBALDICT_CODE_CAN_NOT_MODIFY_TIME_CONFLICT_TASKS_ONEPARAM, Logger, taskModify.TaskId, null);
-
-                    }
-                }
-                else
-                {
-
-                    if (modifyend - modifybegin > new TimeSpan(0, 23, 59, 59))
-                    {
-                        await Store.UnLockTask(findtask, true);
-                        SobeyRecException.ThrowSelfNoParam("ModifyTask match over 24", GlobalDictionary.GLOBALDICT_CODE_TASK_TIME_IS_OVER_24_HOURS, Logger, null);
-
-                    }
-
-                    List<int> chl = new List<int>() { taskModify.ChannelId };
-                    var freelst = await Store.GetFreePerodiChannels(chl, taskModify.TaskId, taskModify.Unit, taskModify.SignalId,
-                        taskModify.ChannelId, taskModify.Classify, modifybegin, modifyend);
-
-                    if (freelst == null || freelst.Count < 1)
-                    {
-                        await Store.UnLockTask(findtask, true);
-                        SobeyRecException.ThrowSelfOneParam("ModifyTask GetFreePerodiChannels2 empty",
-                            GlobalDictionary.GLOBALDICT_CODE_CAN_NOT_MODIFY_TIME_CONFLICT_TASKS_ONEPARAM, Logger, taskModify.TaskId, null);
-
-                    }
-                }
-            }
-
-            findtask.Recunitid = taskModify.Unit;
-            findtask.Taskname = taskModify.TaskName;
-            findtask.Description = taskModify.TaskDesc;
-            findtask.Channelid = taskModify.ChannelId;
-            findtask.Signalid = taskModify.SignalId;
+            //    if (!match)
+            //    {
+            //        await Store.UnLockTask(findtask, true);
+            //        SobeyRecException.ThrowSelfNoParam("ModifyTask match empty", GlobalDictionary.GLOBALDICT_CODE_SIGNAL_AND_CHANNEL_IS_MISMATCHED, Logger, null);
+            //    }
+            //}
 
 
-            //对于周期任务，不允许改变任务日期
-            if (findtask.Tasktype == (int)TaskType.TT_PERIODIC && findtask.OldChannelid <= 0)
-            {
-                findtask.Starttime = new DateTime(findtask.Starttime.Year, findtask.Starttime.Month, findtask.Starttime.Day,
-                    modifybegin.Hour, modifybegin.Minute, modifybegin.Second);
-                findtask.Endtime = new DateTime(findtask.Endtime.Year, findtask.Endtime.Month, findtask.Endtime.Day,
-                    modifyend.Hour, modifyend.Minute, modifyend.Second);
-            }
-            else
-            {
-                TimeSpan span = findtask.Starttime - DateTime.Now;
-                int tkState = findtask.State.GetValueOrDefault();
-                //如果任务已经或者即将开始，不允许改变开始时间
-                if ((tkState == (int)taskState.tsExecuting || tkState == (int)taskState.tsReady || tkState == (int)taskState.tsManuexecuting)
-                    && span.TotalSeconds < 30)
-                {
-                    //原有的开始时间不等于现有的开始时间，但是长度相等，表明是拖动整体移动，不能修改时间，
-                    //否则可以更改结束时间
-                    TimeSpan tmpSpan1 = findtask.Endtime - findtask.Starttime;
-                    TimeSpan tmpSpan2 = modifyend - modifybegin;
-                    if (findtask.Starttime != modifybegin && tmpSpan1 == tmpSpan2)
-                    {
-                        /*
-                         * @brief 这里会判断冲突，我去掉了，因为感觉没有必要
-                         */
-                        Logger.Info("ModifyTask confilict move");
-                    }
-                    else
-                    {
-                        findtask.Endtime = modifyend;
-                        Logger.Info("ModifyTask confilict change endtime");
-                    }
+            ////如果是手动任务改成自动任务，强行改成已调度已同步状态
+            //if (findtask.Tasktype == (int)TaskType.TT_MANUTASK && taskModify.TaskType == TaskType.TT_NORMAL)
+            //{
+            //    findtask.SyncState = (int)syncState.ssSync;
+            //    findtask.DispatchState = (int)dispatchState.dpsDispatched;
+            //}
 
-                }
-                else
-                {
-                    findtask.Starttime = modifybegin;
-                    findtask.Endtime = modifyend;
-                }
-            }
+            //if (findtask.Tasktype == (int)TaskType.TT_VTRUPLOAD)
+            //{
+            //    var vtrtask = await Store.GetVtrUploadTaskAsync(a => a.Where(b => b.Taskid == findtask.Taskid), true);
+            //    if (vtrtask == null)
+            //    {
+            //        await Store.UnLockTask(findtask, true);
+            //        SobeyRecException.ThrowSelfOneParam("ModifyTask vtrtask empty", GlobalDictionary.GLOBALDICT_CODE_CAN_NOT_FIND_THE_TASK_ONEPARAM, Logger, findtask.Taskid, null);
+            //    }
 
-            findtask.Tasktype = (int)taskModify.TaskType;
-            findtask.Backupvtrid = taskModify.BackupVtrId;
-            findtask.Backtype = (int)taskModify.CooperantType;
-            findtask.Stampimagetype = taskModify.StampImageType;
-            findtask.Tasklock = string.Empty;
+            //    VTRTimePeriods vtrFreeTimePeriods = new VTRTimePeriods(vtrtask.Vtrid.GetValueOrDefault());
+            //    vtrFreeTimePeriods.Periods = new List<TimePeriod>();
+            //    await GetFreeTimePeriodByVtrId(vtrFreeTimePeriods, findtask.Taskid, DateTimeFormat.DateTimeFromString(taskModify.Begin), vtrtask);
 
-            if (taskSource != TaskSource.emUnknowTask)
-            {
-                findtask.Tasksource = (int)TaskSource.emUnknowTask;
-            }
+            //    TimePeriod tp = new TimePeriod(vtrtask.Vtrid.GetValueOrDefault(), DateTimeFormat.DateTimeFromString(taskModify.Begin), DateTimeFormat.DateTimeFromString(taskModify.End));
+            //    if (!IsTimePeriodInVTRTimePeriods(tp, vtrFreeTimePeriods))
+            //    {
+            //        //VTRDetailInfo vtrInfo = new VTRDetailInfo();
+            //        //vtrInfo = vtrOper.GetVTRDetailInfoByID(vtrTasks[0].nVtrId);
+            //        await Store.UnLockTask(findtask, true);
+            //        //SobeyRecException.ThrowSelf(Locallanguage.LoadString(vtrInfo.szVTRDetailName + " has been used by other tasks"), 3);
+            //        SobeyRecException.ThrowSelfOneParam("ModifyTask match empty", GlobalDictionary.GLOBALDICT_CODE_VTR_HAS_BEEN_USED_BY_OTHER_TASKS_ONEPARAM, Logger, vtrtask.Vtrid, null);
+            //    }
+            //}
 
-            try
-            {
-                //return _mapper.Map<TaskContentResponse>(await Store.ModifyTask(findtask, false, true, true,CaptureMeta, ContentMeta, MatiralMeta, PlanningMeta));
-                return await Store.ModifyTask(findtask, false, true, true, CaptureMeta, ContentMeta, MatiralMeta, PlanningMeta, SplitMeta);
-            }
-            catch (Exception e)
-            {
-                await Store.UnLockTask(findtask, true);
-                SobeyRecException.ThrowSelfNoParam("ModifyTask match ModifyTask", GlobalDictionary.GLOBALDICT_CODE_SET_TASKMETADATA_FAIL, Logger, e);
+            //DateTime modifybegin = DateTimeFormat.DateTimeFromString(taskModify.Begin);
+            //DateTime modifyend = DateTimeFormat.DateTimeFromString(taskModify.End);
 
-            }
+            ////List<TaskContentResponse> lsttask = null;
+            ////看修改的时间是否冲突,如果是周期任务，传入真实的beginTime.EndTime
+            //if (taskModify.TaskType != TaskType.TT_PERIODIC)
+            //{
+            //    //获取冲突任务列表
+            //    //if (conflictContent.Length == 1 && conflictContent[0].nTaskID == info.taskContent.nTaskID)
+            //    //{
+
+            //    //}
+            //    //else
+            //    //{
+            //    //    TASKOPER.UnlockTask(taskModify.nTaskID);
+            //    //    //SobeyRecException.ThrowSelf(Locallanguage.LoadString("Can Not Modify Time,Conflict Tasks:")
+            //    //    //    +GetTaskDesc(conflictContent),2);
+            //    //    SobeyRecException.ThrowSelf(string.Format(GlobalDictionary.Instance.GetMessageByCode(GlobalDictionary.GLOBALDICT_CODE_CAN_NOT_MODIFY_TIME_CONFLICT_TASKS),
+            //    //                GetTaskDesc(conflictContent)), GlobalDictionary.GLOBALDICT_CODE_CAN_NOT_MODIFY_TIME_CONFLICT_TASKS);
+            //    //}
+            //    List<int> chl = new List<int>() { taskModify.ChannelId };
+            //    var freelst = await Store.GetFreeChannels(chl, taskModify.TaskId, taskModify.BackupVtrId, modifybegin, modifyend);
+            //    if (freelst == null || freelst.Count < 1)
+            //    {
+            //        await Store.UnLockTask(findtask, true);
+            //        SobeyRecException.ThrowSelfOneParam("ModifyTask GetFreeChannels empty",
+            //            GlobalDictionary.GLOBALDICT_CODE_CAN_NOT_MODIFY_TIME_CONFLICT_TASKS_ONEPARAM, Logger, taskModify.TaskId, null);
+
+            //    }
+            //}
+            //else
+            //{
+            //    //不论是否为分出来的还是不是分出来的任务，都要进行冲突判断
+            //    if (findtask.OldChannelid <= 0)
+            //    {
+            //        /*
+            //         * @brief 老版本会跨天判断，并多次查询，跨天的会分俩次查询，我大胆使用新的代码
+            //         */
+            //        if (findtask.Starttime.Date == findtask.Endtime.Date)
+            //        {
+            //        }
+
+            //        List<int> chl = new List<int>() { taskModify.ChannelId };
+
+            //        DateTime dtTmpModiStart = new DateTime(findtask.Starttime.Year, findtask.Starttime.Month, findtask.Starttime.Day,
+            //                modifybegin.Hour, modifybegin.Minute, modifybegin.Second);
+            //        DateTime dtTmpModiEnd = new DateTime(findtask.Endtime.Year, findtask.Endtime.Month, findtask.Endtime.Day,
+            //            modifyend.Hour, modifyend.Minute, modifyend.Second);
+
+            //        var freelst = await Store.GetFreePerodiChannels(chl, taskModify.TaskId, taskModify.Unit, taskModify.SignalId,
+            //            taskModify.ChannelId, taskModify.Classify, dtTmpModiStart, dtTmpModiEnd);
+
+            //        if (freelst == null || freelst.Count < 1)
+            //        {
+            //            await Store.UnLockTask(findtask, true);
+            //            SobeyRecException.ThrowSelfOneParam("ModifyTask GetFreePerodiChannels1 empty",
+            //                GlobalDictionary.GLOBALDICT_CODE_CAN_NOT_MODIFY_TIME_CONFLICT_TASKS_ONEPARAM, Logger, taskModify.TaskId, null);
+
+            //        }
+            //    }
+            //    else
+            //    {
+
+            //        if (modifyend - modifybegin > new TimeSpan(0, 23, 59, 59))
+            //        {
+            //            await Store.UnLockTask(findtask, true);
+            //            SobeyRecException.ThrowSelfNoParam("ModifyTask match over 24", GlobalDictionary.GLOBALDICT_CODE_TASK_TIME_IS_OVER_24_HOURS, Logger, null);
+
+            //        }
+
+            //        List<int> chl = new List<int>() { taskModify.ChannelId };
+            //        var freelst = await Store.GetFreePerodiChannels(chl, taskModify.TaskId, taskModify.Unit, taskModify.SignalId,
+            //            taskModify.ChannelId, taskModify.Classify, modifybegin, modifyend);
+
+            //        if (freelst == null || freelst.Count < 1)
+            //        {
+            //            await Store.UnLockTask(findtask, true);
+            //            SobeyRecException.ThrowSelfOneParam("ModifyTask GetFreePerodiChannels2 empty",
+            //                GlobalDictionary.GLOBALDICT_CODE_CAN_NOT_MODIFY_TIME_CONFLICT_TASKS_ONEPARAM, Logger, taskModify.TaskId, null);
+
+            //        }
+            //    }
+            //}
+
+            //findtask.Recunitid = taskModify.Unit;
+            //findtask.Taskname = taskModify.TaskName;
+            //findtask.Description = taskModify.TaskDesc;
+            //findtask.Channelid = taskModify.ChannelId;
+            //findtask.Signalid = taskModify.SignalId;
+
+
+            ////对于周期任务，不允许改变任务日期
+            //if (findtask.Tasktype == (int)TaskType.TT_PERIODIC && findtask.OldChannelid <= 0)
+            //{
+            //    findtask.Starttime = new DateTime(findtask.Starttime.Year, findtask.Starttime.Month, findtask.Starttime.Day,
+            //        modifybegin.Hour, modifybegin.Minute, modifybegin.Second);
+            //    findtask.Endtime = new DateTime(findtask.Endtime.Year, findtask.Endtime.Month, findtask.Endtime.Day,
+            //        modifyend.Hour, modifyend.Minute, modifyend.Second);
+            //}
+            //else
+            //{
+            //    TimeSpan span = findtask.Starttime - DateTime.Now;
+            //    int tkState = findtask.State.GetValueOrDefault();
+            //    //如果任务已经或者即将开始，不允许改变开始时间
+            //    if ((tkState == (int)taskState.tsExecuting || tkState == (int)taskState.tsReady || tkState == (int)taskState.tsManuexecuting)
+            //        && span.TotalSeconds < 30)
+            //    {
+            //        //原有的开始时间不等于现有的开始时间，但是长度相等，表明是拖动整体移动，不能修改时间，
+            //        //否则可以更改结束时间
+            //        TimeSpan tmpSpan1 = findtask.Endtime - findtask.Starttime;
+            //        TimeSpan tmpSpan2 = modifyend - modifybegin;
+            //        if (findtask.Starttime != modifybegin && tmpSpan1 == tmpSpan2)
+            //        {
+            //            /*
+            //             * @brief 这里会判断冲突，我去掉了，因为感觉没有必要
+            //             */
+            //            Logger.Info("ModifyTask confilict move");
+            //        }
+            //        else
+            //        {
+            //            findtask.Endtime = modifyend;
+            //            Logger.Info("ModifyTask confilict change endtime");
+            //        }
+
+            //    }
+            //    else
+            //    {
+            //        findtask.Starttime = modifybegin;
+            //        findtask.Endtime = modifyend;
+            //    }
+            //}
+
+            //findtask.Tasktype = (int)taskModify.TaskType;
+            //findtask.Backupvtrid = taskModify.BackupVtrId;
+            //findtask.Backtype = (int)taskModify.CooperantType;
+            //findtask.Stampimagetype = taskModify.StampImageType;
+            //findtask.Tasklock = string.Empty;
+
+            //if (taskSource != TaskSource.emUnknowTask)
+            //{
+            //    findtask.Tasksource = (int)TaskSource.emUnknowTask;
+            //}
+
+            //try
+            //{
+            //    //return _mapper.Map<TaskContentResponse>(await Store.ModifyTask(findtask, false, true, true,CaptureMeta, ContentMeta, MatiralMeta, PlanningMeta));
+            //    return await Store.ModifyTask(findtask, false, true, true, CaptureMeta, ContentMeta, MatiralMeta, PlanningMeta, SplitMeta);
+            //}
+            //catch (Exception e)
+            //{
+            //    await Store.UnLockTask(findtask, true);
+            //    SobeyRecException.ThrowSelfNoParam("ModifyTask match ModifyTask", GlobalDictionary.GLOBALDICT_CODE_SET_TASKMETADATA_FAIL, Logger, e);
+
+            //}
             return null;
 
         }
@@ -3188,42 +3202,45 @@ namespace IngestTaskPlugin.Managers
 
         public async Task WriteVTRUploadTaskDB<TResult>(TResult taskAdd)
         {
-            TaskContentRequest taskinfo = _mapper.Map<TaskContentRequest>(taskAdd);
+            /*
+             * wqtest
+             */
+            //TaskContentRequest taskinfo = _mapper.Map<TaskContentRequest>(taskAdd);
 
 
-            if (_deviceInterface != null)
-            {
-                var response1 = await _deviceInterface.Value.GetDeviceCallBack(new DeviceInternals()
-                {
-                    funtype = IngestDBCore.DeviceInternals.FunctionType.ChannelUnitMap,
-                    ChannelId = taskinfo.ChannelId
-                });
+            //if (_deviceInterface != null)
+            //{
+            //    var response1 = await _deviceInterface.Value.GetDeviceCallBack(new DeviceInternals()
+            //    {
+            //        funtype = IngestDBCore.DeviceInternals.FunctionType.ChannelUnitMap,
+            //        ChannelId = taskinfo.ChannelId
+            //    });
 
-                if (response1.Code != ResponseCodeDefines.SuccessCode)
-                {
-                    Logger.Error("WriteVTRUploadTaskDB ChannelUnitMap error");
-                    return;
-                }
-                var fr = response1 as ResponseMessage<int>;
+            //    if (response1.Code != ResponseCodeDefines.SuccessCode)
+            //    {
+            //        Logger.Error("WriteVTRUploadTaskDB ChannelUnitMap error");
+            //        return;
+            //    }
+            //    var fr = response1 as ResponseMessage<int>;
 
-                taskinfo.Unit = fr.Ext;
+            //    taskinfo.Unit = fr.Ext;
 
-                var findtask = await Store.GetTaskAsync(a => a.Where(b => b.Taskid == taskinfo.TaskId));
-                if (findtask != null)
-                {
-                    await Store.DeleteTaskDB(taskinfo.TaskId, false);
-                }
-                Logger.Info("WriteVTRUploadTaskDB beging add");
-                await Store.AddTaskWithPolicys(_mapper.Map<TaskContentRequest, DbpTask>(taskinfo, opt =>
-                opt.AfterMap((src, des) =>
-                {
-                    //des.State = (int)taskState.tsReady;
-                    des.SyncState = (int)syncState.ssSync;
-                    des.DispatchState = (int)dispatchState.dpsDispatched;
-                    des.Tasksource = (int)TaskSource.emVTRUploadTask;
-                })
-                ), false, string.Empty, string.Empty, string.Empty, string.Empty, string.Empty, null);
-            }
+            //    var findtask = await Store.GetTaskAsync(a => a.Where(b => b.Taskid == taskinfo.TaskId));
+            //    if (findtask != null)
+            //    {
+            //        await Store.DeleteTaskDB(taskinfo.TaskId, false);
+            //    }
+            //    Logger.Info("WriteVTRUploadTaskDB beging add");
+            //    await Store.AddTaskWithPolicys(_mapper.Map<TaskContentRequest, DbpTask>(taskinfo, opt =>
+            //    opt.AfterMap((src, des) =>
+            //    {
+            //        //des.State = (int)taskState.tsReady;
+            //        des.SyncState = (int)syncState.ssSync;
+            //        des.DispatchState = (int)dispatchState.dpsDispatched;
+            //        des.Tasksource = (int)TaskSource.emVTRUploadTask;
+            //    })
+            //    ), false, string.Empty, string.Empty, string.Empty, string.Empty, string.Empty, null);
+            //}
 
         }
 
@@ -3327,152 +3344,156 @@ namespace IngestTaskPlugin.Managers
 
         public async Task<TResult> CreateNewTaskFromPeriodicTask<TResult>(int periodicTaskId)
         {
-            var findtask = await Store.GetTaskAsync(a => a.Where(b => b.Taskid == periodicTaskId), true);
+            /*
+             * wqtest
+             */
+            return default(TResult);
+            //var findtask = await Store.GetTaskAsync(a => a.Where(b => b.Taskid == periodicTaskId), true);
 
-            if (findtask.Category == "A" && findtask.Endtime.AddDays(1) < DateTime.Now)
-            {
-                SobeyRecException.ThrowSelfNoParam("CreateNewTaskFromPeriodicTask match ", GlobalDictionary.GLOBALDICT_CODE_TASK_IS_NOT_A_PERIODIC_TASK, Logger, null);
-            }
-
-            string strmetadata = await IsNeedModPeriodicTaskName(periodicTaskId);
-
-            var addtask = ObjectTool.CopyObjectData(findtask,"", BindingFlags.Public | BindingFlags.Instance);
-
-            string newTaskName = findtask.Taskname;
-            if (!string.IsNullOrEmpty(strmetadata))
-            {
-                string strContentMetadata = "";
-                strContentMetadata = strmetadata;//QueryTaskMetaData(periodicTaskId, MetaDataType.emContentMetaData,  strContentMetadata).Result;
-                GetPeriodTaskNewName(ref newTaskName, findtask.NewBegintime, true, ref strContentMetadata);
-                addtask.Taskname = newTaskName;
-            }
-
-            addtask.OldChannelid = findtask.Taskid;
-            addtask.Taskid = -1;
-            addtask.Taskguid = Guid.NewGuid().ToString("N"); //GUID
-            addtask.Description = string.Empty;
-
-            string Category = findtask.Category;
-
-            addtask.Category = "D";
-            //有效期只有当前执行的这一天
-            addtask.Starttime = findtask.NewBegintime;
-            addtask.Endtime = findtask.NewEndtime;
-            //如果这天已经被禁用，就成为一个被删除的任务
-            if (Store.IsInvalidPerodicTask(Category, findtask.Starttime))
-            {
-                addtask.State = (int)taskState.tsDelete;
-            }
-
-            //如果当天任务已经被分过了，不要分出下面一天的来，这里以1分钟为界
-            if (DateTime.Now.AddMinutes(1) <= findtask.NewBegintime)
-            {
-                SobeyRecException.ThrowSelfNoParam("ModifyTask match ModifyTask", GlobalDictionary.GLOBALDICT_CODE_NEXT_TIME_IS_MORE_THAN_1_MINUTE, Logger, null);
-            }
-
-            bool isTaskInvaild = false;
-            //如果今天日期已经超过当前新任务的结束日期，把任务状态设置成taskState.tsInvaild
-            if (DateTime.Now > findtask.NewEndtime)
-            {
-                addtask.State = (int)taskState.tsInvaild;
-                addtask.SyncState = (int)syncState.ssSync;//过期的任务置为已同步						
-                isTaskInvaild = true;
-            }
-            //int[] policyids = null;
-            //MetaDataPolicy[] arrPolicyMeta = PPLICYACCESS.GetPolicyByTaskID(periodicTaskId);
-            //if (arrPolicyMeta.Length > 0)
+            //if (findtask.Category == "A" && findtask.Endtime.AddDays(1) < DateTime.Now)
             //{
-            //    policyids = new int[arrPolicyMeta.Length];
-            //    for (int i = 0; i < arrPolicyMeta.Length; i++)
+            //    SobeyRecException.ThrowSelfNoParam("CreateNewTaskFromPeriodicTask match ", GlobalDictionary.GLOBALDICT_CODE_TASK_IS_NOT_A_PERIODIC_TASK, Logger, null);
+            //}
+
+            //string strmetadata = await IsNeedModPeriodicTaskName(periodicTaskId);
+
+            //var addtask = ObjectTool.CopyObjectData(findtask,"", BindingFlags.Public | BindingFlags.Instance);
+
+            //string newTaskName = findtask.Taskname;
+            //if (!string.IsNullOrEmpty(strmetadata))
+            //{
+            //    string strContentMetadata = "";
+            //    strContentMetadata = strmetadata;//QueryTaskMetaData(periodicTaskId, MetaDataType.emContentMetaData,  strContentMetadata).Result;
+            //    GetPeriodTaskNewName(ref newTaskName, findtask.NewBegintime, true, ref strContentMetadata);
+            //    addtask.Taskname = newTaskName;
+            //}
+
+            //addtask.OldChannelid = findtask.Taskid;
+            //addtask.Taskid = -1;
+            //addtask.Taskguid = Guid.NewGuid().ToString("N"); //GUID
+            //addtask.Description = string.Empty;
+
+            //string Category = findtask.Category;
+
+            //addtask.Category = "D";
+            ////有效期只有当前执行的这一天
+            //addtask.Starttime = findtask.NewBegintime;
+            //addtask.Endtime = findtask.NewEndtime;
+            ////如果这天已经被禁用，就成为一个被删除的任务
+            //if (Store.IsInvalidPerodicTask(Category, findtask.Starttime))
+            //{
+            //    addtask.State = (int)taskState.tsDelete;
+            //}
+
+            ////如果当天任务已经被分过了，不要分出下面一天的来，这里以1分钟为界
+            //if (DateTime.Now.AddMinutes(1) <= findtask.NewBegintime)
+            //{
+            //    SobeyRecException.ThrowSelfNoParam("ModifyTask match ModifyTask", GlobalDictionary.GLOBALDICT_CODE_NEXT_TIME_IS_MORE_THAN_1_MINUTE, Logger, null);
+            //}
+
+            //bool isTaskInvaild = false;
+            ////如果今天日期已经超过当前新任务的结束日期，把任务状态设置成taskState.tsInvaild
+            //if (DateTime.Now > findtask.NewEndtime)
+            //{
+            //    addtask.State = (int)taskState.tsInvaild;
+            //    addtask.SyncState = (int)syncState.ssSync;//过期的任务置为已同步						
+            //    isTaskInvaild = true;
+            //}
+            ////int[] policyids = null;
+            ////MetaDataPolicy[] arrPolicyMeta = PPLICYACCESS.GetPolicyByTaskID(periodicTaskId);
+            ////if (arrPolicyMeta.Length > 0)
+            ////{
+            ////    policyids = new int[arrPolicyMeta.Length];
+            ////    for (int i = 0; i < arrPolicyMeta.Length; i++)
+            ////    {
+            ////        policyids[i] = arrPolicyMeta[i].nID;
+            ////    }
+            ////}
+
+            //var lsttaskmeta = await Store.GetTaskMetaDataListAsync(a => a.Where(b => b.Taskid == periodicTaskId), true); ;
+            //string strCapatureMetaData = string.Empty, strStoreMetaData = string.Empty, strContentMetaData = string.Empty, strPlanMetaData = string.Empty, strSplitMetaData = string.Empty;
+            //foreach (var item in lsttaskmeta)
+            //{
+            //    if (item.Metadatatype == (int)MetaDataType.emCapatureMetaData)
             //    {
-            //        policyids[i] = arrPolicyMeta[i].nID;
+            //        strCapatureMetaData = item.Metadatalong;
+            //    }
+            //    else if (item.Metadatatype == (int)MetaDataType.emContentMetaData)
+            //    {
+            //        strContentMetaData = item.Metadatalong;
+            //    }
+            //    else if (item.Metadatatype == (int)MetaDataType.emStoreMetaData)
+            //    {
+            //        strStoreMetaData = item.Metadatalong;
+            //    }
+            //    else if (item.Metadatatype == (int)MetaDataType.emPlanMetaData)
+            //    {
+            //        strPlanMetaData = item.Metadatalong;
+            //    }
+            //    else if (item.Metadatatype == (int)MetaDataType.emSplitData)
+            //    {
+            //        strSplitMetaData = item.Metadatalong;
             //    }
             //}
 
-            var lsttaskmeta = await Store.GetTaskMetaDataListAsync(a => a.Where(b => b.Taskid == periodicTaskId), true); ;
-            string strCapatureMetaData = string.Empty, strStoreMetaData = string.Empty, strContentMetaData = string.Empty, strPlanMetaData = string.Empty, strSplitMetaData = string.Empty;
-            foreach (var item in lsttaskmeta)
-            {
-                if (item.Metadatatype == (int)MetaDataType.emCapatureMetaData)
-                {
-                    strCapatureMetaData = item.Metadatalong;
-                }
-                else if (item.Metadatatype == (int)MetaDataType.emContentMetaData)
-                {
-                    strContentMetaData = item.Metadatalong;
-                }
-                else if (item.Metadatatype == (int)MetaDataType.emStoreMetaData)
-                {
-                    strStoreMetaData = item.Metadatalong;
-                }
-                else if (item.Metadatatype == (int)MetaDataType.emPlanMetaData)
-                {
-                    strPlanMetaData = item.Metadatalong;
-                }
-                else if (item.Metadatatype == (int)MetaDataType.emSplitData)
-                {
-                    strSplitMetaData = item.Metadatalong;
-                }
-            }
+            //if (!string.IsNullOrEmpty(strStoreMetaData))
+            //{
+            //    var root = XElement.Parse(strStoreMetaData);
+            //    if (root != null)
+            //    {
+            //        var mate = root.Descendants("MATERIALID").FirstOrDefault();
+            //        if (mate != null && !string.IsNullOrEmpty(mate.Value))
+            //        {
+            //            mate.Value = string.Empty;
+            //        }
+            //        var title = root.Descendants("TITLE").FirstOrDefault();
+            //        if (title != null && !string.IsNullOrEmpty(title.Value))
+            //        {
+            //            title.Value = newTaskName;
+            //        }
 
-            if (!string.IsNullOrEmpty(strStoreMetaData))
-            {
-                var root = XElement.Parse(strStoreMetaData);
-                if (root != null)
-                {
-                    var mate = root.Descendants("MATERIALID").FirstOrDefault();
-                    if (mate != null && !string.IsNullOrEmpty(mate.Value))
-                    {
-                        mate.Value = string.Empty;
-                    }
-                    var title = root.Descendants("TITLE").FirstOrDefault();
-                    if (title != null && !string.IsNullOrEmpty(title.Value))
-                    {
-                        title.Value = newTaskName;
-                    }
+            //        strStoreMetaData = root.ToString();
+            //    }
+            //}
 
-                    strStoreMetaData = root.ToString();
-                }
-            }
+            //if (!string.IsNullOrEmpty(strContentMetaData))
+            //{
+            //    var root = XElement.Parse(strContentMetaData);
+            //    var offset = root?.Element("OffsetDay");
+            //    if (offset != null)
+            //    {
+            //        int offsetday = int.Parse(offset.Value);
 
-            if (!string.IsNullOrEmpty(strContentMetaData))
-            {
-                var root = XElement.Parse(strContentMetaData);
-                var offset = root?.Element("OffsetDay");
-                if (offset != null)
-                {
-                    int offsetday = int.Parse(offset.Value);
+            //        var contentbegin = root.Element("ContentTime")?.Element("BeginTime");
+            //        var contentend = root.Element("ContentTime")?.Element("EndTime");
 
-                    var contentbegin = root.Element("ContentTime")?.Element("BeginTime");
-                    var contentend = root.Element("ContentTime")?.Element("EndTime");
+            //        var contbegin = DateTimeFormat.DateTimeFromString(contentbegin.Value);
+            //        var contend = DateTimeFormat.DateTimeFromString(contentend.Value);
 
-                    var contbegin = DateTimeFormat.DateTimeFromString(contentbegin.Value);
-                    var contend = DateTimeFormat.DateTimeFromString(contentend.Value);
+            //        //母任务的长度
+            //        TimeSpan ContentLen = contend - contbegin;
 
-                    //母任务的长度
-                    TimeSpan ContentLen = contend - contbegin;
+            //        DateTime TaskTimeDay = new DateTime(findtask.Starttime.Year, findtask.Starttime.Month, findtask.Starttime.Day, 0, 0, 0);
+            //        DateTime ContentDay = TaskTimeDay.AddDays(-offsetday);
 
-                    DateTime TaskTimeDay = new DateTime(findtask.Starttime.Year, findtask.Starttime.Month, findtask.Starttime.Day, 0, 0, 0);
-                    DateTime ContentDay = TaskTimeDay.AddDays(-offsetday);
+            //        //加上Offset,根据Offset重新计算内容采集开始时间
+            //        DateTime TimeContentBeginNew = new DateTime(ContentDay.Year, ContentDay.Month, ContentDay.Day, contbegin.Hour, contbegin.Minute, contbegin.Second);
+            //        DateTime TimeContentEndNew = TimeContentBeginNew.Add(ContentLen);
 
-                    //加上Offset,根据Offset重新计算内容采集开始时间
-                    DateTime TimeContentBeginNew = new DateTime(ContentDay.Year, ContentDay.Month, ContentDay.Day, contbegin.Hour, contbegin.Minute, contbegin.Second);
-                    DateTime TimeContentEndNew = TimeContentBeginNew.Add(ContentLen);
+            //        contentbegin.Value = DateTimeFormat.DateTimeToString(TimeContentBeginNew);
+            //        contentend.Value = DateTimeFormat.DateTimeToString(TimeContentEndNew);
 
-                    contentbegin.Value = DateTimeFormat.DateTimeToString(TimeContentBeginNew);
-                    contentend.Value = DateTimeFormat.DateTimeToString(TimeContentEndNew);
+            //        strContentMetaData = root.ToString();
+            //    }
+            //}
 
-                    strContentMetaData = root.ToString();
-                }
-            }
+            //findtask.Tasklock = string.Empty;
+            //await Store.ModifyTask(findtask, true, false, false, string.Empty, string.Empty, string.Empty, string.Empty);
 
-            findtask.Tasklock = string.Empty;
-            await Store.ModifyTask(findtask, true, false, false, string.Empty, string.Empty, string.Empty, string.Empty);
+            //string orgtitle = "";
+            //await Store.AddTaskWithPolicys(addtask, true, strCapatureMetaData, strContentMetaData, strStoreMetaData, strPlanMetaData, DealSplitNameSuffix(strSplitMetaData, addtask.Channelid ?? 0, string.Empty, ref orgtitle, string.Empty), null);
 
-            string orgtitle = "";
-            await Store.AddTaskWithPolicys(addtask, true, strCapatureMetaData, strContentMetaData, strStoreMetaData, strPlanMetaData, DealSplitNameSuffix(strSplitMetaData, addtask.Channelid ?? 0, string.Empty, ref orgtitle, string.Empty), null);
-
-            return _mapper.Map<TResult>(addtask);
+            //return _mapper.Map<TResult>(addtask);
 
         }
 
@@ -3532,57 +3553,63 @@ namespace IngestTaskPlugin.Managers
 
         public async ValueTask<bool> SetPeriodTaskToNextTime()
         {
-            var dt = DateTime.Now;
-            var lsttask = await Store.GetTaskListAsync(a => a.Where(b => b.Tasktype == (int)TaskType.TT_PERIODIC && b.OldChannelid == 0
-            && (b.State < 4 || b.State > 4)
-            && b.NewBegintime <= dt
-            && b.Starttime < b.Endtime));
+            /*
+             * wqtest
+             */
+            //var dt = DateTime.Now;
+            //var lsttask = await Store.GetTaskListAsync(a => a.Where(b => b.Tasktype == (int)TaskType.TT_PERIODIC && b.OldChannelid == 0
+            //&& (b.State < 4 || b.State > 4)
+            //&& b.NewBegintime <= dt
+            //&& b.Starttime < b.Endtime));
 
-            if (lsttask == null || lsttask.Count <= 0)
-            {
-                return false;
-            }
+            //if (lsttask == null || lsttask.Count <= 0)
+            //{
+            //    return false;
+            //}
 
-            foreach (var item in lsttask)
-            {
-                DateTime dtNewStart = new DateTime();
-                DateTime dtNewEnd = new DateTime();
-                Store.GetPerodicTaskNextExectueTime(item.NewBegintime, item.NewEndtime, item.Category, ref dtNewStart, ref dtNewEnd);
+            //foreach (var item in lsttask)
+            //{
+            //    DateTime dtNewStart = new DateTime();
+            //    DateTime dtNewEnd = new DateTime();
+            //    Store.GetPerodicTaskNextExectueTime(item.NewBegintime, item.NewEndtime, item.Category, ref dtNewStart, ref dtNewEnd);
 
-                item.NewBegintime = dtNewStart;
-                item.NewEndtime = dtNewEnd;
-            }
+            //    item.NewBegintime = dtNewStart;
+            //    item.NewEndtime = dtNewEnd;
+            //}
 
-            await Store.UpdateTaskListAsync(lsttask);
+            //await Store.UpdateTaskListAsync(lsttask);
             return true;
         }
 
         public async ValueTask<int> UpdateComingTasks()
         {
-            var date = DateTime.Now.AddDays(-1);
-            var dt = DateTime.Now.AddHours(1);
-            TaskCondition condition = new TaskCondition();
-
             /*
-             * 现在查询调度的任务变得严格了，所以周期任务调度查不出来
-             * 现在修改，当周期任务快要开始了就赶紧查下时间并更新状态
+             * wqtest
              */
-            var lst = await Store.GetTaskListAsync(c => c.Where(f => f.SyncState == (int)syncState.ssSync
-            && f.DispatchState == (int)dispatchState.dpsNotDispatch
-            && (f.State != (int)taskState.tsDelete && f.State != (int)taskState.tsConflict && f.State != (int)taskState.tsInvaild)
-            && ((f.Starttime > date && f.Starttime < dt) || (f.Tasktype == (int)TaskType.TT_PERIODIC && f.NewBegintime > date && f.NewBegintime < dt))));
+            //var date = DateTime.Now.AddDays(-1);
+            //var dt = DateTime.Now.AddHours(1);
+            //TaskCondition condition = new TaskCondition();
+
+            ///*
+            // * 现在查询调度的任务变得严格了，所以周期任务调度查不出来
+            // * 现在修改，当周期任务快要开始了就赶紧查下时间并更新状态
+            // */
+            //var lst = await Store.GetTaskListAsync(c => c.Where(f => f.SyncState == (int)syncState.ssSync
+            //&& f.DispatchState == (int)dispatchState.dpsNotDispatch
+            //&& (f.State != (int)taskState.tsDelete && f.State != (int)taskState.tsConflict && f.State != (int)taskState.tsInvaild)
+            //&& ((f.Starttime > date && f.Starttime < dt) || (f.Tasktype == (int)TaskType.TT_PERIODIC && f.NewBegintime > date && f.NewBegintime < dt))));
 
 
-            if (lst != null && lst.Count > 0)
-            {
-                string log = string.Empty;
-                lst.ForEach(a => { a.SyncState = (int)syncState.ssNot; a.DispatchState = (int)dispatchState.dpsDispatched; a.Tasklock = string.Empty; log += "," + a.Taskid; });
+            //if (lst != null && lst.Count > 0)
+            //{
+            //    string log = string.Empty;
+            //    lst.ForEach(a => { a.SyncState = (int)syncState.ssNot; a.DispatchState = (int)dispatchState.dpsDispatched; a.Tasklock = string.Empty; log += "," + a.Taskid; });
 
-                Logger.Info("UpdateComingTasks {0} ", string.Join(",", log));
+            //    Logger.Info("UpdateComingTasks {0} ", string.Join(",", log));
 
-                await Store.UpdateTaskListAsync(lst);
-                return lst.Count;
-            }
+            //    await Store.UpdateTaskListAsync(lst);
+            //    return lst.Count;
+            //}
             return 0;
         }
 
@@ -3648,21 +3675,25 @@ namespace IngestTaskPlugin.Managers
 
         public async Task<DbpTask> StartTieupTask(int taskid)
         {
-            var findtask = await Store.GetTaskAsync(a => a.Where(b => b.Taskid == taskid));
+            /*
+             * wqtest
+             */
+            return null;
+            //var findtask = await Store.GetTaskAsync(a => a.Where(b => b.Taskid == taskid));
 
-            if (findtask.Tasktype != (int)TaskType.TT_TIEUP)
-            {
-                //return false;
-                return null;
-            }
+            //if (findtask.Tasktype != (int)TaskType.TT_TIEUP)
+            //{
+            //    //return false;
+            //    return null;
+            //}
 
-            findtask.Tasktype = (int)TaskType.TT_NORMAL;
-            findtask.SyncState = (int)syncState.ssNot;
-            findtask.DispatchState = (int)dispatchState.dpsDispatched;
+            //findtask.Tasktype = (int)TaskType.TT_NORMAL;
+            //findtask.SyncState = (int)syncState.ssNot;
+            //findtask.DispatchState = (int)dispatchState.dpsDispatched;
 
-            await Store.SaveChangeAsync(ITaskStore.VirtualContent);
-            //return true;
-            return findtask;
+            //await Store.SaveChangeAsync(ITaskStore.VirtualContent);
+            ////return true;
+            //return findtask;
         }
 
         /// <summary>
@@ -3724,179 +3755,182 @@ namespace IngestTaskPlugin.Managers
 
         public async Task<DbpTask> AutoAddTaskByOldTask(int oldtask, DateTime starttime, IIngestGlobalInterface global)
         {
-            var findtask = await Store.GetTaskAsync(a => a.Where(b => b.Taskid == oldtask));
+            /*
+             * wqtest
+             */
+            //var findtask = await Store.GetTaskAsync(a => a.Where(b => b.Taskid == oldtask));
 
-            if (findtask != null)
-            {
-                var newtaskinfo = ObjectTool.CopyObjectData(findtask, "", BindingFlags.Public | BindingFlags.Instance);
+            //if (findtask != null)
+            //{
+            //    var newtaskinfo = ObjectTool.CopyObjectData(findtask, "", BindingFlags.Public | BindingFlags.Instance);
 
-                //新版本task已经不需要这种逻辑了
-                if (findtask.Tasktype == (int)TaskType.TT_MANUTASK
-                || findtask.Tasktype == (int)TaskType.TT_OPENEND)
-                {
-                    //yangchuang20111017原来直接不支持手动任务，如果是手动任务，这里可以重新创建一个OpenEnd类型的任务
-                    //newtaskinfo.Tasktype = (int)TaskType.TT_OPENEND;
-                }
-                else if (findtask.Endtime <= starttime.AddSeconds(5))
-                {
-                    // Delete by chenzhi 2013-08-01
-                    // TODO: 这种情况是系统正常的处理过程，不应该作为错误处理
+            //    //新版本task已经不需要这种逻辑了
+            //    if (findtask.Tasktype == (int)TaskType.TT_MANUTASK
+            //    || findtask.Tasktype == (int)TaskType.TT_OPENEND)
+            //    {
+            //        //yangchuang20111017原来直接不支持手动任务，如果是手动任务，这里可以重新创建一个OpenEnd类型的任务
+            //        //newtaskinfo.Tasktype = (int)TaskType.TT_OPENEND;
+            //    }
+            //    else if (findtask.Endtime <= starttime.AddSeconds(5))
+            //    {
+            //        // Delete by chenzhi 2013-08-01
+            //        // TODO: 这种情况是系统正常的处理过程，不应该作为错误处理
 
-                    // 作为成功操作返回出去
-                    return null;
-                    // ----------------- The End 2013-08-01 -----------------
-                }
+            //        // 作为成功操作返回出去
+            //        return null;
+            //        // ----------------- The End 2013-08-01 -----------------
+            //    }
 
-                if (findtask.Backtype == (int)CooperantType.emVTRBackup)
-                {
-                    findtask.Backtype = (int)CooperantType.emVTRBackupFinish;
-                }
-                else if (findtask.Backtype == (int)CooperantType.emKamataki)
-                {
-                    //Kamataki任务改成普通任务
-                    newtaskinfo.Backtype = (int)CooperantType.emPureTask;
-                }
+            //    if (findtask.Backtype == (int)CooperantType.emVTRBackup)
+            //    {
+            //        findtask.Backtype = (int)CooperantType.emVTRBackupFinish;
+            //    }
+            //    else if (findtask.Backtype == (int)CooperantType.emKamataki)
+            //    {
+            //        //Kamataki任务改成普通任务
+            //        newtaskinfo.Backtype = (int)CooperantType.emPureTask;
+            //    }
 
-                // Add by chenzhi 2013-07-23
-                // TODO: 如果原任务是一个周期任务的子任务，则需要在这改为普通任务
+            //    // Add by chenzhi 2013-07-23
+            //    // TODO: 如果原任务是一个周期任务的子任务，则需要在这改为普通任务
 
-                if (findtask.Tasktype == (int)TaskType.TT_PERIODIC)
-                {
-                    // 改为普通任务
-                    newtaskinfo.Tasktype = (int)TaskType.TT_NORMAL;
-                }
+            //    if (findtask.Tasktype == (int)TaskType.TT_PERIODIC)
+            //    {
+            //        // 改为普通任务
+            //        newtaskinfo.Tasktype = (int)TaskType.TT_NORMAL;
+            //    }
 
-                //MetaDataPolicy[] arrMetaDataPolicy = PPLICYACCESS.GetPolicyByTaskID(oldTaskID);
-                //List<int> listPolicyId = new List<int>();
-                //foreach (MetaDataPolicy item in arrMetaDataPolicy)
-                //{
-                //    listPolicyId.Add(item.nID);
-                //}
-                //int[] arrPolicyId = listPolicyId.ToArray();
+            //    //MetaDataPolicy[] arrMetaDataPolicy = PPLICYACCESS.GetPolicyByTaskID(oldTaskID);
+            //    //List<int> listPolicyId = new List<int>();
+            //    //foreach (MetaDataPolicy item in arrMetaDataPolicy)
+            //    //{
+            //    //    listPolicyId.Add(item.nID);
+            //    //}
+            //    //int[] arrPolicyId = listPolicyId.ToArray();
 
-                Store.StopTaskNoChange(findtask, starttime);
+            //    Store.StopTaskNoChange(findtask, starttime);
 
-                newtaskinfo.Taskguid = Guid.NewGuid().ToString("N");
-                newtaskinfo.Taskid = -1;
-                newtaskinfo.Starttime = starttime.AddSeconds(1);
-                newtaskinfo.NewBegintime = newtaskinfo.Starttime;
+            //    newtaskinfo.Taskguid = Guid.NewGuid().ToString("N");
+            //    newtaskinfo.Taskid = -1;
+            //    newtaskinfo.Starttime = starttime.AddSeconds(1);
+            //    newtaskinfo.NewBegintime = newtaskinfo.Starttime;
 
-                if (_deviceInterface != null)
-                {
-                    var response1 = await _deviceInterface.Value.GetDeviceCallBack(new DeviceInternals()
-                    {
-                        funtype = DeviceInternals.FunctionType.SingnalIDByChannel,
-                        ChannelId = findtask.Channelid.GetValueOrDefault(),
-                        SignalStrict = true
-                    });
-                    if (response1.Code != ResponseCodeDefines.SuccessCode)
-                    {
-                        Logger.Error("AutoAddTaskByOldTask SingnalIDByChannel error");
-                        return null;
-                    }
-                    var fr = response1 as ResponseMessage<int>;
-                    if (fr != null && fr.Ext > 0)
-                    {
-                        newtaskinfo.Signalid = fr.Ext;
-                    }
-                }
+            //    if (_deviceInterface != null)
+            //    {
+            //        var response1 = await _deviceInterface.Value.GetDeviceCallBack(new DeviceInternals()
+            //        {
+            //            funtype = DeviceInternals.FunctionType.SingnalIDByChannel,
+            //            ChannelId = findtask.Channelid.GetValueOrDefault(),
+            //            SignalStrict = true
+            //        });
+            //        if (response1.Code != ResponseCodeDefines.SuccessCode)
+            //        {
+            //            Logger.Error("AutoAddTaskByOldTask SingnalIDByChannel error");
+            //            return null;
+            //        }
+            //        var fr = response1 as ResponseMessage<int>;
+            //        if (fr != null && fr.Ext > 0)
+            //        {
+            //            newtaskinfo.Signalid = fr.Ext;
+            //        }
+            //    }
 
-                newtaskinfo.Tasklock = string.Empty;
-                newtaskinfo.SyncState = (int)syncState.ssSync;
-                newtaskinfo.DispatchState = (int)dispatchState.dpsNotDispatch;
-                newtaskinfo.OpType = (int)opType.otAdd;
-                newtaskinfo.Description = string.Empty;
-                newtaskinfo.State = (int)taskState.tsReady;//先改成准备状态
+            //    newtaskinfo.Tasklock = string.Empty;
+            //    newtaskinfo.SyncState = (int)syncState.ssSync;
+            //    newtaskinfo.DispatchState = (int)dispatchState.dpsNotDispatch;
+            //    newtaskinfo.OpType = (int)opType.otAdd;
+            //    newtaskinfo.Description = string.Empty;
+            //    newtaskinfo.State = (int)taskState.tsReady;//先改成准备状态
 
-                //OpenEnd任务的结束时间和开始时间一样
-                if (newtaskinfo.Tasktype == (int)TaskType.TT_OPENEND || newtaskinfo.Tasktype == (int)TaskType.TT_MANUTASK)
-                {
-                    newtaskinfo.Endtime = newtaskinfo.Starttime;
-                    newtaskinfo.NewEndtime = newtaskinfo.Starttime;
-                }
+            //    //OpenEnd任务的结束时间和开始时间一样
+            //    if (newtaskinfo.Tasktype == (int)TaskType.TT_OPENEND || newtaskinfo.Tasktype == (int)TaskType.TT_MANUTASK)
+            //    {
+            //        newtaskinfo.Endtime = newtaskinfo.Starttime;
+            //        newtaskinfo.NewEndtime = newtaskinfo.Starttime;
+            //    }
 
-                if (newtaskinfo.Signalid > 0)
-                {
-                    newtaskinfo.Tasksource = (int)TaskSource.emMSVUploadTask;
-                }
-                Logger.Info($"AutoAddTaskByOldTask {newtaskinfo.Tasksource} {newtaskinfo.Signalid}");
-                var lsttaskmeta = await Store.GetTaskMetaDataListAsync(a => a.Where(b => b.Taskid == findtask.Taskid), true); ;
-                string strCapatureMetaData = string.Empty, strStoreMetaData = string.Empty, strContentMetaData = string.Empty, strPlanMetaData = string.Empty, strSplitMetaData = string.Empty;
-                foreach (var item in lsttaskmeta)
-                {
-                    if (item.Metadatatype == (int)MetaDataType.emCapatureMetaData)
-                    {
-                        if (newtaskinfo.Signalid > 0)
-                        {
-                            strCapatureMetaData = await GetCaptureTemplateBySignalIdAndUserCode(newtaskinfo.Signalid.GetValueOrDefault(), false, findtask.Usercode, global);
-                        }
+            //    if (newtaskinfo.Signalid > 0)
+            //    {
+            //        newtaskinfo.Tasksource = (int)TaskSource.emMSVUploadTask;
+            //    }
+            //    Logger.Info($"AutoAddTaskByOldTask {newtaskinfo.Tasksource} {newtaskinfo.Signalid}");
+            //    var lsttaskmeta = await Store.GetTaskMetaDataListAsync(a => a.Where(b => b.Taskid == findtask.Taskid), true); ;
+            //    string strCapatureMetaData = string.Empty, strStoreMetaData = string.Empty, strContentMetaData = string.Empty, strPlanMetaData = string.Empty, strSplitMetaData = string.Empty;
+            //    foreach (var item in lsttaskmeta)
+            //    {
+            //        if (item.Metadatatype == (int)MetaDataType.emCapatureMetaData)
+            //        {
+            //            if (newtaskinfo.Signalid > 0)
+            //            {
+            //                strCapatureMetaData = await GetCaptureTemplateBySignalIdAndUserCode(newtaskinfo.Signalid.GetValueOrDefault(), false, findtask.Usercode, global);
+            //            }
 
-                        if (string.IsNullOrEmpty(strCapatureMetaData))
-                        {
-                            strCapatureMetaData = item.Metadatalong;
-                        }
-                    }
-                    else if (item.Metadatatype == (int)MetaDataType.emContentMetaData)
-                    {
-                        strContentMetaData = item.Metadatalong;
-                    }
-                    else if (item.Metadatatype == (int)MetaDataType.emStoreMetaData)
-                    {
-                        strStoreMetaData = item.Metadatalong;
-                    }
-                    else if (item.Metadatatype == (int)MetaDataType.emPlanMetaData)
-                    {
-                        strPlanMetaData = item.Metadatalong;
-                    }
-                    else if (item.Metadatatype == (int)MetaDataType.emSplitData)
-                    {
-                        strSplitMetaData = item.Metadatalong;
-                    }
-                }
+            //            if (string.IsNullOrEmpty(strCapatureMetaData))
+            //            {
+            //                strCapatureMetaData = item.Metadatalong;
+            //            }
+            //        }
+            //        else if (item.Metadatatype == (int)MetaDataType.emContentMetaData)
+            //        {
+            //            strContentMetaData = item.Metadatalong;
+            //        }
+            //        else if (item.Metadatatype == (int)MetaDataType.emStoreMetaData)
+            //        {
+            //            strStoreMetaData = item.Metadatalong;
+            //        }
+            //        else if (item.Metadatatype == (int)MetaDataType.emPlanMetaData)
+            //        {
+            //            strPlanMetaData = item.Metadatalong;
+            //        }
+            //        else if (item.Metadatatype == (int)MetaDataType.emSplitData)
+            //        {
+            //            strSplitMetaData = item.Metadatalong;
+            //        }
+            //    }
 
-                string orgtitle = string.Empty;
+            //    string orgtitle = string.Empty;
 
-                strSplitMetaData = DealSplitNameSuffix(strSplitMetaData, findtask.Channelid ?? 0, findtask.Taskname, ref orgtitle, starttime.ToLongTimeString());
+            //    strSplitMetaData = DealSplitNameSuffix(strSplitMetaData, findtask.Channelid ?? 0, findtask.Taskname, ref orgtitle, starttime.ToLongTimeString());
 
-                newtaskinfo.Taskname = CreateClipName(findtask.Taskname, orgtitle);
+            //    newtaskinfo.Taskname = CreateClipName(findtask.Taskname, orgtitle);
 
-                if (!string.IsNullOrEmpty(strStoreMetaData))
-                {
-                    //<MADEBYINGEST></MADEBYINGEST>这个玩意会妨碍xml解析，居然有这个玩意，日了
-                    var root = XElement.Parse(strStoreMetaData);
-                    if (root != null)
-                    {
-                        var t = root.Element("TITLE");
-                        if (t != null) t.Value = newtaskinfo.Taskname;
-                        var m = root.Element("MATERIALID");
-                        if (m != null) m.Value = string.Empty;
+            //    if (!string.IsNullOrEmpty(strStoreMetaData))
+            //    {
+            //        //<MADEBYINGEST></MADEBYINGEST>这个玩意会妨碍xml解析，居然有这个玩意，日了
+            //        var root = XElement.Parse(strStoreMetaData);
+            //        if (root != null)
+            //        {
+            //            var t = root.Element("TITLE");
+            //            if (t != null) t.Value = newtaskinfo.Taskname;
+            //            var m = root.Element("MATERIALID");
+            //            if (m != null) m.Value = string.Empty;
 
-                    }
-                    strStoreMetaData = root.ToString();
-                }
+            //        }
+            //        strStoreMetaData = root.ToString();
+            //    }
 
-                if (!string.IsNullOrEmpty(strContentMetaData))
-                {
-                    var root = XElement.Parse(strContentMetaData);
-                    root.Descendants("RealStampIndex")?.Remove();
-                    root.Descendants("PERIODPARAM")?.Remove();
-                    if (newtaskinfo.Tasksource != (int)TaskSource.emRtmpSwitchTask)
-                    {
-                        root.Descendants("SIGNALRTMPURL")?.Remove();
-                    }
-                    strContentMetaData = root.ToString();
-                }
+            //    if (!string.IsNullOrEmpty(strContentMetaData))
+            //    {
+            //        var root = XElement.Parse(strContentMetaData);
+            //        root.Descendants("RealStampIndex")?.Remove();
+            //        root.Descendants("PERIODPARAM")?.Remove();
+            //        if (newtaskinfo.Tasksource != (int)TaskSource.emRtmpSwitchTask)
+            //        {
+            //            root.Descendants("SIGNALRTMPURL")?.Remove();
+            //        }
+            //        strContentMetaData = root.ToString();
+            //    }
 
 
-                var info = await Store.AddTaskWithPolicys(newtaskinfo, true,
-                                                            strCapatureMetaData,
-                                                            strContentMetaData,
-                                                            strStoreMetaData,
-                                                            strPlanMetaData, strSplitMetaData, null);
+            //    var info = await Store.AddTaskWithPolicys(newtaskinfo, true,
+            //                                                strCapatureMetaData,
+            //                                                strContentMetaData,
+            //                                                strStoreMetaData,
+            //                                                strPlanMetaData, strSplitMetaData, null);
 
-                //return _mapper.Map<TaskContentResponse>(info);
-                return info;
-            }
+            //    //return _mapper.Map<TaskContentResponse>(info);
+            //    return info;
+            //}
 
             return null;
         }
@@ -4062,620 +4096,626 @@ namespace IngestTaskPlugin.Managers
 
         public async Task<DbpTask> AddTaskWithPolicy<TResult>(TResult info, bool backup, string CaptureMeta, string ContentMeta, string MatiralMeta, string PlanningMeta, bool isOnlyLocalChannel = true, string SplitMeta = "")
         {
-            var taskinfo = _mapper.Map<TaskInfoRequest>(info);
+            /*
+             * wqtest
+             */
+            //var taskinfo = _mapper.Map<TaskInfoRequest>(info);
 
-            //var _globalinterface = ApplicationContext.Current.ServiceProvider.GetRequiredService<IIngestDeviceInterface>();
+            ////var _globalinterface = ApplicationContext.Current.ServiceProvider.GetRequiredService<IIngestDeviceInterface>();
 
-            //TaskSource ts = TaskSource.emUnknowTask;
-            if (backup)
-            {
-                taskinfo.TaskContent.TaskName = "BK_" + taskinfo.TaskContent.TaskName;
-                taskinfo.TaskContent.TaskGuid = Guid.NewGuid().ToString("N");
+            ////TaskSource ts = TaskSource.emUnknowTask;
+            //if (backup)
+            //{
+            //    taskinfo.TaskContent.TaskName = "BK_" + taskinfo.TaskContent.TaskName;
+            //    taskinfo.TaskContent.TaskGuid = Guid.NewGuid().ToString("N");
 
-                if (taskinfo.MaterialMeta != null)
-                {
-                    MatiralMeta = ConverTaskMaterialMetaString(taskinfo.MaterialMeta);
+            //    if (taskinfo.MaterialMeta != null)
+            //    {
+            //        MatiralMeta = ConverTaskMaterialMetaString(taskinfo.MaterialMeta);
 
-                }
-                if (!string.IsNullOrEmpty(MatiralMeta))
-                {
-                    var mroot = XDocument.Parse(MatiralMeta);
-                    var f = mroot.Element("MATERIAL")?.Element("TITLE");
-                    if (f != null)
-                    {
-                        f.Value = taskinfo.TaskContent.TaskName;
-                    }
-                    f = mroot.Element("MATERIAL")?.Element("MATERIALID");
-                    if (f != null)
-                    {
-                        f.Value = taskinfo.TaskContent.TaskGuid;
-                    }
-                    MatiralMeta = mroot.ToString();
-                }
+            //    }
+            //    if (!string.IsNullOrEmpty(MatiralMeta))
+            //    {
+            //        var mroot = XDocument.Parse(MatiralMeta);
+            //        var f = mroot.Element("MATERIAL")?.Element("TITLE");
+            //        if (f != null)
+            //        {
+            //            f.Value = taskinfo.TaskContent.TaskName;
+            //        }
+            //        f = mroot.Element("MATERIAL")?.Element("MATERIALID");
+            //        if (f != null)
+            //        {
+            //            f.Value = taskinfo.TaskContent.TaskGuid;
+            //        }
+            //        MatiralMeta = mroot.ToString();
+            //    }
 
-                if (taskinfo.ContentMeta != null)
-                {
-                    ContentMeta = ConverTaskContentMetaString(taskinfo.ContentMeta, opType.otAdd);
-                }
-                if (!string.IsNullOrEmpty(ContentMeta))
-                {
-                    var mroot = XDocument.Parse(ContentMeta);
+            //    if (taskinfo.ContentMeta != null)
+            //    {
+            //        ContentMeta = ConverTaskContentMetaString(taskinfo.ContentMeta, opType.otAdd);
+            //    }
+            //    if (!string.IsNullOrEmpty(ContentMeta))
+            //    {
+            //        var mroot = XDocument.Parse(ContentMeta);
 
-                    //taskinfo.TaskContent.TaskId = Store.GetNextValId("DBP_SQ_TASKID");
-                    //var f = mroot.Element("TaskContentMetaData")?.Element("BACKUP");
-                    //if (f != null)
-                    //{
-                    //    f.Value = taskinfo.TaskContent.TaskId.ToString();
-                    //}
-                    //else
-                    //    mroot.Element("TaskContentMetaData").Add(new XElement("BACKUP", taskinfo.TaskContent.TaskId));
+            //        //taskinfo.TaskContent.TaskId = Store.GetNextValId("DBP_SQ_TASKID");
+            //        //var f = mroot.Element("TaskContentMetaData")?.Element("BACKUP");
+            //        //if (f != null)
+            //        //{
+            //        //    f.Value = taskinfo.TaskContent.TaskId.ToString();
+            //        //}
+            //        //else
+            //        //    mroot.Element("TaskContentMetaData").Add(new XElement("BACKUP", taskinfo.TaskContent.TaskId));
 
-                    if (taskinfo.TaskContent.GroupColor > 0)
-                    {
-                        mroot.Descendants().Where(e => e.Name == "GroupColor" || e.Name == "GroupID" || e.Name == "GroupItem" || e.Name == "").Remove();
-                    }
-                    ContentMeta = mroot.ToString();
-                }
+            //        if (taskinfo.TaskContent.GroupColor > 0)
+            //        {
+            //            mroot.Descendants().Where(e => e.Name == "GroupColor" || e.Name == "GroupID" || e.Name == "GroupItem" || e.Name == "").Remove();
+            //        }
+            //        ContentMeta = mroot.ToString();
+            //    }
 
-            }
-            else
-            {
-                if (_deviceInterface != null && taskinfo.TaskContent.SignalId > 0)
-                {
-                    var response1 = await _deviceInterface.Value.GetDeviceCallBack(new DeviceInternals()
-                    {
-                        funtype = IngestDBCore.DeviceInternals.FunctionType.SignalInfoByID,
-                        SrcId = taskinfo.TaskContent.SignalId
-                    });
+            //}
+            //else
+            //{
+            //    if (_deviceInterface != null && taskinfo.TaskContent.SignalId > 0)
+            //    {
+            //        var response1 = await _deviceInterface.Value.GetDeviceCallBack(new DeviceInternals()
+            //        {
+            //            funtype = IngestDBCore.DeviceInternals.FunctionType.SignalInfoByID,
+            //            SrcId = taskinfo.TaskContent.SignalId
+            //        });
 
-                    if (response1.Code != ResponseCodeDefines.SuccessCode)
-                    {
-                        Logger.Error("AddTaskWithPolicy SignalInfoByID error");
-                        return null;
-                    }
-                    var fr = response1 as ResponseMessage<ProgrammeInfoInterface>;
+            //        if (response1.Code != ResponseCodeDefines.SuccessCode)
+            //        {
+            //            Logger.Error("AddTaskWithPolicy SignalInfoByID error");
+            //            return null;
+            //        }
+            //        var fr = response1 as ResponseMessage<ProgrammeInfoInterface>;
 
-                    if (fr.Ext != null)
-                    {
-                        // 将信号源ID修改为备份信号源的ID
-                        taskinfo.TaskContent.SignalId = fr.Ext.ProgrammeId;
-                        switch (fr.Ext.PgmType)
-                        {
-                            case ProgrammeTypeInterface.PT_Null:
-                                taskinfo.TaskSource = TaskSource.emUnknowTask;
-                                break;
-                            case ProgrammeTypeInterface.PT_SDI:
-                                taskinfo.TaskSource = TaskSource.emMSVUploadTask;
-                                break;
-                            case ProgrammeTypeInterface.PT_IPTS:
-                                taskinfo.TaskSource = TaskSource.emIPTSUploadTask;
-                                break;
-                            case ProgrammeTypeInterface.PT_StreamMedia:
-                                taskinfo.TaskSource = TaskSource.emStreamMediaUploadTask;
-                                break;
-                            default:
-                                taskinfo.TaskSource = TaskSource.emUnknowTask;
-                                break;
-                        }
+            //        if (fr.Ext != null)
+            //        {
+            //            // 将信号源ID修改为备份信号源的ID
+            //            taskinfo.TaskContent.SignalId = fr.Ext.ProgrammeId;
+            //            switch (fr.Ext.PgmType)
+            //            {
+            //                case ProgrammeTypeInterface.PT_Null:
+            //                    taskinfo.TaskSource = TaskSource.emUnknowTask;
+            //                    break;
+            //                case ProgrammeTypeInterface.PT_SDI:
+            //                    taskinfo.TaskSource = TaskSource.emMSVUploadTask;
+            //                    break;
+            //                case ProgrammeTypeInterface.PT_IPTS:
+            //                    taskinfo.TaskSource = TaskSource.emIPTSUploadTask;
+            //                    break;
+            //                case ProgrammeTypeInterface.PT_StreamMedia:
+            //                    taskinfo.TaskSource = TaskSource.emStreamMediaUploadTask;
+            //                    break;
+            //                default:
+            //                    taskinfo.TaskSource = TaskSource.emUnknowTask;
+            //                    break;
+            //            }
 
-                    }
-                }
-                //taskinfo.TaskSource = ts;
-            }
+            //        }
+            //    }
+            //    //taskinfo.TaskSource = ts;
+            //}
 
-            if (taskinfo.TaskContent.TaskType == TaskType.TT_MANUTASK)
-            {
-                if (_deviceInterface != null)
-                {
+            //if (taskinfo.TaskContent.TaskType == TaskType.TT_MANUTASK)
+            //{
+            //    if (_deviceInterface != null)
+            //    {
 
-                    DeviceInternals re = new DeviceInternals()
-                    {
-                        funtype = IngestDBCore.DeviceInternals.FunctionType.ChannelUnitMap,
-                        ChannelId = taskinfo.TaskContent.ChannelId
-                    };
+            //        DeviceInternals re = new DeviceInternals()
+            //        {
+            //            funtype = IngestDBCore.DeviceInternals.FunctionType.ChannelUnitMap,
+            //            ChannelId = taskinfo.TaskContent.ChannelId
+            //        };
 
-                    if (taskinfo.TaskContent.ChannelId == -1)
-                    {
-                        if (taskinfo.TaskContent.SignalId <= 0 && taskinfo.TaskSource== TaskSource.emRtmpSwitchTask)
-                        {
-                            re = new DeviceInternals() { funtype = DeviceInternals.FunctionType.RtmpCaptureChannels };
-                        }
-                        else if (taskinfo.TaskContent.SignalId > 0)
-                        {
-                            re = new DeviceInternals() { funtype = IngestDBCore.DeviceInternals.FunctionType.ChannelInfoBySrc, SrcId = taskinfo.TaskContent.SignalId, Status = 1 };
-                        }
+            //        if (taskinfo.TaskContent.ChannelId == -1)
+            //        {
+            //            if (taskinfo.TaskContent.SignalId <= 0 && taskinfo.TaskSource== TaskSource.emRtmpSwitchTask)
+            //            {
+            //                re = new DeviceInternals() { funtype = DeviceInternals.FunctionType.RtmpCaptureChannels };
+            //            }
+            //            else if (taskinfo.TaskContent.SignalId > 0)
+            //            {
+            //                re = new DeviceInternals() { funtype = IngestDBCore.DeviceInternals.FunctionType.ChannelInfoBySrc, SrcId = taskinfo.TaskContent.SignalId, Status = 1 };
+            //            }
 
-                        var response = await _deviceInterface.Value.GetDeviceCallBack(re);
-                        if (response.Code != ResponseCodeDefines.SuccessCode)
-                        {
-                            Logger.Error("AddmanutaskTaskWithPolicy ChannelInfoBySrc error");
-                            SobeyRecException.ThrowSelfNoParam("manutask", GlobalDictionary.GLOBALDICT_CODE_ALL_USEABLE_CHANNELS_ARE_BUSY, Logger, null);
-                            return null;
-                        }
+            //            var response = await _deviceInterface.Value.GetDeviceCallBack(re);
+            //            if (response.Code != ResponseCodeDefines.SuccessCode)
+            //            {
+            //                Logger.Error("AddmanutaskTaskWithPolicy ChannelInfoBySrc error");
+            //                SobeyRecException.ThrowSelfNoParam("manutask", GlobalDictionary.GLOBALDICT_CODE_ALL_USEABLE_CHANNELS_ARE_BUSY, Logger, null);
+            //                return null;
+            //            }
 
-                        var fresponse = response as ResponseMessage<List<CaptureChannelInfoInterface>>;
-                        if (fresponse != null && fresponse.Ext != null)
-                        {
-                            taskinfo.TaskContent.ChannelId = fresponse.Ext.First().Id;
-                        }
-                    }
+            //            var fresponse = response as ResponseMessage<List<CaptureChannelInfoInterface>>;
+            //            if (fresponse != null && fresponse.Ext != null)
+            //            {
+            //                taskinfo.TaskContent.ChannelId = fresponse.Ext.First().Id;
+            //            }
+            //        }
 
-                    re.funtype = IngestDBCore.DeviceInternals.FunctionType.ChannelUnitMap;
-                    re.ChannelId = taskinfo.TaskContent.ChannelId;
-                    var response1 = await _deviceInterface.Value.GetDeviceCallBack(re);
-                    if (response1.Code != ResponseCodeDefines.SuccessCode)
-                    {
-                        Logger.Error("AddTaskWithPolicy ChannelUnitMap error");
-                        return null;
-                    }
-                    var fr = response1 as ResponseMessage<int>;
-                    taskinfo.TaskContent.Unit = fr.Ext;
-
-
-                    var lst = await Store.GetTaskListAsync(new TaskCondition()
-                    {
-                        StateIncludeLst = new List<int>() { ((int)taskState.tsReady), },
-                        MaxBeginTime = DateTime.Now,
-                        MinEndTime = DateTime.Now,
-                        ChannelId = taskinfo.TaskContent.ChannelId,
-                        TaskTypeIncludeLst = new List<int>() { ((int)TaskType.TT_TIEUP) }
-                    }, true, false);
-                    if (lst != null && lst.Count > 0)
-                    {
-                        lst[0].Tasktype = (int)TaskType.TT_NORMAL;
-                        lst[0].SyncState = (int)syncState.ssNot;
-                        lst[0].DispatchState = (int)dispatchState.dpsDispatched;
-                        lst[0].Taskguid = taskinfo.TaskContent.TaskGuid;
-
-                        //await Store.SaveChangeAsync();
-                        await Store.UpdateTaskMetaDataAsync(taskinfo.TaskContent.TaskId, MetaDataType.emCapatureMetaData, string.IsNullOrEmpty(ContentMeta) ? taskinfo.CaptureMeta : CaptureMeta);
-                        //return _mapper.Map<TaskContentResponse>(lst[0]);
-                        return lst[0];
-                    }
-                    else
-                    {
-                        var back = await Store.AddTaskWithPolicys(_mapper.Map<TaskContentResponse, DbpTask>(taskinfo.TaskContent, opt =>
-                        opt.AfterMap((src, dest) =>
-                        {
-                            dest.OpType = (int)opType.otAdd;
-                            dest.DispatchState = (int)dispatchState.dpsDispatched;
-                            dest.State = (int)taskinfo.TaskContent.State;
-                            dest.SyncState = (int)syncState.ssNot;
-                            dest.Tasklock = string.Empty;
-                            dest.Taskid = -1;
-                            dest.Tasksource = (int)TaskSource.emMSVUploadTask;
-                        })), true,
-                        string.IsNullOrEmpty(CaptureMeta) ? taskinfo.CaptureMeta : CaptureMeta,
-                        string.IsNullOrEmpty(ContentMeta) ? ConverTaskContentMetaString(taskinfo.ContentMeta, opType.otAdd) : ContentMeta,
-                        string.IsNullOrEmpty(MatiralMeta) ? ConverTaskMaterialMetaString(taskinfo.MaterialMeta) : MatiralMeta,
-                        string.IsNullOrEmpty(PlanningMeta) ? ConverTaskPlanningMetaString(taskinfo.PlanningMeta) : PlanningMeta,
-                        string.IsNullOrEmpty(SplitMeta) ? ConvertTaskSplitMetaString(taskinfo.SplitMeta, taskinfo.TaskContent.ChannelId) : SplitMeta,
-                        null);
+            //        re.funtype = IngestDBCore.DeviceInternals.FunctionType.ChannelUnitMap;
+            //        re.ChannelId = taskinfo.TaskContent.ChannelId;
+            //        var response1 = await _deviceInterface.Value.GetDeviceCallBack(re);
+            //        if (response1.Code != ResponseCodeDefines.SuccessCode)
+            //        {
+            //            Logger.Error("AddTaskWithPolicy ChannelUnitMap error");
+            //            return null;
+            //        }
+            //        var fr = response1 as ResponseMessage<int>;
+            //        taskinfo.TaskContent.Unit = fr.Ext;
 
 
-                        return back;
-                    }
-                }
-            }
-            else //非手动任务选通道
-            {
-                if (taskinfo.TaskContent.TaskType == TaskType.TT_PERIODIC)
-                {
-                    if (string.IsNullOrEmpty(taskinfo.TaskContent.Classify))
-                    {
-                        /*
-                         * 新接口这一般ContentMeta传空, 老接口这一般有值。反正只要没有就需要从字符串或者结构体里面解析构建，优先字符串
-                         */
-                        if (!string.IsNullOrEmpty(ContentMeta))
-                        {
-                            taskinfo.ContentMeta = ConverTaskContentMetaString(ContentMeta) ?? taskinfo.ContentMeta;
-                        }
+            //        var lst = await Store.GetTaskListAsync(new TaskCondition()
+            //        {
+            //            StateIncludeLst = new List<int>() { ((int)taskState.tsReady), },
+            //            MaxBeginTime = DateTime.Now,
+            //            MinEndTime = DateTime.Now,
+            //            ChannelId = taskinfo.TaskContent.ChannelId,
+            //            TaskTypeIncludeLst = new List<int>() { ((int)TaskType.TT_TIEUP) }
+            //        }, true, false);
+            //        if (lst != null && lst.Count > 0)
+            //        {
+            //            lst[0].Tasktype = (int)TaskType.TT_NORMAL;
+            //            lst[0].SyncState = (int)syncState.ssNot;
+            //            lst[0].DispatchState = (int)dispatchState.dpsDispatched;
+            //            lst[0].Taskguid = taskinfo.TaskContent.TaskGuid;
 
-                        string sClassify = string.Empty;
-                        if (taskinfo.ContentMeta.PeriodParam != null)
-                        {
-                            if (taskinfo.ContentMeta.PeriodParam.Mode == 0)
-                            {
-                                sClassify = "D";
-                            }
-                            else if (taskinfo.ContentMeta.PeriodParam.Mode == 1)
-                            {
-                                foreach (int item in taskinfo.ContentMeta.PeriodParam.Params)
-                                {
-                                    sClassify += $"W{item}+";
-                                }
-                            }
-                            else if (taskinfo.ContentMeta.PeriodParam.Mode == 2)
-                            {
-                                foreach (int item in taskinfo.ContentMeta.PeriodParam.Params)
-                                {
-                                    sClassify += $"M{item}+";
-                                }
-                            }
-                            taskinfo.TaskContent.Classify = sClassify;
-                        }
-                        else
-                            taskinfo.TaskContent.Classify = "A";
+            //            //await Store.SaveChangeAsync();
+            //            await Store.UpdateTaskMetaDataAsync(taskinfo.TaskContent.TaskId, MetaDataType.emCapatureMetaData, string.IsNullOrEmpty(ContentMeta) ? taskinfo.CaptureMeta : CaptureMeta);
+            //            //return _mapper.Map<TaskContentResponse>(lst[0]);
+            //            return lst[0];
+            //        }
+            //        else
+            //        {
+            //            var back = await Store.AddTaskWithPolicys(_mapper.Map<TaskContentResponse, DbpTask>(taskinfo.TaskContent, opt =>
+            //            opt.AfterMap((src, dest) =>
+            //            {
+            //                dest.OpType = (int)opType.otAdd;
+            //                dest.DispatchState = (int)dispatchState.dpsDispatched;
+            //                dest.State = (int)taskinfo.TaskContent.State;
+            //                dest.SyncState = (int)syncState.ssNot;
+            //                dest.Tasklock = string.Empty;
+            //                dest.Taskid = -1;
+            //                dest.Tasksource = (int)TaskSource.emMSVUploadTask;
+            //            })), true,
+            //            string.IsNullOrEmpty(CaptureMeta) ? taskinfo.CaptureMeta : CaptureMeta,
+            //            string.IsNullOrEmpty(ContentMeta) ? ConverTaskContentMetaString(taskinfo.ContentMeta, opType.otAdd) : ContentMeta,
+            //            string.IsNullOrEmpty(MatiralMeta) ? ConverTaskMaterialMetaString(taskinfo.MaterialMeta) : MatiralMeta,
+            //            string.IsNullOrEmpty(PlanningMeta) ? ConverTaskPlanningMetaString(taskinfo.PlanningMeta) : PlanningMeta,
+            //            string.IsNullOrEmpty(SplitMeta) ? ConvertTaskSplitMetaString(taskinfo.SplitMeta, taskinfo.TaskContent.ChannelId) : SplitMeta,
+            //            null);
+
+
+            //            return back;
+            //        }
+            //    }
+            //}
+            //else //非手动任务选通道
+            //{
+            //    if (taskinfo.TaskContent.TaskType == TaskType.TT_PERIODIC)
+            //    {
+            //        if (string.IsNullOrEmpty(taskinfo.TaskContent.Classify))
+            //        {
+            //            /*
+            //             * 新接口这一般ContentMeta传空, 老接口这一般有值。反正只要没有就需要从字符串或者结构体里面解析构建，优先字符串
+            //             */
+            //            if (!string.IsNullOrEmpty(ContentMeta))
+            //            {
+            //                taskinfo.ContentMeta = ConverTaskContentMetaString(ContentMeta) ?? taskinfo.ContentMeta;
+            //            }
+
+            //            string sClassify = string.Empty;
+            //            if (taskinfo.ContentMeta.PeriodParam != null)
+            //            {
+            //                if (taskinfo.ContentMeta.PeriodParam.Mode == 0)
+            //                {
+            //                    sClassify = "D";
+            //                }
+            //                else if (taskinfo.ContentMeta.PeriodParam.Mode == 1)
+            //                {
+            //                    foreach (int item in taskinfo.ContentMeta.PeriodParam.Params)
+            //                    {
+            //                        sClassify += $"W{item}+";
+            //                    }
+            //                }
+            //                else if (taskinfo.ContentMeta.PeriodParam.Mode == 2)
+            //                {
+            //                    foreach (int item in taskinfo.ContentMeta.PeriodParam.Params)
+            //                    {
+            //                        sClassify += $"M{item}+";
+            //                    }
+            //                }
+            //                taskinfo.TaskContent.Classify = sClassify;
+            //            }
+            //            else
+            //                taskinfo.TaskContent.Classify = "A";
                         
-                    }
+            //        }
 
-                    DateTime EndTime = DateTime.Now;
-                    if (taskinfo.ContentMeta == null || taskinfo.ContentMeta.PeriodParam == null)
-                    {
-                        var root = XDocument.Parse(ContentMeta);
-                        var material = root.Element("TaskContentMetaData");
-                        var period = material?.Element("PERIODPARAM");
-                        EndTime = DateTimeFormat.DateTimeFromString(period?.Element("ENDDATE").Value);
-                    }
-                    else
-                    {
-                        EndTime = DateTimeFormat.DateTimeFromString(taskinfo.ContentMeta.PeriodParam.EndDate);
-                    }
+            //        DateTime EndTime = DateTime.Now;
+            //        if (taskinfo.ContentMeta == null || taskinfo.ContentMeta.PeriodParam == null)
+            //        {
+            //            var root = XDocument.Parse(ContentMeta);
+            //            var material = root.Element("TaskContentMetaData");
+            //            var period = material?.Element("PERIODPARAM");
+            //            EndTime = DateTimeFormat.DateTimeFromString(period?.Element("ENDDATE").Value);
+            //        }
+            //        else
+            //        {
+            //            EndTime = DateTimeFormat.DateTimeFromString(taskinfo.ContentMeta.PeriodParam.EndDate);
+            //        }
 
-                    DateTime TaskEnd = DateTimeFormat.DateTimeFromString(taskinfo.TaskContent.End);
-                    DateTime RealEnd = new DateTime(EndTime.Year, EndTime.Month, EndTime.Day, TaskEnd.Hour, TaskEnd.Minute, TaskEnd.Second);
-                    taskinfo.TaskContent.End = DateTimeFormat.DateTimeToString(RealEnd);
+            //        DateTime TaskEnd = DateTimeFormat.DateTimeFromString(taskinfo.TaskContent.End);
+            //        DateTime RealEnd = new DateTime(EndTime.Year, EndTime.Month, EndTime.Day, TaskEnd.Hour, TaskEnd.Minute, TaskEnd.Second);
+            //        taskinfo.TaskContent.End = DateTimeFormat.DateTimeToString(RealEnd);
 
-                    DateTime BeginTime = DateTimeFormat.DateTimeFromString(taskinfo.TaskContent.Begin);
-                    if ((TaskEnd - BeginTime).TotalHours >= 24)
-                    {
-                        throw new Exception("Cannot create the periodic task that exceeds 24H.");
-                    }
+            //        DateTime BeginTime = DateTimeFormat.DateTimeFromString(taskinfo.TaskContent.Begin);
+            //        if ((TaskEnd - BeginTime).TotalHours >= 24)
+            //        {
+            //            throw new Exception("Cannot create the periodic task that exceeds 24H.");
+            //        }
 
-                    if (BeginTime.TimeOfDay <= RealEnd.TimeOfDay)//是跨天的任务
-                    {
-                        DateTime dtFirstDayEndTime = new DateTime(BeginTime.Year, BeginTime.Month, BeginTime.Day, RealEnd.Hour, RealEnd.Minute, RealEnd.Second);
-                        DateTime dtNow = DateTime.Now;
+            //        if (BeginTime.TimeOfDay <= RealEnd.TimeOfDay)//是跨天的任务
+            //        {
+            //            DateTime dtFirstDayEndTime = new DateTime(BeginTime.Year, BeginTime.Month, BeginTime.Day, RealEnd.Hour, RealEnd.Minute, RealEnd.Second);
+            //            DateTime dtNow = DateTime.Now;
 
-                        //zmj2008-11-11修改考虑到当前时间前几天的问题
-                        if (dtFirstDayEndTime < dtNow)//如果当天任务的结束时间结束后，开始时间往后推后到当天的后一天
-                        {
-                            DateTime dtNewBeginTime = new DateTime(dtNow.Year, dtNow.Month, dtNow.Day, BeginTime.Hour, BeginTime.Minute, BeginTime.Second);
-                            DateTime dtNowDayEndTime = new DateTime(dtNow.Year, dtNow.Month, dtNow.Day, RealEnd.Hour, RealEnd.Minute, RealEnd.Second);
+            //            //zmj2008-11-11修改考虑到当前时间前几天的问题
+            //            if (dtFirstDayEndTime < dtNow)//如果当天任务的结束时间结束后，开始时间往后推后到当天的后一天
+            //            {
+            //                DateTime dtNewBeginTime = new DateTime(dtNow.Year, dtNow.Month, dtNow.Day, BeginTime.Hour, BeginTime.Minute, BeginTime.Second);
+            //                DateTime dtNowDayEndTime = new DateTime(dtNow.Year, dtNow.Month, dtNow.Day, RealEnd.Hour, RealEnd.Minute, RealEnd.Second);
 
-                            if (dtNowDayEndTime < dtNow)
-                            {
-                                taskinfo.TaskContent.Begin = DateTimeFormat.DateTimeToString(dtNewBeginTime.AddDays(1));
-                            }
-                            else
-                            {
-                                taskinfo.TaskContent.Begin = DateTimeFormat.DateTimeToString(dtNewBeginTime);
-                            }
-                        }
-                    }
-                }
+            //                if (dtNowDayEndTime < dtNow)
+            //                {
+            //                    taskinfo.TaskContent.Begin = DateTimeFormat.DateTimeToString(dtNewBeginTime.AddDays(1));
+            //                }
+            //                else
+            //                {
+            //                    taskinfo.TaskContent.Begin = DateTimeFormat.DateTimeToString(dtNewBeginTime);
+            //                }
+            //            }
+            //        }
+            //    }
 
-                if (string.IsNullOrEmpty(taskinfo.CaptureMeta) && string.IsNullOrEmpty(CaptureMeta))
-                {
-                    SobeyRecException.ThrowSelfNoParam("AddTaskWithoutPolicy CaptureMeta empty", GlobalDictionary.GLOBALDICT_CODE_NO_CAPTURE_PARAM, Logger, null);
-                }
+            //    if (string.IsNullOrEmpty(taskinfo.CaptureMeta) && string.IsNullOrEmpty(CaptureMeta))
+            //    {
+            //        SobeyRecException.ThrowSelfNoParam("AddTaskWithoutPolicy CaptureMeta empty", GlobalDictionary.GLOBALDICT_CODE_NO_CAPTURE_PARAM, Logger, null);
+            //    }
 
-                bool bLockChannel = taskinfo.TaskContent.ChannelId > 0 ? false : true;
-                CHSelCondition condition = new CHSelCondition();
-                condition.BackupCHSel = backup;
-                condition.CheckCHCurState = true;//检查当前通道状态
+            //    bool bLockChannel = taskinfo.TaskContent.ChannelId > 0 ? false : true;
+            //    CHSelCondition condition = new CHSelCondition();
+            //    condition.BackupCHSel = backup;
+            //    condition.CheckCHCurState = true;//检查当前通道状态
 
-                /*
-                 * @brief 当前没有openend任务，估计路透就会有了，所以这个我暂时用false来表示
-                 */
-                condition.MoveExcutingOpenTask = false;
-                condition.OnlyLocalChannel = isOnlyLocalChannel;
-                condition.BaseChId = -1;
-                //condition. = true;
+            //    /*
+            //     * @brief 当前没有openend任务，估计路透就会有了，所以这个我暂时用false来表示
+            //     */
+            //    condition.MoveExcutingOpenTask = false;
+            //    condition.OnlyLocalChannel = isOnlyLocalChannel;
+            //    condition.BaseChId = -1;
+            //    //condition. = true;
 
-                int nSelCH = -1;
-                if (taskinfo.TaskContent.TaskType != TaskType.TT_PERIODIC)
-                {
+            //    int nSelCH = -1;
+            //    if (taskinfo.TaskContent.TaskType != TaskType.TT_PERIODIC)
+            //    {
 
-                    nSelCH = await CHSelectForNormalTask(taskinfo.TaskContent, taskinfo.TaskSource, condition);
-                }
-                else
-                {
-                    nSelCH = await CHSelectForPeriodicTask(taskinfo.TaskContent, taskinfo.TaskSource, condition);
-                }
+            //        nSelCH = await CHSelectForNormalTask(taskinfo.TaskContent, taskinfo.TaskSource, condition);
+            //    }
+            //    else
+            //    {
+            //        nSelCH = await CHSelectForPeriodicTask(taskinfo.TaskContent, taskinfo.TaskSource, condition);
+            //    }
 
-                if (nSelCH <= 0)
-                {
-                    if (taskinfo.TaskContent.ChannelId > 0)
-                    {
-                        Logger.Error("add task with policy channelbusy 1" + Store.GetConfictTaskInfo());
-                        SobeyRecException.ThrowSelfNoParam(backup ? "backup task" : "", GlobalDictionary.GLOBALDICT_CODE_SELECTED_CHANNEL_IS_BUSY_OR_CAN_NOT_BE_SUITED_TO_PROGRAMME, Logger, null);
-                    }
-                    else
-                    {
-                        Logger.Error("add task with policy channelbusy 2" + Store.GetConfictTaskInfo());
-                        SobeyRecException.ThrowSelfNoParam(backup ? "backup task" : "", GlobalDictionary.GLOBALDICT_CODE_ALL_USEABLE_CHANNELS_ARE_BUSY, Logger, null);
-                    }
-                }
-                else
-                {
-                    taskinfo.TaskContent.ChannelId = nSelCH;
-                }
+            //    if (nSelCH <= 0)
+            //    {
+            //        if (taskinfo.TaskContent.ChannelId > 0)
+            //        {
+            //            Logger.Error("add task with policy channelbusy 1" + Store.GetConfictTaskInfo());
+            //            SobeyRecException.ThrowSelfNoParam(backup ? "backup task" : "", GlobalDictionary.GLOBALDICT_CODE_SELECTED_CHANNEL_IS_BUSY_OR_CAN_NOT_BE_SUITED_TO_PROGRAMME, Logger, null);
+            //        }
+            //        else
+            //        {
+            //            Logger.Error("add task with policy channelbusy 2" + Store.GetConfictTaskInfo());
+            //            SobeyRecException.ThrowSelfNoParam(backup ? "backup task" : "", GlobalDictionary.GLOBALDICT_CODE_ALL_USEABLE_CHANNELS_ARE_BUSY, Logger, null);
+            //        }
+            //    }
+            //    else
+            //    {
+            //        taskinfo.TaskContent.ChannelId = nSelCH;
+            //    }
 
-                if (taskinfo.TaskContent.GroupColor > 0)
-                {
-                    if (_deviceInterface != null)
-                    {
-                        DeviceInternals re = new DeviceInternals()
-                        {
-                            funtype = IngestDBCore.DeviceInternals.FunctionType.SingnalIDByChannel,
-                            ChannelId = taskinfo.TaskContent.ChannelId,
-                            SignalStrict = false
-                        };
-                        var response1 = await _deviceInterface.Value.GetDeviceCallBack(re);
-                        if (response1.Code != ResponseCodeDefines.SuccessCode)
-                        {
-                            Logger.Error("AddTaskWithPolicy SingnalIDByChannel error");
-                            return null;
-                        }
-                        var fr = response1 as ResponseMessage<int>;
-                        taskinfo.TaskContent.SignalId = fr.Ext;
-                    }
+            //    if (taskinfo.TaskContent.GroupColor > 0)
+            //    {
+            //        if (_deviceInterface != null)
+            //        {
+            //            DeviceInternals re = new DeviceInternals()
+            //            {
+            //                funtype = IngestDBCore.DeviceInternals.FunctionType.SingnalIDByChannel,
+            //                ChannelId = taskinfo.TaskContent.ChannelId,
+            //                SignalStrict = false
+            //            };
+            //            var response1 = await _deviceInterface.Value.GetDeviceCallBack(re);
+            //            if (response1.Code != ResponseCodeDefines.SuccessCode)
+            //            {
+            //                Logger.Error("AddTaskWithPolicy SingnalIDByChannel error");
+            //                return null;
+            //            }
+            //            var fr = response1 as ResponseMessage<int>;
+            //            taskinfo.TaskContent.SignalId = fr.Ext;
+            //        }
 
-                }
+            //    }
 
-                var back = await Store.AddTaskWithPolicys(_mapper.Map<TaskContentResponse, DbpTask>(taskinfo.TaskContent, opt =>
-                opt.AfterMap((src, dest) =>
-                {
-                    dest.OpType = (int)opType.otAdd;
-                    dest.DispatchState = (int)dispatchState.dpsNotDispatch;
-                    dest.State = (int)taskState.tsReady;
-                    dest.SyncState = (int)syncState.ssSync;
-                    dest.Tasklock = string.Empty;
-                    dest.Taskid = -1;
-                    dest.Tasksource = (int)taskinfo.TaskSource;
-                })), true,
-                string.IsNullOrEmpty(CaptureMeta) ? taskinfo.CaptureMeta : CaptureMeta,
-                string.IsNullOrEmpty(ContentMeta) ? ConverTaskContentMetaString(taskinfo.ContentMeta, opType.otAdd) : ContentMeta,
-                string.IsNullOrEmpty(MatiralMeta) ? ConverTaskMaterialMetaString(taskinfo.MaterialMeta) : MatiralMeta,
-                string.IsNullOrEmpty(PlanningMeta) ? ConverTaskPlanningMetaString(taskinfo.PlanningMeta) : PlanningMeta,
-                string.IsNullOrEmpty(SplitMeta) ? ConvertTaskSplitMetaString(taskinfo.SplitMeta, taskinfo.TaskContent.ChannelId) : SplitMeta,
-                null);
-                //taskinfo.TaskContent.
+            //    var back = await Store.AddTaskWithPolicys(_mapper.Map<TaskContentResponse, DbpTask>(taskinfo.TaskContent, opt =>
+            //    opt.AfterMap((src, dest) =>
+            //    {
+            //        dest.OpType = (int)opType.otAdd;
+            //        dest.DispatchState = (int)dispatchState.dpsNotDispatch;
+            //        dest.State = (int)taskState.tsReady;
+            //        dest.SyncState = (int)syncState.ssSync;
+            //        dest.Tasklock = string.Empty;
+            //        dest.Taskid = -1;
+            //        dest.Tasksource = (int)taskinfo.TaskSource;
+            //    })), true,
+            //    string.IsNullOrEmpty(CaptureMeta) ? taskinfo.CaptureMeta : CaptureMeta,
+            //    string.IsNullOrEmpty(ContentMeta) ? ConverTaskContentMetaString(taskinfo.ContentMeta, opType.otAdd) : ContentMeta,
+            //    string.IsNullOrEmpty(MatiralMeta) ? ConverTaskMaterialMetaString(taskinfo.MaterialMeta) : MatiralMeta,
+            //    string.IsNullOrEmpty(PlanningMeta) ? ConverTaskPlanningMetaString(taskinfo.PlanningMeta) : PlanningMeta,
+            //    string.IsNullOrEmpty(SplitMeta) ? ConvertTaskSplitMetaString(taskinfo.SplitMeta, taskinfo.TaskContent.ChannelId) : SplitMeta,
+            //    null);
+            //    //taskinfo.TaskContent.
 
-                //return _mapper.Map<TaskContentResponse>(back);
-                return back;
-            }
+            //    //return _mapper.Map<TaskContentResponse>(back);
+            //    return back;
+            //}
 
             return null;
         }
 
         public async Task<DbpTask> AddTaskWithoutPolicy<TResult>(TResult info, string CaptureMeta, string ContentMeta, string MatiralMeta, string PlanningMeta, string SplitMeta = "")
         {
-            var taskinfo = _mapper.Map<TaskInfoRequest>(info);
-            if (info.GetType() == typeof(AddTaskExDb_in))
-            {
-                taskinfo.TaskSource = TaskSource.emMSVUploadTask;
-            }
+            /*
+             * wqtest
+             */
+            //var taskinfo = _mapper.Map<TaskInfoRequest>(info);
+            //if (info.GetType() == typeof(AddTaskExDb_in))
+            //{
+            //    taskinfo.TaskSource = TaskSource.emMSVUploadTask;
+            //}
 
-            if (taskinfo.TaskContent.TaskType == TaskType.TT_MANUTASK)
-            {
-                //var _globalinterface = ApplicationContext.Current.ServiceProvider.GetRequiredService<IIngestDeviceInterface>();
-                if (_deviceInterface != null)
-                {
-                    var response1 = await _deviceInterface.Value.GetDeviceCallBack(new DeviceInternals()
-                    {
-                        funtype = IngestDBCore.DeviceInternals.FunctionType.ChannelUnitMap,
-                        ChannelId = taskinfo.TaskContent.ChannelId
-                    });
+            //if (taskinfo.TaskContent.TaskType == TaskType.TT_MANUTASK)
+            //{
+            //    //var _globalinterface = ApplicationContext.Current.ServiceProvider.GetRequiredService<IIngestDeviceInterface>();
+            //    if (_deviceInterface != null)
+            //    {
+            //        var response1 = await _deviceInterface.Value.GetDeviceCallBack(new DeviceInternals()
+            //        {
+            //            funtype = IngestDBCore.DeviceInternals.FunctionType.ChannelUnitMap,
+            //            ChannelId = taskinfo.TaskContent.ChannelId
+            //        });
 
-                    if (response1.Code != ResponseCodeDefines.SuccessCode)
-                    {
-                        Logger.Error("AddTaskWithoutPolicy ChannelUnitMap error");
-                        return null;
-                    }
-                    var fr = response1 as ResponseMessage<int>;
-                    taskinfo.TaskContent.Unit = fr.Ext;
+            //        if (response1.Code != ResponseCodeDefines.SuccessCode)
+            //        {
+            //            Logger.Error("AddTaskWithoutPolicy ChannelUnitMap error");
+            //            return null;
+            //        }
+            //        var fr = response1 as ResponseMessage<int>;
+            //        taskinfo.TaskContent.Unit = fr.Ext;
 
-                    var lst = await Store.GetTaskListAsync(new TaskCondition()
-                    {
-                        StateIncludeLst = new List<int>() { ((int)taskState.tsReady), },
-                        MaxBeginTime = DateTime.Now,
-                        MinEndTime = DateTime.Now,
-                        ChannelId = taskinfo.TaskContent.ChannelId,
-                        TaskTypeIncludeLst = new List<int>() { ((int)TaskType.TT_TIEUP) }
-                    }, true, false);
-                    if (lst != null && lst.Count > 0)
-                    {
-                        lst[0].Tasktype = (int)TaskType.TT_NORMAL;
-                        lst[0].SyncState = (int)syncState.ssNot;
-                        lst[0].DispatchState = (int)dispatchState.dpsDispatched;
-                        lst[0].Taskguid = taskinfo.TaskContent.TaskGuid;
+            //        var lst = await Store.GetTaskListAsync(new TaskCondition()
+            //        {
+            //            StateIncludeLst = new List<int>() { ((int)taskState.tsReady), },
+            //            MaxBeginTime = DateTime.Now,
+            //            MinEndTime = DateTime.Now,
+            //            ChannelId = taskinfo.TaskContent.ChannelId,
+            //            TaskTypeIncludeLst = new List<int>() { ((int)TaskType.TT_TIEUP) }
+            //        }, true, false);
+            //        if (lst != null && lst.Count > 0)
+            //        {
+            //            lst[0].Tasktype = (int)TaskType.TT_NORMAL;
+            //            lst[0].SyncState = (int)syncState.ssNot;
+            //            lst[0].DispatchState = (int)dispatchState.dpsDispatched;
+            //            lst[0].Taskguid = taskinfo.TaskContent.TaskGuid;
 
-                        //await Store.SaveChangeAsync();
-                        await Store.UpdateTaskMetaDataAsync(taskinfo.TaskContent.TaskId, MetaDataType.emCapatureMetaData, string.IsNullOrEmpty(ContentMeta) ? taskinfo.CaptureMeta : CaptureMeta);
-                        //return _mapper.Map<TaskContentResponse>(lst[0]);
-                        return lst[0];
-                    }
-                    else
-                    {
-                        var back = await Store.AddTaskWithPolicys(_mapper.Map<TaskContentResponse, DbpTask>(taskinfo.TaskContent, opt =>
-                        opt.AfterMap((src, dest) =>
-                        {
-                            dest.OpType = (int)opType.otAdd;
-                            dest.DispatchState = (int)dispatchState.dpsDispatched;
-                            dest.State = (int)taskState.tsExecuting;
-                            dest.SyncState = (int)syncState.ssNot;
-                            dest.Tasklock = string.Empty;
-                            dest.Taskid = -1;
-                            dest.Tasksource = (int)TaskSource.emMSVUploadTask;
-                        })), true,
-                        string.IsNullOrEmpty(CaptureMeta) ? taskinfo.CaptureMeta : CaptureMeta,
-                        string.IsNullOrEmpty(ContentMeta) ? ConverTaskContentMetaString(taskinfo.ContentMeta, opType.otAdd) : ContentMeta,
-                        string.IsNullOrEmpty(MatiralMeta) ? ConverTaskMaterialMetaString(taskinfo.MaterialMeta) : MatiralMeta,
-                        string.IsNullOrEmpty(PlanningMeta) ? ConverTaskPlanningMetaString(taskinfo.PlanningMeta) : PlanningMeta,
-                        string.IsNullOrEmpty(SplitMeta) ? ConvertTaskSplitMetaString(taskinfo.SplitMeta, taskinfo.TaskContent.ChannelId) : SplitMeta,
-                        null);
-                        //return _mapper.Map<TaskContentResponse>(back);
+            //            //await Store.SaveChangeAsync();
+            //            await Store.UpdateTaskMetaDataAsync(taskinfo.TaskContent.TaskId, MetaDataType.emCapatureMetaData, string.IsNullOrEmpty(ContentMeta) ? taskinfo.CaptureMeta : CaptureMeta);
+            //            //return _mapper.Map<TaskContentResponse>(lst[0]);
+            //            return lst[0];
+            //        }
+            //        else
+            //        {
+            //            var back = await Store.AddTaskWithPolicys(_mapper.Map<TaskContentResponse, DbpTask>(taskinfo.TaskContent, opt =>
+            //            opt.AfterMap((src, dest) =>
+            //            {
+            //                dest.OpType = (int)opType.otAdd;
+            //                dest.DispatchState = (int)dispatchState.dpsDispatched;
+            //                dest.State = (int)taskState.tsExecuting;
+            //                dest.SyncState = (int)syncState.ssNot;
+            //                dest.Tasklock = string.Empty;
+            //                dest.Taskid = -1;
+            //                dest.Tasksource = (int)TaskSource.emMSVUploadTask;
+            //            })), true,
+            //            string.IsNullOrEmpty(CaptureMeta) ? taskinfo.CaptureMeta : CaptureMeta,
+            //            string.IsNullOrEmpty(ContentMeta) ? ConverTaskContentMetaString(taskinfo.ContentMeta, opType.otAdd) : ContentMeta,
+            //            string.IsNullOrEmpty(MatiralMeta) ? ConverTaskMaterialMetaString(taskinfo.MaterialMeta) : MatiralMeta,
+            //            string.IsNullOrEmpty(PlanningMeta) ? ConverTaskPlanningMetaString(taskinfo.PlanningMeta) : PlanningMeta,
+            //            string.IsNullOrEmpty(SplitMeta) ? ConvertTaskSplitMetaString(taskinfo.SplitMeta, taskinfo.TaskContent.ChannelId) : SplitMeta,
+            //            null);
+            //            //return _mapper.Map<TaskContentResponse>(back);
 
-                        return back;
-                    }
-                }
-            }
-            else //非手动任务选通道
-            {
-                if (taskinfo.TaskContent.TaskType == TaskType.TT_PERIODIC)
-                {
-                    if (string.IsNullOrEmpty(taskinfo.TaskContent.Classify))
-                    {
-                        /*
-                         * 新接口这一般ContentMeta传空, 老接口这一般有值。反正只要没有就需要从字符串或者结构体里面解析构建，优先字符串
-                         */
-                        if (!string.IsNullOrEmpty(ContentMeta))
-                        {
-                            taskinfo.ContentMeta = ConverTaskContentMetaString(ContentMeta) ?? taskinfo.ContentMeta;
-                        }
-                        string sClassify = string.Empty;
-                        if (taskinfo.ContentMeta.PeriodParam.Mode == 0)
-                        {
-                            sClassify = "D";
-                        }
-                        else if (taskinfo.ContentMeta.PeriodParam.Mode == 1)
-                        {
-                            foreach (int item in taskinfo.ContentMeta.PeriodParam.Params)
-                            {
-                                sClassify += $"W{item}+";
-                            }
-                        }
-                        else if (taskinfo.ContentMeta.PeriodParam.Mode == 2)
-                        {
-                            foreach (int item in taskinfo.ContentMeta.PeriodParam.Params)
-                            {
-                                sClassify += $"M{item}+";
-                            }
-                        }
-                        taskinfo.TaskContent.Classify = sClassify;
-                    }
+            //            return back;
+            //        }
+            //    }
+            //}
+            //else //非手动任务选通道
+            //{
+            //    if (taskinfo.TaskContent.TaskType == TaskType.TT_PERIODIC)
+            //    {
+            //        if (string.IsNullOrEmpty(taskinfo.TaskContent.Classify))
+            //        {
+            //            /*
+            //             * 新接口这一般ContentMeta传空, 老接口这一般有值。反正只要没有就需要从字符串或者结构体里面解析构建，优先字符串
+            //             */
+            //            if (!string.IsNullOrEmpty(ContentMeta))
+            //            {
+            //                taskinfo.ContentMeta = ConverTaskContentMetaString(ContentMeta) ?? taskinfo.ContentMeta;
+            //            }
+            //            string sClassify = string.Empty;
+            //            if (taskinfo.ContentMeta.PeriodParam.Mode == 0)
+            //            {
+            //                sClassify = "D";
+            //            }
+            //            else if (taskinfo.ContentMeta.PeriodParam.Mode == 1)
+            //            {
+            //                foreach (int item in taskinfo.ContentMeta.PeriodParam.Params)
+            //                {
+            //                    sClassify += $"W{item}+";
+            //                }
+            //            }
+            //            else if (taskinfo.ContentMeta.PeriodParam.Mode == 2)
+            //            {
+            //                foreach (int item in taskinfo.ContentMeta.PeriodParam.Params)
+            //                {
+            //                    sClassify += $"M{item}+";
+            //                }
+            //            }
+            //            taskinfo.TaskContent.Classify = sClassify;
+            //        }
 
-                    DateTime EndTime = DateTime.Now;
-                    if (taskinfo.ContentMeta == null || taskinfo.ContentMeta.PeriodParam == null)
-                    {
-                        var root = XDocument.Parse(ContentMeta);
-                        var material = root.Element("TaskContentMetaData");
-                        var period = material?.Element("PERIODPARAM");
-                        EndTime = DateTimeFormat.DateTimeFromString(period?.Element("ENDDATE").Value);
-                    }
-                    else
-                    {
-                        EndTime = DateTimeFormat.DateTimeFromString(taskinfo.ContentMeta.PeriodParam.EndDate);
-                    }
+            //        DateTime EndTime = DateTime.Now;
+            //        if (taskinfo.ContentMeta == null || taskinfo.ContentMeta.PeriodParam == null)
+            //        {
+            //            var root = XDocument.Parse(ContentMeta);
+            //            var material = root.Element("TaskContentMetaData");
+            //            var period = material?.Element("PERIODPARAM");
+            //            EndTime = DateTimeFormat.DateTimeFromString(period?.Element("ENDDATE").Value);
+            //        }
+            //        else
+            //        {
+            //            EndTime = DateTimeFormat.DateTimeFromString(taskinfo.ContentMeta.PeriodParam.EndDate);
+            //        }
 
-                    DateTime TaskEnd = DateTimeFormat.DateTimeFromString(taskinfo.TaskContent.End);
-                    DateTime RealEnd = new DateTime(EndTime.Year, EndTime.Month, EndTime.Day, TaskEnd.Hour, TaskEnd.Minute, TaskEnd.Second);
-                    taskinfo.TaskContent.End = DateTimeFormat.DateTimeToString(RealEnd);
+            //        DateTime TaskEnd = DateTimeFormat.DateTimeFromString(taskinfo.TaskContent.End);
+            //        DateTime RealEnd = new DateTime(EndTime.Year, EndTime.Month, EndTime.Day, TaskEnd.Hour, TaskEnd.Minute, TaskEnd.Second);
+            //        taskinfo.TaskContent.End = DateTimeFormat.DateTimeToString(RealEnd);
 
-                    DateTime BeginTime = DateTimeFormat.DateTimeFromString(taskinfo.TaskContent.Begin);
-                    if (BeginTime.TimeOfDay <= RealEnd.TimeOfDay)//是跨天的任务
-                    {
-                        DateTime dtFirstDayEndTime = new DateTime(BeginTime.Year, BeginTime.Month, BeginTime.Day, RealEnd.Hour, RealEnd.Minute, RealEnd.Second);
-                        DateTime dtNow = DateTime.Now;
+            //        DateTime BeginTime = DateTimeFormat.DateTimeFromString(taskinfo.TaskContent.Begin);
+            //        if (BeginTime.TimeOfDay <= RealEnd.TimeOfDay)//是跨天的任务
+            //        {
+            //            DateTime dtFirstDayEndTime = new DateTime(BeginTime.Year, BeginTime.Month, BeginTime.Day, RealEnd.Hour, RealEnd.Minute, RealEnd.Second);
+            //            DateTime dtNow = DateTime.Now;
 
-                        //zmj2008-11-11修改考虑到当前时间前几天的问题
-                        if (dtFirstDayEndTime < dtNow)//如果当天任务的结束时间结束后，开始时间往后推后到当天的后一天
-                        {
-                            DateTime dtNewBeginTime = new DateTime(dtNow.Year, dtNow.Month, dtNow.Day, BeginTime.Hour, BeginTime.Minute, BeginTime.Second);
-                            DateTime dtNowDayEndTime = new DateTime(dtNow.Year, dtNow.Month, dtNow.Day, RealEnd.Hour, RealEnd.Minute, RealEnd.Second);
+            //            //zmj2008-11-11修改考虑到当前时间前几天的问题
+            //            if (dtFirstDayEndTime < dtNow)//如果当天任务的结束时间结束后，开始时间往后推后到当天的后一天
+            //            {
+            //                DateTime dtNewBeginTime = new DateTime(dtNow.Year, dtNow.Month, dtNow.Day, BeginTime.Hour, BeginTime.Minute, BeginTime.Second);
+            //                DateTime dtNowDayEndTime = new DateTime(dtNow.Year, dtNow.Month, dtNow.Day, RealEnd.Hour, RealEnd.Minute, RealEnd.Second);
 
-                            if (dtNowDayEndTime < dtNow)
-                            {
-                                taskinfo.TaskContent.Begin = DateTimeFormat.DateTimeToString(dtNewBeginTime.AddDays(1));
-                            }
-                            else
-                            {
-                                taskinfo.TaskContent.Begin = DateTimeFormat.DateTimeToString(dtNewBeginTime);
-                            }
-                        }
-                    }
-                }
+            //                if (dtNowDayEndTime < dtNow)
+            //                {
+            //                    taskinfo.TaskContent.Begin = DateTimeFormat.DateTimeToString(dtNewBeginTime.AddDays(1));
+            //                }
+            //                else
+            //                {
+            //                    taskinfo.TaskContent.Begin = DateTimeFormat.DateTimeToString(dtNewBeginTime);
+            //                }
+            //            }
+            //        }
+            //    }
 
-                if (string.IsNullOrEmpty(taskinfo.CaptureMeta) && string.IsNullOrEmpty(CaptureMeta))
-                {
-                    SobeyRecException.ThrowSelfNoParam("AddTaskWithoutPolicy CaptureMeta empty", GlobalDictionary.GLOBALDICT_CODE_NO_CAPTURE_PARAM, Logger, null);
-                }
+            //    if (string.IsNullOrEmpty(taskinfo.CaptureMeta) && string.IsNullOrEmpty(CaptureMeta))
+            //    {
+            //        SobeyRecException.ThrowSelfNoParam("AddTaskWithoutPolicy CaptureMeta empty", GlobalDictionary.GLOBALDICT_CODE_NO_CAPTURE_PARAM, Logger, null);
+            //    }
 
-                bool bLockChannel = taskinfo.TaskContent.ChannelId > 0 ? false : true;
-                CHSelCondition condition = new CHSelCondition();
-                condition.BackupCHSel = false;
-                condition.CheckCHCurState = true;//检查当前通道状态
-                condition.MoveExcutingOpenTask = false;
-                condition.OnlyLocalChannel = true;
-                condition.BaseChId = -1;
-                //condition. = true;
+            //    bool bLockChannel = taskinfo.TaskContent.ChannelId > 0 ? false : true;
+            //    CHSelCondition condition = new CHSelCondition();
+            //    condition.BackupCHSel = false;
+            //    condition.CheckCHCurState = true;//检查当前通道状态
+            //    condition.MoveExcutingOpenTask = false;
+            //    condition.OnlyLocalChannel = true;
+            //    condition.BaseChId = -1;
+            //    //condition. = true;
 
-                int nSelCH = -1;
-                if (taskinfo.TaskContent.TaskType != TaskType.TT_PERIODIC)
-                {
+            //    int nSelCH = -1;
+            //    if (taskinfo.TaskContent.TaskType != TaskType.TT_PERIODIC)
+            //    {
 
-                    nSelCH = await CHSelectForNormalTask(taskinfo.TaskContent, taskinfo.TaskSource, condition);
-                }
-                else
-                {
-                    nSelCH = await CHSelectForPeriodicTask(taskinfo.TaskContent, taskinfo.TaskSource, condition);
-                }
+            //        nSelCH = await CHSelectForNormalTask(taskinfo.TaskContent, taskinfo.TaskSource, condition);
+            //    }
+            //    else
+            //    {
+            //        nSelCH = await CHSelectForPeriodicTask(taskinfo.TaskContent, taskinfo.TaskSource, condition);
+            //    }
 
-                if (nSelCH <= 0)
-                {
-                    if (taskinfo.TaskContent.ChannelId > 0)
-                    {
-                        Logger.Error("add task with out policy channelbusy " + Store.GetConfictTaskInfo());
-                        SobeyRecException.ThrowSelfNoParam("", GlobalDictionary.GLOBALDICT_CODE_SELECTED_CHANNEL_IS_BUSY_OR_CAN_NOT_BE_SUITED_TO_PROGRAMME, Logger, null);
-                    }
-                    else
-                    {
-                        Logger.Error("add task with out policy channelbusy " + Store.GetConfictTaskInfo());
-                        SobeyRecException.ThrowSelfNoParam("", GlobalDictionary.GLOBALDICT_CODE_ALL_USEABLE_CHANNELS_ARE_BUSY, Logger, null);
-                    }
-                }
-                else
-                {
-                    taskinfo.TaskContent.ChannelId = nSelCH;
-                }
+            //    if (nSelCH <= 0)
+            //    {
+            //        if (taskinfo.TaskContent.ChannelId > 0)
+            //        {
+            //            Logger.Error("add task with out policy channelbusy " + Store.GetConfictTaskInfo());
+            //            SobeyRecException.ThrowSelfNoParam("", GlobalDictionary.GLOBALDICT_CODE_SELECTED_CHANNEL_IS_BUSY_OR_CAN_NOT_BE_SUITED_TO_PROGRAMME, Logger, null);
+            //        }
+            //        else
+            //        {
+            //            Logger.Error("add task with out policy channelbusy " + Store.GetConfictTaskInfo());
+            //            SobeyRecException.ThrowSelfNoParam("", GlobalDictionary.GLOBALDICT_CODE_ALL_USEABLE_CHANNELS_ARE_BUSY, Logger, null);
+            //        }
+            //    }
+            //    else
+            //    {
+            //        taskinfo.TaskContent.ChannelId = nSelCH;
+            //    }
 
-                if (taskinfo.TaskContent.GroupColor > 0)
-                {
-                    //var _globalinterface = ApplicationContext.Current.ServiceProvider.GetRequiredService<IIngestDeviceInterface>();
-                    if (_deviceInterface != null)
-                    {
-                        var response1 = await _deviceInterface.Value.GetDeviceCallBack(new DeviceInternals()
-                        {
-                            funtype = IngestDBCore.DeviceInternals.FunctionType.SingnalIDByChannel,
-                            ChannelId = taskinfo.TaskContent.ChannelId,
-                            SignalStrict = false
-                        });
+            //    if (taskinfo.TaskContent.GroupColor > 0)
+            //    {
+            //        //var _globalinterface = ApplicationContext.Current.ServiceProvider.GetRequiredService<IIngestDeviceInterface>();
+            //        if (_deviceInterface != null)
+            //        {
+            //            var response1 = await _deviceInterface.Value.GetDeviceCallBack(new DeviceInternals()
+            //            {
+            //                funtype = IngestDBCore.DeviceInternals.FunctionType.SingnalIDByChannel,
+            //                ChannelId = taskinfo.TaskContent.ChannelId,
+            //                SignalStrict = false
+            //            });
 
-                        if (response1.Code != ResponseCodeDefines.SuccessCode)
-                        {
-                            Logger.Error("AddTaskWithoutPolicy SingnalIDByChannel error");
-                            return null;
-                        }
-                        var fr = response1 as ResponseMessage<int>;
-                        taskinfo.TaskContent.SignalId = fr.Ext;
-                    }
+            //            if (response1.Code != ResponseCodeDefines.SuccessCode)
+            //            {
+            //                Logger.Error("AddTaskWithoutPolicy SingnalIDByChannel error");
+            //                return null;
+            //            }
+            //            var fr = response1 as ResponseMessage<int>;
+            //            taskinfo.TaskContent.SignalId = fr.Ext;
+            //        }
 
-                }
+            //    }
 
-                var back = await Store.AddTaskWithPolicys(_mapper.Map<TaskContentResponse, DbpTask>(taskinfo.TaskContent, opt =>
-                opt.AfterMap((src, dest) =>
-                {
-                    dest.OpType = (int)opType.otAdd;
-                    dest.DispatchState = (int)dispatchState.dpsNotDispatch;
-                    dest.State = (int)taskState.tsReady;
-                    dest.SyncState = (int)syncState.ssSync;
-                    dest.Tasklock = string.Empty;
-                    dest.Taskid = -1;
-                    dest.Tasksource = (int)taskinfo.TaskSource;
-                })), true,
-                string.IsNullOrEmpty(CaptureMeta) ? taskinfo.CaptureMeta : CaptureMeta,
-                string.IsNullOrEmpty(ContentMeta) ? ConverTaskContentMetaString(taskinfo.ContentMeta, opType.otAdd) : ContentMeta,
-                string.IsNullOrEmpty(MatiralMeta) ? ConverTaskMaterialMetaString(taskinfo.MaterialMeta) : MatiralMeta,
-                string.IsNullOrEmpty(PlanningMeta) ? ConverTaskPlanningMetaString(taskinfo.PlanningMeta) : PlanningMeta,
-                string.IsNullOrEmpty(SplitMeta) ? ConvertTaskSplitMetaString(taskinfo.SplitMeta, taskinfo.TaskContent.ChannelId) : SplitMeta,
-                null);
-                //taskinfo.TaskContent.
+            //    var back = await Store.AddTaskWithPolicys(_mapper.Map<TaskContentResponse, DbpTask>(taskinfo.TaskContent, opt =>
+            //    opt.AfterMap((src, dest) =>
+            //    {
+            //        dest.OpType = (int)opType.otAdd;
+            //        dest.DispatchState = (int)dispatchState.dpsNotDispatch;
+            //        dest.State = (int)taskState.tsReady;
+            //        dest.SyncState = (int)syncState.ssSync;
+            //        dest.Tasklock = string.Empty;
+            //        dest.Taskid = -1;
+            //        dest.Tasksource = (int)taskinfo.TaskSource;
+            //    })), true,
+            //    string.IsNullOrEmpty(CaptureMeta) ? taskinfo.CaptureMeta : CaptureMeta,
+            //    string.IsNullOrEmpty(ContentMeta) ? ConverTaskContentMetaString(taskinfo.ContentMeta, opType.otAdd) : ContentMeta,
+            //    string.IsNullOrEmpty(MatiralMeta) ? ConverTaskMaterialMetaString(taskinfo.MaterialMeta) : MatiralMeta,
+            //    string.IsNullOrEmpty(PlanningMeta) ? ConverTaskPlanningMetaString(taskinfo.PlanningMeta) : PlanningMeta,
+            //    string.IsNullOrEmpty(SplitMeta) ? ConvertTaskSplitMetaString(taskinfo.SplitMeta, taskinfo.TaskContent.ChannelId) : SplitMeta,
+            //    null);
+            //    //taskinfo.TaskContent.
 
-                //return _mapper.Map<TaskContentResponse>(back);
-                return back;
-            }
+            //    //return _mapper.Map<TaskContentResponse>(back);
+            //    return back;
+            //}
 
             return null;
         }
@@ -4859,10 +4899,10 @@ namespace IngestTaskPlugin.Managers
         {
             var now = DateTime.Now;
             var dt = now.AddHours(2);
-            var tasks = await Store.GetTaskListAsync(a => a.Where(x => (x.State == (int)taskState.tsReady && x.NewBegintime > now && x.NewBegintime < dt)
+            var tasks = await Store.GetTaskListNotrackAsync(a => a.Where(x => (x.State == (int)taskState.tsReady && x.NewBegintime > now && x.NewBegintime < dt)
                                                                         || x.State == (int)taskState.tsExecuting || x.State == (int)taskState.tsManuexecuting
                                                                         )
-                                                           .GroupBy(x => x.State), true);
+                                                           .GroupBy(x => x.State), false);
             if (tasks.Count > 0)
             {
                 List<DbpTask> lsttask = new List<DbpTask>();
@@ -4884,9 +4924,9 @@ namespace IngestTaskPlugin.Managers
         public async Task<List<TSource>> GetCurrentTasksAsync<TSource>()
         {
             var now = DateTime.Now;
-            return _mapper.Map<List<TSource>>(await Store.GetTaskListAsync(
+            return _mapper.Map<List<TSource>>(await Store.GetTaskListNotrackAsync(
                 a => a.Where(x => x.State == (int)taskState.tsReady && x.State != (int)taskState.tsDelete
-                && x.NewBegintime < now && x.NewEndtime > now), true));
+                && x.NewBegintime < now && x.NewEndtime > now), false));
         }
 
         public async Task<T> GetLastTaskErrorInfoAsync<T>(int taskid)
@@ -4911,30 +4951,33 @@ namespace IngestTaskPlugin.Managers
 
         public async Task<bool> AddTaskErrorInfoAsync(TaskErrorInfoResponse errorinfo)
         {
-            //拒绝重复码
-            var lst = await Store.GetTaskErrorInfoListAsync(a => a.Where(b => b.Taskid == errorinfo.Taskid && b.Errorcode == errorinfo.Errorcode), true);
-            bool needsave = false;
-            if (errorinfo.Errorcode == 10001 || errorinfo.Errorcode == 500)
-            {
-                var task = await Store.GetTaskAsync(a => a.Where(b => b.Taskid == errorinfo.Taskid));
-                if (task != null && (task.Recunitid & 0x80) <= 0)
-                {
-                    needsave = true;
-                    task.Recunitid |= 0x80;
-                }
-            }
+            /*
+             * wqtest
+             */
+            ////拒绝重复码
+            //var lst = await Store.GetTaskErrorInfoListAsync(a => a.Where(b => b.Taskid == errorinfo.Taskid && b.Errorcode == errorinfo.Errorcode), true);
+            //bool needsave = false;
+            //if (errorinfo.Errorcode == 10001 || errorinfo.Errorcode == 500)
+            //{
+            //    var task = await Store.GetTaskAsync(a => a.Where(b => b.Taskid == errorinfo.Taskid));
+            //    if (task != null && (task.Recunitid & 0x80) <= 0)
+            //    {
+            //        needsave = true;
+            //        task.Recunitid |= 0x80;
+            //    }
+            //}
 
-            Logger.Info($"AddTaskErrorInfoAsync {errorinfo.Errorcode} {errorinfo.Taskid} {needsave}");
-            if (lst == null || lst.Count == 0)
-            {
-                //1级以上的错误才会被记录，并显示
-                if (errorinfo.Errlevel > 1)
-                {
-                    return await Store.AddTaskErrorInfo(_mapper.Map<DbpTaskErrorinfo>(errorinfo));
-                }
-            }
-            else if (needsave)
-                await Store.SaveChangeAsync(ITaskStore.VirtualContent);
+            //Logger.Info($"AddTaskErrorInfoAsync {errorinfo.Errorcode} {errorinfo.Taskid} {needsave}");
+            //if (lst == null || lst.Count == 0)
+            //{
+            //    //1级以上的错误才会被记录，并显示
+            //    if (errorinfo.Errlevel > 1)
+            //    {
+            //        return await Store.AddTaskErrorInfo(_mapper.Map<DbpTaskErrorinfo>(errorinfo));
+            //    }
+            //}
+            //else if (needsave)
+            //    await Store.SaveChangeAsync(ITaskStore.VirtualContent);
 
             return false;
         }

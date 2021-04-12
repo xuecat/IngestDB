@@ -273,6 +273,10 @@ namespace ShardingCore.DbContexts.VirtualDbContexts
 
             return effects;
         }
+        public Microsoft.EntityFrameworkCore.DbContext GetContextSet<T>(T entity) where T : class
+        {
+            return CreateGenericDbContext(entity);
+        }
 
         public ShardingBatchInsertEntry<T> BulkInsert<T>(ICollection<T> entities) where T : class
         {
