@@ -9,7 +9,15 @@ namespace IngestTaskPlugin.Models
     {
         public override DateTime GetBeginTime()
         {
-            return new DateTime(2020, 1, 01);
+            return new DateTime(2021, 1, 01);
+        }
+    }
+
+    public class DBTaskMetadataRoute : AbstractSimpleShardingMonthKeyDateTimeVirtualTableRoute<DbpTaskMetadata>
+    {
+        public override DateTime GetBeginTime()
+        {
+            return new DateTime(2021, 1, 01);
         }
     }
 }

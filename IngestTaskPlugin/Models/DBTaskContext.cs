@@ -176,6 +176,34 @@ namespace IngestTaskPlugin.Models
             
         }
     }
+    public class TaskMetaDataDBMap: IEntityTypeConfiguration<DbpTaskMetadata>
+    {
+        public void Configure(EntityTypeBuilder<DbpTaskMetadata> entity)
+        {
+            entity.HasKey(e => new { e.Taskid, e.Metadatatype });
+
+            entity.ToTable("dbp_task_metadata");
+
+            entity.Property(e => e.Taskid)
+                .HasColumnName("TASKID")
+                .HasColumnType("int(11)");
+
+            entity.Property(e => e.Metadatatype)
+                .HasColumnName("METADATATYPE")
+                .HasColumnType("int(11)")
+                .HasDefaultValueSql("'0'");
+
+            entity.Property(e => e.Endtime)
+                     .HasColumnName("ENDTIME")
+                     .HasColumnType("timestamp")
+                     .HasDefaultValueSql("CURRENT_TIMESTAMP");
+
+            entity.Property(e => e.Metadatalong)
+                .HasColumnName("METADATALONG")
+                .HasColumnType("text");
+
+        }
+    }
     public class DBTaskContext : DbContext, IShardingTableDbContext
     {
         public DBTaskContext(DbContextOptions<DBTaskContext> opt) : base(opt)
@@ -187,6 +215,7 @@ namespace IngestTaskPlugin.Models
         {
             base.OnModelCreating(modelBuilder);
             modelBuilder.ApplyConfiguration(new TaskDBMap());
+            modelBuilder.ApplyConfiguration(new TaskMetaDataDBMap());
         }
 
         public string ModelChangeKey { get; set; }

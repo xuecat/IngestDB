@@ -4,6 +4,7 @@ using IngestTaskPlugin.Models;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Linq.Expressions;
 using System.Text;
 using System.Threading.Tasks;
 
@@ -40,13 +41,16 @@ namespace IngestTaskPlugin.Stores
         Task<List<TResult>> GetTaskListNotrackAsync<TResult>(Func<IQueryable<DbpTask>, IQueryable<TResult>> query, bool sharding);
         Task<TResult> GetTaskNotrackAsync<TResult>(Func<IQueryable<DbpTask>, IQueryable<TResult>> query, bool sharding);
 
-        Task UpdateTaskAsync(DbpTask item, bool savechange, params string[] type);
+        Task UpdateTaskAsync(DbpTask item, Expression<Func<DbpTask, object>> getUpdatePropertyNames, bool savechange);
         Task UpdateTaskListAsync(List<DbpTask> lst, bool savechange);
 
-        Task<TResult> GetTaskMetaDataAsync<TResult>(Func<IQueryable<DbpTaskMetadata>, IQueryable<TResult>> query, bool notrack = false);
-        Task<List<TResult>> GetTaskMetaDataListAsync<TResult>(Func<IQueryable<DbpTaskMetadata>, IQueryable<TResult>> query, bool notrack = false);
+        Task<TResult> GetTaskMetaDataAsync<TResult>(Func<IQueryable<DbpTaskMetadata>, IQueryable<TResult>> query, bool sharding);
+        Task<List<TResult>> GetTaskMetaDataListAsync<TResult>(Func<IQueryable<DbpTaskMetadata>, IQueryable<TResult>> query, bool sharding);
+
+        Task UpdateTaskMetaDataAsync(DbpTaskMetadata item, Expression<Func<DbpTaskMetadata, object>> getUpdatePropertyNames, bool savechange);
+        Task UpdateTaskMetaDataListAsync(List<DbpTaskMetadata> metadatas, bool savechange);
+
         Task<TResult> GetTaskCustomMetaDataAsync<TResult>(Func<IQueryable<DbpTaskCustommetadata>, IQueryable<TResult>> query, bool notrack = false);
-        Task UpdateTaskMetaDataAsync(int taskid, MetaDataType type, string metadata);
         Task UpdateTaskCutomMetaDataAsync(int taskid, string metadata);
         Task<TResult> GetVtrUploadTaskAsync<TResult>(Func<IQueryable<VtrUploadtask>, IQueryable<TResult>> query, bool notrack = false);
         Task<List<TResult>> GetVtrUploadTaskListAsync<TResult>(Func<IQueryable<VtrUploadtask>, IQueryable<TResult>> query, bool notrack = false);
@@ -101,8 +105,7 @@ namespace IngestTaskPlugin.Stores
         Task<bool> AddTaskList(List<DbpTask> tasks, bool savechange);
         Task<bool> AddPolicyTask(List<DbpPolicytask> policytasks, bool submitFlag);
         
-        Task UpdateTaskMetaDataAsync(int taskid, MetaDataType type, string metadata, bool submitFlag);
-        Task UpdateTaskMetaDataListAsync(List<Dto.Request.SubmitMetadata> metadatas);
+        
         Task<bool> UpdateTaskBmp(Dictionary<int, string> taskPmp);
 
         #region 3.0

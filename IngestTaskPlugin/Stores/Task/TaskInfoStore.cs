@@ -19,6 +19,7 @@ using ShardingCore.Extensions;
 using CooperantType = IngestTaskPlugin.Dto.OldResponse.CooperantType;
 using taskState = IngestTaskPlugin.Dto.OldResponse.taskState;
 using TaskType = IngestTaskPlugin.Dto.OldResponse.TaskType;
+using System.Linq.Expressions;
 
 namespace IngestTaskPlugin.Stores
 {
@@ -184,27 +185,22 @@ namespace IngestTaskPlugin.Stores
         /*
          * 由于按照endtime分表，一定要传enditme才找得到物理表
          */
-        public async Task UpdateTaskAsync(DbpTask item, bool savechange, params string[] types)
+        public async Task UpdateTaskAsync(DbpTask item, Expression<Func<DbpTask, object>> getUpdatePropertyNames, bool savechange)
         {
             if (item != null)
             {
-                var context = _virtualDbContext.GetRouteContext(item);
-                if (types != null)
+                if (getUpdatePropertyNames == null)
                 {
-                    context.Set<DbpTask>().Attach(item);
-                    foreach (var it in types)
-                    {
-                        context.Entry(item).Property(it).IsModified = true;
-                    }
+                    _virtualDbContext.Update(item);
                 }
                 else
-                    context.Set<DbpTask>().Update(item);
+                    _virtualDbContext.UpdateColumns(item, getUpdatePropertyNames);
 
                 if (savechange)
                 {
                     try
                     {
-                        await context.SaveChangesAsync();
+                        await _virtualDbContext.SaveChangesAsync();
                     }
                     catch (DbUpdateException e)
                     {
@@ -215,30 +211,82 @@ namespace IngestTaskPlugin.Stores
             }
         }
 
-        public async Task<TResult> GetTaskMetaDataAsync<TResult>(Func<IQueryable<DbpTaskMetadata>, IQueryable<TResult>> query, bool notrack = false)
+        public async Task<TResult> GetTaskMetaDataAsync<TResult>(Func<IQueryable<DbpTaskMetadata>, IQueryable<TResult>> query, bool sharding)
         {
             if (query == null)
             {
                 throw new ArgumentNullException(nameof(query));
             }
-            if (notrack)
+            
+            if (sharding)
             {
-                return await query.Invoke(Context.DbpTaskMetadata.AsNoTracking()).SingleOrDefaultAsync();
+                return await query.Invoke(_virtualDbContext.Set<DbpTaskMetadata>()).ShardingFirstOrDefaultAsync();
             }
-            return await query.Invoke(Context.DbpTaskMetadata).SingleOrDefaultAsync();
+            return await query.Invoke(_virtualDbContext.Set<DbpTaskMetadata>()).SingleOrDefaultAsync();
         }
 
-        public async Task<List<TResult>> GetTaskMetaDataListAsync<TResult>(Func<IQueryable<DbpTaskMetadata>, IQueryable<TResult>> query, bool notrack = false)
+        public async Task<List<TResult>> GetTaskMetaDataListAsync<TResult>(Func<IQueryable<DbpTaskMetadata>, IQueryable<TResult>> query, bool sharding)
         {
             if (query == null)
             {
                 throw new ArgumentNullException(nameof(query));
             }
-            if (notrack)
+            if (sharding)
             {
-                return await query.Invoke(Context.DbpTaskMetadata.AsNoTracking()).ToListAsync();
+                return await query.Invoke(_virtualDbContext.Set<DbpTaskMetadata>()).ToShardingListAsync();
             }
-            return await query.Invoke(Context.DbpTaskMetadata).ToListAsync();
+            return await query.Invoke(_virtualDbContext.Set<DbpTaskMetadata>()).ToListAsync();
+        }
+
+        public async Task UpdateTaskMetaDataAsync(DbpTaskMetadata item, Expression<Func<DbpTaskMetadata, object>> getUpdatePropertyNames, bool savechange)
+        {
+            if (getUpdatePropertyNames == null)
+            {
+                _virtualDbContext.Update(item);
+            }
+            else
+                _virtualDbContext.UpdateColumns(item, getUpdatePropertyNames);
+
+            if (savechange)
+            {
+                try
+                {
+                    await _virtualDbContext.SaveChangesAsync();
+                }
+                catch (DbUpdateException e)
+                {
+                    throw e;
+                }
+            }
+        }
+
+        public async Task UpdateTaskMetaDataListAsync(List<DbpTaskMetadata> lst, bool savechange)
+        {
+            if (lst != null && lst.Count > 0)
+            {
+                _virtualDbContext.UpdateRange(lst);
+
+                if (savechange)
+                {
+                    try
+                    {
+                        await _virtualDbContext.SaveChangesAsync();
+                    }
+                    catch (DbUpdateException e)
+                    {
+                        throw e;
+                    }
+                }
+            }
+
+            try
+            {
+                await Context.SaveChangesAsync();
+            }
+            catch (DbUpdateException e)
+            {
+                throw e;
+            }
         }
 
         public async Task<TResult> GetTaskCustomMetaDataAsync<TResult>(Func<IQueryable<DbpTaskCustommetadata>, IQueryable<TResult>> query, bool notrack = false)
@@ -360,30 +408,7 @@ namespace IngestTaskPlugin.Stores
                 && (x.NewBegintime > fdate && x.NewBegintime < date && x.Endtime > endtime)).ToListAsync();
         }
 
-        public async Task UpdateTaskMetaDataAsync(int taskid, MetaDataType type, string metadata)
-        {
-            var item = await Context.DbpTaskMetadata.Where(x => x.Taskid == taskid && x.Metadatatype == (int)type).FirstOrDefaultAsync();
-            if (item == null)
-            {
-                await Context.DbpTaskMetadata.AddAsync(new DbpTaskMetadata()
-                {
-                    Taskid = taskid,
-                    Metadatatype = (int)type,
-                    Metadatalong = metadata
-                });
-            }
-            else
-                item.Metadatalong = metadata;
-
-            try
-            {
-                await Context.SaveChangesAsync();
-            }
-            catch (DbUpdateException e)
-            {
-                throw e;
-            }
-        }
+        
 
 
         public async Task UpdateTaskCutomMetaDataAsync(int taskid, string metadata)
@@ -3453,34 +3478,6 @@ namespace IngestTaskPlugin.Stores
                 {
                     await Context.SaveChangesAsync();
                 }
-            }
-            catch (DbUpdateException e)
-            {
-                throw e;
-            }
-        }
-
-        public async Task UpdateTaskMetaDataListAsync(List<Dto.Request.SubmitMetadata> metadatas)
-        {
-            foreach (var metadata in metadatas)
-            {
-                var item = await Context.DbpTaskMetadata.Where(x => x.Taskid == metadata.taskId && x.Metadatatype == (int)metadata.type).SingleOrDefaultAsync();
-                if (item == null)
-                {
-                    await Context.DbpTaskMetadata.AddAsync(new DbpTaskMetadata()
-                    {
-                        Taskid = metadata.taskId,
-                        Metadatatype = (int)metadata.type,
-                        Metadatalong = metadata.metadata
-                    });
-                }
-                else
-                    item.Metadatalong = metadata.metadata;
-            }
-
-            try
-            {
-                await Context.SaveChangesAsync();
             }
             catch (DbUpdateException e)
             {

@@ -17,7 +17,7 @@ namespace IngestTaskPlugin.Models
         public virtual DbSet<DbpTaskErrorinfo> DbpTaskErrorinfo { get; set; }
         public virtual DbSet<DbpTaskgroup> DbpTaskgroup { get; set; }
         public virtual DbSet<DbpTaskgroupMap> DbpTaskgroupMap { get; set; }
-        public virtual DbSet<DbpTaskMetadata> DbpTaskMetadata { get; set; }
+        //public virtual DbSet<DbpTaskMetadata> DbpTaskMetadata { get; set; }
         public virtual DbSet<DbpTaskMetadataBackup> DbpTaskMetadataBackup { get; set; }
         public virtual DbSet<DbpTaskSignalsrcBackuptask> DbpTaskSignalsrcBackuptask { get; set; }
         
@@ -669,30 +669,30 @@ namespace IngestTaskPlugin.Models
                     .HasColumnType("int(11)");
             });
 
-            modelBuilder.Entity<DbpTaskMetadata>(entity =>
-            {
-                entity.HasKey(e => new { e.Taskid, e.Metadatatype });
+            //modelBuilder.Entity<DbpTaskMetadata>(entity =>
+            //{
+            //    entity.HasKey(e => new { e.Taskid, e.Metadatatype });
 
-                entity.ToTable("dbp_task_metadata");
+            //    entity.ToTable("dbp_task_metadata");
 
-                entity.Property(e => e.Taskid)
-                    .HasColumnName("TASKID")
-                    .HasColumnType("int(11)");
+            //    entity.Property(e => e.Taskid)
+            //        .HasColumnName("TASKID")
+            //        .HasColumnType("int(11)");
 
-                entity.Property(e => e.Metadatatype)
-                    .HasColumnName("METADATATYPE")
-                    .HasColumnType("int(11)")
-                    .HasDefaultValueSql("'0'");
+            //    entity.Property(e => e.Metadatatype)
+            //        .HasColumnName("METADATATYPE")
+            //        .HasColumnType("int(11)")
+            //        .HasDefaultValueSql("'0'");
 
-                entity.Property(e => e.Metadata)
-                    .HasColumnName("METADATA")
-                    .HasColumnType("varchar(4000)")
-                    .HasDefaultValueSql("''");
+            //    entity.Property(e => e.Metadata)
+            //        .HasColumnName("METADATA")
+            //        .HasColumnType("varchar(4000)")
+            //        .HasDefaultValueSql("''");
 
-                entity.Property(e => e.Metadatalong)
-                    .HasColumnName("METADATALONG")
-                    .HasColumnType("text");
-            });
+            //    entity.Property(e => e.Metadatalong)
+            //        .HasColumnName("METADATALONG")
+            //        .HasColumnType("text");
+            //});
 
             modelBuilder.Entity<DbpTaskMetadataBackup>(entity =>
             {
