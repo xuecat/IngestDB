@@ -41,7 +41,7 @@ namespace IngestTaskPlugin.Stores
         Task<TResult> GetTaskNotrackAsync<TResult>(Func<IQueryable<DbpTask>, IQueryable<TResult>> query, bool sharding);
 
         Task UpdateTaskAsync(DbpTask item, bool savechange, params string[] type);
-        Task UpdateTaskListAsync(List<DbpTask> lst, bool savechange, params string[] type);
+        Task UpdateTaskListAsync(List<DbpTask> lst, bool savechange);
 
         Task<TResult> GetTaskMetaDataAsync<TResult>(Func<IQueryable<DbpTaskMetadata>, IQueryable<TResult>> query, bool notrack = false);
         Task<List<TResult>> GetTaskMetaDataListAsync<TResult>(Func<IQueryable<DbpTaskMetadata>, IQueryable<TResult>> query, bool notrack = false);

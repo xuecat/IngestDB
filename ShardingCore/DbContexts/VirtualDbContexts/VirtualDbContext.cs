@@ -273,7 +273,8 @@ namespace ShardingCore.DbContexts.VirtualDbContexts
 
             return effects;
         }
-        public Microsoft.EntityFrameworkCore.DbContext GetContextSet<T>(T entity) where T : class
+
+        public Microsoft.EntityFrameworkCore.DbContext GetRouteContext<T>(T entity) where T : class
         {
             return CreateGenericDbContext(entity);
         }

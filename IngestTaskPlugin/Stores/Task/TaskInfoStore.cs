@@ -160,7 +160,7 @@ namespace IngestTaskPlugin.Stores
         /*
          * 由于按照endtime分表，一定要传enditme才找得到物理表
          */
-        public async Task UpdateTaskListAsync(List<DbpTask> lst, bool savechange, params string[] type)
+        public async Task UpdateTaskListAsync(List<DbpTask> lst, bool savechange)
         {
             if (lst != null && lst.Count > 0)
             {
@@ -168,14 +168,9 @@ namespace IngestTaskPlugin.Stores
 
                 if (savechange)
                 {
-                    foreach (var itm in type)
-                    {
-
-                    }
-
                     try
                     {
-                        await Context.SaveChangesAsync();
+                        await _virtualDbContext.SaveChangesAsync();
                     }
                     catch (DbUpdateException e)
                     {
@@ -193,7 +188,7 @@ namespace IngestTaskPlugin.Stores
         {
             if (item != null)
             {
-                var context = _virtualDbContext.GetContextSet(item);
+                var context = _virtualDbContext.GetRouteContext(item);
                 if (types != null)
                 {
                     context.Set<DbpTask>().Attach(item);
@@ -202,21 +197,21 @@ namespace IngestTaskPlugin.Stores
                         context.Entry(item).Property(it).IsModified = true;
                     }
                 }
+                else
+                    context.Set<DbpTask>().Update(item);
 
-                context.SaveChanges();
-                //await _virtualDbContext.UpdateAsync(item);
-            }
+                if (savechange)
+                {
+                    try
+                    {
+                        await context.SaveChangesAsync();
+                    }
+                    catch (DbUpdateException e)
+                    {
+                        throw e;
+                    }
+                }
 
-            if (savechange)
-            {
-                try
-                {
-                    await _virtualDbContext.SaveChangesAsync();
-                }
-                catch (DbUpdateException e)
-                {
-                    throw e;
-                }
             }
         }
 
