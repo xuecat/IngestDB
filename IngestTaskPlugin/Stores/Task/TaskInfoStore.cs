@@ -47,7 +47,7 @@ namespace IngestTaskPlugin.Stores
 
         
 
-        public async Task<TResult> GetTaskNotrackAsync<TResult>(Func<IQueryable<DbpTask>, IQueryable<TResult>> query, bool sharding)
+        public Task<TResult> GetTaskNotrackAsync<TResult>(Func<IQueryable<DbpTask>, IQueryable<TResult>> query, bool sharding)
         {
             if (query == null)
             {
@@ -58,12 +58,12 @@ namespace IngestTaskPlugin.Stores
              */
             if (sharding)
             {
-                return await query.Invoke(_virtualDbContext.Set<DbpTask>().AsNoTracking()).ShardingFirstOrDefaultAsync();
+                return query.Invoke(_virtualDbContext.Set<DbpTask>().AsNoTracking()).ShardingFirstOrDefaultAsync();
             }
 
-            return await query.Invoke(_virtualDbContext.Set<DbpTask>()).SingleOrDefaultAsync();
+            return query.Invoke(_virtualDbContext.Set<DbpTask>()).SingleOrDefaultAsync();
         }
-        public async Task<List<TResult>> GetTaskListNotrackAsync<TResult>(Func<IQueryable<DbpTask>, IQueryable<TResult>> query, bool sharding)
+        public Task<List<TResult>> GetTaskListNotrackAsync<TResult>(Func<IQueryable<DbpTask>, IQueryable<TResult>> query, bool sharding)
         {
             if (query == null)
             {
@@ -71,9 +71,9 @@ namespace IngestTaskPlugin.Stores
             }
             if (sharding)
             {
-                return await query.Invoke(_virtualDbContext.Set<DbpTask>()).ToShardingListAsync();
+                return query.Invoke(_virtualDbContext.Set<DbpTask>()).ToShardingListAsync();
             }
-            return await query.Invoke(_virtualDbContext.Set<DbpTask>()).ToListAsync();
+            return query.Invoke(_virtualDbContext.Set<DbpTask>()).ToListAsync();
         }
 
         /// <summary>
@@ -211,7 +211,7 @@ namespace IngestTaskPlugin.Stores
             }
         }
 
-        public async Task<TResult> GetTaskMetaDataAsync<TResult>(Func<IQueryable<DbpTaskMetadata>, IQueryable<TResult>> query, bool sharding)
+        public Task<TResult> GetTaskMetaDataAsync<TResult>(Func<IQueryable<DbpTaskMetadata>, IQueryable<TResult>> query, bool sharding)
         {
             if (query == null)
             {
@@ -220,12 +220,12 @@ namespace IngestTaskPlugin.Stores
             
             if (sharding)
             {
-                return await query.Invoke(_virtualDbContext.Set<DbpTaskMetadata>()).ShardingFirstOrDefaultAsync();
+                return query.Invoke(_virtualDbContext.Set<DbpTaskMetadata>()).ShardingFirstOrDefaultAsync();
             }
-            return await query.Invoke(_virtualDbContext.Set<DbpTaskMetadata>()).SingleOrDefaultAsync();
+            return query.Invoke(_virtualDbContext.Set<DbpTaskMetadata>()).SingleOrDefaultAsync();
         }
 
-        public async Task<List<TResult>> GetTaskMetaDataListAsync<TResult>(Func<IQueryable<DbpTaskMetadata>, IQueryable<TResult>> query, bool sharding)
+        public Task<List<TResult>> GetTaskMetaDataListAsync<TResult>(Func<IQueryable<DbpTaskMetadata>, IQueryable<TResult>> query, bool sharding)
         {
             if (query == null)
             {
@@ -233,11 +233,14 @@ namespace IngestTaskPlugin.Stores
             }
             if (sharding)
             {
-                return await query.Invoke(_virtualDbContext.Set<DbpTaskMetadata>()).ToShardingListAsync();
+                return query.Invoke(_virtualDbContext.Set<DbpTaskMetadata>()).ToShardingListAsync();
             }
-            return await query.Invoke(_virtualDbContext.Set<DbpTaskMetadata>()).ToListAsync();
+            return query.Invoke(_virtualDbContext.Set<DbpTaskMetadata>()).ToListAsync();
         }
 
+        /*
+         * 由于按照endtime分表，一定要传enditme才找得到物理表
+         */
         public async Task UpdateTaskMetaDataAsync(DbpTaskMetadata item, Expression<Func<DbpTaskMetadata, object>> getUpdatePropertyNames, bool savechange)
         {
             if (getUpdatePropertyNames == null)
@@ -260,6 +263,9 @@ namespace IngestTaskPlugin.Stores
             }
         }
 
+        /*
+         * 由于按照endtime分表，一定要传enditme才找得到物理表
+         */
         public async Task UpdateTaskMetaDataListAsync(List<DbpTaskMetadata> lst, bool savechange)
         {
             if (lst != null && lst.Count > 0)
@@ -277,15 +283,6 @@ namespace IngestTaskPlugin.Stores
                         throw e;
                     }
                 }
-            }
-
-            try
-            {
-                await Context.SaveChangesAsync();
-            }
-            catch (DbUpdateException e)
-            {
-                throw e;
             }
         }
 
@@ -341,9 +338,12 @@ namespace IngestTaskPlugin.Stores
             return await query.Invoke(Context.DbpTaskBackup).SingleOrDefaultAsync();
         }
 
+        /*
+         * 笛卡尔积爆炸？
+         */
         public async Task<List<TimePeriod>> GetTimePeriodsByScheduleVBUTasks(int vtrid, int extaskid)
         {
-            return await (from task in _virtualDbContext.Set<DbpTask>().AsNoTracking()
+            return await (from task in _virtualDbContext.Set<DbpTask>()
                           join vtr in Context.VtrUploadtask on task.Taskid equals vtr.Taskid into ps
                           from p in ps.DefaultIfEmpty()
                           where task.Taskid != extaskid && task.NewEndtime > DateTime.Now && task.State != (int)taskState.tsDelete
@@ -365,7 +365,7 @@ namespace IngestTaskPlugin.Stores
 
             if (ApplicationContext.Current.Limit24Hours)
             {
-                return await _virtualDbContext.Set<DbpTask>().AsNoTracking().Where(a => string.IsNullOrEmpty(a.Tasklock)
+                return await _virtualDbContext.Set<DbpTask>().Where(a => string.IsNullOrEmpty(a.Tasklock)
             && ((a.NewEndtime < date
                 && (
                      (a.DispatchState == (int)dispatchState.dpsDispatched && ((a.SyncState == (int)syncState.ssNot && a.OpType == (int)opType.otDel) || (a.SyncState == (int)syncState.ssSync && a.State == (int)taskState.tsExecuting && (a.Tasktype != (int)TaskType.TT_MANUTASK && a.Tasktype != (int)TaskType.TT_TIEUP && a.Tasktype != (int)TaskType.TT_VTRUPLOAD))))
@@ -379,7 +379,7 @@ namespace IngestTaskPlugin.Stores
             }
             else
             {
-                return await _virtualDbContext.Set<DbpTask>().AsNoTracking().Where(a => string.IsNullOrEmpty(a.Tasklock)
+                return await _virtualDbContext.Set<DbpTask>().Where(a => string.IsNullOrEmpty(a.Tasklock)
             && ((a.NewEndtime < date
                 && (
                      (a.DispatchState == (int)dispatchState.dpsDispatched && ((a.SyncState == (int)syncState.ssNot && a.OpType == (int)opType.otDel) || (a.SyncState == (int)syncState.ssSync && a.State == (int)taskState.tsExecuting && (a.Tasktype != (int)TaskType.TT_MANUTASK && a.Tasktype != (int)TaskType.TT_TIEUP && a.Tasktype != (int)TaskType.TT_VTRUPLOAD))))
@@ -399,7 +399,7 @@ namespace IngestTaskPlugin.Stores
             var endtime = now.AddMinutes(-3);//周期任务给endtime时间限定，都过时间了就不要再分裂了
             var date = now.AddMinutes(3);//开始后3分钟没调度成功就认为是个错误任务
             var fdate = date.AddDays(-1);
-            return await _virtualDbContext.Set<DbpTask>().AsNoTracking().Where(x => string.IsNullOrEmpty(x.Tasklock)
+            return await _virtualDbContext.Set<DbpTask>().Where(x => string.IsNullOrEmpty(x.Tasklock)
                 && x.DispatchState == (int)dispatchState.dpsDispatched
                 && x.SyncState == (int)syncState.ssNot
                 && x.Tasktype != (int)TaskType.TT_VTRUPLOAD
@@ -452,145 +452,142 @@ namespace IngestTaskPlugin.Stores
 
         public async Task<bool> AdjustVtrUploadTasksByChannelId(int channelId, int taskId, DateTime dtCurTaskBegin)
         {
-            /*
-             * wqtest
-             */
-            return true;
-            //if (channelId < 0 || taskId < 0)
-            //{
-            //    return false;
-            //}
 
-            //bool isNeedModifyEndTime = true;
-            //var taskinfo = await GetTaskAsync(a => a.Where(b => b.Taskid == taskId), true);
+            if (channelId < 0 || taskId < 0)
+            {
+                return false;
+            }
 
-            //DateTime beginTime = DateTime.Now;
-            //DateTime endTime = DateTime.Now;
+            bool isNeedModifyEndTime = true;
+            var taskinfo = await GetTaskAsync(a => a.Where(b => b.Taskid == taskId), true);
 
-            //if (taskinfo != null)
-            //{
-            //    beginTime = taskinfo.NewBegintime;
-            //    endTime = taskinfo.NewEndtime;
-            //}
+            DateTime beginTime = DateTime.Now;
+            DateTime endTime = DateTime.Now;
 
-            //beginTime = beginTime.AddHours(-2);
-            //endTime = beginTime.AddHours(50);
+            if (taskinfo != null)
+            {
+                beginTime = taskinfo.NewBegintime;
+                endTime = taskinfo.NewEndtime;
+            }
 
-            //var tasklst = await GetTaskListAsync(a => a.Where(b => b.Channelid == channelId
-            //&& (b.State != (int)taskState.tsDelete && b.State != (int)taskState.tsInvaild)
-            //&& (b.Starttime > beginTime && b.Starttime < endTime)).OrderBy(x => x.Starttime));// order by CHANNELID, STARTTIME 
+            beginTime = beginTime.AddHours(-2);
+            endTime = beginTime.AddHours(50);
 
-            //if (tasklst == null || tasklst.Count <= 0)
-            //{
-            //    return false;
-            //}
-            //bool isBegin = false;
-            //int cout = tasklst.Count;
-            //for (int i = 0; i < cout; i++)
-            //{
-            //    var row = tasklst.ElementAt(i);
+            var tasklst = await GetTaskListAsync(a => a.Where(b => b.Channelid == channelId
+            && (b.State != (int)taskState.tsDelete && b.State != (int)taskState.tsInvaild)
+            && (b.Starttime > beginTime && b.Starttime < endTime)).OrderBy(x => x.Starttime));// order by CHANNELID, STARTTIME 
 
-            //    Logger.Info("AdjustVtrUploadTasksByChannelId normal item {0} {1} {2} {3}", row.Taskid, row.Tasktype, row.Starttime, row.Endtime);
+            if (tasklst == null || tasklst.Count <= 0)
+            {
+                return false;
+            }
+            bool isBegin = false;
+            int cout = tasklst.Count;
+            for (int i = 0; i < cout; i++)
+            {
+                var row = tasklst.ElementAt(i);
 
-            //    if (!isBegin)
-            //    {
-            //        if (row.Taskid == taskId)
-            //        {
-            //            isBegin = true;
-            //            //往回退一个
-            //            i--;
-            //        }
+                Logger.Info("AdjustVtrUploadTasksByChannelId normal item {0} {1} {2} {3}", row.Taskid, row.Tasktype, row.Starttime, row.Endtime);
 
-            //        continue;
-            //    }
+                if (!isBegin)
+                {
+                    if (row.Taskid == taskId)
+                    {
+                        isBegin = true;
+                        //往回退一个
+                        i--;
+                    }
 
-            //    DbpTask preRow = null;
-            //    DbpTask nextRow = null;
-            //    if (i - 1 >= 0)
-            //    {
-            //        preRow = tasklst.ElementAt(i - 1);
-            //    }
-            //    if (i + 1 < cout)
-            //    {
-            //        nextRow = tasklst.ElementAt(i + 1);
-            //    }
+                    continue;
+                }
 
-            //    TimeSpan tsDuration = row.NewEndtime - row.NewBegintime;
-            //    DateTime dtNewTaskBeginTime = dtCurTaskBegin;//zmj 2010-07-12外部已经对该时间进行修改
-            //    DateTime dtNewTaskEndTime = dtNewTaskBeginTime.Add(tsDuration);
-            //    bool isNeedJudgeNextTask = false;//标识是否与下一个任务进行判断
+                DbpTask preRow = null;
+                DbpTask nextRow = null;
+                if (i - 1 >= 0)
+                {
+                    preRow = tasklst.ElementAt(i - 1);
+                }
+                if (i + 1 < cout)
+                {
+                    nextRow = tasklst.ElementAt(i + 1);
+                }
 
-            //    if (row.Taskid == taskId)
-            //    {
-            //        isNeedJudgeNextTask = true;
-            //    }
-            //    else
-            //    {
-            //        if (preRow != null)
-            //        {
-            //            //判断当前的任务，如果不移的话，会不会与上一个任务冲突
-            //            //如果不冲突，那么就可以不用移动，提前结束循环
-            //            if (row.NewBegintime >= preRow.NewEndtime.AddSeconds(3))
-            //            {
-            //                break;
-            //            }
-            //            else
-            //            {
-            //                dtNewTaskBeginTime = preRow.NewEndtime.AddSeconds(3);
-            //                dtNewTaskEndTime = dtNewTaskBeginTime.Add(tsDuration);
+                TimeSpan tsDuration = row.NewEndtime - row.NewBegintime;
+                DateTime dtNewTaskBeginTime = dtCurTaskBegin;//zmj 2010-07-12外部已经对该时间进行修改
+                DateTime dtNewTaskEndTime = dtNewTaskBeginTime.Add(tsDuration);
+                bool isNeedJudgeNextTask = false;//标识是否与下一个任务进行判断
 
-            //                isNeedJudgeNextTask = true;
-            //            }
-            //        }
-            //    }
+                if (row.Taskid == taskId)
+                {
+                    isNeedJudgeNextTask = true;
+                }
+                else
+                {
+                    if (preRow != null)
+                    {
+                        //判断当前的任务，如果不移的话，会不会与上一个任务冲突
+                        //如果不冲突，那么就可以不用移动，提前结束循环
+                        if (row.NewBegintime >= preRow.NewEndtime.AddSeconds(3))
+                        {
+                            break;
+                        }
+                        else
+                        {
+                            dtNewTaskBeginTime = preRow.NewEndtime.AddSeconds(3);
+                            dtNewTaskEndTime = dtNewTaskBeginTime.Add(tsDuration);
 
-            //    if (isNeedJudgeNextTask)
-            //    {
-            //        if (nextRow != null)
-            //        {
-            //            if (nextRow.Tasktype != (int)TaskType.TT_VTRUPLOAD)
-            //            {
-            //                if (dtNewTaskEndTime.AddSeconds(3) > nextRow.NewBegintime)
-            //                {
-            //                    Logger.Info(string.Format("In AdjustVtrUploadTasksByChannelId,TaskId = {0},meet a schedule task.", taskId));
-            //                    //设置该任务在VTR_UploadTask表中为失败状态
-            //                    //置该任务为失败
-            //                    row.State = (int)taskState.tsDelete;
+                            isNeedJudgeNextTask = true;
+                        }
+                    }
+                }
 
-            //                    await SetVTRUploadTaskState((int)row.Taskid, VTRUPLOADTASKSTATE.VTR_UPLOAD_FAIL, "VTRBATCHUPLOAD_ERROR_SCHEDULETASKCOLLIDE", false);
+                if (isNeedJudgeNextTask)
+                {
+                    if (nextRow != null)
+                    {
+                        if (nextRow.Tasktype != (int)TaskType.TT_VTRUPLOAD)
+                        {
+                            if (dtNewTaskEndTime.AddSeconds(3) > nextRow.NewBegintime)
+                            {
+                                Logger.Info(string.Format("In AdjustVtrUploadTasksByChannelId,TaskId = {0},meet a schedule task.", taskId));
+                                //设置该任务在VTR_UploadTask表中为失败状态
+                                //置该任务为失败
+                                row.State = (int)taskState.tsDelete;
 
-            //                    if (taskId == (int)row.Taskid)
-            //                    {
-            //                        isNeedModifyEndTime = false;
-            //                    }
-            //                    break;
-            //                }
-            //            }
-            //        }
-            //    }
+                                await SetVTRUploadTaskState((int)row.Taskid, VTRUPLOADTASKSTATE.VTR_UPLOAD_FAIL, "VTRBATCHUPLOAD_ERROR_SCHEDULETASKCOLLIDE", false);
 
-            //    Logger.Info(string.Format("In AdjustVtrUploadTasksByChannelId,TaskId = {0},preStartTime = {1},preEndTime = {2}"
-            //        , row.Taskid, row.Starttime, row.Endtime));
+                                if (taskId == (int)row.Taskid)
+                                {
+                                    isNeedModifyEndTime = false;
+                                }
+                                break;
+                            }
+                        }
+                    }
+                }
 
-            //    row.NewBegintime = dtNewTaskBeginTime;
-            //    row.Starttime = dtNewTaskBeginTime;
+                Logger.Info(string.Format("In AdjustVtrUploadTasksByChannelId,TaskId = {0},preStartTime = {1},preEndTime = {2}"
+                    , row.Taskid, row.Starttime, row.Endtime));
 
-            //    row.NewEndtime = dtNewTaskEndTime;
-            //    row.Endtime = dtNewTaskEndTime;
+                row.NewBegintime = dtNewTaskBeginTime;
+                row.Starttime = dtNewTaskBeginTime;
 
-            //    Logger.Info(string.Format("In AdjustVtrUploadTasksByChannelId,TaskId = {0},nowStartTime = {1},nowEndTime = {2}"
-            //        , row.Taskid, row.Starttime, row.Endtime));
-            //}
-            //try
-            //{
-            //    await Context.SaveChangesAsync();
-            //}
+                row.NewEndtime = dtNewTaskEndTime;
+                row.Endtime = dtNewTaskEndTime;
 
-            //catch (DbUpdateException e)
-            //{
-            //    throw e;
-            //}
-            //return isNeedModifyEndTime;
+                Logger.Info(string.Format("In AdjustVtrUploadTasksByChannelId,TaskId = {0},nowStartTime = {1},nowEndTime = {2}"
+                    , row.Taskid, row.Starttime, row.Endtime));
+            }
+            try
+            {
+                await Context.SaveChangesAsync();
+            }
+
+            catch (DbUpdateException e)
+            {
+                throw e;
+            }
+            return isNeedModifyEndTime;
         }
 
         public async Task SetVTRUploadTaskState(int TaskId, VTRUPLOADTASKSTATE vtrTaskState, string errorContent, bool savechange)
