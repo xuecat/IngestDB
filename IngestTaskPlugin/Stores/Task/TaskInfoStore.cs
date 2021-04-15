@@ -185,11 +185,11 @@ namespace IngestTaskPlugin.Stores
         /*
          * 由于按照endtime分表，一定要传enditme才找得到物理表
          */
-        public async Task UpdateTaskAsync(DbpTask item, Expression<Func<DbpTask, object>> getUpdatePropertyNames, bool savechange)
+        public async Task UpdateTaskAsync(DbpTask item, bool savechange,params Expression<Func<DbpTask, object>>[] getUpdatePropertyNames)
         {
             if (item != null)
             {
-                if (getUpdatePropertyNames == null)
+                if (getUpdatePropertyNames == null || getUpdatePropertyNames.Length < 1)
                 {
                     _virtualDbContext.Update(item);
                 }
@@ -211,7 +211,7 @@ namespace IngestTaskPlugin.Stores
             }
         }
 
-        public Task<TResult> GetTaskMetaDataAsync<TResult>(Func<IQueryable<DbpTaskMetadata>, IQueryable<TResult>> query, bool sharding)
+        public Task<TResult> GetTaskMetaDataNotrackAsync<TResult>(Func<IQueryable<DbpTaskMetadata>, IQueryable<TResult>> query, bool sharding)
         {
             if (query == null)
             {
@@ -225,7 +225,7 @@ namespace IngestTaskPlugin.Stores
             return query.Invoke(_virtualDbContext.Set<DbpTaskMetadata>()).SingleOrDefaultAsync();
         }
 
-        public Task<List<TResult>> GetTaskMetaDataListAsync<TResult>(Func<IQueryable<DbpTaskMetadata>, IQueryable<TResult>> query, bool sharding)
+        public Task<List<TResult>> GetTaskMetaDataListNotrackAsync<TResult>(Func<IQueryable<DbpTaskMetadata>, IQueryable<TResult>> query, bool sharding)
         {
             if (query == null)
             {
@@ -238,12 +238,32 @@ namespace IngestTaskPlugin.Stores
             return query.Invoke(_virtualDbContext.Set<DbpTaskMetadata>()).ToListAsync();
         }
 
+        public Task AddTaskMetadataAsync(DbpTaskMetadata item, bool savechange)
+        {
+             var task = _virtualDbContext.InsertAsync(item);
+            if (savechange)
+            {
+                return _virtualDbContext.SaveChangesAsync();
+            }
+            return task;
+        }
+
+        public Task AddTaskMetadataListAsync(List<DbpTaskMetadata> item, bool savechange)
+        {
+            var task = _virtualDbContext.InsertRangeAsync(item);
+            if (savechange)
+            {
+                return _virtualDbContext.SaveChangesAsync();
+            }
+            return task;
+        }
+
         /*
          * 由于按照endtime分表，一定要传enditme才找得到物理表
          */
-        public async Task UpdateTaskMetaDataAsync(DbpTaskMetadata item, Expression<Func<DbpTaskMetadata, object>> getUpdatePropertyNames, bool savechange)
+        public async Task UpdateTaskMetaDataAsync(DbpTaskMetadata item, bool savechange, params Expression<Func<DbpTaskMetadata, object>>[] getUpdatePropertyNames)
         {
-            if (getUpdatePropertyNames == null)
+            if (getUpdatePropertyNames == null || getUpdatePropertyNames.Length < 1)
             {
                 _virtualDbContext.Update(item);
             }
@@ -459,7 +479,7 @@ namespace IngestTaskPlugin.Stores
             }
 
             bool isNeedModifyEndTime = true;
-            var taskinfo = await GetTaskAsync(a => a.Where(b => b.Taskid == taskId), true);
+            var taskinfo = await GetTaskNotrackAsync(a => a.Where(b => b.Taskid == taskId), false);
 
             DateTime beginTime = DateTime.Now;
             DateTime endTime = DateTime.Now;
@@ -473,9 +493,9 @@ namespace IngestTaskPlugin.Stores
             beginTime = beginTime.AddHours(-2);
             endTime = beginTime.AddHours(50);
 
-            var tasklst = await GetTaskListAsync(a => a.Where(b => b.Channelid == channelId
+            var tasklst = await GetTaskListNotrackAsync(a => a.Where(b => b.Channelid == channelId
             && (b.State != (int)taskState.tsDelete && b.State != (int)taskState.tsInvaild)
-            && (b.Starttime > beginTime && b.Starttime < endTime)).OrderBy(x => x.Starttime));// order by CHANNELID, STARTTIME 
+            && (b.Starttime > beginTime && b.Starttime < endTime)).OrderBy(x => x.Starttime), false);// order by CHANNELID, STARTTIME 
 
             if (tasklst == null || tasklst.Count <= 0)
             {
@@ -580,7 +600,7 @@ namespace IngestTaskPlugin.Stores
             }
             try
             {
-                await Context.SaveChangesAsync();
+                await UpdateTaskListAsync(tasklst, true);
             }
 
             catch (DbUpdateException e)
@@ -2459,7 +2479,7 @@ namespace IngestTaskPlugin.Stores
             Logger.Info($"ModifyTask UpdateTask {task.Taskid} {task.State} {task.SyncState} {task.Starttime} {task.Endtime}");
 
             //Context.DbpTask.Update(task);
-            await _virtualDbContext.UpdateAsync(task);
+            await UpdateTaskAsync(task, false);
 
             if (!string.IsNullOrEmpty(CaptureMeta))
             {
@@ -2468,26 +2488,18 @@ namespace IngestTaskPlugin.Stores
                 //Context.Entry(itm).Property(x => x.Metadatalong).IsModified = true;
                 //因为主键ID默认是不赋值的，只给其他项目赋值了 id是int类型，int类型如果不允许为空那么会被默认为0，所以插入第二条数据时，数据库中已经有了主键为0的数据
 
-                var item = Context.DbpTaskMetadata.Where(x => x.Taskid == task.Taskid && x.Metadatatype == (int)MetaDataType.emCapatureMetaData).SingleOrDefault();
-                if (item != null)
-                {
-                    item.Metadatalong = CaptureMeta;
-                }
-                //Context.DbpTaskMetadata.Update(itm);
+                await UpdateTaskMetaDataAsync(new DbpTaskMetadata() { Taskid = task.Taskid, Endtime = task.Endtime, Metadatatype = (int)MetaDataType.emCapatureMetaData, Metadatalong = CaptureMeta},
+                        false, o => o.Endtime, o => o.Metadatalong, o => o.Metadatatype);
+
             }
             if (!string.IsNullOrEmpty(MatiralMeta))
             {
-                //var itm = new DbpTaskMetadata() { Taskid = task.Taskid, Metadatatype = (int)MetaDataType.emStoreMetaData, Metadatalong = MatiralMeta };
-                //Context.Attach(itm);
-                //Context.Entry(itm).Property(x => x.Metadatalong).IsModified = true;
-
-                var item = Context.DbpTaskMetadata.Where(x => x.Taskid == task.Taskid && x.Metadatatype == (int)MetaDataType.emStoreMetaData).SingleOrDefault();
-                if (item != null)
+                if (autoupdate)
                 {
-
-                    if (autoupdate)
+                    var metadata = await GetTaskMetaDataNotrackAsync(x => x.Where(a => a.Taskid == task.Taskid && a.Metadatatype == (int)MetaDataType.emStoreMetaData), false);
+                    if (metadata != null)
                     {
-                        var org = XDocument.Parse(item.Metadatalong);
+                        var org = XDocument.Parse(metadata.Metadatalong);
                         var modify = XDocument.Parse(MatiralMeta);
 
                         foreach (var m in modify.Element("MATERIAL").Elements())
@@ -2501,29 +2513,33 @@ namespace IngestTaskPlugin.Stores
                             org.Element("MATERIAL").Add(m);
                         }
 
-                        item.Metadatalong = org.ToString();
+                        metadata.Endtime = task.Endtime;
+                        metadata.Metadatalong = org.ToString();
+                        await UpdateTaskMetaDataAsync(metadata,
+                            false, o => o.Endtime, o => o.Metadatalong, o => o.Metadatatype);
                     }
-                    else
-                    {
-                        item.Metadatalong = MatiralMeta;
-                    }
-
                 }
-                //Context.DbpTaskMetadata.Update(itm);
+                else
+                {
+
+                    await UpdateTaskMetaDataAsync(new DbpTaskMetadata()
+                    {
+                        Taskid = task.Taskid,
+                        Endtime = task.Endtime,
+                        Metadatatype = (int)MetaDataType.emStoreMetaData,
+                        Metadatalong = MatiralMeta
+                    },
+                            false, o => o.Endtime, o => o.Metadatalong, o => o.Metadatatype);
+                }
             }
             if (!string.IsNullOrEmpty(ContentMeta))
             {
-                //var itm = new DbpTaskMetadata() { Taskid = task.Taskid, Metadatatype = (int)MetaDataType.emContentMetaData, Metadatalong = ContentMeta };
-                //Context.Attach(itm);
-                //Context.Entry(itm).Property(x => x.Metadatalong).IsModified = true;
-
-                var item = Context.DbpTaskMetadata.Where(x => x.Taskid == task.Taskid && x.Metadatatype == (int)MetaDataType.emContentMetaData).SingleOrDefault();
-                if (item != null)
+                if (autoupdate)
                 {
-
-                    if (autoupdate)
+                    var metadata = await GetTaskMetaDataNotrackAsync(x => x.Where(a => a.Taskid == task.Taskid && a.Metadatatype == (int)MetaDataType.emContentMetaData), false);
+                    if (metadata != null)
                     {
-                        var org = XDocument.Parse(item.Metadatalong);
+                        var org = XDocument.Parse(metadata.Metadatalong);
                         var modify = XDocument.Parse(ContentMeta);
 
                         foreach (var m in modify.Element("TaskContentMetaData").Elements())
@@ -2536,29 +2552,33 @@ namespace IngestTaskPlugin.Stores
                             org.Element("TaskContentMetaData").Add(m);
                         }
 
-                        item.Metadatalong = org.ToString();
+                        metadata.Endtime = task.Endtime;
+                        metadata.Metadatalong = org.ToString();
+                        await UpdateTaskMetaDataAsync(metadata,
+                            false, o => o.Endtime, o => o.Metadatalong, o => o.Metadatatype);
                     }
-                    else
+                }
+                else
+                {
+                    await UpdateTaskMetaDataAsync(new DbpTaskMetadata()
                     {
-                        item.Metadatalong = ContentMeta;
-                    }
-
+                        Taskid = task.Taskid,
+                        Endtime = task.Endtime,
+                        Metadatatype = (int)MetaDataType.emContentMetaData,
+                        Metadatalong = ContentMeta
+                    },
+                            false, o => o.Endtime, o => o.Metadatalong, o => o.Metadatatype);
                 }
             }
 
             if (!string.IsNullOrEmpty(PlanningMeta))
             {
-                //var itm = new DbpTaskMetadata() { Taskid = task.Taskid, Metadatatype = (int)MetaDataType.emPlanMetaData, Metadatalong = PlanningMeta };
-                //Context.Attach(itm);
-                //Context.Entry(itm).Property(x => x.Metadatalong).IsModified = true;
-
-                var item = Context.DbpTaskMetadata.Where(x => x.Taskid == task.Taskid && x.Metadatatype == (int)MetaDataType.emPlanMetaData).SingleOrDefault();
-                if (item != null)
+                if (autoupdate)
                 {
-
-                    if (autoupdate)
+                    var metadata = await GetTaskMetaDataNotrackAsync(x => x.Where(a => a.Taskid == task.Taskid && a.Metadatatype == (int)MetaDataType.emPlanMetaData), false);
+                    if (metadata != null)
                     {
-                        var org = XDocument.Parse(item.Metadatalong);
+                        var org = XDocument.Parse(metadata.Metadatalong);
                         var modify = XDocument.Parse(PlanningMeta);
 
                         foreach (var m in modify.Element("Planning").Elements())
@@ -2572,25 +2592,37 @@ namespace IngestTaskPlugin.Stores
                             org.Element("Planning").Add(m);
                         }
 
-                        item.Metadatalong = org.ToString();
+                        metadata.Endtime = task.Endtime;
+                        metadata.Metadatalong = org.ToString();
+                        await UpdateTaskMetaDataAsync(metadata,
+                            false, o => o.Endtime, o => o.Metadatalong, o => o.Metadatatype);
                     }
-                    else
-                    {
-                        item.Metadatalong = PlanningMeta;
-                    }
-
+                    
                 }
+                else
+                {
+                    await UpdateTaskMetaDataAsync(new DbpTaskMetadata()
+                    {
+                        Taskid = task.Taskid,
+                        Endtime = task.Endtime,
+                        Metadatatype = (int)MetaDataType.emPlanMetaData,
+                        Metadatalong = PlanningMeta
+                    },
+                            false, o => o.Endtime, o => o.Metadatalong, o => o.Metadatatype);
+                }
+
+                
             }
 
             if (!string.IsNullOrEmpty(SplitMeta))
             {
-                var item = Context.DbpTaskMetadata.Where(x => x.Taskid == task.Taskid && x.Metadatatype == (int)MetaDataType.emSplitData).SingleOrDefault();
-                if (item != null)
-                {
 
-                    if (autoupdate)
+                if (autoupdate)
+                {
+                    var metadata = await GetTaskMetaDataNotrackAsync(x => x.Where(a => a.Taskid == task.Taskid && a.Metadatatype == (int)MetaDataType.emSplitData), false);
+                    if (metadata != null)
                     {
-                        var org = XDocument.Parse(item.Metadatalong);
+                        var org = XDocument.Parse(metadata.Metadatalong);
                         var modify = XDocument.Parse(SplitMeta);
 
                         foreach (var m in modify.Element("SplitMetaData").Elements())
@@ -2604,13 +2636,25 @@ namespace IngestTaskPlugin.Stores
                             org.Element("SplitMetaData").Add(m);
                         }
 
-                        item.Metadatalong = org.ToString();
+                        metadata.Endtime = task.Endtime;
+                        metadata.Metadatalong = org.ToString();
+                        await UpdateTaskMetaDataAsync(metadata,
+                            false, o => o.Endtime, o => o.Metadatalong, o => o.Metadatatype);
                     }
-                    else
-                    {
-                        item.Metadatalong = SplitMeta;
-                    }
+                    
                 }
+                else
+                {
+                    await UpdateTaskMetaDataAsync(new DbpTaskMetadata()
+                    {
+                        Taskid = task.Taskid,
+                        Endtime = task.Endtime,
+                        Metadatatype = (int)MetaDataType.emSplitData,
+                        Metadatalong = SplitMeta
+                    },
+                            false, o => o.Endtime, o => o.Metadatalong, o => o.Metadatatype);
+                }
+                
             }
 
             if (savechange)
@@ -2618,7 +2662,6 @@ namespace IngestTaskPlugin.Stores
                 try
                 {
                     await _virtualDbContext.SaveChangesAsync();
-                    await Context.SaveChangesAsync();
                     return task;
                 }
                 catch (DbUpdateException e)
@@ -2673,53 +2716,37 @@ namespace IngestTaskPlugin.Stores
             {
                 
                 //目前只有一种入库策略，何必再写，全部省略
-
-                //MetaDataPolicy[] PolicyList = PPLICYACCESS.GetPolicyByUserID(taskInfo.taskContent.strUserCode);
-                //foreach (MetaDataPolicy policy in PolicyList)
-                //{
-                //PPLICYACCESS.AddPolicyTask(policy.nID, taskInfo.taskContent.nTaskID);
-                await Context.DbpPolicytask.AddAsync(new DbpPolicytask() { Policyid = 1, Taskid = task.Taskid });
-                //}
             }
             else
             {
-                
-                if (!await Context.DbpPolicytask.AsNoTracking().AnyAsync(b => b.Taskid == task.Taskid))
-                {
-                    await Context.DbpPolicytask.AddAsync(new DbpPolicytask() { Policyid = 1, Taskid = task.Taskid });
-                }
             }
 
             Logger.Info(" AddTaskWithPolicys add task " + task.Taskid);
-            //Context.DbpTask.Add(task);
-
             await _virtualDbContext.InsertAsync(task);
-            //await _shardDbAcces.InsertAsync(task);
 
             if (!string.IsNullOrEmpty(ContentMeta))
             {
-                Context.DbpTaskMetadata.Add(new DbpTaskMetadata() { Taskid = task.Taskid, Metadatatype = (int)MetaDataType.emContentMetaData, Metadatalong = ContentMeta });
+                await _virtualDbContext.InsertAsync(new DbpTaskMetadata() { Taskid = task.Taskid, Endtime = task.Endtime, Metadatatype = (int)MetaDataType.emContentMetaData, Metadatalong = ContentMeta });
             }
             if (!string.IsNullOrEmpty(MatiralMeta))
             {
-                Context.DbpTaskMetadata.Add(new DbpTaskMetadata() { Taskid = task.Taskid, Metadatatype = (int)MetaDataType.emStoreMetaData, Metadatalong = MatiralMeta });
+                await _virtualDbContext.InsertAsync(new DbpTaskMetadata() { Taskid = task.Taskid, Endtime = task.Endtime, Metadatatype = (int)MetaDataType.emStoreMetaData, Metadatalong = MatiralMeta });
             }
             if (!string.IsNullOrEmpty(PlanningMeta))
             {
-                Context.DbpTaskMetadata.Add(new DbpTaskMetadata() { Taskid = task.Taskid, Metadatatype = (int)MetaDataType.emPlanMetaData, Metadatalong = PlanningMeta });
+                await _virtualDbContext.InsertAsync(new DbpTaskMetadata() { Taskid = task.Taskid, Endtime = task.Endtime, Metadatatype = (int)MetaDataType.emPlanMetaData, Metadatalong = PlanningMeta });
             }
             if (!string.IsNullOrEmpty(CaptureMeta))
             {
-                Context.DbpTaskMetadata.Add(new DbpTaskMetadata() { Taskid = task.Taskid, Metadatatype = (int)MetaDataType.emCapatureMetaData, Metadatalong = CaptureMeta });
+                await _virtualDbContext.InsertAsync(new DbpTaskMetadata() { Taskid = task.Taskid, Endtime = task.Endtime, Metadatatype = (int)MetaDataType.emCapatureMetaData, Metadatalong = CaptureMeta });
             }
             if (!string.IsNullOrEmpty(SplitMeta))
             {
-                Context.DbpTaskMetadata.Add(new DbpTaskMetadata() { Taskid = task.Taskid, Metadatatype = (int)MetaDataType.emSplitData, Metadatalong = SplitMeta });
+                await _virtualDbContext.InsertAsync(new DbpTaskMetadata() { Taskid = task.Taskid, Endtime = task.Endtime, Metadatatype = (int)MetaDataType.emSplitData, Metadatalong = SplitMeta });
             }
 
             try
             {
-                await Context.SaveChangesAsync();
                 await _virtualDbContext.SaveChangesAsync();
                 return task;
             }
@@ -3446,41 +3473,6 @@ namespace IngestTaskPlugin.Stores
             return true;
         }
         
-
-        
-
-
-        public async Task UpdateTaskMetaDataAsync(int taskid, MetaDataType type, string metadata, bool submitFlag)
-        {
-            if (string.IsNullOrEmpty(metadata))
-            {
-                return;
-            }
-            var item = await Context.DbpTaskMetadata.Where(x => x.Taskid == taskid && x.Metadatatype == (int)type).FirstOrDefaultAsync();
-            if (item == null)
-            {
-                await Context.DbpTaskMetadata.AddAsync(new DbpTaskMetadata()
-                {
-                    Taskid = taskid,
-                    Metadatatype = (int)type,
-                    Metadatalong = metadata
-                });
-            }
-            else
-                item.Metadatalong = metadata;
-
-            try
-            {
-                if (submitFlag)
-                {
-                    await Context.SaveChangesAsync();
-                }
-            }
-            catch (DbUpdateException e)
-            {
-                throw e;
-            }
-        }
 
         public async Task<bool> UpdateTaskBmp(Dictionary<int, string> taskPmp)
         {

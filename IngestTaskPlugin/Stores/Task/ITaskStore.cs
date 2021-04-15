@@ -41,13 +41,16 @@ namespace IngestTaskPlugin.Stores
         Task<List<TResult>> GetTaskListNotrackAsync<TResult>(Func<IQueryable<DbpTask>, IQueryable<TResult>> query, bool sharding);
         Task<TResult> GetTaskNotrackAsync<TResult>(Func<IQueryable<DbpTask>, IQueryable<TResult>> query, bool sharding);
 
-        Task UpdateTaskAsync(DbpTask item, Expression<Func<DbpTask, object>> getUpdatePropertyNames, bool savechange);
+        Task UpdateTaskAsync(DbpTask item, bool savechange, params Expression<Func<DbpTask, object>>[] getUpdatePropertyNames);
         Task UpdateTaskListAsync(List<DbpTask> lst, bool savechange);
 
-        Task<TResult> GetTaskMetaDataAsync<TResult>(Func<IQueryable<DbpTaskMetadata>, IQueryable<TResult>> query, bool sharding);
-        Task<List<TResult>> GetTaskMetaDataListAsync<TResult>(Func<IQueryable<DbpTaskMetadata>, IQueryable<TResult>> query, bool sharding);
+        Task<TResult> GetTaskMetaDataNotrackAsync<TResult>(Func<IQueryable<DbpTaskMetadata>, IQueryable<TResult>> query, bool sharding);
+        Task<List<TResult>> GetTaskMetaDataListNotrackAsync<TResult>(Func<IQueryable<DbpTaskMetadata>, IQueryable<TResult>> query, bool sharding);
 
-        Task UpdateTaskMetaDataAsync(DbpTaskMetadata item, Expression<Func<DbpTaskMetadata, object>> getUpdatePropertyNames, bool savechange);
+        Task AddTaskMetadataAsync(DbpTaskMetadata item, bool savechange);
+        Task AddTaskMetadataListAsync(List<DbpTaskMetadata> item, bool savechange);
+
+        Task UpdateTaskMetaDataAsync(DbpTaskMetadata item, bool savechange, params Expression<Func<DbpTaskMetadata, object>>[] getUpdatePropertyNames);
         Task UpdateTaskMetaDataListAsync(List<DbpTaskMetadata> metadatas, bool savechange);
 
         Task<TResult> GetTaskCustomMetaDataAsync<TResult>(Func<IQueryable<DbpTaskCustommetadata>, IQueryable<TResult>> query, bool notrack = false);

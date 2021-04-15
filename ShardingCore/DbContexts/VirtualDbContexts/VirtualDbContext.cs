@@ -209,15 +209,20 @@ namespace ShardingCore.DbContexts.VirtualDbContexts
         }
 
 
-        public void UpdateColumns<T>(T entity, Expression<Func<T, object>> getUpdatePropertyNames) where T : class
+        public void UpdateColumns<T>(T entity, params Expression<Func<T, object>>[] getUpdatePropertyNames) where T : class
         {
             var context= CreateGenericDbContext(entity);
             context.Set<T>().Attach(entity);
-            var props = GetUpdatePropNames(entity, getUpdatePropertyNames);
-            foreach (var prop in props)
+
+            var entityentry = context.Entry(entity);
+            if (getUpdatePropertyNames.Any())
             {
-                context.Entry(entity).Property(prop).IsModified = true;
+                foreach (var property in getUpdatePropertyNames)
+                {
+                    entityentry.Property(property).IsModified = true;
+                }
             }
+            
         }
         private IEnumerable<string> GetUpdatePropNames<T>(T entity, Expression<Func<T, object>> getUpdatePropertyNames) where T : class
         {

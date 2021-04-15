@@ -1866,7 +1866,7 @@ namespace IngestTaskPlugin.Controllers.v2
         /// </remarks>
         /// <param name="req">请求体</param>
         /// <returns></returns>
-        [HttpGet("completereschedule")]
+        [HttpPut("completereschedule")]
         [ApiExplorerSettings(GroupName = "v2")]
         public async Task<ResponseMessage<bool>> CompleteRescheduleTasks([FromBody, BindRequired]TaskContentRequest req)
         {

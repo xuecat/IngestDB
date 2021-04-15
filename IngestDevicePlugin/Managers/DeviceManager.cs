@@ -1108,7 +1108,7 @@ namespace IngestDevicePlugin.Managers
             return list.Select(s => new
             {
                 OrgStr = s,
-                SortStr = Regex.Replace(s.Name, @"(\d+)|(\D+)", m => m.Value.PadLeft(maxLen, char.IsDigit(m.Value[0]) ? ' ' : '\xffff'))
+                SortStr = Regex.Replace(s.Name, @"(\d+)|(\D+)", m => m.Value.PadLeft(maxLen, char.IsDigit(m.Value[0]) ? ' ' : '\xf'))
             })
             .OrderBy(x => x.SortStr)
             .Select(x => x.OrgStr);
@@ -1119,7 +1119,7 @@ namespace IngestDevicePlugin.Managers
             return list.Select(s => new
             {
                 OrgStr = s,
-                SortStr = Regex.Replace(s.GetType().GetProperty("ProgrammeName").GetValue(s).ToString(), @"(\d+)|(\D+)", m => m.Value.PadLeft(maxLen, char.IsDigit(m.Value[0]) ? ' ' : '\xffff'))
+                SortStr = Regex.Replace(s.GetType().GetProperty("ProgrammeName").GetValue(s).ToString(), @"(\d+)|(\D+)", m => m.Value.PadLeft(maxLen, char.IsDigit(m.Value[0]) ? ' ' : '\xf'))
             })
             .OrderBy(x => x.SortStr)
             .Select(x => x.OrgStr); 

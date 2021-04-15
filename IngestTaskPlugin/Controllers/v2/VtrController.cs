@@ -284,56 +284,7 @@
             return response;
         }
 
-        /// <summary>
-        /// The 设置VTR任务元数据.
-        /// </summary>
-        /// <param name="vtrtaskid">The 任务Id<see cref="int"/>.</param>
-        /// <param name="request">The 元数据<see cref="VTRTaskMetaDataRequest"/>.</param>
-        /// <returns>The <see cref="Task{ResponseMessage}"/>.</returns>
-        [HttpPost("vtrtaskmetadata/{vtrtaskid}")]
-        public async Task<ResponseMessage> SetVtrTaskMetaData([FromRoute, BindRequired, DefaultValue(1)] int vtrtaskid,
-                                                              [FromBody, BindRequired] VTRTaskMetaDataRequest request)
-        {
-            ResponseMessage response = new ResponseMessage();
-            if (vtrtaskid <= 0)
-            {
-                response.Msg = "VtrTaskID is Invaild ";
-                response.Code = ResponseCodeDefines.ServiceError;
-                return response;
-            }
-            if (request.MetaData == null)
-            {
-                response.Msg = "VtrMetaData is Invaild ";
-                response.Code = ResponseCodeDefines.ServiceError;
-                return response;
-            }
-            if (request.MetaData.Length <= 0)
-            {
-                response.Msg = "VtrMetaData is Invaild ";
-                response.Code = ResponseCodeDefines.ServiceError;
-                return response;
-            }
-            try
-            {
-                await _VtrManage.SetVBUTasksMetadatasAsync(vtrtaskid, request.Type, request.MetaData);
-            }
-            catch (Exception e)//其他未知的异常，写异常日志
-            {
-                if (e is SobeyRecException se)//sobeyexcep会自动打印错误
-                {
-                    response.Code = se.ErrorCode.ToString();
-                    response.Msg = se.Message;
-                }
-                else
-                {
-                    response.Code = ResponseCodeDefines.ServiceError;
-                    response.Msg = $"{System.Reflection.MethodBase.GetCurrentMethod().DeclaringType.FullName}:error info:{e.Message}";
-                    Logger.Error(response.Msg);
-                }
-            }
-            return response;
-        }
-
+        
         /// <summary>
         /// The 查询VTR上载任务.
         /// </summary>

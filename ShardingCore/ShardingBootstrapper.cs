@@ -84,6 +84,20 @@ namespace ShardingCore
                 using var context = _shardingDbContextFactory.Create(connectKey,
                     new ShardingDbContextOptions(dbContextOptionsProvider.GetDbContextOptions(connectKey),
                         string.Empty));
+
+                using (var command = context.Database.GetDbConnection().CreateCommand())
+                {
+                    command.CommandText = "show tables";
+                    context.Database.OpenConnection();
+                    using (var result = command.ExecuteReader())
+                    {
+                        while (result.Read())
+                        {
+                            Console.WriteLine(result.GetString(0));
+                        }
+                    }
+                }
+
                 foreach (var entity in context.Model.GetEntityTypes())
                 {
                     _virtualDataSourceManager.AddConnectEntities(connectKey, entity.ClrType);

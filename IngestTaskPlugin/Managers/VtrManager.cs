@@ -280,8 +280,13 @@ namespace IngestTaskPlugin.Managers
         /// <param name="type">The 元数据类型<see cref="MetaDataType"/>.</param>
         /// <param name="metadata">The 元数据<see cref="string"/>.</param>
         /// <param name="isSubmit">是否需要提交<see cref="bool"/>.</param>
-        public async Task SetVBUTasksMetadatasAsync(int taskId, MetaDataType type, string metadata, bool isSubmit = true)
+        public async Task SetVBUTasksMetadatasAsync(int taskId, DateTime endtime, MetaDataType type, string metadata, bool adddb, bool isSubmit = true)
         {
+            if (endtime == DateTime.MinValue && !adddb)
+            {
+                endtime = await TaskStore.GetTaskMetaDataNotrackAsync(a => a.Where(x => x.Taskid == taskId).Select(f => f.Endtime), true);
+            }
+
             //需要将其中的三个字符串提取出来
             if (type == MetaDataType.emContentMetaData)
             {
@@ -323,22 +328,103 @@ namespace IngestTaskPlugin.Managers
                             originalNode.Remove();
                         }
                     }
-                    await TaskStore.UpdateTaskMetaDataAsync(taskId, MetaDataType.emContentMetaData, xElement.ToString(), false);//doc.OuterXml);
-                }
 
-                await TaskStore.UpdateTaskMetaDataAsync(taskId, MetaDataType.emStoreMetaData, materialMeta,false);
-                await TaskStore.UpdateTaskMetaDataAsync(taskId, MetaDataType.emPlanMetaData, planningMeta, false);
-                await TaskStore.UpdateTaskMetaDataAsync(taskId, MetaDataType.emOriginalMetaData, originalMeta, false);
-                
+                    if (adddb)
+                    {
+                        await TaskStore.AddTaskMetadataListAsync(new List<DbpTaskMetadata>() {
+                            new DbpTaskMetadata()
+                            {
+                                Taskid = taskId,
+                                Endtime = endtime,
+                                Metadatatype = (int)MetaDataType.emContentMetaData,
+                                Metadatalong = xElement.ToString()
+                            },
+                            new DbpTaskMetadata()
+                            {
+                                Taskid = taskId,
+                                Endtime = endtime,
+                                Metadatatype = (int)MetaDataType.emStoreMetaData,
+                                Metadatalong = materialMeta
+                            },
+                            new DbpTaskMetadata()
+                            {
+                                Taskid = taskId,
+                                Endtime = endtime,
+                                Metadatatype = (int)MetaDataType.emPlanMetaData,
+                                Metadatalong = planningMeta
+                            },
+                            new DbpTaskMetadata()
+                            {
+                                Taskid = taskId,
+                                Endtime = endtime,
+                                Metadatatype = (int)MetaDataType.emOriginalMetaData,
+                                Metadatalong = originalMeta
+                            }
+                        }, false);
+                        
+                    }
+                    else
+                    {
+                        await TaskStore.UpdateTaskMetaDataListAsync(new List<DbpTaskMetadata>() {
+                            new DbpTaskMetadata()
+                            {
+                                Taskid = taskId,
+                                Endtime = endtime,
+                                Metadatatype = (int)MetaDataType.emContentMetaData,
+                                Metadatalong = xElement.ToString()
+                            },
+                            new DbpTaskMetadata()
+                            {
+                                Taskid = taskId,
+                                Endtime = endtime,
+                                Metadatatype = (int)MetaDataType.emStoreMetaData,
+                                Metadatalong = materialMeta
+                            },
+                            new DbpTaskMetadata()
+                            {
+                                Taskid = taskId,
+                                Endtime = endtime,
+                                Metadatatype = (int)MetaDataType.emPlanMetaData,
+                                Metadatalong = planningMeta
+                            },
+                            new DbpTaskMetadata()
+                            {
+                                Taskid = taskId,
+                                Endtime = endtime,
+                                Metadatatype = (int)MetaDataType.emOriginalMetaData,
+                                Metadatalong = originalMeta
+                            }
+                        }, false);
+                    }
+
+                    
+                }
             }
             else
             {
-                await TaskStore.UpdateTaskMetaDataAsync(taskId, type, metadata,false);
+                if (adddb)
+                {
+                    await TaskStore.AddTaskMetadataAsync(new DbpTaskMetadata()
+                    {
+                        Taskid = taskId,
+                        Endtime = endtime,
+                        Metadatatype = (int)MetaDataType.emStoreMetaData,
+                        Metadatalong = metadata
+                    }, false);
+                }
+                else
+                    await TaskStore.UpdateTaskMetaDataAsync(new DbpTaskMetadata()
+                    {
+                        Taskid = taskId,
+                        Endtime = endtime,
+                        Metadatatype = (int)MetaDataType.emStoreMetaData,
+                        Metadatalong = metadata
+                    }, false);
             }
 
             if (isSubmit)
             {
-                await TaskStore.SaveChangeAsync(ITaskStore.VirtualContent& ITaskStore.DefaultContent);
+                await TaskStore.SaveChangeAsync(ITaskStore.VirtualContent);
             }
 
         }
@@ -1062,11 +1148,10 @@ namespace IngestTaskPlugin.Managers
 
             if (metadatas != null && metadatas.Count > 0)
             {
-                //foreach (var meta in metadatas)
-                //{
-                //    await SetVBUTasksMetadatasAsync(vtrTask.nTaskId, (MetaDataType)meta.emType, meta.strMetadata);
-                //}
-                await UpdateTasksMetadatas(metadatas, vtrTask.nTaskId);
+                foreach (var item in metadatas)
+                {
+                    await SetVBUTasksMetadatasAsync(item.nTaskID, dbptask.Endtime, (MetaDataType)item.emType, item.strMetadata, false, true);
+                }
             }
 
             return Mapper.Map<TResult>(vtrTask);
@@ -1509,18 +1594,21 @@ namespace IngestTaskPlugin.Managers
             }
             #endregion
 
-            if (metadatas != null)
-            {
-                foreach (VTR_UPLOAD_MetadataPair metadata in metadatas)
-                {
-                    await SetVBUTasksMetadatasAsync(vtrTask.nTaskId, (MetaDataType)metadata.emType, metadata.strMetadata, false);
-                }
-            }
+            
 
             dbpTask.Usercode = "VTRBATCHUPLOAD_ERROR_OK";
             dbpTask.Tasklock = string.Empty;
             dbpTask = VTRUploadTaskContent2Dbptask(true, vtrTask, dbpTask, -1);
-            await TaskStore.UpdateTaskListAsync( new List<DbpTask> { dbpTask }, false);
+
+            if (metadatas != null)
+            {
+                foreach (VTR_UPLOAD_MetadataPair metadata in metadatas)
+                {
+                    await SetVBUTasksMetadatasAsync(vtrTask.nTaskId, dbpTask.Endtime, (MetaDataType)metadata.emType, metadata.strMetadata, false, false);
+                }
+            }
+
+            await TaskStore.UpdateTaskAsync(dbpTask, true);
             //添加VTR_UPLOADTASK
             Logger.Info("In ModifyNormalTaskToVTRUploadTask.Before Adding VTR_UPLOADTASK");
             //VtrUploadtask vtrUploadtask = Mapper.Map<VtrUploadtask>(vtrTask);
@@ -1534,108 +1622,8 @@ namespace IngestTaskPlugin.Managers
             //await TaskStore.UpdateTaskSource(new DbpTaskSource() { Taskid = vtrTask.nTaskId, Tasksource = (int)TaskSource.emVTRUploadTask }, true);
 
             Logger.Info("In ModifyNormalTaskToVTRUploadTask.Before Updating dataset");
-            // 更新MetaData
-            //if (metadatas != null)
-            //{
-            //    Logger.Info("In ModifyNormalTaskToVTRUploadTask.Before Updating metadatas");
-            //    //foreach (VTR_UPLOAD_MetadataPair metadata in metadatas)
-            //    //{ 
-            //    //    await SetVBUTasksMetadatasAsync(vtrTask.nTaskId, (MetaDataType)metadata.emType, metadata.strMetadata);
-            //    //}
-            //    await UpdateTasksMetadatas(metadatas, vtrTask.nTaskId);
-            //}
-            Logger.Info("In ModifyNormalTaskToVTRUploadTask.Fin");
             return true;
         }
-
-        public async Task UpdateTasksMetadatas(List<VTR_UPLOAD_MetadataPair> metadatas,int taskid)
-        {
-            List<SubmitMetadata> list = new List<SubmitMetadata>();
-            Logger.Info("In ModifyNormalTaskToVTRUploadTask.Before Updating metadatas");
-            foreach (VTR_UPLOAD_MetadataPair metadata in metadatas)
-            {
-                if (!string.IsNullOrEmpty(metadata.strMetadata))
-                {
-                    list.AddRange(GetVBUTasksMetadatas(taskid, (MetaDataType)metadata.emType, metadata.strMetadata));
-                }
-                //await SetVBUTasksMetadatasAsync(vtrTask.nTaskId, (MetaDataType)metadata.emType, metadata.strMetadata);
-            }
-
-            await TaskStore.UpdateTaskMetaDataListAsync(list);
-        }
-
-        public List<SubmitMetadata> GetVBUTasksMetadatas(int taskId, MetaDataType type, string metadata)
-        {
-            List<SubmitMetadata> list = new List<SubmitMetadata>();
-            //需要将其中的三个字符串提取出来
-            if (type == MetaDataType.emContentMetaData)
-            {
-                string materialMeta = string.Empty;
-                string planningMeta = string.Empty;
-                string originalMeta = string.Empty;
-                XElement xElement = XElement.Parse(metadata);
-                //xElement.LoadXml(metadata);
-                //XmlNode taskContentNode = doc.SelectSingleNode("/TaskContentMetaData");
-                //var taskContentNode = xElement.Descendants("TaskContentMetaData").FirstOrDefault();
-                if (xElement != null)
-                {
-                    if (xElement.HasElements)
-                    {
-                        //XmlNode materialNode = doc.SelectSingleNode("/TaskContentMetaData/MetaMaterial");
-                        var materialNode = xElement.Element("MetaMaterial");
-                        if (materialNode != null)
-                        {
-                            materialMeta = materialNode.FirstNode?.ToString();
-                            //taskContentNode.RemoveChild(materialNode);
-                            materialNode.Remove();
-                        }
-
-                        //XmlNode planningNode = doc.SelectSingleNode("/TaskContentMetaData/MetaPlanning");
-                        var planningNode = xElement.Element("MetaPlanning");
-                        if (planningNode != null)
-                        {
-                            planningMeta = planningNode.FirstNode?.ToString();
-                            //taskContentNode.RemoveChild(planningNode);
-                            planningNode.Remove();
-                        }
-
-                        //XmlNode originalNode = doc.SelectSingleNode("/TaskContentMetaData/MetaOriginal");
-                        var originalNode = xElement.Element("MetaOriginal");
-                        if (originalNode != null)
-                        {
-                            originalMeta = originalNode.FirstNode?.ToString();
-                            //taskContentNode.RemoveChild(originalNode);
-                            originalNode.Remove();
-                        }
-                    }
-                }
-
-                if (!string.IsNullOrEmpty(materialMeta))
-                {
-                    list.Add(new SubmitMetadata() { taskId = taskId, type = MetaDataType.emStoreMetaData, metadata = materialMeta });
-                }
-                if (!string.IsNullOrEmpty(planningMeta))
-                {
-                    list.Add(new SubmitMetadata() { taskId = taskId, type = MetaDataType.emPlanMetaData, metadata = planningMeta });
-                }
-                if (!string.IsNullOrEmpty(originalMeta))
-                {
-                    list.Add(new SubmitMetadata() { taskId = taskId, type = MetaDataType.emOriginalMetaData, metadata = originalMeta });
-                }
-                list.Add(new SubmitMetadata() { taskId = taskId, type = MetaDataType.emContentMetaData, metadata = xElement.ToString() });
-                //await TaskStore.UpdateTaskMetaDataAsync(taskId, MetaDataType.emStoreMetaData, materialMeta);
-                //await TaskStore.UpdateTaskMetaDataAsync(taskId, MetaDataType.emPlanMetaData, planningMeta);
-                //await TaskStore.UpdateTaskMetaDataAsync(taskId, MetaDataType.emOriginalMetaData, originalMeta);
-                //await TaskStore.UpdateTaskMetaDataAsync(taskId, MetaDataType.emContentMetaData, xElement.Value);//doc.OuterXml);
-            }
-            else
-            {
-                //await TaskStore.UpdateTaskMetaDataAsync(taskId, type, metadata);
-                list.Add(new SubmitMetadata() { taskId = taskId, type = type, metadata = metadata });
-            }
-            return list;
-        }
-
         private ChannelTimePeriods MergeVTRAndChannelFreeTimePeriods(VTRTimePeriods vtrFreeTP, ChannelTimePeriods channelFreeTP)
         {
             ChannelTimePeriods newChannelFreeTP = new ChannelTimePeriods(channelFreeTP.ChannelId);
@@ -2372,7 +2360,7 @@ namespace IngestTaskPlugin.Managers
                     {
                         if (metadata.nTaskID == tempId)
                         {
-                            await SetVBUTasksMetadatasAsync(task.nTaskId, (MetaDataType)metadata.emType, metadata.strMetadata, false);
+                            await SetVBUTasksMetadatasAsync(task.nTaskId, DateTimeFormat.DateTimeFromString(task.strEnd), (MetaDataType)metadata.emType, metadata.strMetadata, true, false);
                         }
                     }
                 }
@@ -2416,13 +2404,12 @@ namespace IngestTaskPlugin.Managers
 
             if (isAdd2DB)
             {
-                await TaskStore.AddTaskList(submitTasks, false);
-                await VtrStore.AddUploadListtask(vtrUploadtasks, false);
-                await TaskStore.AddPolicyTask(submitPolicy, true);
+                await TaskStore.AddTaskList(submitTasks, true);
+                await VtrStore.AddUploadListtask(vtrUploadtasks, true);
             }
             else
             {
-                await TaskStore.UpdateTaskListAsync(submitTasks, false);
+                await TaskStore.UpdateTaskListAsync(submitTasks, true);
                 await VtrStore.UpdateVtrUploadTaskListAsync(vtrUploadtasks, true);
                 
             }
@@ -2700,14 +2687,13 @@ namespace IngestTaskPlugin.Managers
 
         public async ValueTask<string> GetVtrTaskMetaDataAsync(int taskId, int type)
         {
-            var metadata = await TaskStore.GetTaskMetaDataAsync(a => a.Where(x => x.Taskid == taskId && x.Metadatatype == type), true);
-            var result = string.IsNullOrWhiteSpace(metadata?.Metadata) ? metadata?.Metadatalong : metadata?.Metadata;
-            if (string.IsNullOrEmpty(result))
+            var metadata = await TaskStore.GetTaskMetaDataNotrackAsync(a => a.Where(x => x.Taskid == taskId && x.Metadatatype == type), true);
+            if (string.IsNullOrEmpty(metadata.Metadatalong))
             {
                 var backup = await VtrStore.GetTaskMetadataBackup(a => a.FirstOrDefaultAsync(x => x.Taskid == taskId && x.Metadatatype == type), true);
-                result = string.IsNullOrWhiteSpace(backup?.Metadata) ? backup?.Metadatalong : backup?.Metadata;
+                return string.IsNullOrWhiteSpace(backup?.Metadata) ? backup?.Metadatalong : backup?.Metadata;
             }
-            return result;
+            return metadata.Metadatalong;
         }
 
         private async ValueTask<bool> AddTempSaveVTRBUTasks(List<VTRUploadTaskContent> tempSaveTasks, List<VTR_UPLOAD_MetadataPair> metadatas)
