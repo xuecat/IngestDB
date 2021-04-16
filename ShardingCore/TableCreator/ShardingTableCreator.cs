@@ -67,6 +67,7 @@ namespace ShardingCore.TableCreator
                         try
                         {
                             databaseCreator.CreateTables();
+                            virtualTable.GetVirtualRoute().EndCreateTable(dbContext, tail);
                         }
                         catch (Exception ex)
                         {

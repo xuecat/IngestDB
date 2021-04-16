@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using Microsoft.EntityFrameworkCore;
 using ShardingCore.Core.PhysicTables;
 
 namespace ShardingCore.Core.VirtualRoutes.TableRoutes
@@ -40,6 +41,9 @@ namespace ShardingCore.Core.VirtualRoutes.TableRoutes
         /// </summary>
         /// <returns></returns>
         List<string> GetAllTails();
+
+        void PrepareCreateTable(DbContext db, string tablename);
+        void EndCreateTable(DbContext db, string tail);
     }
 
     public interface IVirtualTableRoute<T> : IVirtualTableRoute where T : class, IShardingTable

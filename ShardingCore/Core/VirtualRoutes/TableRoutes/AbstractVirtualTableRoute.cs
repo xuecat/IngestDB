@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using Microsoft.EntityFrameworkCore;
 using ShardingCore.Core.PhysicTables;
 
 namespace ShardingCore.Core.VirtualRoutes.TableRoutes
@@ -51,5 +52,9 @@ namespace ShardingCore.Core.VirtualRoutes.TableRoutes
         /// </summary>
         /// <returns></returns>
         public abstract List<string> GetAllTails();
+
+        public abstract void PrepareCreateTable(DbContext db, string tablename);
+        public abstract void EndCreateTable(DbContext db, string tail);
+       
     }
 }

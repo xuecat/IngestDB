@@ -85,19 +85,6 @@ namespace ShardingCore
                     new ShardingDbContextOptions(dbContextOptionsProvider.GetDbContextOptions(connectKey),
                         string.Empty));
 
-                using (var command = context.Database.GetDbConnection().CreateCommand())
-                {
-                    command.CommandText = "show tables";
-                    context.Database.OpenConnection();
-                    using (var result = command.ExecuteReader())
-                    {
-                        while (result.Read())
-                        {
-                            Console.WriteLine(result.GetString(0));
-                        }
-                    }
-                }
-
                 foreach (var entity in context.Model.GetEntityTypes())
                 {
                     _virtualDataSourceManager.AddConnectEntities(connectKey, entity.ClrType);
@@ -116,7 +103,7 @@ namespace ShardingCore
 #endif
                         virtualTable.SetOriginalTableName(tableName);
                         _virtualTableManager.AddVirtualTable(connectKey, virtualTable);
-                        CreateDataTable(connectKey, virtualTable);
+                        CreateDataTable(connectKey, virtualTable, context);
                     }
                 }
             }
@@ -223,10 +210,12 @@ namespace ShardingCore
             return _shardingCoreOptions.CreateShardingTableOnStart.GetValueOrDefault();
         }
 
-        private void CreateDataTable(string connectKey, IVirtualTable virtualTable)
+        private void CreateDataTable(string connectKey, IVirtualTable virtualTable, DbContext dbcontext)
         {
             var shardingConfig = virtualTable.ShardingConfig;
-            foreach (var tail in virtualTable.GetVirtualRoute().GetAllTails())
+            var route = virtualTable.GetVirtualRoute();
+            route.PrepareCreateTable(dbcontext, virtualTable.GetOriginalTableName());
+            foreach (var tail in route.GetAllTails())
             {
                 if (NeedCreateTable(shardingConfig))
                 {

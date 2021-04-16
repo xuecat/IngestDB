@@ -49,5 +49,8 @@ namespace ShardingCore.Core.VirtualRoutes.TableRoutes
                 throw new ShardingKeyRouteMoreException($"table:{string.Join(",", physicTables.Select(o => $"[{o.FullName}]"))}");
             return physicTables[0];
         }
+
+        public override void PrepareCreateTable(Microsoft.EntityFrameworkCore.DbContext db, string tablename) { }
+        public override void EndCreateTable(Microsoft.EntityFrameworkCore.DbContext db, string tail) { }
     }
 }
