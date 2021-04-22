@@ -345,6 +345,39 @@ namespace IngestTaskPlugin.Stores
             return query.Invoke(Context.VtrUploadtask).ToListAsync();
         }
 
+        public async Task UpdateVtrUploadTaskAsync(VtrUploadtask item, bool savechange, params Expression<Func<VtrUploadtask, object>>[] getUpdatePropertyNames)
+        {
+            if (getUpdatePropertyNames == null || getUpdatePropertyNames.Length < 1)
+            {
+                Context.Update(item);
+            }
+            else
+            {
+                Context.Set<VtrUploadtask>().Attach(item);
+
+                var entityentry = Context.Entry(item);
+                if (getUpdatePropertyNames.Any())
+                {
+                    foreach (var property in getUpdatePropertyNames)
+                    {
+                        entityentry.Property(property).IsModified = true;
+                    }
+                }
+            }
+
+            if (savechange)
+            {
+                try
+                {
+                    await Context.SaveChangesAsync();
+                }
+                catch (DbUpdateException e)
+                {
+                    throw e;
+                }
+            }
+        }
+
         public async Task<TResult> GetTaskBackupAsync<TResult>(Func<IQueryable<DbpTaskBackup>, IQueryable<TResult>> query, bool notrack = false)
         {
             if (query == null)
@@ -428,8 +461,6 @@ namespace IngestTaskPlugin.Stores
                 && (x.NewBegintime > fdate && x.NewBegintime < date && x.Endtime > endtime)).ToListAsync();
         }
 
-        
-
 
         public async Task UpdateTaskCutomMetaDataAsync(int taskid, string metadata)
         {
@@ -470,16 +501,15 @@ namespace IngestTaskPlugin.Stores
             }
         }
 
-        public async Task<bool> AdjustVtrUploadTasksByChannelId(int channelId, int taskId, DateTime dtCurTaskBegin)
+        public async Task<bool> AdjustVtrUploadTasksByChannelId(DbpTask taskinfo, DateTime dtCurTaskBegin, bool savechange)
         {
 
-            if (channelId < 0 || taskId < 0)
+            if (taskinfo == null|| taskinfo.Channelid < 0)
             {
                 return false;
             }
 
             bool isNeedModifyEndTime = true;
-            var taskinfo = await GetTaskNotrackAsync(a => a.Where(b => b.Taskid == taskId), false);
 
             DateTime beginTime = DateTime.Now;
             DateTime endTime = DateTime.Now;
@@ -493,7 +523,7 @@ namespace IngestTaskPlugin.Stores
             beginTime = beginTime.AddHours(-2);
             endTime = beginTime.AddHours(50);
 
-            var tasklst = await GetTaskListNotrackAsync(a => a.Where(b => b.Channelid == channelId
+            var tasklst = await GetTaskListNotrackAsync(a => a.Where(b => b.Channelid == taskinfo.Channelid
             && (b.State != (int)taskState.tsDelete && b.State != (int)taskState.tsInvaild)
             && (b.Starttime > beginTime && b.Starttime < endTime)).OrderBy(x => x.Starttime), false);// order by CHANNELID, STARTTIME 
 
@@ -511,7 +541,7 @@ namespace IngestTaskPlugin.Stores
 
                 if (!isBegin)
                 {
-                    if (row.Taskid == taskId)
+                    if (row.Taskid == taskinfo.Taskid)
                     {
                         isBegin = true;
                         //往回退一个
@@ -537,7 +567,7 @@ namespace IngestTaskPlugin.Stores
                 DateTime dtNewTaskEndTime = dtNewTaskBeginTime.Add(tsDuration);
                 bool isNeedJudgeNextTask = false;//标识是否与下一个任务进行判断
 
-                if (row.Taskid == taskId)
+                if (row.Taskid == taskinfo.Taskid)
                 {
                     isNeedJudgeNextTask = true;
                 }
@@ -569,14 +599,14 @@ namespace IngestTaskPlugin.Stores
                         {
                             if (dtNewTaskEndTime.AddSeconds(3) > nextRow.NewBegintime)
                             {
-                                Logger.Info(string.Format("In AdjustVtrUploadTasksByChannelId,TaskId = {0},meet a schedule task.", taskId));
+                                Logger.Info(string.Format("In AdjustVtrUploadTasksByChannelId,TaskId = {0},meet a schedule task.", taskinfo.Taskid));
                                 //设置该任务在VTR_UploadTask表中为失败状态
                                 //置该任务为失败
                                 row.State = (int)taskState.tsDelete;
 
                                 await SetVTRUploadTaskState((int)row.Taskid, VTRUPLOADTASKSTATE.VTR_UPLOAD_FAIL, "VTRBATCHUPLOAD_ERROR_SCHEDULETASKCOLLIDE", false);
 
-                                if (taskId == (int)row.Taskid)
+                                if (taskinfo.Taskid == (int)row.Taskid)
                                 {
                                     isNeedModifyEndTime = false;
                                 }
@@ -600,7 +630,7 @@ namespace IngestTaskPlugin.Stores
             }
             try
             {
-                await UpdateTaskListAsync(tasklst, true);
+                await UpdateTaskListAsync(tasklst, savechange);
             }
 
             catch (DbUpdateException e)
@@ -643,7 +673,7 @@ namespace IngestTaskPlugin.Stores
             }
         }
 
-        public async Task UpdateVtrUploadTaskListStateAsync(List<int> lsttaskid, VTRUPLOADTASKSTATE vtrstate, string errinfo, bool savechange = true)
+        public async Task SetVtrUploadTaskListStateAsync(List<int> lsttaskid, VTRUPLOADTASKSTATE vtrstate, string errinfo, bool savechange = true)
         {
             var lsttask = await Context.VtrUploadtask.Where(a => lsttaskid.Contains(a.Taskid))
                 .Select(item => new VtrUploadtask
@@ -674,47 +704,6 @@ namespace IngestTaskPlugin.Stores
                 entry.Property(x => x.Taskstate).IsModified = true;
                 entry.Property(x => x.Usertoken).IsModified = true;
             }
-
-            if (savechange)
-            {
-                try
-                {
-                    await Context.SaveChangesAsync();
-                }
-                catch (DbUpdateException e)
-                {
-                    throw e;
-                }
-            }
-        }
-
-        public async Task UpdateVtrUploadTaskStateAsync(int taskid, VTRUPLOADTASKSTATE vtrstate, string errinfo, bool savechange = true)
-        {
-            var itm = await Context.VtrUploadtask.Where(a => taskid == a.Taskid)
-                .Select(item => new VtrUploadtask
-                {
-                    Taskid = item.Taskid,
-                    Taskguid = item.Taskguid,
-                    Usertoken = item.Usertoken,
-                    Taskstate = item.Taskstate
-                }).SingleOrDefaultAsync();
-
-            if ((vtrstate == VTRUPLOADTASKSTATE.VTR_UPLOAD_COMMIT)
-                    && (itm.Taskstate == (Decimal)VTRUPLOADTASKSTATE.VTR_UPLOAD_COMPLETE))
-            {
-                itm.Taskguid = Guid.NewGuid().ToString("N");
-            }
-
-            itm.Taskstate = (int)vtrstate;
-            if (vtrstate == VTRUPLOADTASKSTATE.VTR_UPLOAD_FAIL)
-            {
-                itm.Usertoken = errinfo;
-            }
-            Context.Attach(itm);
-            var entry = Context.Entry(itm);
-            entry.Property(x => x.Taskguid).IsModified = true;
-            entry.Property(x => x.Taskstate).IsModified = true;
-            entry.Property(x => x.Usertoken).IsModified = true;
 
             if (savechange)
             {
@@ -2488,8 +2477,8 @@ namespace IngestTaskPlugin.Stores
                 //Context.Entry(itm).Property(x => x.Metadatalong).IsModified = true;
                 //因为主键ID默认是不赋值的，只给其他项目赋值了 id是int类型，int类型如果不允许为空那么会被默认为0，所以插入第二条数据时，数据库中已经有了主键为0的数据
 
-                await UpdateTaskMetaDataAsync(new DbpTaskMetadata() { Taskid = task.Taskid, Endtime = task.Endtime, Metadatatype = (int)MetaDataType.emCapatureMetaData, Metadatalong = CaptureMeta},
-                        false, o => o.Endtime, o => o.Metadatalong, o => o.Metadatatype);
+                await UpdateTaskMetaDataAsync(new DbpTaskMetadata() { Taskid = task.Taskid, Metadatatype = (int)MetaDataType.emCapatureMetaData, Metadatalong = CaptureMeta},
+                        false, o => o.Metadatalong, o => o.Metadatatype);
 
             }
             if (!string.IsNullOrEmpty(MatiralMeta))
@@ -2513,10 +2502,9 @@ namespace IngestTaskPlugin.Stores
                             org.Element("MATERIAL").Add(m);
                         }
 
-                        metadata.Endtime = task.Endtime;
                         metadata.Metadatalong = org.ToString();
                         await UpdateTaskMetaDataAsync(metadata,
-                            false, o => o.Endtime, o => o.Metadatalong, o => o.Metadatatype);
+                            false, o => o.Metadatalong, o => o.Metadatatype);
                     }
                 }
                 else
@@ -2525,11 +2513,10 @@ namespace IngestTaskPlugin.Stores
                     await UpdateTaskMetaDataAsync(new DbpTaskMetadata()
                     {
                         Taskid = task.Taskid,
-                        Endtime = task.Endtime,
                         Metadatatype = (int)MetaDataType.emStoreMetaData,
                         Metadatalong = MatiralMeta
                     },
-                            false, o => o.Endtime, o => o.Metadatalong, o => o.Metadatatype);
+                            false,  o => o.Metadatalong, o => o.Metadatatype);
                 }
             }
             if (!string.IsNullOrEmpty(ContentMeta))
@@ -2552,10 +2539,9 @@ namespace IngestTaskPlugin.Stores
                             org.Element("TaskContentMetaData").Add(m);
                         }
 
-                        metadata.Endtime = task.Endtime;
                         metadata.Metadatalong = org.ToString();
                         await UpdateTaskMetaDataAsync(metadata,
-                            false, o => o.Endtime, o => o.Metadatalong, o => o.Metadatatype);
+                            false, o => o.Metadatalong, o => o.Metadatatype);
                     }
                 }
                 else
@@ -2563,11 +2549,10 @@ namespace IngestTaskPlugin.Stores
                     await UpdateTaskMetaDataAsync(new DbpTaskMetadata()
                     {
                         Taskid = task.Taskid,
-                        Endtime = task.Endtime,
                         Metadatatype = (int)MetaDataType.emContentMetaData,
                         Metadatalong = ContentMeta
                     },
-                            false, o => o.Endtime, o => o.Metadatalong, o => o.Metadatatype);
+                            false, o => o.Metadatalong, o => o.Metadatatype);
                 }
             }
 
@@ -2592,10 +2577,9 @@ namespace IngestTaskPlugin.Stores
                             org.Element("Planning").Add(m);
                         }
 
-                        metadata.Endtime = task.Endtime;
                         metadata.Metadatalong = org.ToString();
                         await UpdateTaskMetaDataAsync(metadata,
-                            false, o => o.Endtime, o => o.Metadatalong, o => o.Metadatatype);
+                            false,  o => o.Metadatalong, o => o.Metadatatype);
                     }
                     
                 }
@@ -2604,11 +2588,10 @@ namespace IngestTaskPlugin.Stores
                     await UpdateTaskMetaDataAsync(new DbpTaskMetadata()
                     {
                         Taskid = task.Taskid,
-                        Endtime = task.Endtime,
                         Metadatatype = (int)MetaDataType.emPlanMetaData,
                         Metadatalong = PlanningMeta
                     },
-                            false, o => o.Endtime, o => o.Metadatalong, o => o.Metadatatype);
+                            false, o => o.Metadatalong, o => o.Metadatatype);
                 }
 
                 
@@ -2636,10 +2619,9 @@ namespace IngestTaskPlugin.Stores
                             org.Element("SplitMetaData").Add(m);
                         }
 
-                        metadata.Endtime = task.Endtime;
                         metadata.Metadatalong = org.ToString();
                         await UpdateTaskMetaDataAsync(metadata,
-                            false, o => o.Endtime, o => o.Metadatalong, o => o.Metadatatype);
+                            false, o => o.Metadatalong, o => o.Metadatatype);
                     }
                     
                 }
@@ -2648,11 +2630,10 @@ namespace IngestTaskPlugin.Stores
                     await UpdateTaskMetaDataAsync(new DbpTaskMetadata()
                     {
                         Taskid = task.Taskid,
-                        Endtime = task.Endtime,
                         Metadatatype = (int)MetaDataType.emSplitData,
                         Metadatalong = SplitMeta
                     },
-                            false, o => o.Endtime, o => o.Metadatalong, o => o.Metadatatype);
+                            false, o => o.Metadatalong, o => o.Metadatatype);
                 }
                 
             }
@@ -2726,23 +2707,23 @@ namespace IngestTaskPlugin.Stores
 
             if (!string.IsNullOrEmpty(ContentMeta))
             {
-                await _virtualDbContext.InsertAsync(new DbpTaskMetadata() { Taskid = task.Taskid, Endtime = task.Endtime, Metadatatype = (int)MetaDataType.emContentMetaData, Metadatalong = ContentMeta });
+                await _virtualDbContext.InsertAsync(new DbpTaskMetadata() { Taskid = task.Taskid, Metadatatype = (int)MetaDataType.emContentMetaData, Metadatalong = ContentMeta });
             }
             if (!string.IsNullOrEmpty(MatiralMeta))
             {
-                await _virtualDbContext.InsertAsync(new DbpTaskMetadata() { Taskid = task.Taskid, Endtime = task.Endtime, Metadatatype = (int)MetaDataType.emStoreMetaData, Metadatalong = MatiralMeta });
+                await _virtualDbContext.InsertAsync(new DbpTaskMetadata() { Taskid = task.Taskid, Metadatatype = (int)MetaDataType.emStoreMetaData, Metadatalong = MatiralMeta });
             }
             if (!string.IsNullOrEmpty(PlanningMeta))
             {
-                await _virtualDbContext.InsertAsync(new DbpTaskMetadata() { Taskid = task.Taskid, Endtime = task.Endtime, Metadatatype = (int)MetaDataType.emPlanMetaData, Metadatalong = PlanningMeta });
+                await _virtualDbContext.InsertAsync(new DbpTaskMetadata() { Taskid = task.Taskid, Metadatatype = (int)MetaDataType.emPlanMetaData, Metadatalong = PlanningMeta });
             }
             if (!string.IsNullOrEmpty(CaptureMeta))
             {
-                await _virtualDbContext.InsertAsync(new DbpTaskMetadata() { Taskid = task.Taskid, Endtime = task.Endtime, Metadatatype = (int)MetaDataType.emCapatureMetaData, Metadatalong = CaptureMeta });
+                await _virtualDbContext.InsertAsync(new DbpTaskMetadata() { Taskid = task.Taskid, Metadatatype = (int)MetaDataType.emCapatureMetaData, Metadatalong = CaptureMeta });
             }
             if (!string.IsNullOrEmpty(SplitMeta))
             {
-                await _virtualDbContext.InsertAsync(new DbpTaskMetadata() { Taskid = task.Taskid, Endtime = task.Endtime, Metadatatype = (int)MetaDataType.emSplitData, Metadatalong = SplitMeta });
+                await _virtualDbContext.InsertAsync(new DbpTaskMetadata() { Taskid = task.Taskid, Metadatatype = (int)MetaDataType.emSplitData, Metadatalong = SplitMeta });
             }
 
             try
@@ -3367,10 +3348,11 @@ namespace IngestTaskPlugin.Stores
 
         public async Task<int> ResetTaskErrorInfo(int taskid)
         {
-            var task = await _virtualDbContext.Set<DbpTask>().Where(a => a.Taskid == taskid).SingleOrDefaultAsync();
-            if (task != null)
+            var taskunit = await _virtualDbContext.Set<DbpTask>().Where(a => a.Taskid == taskid).Select(s => s.Recunitid).SingleOrDefaultAsync();
+            if (taskunit > 1)
             {
-                task.Recunitid = (task.Recunitid & 0x100);//后面八位都是给task显示error的
+                //后面八位都是给task显示error的
+                await UpdateTaskAsync(new DbpTask() { Taskid = taskid, Recunitid = taskunit & 0x100 }, false, o => o.Recunitid);
             }
 
             var info = Context.DbpTaskErrorinfo.Where(a => a.Taskid == taskid);
@@ -3380,7 +3362,7 @@ namespace IngestTaskPlugin.Stores
 
                 Context.DbpTaskErrorinfo.RemoveRange(info);
 
-                await Context.SaveChangesAsync();
+                await SaveChangeAsync(ITaskStore.VirtualContent & ITaskStore.DefaultContent);
 
                 return ret;
             }

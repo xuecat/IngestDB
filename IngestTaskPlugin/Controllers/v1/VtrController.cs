@@ -285,7 +285,7 @@
             }
             try
             {
-                await _VtrManage.SetVBUTasksMetadatasAsync(lVtrTaskID, DateTime.MinValue, (MetaDataType)Type, strMetaData, false, true);
+                await _VtrManage.SetVBUTasksMetadatasAsync(lVtrTaskID, (MetaDataType)Type, strMetaData, false, true);
             }
             catch (Exception e)//其他未知的异常，写异常日志
             {

@@ -10,13 +10,13 @@ namespace IngestTaskPlugin.Models
     {
         [Key]
         [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
+        [ShardingTableKey]
         public int Taskid { get; set; }
         [Key]
         [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
         public int Metadatatype { get; set; }
 
-        [ShardingTableKey]
-        public DateTime Endtime { get; set; }
+        public string Metadata { get; set; }
         public string Metadatalong { get; set; }
     }
 }

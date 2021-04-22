@@ -36,8 +36,6 @@ namespace IngestTaskPlugin.Stores
         Task SaveChangeAsync(int content);
         int GetNextValId(string value);
 
-
-        //Task<List<DbpTask>> GetTaskListNotrackAsync(TaskCondition condition , bool uselock, bool sharding);
         Task<List<TResult>> GetTaskListNotrackAsync<TResult>(Func<IQueryable<DbpTask>, IQueryable<TResult>> query, bool sharding);
         Task<TResult> GetTaskNotrackAsync<TResult>(Func<IQueryable<DbpTask>, IQueryable<TResult>> query, bool sharding);
 
@@ -57,6 +55,13 @@ namespace IngestTaskPlugin.Stores
         Task UpdateTaskCutomMetaDataAsync(int taskid, string metadata);
         Task<TResult> GetVtrUploadTaskAsync<TResult>(Func<IQueryable<VtrUploadtask>, IQueryable<TResult>> query, bool notrack = false);
         Task<List<TResult>> GetVtrUploadTaskListAsync<TResult>(Func<IQueryable<VtrUploadtask>, IQueryable<TResult>> query, bool notrack = false);
+        Task UpdateVtrUploadTaskAsync(VtrUploadtask item, bool savechange, params Expression<Func<VtrUploadtask, object>>[] getUpdatePropertyNames);
+        Task<bool> AdjustVtrUploadTasksByChannelId(DbpTask taskinfo, DateTime dtCurTaskBegin, bool savechange);
+        Task SetVTRUploadTaskState(int TaskId, VTRUPLOADTASKSTATE vtrTaskState, string errorContent, bool savechange);
+        Task SetVtrUploadTaskListStateAsync(List<int> lsttaskid, VTRUPLOADTASKSTATE vtrstate, string errinfo, bool savechange = true);
+        //Task UpdateVtrUploadTaskStateAsync(int taskid, VTRUPLOADTASKSTATE vtrstate, string errinfo, bool savechange = true);
+        Task<DbpTask> DeleteVtrUploadTaskAsync(int taskid, DbpTask task, bool savechange = true);
+
         Task<TResult> GetTaskBackupAsync<TResult>(Func<IQueryable<DbpTaskBackup>, IQueryable<TResult>> query, bool notrack = false);
         Task<List<TimePeriod>> GetTimePeriodsByScheduleVBUTasks(int vtrid, int extaskid);
         Task<List<DbpTask>> GetTaskListWithMode(int cut, DateTime day, TimeLineType timetype);
@@ -65,12 +70,7 @@ namespace IngestTaskPlugin.Stores
         Task<List<DbpTask>> GetNeedUnSynTasks();
         //Task<List<DbpTask>> GetCapturingTaskListAsync(List<int> lstchannel);
         Task SetTaskClassify(int taskid, string taskclassify, bool change);
-        Task SetVTRUploadTaskState(int TaskId, VTRUPLOADTASKSTATE vtrTaskState, string errorContent, bool savechange);
-        Task<bool> AdjustVtrUploadTasksByChannelId(int channelId, int taskId, DateTime dtCurTaskBegin);
-        Task UpdateVtrUploadTaskListStateAsync(List<int> lsttaskid, VTRUPLOADTASKSTATE vtrstate, string errinfo, bool savechange = true);
-        Task UpdateVtrUploadTaskStateAsync(int taskid, VTRUPLOADTASKSTATE vtrstate, string errinfo, bool savechange = true);
-        //Task DeleteVtrUploadTaskListAsync(List<int> lsttaskid, DbpTask task, bool savechange = true);
-        Task<DbpTask> DeleteVtrUploadTaskAsync(int taskid, DbpTask task, bool savechange = true);
+        
         Task<DbpTask> StopTask(int taskid, DateTime dt);
         int StopTaskNoChange(DbpTask task, DateTime dt);
         Task<DbpTask> DeleteTask(int taskid);

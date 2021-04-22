@@ -52,5 +52,6 @@ namespace ShardingCore.Core.VirtualRoutes.TableRoutes
 
         public override void PrepareCreateTable(Microsoft.EntityFrameworkCore.DbContext db, string tablename) { }
         public override void EndCreateTable(Microsoft.EntityFrameworkCore.DbContext db, string tail) { }
+        public override bool NeedCreateTable(string tail) { return true; }
     }
 }

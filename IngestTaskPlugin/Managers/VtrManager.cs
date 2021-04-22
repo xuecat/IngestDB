@@ -280,13 +280,8 @@ namespace IngestTaskPlugin.Managers
         /// <param name="type">The 元数据类型<see cref="MetaDataType"/>.</param>
         /// <param name="metadata">The 元数据<see cref="string"/>.</param>
         /// <param name="isSubmit">是否需要提交<see cref="bool"/>.</param>
-        public async Task SetVBUTasksMetadatasAsync(int taskId, DateTime endtime, MetaDataType type, string metadata, bool adddb, bool isSubmit = true)
+        public async Task SetVBUTasksMetadatasAsync(int taskId, MetaDataType type, string metadata, bool adddb, bool isSubmit = true)
         {
-            if (endtime == DateTime.MinValue && !adddb)
-            {
-                endtime = await TaskStore.GetTaskMetaDataNotrackAsync(a => a.Where(x => x.Taskid == taskId).Select(f => f.Endtime), true);
-            }
-
             //需要将其中的三个字符串提取出来
             if (type == MetaDataType.emContentMetaData)
             {
@@ -335,28 +330,24 @@ namespace IngestTaskPlugin.Managers
                             new DbpTaskMetadata()
                             {
                                 Taskid = taskId,
-                                Endtime = endtime,
                                 Metadatatype = (int)MetaDataType.emContentMetaData,
                                 Metadatalong = xElement.ToString()
                             },
                             new DbpTaskMetadata()
                             {
                                 Taskid = taskId,
-                                Endtime = endtime,
                                 Metadatatype = (int)MetaDataType.emStoreMetaData,
                                 Metadatalong = materialMeta
                             },
                             new DbpTaskMetadata()
                             {
                                 Taskid = taskId,
-                                Endtime = endtime,
                                 Metadatatype = (int)MetaDataType.emPlanMetaData,
                                 Metadatalong = planningMeta
                             },
                             new DbpTaskMetadata()
                             {
                                 Taskid = taskId,
-                                Endtime = endtime,
                                 Metadatatype = (int)MetaDataType.emOriginalMetaData,
                                 Metadatalong = originalMeta
                             }
@@ -369,28 +360,24 @@ namespace IngestTaskPlugin.Managers
                             new DbpTaskMetadata()
                             {
                                 Taskid = taskId,
-                                Endtime = endtime,
                                 Metadatatype = (int)MetaDataType.emContentMetaData,
                                 Metadatalong = xElement.ToString()
                             },
                             new DbpTaskMetadata()
                             {
                                 Taskid = taskId,
-                                Endtime = endtime,
                                 Metadatatype = (int)MetaDataType.emStoreMetaData,
                                 Metadatalong = materialMeta
                             },
                             new DbpTaskMetadata()
                             {
                                 Taskid = taskId,
-                                Endtime = endtime,
                                 Metadatatype = (int)MetaDataType.emPlanMetaData,
                                 Metadatalong = planningMeta
                             },
                             new DbpTaskMetadata()
                             {
                                 Taskid = taskId,
-                                Endtime = endtime,
                                 Metadatatype = (int)MetaDataType.emOriginalMetaData,
                                 Metadatalong = originalMeta
                             }
@@ -407,7 +394,6 @@ namespace IngestTaskPlugin.Managers
                     await TaskStore.AddTaskMetadataAsync(new DbpTaskMetadata()
                     {
                         Taskid = taskId,
-                        Endtime = endtime,
                         Metadatatype = (int)MetaDataType.emStoreMetaData,
                         Metadatalong = metadata
                     }, false);
@@ -416,7 +402,6 @@ namespace IngestTaskPlugin.Managers
                     await TaskStore.UpdateTaskMetaDataAsync(new DbpTaskMetadata()
                     {
                         Taskid = taskId,
-                        Endtime = endtime,
                         Metadatatype = (int)MetaDataType.emStoreMetaData,
                         Metadatalong = metadata
                     }, false);
@@ -1150,7 +1135,7 @@ namespace IngestTaskPlugin.Managers
             {
                 foreach (var item in metadatas)
                 {
-                    await SetVBUTasksMetadatasAsync(item.nTaskID, dbptask.Endtime, (MetaDataType)item.emType, item.strMetadata, false, true);
+                    await SetVBUTasksMetadatasAsync(item.nTaskID, (MetaDataType)item.emType, item.strMetadata, false, true);
                 }
             }
 
@@ -1604,7 +1589,7 @@ namespace IngestTaskPlugin.Managers
             {
                 foreach (VTR_UPLOAD_MetadataPair metadata in metadatas)
                 {
-                    await SetVBUTasksMetadatasAsync(vtrTask.nTaskId, dbpTask.Endtime, (MetaDataType)metadata.emType, metadata.strMetadata, false, false);
+                    await SetVBUTasksMetadatasAsync(vtrTask.nTaskId, (MetaDataType)metadata.emType, metadata.strMetadata, false, false);
                 }
             }
 
@@ -2360,7 +2345,7 @@ namespace IngestTaskPlugin.Managers
                     {
                         if (metadata.nTaskID == tempId)
                         {
-                            await SetVBUTasksMetadatasAsync(task.nTaskId, DateTimeFormat.DateTimeFromString(task.strEnd), (MetaDataType)metadata.emType, metadata.strMetadata, true, false);
+                            await SetVBUTasksMetadatasAsync(task.nTaskId, (MetaDataType)metadata.emType, metadata.strMetadata, true, false);
                         }
                     }
                 }

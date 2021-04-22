@@ -55,6 +55,7 @@ namespace ShardingCore.Core.VirtualRoutes.TableRoutes
 
         public abstract void PrepareCreateTable(DbContext db, string tablename);
         public abstract void EndCreateTable(DbContext db, string tail);
-       
+        public abstract bool NeedCreateTable(string tail);
+
     }
 }

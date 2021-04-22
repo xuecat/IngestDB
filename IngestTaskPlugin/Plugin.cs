@@ -63,10 +63,10 @@ namespace IngestTaskPlugin
             context.Services.AddShardingMySql(o =>{
                 o.EnsureCreatedWithOutShardingTable = true;
                 o.CreateShardingTableOnStart = true;
-                o.AddShardingDbContextWithShardingTable<DBTaskContext>("ingestdb", context.ConnectionString, config => 
+                o.AddShardingDbContextWithShardingTable<ShardingDBTaskContext>("ingestdb", context.ConnectionString, config => 
                 {
-                    config.AddShardingTableRoute<DBTaskRoute>();
-                    config.AddShardingTableRoute<DBTaskMetadataRoute>();
+                    config.AddShardingTableRoute<ShardingDBTaskRoute>();
+                    config.AddShardingTableRoute<ShardingDBTaskMetadataRoute>();
                 });
                 o.IgnoreCreateTableError = true;
             });

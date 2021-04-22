@@ -43,6 +43,7 @@ namespace ShardingCore.Core.VirtualRoutes.TableRoutes
         List<string> GetAllTails();
 
         void PrepareCreateTable(DbContext db, string tablename);
+        bool NeedCreateTable(string tail);
         void EndCreateTable(DbContext db, string tail);
     }
 

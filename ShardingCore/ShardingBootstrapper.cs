@@ -217,7 +217,7 @@ namespace ShardingCore
             route.PrepareCreateTable(dbcontext, virtualTable.GetOriginalTableName());
             foreach (var tail in route.GetAllTails())
             {
-                if (NeedCreateTable(shardingConfig))
+                if (NeedCreateTable(shardingConfig) && route.NeedCreateTable(tail))
                 {
                     try
                     {

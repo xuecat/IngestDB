@@ -193,10 +193,10 @@ namespace IngestTaskPlugin.Models
                 .HasColumnType("int(11)")
                 .HasDefaultValueSql("'0'");
 
-            entity.Property(e => e.Endtime)
-                     .HasColumnName("ENDTIME")
-                     .HasColumnType("timestamp")
-                     .HasDefaultValueSql("CURRENT_TIMESTAMP");
+            entity.Property(e => e.Metadata)
+                    .HasColumnName("METADATA")
+                    .HasColumnType("varchar(4000)")
+                    .HasDefaultValueSql("''");
 
             entity.Property(e => e.Metadatalong)
                 .HasColumnName("METADATALONG")
@@ -204,9 +204,9 @@ namespace IngestTaskPlugin.Models
 
         }
     }
-    public class DBTaskContext : DbContext, IShardingTableDbContext
+    public class ShardingDBTaskContext : DbContext, IShardingTableDbContext
     {
-        public DBTaskContext(DbContextOptions<DBTaskContext> opt) : base(opt)
+        public ShardingDBTaskContext(DbContextOptions<ShardingDBTaskContext> opt) : base(opt)
         {
 
         }
