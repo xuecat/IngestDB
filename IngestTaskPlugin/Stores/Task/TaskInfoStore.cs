@@ -183,7 +183,9 @@ namespace IngestTaskPlugin.Stores
         }
 
         /*
-         * 由于按照endtime分表，一定要传enditme才找得到物理表
+         * ********************************************************************
+         * @breif 由于按照endtime分表，一定要传enditme才找得到物理表,不传endtime用的是默认表
+         * ********************************************************************
          */
         public async Task UpdateTaskAsync(DbpTask item, bool savechange,params Expression<Func<DbpTask, object>>[] getUpdatePropertyNames)
         {

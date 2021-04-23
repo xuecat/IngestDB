@@ -190,12 +190,11 @@ namespace IngestTaskPlugin.Models
 
             entity.Property(e => e.Metadatatype)
                 .HasColumnName("METADATATYPE")
-                .HasColumnType("int(11)")
-                .HasDefaultValueSql("'0'");
+                .HasColumnType("int(11)");
 
             entity.Property(e => e.Metadata)
                     .HasColumnName("METADATA")
-                    .HasColumnType("varchar(4000)")
+                    .HasColumnType("varchar(255)")
                     .HasDefaultValueSql("''");
 
             entity.Property(e => e.Metadatalong)

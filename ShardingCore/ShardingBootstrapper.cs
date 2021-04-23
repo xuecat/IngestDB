@@ -217,13 +217,16 @@ namespace ShardingCore
             route.PrepareCreateTable(dbcontext, virtualTable.GetOriginalTableName());
             foreach (var tail in route.GetAllTails())
             {
-                if (NeedCreateTable(shardingConfig) && route.NeedCreateTable(tail))
+                if (NeedCreateTable(shardingConfig))
                 {
                     try
                     {
                         //添加物理表
                         virtualTable.AddPhysicTable(new DefaultPhysicTable(virtualTable, tail));
-                        _tableCreator.CreateTable(connectKey, virtualTable.EntityType, tail);
+                        if (route.NeedCreateTable(tail))
+                        {
+                            _tableCreator.CreateTable(connectKey, virtualTable.EntityType, tail);
+                        }
                     }
                     catch (Exception)
                     {

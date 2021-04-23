@@ -8,12 +8,8 @@ namespace IngestTaskPlugin.Models
 {
     public partial class DbpTaskMetadata : IShardingTable
     {
-        [Key]
-        [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
-        [ShardingTableKey]
+        [ShardingTableKey(TailPrefix ="")]
         public int Taskid { get; set; }
-        [Key]
-        [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
         public int Metadatatype { get; set; }
 
         public string Metadata { get; set; }

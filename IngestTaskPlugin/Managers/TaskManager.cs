@@ -2572,9 +2572,8 @@ namespace IngestTaskPlugin.Managers
                         Taskname = taskname
                     }, false, o => o.Taskname);
                 }
-            }
-
-            await Store.SaveChangeAsync(ITaskStore.VirtualContent);
+                await Store.SaveChangeAsync(ITaskStore.VirtualContent);
+            }            
         }
 
         public async Task<DbpTask> ModifyPeriodTask<TResult>(TResult taskmodify, bool isall)
