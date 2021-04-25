@@ -8,6 +8,7 @@ namespace IngestTaskPlugin.Models
 {
     public partial class DbpTask: IShardingTable
     {
+        [ShardingTableKey(TailPrefix = "")]
         public int Taskid { get; set; }
         public string Taskname { get; set; }
         public int? Recunitid { get; set; }
@@ -17,7 +18,6 @@ namespace IngestTaskPlugin.Models
         public int? OldChannelid { get; set; }
         public int? State { get; set; }
         public DateTime Starttime { get; set; }
-        [ShardingTableKey(TailPrefix ="")]
         public DateTime Endtime { get; set; }
         public DateTime NewBegintime { get; set; }
         public DateTime NewEndtime { get; set; }

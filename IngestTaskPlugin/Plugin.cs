@@ -13,6 +13,7 @@ using System;
 using System.Threading.Tasks;
 
 using ShardingCore.MySql;
+using IngestTaskPlugin.Models.Route;
 
 namespace IngestTaskPlugin
 {
@@ -65,8 +66,8 @@ namespace IngestTaskPlugin
                 o.CreateShardingTableOnStart = true;
                 o.AddShardingDbContextWithShardingTable<ShardingDBTaskContext>("ingestdb", context.ConnectionString, config => 
                 {
-                    config.AddShardingTableRoute<ShardingDBTaskRoute>();
-                    config.AddShardingTableRoute<ShardingDBTaskMetadataRoute>();
+                    config.AddShardingTableRoute<DbpTaskRoute>();
+                    config.AddShardingTableRoute<DbpTaskMetadataRoute>();
                 });
                 o.IgnoreCreateTableError = true;
             });

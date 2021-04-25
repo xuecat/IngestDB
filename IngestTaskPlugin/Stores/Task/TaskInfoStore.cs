@@ -1734,7 +1734,7 @@ namespace IngestTaskPlugin.Stores
                         if (queryexturingtask)
                         {
                             
-                            onelst = _virtualDbContext.Set<DbpTask>().AsNoTracking().Where(a =>
+                            onelst = _virtualDbContext.Set<DbpTask>().Where(a =>
                             (((a.Starttime >= dtDayBegin && a.Starttime <= dtDayEnd)
                             || (a.Endtime >= dtDayBegin && a.Endtime <= dtDayEnd)
                             || (a.Starttime <= dtDayBegin && a.Endtime >= dtDayEnd))
@@ -1751,7 +1751,7 @@ namespace IngestTaskPlugin.Stores
                         }
                         else
                         {
-                            onelst = _virtualDbContext.Set<DbpTask>().AsNoTracking().Where(a =>
+                            onelst = _virtualDbContext.Set<DbpTask>().Where(a =>
                             (((a.Starttime >= dtDayBegin && a.Starttime <= dtDayEnd)
                             || (a.Endtime >= dtDayBegin && a.Endtime <= dtDayEnd)
                             || (a.Starttime <= dtDayBegin && a.Endtime >= dtDayEnd))
@@ -1772,7 +1772,7 @@ namespace IngestTaskPlugin.Stores
                             onelst = onelst.Where(a => a.Starttime >= subDays);
                         }
 
-                        lst = await onelst.ToListAsync();
+                        lst = await onelst.ToShardingListAsync();
                         if (lst == null || lst.Count <= 0)
                         {
                             IQueryable<DbpTask> twolst = null;
@@ -1888,7 +1888,7 @@ namespace IngestTaskPlugin.Stores
 
                         if (queryexturingtask)
                         {
-                            onelst = _virtualDbContext.Set<DbpTask>().AsNoTracking().Where(a =>
+                            onelst = _virtualDbContext.Set<DbpTask>().Where(a =>
                             (((a.Starttime >= dtDayBegin && a.Starttime <= dtDayEnd)
                             || (a.Endtime >= dtDayBegin && a.Endtime <= dtDayEnd)
                             || (a.Starttime <= dtDayBegin && a.Endtime >= dtDayEnd))
@@ -1906,7 +1906,7 @@ namespace IngestTaskPlugin.Stores
                         }
                         else
                         {
-                            onelst = _virtualDbContext.Set<DbpTask>().AsNoTracking().Where(a =>
+                            onelst = _virtualDbContext.Set<DbpTask>().Where(a =>
                             (((a.Starttime >= dtDayBegin && a.Starttime <= dtDayEnd)
                             || (a.Endtime >= dtDayBegin && a.Endtime <= dtDayEnd)
                             || (a.Starttime <= dtDayBegin && a.Endtime >= dtDayEnd))
@@ -1927,7 +1927,7 @@ namespace IngestTaskPlugin.Stores
                         {
                             onelst = onelst.Where(a => a.Starttime >= subDays);
                         }
-                        lst = await onelst.ToListAsync();
+                        lst = await onelst.ToShardingListAsync();
 
                         if (lst == null || lst.Count <= 0)
                         {

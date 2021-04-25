@@ -20,11 +20,17 @@ namespace ShardingCore.Core.VirtualRoutes.TableRoutes
         protected override List<IPhysicTable> DoRouteWithWhere(List<IPhysicTable> allPhysicTables, IQueryable queryable)
         {
             //获取所有需要路由的表后缀
-            var filter = ShardingKeyUtil.GetRouteShardingTableFilter(queryable, ShardingKeyUtil.Parse(typeof(T)), ConvertToShardingKey, GetRouteToFilter);
+            var filter = GetShardingTabkeFilter(queryable);
+            if (filter == null)
+            {
+                filter = ShardingKeyUtil.GetRouteShardingTableFilter(queryable, ShardingKeyUtil.Parse(typeof(T)), ConvertToShardingKey, GetRouteToFilter);
+            }
+            
             var physicTables = allPhysicTables.Where(o => filter(o.Tail)).ToList();
             return physicTables;
         }
 
+        protected virtual Func<string, bool> GetShardingTabkeFilter(IQueryable queryable) { return null; }
 
         /// <summary>
         /// 如何路由到具体表 shardingKeyValue:分表的值, 返回结果:如果返回true表示返回该表 第一个参数 tail 第二参数是否返回该物理表
