@@ -104,13 +104,27 @@ namespace IngestTaskPlugin.Models.Route
             //尝试走2,没有就让源码走1
             QueryRouteShardingTableVisitorTwo<DateTime> visitor = new QueryRouteShardingTableVisitorTwo<DateTime>(
                 new Tuple<Type, string>(typeof(DateTime), "Endtime"),
+                dt => Convert.ToDateTime(dt),
+                GetRouteToFilter
                 );
-            //QueryableRouteShardingTableDiscoverVisitor<int> visitor 
-            //    = new QueryableRouteShardingTableDiscoverVisitor<int>(
-            //        ShardingCore.Utils.ShardingKeyUtil.Parse(typeof(DbpTask)), ConvertToShardingKey, GetRouteToFilter);
             visitor.Visit(queryable.Expression);
 
             return visitor.GetStringFilterTail();
+        }
+        protected Expression<Func<string, bool>> GetRouteToFilter(DateTime shardingKey, ShardingOperatorEnum shardingOperator)
+        {
+            switch (shardingOperator)
+            {
+                case ShardingOperatorEnum.GreaterThan:
+                case ShardingOperatorEnum.GreaterThanOrEqual:
+                case ShardingOperatorEnum.LessThan:
+                case ShardingOperatorEnum.LessThanOrEqual:
+                case ShardingOperatorEnum.Equal: return tail => tail == t;
+                default:
+                    {
+                        return tail => true;
+                    }
+            }
         }
 
         protected override Expression<Func<string, bool>> GetRouteToFilter(int shardingKey, ShardingOperatorEnum shardingOperator)
