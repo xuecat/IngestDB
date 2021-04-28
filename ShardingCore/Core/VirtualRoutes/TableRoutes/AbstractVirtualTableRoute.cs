@@ -24,9 +24,9 @@ namespace ShardingCore.Core.VirtualRoutes.TableRoutes
         /// <param name="allPhysicTables"></param>
         /// <param name="queryable"></param>
         /// <returns></returns>
-        public List<IPhysicTable> RouteWithWhere(List<IPhysicTable> allPhysicTables, IQueryable queryable)
+        public List<IPhysicTable> RouteWithWhere(List<IPhysicTable> allPhysicTables, IQueryable queryable, Func<DateTime, DateTime, bool> tablefilter)
         {
-            return AfterPhysicTableFilter(allPhysicTables,DoRouteWithWhere(allPhysicTables,queryable));
+            return AfterPhysicTableFilter(allPhysicTables,DoRouteWithWhere(allPhysicTables,queryable, tablefilter));
         }
         /// <summary>
         /// 实际路由
@@ -34,7 +34,7 @@ namespace ShardingCore.Core.VirtualRoutes.TableRoutes
         /// <param name="allPhysicTables"></param>
         /// <param name="queryable"></param>
         /// <returns></returns>
-        protected abstract List<IPhysicTable> DoRouteWithWhere(List<IPhysicTable> allPhysicTables, IQueryable queryable);
+        protected abstract List<IPhysicTable> DoRouteWithWhere(List<IPhysicTable> allPhysicTables, IQueryable queryable, Func<DateTime, DateTime, bool> tablefilter);
         /// <summary>
         /// 物理表过滤后
         /// </summary>

@@ -102,9 +102,9 @@ namespace ShardingCore.Extensions
         /// <param name="source"></param>
         /// <typeparam name="T"></typeparam>
         /// <returns></returns>
-        public static List<T> ToShardingList<T>(this IQueryable<T> source)
+        public static List<T> ToShardingList<T>(this IQueryable<T> source, Func<DateTime, DateTime, bool> tablefilter)
         {
-            return  ShardingQueryable<T>.Create(source).ToList();
+            return  ShardingQueryable<T>.Create(source, tablefilter).ToList();
         }
         /// <summary>
         /// 集合
@@ -112,9 +112,9 @@ namespace ShardingCore.Extensions
         /// <param name="source"></param>
         /// <typeparam name="T"></typeparam>
         /// <returns></returns>
-        public static async Task<List<T>> ToShardingListAsync<T>(this IQueryable<T> source)
+        public static async Task<List<T>> ToShardingListAsync<T>(this IQueryable<T> source, Func<DateTime, DateTime, bool> tablefilter)
         {
-            return await ShardingQueryable<T>.Create(source).ToListAsync();
+            return await ShardingQueryable<T>.Create(source, tablefilter).ToListAsync();
         }
         /// <summary>
         /// 分组

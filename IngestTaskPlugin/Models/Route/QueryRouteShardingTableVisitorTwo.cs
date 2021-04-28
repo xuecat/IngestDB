@@ -9,22 +9,49 @@ using ShardingCore.Extensions;
 
 namespace IngestTaskPlugin.Models.Route
 {
-    public class QueryRouteShardingTableVisitorTwo<TKey> : ExpressionVisitor
+    public class QueryRouteShardingTableVisitorTwo<TKey, TV> : ExpressionVisitor
     {
-        private readonly Tuple<Type, string> _shardingConfig;
-        private readonly Func<object, TKey> _shardingKeyConvert;
-        private readonly Func<TKey, ShardingOperatorEnum, Expression<Func<string, bool>>> _keyToTailWithFilter;
-        private Expression<Func<string, bool>> _where = x => true;
+        private int _useTwoShardingKey;
+        private Tuple<Type, string> _shardingConfig2;
+        private readonly Func<TKey, ShardingOperatorEnum, Expression<Func<TV, bool>>> _keyToTailWithFilter2;
 
-        public QueryRouteShardingTableVisitorTwo(Tuple<Type, string> shardingConfig, Func<object, TKey> shardingKeyConvert, Func<TKey, ShardingOperatorEnum, Expression<Func<string, bool>>> keyToTailWithFilter)
+        private readonly Tuple<Type, string> _shardingConfig1;
+        private readonly Func<TKey, ShardingOperatorEnum, Expression<Func<TV, bool>>> _keyToTailWithFilter1;
+        private readonly Func<object, TKey> _shardingKeyConvert;
+        private Expression<Func<TV, bool>> _where = x => true;
+
+        public QueryRouteShardingTableVisitorTwo(
+            Tuple<Type, string> shardingConfig,
+            Func<object, TKey> shardingKeyConvert,
+            Func<TKey, ShardingOperatorEnum, Expression<Func<TV, bool>>> keyToTailWithFilter)
         {
-            _shardingConfig = shardingConfig;
+            _useTwoShardingKey = 0;
+            _shardingConfig1 = shardingConfig;
             _shardingKeyConvert = shardingKeyConvert;
-            _keyToTailWithFilter = keyToTailWithFilter;
+            _keyToTailWithFilter1 = keyToTailWithFilter;
         }
 
-        public Func<string, bool> GetStringFilterTail()
+        public QueryRouteShardingTableVisitorTwo(
+            Tuple<Type, string> shardingConfig1,
+            Tuple<Type, string> shardingConfig2,
+            Func<object, TKey> shardingKeyConvert,
+            Func<TKey, ShardingOperatorEnum, Expression<Func<TV, bool>>> keyToTailWithFilter1,
+            Func<TKey, ShardingOperatorEnum, Expression<Func<TV, bool>>> keyToTailWithFilter2)
         {
+            _useTwoShardingKey = 1;
+            _shardingConfig1 = shardingConfig1;
+            _shardingConfig2 = shardingConfig2;
+            _shardingKeyConvert = shardingKeyConvert;
+            _keyToTailWithFilter1 = keyToTailWithFilter1;
+            _keyToTailWithFilter2 = keyToTailWithFilter2;
+        }
+
+        public Func<TV, bool> GetStringFilterTail()
+        {
+            if (_useTwoShardingKey == 1)
+            {
+                return null;
+            }
             if (_where!= null)
             {
                 return _where.Compile();
@@ -34,10 +61,29 @@ namespace IngestTaskPlugin.Models.Route
 
         private bool IsShardingKey(Expression expression)
         {
-            return expression is MemberExpression member
-                   && member.Expression.Type == _shardingConfig.Item1
-                   && member.Member.Name == _shardingConfig.Item2;
+            if (_useTwoShardingKey>0)
+                return expression is MemberExpression member
+                   && member.Expression.Type == _shardingConfig1.Item1
+                   && (member.Member.Name == _shardingConfig1.Item2 || member.Member.Name == _shardingConfig2.Item2);
+            else
+                return expression is MemberExpression member
+                   && member.Expression.Type == _shardingConfig1.Item1
+                   && member.Member.Name == _shardingConfig1.Item2;
         }
+
+        private bool IsShardingKey1(Expression expression)
+        {
+            return expression is MemberExpression member
+                && member.Expression.Type == _shardingConfig1.Item1
+                && member.Member.Name == _shardingConfig1.Item2;
+        }
+        private bool IsShardingKey2(Expression expression)
+        {
+            return expression is MemberExpression member
+                && member.Expression.Type == _shardingConfig2.Item1
+                && member.Member.Name == _shardingConfig2.Item2;
+        }
+
         /// <summary>
         /// 方法是否包含shardingKey
         /// </summary>
@@ -50,14 +96,42 @@ namespace IngestTaskPlugin.Models.Route
                 for (int i = 0; i < methodCallExpression.Arguments.Count; i++)
                 {
                     var isShardingKey = methodCallExpression.Arguments[i] is MemberExpression member
-                                        && member.Expression.Type == _shardingConfig.Item1
-                                        && member.Member.Name == _shardingConfig.Item2;
+                                        && member.Expression.Type == _shardingConfig1.Item1
+                                        && (member.Member.Name == _shardingConfig1.Item2 || (_useTwoShardingKey>0 && member.Member.Name == _shardingConfig2.Item2));
                     if (isShardingKey) return true;
                 }
             }
-
             return false;
         }
+        private bool IsMethodWrapShardingKey1(MethodCallExpression methodCallExpression)
+        {
+            if (methodCallExpression.Arguments.IsNotEmpty())
+            {
+                for (int i = 0; i < methodCallExpression.Arguments.Count; i++)
+                {
+                    var isShardingKey = methodCallExpression.Arguments[i] is MemberExpression member
+                                        && member.Expression.Type == _shardingConfig1.Item1
+                                        && member.Member.Name == _shardingConfig1.Item2;
+                    if (isShardingKey) return true;
+                }
+            }
+            return false;
+        }
+        private bool IsMethodWrapShardingKey2(MethodCallExpression methodCallExpression)
+        {
+            if (methodCallExpression.Arguments.IsNotEmpty())
+            {
+                for (int i = 0; i < methodCallExpression.Arguments.Count; i++)
+                {
+                    var isShardingKey = methodCallExpression.Arguments[i] is MemberExpression member
+                                        && member.Expression.Type == _shardingConfig2.Item1
+                                        && member.Member.Name == _shardingConfig2.Item2;
+                    if (isShardingKey) return true;
+                }
+            }
+            return false;
+        }
+
         private bool IsConstantOrMember(Expression expression)
         {
             return expression is ConstantExpression
@@ -97,7 +171,8 @@ namespace IngestTaskPlugin.Models.Route
                         {
                             _where = null;
                         }
-                        
+                        else
+                            _where = newWhere;
                     }
                 }
             }
@@ -106,7 +181,7 @@ namespace IngestTaskPlugin.Models.Route
         }
 
 
-        private Expression<Func<string, bool>> Resolve(Expression expression)
+        private Expression<Func<TV, bool>> Resolve(Expression expression)
         {
             if (expression is LambdaExpression)
             {
@@ -134,10 +209,10 @@ namespace IngestTaskPlugin.Models.Route
             {
                 return ResolveInFunc(methodCallExpression, true);
             }
-            return null;
+            return x => true;
         }
 
-        private Expression<Func<string, bool>> ResolveInFunc(MethodCallExpression methodCallExpression, bool @in)
+        private Expression<Func<TV, bool>> ResolveInFunc(MethodCallExpression methodCallExpression, bool @in)
         {
             if (methodCallExpression.IsEnumerableContains(methodCallExpression.Method.Name) && IsMethodWrapShardingKey(methodCallExpression))
             {
@@ -165,30 +240,40 @@ namespace IngestTaskPlugin.Models.Route
                 if (arrayObject != null)
                 {
                     var enumerable = (IEnumerable)arrayObject;
-                    Expression<Func<string, bool>> contains = x => false;
+                    Expression<Func<TV, bool>> contains = x => false;
                     if (!@in)
                         contains = x => true;
                     foreach (var item in enumerable)
                     {
                         var keyValue = _shardingKeyConvert(item);
-                        var eq = _keyToTailWithFilter(keyValue, @in ? ShardingOperatorEnum.Equal : ShardingOperatorEnum.NotEqual);
-                        if (@in)
-                            contains = contains.Or(eq);
-                        else
-                            contains = contains.And(eq);
+                        if (IsMethodWrapShardingKey1(methodCallExpression))
+                        {
+                            var eq = _keyToTailWithFilter1(keyValue, @in ? ShardingOperatorEnum.Equal : ShardingOperatorEnum.NotEqual);
+                            if (@in)
+                                contains = contains.Or(eq);
+                            else
+                                contains = contains.And(eq);
+                        }
+                        else if (IsMethodWrapShardingKey2(methodCallExpression))
+                        {
+                            var eq = _keyToTailWithFilter2(keyValue, @in ? ShardingOperatorEnum.Equal : ShardingOperatorEnum.NotEqual);
+                            if (@in)
+                                contains = contains.Or(eq);
+                            else
+                                contains = contains.And(eq);
+                        }
                     }
-
                     return contains;
                 }
             }
 
-            return null;
+            return x => true;
         }
 
-        private Expression<Func<string, bool>> ParseGetWhere(BinaryExpression binaryExpression)
+        private Expression<Func<TV, bool>> ParseGetWhere(BinaryExpression binaryExpression)
         {
-            Expression<Func<string, bool>> left = x => true;
-            Expression<Func<string, bool>> right = x => true;
+            Expression<Func<TV, bool>> left = x => true;
+            Expression<Func<TV, bool>> right = x => true;
 
             //递归获取
             if (binaryExpression.Left is BinaryExpression)
@@ -216,16 +301,19 @@ namespace IngestTaskPlugin.Models.Route
             {
                 bool paramterAtLeft;
                 object value = null;
+                bool shardingkey1 = false;
 
                 if (IsShardingKey(binaryExpression.Left) && IsConstantOrMember(binaryExpression.Right))
                 {
                     paramterAtLeft = true;
                     value = GetFieldValue(binaryExpression.Right);
+                    shardingkey1 = IsShardingKey1(binaryExpression.Left);
                 }
                 else if (IsConstantOrMember(binaryExpression.Left) && IsShardingKey(binaryExpression.Right))
                 {
                     paramterAtLeft = false;
                     value = GetFieldValue(binaryExpression.Left);
+                    shardingkey1 = IsShardingKey1(binaryExpression.Right);
                 }
                 else
                     return x => true;
@@ -242,11 +330,28 @@ namespace IngestTaskPlugin.Models.Route
                 };
 
                 if (value == null)
-                    return null;
+                    return x => true;
 
 
                 var keyValue = _shardingKeyConvert(value);
-                return _keyToTailWithFilter(keyValue, op);
+                if (shardingkey1)
+                {
+                    if (_useTwoShardingKey == 1)
+                    {
+                        _useTwoShardingKey = 2;
+                    }
+                    return _keyToTailWithFilter1(keyValue, op);
+                }
+                else
+                {
+                    if (_useTwoShardingKey == 1)
+                    {
+                        _useTwoShardingKey = 2;
+                    }
+                    
+                    return _keyToTailWithFilter2(keyValue, op);
+                }
+                    
             }
         }
     }

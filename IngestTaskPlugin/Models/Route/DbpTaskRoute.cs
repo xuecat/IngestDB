@@ -1,5 +1,6 @@
 ﻿using IngestTaskPlugin.Dto.OldResponse;
 using Microsoft.EntityFrameworkCore;
+using ShardingCore.Core.PhysicTables;
 using ShardingCore.Core.VirtualRoutes;
 using ShardingCore.Helpers;
 using System;
@@ -31,8 +32,8 @@ namespace IngestTaskPlugin.Models.Route
                             {
                                 Min = long.Parse(lst[lst.Length - 4]),
                                 Max = long.Parse(lst[lst.Length - 3]),
-                                Begin = long.Parse(lst[lst.Length - 2]),
-                                End = long.Parse(lst[lst.Length - 1]),
+                                Begin = ShardingCoreHelper.ConvertLongToDateTime(long.Parse(lst[lst.Length - 2])),
+                                End = ShardingCoreHelper.ConvertLongToDateTime(long.Parse(lst[lst.Length - 1])),
                                 Key = k,
                                 Tail = $"_{lst[lst.Length - 4]}_{lst[lst.Length - 3]}_{lst[lst.Length - 2]}_{lst[lst.Length - 1]}",
                                 NeedCreate = false
@@ -42,15 +43,6 @@ namespace IngestTaskPlugin.Models.Route
 
                     return null;
                 }).Where(f => f != null).ToList();
-
-                _shardingTails.Add(new ShardTableInfo()
-                {
-                    Min = 0,
-                    Max = 0,
-                    Key = $"{tablename}",
-                    Tail = $"",
-                    NeedCreate = false
-                });
 
                 var tasklst = db.QueryMysql<int>("select count(0) from " + tablename);
                 if (tasklst > 50000)
@@ -70,8 +62,8 @@ namespace IngestTaskPlugin.Models.Route
                         {
                             Min = minid,
                             Max = maxid,
-                            Begin = mintime,
-                            End = maxtime,
+                            Begin = _shardingTaskList.Min(x => x.Endtime),
+                            End = _shardingTaskList.Max(x => x.Endtime),
                             Key = $"{tablename}_{minid}_{maxid}_{mintime}_{maxtime}",
                             Tail = $"_{minid}_{maxid}_{mintime}_{maxtime}",
                             NeedCreate = true
@@ -82,6 +74,17 @@ namespace IngestTaskPlugin.Models.Route
 
                 if (_shardingTails.Any())
                 {
+                    _shardingTails.Add(new ShardTableInfo()
+                    {
+                        Min = 0,
+                        Max = 0,
+                        Begin = _shardingTails.Max(x => x.End),
+                        End = DateTime.MaxValue,
+                        Key = $"{tablename}",
+                        Tail = $"",
+                        NeedCreate = false
+                    }); ;
+
                     _shardingTails.OrderBy(x => x.Min);
                 }
             }
@@ -99,33 +102,78 @@ namespace IngestTaskPlugin.Models.Route
                 }
             }
         }
-        protected override Func<string, bool> GetShardingTabkeFilter(IQueryable queryable)
-        {
-            //尝试走2,没有就让源码走1
-            QueryRouteShardingTableVisitorTwo<DateTime> visitor = new QueryRouteShardingTableVisitorTwo<DateTime>(
-                new Tuple<Type, string>(typeof(DateTime), "Endtime"),
-                dt => Convert.ToDateTime(dt),
-                GetRouteToFilter
-                );
-            visitor.Visit(queryable.Expression);
 
-            return visitor.GetStringFilterTail();
-        }
-        protected Expression<Func<string, bool>> GetRouteToFilter(DateTime shardingKey, ShardingOperatorEnum shardingOperator)
+        /*
+         * 二元解析endtime和starttime过滤对我来说太难了，写不动了，只能通过func过滤，后面往有能力的人可以完善
+         */
+        protected override List<IPhysicTable> DoRouteWithWhere(List<IPhysicTable> allPhysicTables, IQueryable queryable, Func<DateTime, DateTime, bool> tablefilter)
         {
-            switch (shardingOperator)
+            var table = base.DoRouteWithWhere(allPhysicTables, queryable, tablefilter);
+            if (tablefilter != null)
             {
-                case ShardingOperatorEnum.GreaterThan:
-                case ShardingOperatorEnum.GreaterThanOrEqual:
-                case ShardingOperatorEnum.LessThan:
-                case ShardingOperatorEnum.LessThanOrEqual:
-                case ShardingOperatorEnum.Equal: return tail => tail == t;
-                default:
-                    {
-                        return tail => true;
-                    }
+                var filtertails = table.Select(x => x.Tail);
+                var afterfilers = _shardingTails.Where(x => filtertails.Contains(x.Tail)).Where(y => 
+                tablefilter(y.Begin, y.End)).Select(z => z.Tail).ToList();
+                return table.Where(x => afterfilers.Contains(x.Tail)).ToList();
             }
+            return table;
         }
+        //protected override List<IPhysicTable> DoRouteWithWhere(List<IPhysicTable> allPhysicTables, IQueryable queryable)
+        //{
+        //    //尝试走2,没有就让源码走1
+        //    QueryRouteShardingTableVisitorTwo<DateTime, ShardTableInfo> visitors = new QueryRouteShardingTableVisitorTwo<DateTime, ShardTableInfo>(
+        //        new Tuple<Type, string>(typeof(DbpTask), "Endtime"),
+        //        new Tuple<Type, string>(typeof(DbpTask), "Starttime"),
+        //        dt => Convert.ToDateTime(dt),
+        //        GetRouteToFilter1,
+        //        GetRouteToFilter1
+        //        );
+        //    visitors.Visit(queryable.Expression);
+
+        //    var filters = visitors.GetStringFilterTail();
+        //    if (filters != null)//有些查询语句是只有endtime或者starttime
+        //    {
+        //        var physicTables = allPhysicTables.Where(o => filters(_shardingTails.Find(x => x.Tail == o.Tail))).ToList();
+        //        return physicTables;
+        //    }
+        //    else
+        //    {
+        //        QueryRouteShardingTableVisitorTwo<int, string> visitor1 = new QueryRouteShardingTableVisitorTwo<int, string>(
+        //            new Tuple<Type, string>(typeof(DbpTask), "Taskid"),
+        //            ConvertToShardingKey,
+        //            GetRouteToFilter
+        //        );
+        //        visitor1.Visit(queryable.Expression);
+
+        //        var filter1 = visitor1.GetStringFilterTail();
+        //        if (filter1 != null)
+        //        {
+        //            return allPhysicTables.Where(o => filter1(o.Tail)).ToList();
+        //        }
+        //    }
+        //    return allPhysicTables;
+
+        //}
+
+        //protected Expression<Func<ShardTableInfo, bool>> GetRouteToFilter1(DateTime shardingKey, ShardingOperatorEnum shardingOperator)
+        //{
+        //    long time = ShardingCoreHelper.ConvertDateTimeToLong(shardingKey);
+
+        //    switch (shardingOperator)
+        //    {
+        //        case ShardingOperatorEnum.GreaterThan:
+        //        case ShardingOperatorEnum.GreaterThanOrEqual:
+        //            return tail => time >= tail.Begin;
+        //        case ShardingOperatorEnum.LessThan:
+        //        case ShardingOperatorEnum.LessThanOrEqual:
+        //            return tail => time <= tail.End;
+        //        case ShardingOperatorEnum.Equal: return tail => time >= tail.Begin && time <= tail.End;
+        //        default:
+        //            {
+        //                return tail => true;
+        //            }
+        //    }
+        //}
 
         protected override Expression<Func<string, bool>> GetRouteToFilter(int shardingKey, ShardingOperatorEnum shardingOperator)
         {

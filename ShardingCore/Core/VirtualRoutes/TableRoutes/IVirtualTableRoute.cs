@@ -26,7 +26,7 @@ namespace ShardingCore.Core.VirtualRoutes.TableRoutes
         /// <param name="allPhysicTables"></param>
         /// <param name="queryable"></param>
         /// <returns></returns>
-        List<IPhysicTable> RouteWithWhere(List<IPhysicTable> allPhysicTables,IQueryable queryable);
+        List<IPhysicTable> RouteWithWhere(List<IPhysicTable> allPhysicTables,IQueryable queryable, Func<DateTime, DateTime, bool> tablefilter);
 
         /// <summary>
         /// 根据值进行路由

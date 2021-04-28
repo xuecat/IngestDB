@@ -157,7 +157,7 @@ namespace IngestTaskPlugin.Managers
         {
             return _mapper.Map<List<TResult>>(await Store.GetTaskListNotrackAsync(x => x.Where(y => y.State == (int)taskState.tsReady 
                                                                                              && DateTime.Now < y.Endtime
-                                                                                             && y.OpType != (int)opType.otDel), false));
+                                                                                             && y.OpType != (int)opType.otDel), null, false));
         }
 
     }

@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 
 namespace ShardingCore.Core.VirtualRoutes.TableRoutes.RoutingRuleEngine
@@ -10,6 +11,6 @@ namespace ShardingCore.Core.VirtualRoutes.TableRoutes.RoutingRuleEngine
 */
     public interface IRouteRuleEngine
     {
-        IEnumerable<RouteResult> Route<T>(RouteRuleContext<T> routeRuleContext);
+        IEnumerable<RouteResult> Route<T>(RouteRuleContext<T> routeRuleContext, Func<DateTime, DateTime, bool> tablefilter);
     }
 }

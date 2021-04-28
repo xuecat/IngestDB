@@ -36,7 +36,7 @@ namespace IngestTaskPlugin.Stores
         Task SaveChangeAsync(int content);
         int GetNextValId(string value);
 
-        Task<List<TResult>> GetTaskListNotrackAsync<TResult>(Func<IQueryable<DbpTask>, IQueryable<TResult>> query, bool sharding);
+        Task<List<TResult>> GetTaskListNotrackAsync<TResult>(Func<IQueryable<DbpTask>, IQueryable<TResult>> query, Func<DateTime,DateTime,bool> tablefilter, bool sharding);
         Task<TResult> GetTaskNotrackAsync<TResult>(Func<IQueryable<DbpTask>, IQueryable<TResult>> query, bool sharding);
 
         Task UpdateTaskAsync(DbpTask item, bool savechange, params Expression<Func<DbpTask, object>>[] getUpdatePropertyNames);

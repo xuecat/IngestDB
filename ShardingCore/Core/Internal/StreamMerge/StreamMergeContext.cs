@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using Microsoft.EntityFrameworkCore;
@@ -31,6 +32,7 @@ namespace ShardingCore.Core.Internal.StreamMerge
         private readonly IRoutingRuleEngineFactory _tableRoutingRuleEngineFactory;
 
         private readonly IQueryable<T> _reWriteSource;
+        private Func<DateTime, DateTime, bool> _tablefilter;
         //public IEnumerable<RouteResult> RouteResults { get; }
         //public DataSourceRoutingResult RoutingResult { get; }
         public int? Skip { get; private set; }
@@ -41,7 +43,7 @@ namespace ShardingCore.Core.Internal.StreamMerge
         public GroupByContext GroupByContext { get; private set; }
 
         public StreamMergeContext(IQueryable<T> source, IDataSourceRoutingRuleEngineFactory dataSourceRoutingRuleEngineFactory,IRoutingRuleEngineFactory tableRoutingRuleEngineFactory,
-            IShardingParallelDbContextFactory shardingParallelDbContextFactory,IShardingScopeFactory shardingScopeFactory)
+            IShardingParallelDbContextFactory shardingParallelDbContextFactory,IShardingScopeFactory shardingScopeFactory, Func<DateTime, DateTime, bool> tablefilter)
         {
             _shardingParallelDbContextFactory = shardingParallelDbContextFactory;
             _shardingScopeFactory = shardingScopeFactory;
@@ -55,6 +57,7 @@ namespace ShardingCore.Core.Internal.StreamMerge
             SelectContext = reWriteResult.SelectContext;
             GroupByContext = reWriteResult.GroupByContext;
             _reWriteSource = reWriteResult.ReWriteQueryable;
+            _tablefilter = tablefilter;
         }
         //public StreamMergeContext(IQueryable<T> source,IEnumerable<RouteResult> routeResults,
         //    IShardingParallelDbContextFactory shardingParallelDbContextFactory,IShardingScopeFactory shardingScopeFactory)
@@ -83,7 +86,7 @@ namespace ShardingCore.Core.Internal.StreamMerge
         }
         public IEnumerable<RouteResult> GetRouteResults(string connectKey)
         {
-            return _tableRoutingRuleEngineFactory.Route(connectKey,_source);
+            return _tableRoutingRuleEngineFactory.Route(connectKey,_source, _tablefilter);
         }
 
         public ShardingScope CreateScope()

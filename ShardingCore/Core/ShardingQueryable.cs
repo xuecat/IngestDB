@@ -35,9 +35,10 @@ namespace ShardingCore.Core
         //private readonly RouteRuleContext<T> _routeRuleContext;
         private readonly DataSourceRoutingRuleContext<T> _dataSourceRoutingRuleContext;
 
-
-        private ShardingQueryable(IQueryable<T> source)
+        private Func<DateTime, DateTime, bool> _tablefilter;
+        private ShardingQueryable(IQueryable<T> source, Func<DateTime, DateTime, bool> tablefilter)
         {
+            _tablefilter = tablefilter;
             _source = source;
             _streamMergeContextFactory = ShardingContainer.Services.GetService<IStreamMergeContextFactory>();
             //var routingRuleEngineFactory=ShardingContainer.Services.GetService<IRoutingRuleEngineFactory>();
@@ -46,9 +47,9 @@ namespace ShardingCore.Core
             _dataSourceRoutingRuleContext = dataSourceRoutingRuleEngineFactory.CreateContext<T>(source);
         }
 
-        public static ShardingQueryable<TSource> Create<TSource>(IQueryable<TSource> source)
+        public static ShardingQueryable<TSource> Create<TSource>(IQueryable<TSource> source, Func<DateTime, DateTime, bool> tablefilter = null)
         {
-            return new ShardingQueryable<TSource>(source);
+            return new ShardingQueryable<TSource>(source, tablefilter);
         }
 
 
@@ -84,7 +85,7 @@ namespace ShardingCore.Core
 
         private StreamMergeContext<T> GetContext()
         {
-            return _streamMergeContextFactory.Create(_source,_dataSourceRoutingRuleContext);
+            return _streamMergeContextFactory.Create(_source,_dataSourceRoutingRuleContext, _tablefilter);
         }
         private async Task<List<TResult>> GetGenericMergeEngine<TResult>(Func<IQueryable, Task<TResult>> efQuery)
         {

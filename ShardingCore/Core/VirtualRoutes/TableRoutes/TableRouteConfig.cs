@@ -1,3 +1,4 @@
+using System;
 using System.Linq;
 using System.Linq.Expressions;
 
@@ -15,7 +16,7 @@ namespace ShardingCore.Core.VirtualRoutes.TableRoutes
         private readonly IShardingTable _shardingTable;
         private readonly object _shardingKeyValue;
         private readonly Expression _predicate;
-
+        private Func<DateTime, DateTime, bool> _tablefilter;
 
         public TableRouteConfig(IQueryable queryable=null,IShardingTable shardingTable=null,object shardingKeyValue=null,Expression predicate=null)
         {
@@ -23,6 +24,18 @@ namespace ShardingCore.Core.VirtualRoutes.TableRoutes
             _shardingTable = shardingTable;
             _shardingKeyValue = shardingKeyValue;
             _predicate = predicate;
+            _tablefilter = null;
+        }
+
+        public TableRouteConfig SetQueryFilter(Func<DateTime, DateTime, bool> tablefilter)
+        {
+            _tablefilter = tablefilter;
+            return this;
+        }
+
+        public Func<DateTime, DateTime, bool> GetQueryFilter()
+        {
+            return _tablefilter;
         }
 
         public IQueryable GetQueryable()

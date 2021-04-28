@@ -20,6 +20,7 @@ using CooperantType = IngestTaskPlugin.Dto.OldResponse.CooperantType;
 using taskState = IngestTaskPlugin.Dto.OldResponse.taskState;
 using TaskType = IngestTaskPlugin.Dto.OldResponse.TaskType;
 using System.Linq.Expressions;
+using ShardingCore.Helpers;
 
 namespace IngestTaskPlugin.Stores
 {
@@ -63,7 +64,7 @@ namespace IngestTaskPlugin.Stores
 
             return query.Invoke(_virtualDbContext.Set<DbpTask>()).SingleOrDefaultAsync();
         }
-        public Task<List<TResult>> GetTaskListNotrackAsync<TResult>(Func<IQueryable<DbpTask>, IQueryable<TResult>> query, bool sharding)
+        public Task<List<TResult>> GetTaskListNotrackAsync<TResult>(Func<IQueryable<DbpTask>, IQueryable<TResult>> query, Func<DateTime, DateTime, bool> tablefilter, bool sharding)
         {
             if (query == null)
             {
@@ -71,93 +72,12 @@ namespace IngestTaskPlugin.Stores
             }
             if (sharding)
             {
-                return query.Invoke(_virtualDbContext.Set<DbpTask>()).ToShardingListAsync();
+                return query.Invoke(_virtualDbContext.Set<DbpTask>()).ToShardingListAsync(tablefilter);
             }
             return query.Invoke(_virtualDbContext.Set<DbpTask>()).ToListAsync();
         }
 
-        /// <summary>
-        /// lock现在没有用
-        /// </summary>
-        /// <param name="uselock">没用</param>
-        /// <param name="Track">Track模式</param>
-        /// <param name="condition">查询条件</param>
-        /// <returns></returns>
-        public async Task<List<DbpTask>> GetTaskListNotrackAsync(TaskCondition condition, bool uselock, bool sharding)
-        {
-            IQueryable<DbpTask> lst = _virtualDbContext.Set<DbpTask>();
-            
-            if (condition.ChannelId > 0)
-            {
-                lst = lst.Where(x => x.Channelid == condition.ChannelId);
-            }
-            if (condition.RecUnit > 0)
-            {
-                lst = lst.Where(x => x.Recunitid == condition.RecUnit);
-            }
-            if (condition.SignalId > 0)
-            {
-                lst = lst.Where(x => x.Signalid == condition.SignalId);
-            }
-            if (!string.IsNullOrEmpty(condition.LockStr))
-            {
-                lst = lst.Where(x => x.Tasklock == condition.LockStr);
-            }
-            if (condition.StateIncludeLst != null && condition.StateIncludeLst.Count > 0)
-            {
-                lst = lst.Where(x => condition.StateIncludeLst.Contains(x.State.GetValueOrDefault()));
-            }
-            if (condition.TaskTypeIncludeLst != null && condition.TaskTypeIncludeLst.Count > 0)
-            {
-                lst = lst.Where(x => condition.TaskTypeIncludeLst.Contains(x.Tasktype.GetValueOrDefault()));
-            }
-            if (condition.SyncStateIncludeLst != null && condition.SyncStateIncludeLst.Count > 0)
-            {
-                lst = lst.Where(x => condition.SyncStateIncludeLst.Contains(x.SyncState.GetValueOrDefault()));
-            }
-            if (condition.DispatchStateIncludeLst != null && condition.DispatchStateIncludeLst.Count > 0)
-            {
-                lst = lst.Where(x => condition.DispatchStateIncludeLst.Contains(x.DispatchState.GetValueOrDefault()));
-            }
-            if (condition.MaxBeginTime > DateTime.MinValue)
-            {
-                lst = lst.Where(x => x.Starttime < condition.MaxBeginTime);
-            }
-            if (condition.MinBeginTime > DateTime.MinValue)
-            {
-                lst = lst.Where(x => x.Starttime > condition.MinBeginTime);
-            }
-            if (condition.MaxEndTime > DateTime.MinValue)
-            {
-                lst = lst.Where(x => x.Endtime < condition.MaxEndTime);
-            }
-            if (condition.MinEndTime > DateTime.MinValue)
-            {
-                lst = lst.Where(x => x.Endtime > condition.MinEndTime);
-            }
-            if (condition.MaxNewBeginTime > DateTime.MinValue)
-            {
-                lst = lst.Where(x => x.NewBegintime < condition.MaxNewBeginTime);
-            }
-            if (condition.MinNewBeginTime > DateTime.MinValue)
-            {
-                lst = lst.Where(x => x.NewBegintime > condition.MinNewBeginTime);
-            }
-            if (condition.MaxNewEndTime > DateTime.MinValue)
-            {
-                lst = lst.Where(x => x.NewEndtime < condition.MaxNewEndTime);
-            }
-            if (condition.MinNewEndTime > DateTime.MinValue)
-            {
-                lst = lst.Where(x => x.NewEndtime > condition.MinNewEndTime);
-            }
-            if (sharding)
-            {
-                return await lst.ToShardingListAsync();
-            }
-            return await lst.ToListAsync();
-        }
-
+       
         /*
          * 由于按照endtime分表，一定要传enditme才找得到物理表
          */
@@ -235,7 +155,7 @@ namespace IngestTaskPlugin.Stores
             }
             if (sharding)
             {
-                return query.Invoke(_virtualDbContext.Set<DbpTaskMetadata>()).ToShardingListAsync();
+                return query.Invoke(_virtualDbContext.Set<DbpTaskMetadata>()).ToShardingListAsync(null);
             }
             return query.Invoke(_virtualDbContext.Set<DbpTaskMetadata>()).ToListAsync();
         }
@@ -527,7 +447,8 @@ namespace IngestTaskPlugin.Stores
 
             var tasklst = await GetTaskListNotrackAsync(a => a.Where(b => b.Channelid == taskinfo.Channelid
             && (b.State != (int)taskState.tsDelete && b.State != (int)taskState.tsInvaild)
-            && (b.Starttime > beginTime && b.Starttime < endTime)).OrderBy(x => x.Starttime), false);// order by CHANNELID, STARTTIME 
+            && (b.Starttime > beginTime && b.Starttime < endTime)).OrderBy(x => x.Starttime),
+            null, false);// order by CHANNELID, STARTTIME 
 
             if (tasklst == null || tasklst.Count <= 0)
             {
@@ -1766,13 +1687,13 @@ namespace IngestTaskPlugin.Stores
                             );
                         }
 
-
                         if (ApplicationContext.Current.Limit24Hours)
                         {
                             onelst = onelst.Where(a => a.Starttime >= subDays);
                         }
 
-                        lst = await onelst.ToShardingListAsync();
+                        lst = await onelst.ToShardingListAsync((x,y) => (dtDayBegin >= x&& dtDayBegin <= y)||(dtDayEnd >= x&& dtDayEnd <= y));
+
                         if (lst == null || lst.Count <= 0)
                         {
                             IQueryable<DbpTask> twolst = null;
@@ -1927,7 +1848,8 @@ namespace IngestTaskPlugin.Stores
                         {
                             onelst = onelst.Where(a => a.Starttime >= subDays);
                         }
-                        lst = await onelst.ToShardingListAsync();
+                        
+                        lst = await onelst.ToShardingListAsync((x, y) => (dtDayBegin >= x && dtDayBegin <= y) || (dtDayEnd >= x && dtDayEnd <= y));
 
                         if (lst == null || lst.Count <= 0)
                         {

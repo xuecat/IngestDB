@@ -925,7 +925,7 @@ namespace IngestTaskPlugin.Managers
                         (b.DispatchState == (int)dispatchState.dpsDispatchFailed || b.DispatchState == (int)dispatchState.dpsRedispatch)
                         && b.State != (int)taskState.tsDelete
                         && (b.Endtime > now && b.Endtime < dt)
-                        && (b.Tasktype != (int)TaskType.TT_OPENEND && b.Tasktype != (int)TaskType.TT_OPENENDEX)), false));
+                        && (b.Tasktype != (int)TaskType.TT_OPENEND && b.Tasktype != (int)TaskType.TT_OPENENDEX)), null, false));
         }
 
         public async Task<int> GetTieUpTaskIDByChannelId(int channelid)
@@ -942,7 +942,7 @@ namespace IngestTaskPlugin.Managers
             var dt = now.AddMinutes(3);
             var findtask = await Store.GetTaskListNotrackAsync(x => x.Where(y => y.Channelid == channel && y.Tasktype == (int)TaskType.TT_MANUTASK
                                 && (y.State == (int)taskState.tsExecuting
-                                    || (y.State == (int)taskState.tsReady && y.NewBegintime > now && y.NewBegintime < dt))), false);
+                                    || (y.State == (int)taskState.tsReady && y.NewBegintime > now && y.NewBegintime < dt))), null, false);
 
             List<WarningInfoResponse> lstback = new List<WarningInfoResponse>();
             if (findtask != null)
@@ -1003,7 +1003,7 @@ namespace IngestTaskPlugin.Managers
             var now = DateTime.Now;
             var dt = now.AddMinutes(3);
             var findtask = await Store.GetTaskListNotrackAsync(x => x.Where(y => y.Channelid == channel
-                                    && (y.State == (int)taskState.tsReady && y.NewBegintime > now && y.NewBegintime < dt)), false);
+                                    && (y.State == (int)taskState.tsReady && y.NewBegintime > now && y.NewBegintime < dt)), null, false);
 
             List<WarningInfoResponse> lstback = new List<WarningInfoResponse>();
             if (findtask != null)
@@ -1186,7 +1186,7 @@ namespace IngestTaskPlugin.Managers
                         (b.DispatchState == (int)dispatchState.dpsDispatchFailed || b.DispatchState == (int)dispatchState.dpsRedispatch)
                         && b.State != (int)taskState.tsDelete
                         && (b.Endtime > now && b.Endtime < dt)
-                        && (b.Tasktype != (int)TaskType.TT_OPENEND && b.Tasktype != (int)TaskType.TT_OPENENDEX)), false);
+                        && (b.Tasktype != (int)TaskType.TT_OPENEND && b.Tasktype != (int)TaskType.TT_OPENENDEX)), null, false);
 
 
             if (_deviceInterface != null)
@@ -1280,7 +1280,7 @@ namespace IngestTaskPlugin.Managers
 
         public async Task<List<TResult>> GetKamakatiFailTasks<TResult>()
         {
-            var lst = await Store.GetTaskListNotrackAsync(a => a.Where(b => b.Backtype >= 65535 || b.Backtype == (int)CooperantType.emKamataki), true);
+            var lst = await Store.GetTaskListNotrackAsync(a => a.Where(b => b.Backtype >= 65535 || b.Backtype == (int)CooperantType.emKamataki), null, true);
             List<DbpTask> lsttask = new List<DbpTask>();
 
             foreach (var item in lst)
@@ -2520,14 +2520,14 @@ namespace IngestTaskPlugin.Managers
 
         public async Task<List<TResult>> GetAllChannelCapturingTask<TResult>()
         {
-            return _mapper.Map<List<TResult>>(await Store.GetTaskListNotrackAsync(a => a.Where(b => b.State == (int)taskState.tsExecuting || b.State == (int)taskState.tsManuexecuting), false));
+            return _mapper.Map<List<TResult>>(await Store.GetTaskListNotrackAsync(a => a.Where(b => b.State == (int)taskState.tsExecuting || b.State == (int)taskState.tsManuexecuting), null, false));
 
         }
 
         public async Task<TResult> GetChannelCapturingTask<TResult>(int channelid, int newest)
         {
             var lst = await Store.GetTaskListNotrackAsync(a =>
-            a.Where(b => b.Channelid == channelid && (b.State == (int)taskState.tsExecuting || b.State == (int)taskState.tsManuexecuting)).OrderBy(b => b.Taskid), false);
+            a.Where(b => b.Channelid == channelid && (b.State == (int)taskState.tsExecuting || b.State == (int)taskState.tsManuexecuting)).OrderBy(b => b.Taskid), null, false);
 
             if (lst != null && lst.Count > 0)
             {
@@ -4173,7 +4173,7 @@ namespace IngestTaskPlugin.Managers
 
                     var dtnow = DateTime.Now;
                     var lst = await Store.GetTaskListNotrackAsync(a => a.Where(x => x.State == (int)taskState.tsReady && x.Channelid == taskinfo.TaskContent.ChannelId
-                                                            && x.Tasktype == (int)TaskType.TT_TIEUP && x.Starttime <= dtnow && x.Endtime >= dtnow), false);
+                                                            && x.Tasktype == (int)TaskType.TT_TIEUP && x.Starttime <= dtnow && x.Endtime >= dtnow), null, false);
                     if (lst != null && lst.Count > 0)
                     {
                         lst[0].Tasktype = (int)TaskType.TT_NORMAL;
@@ -4422,7 +4422,7 @@ namespace IngestTaskPlugin.Managers
 
                     var dtnow = DateTime.Now;
                     var lst = await Store.GetTaskListNotrackAsync(a => a.Where(x => x.State == (int)taskState.tsReady && x.Channelid == taskinfo.TaskContent.ChannelId
-                                                            && x.Tasktype == (int)TaskType.TT_TIEUP && x.Starttime <= dtnow && x.Endtime >= dtnow), false);
+                                                            && x.Tasktype == (int)TaskType.TT_TIEUP && x.Starttime <= dtnow && x.Endtime >= dtnow), null, false);
                     if (lst != null && lst.Count > 0)
                     {
                         lst[0].Tasktype = (int)TaskType.TT_NORMAL;
@@ -4809,7 +4809,7 @@ namespace IngestTaskPlugin.Managers
             var tasks = await Store.GetTaskListNotrackAsync(a => a.Where(x => (x.State == (int)taskState.tsReady && x.NewBegintime > now && x.NewBegintime < dt)
                                                                         || x.State == (int)taskState.tsExecuting || x.State == (int)taskState.tsManuexecuting
                                                                         )
-                                                           .GroupBy(x => x.State), false);
+                                                           .GroupBy(x => x.State), null, false);
             if (tasks.Count > 0)
             {
                 List<DbpTask> lsttask = new List<DbpTask>();
@@ -4833,7 +4833,7 @@ namespace IngestTaskPlugin.Managers
             var now = DateTime.Now;
             return _mapper.Map<List<TSource>>(await Store.GetTaskListNotrackAsync(
                 a => a.Where(x => x.State == (int)taskState.tsReady && x.State != (int)taskState.tsDelete
-                && x.NewBegintime < now && x.NewEndtime > now), false));
+                && x.NewBegintime < now && x.NewEndtime > now), null, false));
         }
 
         public async Task<T> GetLastTaskErrorInfoAsync<T>(int taskid)

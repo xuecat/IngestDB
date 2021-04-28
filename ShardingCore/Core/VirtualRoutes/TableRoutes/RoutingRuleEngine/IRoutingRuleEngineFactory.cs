@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using System.Linq;
 
@@ -13,7 +14,7 @@ namespace ShardingCore.Core.VirtualRoutes.TableRoutes.RoutingRuleEngine
     {
         IRouteRuleEngine CreateEngine();
         RouteRuleContext<T> CreateContext<T>(string connectKey,IQueryable<T> queryable);
-        IEnumerable<RouteResult> Route<T>(string connectKey, IQueryable<T> queryable);
-        IEnumerable<RouteResult> Route<T>(string connectKey, IQueryable<T> queryable,RouteRuleContext<T> ruleContext);
+        IEnumerable<RouteResult> Route<T>(string connectKey, IQueryable<T> queryable, Func<DateTime, DateTime, bool> tablefilter = null);
+        IEnumerable<RouteResult> Route<T>(string connectKey, IQueryable<T> queryable,RouteRuleContext<T> ruleContext, Func<DateTime, DateTime, bool> tablefilter = null);
     }
 }
