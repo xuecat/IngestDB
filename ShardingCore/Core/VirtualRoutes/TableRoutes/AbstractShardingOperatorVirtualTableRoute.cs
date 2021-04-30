@@ -17,7 +17,7 @@ namespace ShardingCore.Core.VirtualRoutes.TableRoutes
 */
     public abstract class AbstractShardingOperatorVirtualTableRoute<T, TKey> : AbstractVirtualTableRoute<T, TKey> where T : class, IShardingTable
     {
-        protected override List<IPhysicTable> DoRouteWithWhere(List<IPhysicTable> allPhysicTables, IQueryable queryable, Func<DateTime, DateTime, bool> tablefilter)
+        protected override List<IPhysicTable> DoRouteWithWhere(List<IPhysicTable> allPhysicTables, IQueryable queryable)
         {
             //获取所有需要路由的表后缀
             var filter = ShardingKeyUtil.GetRouteShardingTableFilter(queryable, ShardingKeyUtil.Parse(typeof(T)), ConvertToShardingKey, GetRouteToFilter);
@@ -34,7 +34,7 @@ namespace ShardingCore.Core.VirtualRoutes.TableRoutes
         /// <returns>如果返回true表示返回该表 第一个参数 tail 第二参数是否返回该物理表</returns>
         protected abstract Expression<Func<string, bool>> GetRouteToFilter(TKey shardingKey, ShardingOperatorEnum shardingOperator);
 
-        public override IPhysicTable RouteWithValue(List<IPhysicTable> allPhysicTables, object shardingKey)
+        public override IPhysicTable RouteWithValue(List<IPhysicTable> allPhysicTables, object shardingKey, string tail)
         {
             var filter = GetRouteToFilter(ConvertToShardingKey(shardingKey), ShardingOperatorEnum.Equal).Compile();
 
@@ -44,7 +44,9 @@ namespace ShardingCore.Core.VirtualRoutes.TableRoutes
                 var routeConfig = ShardingKeyUtil.Parse(typeof(T));
                 throw new ShardingKeyRouteNotMatchException($"{routeConfig.ShardingEntityType} -> [{routeConfig.ShardingField}] ->【{shardingKey}】 all tails ->[{string.Join(",", allPhysicTables.Select(o=>o.FullName))}]");
             }
-
+            if (physicTables.Count > 1)
+                physicTables = physicTables.FindAll(x => x.Tail == tail);
+            
             if (physicTables.Count > 1)
                 throw new ShardingKeyRouteMoreException($"table:{string.Join(",", physicTables.Select(o => $"[{o.FullName}]"))}");
             return physicTables[0];

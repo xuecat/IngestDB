@@ -16,27 +16,18 @@ namespace ShardingCore.Core.VirtualRoutes.TableRoutes
         private readonly IShardingTable _shardingTable;
         private readonly object _shardingKeyValue;
         private readonly Expression _predicate;
-        private Func<DateTime, DateTime, bool> _tablefilter;
 
+        private string _extraTail;
         public TableRouteConfig(IQueryable queryable=null,IShardingTable shardingTable=null,object shardingKeyValue=null,Expression predicate=null)
         {
             _queryable = queryable;
             _shardingTable = shardingTable;
             _shardingKeyValue = shardingKeyValue;
             _predicate = predicate;
-            _tablefilter = null;
         }
 
-        public TableRouteConfig SetQueryFilter(Func<DateTime, DateTime, bool> tablefilter)
-        {
-            _tablefilter = tablefilter;
-            return this;
-        }
-
-        public Func<DateTime, DateTime, bool> GetQueryFilter()
-        {
-            return _tablefilter;
-        }
+        public TableRouteConfig SetExtraTail(string extra) { _extraTail = extra; return this; }
+        public string GetExtraTail() { return _extraTail; }
 
         public IQueryable GetQueryable()
         {

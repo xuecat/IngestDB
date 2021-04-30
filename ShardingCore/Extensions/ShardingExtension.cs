@@ -102,9 +102,14 @@ namespace ShardingCore.Extensions
         /// <param name="source"></param>
         /// <typeparam name="T"></typeparam>
         /// <returns></returns>
-        public static List<T> ToShardingList<T>(this IQueryable<T> source, Func<DateTime, DateTime, bool> tablefilter)
+        public static List<T> ToShardingList<T>(this IQueryable<T> source)
         {
-            return  ShardingQueryable<T>.Create(source, tablefilter).ToList();
+            return  ShardingQueryable<T>.Create(source).ToList();
+        }
+
+        public static List<Tuple<string, T>> ToShardingListTail<T>(this IQueryable<T> source)
+        {
+            return ShardingQueryable<T>.Create(source).ToListTail();
         }
         /// <summary>
         /// 集合
@@ -112,10 +117,22 @@ namespace ShardingCore.Extensions
         /// <param name="source"></param>
         /// <typeparam name="T"></typeparam>
         /// <returns></returns>
-        public static async Task<List<T>> ToShardingListAsync<T>(this IQueryable<T> source, Func<DateTime, DateTime, bool> tablefilter)
+        public static async Task<List<T>> ToShardingListAsync<T>(this IQueryable<T> source)
         {
-            return await ShardingQueryable<T>.Create(source, tablefilter).ToListAsync();
+            return await ShardingQueryable<T>.Create(source).ToListAsync();
         }
+
+        /// <summary>
+        /// 集合
+        /// </summary>
+        /// <param name="source"></param>
+        /// <typeparam name="T"></typeparam>
+        /// <returns></returns>
+        public static async Task<List<Tuple<string, T>>> ToShardingListTailAsync<T>(this IQueryable<T> source)
+        {
+            return await ShardingQueryable<T>.Create(source).ToListTailAsync();
+        }
+
         /// <summary>
         /// 分组
         /// </summary>
@@ -159,6 +176,11 @@ namespace ShardingCore.Extensions
         public static async Task<T> ShardingFirstOrDefaultAsync<T>(this IQueryable<T> source)
         {
             return await ShardingQueryable<T>.Create(source).FirstOrDefaultAsync();
+        }
+
+        public static async Task<Tuple<string, T>> ShardingFirstOrDefaultTailAsync<T>(this IQueryable<T> source)
+        {
+            return await ShardingQueryable<T>.Create(source).FirstOrDefaultTailAsync();
         }
         /// <summary>
         /// 最大

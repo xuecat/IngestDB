@@ -23,11 +23,12 @@ namespace ShardingCore.Core.Internal.StreamMerge.Enumerators
 
         private readonly IStreamMergeAsyncEnumerator<T> _enumerator;
         private List<IComparable> _orderValues;
-
+        public string DataTableTail { get; set; }
         public OrderStreamMergeAsyncEnumerator(StreamMergeContext<T> mergeContext, IStreamMergeAsyncEnumerator<T> enumerator)
         {
             _mergeContext = mergeContext;
             _enumerator = enumerator;
+            DataTableTail = enumerator.DataTableTail;
             SetOrderValues();
         }
 

@@ -11,8 +11,10 @@ namespace ShardingCore.Core.Internal.StreamMerge.Abstractions
 */
     public interface IStreamMergeAsyncEnumerator<T>:IAsyncEnumerator<T>
     {
+        string DataTableTail { get; set; }
         bool SkipFirst();
         bool HasElement();
         T ReallyCurrent { get; }
+        
     }
 }

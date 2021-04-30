@@ -26,7 +26,7 @@ namespace ShardingCore.Core.VirtualRoutes.TableRoutes
         /// <param name="allPhysicTables"></param>
         /// <param name="queryable"></param>
         /// <returns></returns>
-        List<IPhysicTable> RouteWithWhere(List<IPhysicTable> allPhysicTables,IQueryable queryable, Func<DateTime, DateTime, bool> tablefilter);
+        List<IPhysicTable> RouteWithWhere(List<IPhysicTable> allPhysicTables,IQueryable queryable);
 
         /// <summary>
         /// 根据值进行路由
@@ -34,7 +34,7 @@ namespace ShardingCore.Core.VirtualRoutes.TableRoutes
         /// <param name="allPhysicTables"></param>
         /// <param name="shardingKeyValue"></param>
         /// <returns></returns>
-        IPhysicTable RouteWithValue(List<IPhysicTable> allPhysicTables, object shardingKeyValue);
+        IPhysicTable RouteWithValue(List<IPhysicTable> allPhysicTables, object shardingKeyValue, string tail);
         /// <summary>
         /// 获取所有的目前数据库存在的尾巴
         /// get all tails in the db

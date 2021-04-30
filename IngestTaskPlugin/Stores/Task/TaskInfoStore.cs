@@ -5,7 +5,6 @@ using System.Reflection;
 using System.Text;
 using System.Threading.Tasks;
 using System.Xml.Linq;
-using EFCore.Sharding;
 using IngestDBCore;
 using IngestDBCore.Tool;
 using IngestTaskPlugin.Dto;
@@ -20,14 +19,13 @@ using CooperantType = IngestTaskPlugin.Dto.OldResponse.CooperantType;
 using taskState = IngestTaskPlugin.Dto.OldResponse.taskState;
 using TaskType = IngestTaskPlugin.Dto.OldResponse.TaskType;
 using System.Linq.Expressions;
-using ShardingCore.Helpers;
+using IngestTaskPlugin.Models.Route;
 
 namespace IngestTaskPlugin.Stores
 {
 
     public class TaskInfoStore : ITaskStore
     {
-
         public TaskInfoStore(IngestTaskDBContext baseDataDbContext, IVirtualDbContext shard)
         {
             _virtualDbContext = shard;
@@ -42,50 +40,50 @@ namespace IngestTaskPlugin.Stores
         //protected IShardingDbAccessor _shardDbAcces { get; }
 
         private readonly ILogger Logger = LoggerManager.GetLogger("TaskInfo");
-        
 
-       
-
-        
-
-        public Task<TResult> GetTaskNotrackAsync<TResult>(Func<IQueryable<DbpTask>, IQueryable<TResult>> query, bool sharding)
+        public Task<List<Tuple<string, TResult>>> GetTaskListNotrackTailAsync<TResult>(Func<IQueryable<DbpTask>, IQueryable<TResult>> query)
         {
             if (query == null)
             {
                 throw new ArgumentNullException(nameof(query));
             }
-            /*
-             * 外层都是用的sharding，可以看看里面查询是先查本地库还是如何？
-             */
-            if (sharding)
-            {
-                return query.Invoke(_virtualDbContext.Set<DbpTask>().AsNoTracking()).ShardingFirstOrDefaultAsync();
-            }
-
-            return query.Invoke(_virtualDbContext.Set<DbpTask>()).SingleOrDefaultAsync();
+            
+            return query.Invoke(_virtualDbContext.Set<DbpTask>()).ToShardingListTailAsync();
         }
-        public Task<List<TResult>> GetTaskListNotrackAsync<TResult>(Func<IQueryable<DbpTask>, IQueryable<TResult>> query, Func<DateTime, DateTime, bool> tablefilter, bool sharding)
+        public Task<Tuple<string, TResult>> GetTaskNotrackTailAsync<TResult>(Func<IQueryable<DbpTask>, IQueryable<TResult>> query)
         {
             if (query == null)
             {
                 throw new ArgumentNullException(nameof(query));
             }
-            if (sharding)
-            {
-                return query.Invoke(_virtualDbContext.Set<DbpTask>()).ToShardingListAsync(tablefilter);
-            }
-            return query.Invoke(_virtualDbContext.Set<DbpTask>()).ToListAsync();
+            return query.Invoke(_virtualDbContext.Set<DbpTask>()).ShardingFirstOrDefaultTailAsync();
         }
+        public Task<TResult> GetTaskNotrackAsync<TResult>(Func<IQueryable<DbpTask>, IQueryable<TResult>> query)
+        {
+            if (query == null)
+            {
+                throw new ArgumentNullException(nameof(query));
+            }
 
-       
+            return query.Invoke(_virtualDbContext.Set<DbpTask>()).ShardingFirstOrDefaultAsync();
+        }
+        public Task<List<TResult>> GetTaskListNotrackAsync<TResult>(Func<IQueryable<DbpTask>, IQueryable<TResult>> query)
+        {
+            if (query == null)
+            {
+                throw new ArgumentNullException(nameof(query));
+            }
+
+            return query.Invoke(_virtualDbContext.Set<DbpTask>()).ToShardingListAsync();
+        }
         /*
          * 由于按照endtime分表，一定要传enditme才找得到物理表
          */
-        public async Task UpdateTaskListAsync(List<DbpTask> lst, bool savechange)
+        public async Task UpdateTaskListAsync(List<DbpTask> lst, string tail, bool savechange)
         {
             if (lst != null && lst.Count > 0)
             {
-                _virtualDbContext.UpdateRange(lst);
+                _virtualDbContext.UpdateRangeTail(lst.Select(x => new Tuple<string, DbpTask>(tail, x)).ToList());
 
                 if (savechange)
                 {
@@ -102,21 +100,41 @@ namespace IngestTaskPlugin.Stores
             }
         }
 
+        public async Task UpdateTaskListAsync(List<Tuple<string, DbpTask>> lst, bool savechange)
+        {
+            if (lst != null && lst.Count > 0)
+            {
+                _virtualDbContext.UpdateRangeTail(lst);
+                if (savechange)
+                {
+                    try
+                    {
+                        await _virtualDbContext.SaveChangesAsync();
+                    }
+                    catch (DbUpdateException e)
+                    {
+                        throw e;
+                    }
+                }
+
+            }
+        }
+
         /*
          * ********************************************************************
          * @breif 由于按照endtime分表，一定要传enditme才找得到物理表,不传endtime用的是默认表
          * ********************************************************************
          */
-        public async Task UpdateTaskAsync(DbpTask item, bool savechange,params Expression<Func<DbpTask, object>>[] getUpdatePropertyNames)
+        public async Task UpdateTaskAsync(DbpTask item, string tail, bool savechange,params Expression<Func<DbpTask, object>>[] getUpdatePropertyNames)
         {
             if (item != null)
             {
                 if (getUpdatePropertyNames == null || getUpdatePropertyNames.Length < 1)
                 {
-                    _virtualDbContext.Update(item);
+                    _virtualDbContext.UpdateTail(item, tail);
                 }
                 else
-                    _virtualDbContext.UpdateColumns(item, getUpdatePropertyNames);
+                    _virtualDbContext.UpdateColumnsTail(item, tail, getUpdatePropertyNames);
 
                 if (savechange)
                 {
@@ -133,31 +151,80 @@ namespace IngestTaskPlugin.Stores
             }
         }
 
-        public Task<TResult> GetTaskMetaDataNotrackAsync<TResult>(Func<IQueryable<DbpTaskMetadata>, IQueryable<TResult>> query, bool sharding)
+        public async Task<int> DeleteTaskWithMetaDBAsync(DbpTask item, string tail, bool savechange)
+        {
+            int vr = _virtualDbContext.DeleteTail(item, tail);
+            _virtualDbContext.DeleteRange(
+                new List<DbpTaskMetadata>() {
+                    new DbpTaskMetadata() { Taskid = item.Taskid, Metadatatype = (int)MetaDataType.emCapatureMetaData },
+                    new DbpTaskMetadata() { Taskid = item.Taskid, Metadatatype = (int)MetaDataType.emContentMetaData },
+                    new DbpTaskMetadata() { Taskid = item.Taskid, Metadatatype = (int)MetaDataType.emSplitData },
+                    new DbpTaskMetadata() { Taskid = item.Taskid, Metadatatype = (int)MetaDataType.emPlanMetaData },
+                    new DbpTaskMetadata() { Taskid = item.Taskid, Metadatatype = (int)MetaDataType.emStoreMetaData },
+                });
+            if (savechange)
+            {
+                try
+                {
+                    await _virtualDbContext.SaveChangesAsync();
+                }
+                catch (DbUpdateException e)
+                {
+                    throw e;
+                }
+            }
+            return vr;
+        }
+        public async Task<int> DeleteTaskWithMetaDBAsync(Func<IQueryable<DbpTask>, IQueryable<DbpTask>> query, bool savechange)
         {
             if (query == null)
             {
                 throw new ArgumentNullException(nameof(query));
             }
-            
-            if (sharding)
+            int vr = 0;
+            var item = await query.Invoke(_virtualDbContext.Set<DbpTask>()).ShardingFirstOrDefaultTailAsync();
+            if (item != null)
             {
-                return query.Invoke(_virtualDbContext.Set<DbpTaskMetadata>()).ShardingFirstOrDefaultAsync();
+                vr = _virtualDbContext.DeleteTail(item.Item2, item.Item1);
+                _virtualDbContext.DeleteRange(
+                new List<DbpTaskMetadata>() {
+                    new DbpTaskMetadata() { Taskid = item.Item2.Taskid, Metadatatype = (int)MetaDataType.emCapatureMetaData },
+                    new DbpTaskMetadata() { Taskid = item.Item2.Taskid, Metadatatype = (int)MetaDataType.emContentMetaData },
+                    new DbpTaskMetadata() { Taskid = item.Item2.Taskid, Metadatatype = (int)MetaDataType.emSplitData },
+                    new DbpTaskMetadata() { Taskid = item.Item2.Taskid, Metadatatype = (int)MetaDataType.emPlanMetaData },
+                    new DbpTaskMetadata() { Taskid = item.Item2.Taskid, Metadatatype = (int)MetaDataType.emStoreMetaData },
+                });
             }
-            return query.Invoke(_virtualDbContext.Set<DbpTaskMetadata>()).SingleOrDefaultAsync();
+            if (savechange)
+            {
+                try
+                {
+                    await _virtualDbContext.SaveChangesAsync();
+                }
+                catch (DbUpdateException e)
+                {
+                    throw e;
+                }
+            }
+            return vr;
         }
 
-        public Task<List<TResult>> GetTaskMetaDataListNotrackAsync<TResult>(Func<IQueryable<DbpTaskMetadata>, IQueryable<TResult>> query, bool sharding)
+        public Task<TResult> GetTaskMetaDataNotrackAsync<TResult>(Func<IQueryable<DbpTaskMetadata>, IQueryable<TResult>> query)
         {
             if (query == null)
             {
                 throw new ArgumentNullException(nameof(query));
             }
-            if (sharding)
+                return query.Invoke(_virtualDbContext.Set<DbpTaskMetadata>()).ShardingFirstOrDefaultAsync();
+        }
+
+        public Task<List<TResult>> GetTaskMetaDataListNotrackAsync<TResult>(Func<IQueryable<DbpTaskMetadata>, IQueryable<TResult>> query)
+        {
+            if (query == null)
             {
-                return query.Invoke(_virtualDbContext.Set<DbpTaskMetadata>()).ToShardingListAsync(null);
+                throw new ArgumentNullException(nameof(query));
             }
-            return query.Invoke(_virtualDbContext.Set<DbpTaskMetadata>()).ToListAsync();
+                return query.Invoke(_virtualDbContext.Set<DbpTaskMetadata>()).ToShardingListAsync();
         }
 
         public Task AddTaskMetadataAsync(DbpTaskMetadata item, bool savechange)
@@ -426,7 +493,7 @@ namespace IngestTaskPlugin.Stores
         public async Task<bool> AdjustVtrUploadTasksByChannelId(DbpTask taskinfo, DateTime dtCurTaskBegin, bool savechange)
         {
 
-            if (taskinfo == null|| taskinfo.Channelid < 0)
+            if (taskinfo == null || taskinfo.Channelid < 0)
             {
                 return false;
             }
@@ -445,10 +512,9 @@ namespace IngestTaskPlugin.Stores
             beginTime = beginTime.AddHours(-2);
             endTime = beginTime.AddHours(50);
 
-            var tasklst = await GetTaskListNotrackAsync(a => a.Where(b => b.Channelid == taskinfo.Channelid
+            var tasklst = await GetTaskListNotrackTailAsync(a => a.Where(b => b.Channelid == taskinfo.Channelid
             && (b.State != (int)taskState.tsDelete && b.State != (int)taskState.tsInvaild)
-            && (b.Starttime > beginTime && b.Starttime < endTime)).OrderBy(x => x.Starttime),
-            null, false);// order by CHANNELID, STARTTIME 
+            && (b.Starttime > beginTime && b.Starttime < endTime)).OrderBy(x => x.Starttime));// order by CHANNELID, STARTTIME 
 
             if (tasklst == null || tasklst.Count <= 0)
             {
@@ -460,11 +526,11 @@ namespace IngestTaskPlugin.Stores
             {
                 var row = tasklst.ElementAt(i);
 
-                Logger.Info("AdjustVtrUploadTasksByChannelId normal item {0} {1} {2} {3}", row.Taskid, row.Tasktype, row.Starttime, row.Endtime);
+                Logger.Info("AdjustVtrUploadTasksByChannelId normal item {0} {1} {2} {3}", row.Item2.Taskid, row.Item2.Tasktype, row.Item2.Starttime, row.Item2.Endtime);
 
                 if (!isBegin)
                 {
-                    if (row.Taskid == taskinfo.Taskid)
+                    if (row.Item2.Taskid == taskinfo.Taskid)
                     {
                         isBegin = true;
                         //往回退一个
@@ -474,8 +540,9 @@ namespace IngestTaskPlugin.Stores
                     continue;
                 }
 
-                DbpTask preRow = null;
-                DbpTask nextRow = null;
+
+                Tuple<string, DbpTask> preRow = null;
+                Tuple<string, DbpTask> nextRow = null;
                 if (i - 1 >= 0)
                 {
                     preRow = tasklst.ElementAt(i - 1);
@@ -485,12 +552,12 @@ namespace IngestTaskPlugin.Stores
                     nextRow = tasklst.ElementAt(i + 1);
                 }
 
-                TimeSpan tsDuration = row.NewEndtime - row.NewBegintime;
+                TimeSpan tsDuration = row.Item2.NewEndtime - row.Item2.NewBegintime;
                 DateTime dtNewTaskBeginTime = dtCurTaskBegin;//zmj 2010-07-12外部已经对该时间进行修改
                 DateTime dtNewTaskEndTime = dtNewTaskBeginTime.Add(tsDuration);
                 bool isNeedJudgeNextTask = false;//标识是否与下一个任务进行判断
 
-                if (row.Taskid == taskinfo.Taskid)
+                if (row.Item2.Taskid == taskinfo.Taskid)
                 {
                     isNeedJudgeNextTask = true;
                 }
@@ -500,13 +567,13 @@ namespace IngestTaskPlugin.Stores
                     {
                         //判断当前的任务，如果不移的话，会不会与上一个任务冲突
                         //如果不冲突，那么就可以不用移动，提前结束循环
-                        if (row.NewBegintime >= preRow.NewEndtime.AddSeconds(3))
+                        if (row.Item2.NewBegintime >= preRow.Item2.NewEndtime.AddSeconds(3))
                         {
                             break;
                         }
                         else
                         {
-                            dtNewTaskBeginTime = preRow.NewEndtime.AddSeconds(3);
+                            dtNewTaskBeginTime = preRow.Item2.NewEndtime.AddSeconds(3);
                             dtNewTaskEndTime = dtNewTaskBeginTime.Add(tsDuration);
 
                             isNeedJudgeNextTask = true;
@@ -518,18 +585,18 @@ namespace IngestTaskPlugin.Stores
                 {
                     if (nextRow != null)
                     {
-                        if (nextRow.Tasktype != (int)TaskType.TT_VTRUPLOAD)
+                        if (nextRow.Item2.Tasktype != (int)TaskType.TT_VTRUPLOAD)
                         {
-                            if (dtNewTaskEndTime.AddSeconds(3) > nextRow.NewBegintime)
+                            if (dtNewTaskEndTime.AddSeconds(3) > nextRow.Item2.NewBegintime)
                             {
                                 Logger.Info(string.Format("In AdjustVtrUploadTasksByChannelId,TaskId = {0},meet a schedule task.", taskinfo.Taskid));
                                 //设置该任务在VTR_UploadTask表中为失败状态
                                 //置该任务为失败
-                                row.State = (int)taskState.tsDelete;
+                                row.Item2.State = (int)taskState.tsDelete;
 
-                                await SetVTRUploadTaskState((int)row.Taskid, VTRUPLOADTASKSTATE.VTR_UPLOAD_FAIL, "VTRBATCHUPLOAD_ERROR_SCHEDULETASKCOLLIDE", false);
+                                await SetVTRUploadTaskState((int)row.Item2.Taskid, VTRUPLOADTASKSTATE.VTR_UPLOAD_FAIL, "VTRBATCHUPLOAD_ERROR_SCHEDULETASKCOLLIDE", false);
 
-                                if (taskinfo.Taskid == (int)row.Taskid)
+                                if (taskinfo.Taskid == (int)row.Item2.Taskid)
                                 {
                                     isNeedModifyEndTime = false;
                                 }
@@ -540,20 +607,21 @@ namespace IngestTaskPlugin.Stores
                 }
 
                 Logger.Info(string.Format("In AdjustVtrUploadTasksByChannelId,TaskId = {0},preStartTime = {1},preEndTime = {2}"
-                    , row.Taskid, row.Starttime, row.Endtime));
+                    , row.Item2.Taskid, row.Item2.Starttime, row.Item2.Endtime));
 
-                row.NewBegintime = dtNewTaskBeginTime;
-                row.Starttime = dtNewTaskBeginTime;
+                row.Item2.NewBegintime = dtNewTaskBeginTime;
+                row.Item2.Starttime = dtNewTaskBeginTime;
 
-                row.NewEndtime = dtNewTaskEndTime;
-                row.Endtime = dtNewTaskEndTime;
+                row.Item2.NewEndtime = dtNewTaskEndTime;
+                row.Item2.Endtime = dtNewTaskEndTime;
 
                 Logger.Info(string.Format("In AdjustVtrUploadTasksByChannelId,TaskId = {0},nowStartTime = {1},nowEndTime = {2}"
-                    , row.Taskid, row.Starttime, row.Endtime));
+                    , row.Item2.Taskid, row.Item2.Starttime, row.Item2.Endtime));
             }
             try
             {
-                await UpdateTaskListAsync(tasklst, savechange);
+                
+                await UpdateTaskListAsync(tasklst, true);
             }
 
             catch (DbUpdateException e)
@@ -644,249 +712,190 @@ namespace IngestTaskPlugin.Stores
         public async Task<DbpTask> DeleteVtrUploadTaskAsync(int taskid, DbpTask task, bool savechange = true)
         {
             DbpTask backtask = null;
-            /*
-             * wqtest
-             */
-            //var itm = await Context.VtrUploadtask.Where(a => taskid == a.Taskid)
-            //    .Select(item => new VtrUploadtask
-            //    {
-            //        Taskid = item.Taskid,
-            //        Usertoken = item.Usertoken,
-            //        Taskstate = item.Taskstate
-            //    }).SingleOrDefaultAsync();
 
-            //if (itm == null)
-            //{
-            //    SobeyRecException.ThrowSelfOneParam("", GlobalDictionary.GLOBALDICT_CODE_CAN_NOT_FIND_THE_VTRTASK_ONEPARAM, Logger, taskid, null);
-            //}
+            var itm = await Context.VtrUploadtask.Where(a => taskid == a.Taskid)
+                .Select(item => new VtrUploadtask
+                {
+                    Taskid = item.Taskid,
+                    Usertoken = item.Usertoken,
+                    Taskstate = item.Taskstate
+                }).SingleOrDefaultAsync();
 
-            //if (task == null)
-            //{
-            //    task = await GetTaskAsync<DbpTask>(a => a
-            //        .Where(x => x.Taskid == taskid)
-            //        .Select(ite =>
-            //        new DbpTask
-            //        {
-            //            Tasktype = ite.Tasktype,
-            //            State = ite.State,
-            //            DispatchState = ite.DispatchState,
-            //            OpType = ite.OpType,
-            //            SyncState = ite.SyncState,
-            //            Endtime = ite.Endtime,
-            //            NewEndtime = ite.Endtime,
-            //            Recunitid = ite.Recunitid,
-            //        }
-            //        ));
-            //}
+            if (itm == null)
+            {
+                SobeyRecException.ThrowSelfOneParam("", GlobalDictionary.GLOBALDICT_CODE_CAN_NOT_FIND_THE_VTRTASK_ONEPARAM, Logger, taskid, null);
+            }
 
-            //if (itm.Taskstate == (int)VTRUPLOADTASKSTATE.VTR_UPLOAD_TEMPSAVE ||
-            //                    itm.Taskstate == (int)VTRUPLOADTASKSTATE.VTR_UPLOAD_FAIL ||
-            //                    itm.Taskstate == (int)VTRUPLOADTASKSTATE.VTR_UPLOAD_DELETE ||
-            //                    itm.Taskstate == (int)VTRUPLOADTASKSTATE.VTR_UPLOAD_COMMIT)
-            //{
-            //    Context.VtrUploadtask.Attach(itm);
-            //    Context.VtrUploadtask.Remove(itm);
-            //    _virtualDbContext.Delete(task);
-            //    //Context.DbpTask.Attach(task);
-            //    //Context.DbpTask.Remove(task);
-            //}
-            //else if (itm.Taskstate == (int)VTRUPLOADTASKSTATE.VTR_UPLOAD_PRE_EXECUTE)
-            //{
-            //    itm.Taskstate = (int)VTRUPLOADTASKSTATE.VTR_UPLOAD_DELETE;
-            //    task.State = (int)taskState.tsDelete;
-            //    task.OpType = (int)opType.otDel;
-            //    task.DispatchState = (int)dispatchState.dpsDispatchFailed;
+            if (task == null)
+            {
+                int QueryUseHotTable = UseHotTableConvert.QueryUseHotTable(taskid);
+                task = await GetTaskNotrackAsync<DbpTask>(a => a
+                    .Where(x => x.Taskid == QueryUseHotTable)
+                    .Select(ite =>
+                    new DbpTask
+                    {
+                        Tasktype = ite.Tasktype,
+                        State = ite.State,
+                        DispatchState = ite.DispatchState,
+                        OpType = ite.OpType,
+                        SyncState = ite.SyncState,
+                        Endtime = ite.Endtime,
+                        NewEndtime = ite.Endtime,
+                        Recunitid = ite.Recunitid,
+                    }
+                    ));
+            }
 
-            //    Context.Attach(itm);
-            //    var itmentry = Context.Entry(itm);
-            //    itmentry.Property(x => x.Taskstate).IsModified = true;
+            if (itm.Taskstate == (int)VTRUPLOADTASKSTATE.VTR_UPLOAD_TEMPSAVE ||
+                                itm.Taskstate == (int)VTRUPLOADTASKSTATE.VTR_UPLOAD_FAIL ||
+                                itm.Taskstate == (int)VTRUPLOADTASKSTATE.VTR_UPLOAD_DELETE ||
+                                itm.Taskstate == (int)VTRUPLOADTASKSTATE.VTR_UPLOAD_COMMIT)
+            {
+                Context.VtrUploadtask.Attach(itm);
+                Context.VtrUploadtask.Remove(itm);
+                await DeleteTaskWithMetaDBAsync(task, "", false);
 
-            //    Context.Attach(task);
-            //    var entry = Context.Entry(task);
-            //    entry.Property(x => x.State).IsModified = true;
-            //    entry.Property(x => x.OpType).IsModified = true;
-            //    entry.Property(x => x.DispatchState).IsModified = true;
-            //    backtask = task;
-            //}
-            //else if (itm.Taskstate == (int)VTRUPLOADTASKSTATE.VTR_UPLOAD_EXECUTE)
-            //{
-            //    itm.Taskstate = (int)VTRUPLOADTASKSTATE.VTR_UPLOAD_DELETE;
-            //    task.SyncState = (int)syncState.ssNot;
-            //    task.OpType = (int)opType.otDel;
-            //    task.DispatchState = (int)dispatchState.dpsInvalid;
-            //    task.State = (int)taskState.tsInvaild;
-            //    task.Endtime = task.NewEndtime = DateTime.Now;
+            }
+            else if (itm.Taskstate == (int)VTRUPLOADTASKSTATE.VTR_UPLOAD_PRE_EXECUTE)
+            {
+                itm.Taskstate = (int)VTRUPLOADTASKSTATE.VTR_UPLOAD_DELETE;
+                task.State = (int)taskState.tsDelete;
+                task.OpType = (int)opType.otDel;
+                task.DispatchState = (int)dispatchState.dpsDispatchFailed;
 
-            //    Context.Attach(itm);
-            //    var itmentry = Context.Entry(itm);
-            //    itmentry.Property(x => x.Taskstate).IsModified = true;
+                Context.Attach(itm);
+                var itmentry = Context.Entry(itm);
+                itmentry.Property(x => x.Taskstate).IsModified = true;
 
-            //    Context.Attach(task);
-            //    var entry = Context.Entry(task);
-            //    entry.Property(x => x.Endtime).IsModified = true;
-            //    entry.Property(x => x.NewEndtime).IsModified = true;
-            //    entry.Property(x => x.SyncState).IsModified = true;
-            //    entry.Property(x => x.State).IsModified = true;
-            //    entry.Property(x => x.OpType).IsModified = true;
-            //    entry.Property(x => x.DispatchState).IsModified = true;
-            //    backtask = task;
-            //}
+                await UpdateTaskAsync(task, "", false, o => o.State, o => o.OpType, o => o.DispatchState);
+                backtask = task;
+            }
+            else if (itm.Taskstate == (int)VTRUPLOADTASKSTATE.VTR_UPLOAD_EXECUTE)
+            {
+                itm.Taskstate = (int)VTRUPLOADTASKSTATE.VTR_UPLOAD_DELETE;
+                task.SyncState = (int)syncState.ssNot;
+                task.OpType = (int)opType.otDel;
+                task.DispatchState = (int)dispatchState.dpsInvalid;
+                task.State = (int)taskState.tsInvaild;
+                task.Endtime = task.NewEndtime = DateTime.Now;
 
-            //if (savechange)
-            //{
-            //    try
-            //    {
-            //        await Context.SaveChangesAsync();
-            //    }
-            //    catch (DbUpdateException e)
-            //    {
-            //        throw e;
-            //    }
-            //}
+                Context.Attach(itm);
+                var itmentry = Context.Entry(itm);
+                itmentry.Property(x => x.Taskstate).IsModified = true;
+
+                await UpdateTaskAsync(task, "", false, o => o.State, o => o.OpType, o => o.DispatchState, o => o.SyncState, o => o.Endtime);
+                backtask = task;
+            }
+
+            if (savechange)
+            {
+                try
+                {
+                    await SaveChangeAsync(ITaskStore.VirtualContent& ITaskStore.DefaultContent);
+                }
+                catch (DbUpdateException e)
+                {
+                    throw e;
+                }
+            }
 
             return backtask;
         }
 
-        public async Task<int> DeleteTaskDB(int taskid, bool change)
+        public async Task<DbpTask> CancelTask(int taskid)
         {
-            /*
-             * wqtest
-             */
-            return 0;
-            //var dbptask = await GetTaskAsync(a => a.Where(x => x.Taskid == taskid));
-            ////Context.DbpTask.Remove(dbptask);
+            int QueryUseHotTable = UseHotTableConvert.QueryUseHotTable(taskid);
 
-            //_virtualDbContext.Delete(dbptask);
+            var taskinfo = await GetTaskNotrackAsync(a => a.Where(b => b.Taskid == QueryUseHotTable));
+            if (taskinfo == null)
+            {
+                Logger.Info("DeleteTask error empty " + taskid);
+                SobeyRecException.ThrowSelfNoParam(taskid.ToString(), GlobalDictionary.GLOBALDICT_CODE_TASK_ID_DOES_NOT_EXIST,
+                    Logger, null);
+                return null;
+            }
 
-            //var dbptaskMetadatas = await GetTaskMetaDataListAsync(a => a.Where(x => x.Taskid == taskid));
-            //Context.DbpTaskMetadata.RemoveRange(dbptaskMetadatas);
+            if (taskinfo.State == (int)taskState.tsComplete)
+            {
+                await UnLockTask(taskinfo, true);
+                SobeyRecException.ThrowSelfNoParam(taskid.ToString(), GlobalDictionary.GLOBALDICT_CODE_CAN_NOT_DELETE_THE_COMPLETE_TASK,
+                    Logger, null);
+                return null;
+            }
 
-            //if (change)
-            //{
-            //    try
-            //    {
-            //        await Context.SaveChangesAsync();
-            //    }
-            //    catch (Exception e)
-            //    {
+            if (taskinfo.OpType == (int)opType.otDel && (taskinfo.Recunitid & 0x8000) > 0)
+            {
+                SobeyRecException.ThrowSelfNoParam(taskid.ToString(), GlobalDictionary.GLOBALDICT_CODE_CAN_NOT_DELETE_DELETING_TASK,
+                    Logger, null);
+                return null;
+            }
 
-            //        throw e;
-            //    }
-            //}
+            bool isNeedDelFromDB = false;
+            taskinfo.OpType = (int)opType.otDel;
+            if (taskinfo.DispatchState == (int)dispatchState.dpsNotDispatch ||
+                taskinfo.DispatchState == (int)dispatchState.dpsRedispatch ||
+                taskinfo.DispatchState == (int)dispatchState.dpsDispatchFailed ||
+                (taskinfo.DispatchState == (int)dispatchState.dpsDispatched && taskinfo.SyncState == (int)syncState.ssNot))
+            {
+                //对未分发任务的处理
+                //	info.emDispatchState = dispatchState.dpsInvalid;
+                taskinfo.DispatchState = (int)dispatchState.dpsDispatched;
+                taskinfo.SyncState = (int)syncState.ssSync;
+                taskinfo.State = (int)taskState.tsDelete;
+                isNeedDelFromDB = true;
+            }
+            else
+            {
+                taskinfo.SyncState = (int)syncState.ssNot;
+                // Add by chenzhi 2013-08-08
+                // TODO: 这种状态下的任务，修改任务结束时间为当前时间
+                //string strlog = "strEnd = GlobalFun.DateTimeToString(DateTime.Now) = dpsDispatched nTaskID = ";
+                //strlog += info.taskContent.nTaskID.ToString();
+                Logger.Info("strEnd = GlobalFun.DateTimeToString(DateTime.Now) = dpsDispatched nTaskID = ");
+                //Sobey.Ingest.Log.LoggerService.Info(strlog);
+                //taskinfo.taskContent.strEnd = GlobalFun.DateTimeToString(DateTime.Now);
+                taskinfo.Endtime = DateTime.Now;
+            }
 
-            //return taskid;
-        }
+            //unlock
+            taskinfo.Tasklock = string.Empty;
+            //Tie Up 直接删除
+            if (taskinfo.Tasktype == (int)TaskType.TT_TIEUP)
+            {
+                taskinfo.SyncState = (int)syncState.ssSync;
+                taskinfo.State = (int)taskState.tsDelete;
+                isNeedDelFromDB = true;
+            }
 
-        public async Task<DbpTask> DeleteTask(int taskid)
-        {
-            return null;
-            /*
-             * wqtest
-             */
-            //var taskinfo = await GetTaskAsync(a => a.Where(b => b.Taskid == taskid));
-            //if (taskinfo == null)
-            //{
-            //    Logger.Info("DeleteTask error empty " + taskid);
-            //    SobeyRecException.ThrowSelfNoParam(taskid.ToString(), GlobalDictionary.GLOBALDICT_CODE_TASK_ID_DOES_NOT_EXIST,
-            //        Logger, null);
-            //    return null;
-            //}
-
-            //if (taskinfo.State == (int)taskState.tsComplete)
-            //{
-            //    await UnLockTask(taskinfo, true);
-            //    SobeyRecException.ThrowSelfNoParam(taskid.ToString(), GlobalDictionary.GLOBALDICT_CODE_CAN_NOT_DELETE_THE_COMPLETE_TASK,
-            //        Logger, null);
-            //    return null;
-            //}
-
-            //if (taskinfo.OpType == (int)opType.otDel && (taskinfo.Recunitid & 0x8000) > 0)
-            //{
-            //    SobeyRecException.ThrowSelfNoParam(taskid.ToString(), GlobalDictionary.GLOBALDICT_CODE_CAN_NOT_DELETE_DELETING_TASK,
-            //        Logger, null);
-            //    return null;
-            //}
-
-            //bool isNeedDelFromDB = false;
-            //taskinfo.OpType = (int)opType.otDel;
-            //if (taskinfo.DispatchState == (int)dispatchState.dpsNotDispatch ||
-            //    taskinfo.DispatchState == (int)dispatchState.dpsRedispatch ||
-            //    taskinfo.DispatchState == (int)dispatchState.dpsDispatchFailed ||
-            //    (taskinfo.DispatchState == (int)dispatchState.dpsDispatched && taskinfo.SyncState == (int)syncState.ssNot))
-            //{
-            //    //对未分发任务的处理
-            //    //	info.emDispatchState = dispatchState.dpsInvalid;
-            //    taskinfo.DispatchState = (int)dispatchState.dpsDispatched;
-            //    taskinfo.SyncState = (int)syncState.ssSync;
-            //    taskinfo.State = (int)taskState.tsDelete;
-            //    isNeedDelFromDB = true;
-            //}
-            //else
-            //{
-            //    taskinfo.SyncState = (int)syncState.ssNot;
-            //    // Add by chenzhi 2013-08-08
-            //    // TODO: 这种状态下的任务，修改任务结束时间为当前时间
-            //    //string strlog = "strEnd = GlobalFun.DateTimeToString(DateTime.Now) = dpsDispatched nTaskID = ";
-            //    //strlog += info.taskContent.nTaskID.ToString();
-            //    Logger.Info("strEnd = GlobalFun.DateTimeToString(DateTime.Now) = dpsDispatched nTaskID = ");
-            //    //Sobey.Ingest.Log.LoggerService.Info(strlog);
-            //    //taskinfo.taskContent.strEnd = GlobalFun.DateTimeToString(DateTime.Now);
-            //    taskinfo.Endtime = DateTime.Now;
-            //}
-
-            ////unlock
-            //taskinfo.Tasklock = string.Empty;
-            ////Tie Up 直接删除
-            //if (taskinfo.Tasktype == (int)TaskType.TT_TIEUP)
-            //{
-            //    taskinfo.SyncState = (int)syncState.ssSync;
-            //    taskinfo.State = (int)taskState.tsDelete;
-            //    isNeedDelFromDB = true;
-            //}
-
-            ////zmj 2010-12-06 修改个别任务由于开始时间接收得比较晚，造成状态有问题
-            //if (taskinfo.State == (int)taskState.tsExecuting
-            //    //此状态，任务已经开始执行了，但是由于消息队列原因，导致接收的时间比较晚，状态还没有变成正在执行状态
-            //    //这个时间，也需要将任务的结束时间改变，保证正常结束
-            //    || (taskinfo.DispatchState == (int)dispatchState.dpsDispatched && taskinfo.SyncState == (int)syncState.ssSync))
-            //{
-            //    taskinfo.Endtime = DateTime.Now;
-            //    //删除的任务肯定是手动停止的，需要设置标记，强制停止流媒体任务
-            //    taskinfo.Recunitid = taskinfo.Recunitid | 0x8000;
-            //}
+            //zmj 2010-12-06 修改个别任务由于开始时间接收得比较晚，造成状态有问题
+            if (taskinfo.State == (int)taskState.tsExecuting
+                //此状态，任务已经开始执行了，但是由于消息队列原因，导致接收的时间比较晚，状态还没有变成正在执行状态
+                //这个时间，也需要将任务的结束时间改变，保证正常结束
+                || (taskinfo.DispatchState == (int)dispatchState.dpsDispatched && taskinfo.SyncState == (int)syncState.ssSync))
+            {
+                taskinfo.Endtime = DateTime.Now;
+                //删除的任务肯定是手动停止的，需要设置标记，强制停止流媒体任务
+                taskinfo.Recunitid = taskinfo.Recunitid | 0x8000;
+            }
 
 
-            //if (taskinfo.Tasktype == (int)TaskType.TT_VTRUPLOAD)
-            //{
-            //    return await DeleteVtrUploadTaskAsync(taskinfo.Taskid, taskinfo, true);
-            //}
-            //else
-            //{
-            //    if (isNeedDelFromDB)
-            //    {
-            //        //Context.DbpTask.Remove(taskinfo);
-            //        _virtualDbContext.Delete(taskinfo);
-
-            //        Context.DbpTaskMetadata.RemoveRange(Context.DbpTaskMetadata.Where(x => x.Taskid == taskinfo.Taskid).ToList());
-
-            //        try
-            //        {
-            //            await Context.SaveChangesAsync();
-            //        }
-            //        catch (Exception e)
-            //        {
-
-            //            throw e;
-            //        }
-            //        return null;
-            //    }
-            //    else
-            //    {
-            //        Logger.Info("Before deletetask TASKOPER.ModifyTask" + taskid);
-            //        await ModifyTask(taskinfo, false, true, true, string.Empty, string.Empty, string.Empty, string.Empty);
-            //    }
-            //}
-            //return taskinfo;
+            if (taskinfo.Tasktype == (int)TaskType.TT_VTRUPLOAD)
+            {
+                return await DeleteVtrUploadTaskAsync(taskinfo.Taskid, taskinfo, true);
+            }
+            else
+            {
+                if (isNeedDelFromDB)
+                {
+                    await DeleteTaskWithMetaDBAsync(taskinfo, "", true);
+                }
+                else
+                {
+                    Logger.Info("Before deletetask TASKOPER.ModifyTask" + taskid);
+                    await ModifyTask(taskinfo, false, true, true, string.Empty, string.Empty, string.Empty, string.Empty);
+                }
+            }
+            return taskinfo;
         }
 
         public int StopTaskNoChange(DbpTask taskinfo, DateTime dt)
@@ -921,456 +930,239 @@ namespace IngestTaskPlugin.Stores
 
         public async Task<DbpTask> StopTask(int taskid, DateTime dt)
         {
-            return null;
-            /*
-             * wqtest
-             */
-            //var taskinfo = await GetTaskAsync(a => a.Where(b => b.Taskid == taskid));
-            //if (taskinfo == null)
-            //{
-            //    Logger.Info("StopTask error empty " + taskid);
-            //    return null;
-            //}
+            int QueryUseHotTable = UseHotTableConvert.QueryUseHotTable(taskid);
+            var taskinfo = await GetTaskNotrackAsync(a => a.Where(b => b.Taskid == QueryUseHotTable));
+            if (taskinfo == null)
+            {
+                Logger.Info("StopTask error empty " + taskid);
+                return null;
+            }
 
-            //if (taskinfo.State == (int)taskState.tsComplete)
-            //{
-            //    Logger.Info("StopTask task is tscomplete : " + taskid);
-            //    /*
-            //     * 运行再次修改任务的停止时间
-            //     */
-            //    //return taskinfo;
-            //}
+            if (taskinfo.State == (int)taskState.tsComplete)
+            {
+                Logger.Info("StopTask task is tscomplete : " + taskid);
+                /*
+                 * 运行再次修改任务的停止时间
+                 */
+                //return taskinfo;
+            }
 
-            //Logger.Info("StopTask " + taskid);
+            Logger.Info("StopTask " + taskid);
 
-            //if (dt == DateTime.MinValue)//自动停
-            //{
-            //    taskinfo.Endtime = DateTime.Now;
-            //    taskinfo.NewEndtime = taskinfo.Endtime;
-            //    taskinfo.Recunitid = taskinfo.Recunitid | 0x8000;
-            //    if (taskinfo.Tasktype == (int)TaskType.TT_MANUTASK
-            //            || taskinfo.Tasktype == (int)TaskType.TT_OPENEND
-            //            || taskinfo.Tasktype == (int)TaskType.TT_TIEUP)
-            //    {
-            //        //taskinfo.Tasktype = (int)TaskType.TT_NORMAL;
+            if (dt == DateTime.MinValue)//自动停
+            {
+                taskinfo.Endtime = DateTime.Now;
+                taskinfo.NewEndtime = taskinfo.Endtime;
+                taskinfo.Recunitid = taskinfo.Recunitid | 0x8000;
+                if (taskinfo.Tasktype == (int)TaskType.TT_MANUTASK
+                        || taskinfo.Tasktype == (int)TaskType.TT_OPENEND
+                        || taskinfo.Tasktype == (int)TaskType.TT_TIEUP)
+                {
+                    //taskinfo.Tasktype = (int)TaskType.TT_NORMAL;
 
-            //        //手动任务也这么搞？试试把
-            //        //taskinfo.State = (int)taskState.tsComplete;
-            //    }
-            //}
-            //else
-            //{
-            //    if (taskinfo.OldChannelid <= 0 && taskinfo.Tasktype == (int)TaskType.TT_PERIODIC)
-            //    {
-            //        SobeyRecException.ThrowSelfOneParam("StopTask match periodic", GlobalDictionary.GLOBALDICT_CODE_IN_STOPCAPTURE_TASK_IS_A_STENCIL_PLATE_TASK_ONEPARAM, Logger, taskid, null);
-            //    }
+                    //手动任务也这么搞？试试把
+                    //taskinfo.State = (int)taskState.tsComplete;
+                }
+            }
+            else
+            {
+                if (taskinfo.OldChannelid <= 0 && taskinfo.Tasktype == (int)TaskType.TT_PERIODIC)
+                {
+                    SobeyRecException.ThrowSelfOneParam("StopTask match periodic", GlobalDictionary.GLOBALDICT_CODE_IN_STOPCAPTURE_TASK_IS_A_STENCIL_PLATE_TASK_ONEPARAM, Logger, taskid, null);
+                }
 
-            //    taskinfo.Endtime = dt;
-            //    taskinfo.NewEndtime = taskinfo.Endtime;
-            //    //taskinfo.State = (int)taskState.tsComplete;
-            //}
+                taskinfo.Endtime = dt;
+                taskinfo.NewEndtime = taskinfo.Endtime;
+                //taskinfo.State = (int)taskState.tsComplete;
+            }
 
 
 
-            ////Context.Attach(ltask);
-            ////var entry = Context.Entry(ltask);
-            ////entry.Property(x => x.Endtime).IsModified = true;
-            ////entry.Property(x => x.NewEndtime).IsModified = true;
-            ////entry.Property(x => x.Recunitid).IsModified = true;
+            //Context.Attach(ltask);
+            //var entry = Context.Entry(ltask);
+            //entry.Property(x => x.Endtime).IsModified = true;
+            //entry.Property(x => x.NewEndtime).IsModified = true;
+            //entry.Property(x => x.Recunitid).IsModified = true;
 
-            //try
-            //{
-            //    await Context.SaveChangesAsync();
-            //    return taskinfo;
-            //}
-            //catch (DbUpdateException e)
-            //{
-            //    throw e;
-            //}
+            try
+            {
+                await UpdateTaskAsync(taskinfo, "", true, ot=>ot.Endtime, o=>o.NewEndtime, o => o.OpType, o => o.State, o => o.Recunitid);
+                return taskinfo;
+            }
+            catch (DbUpdateException e)
+            {
+                throw e;
+            }
 
         }
 
-        public async Task<int> StopCapturingChannelAsync(int Channel)
-        {
-            /*
-             * wqtest
-             */
-            return 0;
-            //int ntaskid = 0;
-            //var ltask = await GetTaskAsync<DbpTask>(a => a
-            //.Where(x => x.Channelid == Channel)
-            //.Select(ite =>
-            //new DbpTask
-            //{
-            //    Tasktype = ite.Tasktype,
-            //    Endtime = ite.Endtime,
-            //    NewEndtime = ite.Endtime,
-            //    Recunitid = ite.Recunitid,
-            //}));
-
-            //ntaskid = ltask.Taskid;
-            //if (ltask.Tasktype == (int)TaskType.TT_VTRUPLOAD)
-            //{
-            //    //vtr更新
-            //    await UpdateVtrUploadTaskStateAsync(ltask.Taskid, VTRUPLOADTASKSTATE.VTR_UPLOAD_COMPLETE, string.Empty, false);
-            //}
-            //else
-            //{
-            //    ltask.Endtime = DateTime.Now;
-            //    ltask.NewEndtime = ltask.Endtime;
-            //    ltask.Recunitid = ltask.Recunitid | 0x8000;
-
-
-
-            //    Context.Attach(ltask);
-            //    var entry = Context.Entry(ltask);
-            //    if (ltask.Tasktype == (int)TaskType.TT_MANUTASK
-            //        || ltask.Tasktype == (int)TaskType.TT_OPENEND
-            //        || ltask.Tasktype == (int)TaskType.TT_TIEUP)
-            //    {
-            //        ltask.Tasktype = (int)TaskType.TT_NORMAL;
-            //        entry.Property(x => x.Tasktype).IsModified = true;
-            //    }
-
-            //    entry.Property(x => x.Endtime).IsModified = true;
-            //    entry.Property(x => x.NewEndtime).IsModified = true;
-            //    entry.Property(x => x.Recunitid).IsModified = true;
-
-            //    try
-            //    {
-            //        await Context.SaveChangesAsync();
-            //    }
-            //    catch (DbUpdateException e)
-            //    {
-            //        throw e;
-            //    }
-
-            //}
-            //return ntaskid;
-        }
 
         public async Task<List<int>> StopCapturingListChannelAsync(List<int> lstChaneel)
         {
-            /*
-            * wqtest
-            */
-            return null;
-            //List<int> lstnreture = new List<int>();
-            ////获取采集中任务列表
-            //var lsttask = await GetTaskListAsync<DbpTask>(a => a
-            //.Where(x => lstChaneel.Contains(x.Channelid.GetValueOrDefault()) && (x.State == (int)taskState.tsExecuting || x.State == (int)taskState.tsManuexecuting))
-            //.Select(ite =>
-            //new DbpTask
-            //{
-            //    Taskid = ite.Taskid,
-            //    Taskguid = ite.Taskguid,
-            //    Tasktype = ite.Tasktype,
-            //    Endtime = ite.Endtime,
-            //    NewEndtime = ite.Endtime,
-            //    Recunitid = ite.Recunitid,
-            //}
-            //));
+            List<int> lstnreture = new List<int>();
+            //获取采集中任务列表
+            int state = UseHotTableConvert.QueryUseHotTable((int)taskState.tsExecuting);
+            var lsttask = await GetTaskListNotrackAsync(a => a
+            .Where(x => lstChaneel.Contains(x.Channelid.GetValueOrDefault()) && (x.State == state || x.State == (int)taskState.tsManuexecuting))
+            .Select(ite =>
+            new DbpTask
+            {
+                Taskid = ite.Taskid,
+                Taskguid = ite.Taskguid,
+                Tasktype = ite.Tasktype,
+                Endtime = ite.Endtime,
+                NewEndtime = ite.Endtime,
+                Recunitid = ite.Recunitid,
+            }
+            ));
 
-            ////把里面vtr任务和普通任务,list分出来
-            //var filtertasks = lsttask.GroupBy<DbpTask, int, DbpTask>(x => x.Tasktype.GetValueOrDefault(), y => y, new VtrComparer());
+            //把里面vtr任务和普通任务,list分出来
+            var filtertasks = lsttask.GroupBy<DbpTask, int, DbpTask>(x => x.Tasktype.GetValueOrDefault(), y => y, new VtrComparer());
 
-            //foreach (var item in filtertasks)
-            //{
-            //    if (item.Key == (int)TaskType.TT_VTRUPLOAD)
-            //    {
-            //        //vtr更新
-            //        await UpdateVtrUploadTaskListStateAsync(item.Select(f => f.Taskid).ToList(), VTRUPLOADTASKSTATE.VTR_UPLOAD_COMPLETE, string.Empty, false);
-            //    }
-            //    else
-            //    {
-            //        foreach (var itm in item)
-            //        {
-            //            itm.Endtime = DateTime.Now;
-            //            itm.NewEndtime = itm.Endtime;
-            //            itm.Recunitid = itm.Recunitid | 0x8000;
+            List<DbpTask> lstupdatetask = new List<DbpTask>();
+            foreach (var item in filtertasks)
+            {
+                if (item.Key == (int)TaskType.TT_VTRUPLOAD)
+                {
+                    //vtr更新
+                    await SetVtrUploadTaskListStateAsync(item.Select(f => f.Taskid).ToList(), VTRUPLOADTASKSTATE.VTR_UPLOAD_COMPLETE, string.Empty, true);
+                }
+                else
+                {
+                    foreach (var itm in item)
+                    {
+                        itm.Endtime = DateTime.Now;
+                        itm.NewEndtime = itm.Endtime;
+                        itm.Recunitid = itm.Recunitid | 0x8000;
 
 
+                        if (itm.Tasktype == (int)TaskType.TT_MANUTASK
+                            || itm.Tasktype == (int)TaskType.TT_OPENEND
+                            || itm.Tasktype == (int)TaskType.TT_TIEUP)
+                        {
+                            itm.Tasktype = (int)TaskType.TT_NORMAL;
+                        }
 
-            //            Context.Attach(itm);
-            //            var entry = Context.Entry(itm);
+                        lstupdatetask.Add(itm);
+                        lstnreture.Add(itm.Taskid);
+                    }
+                }
+            }
 
-            //            if (itm.Tasktype == (int)TaskType.TT_MANUTASK
-            //                || itm.Tasktype == (int)TaskType.TT_OPENEND
-            //                || itm.Tasktype == (int)TaskType.TT_TIEUP)
-            //            {
-            //                itm.Tasktype = (int)TaskType.TT_NORMAL;
-            //                entry.Property(x => x.Tasktype).IsModified = true;
-            //            }
-
-            //            entry.Property(x => x.Endtime).IsModified = true;
-            //            entry.Property(x => x.NewEndtime).IsModified = true;
-            //            entry.Property(x => x.Recunitid).IsModified = true;
-            //            lstnreture.Add(itm.Taskid);
-            //        }
-
-            //        try
-            //        {
-            //            await Context.SaveChangesAsync();
-            //        }
-            //        catch (DbUpdateException e)
-            //        {
-            //            throw e;
-            //        }
-            //    }
-            //}
-            //return lstnreture;
+            if (lstupdatetask.Count > 0)
+            {
+                await UpdateTaskListAsync(lstupdatetask, "", true);
+            }
+            return lstnreture;
         }
 
-        public async Task<int> DeleteCapturingChannelAsync(int Channel)
-        {
-            /*
-             * wqtest
-             */
-            return 0;
-            //int ntaskid = 0;
-            //var ltask = await GetTaskAsync<DbpTask>(a => a
-            //.Where(x => x.Channelid == Channel)
-            //.Select(ite =>
-            //new DbpTask
-            //{
-            //    Taskid = ite.Taskid,
-            //    //                Taskguid = ite.Taskguid,
-            //    Tasktype = ite.Tasktype,
-            //    State = ite.State,
-            //    OpType = ite.OpType,
-            //    SyncState = ite.SyncState,
-            //    Endtime = ite.Endtime,
-            //    NewEndtime = ite.Endtime,
-            //    Recunitid = ite.Recunitid,
-            //    DispatchState = ite.DispatchState,
-            //}));
-
-            //if (ltask.Tasktype == (int)TaskType.TT_VTRUPLOAD)
-            //{
-            //    //vtr更新
-            //    await DeleteVtrUploadTaskAsync(ltask.Taskid, ltask, false);
-            //    ntaskid = ltask.Taskid;
-            //}
-            //else
-            //{
-
-            //    if (ltask.State == (int)taskState.tsComplete)
-            //    {
-            //        await UnLockTask(ltask.Taskid);
-            //        SobeyRecException.ThrowSelfNoParam(ltask.Taskid.ToString(), GlobalDictionary.GLOBALDICT_CODE_CAN_NOT_DELETE_THE_COMPLETE_TASK, Logger, null);
-            //    }
-
-            //    bool isNeedDelFromDB = false;
-            //    ltask.OpType = (int)opType.otDel;//先暂时注释，看看后面会有更新不
-            //    if (ltask.DispatchState == (int)dispatchState.dpsNotDispatch ||
-            //        ltask.DispatchState == (int)dispatchState.dpsRedispatch ||
-            //        ltask.DispatchState == (int)dispatchState.dpsDispatchFailed ||
-            //        (ltask.DispatchState == (int)dispatchState.dpsDispatched && ltask.SyncState == (int)syncState.ssNot))
-            //    {
-            //        //对未分发任务的处理
-            //        ltask.DispatchState = (int)dispatchState.dpsDispatched;
-            //        ltask.SyncState = (int)syncState.ssSync;
-            //        ltask.State = (int)taskState.tsDelete;
-            //        isNeedDelFromDB = true;
-            //    }
-            //    else
-            //    {
-            //        ltask.SyncState = (int)syncState.ssNot;
-            //        ltask.Endtime = DateTime.Now;
-
-            //        Logger.Info("strEnd = GlobalFun.DateTimeToString(DateTime.Now) = dpsDispatched nTaskID = {0}", ltask.Taskid);
-            //    }
-
-            //    //解锁
-            //    ltask.Tasklock = string.Empty;
-            //    //Tie Up 直接删除
-            //    if (ltask.Tasktype == (int)TaskType.TT_TIEUP)
-            //    {
-            //        ltask.SyncState = (int)syncState.ssSync;
-            //        ltask.State = (int)taskState.tsDelete;
-            //        isNeedDelFromDB = true;
-            //    }
-
-            //    //zmj 2010-12-06 修改个别任务由于开始时间接收得比较晚，造成状态有问题
-            //    //此状态，任务已经开始执行了，但是由于消息队列原因，导致接收的时间比较晚，状态还没有变成正在执行状态
-            //    //这个时间，也需要将任务的结束时间改变，保证正常结束
-            //    if (ltask.State == (int)taskState.tsExecuting
-            //        || (ltask.DispatchState == (int)dispatchState.dpsDispatched && ltask.SyncState == (int)syncState.ssSync))
-            //    {
-            //        ltask.Endtime = DateTime.Now;
-            //        ltask.Recunitid = ltask.Recunitid | 0x8000;
-            //    }
-
-            //    if (isNeedDelFromDB)
-            //    {
-            //        int tasktempId = ltask.Taskid;
-            //        Logger.Info("delete task", tasktempId);
-            //        _virtualDbContext.Delete(ltask);
-            //        //Context.Attach(ltask);
-            //        //Context.DbpTask.Remove(ltask);
-            //    }
-            //    else
-            //    {
-            //        //接下来是modifytask逻辑
-            //        ltask.Tasklock = string.Empty;
-
-            //        Context.Attach(ltask);
-            //        var entry = Context.Entry(ltask);
-            //        entry.Property(x => x.OpType).IsModified = true;
-            //        entry.Property(x => x.State).IsModified = true;
-
-            //        entry.Property(x => x.DispatchState).IsModified = true;
-
-            //        entry.Property(x => x.Endtime).IsModified = true;
-            //        entry.Property(x => x.SyncState).IsModified = true;
-            //        entry.Property(x => x.NewEndtime).IsModified = true;
-            //        entry.Property(x => x.Recunitid).IsModified = true;
-            //    }
-
-            //    ntaskid = ltask.Taskid;
-
-            //    try
-            //    {
-            //        await Context.SaveChangesAsync();
-            //    }
-            //    catch (DbUpdateException e)
-            //    {
-            //        throw e;
-            //    }
-            //}
-
-            //return ntaskid;
-        }
-
+        
         public async Task<List<int>> DeleteCapturingListChannelAsync(List<int> lstChaneel)
         {
-            /*
-             * wqtest
-             */
-            return null;
-            //List<int> lstnreture = new List<int>();
-            ////获取采集中任务列表
-            //var lsttask = await GetTaskListAsync<DbpTask>(a => a
-            //.Where(x => lstChaneel.Contains(x.Channelid.GetValueOrDefault()) && (x.State == (int)taskState.tsExecuting || x.State == (int)taskState.tsManuexecuting))
-            //.Select(ite =>
-            //new DbpTask
-            //{
-            //    Taskid = ite.Taskid,
-            //    //                Taskguid = ite.Taskguid,
-            //    Tasktype = ite.Tasktype,
-            //    State = ite.State,
-            //    OpType = ite.OpType,
-            //    SyncState = ite.SyncState,
-            //    Endtime = ite.Endtime,
-            //    NewEndtime = ite.Endtime,
-            //    Recunitid = ite.Recunitid,
-            //    DispatchState = ite.DispatchState,
-            //}
-            //));
 
-            ////把里面vtr任务和普通任务,list分出来
-            //var filtertasks = lsttask.GroupBy<DbpTask, int, DbpTask>(x => x.Tasktype.GetValueOrDefault(), y => y, new VtrComparer());
-            //foreach (var item in filtertasks)
-            //{
-            //    if (item.Key == (int)TaskType.TT_VTRUPLOAD)
-            //    {
-            //        //vtr更新
-            //        foreach (var itm in item)
-            //        {
-            //            await DeleteVtrUploadTaskAsync(itm.Taskid, itm, false);
-            //            lstnreture.Add(itm.Taskid);
-            //        }
-            //    }
-            //    else
-            //    {
-            //        foreach (var itm in item)
-            //        {
-            //            if (itm.State == (int)taskState.tsComplete)
-            //            {
-            //                await UnLockTask(itm.Taskid);
-            //                SobeyRecException.ThrowSelfNoParam(itm.Taskid.ToString(), GlobalDictionary.GLOBALDICT_CODE_CAN_NOT_DELETE_THE_COMPLETE_TASK, Logger, null);
-            //            }
+            List<int> lstnreture = new List<int>();
+            //获取采集中任务列表
+            int QueryUseHotTable = UseHotTableConvert.QueryUseHotTable((int)taskState.tsExecuting);
+            var lsttask = await GetTaskListNotrackAsync(a => a
+            .Where(x => lstChaneel.Contains(x.Channelid.GetValueOrDefault()) && (x.State == QueryUseHotTable || x.State == (int)taskState.tsManuexecuting))
+            .Select(ite =>
+            new DbpTask
+            {
+                Taskid = ite.Taskid,
+                //                Taskguid = ite.Taskguid,
+                Tasktype = ite.Tasktype,
+                State = ite.State,
+                OpType = ite.OpType,
+                SyncState = ite.SyncState,
+                Endtime = ite.Endtime,
+                NewEndtime = ite.Endtime,
+                Recunitid = ite.Recunitid,
+                DispatchState = ite.DispatchState,
+            }
+            ));
 
-            //            bool isNeedDelFromDB = false;
-            //            itm.OpType = (int)opType.otDel;//先暂时注释，看看后面会有更新不
-            //            if (itm.DispatchState == (int)dispatchState.dpsNotDispatch ||
-            //                itm.DispatchState == (int)dispatchState.dpsRedispatch ||
-            //                itm.DispatchState == (int)dispatchState.dpsDispatchFailed ||
-            //                (itm.DispatchState == (int)dispatchState.dpsDispatched && itm.SyncState == (int)syncState.ssNot))
-            //            {
-            //                //对未分发任务的处理
-            //                itm.DispatchState = (int)dispatchState.dpsDispatched;
-            //                itm.SyncState = (int)syncState.ssSync;
-            //                itm.State = (int)taskState.tsDelete;
-            //                isNeedDelFromDB = true;
-            //            }
-            //            else
-            //            {
-            //                itm.SyncState = (int)syncState.ssNot;
-            //                itm.Endtime = DateTime.Now;
+            //把里面vtr任务和普通任务,list分出来
+            var filtertasks = lsttask.GroupBy<DbpTask, int, DbpTask>(x => x.Tasktype.GetValueOrDefault(), y => y, new VtrComparer());
+            foreach (var item in filtertasks)
+            {
+                if (item.Key == (int)TaskType.TT_VTRUPLOAD)
+                {
+                    //vtr更新
+                    foreach (var itm in item)
+                    {
+                        await DeleteVtrUploadTaskAsync(itm.Taskid, itm, false);
+                        lstnreture.Add(itm.Taskid);
+                    }
+                }
+                else
+                {
+                    foreach (var itm in item)
+                    {
+                        if (itm.State == (int)taskState.tsComplete)
+                        {
+                            await UnLockTask(itm.Taskid);
+                            SobeyRecException.ThrowSelfNoParam(itm.Taskid.ToString(), GlobalDictionary.GLOBALDICT_CODE_CAN_NOT_DELETE_THE_COMPLETE_TASK, Logger, null);
+                        }
 
-            //                Logger.Info("strEnd = GlobalFun.DateTimeToString(DateTime.Now) = dpsDispatched nTaskID = {0}", itm.Taskid);
-            //            }
+                        bool isNeedDelFromDB = false;
+                        itm.OpType = (int)opType.otDel;//先暂时注释，看看后面会有更新不
+                        if (itm.DispatchState == (int)dispatchState.dpsNotDispatch ||
+                            itm.DispatchState == (int)dispatchState.dpsRedispatch ||
+                            itm.DispatchState == (int)dispatchState.dpsDispatchFailed ||
+                            (itm.DispatchState == (int)dispatchState.dpsDispatched && itm.SyncState == (int)syncState.ssNot))
+                        {
+                            //对未分发任务的处理
+                            itm.DispatchState = (int)dispatchState.dpsDispatched;
+                            itm.SyncState = (int)syncState.ssSync;
+                            itm.State = (int)taskState.tsDelete;
+                            isNeedDelFromDB = true;
+                        }
+                        else
+                        {
+                            itm.SyncState = (int)syncState.ssNot;
+                            itm.Endtime = DateTime.Now;
 
-            //            //解锁
-            //            itm.Tasklock = string.Empty;
-            //            //Tie Up 直接删除
-            //            if (itm.Tasktype == (int)TaskType.TT_TIEUP)
-            //            {
-            //                itm.SyncState = (int)syncState.ssSync;
-            //                itm.State = (int)taskState.tsDelete;
-            //                isNeedDelFromDB = true;
-            //            }
+                            Logger.Info("strEnd = GlobalFun.DateTimeToString(DateTime.Now) = dpsDispatched nTaskID = {0}", itm.Taskid);
+                        }
 
-            //            //zmj 2010-12-06 修改个别任务由于开始时间接收得比较晚，造成状态有问题
-            //            //此状态，任务已经开始执行了，但是由于消息队列原因，导致接收的时间比较晚，状态还没有变成正在执行状态
-            //            //这个时间，也需要将任务的结束时间改变，保证正常结束
-            //            if (itm.State == (int)taskState.tsExecuting
-            //                || (itm.DispatchState == (int)dispatchState.dpsDispatched && itm.SyncState == (int)syncState.ssSync))
-            //            {
-            //                itm.Endtime = DateTime.Now;
-            //                itm.Recunitid = itm.Recunitid | 0x8000;
-            //            }
+                        //解锁
+                        itm.Tasklock = string.Empty;
+                        //Tie Up 直接删除
+                        if (itm.Tasktype == (int)TaskType.TT_TIEUP)
+                        {
+                            itm.SyncState = (int)syncState.ssSync;
+                            itm.State = (int)taskState.tsDelete;
+                            isNeedDelFromDB = true;
+                        }
 
-            //            if (isNeedDelFromDB)
-            //            {
-            //                //Logger.Info("delete task", itm.Taskid);
-            //                //Context.Attach(itm);
+                        //zmj 2010-12-06 修改个别任务由于开始时间接收得比较晚，造成状态有问题
+                        //此状态，任务已经开始执行了，但是由于消息队列原因，导致接收的时间比较晚，状态还没有变成正在执行状态
+                        //这个时间，也需要将任务的结束时间改变，保证正常结束
+                        if (itm.State == (int)taskState.tsExecuting
+                            || (itm.DispatchState == (int)dispatchState.dpsDispatched && itm.SyncState == (int)syncState.ssSync))
+                        {
+                            itm.Endtime = DateTime.Now;
+                            itm.Recunitid = itm.Recunitid | 0x8000;
+                        }
 
-            //                //Context.DbpTask.Remove(itm);
-            //                _virtualDbContext.Delete(itm);
-            //            }
-            //            else
-            //            {
-            //                //接下来是modifytask逻辑
-            //                itm.Tasklock = string.Empty;
+                        if (isNeedDelFromDB)
+                        {
+                            await DeleteTaskWithMetaDBAsync(itm, "", false);
+                        }
+                        else
+                        {
+                            //接下来是modifytask逻辑
+                            await UpdateTaskAsync(itm, "", false, o=>o.DispatchState, o => o.State, o => o.OpType, o => o.Endtime, o => o.SyncState, o => o.NewEndtime, o => o.Recunitid);
+                        }
 
-            //                Context.Attach(itm);
-            //                var entry = Context.Entry(itm);
-            //                entry.Property(x => x.DispatchState).IsModified = true;
-            //                entry.Property(x => x.State).IsModified = true;
-            //                entry.Property(x => x.OpType).IsModified = true;
-            //                entry.Property(x => x.Endtime).IsModified = true;
-            //                entry.Property(x => x.SyncState).IsModified = true;
-            //                entry.Property(x => x.NewEndtime).IsModified = true;
-            //                entry.Property(x => x.Recunitid).IsModified = true;
-            //            }
+                        lstnreture.Add(itm.Taskid);
+                    }
+                }
+            }
 
-            //            lstnreture.Add(itm.Taskid);
-            //        }
+            await SaveChangeAsync(ITaskStore.VirtualContent & ITaskStore.DefaultContent);
 
-            //        try
-            //        {
-            //            await Context.SaveChangesAsync();
-            //        }
-            //        catch (DbUpdateException e)
-            //        {
-            //            throw e;
-            //        }
-            //    }
-            //}
-
-            //return lstnreture;
+            return lstnreture;
         }
 
 
@@ -1687,13 +1479,13 @@ namespace IngestTaskPlugin.Stores
                             );
                         }
 
+
                         if (ApplicationContext.Current.Limit24Hours)
                         {
                             onelst = onelst.Where(a => a.Starttime >= subDays);
                         }
 
-                        lst = await onelst.ToShardingListAsync((x,y) => (dtDayBegin >= x&& dtDayBegin <= y)||(dtDayEnd >= x&& dtDayEnd <= y));
-
+                        lst = await onelst.ToShardingListAsync();
                         if (lst == null || lst.Count <= 0)
                         {
                             IQueryable<DbpTask> twolst = null;
@@ -1848,8 +1640,7 @@ namespace IngestTaskPlugin.Stores
                         {
                             onelst = onelst.Where(a => a.Starttime >= subDays);
                         }
-                        
-                        lst = await onelst.ToShardingListAsync((x, y) => (dtDayBegin >= x && dtDayBegin <= y) || (dtDayEnd >= x && dtDayEnd <= y));
+                        lst = await onelst.ToShardingListAsync();
 
                         if (lst == null || lst.Count <= 0)
                         {
@@ -2392,7 +2183,7 @@ namespace IngestTaskPlugin.Stores
             Logger.Info($"ModifyTask UpdateTask {task.Taskid} {task.State} {task.SyncState} {task.Starttime} {task.Endtime}");
 
             //Context.DbpTask.Update(task);
-            await UpdateTaskAsync(task, false);
+            await UpdateTaskAsync(task, "", false);
 
             if (!string.IsNullOrEmpty(CaptureMeta))
             {
@@ -2409,7 +2200,7 @@ namespace IngestTaskPlugin.Stores
             {
                 if (autoupdate)
                 {
-                    var metadata = await GetTaskMetaDataNotrackAsync(x => x.Where(a => a.Taskid == task.Taskid && a.Metadatatype == (int)MetaDataType.emStoreMetaData), false);
+                    var metadata = await GetTaskMetaDataNotrackAsync(x => x.Where(a => a.Taskid == task.Taskid && a.Metadatatype == (int)MetaDataType.emStoreMetaData));
                     if (metadata != null)
                     {
                         var org = XDocument.Parse(metadata.Metadatalong);
@@ -2447,7 +2238,7 @@ namespace IngestTaskPlugin.Stores
             {
                 if (autoupdate)
                 {
-                    var metadata = await GetTaskMetaDataNotrackAsync(x => x.Where(a => a.Taskid == task.Taskid && a.Metadatatype == (int)MetaDataType.emContentMetaData), false);
+                    var metadata = await GetTaskMetaDataNotrackAsync(x => x.Where(a => a.Taskid == task.Taskid && a.Metadatatype == (int)MetaDataType.emContentMetaData));
                     if (metadata != null)
                     {
                         var org = XDocument.Parse(metadata.Metadatalong);
@@ -2484,8 +2275,7 @@ namespace IngestTaskPlugin.Stores
             {
                 if (autoupdate)
                 {
-                    var metadata = await GetTaskMetaDataNotrackAsync(x => x.Where(a => a.Taskid == task.Taskid && a.Metadatatype == (int)MetaDataType.emPlanMetaData), false);
-                    if (metadata != null)
+                    var metadata = await GetTaskMetaDataNotrackAsync(x => x.Where(a => a.Taskid == task.Taskid && a.Metadatatype == (int)MetaDataType.emPlanMetaData));
                     {
                         var org = XDocument.Parse(metadata.Metadatalong);
                         var modify = XDocument.Parse(PlanningMeta);
@@ -2526,7 +2316,7 @@ namespace IngestTaskPlugin.Stores
 
                 if (autoupdate)
                 {
-                    var metadata = await GetTaskMetaDataNotrackAsync(x => x.Where(a => a.Taskid == task.Taskid && a.Metadatatype == (int)MetaDataType.emSplitData), false);
+                    var metadata = await GetTaskMetaDataNotrackAsync(x => x.Where(a => a.Taskid == task.Taskid && a.Metadatatype == (int)MetaDataType.emSplitData));
                     if (metadata != null)
                     {
                         var org = XDocument.Parse(metadata.Metadatalong);
@@ -2627,7 +2417,7 @@ namespace IngestTaskPlugin.Stores
             }
 
             Logger.Info(" AddTaskWithPolicys add task " + task.Taskid);
-            await _virtualDbContext.InsertAsync(task);
+            await _virtualDbContext.InsertTailAsync(task, "");
 
             if (!string.IsNullOrEmpty(ContentMeta))
             {
@@ -2664,17 +2454,7 @@ namespace IngestTaskPlugin.Stores
 
         public async Task SetTaskClassify(int taskid, string taskclassify, bool change)
         {
-            /*
-             * wqtest
-             */
-            //var task = await GetTaskAsync(a => a.Where(b => b.Taskid == taskid));
-            //task.Category = taskclassify;
-
-            //if (change)
-            //{
-            //    await Context.SaveChangesAsync();
-            //}
-
+            await UpdateTaskAsync(new DbpTask() { Taskid = taskid, Category = taskclassify }, "", true, o => o.Category);
         }
         private bool SetPerodicTask2NextExectueTime(DateTime tmBegin, DateTime tmEnd, string strPerodicDesc, ref DateTime tmExecuteBegin, ref DateTime tmExecuteEnd)
         {
@@ -3272,11 +3052,12 @@ namespace IngestTaskPlugin.Stores
 
         public async Task<int> ResetTaskErrorInfo(int taskid)
         {
-            var taskunit = await _virtualDbContext.Set<DbpTask>().Where(a => a.Taskid == taskid).Select(s => s.Recunitid).SingleOrDefaultAsync();
-            if (taskunit > 1)
+            var taskunit = await GetTaskNotrackTailAsync(a => a.Where(x => x.Taskid == taskid));
+            if (taskunit != null)
             {
                 //后面八位都是给task显示error的
-                await UpdateTaskAsync(new DbpTask() { Taskid = taskid, Recunitid = taskunit & 0x100 }, false, o => o.Recunitid);
+                taskunit.Item2.Recunitid = taskunit.Item2.Recunitid & 0x100;
+                await UpdateTaskAsync(taskunit.Item2, taskunit.Item1, false, o => o.Recunitid);
             }
 
             var info = Context.DbpTaskErrorinfo.Where(a => a.Taskid == taskid);
@@ -3328,24 +3109,6 @@ namespace IngestTaskPlugin.Stores
         /////////////////////
         ///
 
-        public async Task<bool> AddTask(DbpTask tasks, bool savechange)
-        {
-            if (tasks != null)
-            {
-                await _virtualDbContext.InsertAsync(tasks);
-            }
-
-            if (savechange)
-            {
-                return await Context.SaveChangesAsync() > 0;
-            }
-            else
-            {
-                return true;
-            }
-
-        }
-
         public async Task<bool> AddTaskList(List<DbpTask> tasks, bool savechange)
         {
             if (tasks != null && tasks.Count > 0)
@@ -3382,16 +3145,15 @@ namespace IngestTaskPlugin.Stores
 
         public async Task<bool> UpdateTaskBmp(Dictionary<int, string> taskPmp)
         {
-            /*
-             * wqtest
-             */
-            //var taskIds = taskPmp.Select(a => a.Key).ToList();
-            //var tasks = await _virtualDbContext.Set<DbpTask>().Where(a => taskIds.Contains(a.Taskid)).ToListAsync();
-            //if (tasks != null && tasks.Count > 0)
-            //{
-            //    tasks.ForEach(a => a.Description = taskPmp.First(x => x.Key == a.Taskid).Value);
-            //    return await Context.SaveChangesAsync() > 0;
-            //}
+            var taskIds = taskPmp.Select(a => a.Key).ToList();
+            var lsttask = await GetTaskListNotrackTailAsync(a => a.Where(x => taskIds.Contains(x.Taskid)));
+
+            if (lsttask != null && lsttask.Count > 0)
+            {
+                lsttask.ForEach(a => a.Item2.Description = taskPmp.First(x => x.Key == a.Item2.Taskid).Value);
+                await UpdateTaskListAsync(lsttask, true);
+                return true;
+            }
             return false;
         }
 

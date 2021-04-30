@@ -25,7 +25,7 @@ namespace ShardingCore.Core.VirtualRoutes.TableRoutes.RoutingRuleEngine
             _virtualTableManager = virtualTableManager;
         }
 
-        public IEnumerable<RouteResult> Route<T>(RouteRuleContext<T> routeRuleContext, Func<DateTime, DateTime, bool> tablefilter)
+        public IEnumerable<RouteResult> Route<T>(RouteRuleContext<T> routeRuleContext)
         {
             Dictionary<IVirtualTable, ISet<IPhysicTable>> routeMaps = new Dictionary<IVirtualTable, ISet<IPhysicTable>>();
             var queryEntities = routeRuleContext.Queryable.ParseQueryableRoute();
@@ -36,7 +36,7 @@ namespace ShardingCore.Core.VirtualRoutes.TableRoutes.RoutingRuleEngine
             {
                 var virtualTable = _virtualTableManager.GetVirtualTable(routeRuleContext.ConnectKey,shardingEntity);
 
-                var physicTables = virtualTable.RouteTo((new TableRouteConfig(routeRuleContext.Queryable)).SetQueryFilter(tablefilter));
+                var physicTables = virtualTable.RouteTo(new TableRouteConfig(routeRuleContext.Queryable));
                 if (!routeMaps.ContainsKey(virtualTable))
                 {
                     routeMaps.Add(virtualTable, physicTables.ToHashSet());

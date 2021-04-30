@@ -29,6 +29,7 @@ namespace ShardingCore.Core.Internal.StreamMerge.Enumerators
             _queue = new PriorityQueue<IOrderStreamMergeAsyncEnumerator<T>>(enumerators.Count());
             skipFirst = true;
             SetOrderEnumerator();
+            DataTableTail = enumerators.First().DataTableTail;
         }
 
         private void SetOrderEnumerator()
@@ -120,5 +121,7 @@ namespace ShardingCore.Core.Internal.StreamMerge.Enumerators
 #endif
 
         public T Current => skipFirst ? default : _currentEnumerator.Current;
+
+        public string DataTableTail { get ; set ; }
     }
 }

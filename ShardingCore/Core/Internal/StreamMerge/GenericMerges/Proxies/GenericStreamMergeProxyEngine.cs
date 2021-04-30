@@ -25,6 +25,23 @@ namespace ShardingCore.Core.Internal.StreamMerge.GenericMerges.Proxies
             return new GenericStreamMergeProxyEngine<T>(mergeContext);
         }
 
+        public async Task<List<Tuple<string, T>>> ToListTailAsync(int capacity = 20)
+        {
+            var enumerator = await _streamMergeEngine.GetStreamEnumerator();
+            var list = new List<Tuple<string, T>>(capacity);
+#if !EFCORE2
+            while (await enumerator.MoveNextAsync())
+#endif
+#if EFCORE2
+            while (await enumerator.MoveNext())
+#endif
+            {
+                list.Add(new Tuple<string, T>(enumerator.DataTableTail, enumerator.Current));
+            }
+
+            return list;
+        }
+
         public async Task<List<T>> ToListAsync(int capacity=20)
         {
             var enumerator = await _streamMergeEngine.GetStreamEnumerator();

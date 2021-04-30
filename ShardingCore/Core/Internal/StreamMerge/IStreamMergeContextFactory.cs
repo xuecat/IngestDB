@@ -15,6 +15,6 @@ namespace ShardingCore.Core.Internal.StreamMerge
     {
         //StreamMergeContext<T> Create<T>(IQueryable<T> queryable, DataSourceRoutingResult dataSourceRoutingResult);
         StreamMergeContext<T> Create<T>(IQueryable<T> queryable);
-        StreamMergeContext<T> Create<T>(IQueryable<T> queryable, DataSourceRoutingRuleContext<T> ruleContext, Func<DateTime, DateTime, bool> tablefilter = null);
+        StreamMergeContext<T> Create<T>(IQueryable<T> queryable, DataSourceRoutingRuleContext<T> ruleContext);
     }
 }

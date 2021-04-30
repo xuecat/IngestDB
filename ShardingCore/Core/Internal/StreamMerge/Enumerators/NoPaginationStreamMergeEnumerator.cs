@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using ShardingCore.Core.Internal.StreamMerge.Abstractions;
@@ -20,12 +21,13 @@ namespace ShardingCore.Core.Internal.StreamMerge.Enumerators
         private readonly int? _take;
         private int realSkip=0;
         private int realTake = 0;
-
+        public string DataTableTail { get; set; }
         public NoPaginationStreamMergeEnumerator(StreamMergeContext<T> mergeContext,IEnumerable<IStreamMergeAsyncEnumerator<T>> sources)
         {
             _mergeContext = mergeContext;
             _skip = mergeContext.Skip;
             _take = mergeContext.Take;
+            DataTableTail = sources.First().DataTableTail;
             if (_mergeContext.HasGroupQuery())
                 _enumerator = new MultiAggregateOrderStreamMergeAsyncEnumerator<T>(_mergeContext, sources);
             else

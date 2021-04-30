@@ -56,12 +56,16 @@ namespace ShardingCore.Core
         /// <returns></returns>
         Task<List<T>> ToListAsync(int capacity=20);
 
+        Task<List<Tuple<string, T>>> ToListTailAsync(int capacity = 20);
+
 
         /// <summary>
         /// 获取第一个,若不存在则返回默认值
         /// </summary>
         /// <returns></returns>
         Task<T> FirstOrDefaultAsync();
+
+        Task<Tuple<string,T>> FirstOrDefaultTailAsync();
 
 
         /// <summary>

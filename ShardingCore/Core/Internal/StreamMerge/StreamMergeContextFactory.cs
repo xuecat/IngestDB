@@ -42,11 +42,11 @@ namespace ShardingCore.Core.Internal.StreamMerge
         public StreamMergeContext<T> Create<T>(IQueryable<T> queryable)
         {
             //return new StreamMergeContext<T>(queryable, _routingRuleEngineFactory.Route(queryable), _shardingParallelDbContextFactory, _shardingScopeFactory);
-            return new StreamMergeContext<T>(queryable, _dataSourceRoutingRuleEngineFactory, _routingRuleEngineFactory, _shardingParallelDbContextFactory, _shardingScopeFactory, null);
+            return new StreamMergeContext<T>(queryable, _dataSourceRoutingRuleEngineFactory, _routingRuleEngineFactory, _shardingParallelDbContextFactory, _shardingScopeFactory);
         }
-        public StreamMergeContext<T> Create<T>(IQueryable<T> queryable,DataSourceRoutingRuleContext<T> ruleContext, Func<DateTime, DateTime, bool> tablefilter)
+        public StreamMergeContext<T> Create<T>(IQueryable<T> queryable,DataSourceRoutingRuleContext<T> ruleContext)
         {
-            return new StreamMergeContext<T>(queryable, _dataSourceRoutingRuleEngineFactory, _routingRuleEngineFactory, _shardingParallelDbContextFactory, _shardingScopeFactory, tablefilter);
+            return new StreamMergeContext<T>(queryable, _dataSourceRoutingRuleEngineFactory, _routingRuleEngineFactory, _shardingParallelDbContextFactory, _shardingScopeFactory);
             //return new StreamMergeContext<T>(queryable, _routingRuleEngineFactory.Route(queryable,ruleContext), _shardingParallelDbContextFactory, _shardingScopeFactory);
         }
     }

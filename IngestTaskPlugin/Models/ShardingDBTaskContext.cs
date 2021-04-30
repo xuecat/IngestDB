@@ -173,7 +173,6 @@ namespace IngestTaskPlugin.Models
                     .HasColumnName("USERCODE")
                     .HasColumnType("varchar(256)")
                     .HasDefaultValueSql("''");
-            
         }
     }
     public class TaskMetaDataDBMap: IEntityTypeConfiguration<DbpTaskMetadata>

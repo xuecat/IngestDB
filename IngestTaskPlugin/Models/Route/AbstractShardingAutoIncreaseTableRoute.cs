@@ -12,8 +12,6 @@ namespace IngestTaskPlugin.Models.Route
     {
         public long Min { get; set; }
         public long Max { get; set; }
-        public DateTime End { get; set; }
-        public DateTime Begin { get; set; }
         public string Key { get; set; }
         public string Tail { get; set; }
         public bool NeedCreate { get; set; }

@@ -29,6 +29,7 @@ namespace IngestTaskPlugin.Stores
     
     public interface ITaskStore
     {
+        
         public const int VirtualContent = 2;
         public const int DefaultContent = 4;
 
@@ -36,14 +37,20 @@ namespace IngestTaskPlugin.Stores
         Task SaveChangeAsync(int content);
         int GetNextValId(string value);
 
-        Task<List<TResult>> GetTaskListNotrackAsync<TResult>(Func<IQueryable<DbpTask>, IQueryable<TResult>> query, Func<DateTime,DateTime,bool> tablefilter, bool sharding);
-        Task<TResult> GetTaskNotrackAsync<TResult>(Func<IQueryable<DbpTask>, IQueryable<TResult>> query, bool sharding);
+        Task<List<Tuple<string, TResult>>> GetTaskListNotrackTailAsync<TResult>(Func<IQueryable<DbpTask>, IQueryable<TResult>> query);
+        Task<Tuple<string,TResult>> GetTaskNotrackTailAsync<TResult>(Func<IQueryable<DbpTask>, IQueryable<TResult>> query);
+        Task<TResult> GetTaskNotrackAsync<TResult>(Func<IQueryable<DbpTask>, IQueryable<TResult>> query);
+        Task<List<TResult>> GetTaskListNotrackAsync<TResult>(Func<IQueryable<DbpTask>, IQueryable<TResult>> query);
 
-        Task UpdateTaskAsync(DbpTask item, bool savechange, params Expression<Func<DbpTask, object>>[] getUpdatePropertyNames);
-        Task UpdateTaskListAsync(List<DbpTask> lst, bool savechange);
+        Task UpdateTaskAsync(DbpTask item, string tail, bool savechange, params Expression<Func<DbpTask, object>>[] getUpdatePropertyNames);
+        Task UpdateTaskListAsync(List<DbpTask> lst, string tail, bool savechange);
+        Task UpdateTaskListAsync(List<Tuple<string, DbpTask>> lst, bool savechange);
 
-        Task<TResult> GetTaskMetaDataNotrackAsync<TResult>(Func<IQueryable<DbpTaskMetadata>, IQueryable<TResult>> query, bool sharding);
-        Task<List<TResult>> GetTaskMetaDataListNotrackAsync<TResult>(Func<IQueryable<DbpTaskMetadata>, IQueryable<TResult>> query, bool sharding);
+        Task<int> DeleteTaskWithMetaDBAsync(DbpTask item, string tail, bool savechange);
+        Task<int> DeleteTaskWithMetaDBAsync(Func<IQueryable<DbpTask>, IQueryable<DbpTask>> query, bool savechange);
+
+        Task<TResult> GetTaskMetaDataNotrackAsync<TResult>(Func<IQueryable<DbpTaskMetadata>, IQueryable<TResult>> query);
+        Task<List<TResult>> GetTaskMetaDataListNotrackAsync<TResult>(Func<IQueryable<DbpTaskMetadata>, IQueryable<TResult>> query);
 
         Task AddTaskMetadataAsync(DbpTaskMetadata item, bool savechange);
         Task AddTaskMetadataListAsync(List<DbpTaskMetadata> item, bool savechange);
@@ -70,14 +77,13 @@ namespace IngestTaskPlugin.Stores
         Task<List<DbpTask>> GetNeedUnSynTasks();
         //Task<List<DbpTask>> GetCapturingTaskListAsync(List<int> lstchannel);
         Task SetTaskClassify(int taskid, string taskclassify, bool change);
-        
+
+        Task<DbpTask> CancelTask(int taskid);
         Task<DbpTask> StopTask(int taskid, DateTime dt);
         int StopTaskNoChange(DbpTask task, DateTime dt);
-        Task<DbpTask> DeleteTask(int taskid);
-        Task<int> DeleteTaskDB(int taskid, bool change);
-        Task<int> StopCapturingChannelAsync(int Channel);
+
+
         Task<List<int>> StopCapturingListChannelAsync(List<int> lstChaneel);
-        Task<int> DeleteCapturingChannelAsync(int Channel);
         Task<List<int>> DeleteCapturingListChannelAsync(List<int> lstChaneel);
 
         string GetConfictTaskInfo();

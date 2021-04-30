@@ -1,5 +1,4 @@
-﻿using EFCore.Sharding;
-using IngestDBCore;
+﻿using IngestDBCore;
 using IngestDBCore.Plugin;
 using IngestDBCore.Tool;
 using IngestTaskPlugin.Managers;

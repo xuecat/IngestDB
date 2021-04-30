@@ -11,6 +11,6 @@ namespace ShardingCore.Core.VirtualRoutes.TableRoutes.RoutingRuleEngine
 */
     public interface IRouteRuleEngine
     {
-        IEnumerable<RouteResult> Route<T>(RouteRuleContext<T> routeRuleContext, Func<DateTime, DateTime, bool> tablefilter);
+        IEnumerable<RouteResult> Route<T>(RouteRuleContext<T> routeRuleContext);
     }
 }

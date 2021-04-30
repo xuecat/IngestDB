@@ -24,9 +24,9 @@ namespace ShardingCore.Core.VirtualRoutes.TableRoutes
         /// <param name="allPhysicTables"></param>
         /// <param name="queryable"></param>
         /// <returns></returns>
-        public List<IPhysicTable> RouteWithWhere(List<IPhysicTable> allPhysicTables, IQueryable queryable, Func<DateTime, DateTime, bool> tablefilter)
+        public List<IPhysicTable> RouteWithWhere(List<IPhysicTable> allPhysicTables, IQueryable queryable)
         {
-            return AfterPhysicTableFilter(allPhysicTables,DoRouteWithWhere(allPhysicTables,queryable, tablefilter));
+            return AfterPhysicTableFilter(allPhysicTables,DoRouteWithWhere(allPhysicTables,queryable));
         }
         /// <summary>
         /// 实际路由
@@ -34,7 +34,7 @@ namespace ShardingCore.Core.VirtualRoutes.TableRoutes
         /// <param name="allPhysicTables"></param>
         /// <param name="queryable"></param>
         /// <returns></returns>
-        protected abstract List<IPhysicTable> DoRouteWithWhere(List<IPhysicTable> allPhysicTables, IQueryable queryable, Func<DateTime, DateTime, bool> tablefilter);
+        protected abstract List<IPhysicTable> DoRouteWithWhere(List<IPhysicTable> allPhysicTables, IQueryable queryable);
         /// <summary>
         /// 物理表过滤后
         /// </summary>
@@ -46,7 +46,7 @@ namespace ShardingCore.Core.VirtualRoutes.TableRoutes
             return filterPhysicTables;
         }
 
-        public abstract IPhysicTable RouteWithValue(List<IPhysicTable> allPhysicTables, object shardingKeyValue);
+        public abstract IPhysicTable RouteWithValue(List<IPhysicTable> allPhysicTables, object shardingKeyValue, string tail);
         /// <summary>
         /// 返回数据库现有的尾巴
         /// </summary>

@@ -18,12 +18,14 @@ namespace ShardingCore.Core.Internal.StreamMerge.Enumerators
         private readonly IAsyncEnumerator<T> _source;
         private bool skip;
 
-        public StreamMergeAsyncEnumerator(IAsyncEnumerator<T> source)
+        public StreamMergeAsyncEnumerator(IAsyncEnumerator<T> source, string tail)
         {
             _source = source;
             skip = true;
+            DataTableTail = tail;
         }
 
+        public string DataTableTail { get; set; }
 
 #if !EFCORE2
         public async ValueTask<bool> MoveNextAsync()

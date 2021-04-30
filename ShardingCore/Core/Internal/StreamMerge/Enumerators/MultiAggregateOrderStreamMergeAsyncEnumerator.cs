@@ -25,7 +25,7 @@ namespace ShardingCore.Core.Internal.StreamMerge.Enumerators
         private T CurrentValue;
         private List<object> CurrentGroupValues;
         private bool _skipFirst;
-
+        public string DataTableTail { get; set; }
         public MultiAggregateOrderStreamMergeAsyncEnumerator(StreamMergeContext<T> mergeContext, IEnumerable<IStreamMergeAsyncEnumerator<T>> enumerators)
         {
             _mergeContext = mergeContext;
@@ -33,6 +33,7 @@ namespace ShardingCore.Core.Internal.StreamMerge.Enumerators
             _queue = new PriorityQueue<IOrderStreamMergeAsyncEnumerator<T>>(enumerators.Count());
             _skipFirst = true;
             SetOrderEnumerator();
+            DataTableTail = enumerators.First().DataTableTail;
         }
 
         private void SetOrderEnumerator()

@@ -32,17 +32,17 @@ namespace ShardingCore.Core.VirtualRoutes.TableRoutes.RoutingRuleEngine
             return new RouteRuleContext<T>(connectKey,queryable, _virtualTableManager);
         }
 
-        public IEnumerable<RouteResult> Route<T>(string connectKey, IQueryable<T> queryable, Func<DateTime, DateTime, bool> tablefilter)
+        public IEnumerable<RouteResult> Route<T>(string connectKey, IQueryable<T> queryable)
         {
             var engine = CreateEngine();
             var ruleContext = CreateContext<T>(connectKey,queryable);
-            return engine.Route(ruleContext, tablefilter);
+            return engine.Route(ruleContext);
         }
 
-        public IEnumerable<RouteResult> Route<T>(string connectKey, IQueryable<T> queryable, RouteRuleContext<T> ruleContext, Func<DateTime, DateTime, bool> tablefilter)
+        public IEnumerable<RouteResult> Route<T>(string connectKey, IQueryable<T> queryable, RouteRuleContext<T> ruleContext)
         {
             var engine = CreateEngine();
-            return engine.Route(ruleContext, tablefilter);
+            return engine.Route(ruleContext);
         }
     }
 }

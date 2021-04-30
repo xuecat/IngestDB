@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using ShardingCore.Core;
 using ShardingCore.Helpers;
@@ -25,6 +26,11 @@ namespace ShardingCore.Extensions
         public static List<T> ToList<T>(this IShardingQueryable<T> queryable)
         {
             return AsyncHelper.RunSync(() => queryable.ToListAsync());
+        }
+
+        public static List<Tuple<string, T>> ToListTail<T>(this IShardingQueryable<T> queryable)
+        {
+            return AsyncHelper.RunSync(() => queryable.ToListTailAsync());
         }
 
         public static int Count<T>(this IShardingQueryable<T> queryable)

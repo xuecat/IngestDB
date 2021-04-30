@@ -81,12 +81,37 @@ namespace ShardingCore.DbContexts.VirtualDbContexts
             await CreateGenericDbContext(entity).Set<T>().AddAsync(entity);
             return 1;
         }
+        public async Task<int> InsertTailAsync<T>(T entity, string tail) where T : class
+        {
+            await CreateGenericDbContextTail(entity, tail).Set<T>().AddAsync(entity);
+            return 1;
+        }
 
         public async Task<int> InsertRangeAsync<T>(ICollection<T> entities) where T : class
         {
             var groups = entities.Select(o =>
             {
                 var dbContext = CreateGenericDbContext(o);
+                return new
+                {
+                    DbContext = dbContext,
+                    Entity = o
+                };
+            }).GroupBy(g => g.DbContext);
+
+            foreach (var group in groups)
+            {
+                await group.Key.AddRangeAsync(group.Select(o => o.Entity));
+            }
+
+            return entities.Count;
+        }
+
+        public async Task<int> InsertRangeTailAsync<T>(ICollection<T> entities, string tail) where T : class
+        {
+            var groups = entities.Select(o =>
+            {
+                var dbContext = CreateGenericDbContextTail(o, tail);
                 return new
                 {
                     DbContext = dbContext,
@@ -133,6 +158,7 @@ namespace ShardingCore.DbContexts.VirtualDbContexts
             CreateGenericDbContext(entity).Set<T>().Remove(entity);
             return Task.FromResult(1);
         }
+
 
         public Task<int> DeleteRangeAsync<T>(ICollection<T> entities) where T : class
         {
@@ -208,7 +234,11 @@ namespace ShardingCore.DbContexts.VirtualDbContexts
             return 1;
         }
 
-
+        public int UpdateTail<T>(T entity, string tail) where T : class
+        {
+            CreateGenericDbContextTail(entity, tail).Set<T>().Update(entity);
+            return 1;
+        }
         public void UpdateColumns<T>(T entity, params Expression<Func<T, object>>[] getUpdatePropertyNames) where T : class
         {
             var context= CreateGenericDbContext(entity);
@@ -223,6 +253,21 @@ namespace ShardingCore.DbContexts.VirtualDbContexts
                 }
             }
             
+        }
+        public void UpdateColumnsTail<T>(T entity, string tail, params Expression<Func<T, object>>[] getUpdatePropertyNames) where T : class
+        {
+            var context = CreateGenericDbContextTail(entity, tail);
+            context.Set<T>().Attach(entity);
+
+            var entityentry = context.Entry(entity);
+            if (getUpdatePropertyNames.Any())
+            {
+                foreach (var property in getUpdatePropertyNames)
+                {
+                    entityentry.Property(property).IsModified = true;
+                }
+            }
+
         }
         private IEnumerable<string> GetUpdatePropNames<T>(T entity, Expression<Func<T, object>> getUpdatePropertyNames) where T : class
         {
@@ -272,9 +317,35 @@ namespace ShardingCore.DbContexts.VirtualDbContexts
             return entities.Count;
         }
 
+        public int UpdateRangeTail<T>(ICollection<Tuple<string, T>> entities) where T : class
+        {
+            var groups = entities.Select(o =>
+            {
+                var dbContext = CreateGenericDbContextTail(o.Item2, o.Item1);
+                return new
+                {
+                    DbContext = dbContext,
+                    Entity = o.Item2
+                };
+            }).GroupBy(g => g.DbContext);
+
+            foreach (var group in groups)
+            {
+                group.Key.UpdateRange(group.Select(o => o.Entity));
+            }
+
+            return entities.Count;
+        }
+
         public int Delete<T>(T entity) where T : class
         {
             CreateGenericDbContext(entity).Set<T>().Remove(entity);
+            return 1;
+        }
+
+        public int DeleteTail<T>(T entity, string tail) where T : class
+        {
+            CreateGenericDbContextTail(entity, tail).Set<T>().Remove(entity);
             return 1;
         }
 
@@ -287,6 +358,26 @@ namespace ShardingCore.DbContexts.VirtualDbContexts
                 {
                     DbContext = dbContext,
                     Entity = o
+                };
+            }).GroupBy(g => g.DbContext);
+
+            foreach (var group in groups)
+            {
+                group.Key.RemoveRange(group.Select(o => o.Entity));
+            }
+
+            return entities.Count;
+        }
+
+        public int DeleteRangeTail<T>(ICollection<Tuple<string, T>> entities) where T : class
+        {
+            var groups = entities.Select(o =>
+            {
+                var dbContext = CreateGenericDbContextTail(o.Item2, o.Item1);
+                return new
+                {
+                    DbContext = dbContext,
+                    Entity = o.Item2
                 };
             }).GroupBy(g => g.DbContext);
 
@@ -378,6 +469,18 @@ namespace ShardingCore.DbContexts.VirtualDbContexts
             }
 
             return new ShardingBatchDeleteEntry<T>(where, dbContexts);
+        }
+
+        private DbContext CreateGenericDbContextTail<T>(T entity, string tails) where T : class
+        {
+            var tail = EMPTY_SHARDING_TAIL_ID;
+            var connectKey = _virtualDataSourceManager.GetConnectKey(entity);
+            if (entity.IsShardingTable())
+            {
+                var physicTable = _virtualTableManager.GetVirtualTable(connectKey, entity.GetType()).RouteTo((new TableRouteConfig(null, entity as IShardingTable, null)).SetExtraTail(tails)).First();
+                tail = physicTable.Tail;
+            }
+            return GetOrCreateShardingDbContext(connectKey, tail);
         }
 
         private DbContext CreateGenericDbContext<T>(T entity) where T : class

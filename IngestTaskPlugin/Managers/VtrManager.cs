@@ -21,6 +21,8 @@ using Microsoft.EntityFrameworkCore;
 using Sobey.Core.Log;
 
 using IngestTaskPlugin.Dto.OldVtr;
+using System.Linq.Expressions;
+using IngestTaskPlugin.Models.Route;
 
 namespace IngestTaskPlugin.Managers
 {
@@ -1116,19 +1118,15 @@ namespace IngestTaskPlugin.Managers
                 vtrTask.strBegin = DateTimeFormat.DateTimeToString(vtrTaskNow.BeginTime);
                 vtrTask.strEnd = DateTimeFormat.DateTimeToString(vtrTaskNow.EndTime);
             }
+           
+            var dbptask = new DbpTask();
+            List<Expression<Func<DbpTask, object>>> func = new List<Expression<Func<DbpTask, object>>>();
 
-            var dbptask = (await TaskStore.GetTaskNotrackAsync(a => a.Where(x => x.Taskid == vtrTask.nTaskId), true));
-
-            if (dbptask == null)
-            {
-                throw new Exception("Can not find the row in DBP_TASK table,TaskId = " + vtrTask.nTaskId.ToString());
-            }
-
-            dbptask = VTRUploadTaskContent2Dbptask(false, vtrTask, dbptask,  lMask);
+            dbptask = VTRUploadTaskContent2Dbptask(false, vtrTask, dbptask,  lMask, func);
             VtrUploadtask vtrUploadtaskResult = Mapper.Map<VtrUploadtask>(vtrTaskNow);
             vtrUploadtaskResult = VTRUploadTaskContent2VTRUPLOADTASK(vtrTask, vtrUploadtaskResult, lMask);
 
-            await TaskStore.UpdateTaskAsync(dbptask, false);
+            await TaskStore.UpdateTaskAsync(dbptask, "", false, func.ToArray());
             await VtrStore.UpdateUploadtask(vtrUploadtaskResult);
 
             if (metadatas != null && metadatas.Count > 0)
@@ -1295,40 +1293,58 @@ namespace IngestTaskPlugin.Managers
             return vtrUploadtask;
         }
 
-        private DbpTask VTRUploadTaskContent2Dbptask(bool isAdd, VTRUploadTaskContent task,DbpTask dbpTask, long lMask)
+        private DbpTask VTRUploadTaskContent2Dbptask(bool isAdd, VTRUploadTaskContent task,DbpTask dbpTask, long lMask, List<Expression<Func<DbpTask, object>>> func)
         {
 
             if (lMask <= 0)
             {
                 dbpTask.Backtype = (int)CooperantType.emPureTask;
+                func.Add(o => o.Backtype);
                 dbpTask.Category = task.strClassify;
+                func.Add(o => o.Category);
                 dbpTask.Channelid = task.nChannelId;
+                func.Add(o => o.Channelid);
                 dbpTask.Description = task.strTaskDesc;
+                func.Add(o => o.Description);
 
                 if (isAdd)
                 {
                     dbpTask.DispatchState = (int)dispatchState.dpsNotDispatch;
+                    func.Add(o => o.DispatchState);
                     dbpTask.OpType = (int)opType.otAdd;
+                    func.Add(o => o.OpType);
                     dbpTask.State = (int)taskState.tsReady;
+                    func.Add(o => o.State);
                     dbpTask.SyncState = (int)syncState.ssNot;
+                    func.Add(o => o.SyncState);
                 }
 
                 dbpTask.Starttime = DateTimeFormat.DateTimeFromString(task.strBegin);
+                func.Add(o => o.Starttime);
                 dbpTask.Endtime = DateTimeFormat.DateTimeFromString(task.strEnd);
+                func.Add(o => o.Endtime);
                 dbpTask.NewBegintime = DateTimeFormat.DateTimeFromString(task.strBegin);
+                func.Add(o => o.NewBegintime);
                 dbpTask.NewEndtime = DateTimeFormat.DateTimeFromString(task.strEnd);
+                func.Add(o => o.NewEndtime);
                 dbpTask.OldChannelid = 0;
+                func.Add(o => o.OldChannelid);
 
                 dbpTask.Recunitid = 1;
+                func.Add(o => o.Recunitid);
                 dbpTask.Signalid = task.nSignalId;
+                func.Add(o => o.Signalid);
 
                 dbpTask.Taskid = task.nTaskId;
                 dbpTask.Tasklock = "";
                 dbpTask.Taskname = task.strTaskName;
+                func.Add(o => o.Taskname);
                 dbpTask.Tasktype = (int)TaskType.TT_VTRUPLOAD;
                 dbpTask.Usercode = task.strUserCode;
+                func.Add(o => o.Usercode);
                 dbpTask.Taskguid = task.strTaskGUID;
                 dbpTask.Tasksource = (int)TaskSource.emVTRUploadTask;
+                func.Add(o => o.Tasksource);
                 dbpTask.Backupvtrid = 0;
             }
             else
@@ -1337,64 +1353,78 @@ namespace IngestTaskPlugin.Managers
                 if (IsInMask(lMask, VTRUploadTaskMask.VTR_Mask_ChannelId))
                 {
                     dbpTask.Channelid = task.nChannelId;
+                    func.Add(o => o.Channelid);
                 }
 
                 if (IsInMask(lMask, VTRUploadTaskMask.VTR_Mask_SignalId))
                 {
                     dbpTask.Signalid = task.nSignalId;
+                    func.Add(o => o.Signalid);
                 }
 
                 if (IsInMask(lMask, VTRUploadTaskMask.VTR_Mask_UserCode))
                 {
                     dbpTask.Usercode = task.strUserCode;
+                    func.Add(o => o.Usercode);
                 }
 
                 if (IsInMask(lMask, VTRUploadTaskMask.VTR_Mask_TaskGUID))
                 {
                     dbpTask.Taskguid = task.strTaskGUID;
+                    func.Add(o => o.Taskguid);
                 }
 
                 if (IsInMask(lMask, VTRUploadTaskMask.VTR_Mask_TaskName))
                 {
                     dbpTask.Taskname = task.strTaskName;
+                    func.Add(o => o.Taskname);
                 }
 
                 if (IsInMask(lMask, VTRUploadTaskMask.VTR_Mask_Classify))
                 {
                     dbpTask.Category = task.strClassify;
+                    func.Add(o => o.Category);
                 }
 
                 if (IsInMask(lMask, VTRUploadTaskMask.VTR_Mask_BeginTime))
                 {
                     dbpTask.Starttime = DateTimeFormat.DateTimeFromString(task.strBegin);
+                    func.Add(o => o.Starttime);
                     dbpTask.NewBegintime = DateTimeFormat.DateTimeFromString(task.strBegin);
+                    func.Add(o => o.NewBegintime);
                 }
 
                 if (IsInMask(lMask, VTRUploadTaskMask.VTR_Mask_EndTime))
                 {
                     dbpTask.NewEndtime = DateTimeFormat.DateTimeFromString(task.strEnd);
+                    func.Add(o => o.NewEndtime);
                     dbpTask.Endtime = DateTimeFormat.DateTimeFromString(task.strEnd);
+                    func.Add(o => o.Endtime);
                 }
 
                 if (IsInMask(lMask, VTRUploadTaskMask.VTR_Mask_TaskType))
                 {
                     dbpTask.Tasktype = task.emTaskType;
+                    func.Add(o => o.Tasktype);
                 }
 
                 if (IsInMask(lMask, VTRUploadTaskMask.VTR_Mask_CooperantType))
                 {
                     dbpTask.Backtype = (int)CooperantType.emPureTask;
+                    func.Add(o => o.Backtype);
                 }
 
                 if (IsInMask(lMask, VTRUploadTaskMask.VTR_Mask_State))
                 {
                     dbpTask.State = (int)taskState.tsReady;
+                    func.Add(o => o.State);
                 }
 
                 if (IsInMask(lMask, VTRUploadTaskMask.VTR_Mask_StampImage)
                     || IsInMask(lMask, VTRUploadTaskMask.VTR_Mask_TaskDesc))
                 {
                     dbpTask.Description = task.strStampImage;
+                    func.Add(o => o.Description);
                 }
                 #endregion
             }
@@ -1583,7 +1613,8 @@ namespace IngestTaskPlugin.Managers
 
             dbpTask.Usercode = "VTRBATCHUPLOAD_ERROR_OK";
             dbpTask.Tasklock = string.Empty;
-            dbpTask = VTRUploadTaskContent2Dbptask(true, vtrTask, dbpTask, -1);
+            List<Expression<Func<DbpTask, object>>> func = new List<Expression<Func<DbpTask, object>>>();
+            dbpTask = VTRUploadTaskContent2Dbptask(true, vtrTask, dbpTask, -1, func);
 
             if (metadatas != null)
             {
@@ -1593,7 +1624,7 @@ namespace IngestTaskPlugin.Managers
                 }
             }
 
-            await TaskStore.UpdateTaskAsync(dbpTask, true);
+            await TaskStore.UpdateTaskAsync(dbpTask, "", true, func.ToArray());
             //添加VTR_UPLOADTASK
             Logger.Info("In ModifyNormalTaskToVTRUploadTask.Before Adding VTR_UPLOADTASK");
             //VtrUploadtask vtrUploadtask = Mapper.Map<VtrUploadtask>(vtrTask);
@@ -2354,7 +2385,8 @@ namespace IngestTaskPlugin.Managers
                 {
                     task.strUserToken = "VTRBATCHUPLOAD_ERROR_OK";
                     var dbpTask = new DbpTask();
-                    dbpTask = VTRUploadTaskContent2Dbptask(true, task, dbpTask, -1);
+                    List<Expression<Func<DbpTask, object>>> func = new List<Expression<Func<DbpTask, object>>>();
+                    dbpTask = VTRUploadTaskContent2Dbptask(true, task, dbpTask, -1, func);
 
                     submitTasks.Add(dbpTask);
                     vtrUploadtasks.Add(Mapper.Map<VtrUploadtask>(task));
@@ -2370,10 +2402,12 @@ namespace IngestTaskPlugin.Managers
                 }
                 else
                 {
-                    DbpTask dbpTask = await TaskStore.GetTaskNotrackAsync(a => a.Where(x => x.Taskid == task.nTaskId), true);
+                    int QueryUseHotTable = UseHotTableConvert.QueryUseHotTable(task.nTaskId);
+                    DbpTask dbpTask = await TaskStore.GetTaskNotrackAsync(a => a.Where(x => x.Taskid == QueryUseHotTable));
                     if (dbpTask != null)
                     {
-                        dbpTask = VTRUploadTaskContent2Dbptask(true, task, dbpTask, -1);
+                        List<Expression<Func<DbpTask, object>>> func = new List<Expression<Func<DbpTask, object>>>();
+                        dbpTask = VTRUploadTaskContent2Dbptask(true, task, dbpTask, -1, func);
                         submitTasks.Add(dbpTask);
                     }
 
@@ -2394,7 +2428,7 @@ namespace IngestTaskPlugin.Managers
             }
             else
             {
-                await TaskStore.UpdateTaskListAsync(submitTasks, true);
+                await TaskStore.UpdateTaskListAsync(submitTasks, "", true);
                 await VtrStore.UpdateVtrUploadTaskListAsync(vtrUploadtasks, true);
                 
             }
@@ -2552,7 +2586,8 @@ namespace IngestTaskPlugin.Managers
                     return;
                 }
 
-                var task = await TaskStore.GetTaskNotrackAsync(a => a.Where(x => x.Taskid == taskId), true);
+                int QueryUseHotTable = UseHotTableConvert.QueryUseHotTable(taskId);
+                var task = await TaskStore.GetTaskNotrackAsync(a => a.Where(x => x.Taskid == QueryUseHotTable));
 
                 if (task != null)
                 {
@@ -2562,7 +2597,7 @@ namespace IngestTaskPlugin.Managers
                         vtrUploadtask.Taskstate == (int)VTRUPLOADTASKSTATE.VTR_UPLOAD_COMMIT)
                     {
                         await VtrStore.DeleteVtrUploadTask(vtrUploadtask, false);
-                        await TaskStore.DeleteTaskDB(taskId, true);
+                        await TaskStore.DeleteTaskWithMetaDBAsync(a => a.Where(x =>x.Taskid == taskId), true);
 
                         Logger.Info(string.Format("In DeleteVtrUploadTask,Find a {0} task,delete from table.taskId  = {1}", vtrUploadtask.Taskstate, taskId));
                         return;
@@ -2579,7 +2614,7 @@ namespace IngestTaskPlugin.Managers
                         task.State = (int)taskState.tsDelete;
                         task.OpType = (int)opType.otDel;
                         task.DispatchState = (int)dispatchState.dpsDispatchFailed;
-                        await TaskStore.UpdateTaskListAsync(new List<DbpTask>() { task }, true);
+                        await TaskStore.UpdateTaskAsync(task, "", true, o=>o.State, o => o.OpType, o => o.DispatchState);
                         return;
                     }
 
@@ -2598,7 +2633,7 @@ namespace IngestTaskPlugin.Managers
                         task.State = (int)taskState.tsInvaild;
                         task.Endtime = DateTime.Now;
                         task.NewEndtime = DateTime.Now;
-                        await TaskStore.UpdateTaskListAsync(new List<DbpTask>() { task }, true);
+                        await TaskStore.UpdateTaskAsync(task, "", true, o => o.SyncState, o => o.OpType, o => o.DispatchState, o => o.State, o => o.Endtime, o => o.NewEndtime);
 
                         return;
                     }
@@ -2672,7 +2707,7 @@ namespace IngestTaskPlugin.Managers
 
         public async ValueTask<string> GetVtrTaskMetaDataAsync(int taskId, int type)
         {
-            var metadata = await TaskStore.GetTaskMetaDataNotrackAsync(a => a.Where(x => x.Taskid == taskId && x.Metadatatype == type), true);
+            var metadata = await TaskStore.GetTaskMetaDataNotrackAsync(a => a.Where(x => x.Taskid == taskId && x.Metadatatype == type));
             if (string.IsNullOrEmpty(metadata.Metadatalong))
             {
                 var backup = await VtrStore.GetTaskMetadataBackup(a => a.FirstOrDefaultAsync(x => x.Taskid == taskId && x.Metadatatype == type), true);

@@ -9,6 +9,20 @@ using ShardingCore.Extensions;
 
 namespace IngestTaskPlugin.Models.Route
 {
+    /*
+     * 转换不重要，重要的是命名方式，之所以这么写，是让开发者知道注意这个项
+     */
+    public static class UseHotTableConvert
+    {
+        /*
+        * 转换不重要，重要的是命名方式，之所以这么写，是让开发者知道注意这个项
+        */
+        public static int QueryUseHotTable(int d) { return d; }
+        /*
+        * 转换不重要，重要的是命名方式，之所以这么写，是让开发者知道注意这个项
+        */
+        public static DateTime QueryUseHotTable(DateTime d) { return d; }
+    }
     public class QueryRouteShardingTableVisitorTwo<TKey, TV> : ExpressionVisitor
     {
         private int _useTwoShardingKey;
@@ -20,11 +34,13 @@ namespace IngestTaskPlugin.Models.Route
         private readonly Func<object, TKey> _shardingKeyConvert;
         private Expression<Func<TV, bool>> _where = x => true;
 
+        private bool _useHotTable;
         public QueryRouteShardingTableVisitorTwo(
             Tuple<Type, string> shardingConfig,
             Func<object, TKey> shardingKeyConvert,
             Func<TKey, ShardingOperatorEnum, Expression<Func<TV, bool>>> keyToTailWithFilter)
         {
+            _useHotTable = false;
             _useTwoShardingKey = 0;
             _shardingConfig1 = shardingConfig;
             _shardingKeyConvert = shardingKeyConvert;
@@ -38,6 +54,7 @@ namespace IngestTaskPlugin.Models.Route
             Func<TKey, ShardingOperatorEnum, Expression<Func<TV, bool>>> keyToTailWithFilter1,
             Func<TKey, ShardingOperatorEnum, Expression<Func<TV, bool>>> keyToTailWithFilter2)
         {
+            _useHotTable = false;
             _useTwoShardingKey = 1;
             _shardingConfig1 = shardingConfig1;
             _shardingConfig2 = shardingConfig2;
@@ -138,6 +155,11 @@ namespace IngestTaskPlugin.Models.Route
                    || (expression is MemberExpression member && (member.Expression is ConstantExpression || member.Expression is MemberExpression || member.Expression is MemberExpression));
         }
 
+        public bool GetHotOrCloudTable()
+        {
+            return _useHotTable;
+        }
+
         private object GetFieldValue(Expression expression)
         {
             if (expression is ConstantExpression)
@@ -152,6 +174,11 @@ namespace IngestTaskPlugin.Models.Route
 
             if (expression is MemberExpression member1Expression)
             {
+                if (member1Expression.Member.Name == "QueryUseHotTable")
+                {
+                    _useHotTable = true;
+                }
+
                 return Expression.Lambda(member1Expression).Compile().DynamicInvoke();
             }
 
@@ -302,6 +329,43 @@ namespace IngestTaskPlugin.Models.Route
                 bool paramterAtLeft;
                 object value = null;
                 bool shardingkey1 = false;
+
+                if (binaryExpression.Left is MemberExpression member1Expression)
+                {
+                    if (member1Expression.Member.Name == "QueryUseHotTable")
+                    {
+                        _useHotTable = true;
+                    }
+                }
+                else if (binaryExpression.Left is UnaryExpression member1Expression0)
+                {
+                    if (member1Expression0.Operand is MemberExpression mem1)
+                    {
+                        if (mem1.Member.Name == "QueryUseHotTable")
+                        {
+                            _useHotTable = true;
+                        }
+                    }
+                }
+
+                if (binaryExpression.Right is MemberExpression member1Expression1)
+                {
+                    if (member1Expression1.Member.Name == "QueryUseHotTable")
+                    {
+                        _useHotTable = true;
+                    }
+                }
+                else if (binaryExpression.Right is UnaryExpression member1Expression2)
+                {
+                    if (member1Expression2.Operand is MemberExpression mem1)
+                    {
+                        if (mem1.Member.Name == "QueryUseHotTable")
+                        {
+                            _useHotTable = true;
+                        }
+                    }
+                    
+                }
 
                 if (IsShardingKey(binaryExpression.Left) && IsConstantOrMember(binaryExpression.Right))
                 {

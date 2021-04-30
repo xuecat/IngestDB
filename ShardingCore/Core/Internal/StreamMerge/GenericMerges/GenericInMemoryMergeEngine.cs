@@ -28,12 +28,63 @@ namespace ShardingCore.Core.Internal.StreamMerge.GenericMerges
             return new GenericInMemoryMergeEngine<T>(mergeContext);
         }
         
-        private async Task<TResult> EFCoreExecute<TResult>(string connectKey,IQueryable<T> newQueryable,RouteResult routeResult,Func<IQueryable, Task<TResult>> efQuery)
+        private async Task<Tuple<string, TResult>> EFCoreExecuteTail<TResult>( string connectKey,IQueryable<T> newQueryable,RouteResult routeResult,Func<IQueryable, Task<TResult>> efQuery)
         {
             using (var scope = _mergeContext.CreateScope())
             {
-                scope.ShardingAccessor.ShardingContext = ShardingContext.Create(connectKey,routeResult);
+                scope.ShardingAccessor.ShardingContext = ShardingContext.Create(connectKey, routeResult);
+                var back = await efQuery(newQueryable);
+                if (back != null)
+                {
+                    return new Tuple<string, TResult>(routeResult.ReplaceTables.First().Tail, back);
+                }
+                return new Tuple<string, TResult>(string.Empty, back);
+            }
+        }
+        private async Task<TResult> EFCoreExecute<TResult>(string connectKey, IQueryable<T> newQueryable, RouteResult routeResult, Func<IQueryable, Task<TResult>> efQuery)
+        {
+            using (var scope = _mergeContext.CreateScope())
+            {
+                scope.ShardingAccessor.ShardingContext = ShardingContext.Create(connectKey, routeResult);
                 return await efQuery(newQueryable);
+                
+            }
+        }
+        public async Task<List<Tuple<string, TResult>>> ExecuteTailAsync<TResult>(Func<IQueryable, Task<TResult>> efQuery)
+        {
+            if (_mergeContext.Skip.HasValue || _mergeContext.Take.HasValue)
+                throw new InvalidOperationException("aggregate not  support skip take");
+            //从各个分表获取数据
+            ICollection<DbContext> parallelDbContexts = new LinkedList<DbContext>();
+            try
+            {
+                var intersectConfigs = _mergeContext.GetDataSourceRoutingResult().IntersectConfigs;
+
+                var enumeratorTasks = intersectConfigs.SelectMany(connectKey =>
+                {
+                    var routeResults = _mergeContext.GetRouteResults(connectKey);
+
+                    return routeResults.Select(routeResult =>
+                    {
+                        return Task.Run(async () =>
+                        {
+                            var shardingDbContext = _mergeContext.CreateDbContext(connectKey);
+                            parallelDbContexts.Add(shardingDbContext);
+                            var newQueryable = (IQueryable<T>)_mergeContext.GetReWriteQueryable()
+                                .ReplaceDbContextQueryable(shardingDbContext);
+
+                            return await EFCoreExecuteTail(connectKey, newQueryable, routeResult, efQuery);
+                        });
+                    }).ToList();
+
+
+                }).ToArray();
+
+                return (await Task.WhenAll(enumeratorTasks)).ToList();
+            }
+            finally
+            {
+                parallelDbContexts.ForEach(o => o.Dispose());
             }
         }
         public async Task<List<TResult>> ExecuteAsync<TResult>(Func<IQueryable, Task<TResult>> efQuery)

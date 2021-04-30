@@ -20,7 +20,9 @@ namespace ShardingCore.DbContexts.VirtualDbContexts
         Task RollbackAsync();
         IQueryable<T> Set<T>() where T : class;
         Task<int> InsertAsync<T>(T entity) where T : class;
+        Task<int> InsertTailAsync<T>(T entity, string tail) where T : class;
         Task<int> InsertRangeAsync<T>(ICollection<T> entities) where T : class;
+        Task<int> InsertRangeTailAsync<T>(ICollection<T> entities,string tail) where T : class;
         Task<int> UpdateAsync<T>(T entity) where T : class;
         Task<int> UpdateRangeAsync<T>(ICollection<T> entities) where T : class;
         Task<int> DeleteAsync<T>(T entity) where T : class;
@@ -29,11 +31,16 @@ namespace ShardingCore.DbContexts.VirtualDbContexts
         int Insert<T>(T entity) where T : class;
         int InsertRange<T>(ICollection<T> entities) where T : class;
         int Update<T>(T entity) where T : class;
+        int UpdateTail<T>(T entity, string tail) where T : class;
         void UpdateColumns<T>(T entity, params Expression<Func<T,object>>[] getUpdatePropertyNames) where T : class;
+        void UpdateColumnsTail<T>(T entity, string tail, params Expression<Func<T, object>>[] getUpdatePropertyNames) where T : class;
         void UpdateWithOutIgnoreColumns<T>(T entity,Expression<Func<T,object>> getIgnorePropertyNames) where T : class;
         int UpdateRange<T>(ICollection<T> entities) where T : class;
+        int UpdateRangeTail<T>(ICollection<Tuple<string, T>> entities) where T : class;
         int Delete<T>(T entity) where T : class;
+        int DeleteTail<T>(T entity, string tail) where T : class;
         int DeleteRange<T>(ICollection<T> entities) where T : class;
+        int DeleteRangeTail<T>(ICollection<Tuple<string, T>> entities) where T : class;
         int SaveChanges();
         
         

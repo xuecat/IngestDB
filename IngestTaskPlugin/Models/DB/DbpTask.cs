@@ -8,7 +8,7 @@ namespace IngestTaskPlugin.Models
 {
     public partial class DbpTask: IShardingTable
     {
-        [ShardingTableKey(TailPrefix = "")]
+        [ShardingTableKey(TailPrefix ="")]
         public int Taskid { get; set; }
         public string Taskname { get; set; }
         public int? Recunitid { get; set; }
@@ -36,5 +36,6 @@ namespace IngestTaskPlugin.Models
         public int? Stampimagetype { get; set; }
         public int? Sgroupcolor { get; set; }
         public int? Tasksource { get; set; }
+        
     }
 }
