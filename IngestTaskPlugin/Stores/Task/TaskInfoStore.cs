@@ -2182,188 +2182,191 @@ namespace IngestTaskPlugin.Stores
 
             Logger.Info($"ModifyTask UpdateTask {task.Taskid} {task.State} {task.SyncState} {task.Starttime} {task.Endtime}");
 
-            //Context.DbpTask.Update(task);
-            await UpdateTaskAsync(task, "", false);
-
-            if (!string.IsNullOrEmpty(CaptureMeta))
+            using (var transa = _virtualDbContext.BeginTransaction())
             {
-                //var itm = new DbpTaskMetadata() { Taskid = task.Taskid, Metadatatype = (int)MetaDataType.emCapatureMetaData, Metadatalong = CaptureMeta };
-                //Context.Attach(itm);
-                //Context.Entry(itm).Property(x => x.Metadatalong).IsModified = true;
-                //因为主键ID默认是不赋值的，只给其他项目赋值了 id是int类型，int类型如果不允许为空那么会被默认为0，所以插入第二条数据时，数据库中已经有了主键为0的数据
+                await UpdateTaskAsync(task, "", false);
 
-                await UpdateTaskMetaDataAsync(new DbpTaskMetadata() { Taskid = task.Taskid, Metadatatype = (int)MetaDataType.emCapatureMetaData, Metadatalong = CaptureMeta},
-                        false, o => o.Metadatalong, o => o.Metadatatype);
-
-            }
-            if (!string.IsNullOrEmpty(MatiralMeta))
-            {
-                if (autoupdate)
+                if (!string.IsNullOrEmpty(CaptureMeta))
                 {
-                    var metadata = await GetTaskMetaDataNotrackAsync(x => x.Where(a => a.Taskid == task.Taskid && a.Metadatatype == (int)MetaDataType.emStoreMetaData));
-                    if (metadata != null)
-                    {
-                        var org = XDocument.Parse(metadata.Metadatalong);
-                        var modify = XDocument.Parse(MatiralMeta);
+                    //var itm = new DbpTaskMetadata() { Taskid = task.Taskid, Metadatatype = (int)MetaDataType.emCapatureMetaData, Metadatalong = CaptureMeta };
+                    //Context.Attach(itm);
+                    //Context.Entry(itm).Property(x => x.Metadatalong).IsModified = true;
+                    //因为主键ID默认是不赋值的，只给其他项目赋值了 id是int类型，int类型如果不允许为空那么会被默认为0，所以插入第二条数据时，数据库中已经有了主键为0的数据
 
-                        foreach (var m in modify.Element("MATERIAL").Elements())
-                        {
-                            var f = org.Element("MATERIAL").Elements().FirstOrDefault(x => x.Name == m.Name);
-                            if (f != null)
-                            {
-                                //f.Value = m.Value;
-                                f.Remove();
-                            }
-                            org.Element("MATERIAL").Add(m);
-                        }
-
-                        metadata.Metadatalong = org.ToString();
-                        await UpdateTaskMetaDataAsync(metadata,
+                    await UpdateTaskMetaDataAsync(new DbpTaskMetadata() { Taskid = task.Taskid, Metadatatype = (int)MetaDataType.emCapatureMetaData, Metadatalong = CaptureMeta },
                             false, o => o.Metadatalong, o => o.Metadatatype);
+
+                }
+                if (!string.IsNullOrEmpty(MatiralMeta))
+                {
+                    if (autoupdate)
+                    {
+                        var metadata = await GetTaskMetaDataNotrackAsync(x => x.Where(a => a.Taskid == task.Taskid && a.Metadatatype == (int)MetaDataType.emStoreMetaData));
+                        if (metadata != null)
+                        {
+                            var org = XDocument.Parse(metadata.Metadatalong);
+                            var modify = XDocument.Parse(MatiralMeta);
+
+                            foreach (var m in modify.Element("MATERIAL").Elements())
+                            {
+                                var f = org.Element("MATERIAL").Elements().FirstOrDefault(x => x.Name == m.Name);
+                                if (f != null)
+                                {
+                                    //f.Value = m.Value;
+                                    f.Remove();
+                                }
+                                org.Element("MATERIAL").Add(m);
+                            }
+
+                            metadata.Metadatalong = org.ToString();
+                            await UpdateTaskMetaDataAsync(metadata,
+                                false, o => o.Metadatalong, o => o.Metadatatype);
+                        }
+                    }
+                    else
+                    {
+
+                        await UpdateTaskMetaDataAsync(new DbpTaskMetadata()
+                        {
+                            Taskid = task.Taskid,
+                            Metadatatype = (int)MetaDataType.emStoreMetaData,
+                            Metadatalong = MatiralMeta
+                        },
+                                false, o => o.Metadatalong, o => o.Metadatatype);
                     }
                 }
-                else
+                if (!string.IsNullOrEmpty(ContentMeta))
                 {
-
-                    await UpdateTaskMetaDataAsync(new DbpTaskMetadata()
+                    if (autoupdate)
                     {
-                        Taskid = task.Taskid,
-                        Metadatatype = (int)MetaDataType.emStoreMetaData,
-                        Metadatalong = MatiralMeta
-                    },
-                            false,  o => o.Metadatalong, o => o.Metadatatype);
-                }
-            }
-            if (!string.IsNullOrEmpty(ContentMeta))
-            {
-                if (autoupdate)
-                {
-                    var metadata = await GetTaskMetaDataNotrackAsync(x => x.Where(a => a.Taskid == task.Taskid && a.Metadatatype == (int)MetaDataType.emContentMetaData));
-                    if (metadata != null)
-                    {
-                        var org = XDocument.Parse(metadata.Metadatalong);
-                        var modify = XDocument.Parse(ContentMeta);
-
-                        foreach (var m in modify.Element("TaskContentMetaData").Elements())
+                        var metadata = await GetTaskMetaDataNotrackAsync(x => x.Where(a => a.Taskid == task.Taskid && a.Metadatatype == (int)MetaDataType.emContentMetaData));
+                        if (metadata != null)
                         {
-                            var f = org.Element("TaskContentMetaData").Elements().FirstOrDefault(x => x.Name == m.Name);
-                            if (f != null)
-                            {
-                                f.Remove();
-                            }
-                            org.Element("TaskContentMetaData").Add(m);
-                        }
+                            var org = XDocument.Parse(metadata.Metadatalong);
+                            var modify = XDocument.Parse(ContentMeta);
 
-                        metadata.Metadatalong = org.ToString();
-                        await UpdateTaskMetaDataAsync(metadata,
-                            false, o => o.Metadatalong, o => o.Metadatatype);
+                            foreach (var m in modify.Element("TaskContentMetaData").Elements())
+                            {
+                                var f = org.Element("TaskContentMetaData").Elements().FirstOrDefault(x => x.Name == m.Name);
+                                if (f != null)
+                                {
+                                    f.Remove();
+                                }
+                                org.Element("TaskContentMetaData").Add(m);
+                            }
+
+                            metadata.Metadatalong = org.ToString();
+                            await UpdateTaskMetaDataAsync(metadata,
+                                false, o => o.Metadatalong, o => o.Metadatatype);
+                        }
+                    }
+                    else
+                    {
+                        await UpdateTaskMetaDataAsync(new DbpTaskMetadata()
+                        {
+                            Taskid = task.Taskid,
+                            Metadatatype = (int)MetaDataType.emContentMetaData,
+                            Metadatalong = ContentMeta
+                        },
+                                false, o => o.Metadatalong, o => o.Metadatatype);
                     }
                 }
-                else
-                {
-                    await UpdateTaskMetaDataAsync(new DbpTaskMetadata()
-                    {
-                        Taskid = task.Taskid,
-                        Metadatatype = (int)MetaDataType.emContentMetaData,
-                        Metadatalong = ContentMeta
-                    },
-                            false, o => o.Metadatalong, o => o.Metadatatype);
-                }
-            }
 
-            if (!string.IsNullOrEmpty(PlanningMeta))
-            {
-                if (autoupdate)
+                if (!string.IsNullOrEmpty(PlanningMeta))
                 {
-                    var metadata = await GetTaskMetaDataNotrackAsync(x => x.Where(a => a.Taskid == task.Taskid && a.Metadatatype == (int)MetaDataType.emPlanMetaData));
+                    if (autoupdate)
                     {
-                        var org = XDocument.Parse(metadata.Metadatalong);
-                        var modify = XDocument.Parse(PlanningMeta);
-
-                        foreach (var m in modify.Element("Planning").Elements())
+                        var metadata = await GetTaskMetaDataNotrackAsync(x => x.Where(a => a.Taskid == task.Taskid && a.Metadatatype == (int)MetaDataType.emPlanMetaData));
                         {
-                            var f = org.Element("Planning").Elements().FirstOrDefault(x => x.Name == m.Name);
-                            if (f != null)
+                            var org = XDocument.Parse(metadata.Metadatalong);
+                            var modify = XDocument.Parse(PlanningMeta);
+
+                            foreach (var m in modify.Element("Planning").Elements())
                             {
-                                //f.Value = m.Value;
-                                f.Remove();
+                                var f = org.Element("Planning").Elements().FirstOrDefault(x => x.Name == m.Name);
+                                if (f != null)
+                                {
+                                    //f.Value = m.Value;
+                                    f.Remove();
+                                }
+                                org.Element("Planning").Add(m);
                             }
-                            org.Element("Planning").Add(m);
+
+                            metadata.Metadatalong = org.ToString();
+                            await UpdateTaskMetaDataAsync(metadata,
+                                false, o => o.Metadatalong, o => o.Metadatatype);
                         }
 
-                        metadata.Metadatalong = org.ToString();
-                        await UpdateTaskMetaDataAsync(metadata,
-                            false,  o => o.Metadatalong, o => o.Metadatatype);
                     }
-                    
-                }
-                else
-                {
-                    await UpdateTaskMetaDataAsync(new DbpTaskMetadata()
+                    else
                     {
-                        Taskid = task.Taskid,
-                        Metadatatype = (int)MetaDataType.emPlanMetaData,
-                        Metadatalong = PlanningMeta
-                    },
-                            false, o => o.Metadatalong, o => o.Metadatatype);
-                }
-
-                
-            }
-
-            if (!string.IsNullOrEmpty(SplitMeta))
-            {
-
-                if (autoupdate)
-                {
-                    var metadata = await GetTaskMetaDataNotrackAsync(x => x.Where(a => a.Taskid == task.Taskid && a.Metadatatype == (int)MetaDataType.emSplitData));
-                    if (metadata != null)
-                    {
-                        var org = XDocument.Parse(metadata.Metadatalong);
-                        var modify = XDocument.Parse(SplitMeta);
-
-                        foreach (var m in modify.Element("SplitMetaData").Elements())
+                        await UpdateTaskMetaDataAsync(new DbpTaskMetadata()
                         {
-                            var f = org.Element("SplitMetaData").Elements().FirstOrDefault(x => x.Name == m.Name);
-                            if (f != null)
+                            Taskid = task.Taskid,
+                            Metadatatype = (int)MetaDataType.emPlanMetaData,
+                            Metadatalong = PlanningMeta
+                        },
+                                false, o => o.Metadatalong, o => o.Metadatatype);
+                    }
+
+
+                }
+
+                if (!string.IsNullOrEmpty(SplitMeta))
+                {
+
+                    if (autoupdate)
+                    {
+                        var metadata = await GetTaskMetaDataNotrackAsync(x => x.Where(a => a.Taskid == task.Taskid && a.Metadatatype == (int)MetaDataType.emSplitData));
+                        if (metadata != null)
+                        {
+                            var org = XDocument.Parse(metadata.Metadatalong);
+                            var modify = XDocument.Parse(SplitMeta);
+
+                            foreach (var m in modify.Element("SplitMetaData").Elements())
                             {
-                                //f.Value = m.Value;
-                                f.Remove();
+                                var f = org.Element("SplitMetaData").Elements().FirstOrDefault(x => x.Name == m.Name);
+                                if (f != null)
+                                {
+                                    //f.Value = m.Value;
+                                    f.Remove();
+                                }
+                                org.Element("SplitMetaData").Add(m);
                             }
-                            org.Element("SplitMetaData").Add(m);
+
+                            metadata.Metadatalong = org.ToString();
+                            await UpdateTaskMetaDataAsync(metadata,
+                                false, o => o.Metadatalong, o => o.Metadatatype);
                         }
 
-                        metadata.Metadatalong = org.ToString();
-                        await UpdateTaskMetaDataAsync(metadata,
-                            false, o => o.Metadatalong, o => o.Metadatatype);
                     }
-                    
-                }
-                else
-                {
-                    await UpdateTaskMetaDataAsync(new DbpTaskMetadata()
+                    else
                     {
-                        Taskid = task.Taskid,
-                        Metadatatype = (int)MetaDataType.emSplitData,
-                        Metadatalong = SplitMeta
-                    },
-                            false, o => o.Metadatalong, o => o.Metadatatype);
-                }
-                
-            }
+                        await UpdateTaskMetaDataAsync(new DbpTaskMetadata()
+                        {
+                            Taskid = task.Taskid,
+                            Metadatatype = (int)MetaDataType.emSplitData,
+                            Metadatalong = SplitMeta
+                        },
+                                false, o => o.Metadatalong, o => o.Metadatatype);
+                    }
 
-            if (savechange)
-            {
-                try
-                {
-                    await _virtualDbContext.SaveChangesAsync();
-                    return task;
                 }
-                catch (DbUpdateException e)
+
+                if (savechange)
                 {
-                    throw e;
+                    try
+                    {
+                        await _virtualDbContext.SaveChangesAsync();
+                        return task;
+                    }
+                    catch (DbUpdateException e)
+                    {
+                        throw e;
+                    }
                 }
             }
+            
 
             return task;
         }
@@ -2417,38 +2420,42 @@ namespace IngestTaskPlugin.Stores
             }
 
             Logger.Info(" AddTaskWithPolicys add task " + task.Taskid);
-            await _virtualDbContext.InsertTailAsync(task, "");
+            using (var trans = _virtualDbContext.BeginTransaction())
+            {
+                await _virtualDbContext.InsertTailAsync(task, "");
 
-            if (!string.IsNullOrEmpty(ContentMeta))
-            {
-                await _virtualDbContext.InsertAsync(new DbpTaskMetadata() { Taskid = task.Taskid, Metadatatype = (int)MetaDataType.emContentMetaData, Metadatalong = ContentMeta });
-            }
-            if (!string.IsNullOrEmpty(MatiralMeta))
-            {
-                await _virtualDbContext.InsertAsync(new DbpTaskMetadata() { Taskid = task.Taskid, Metadatatype = (int)MetaDataType.emStoreMetaData, Metadatalong = MatiralMeta });
-            }
-            if (!string.IsNullOrEmpty(PlanningMeta))
-            {
-                await _virtualDbContext.InsertAsync(new DbpTaskMetadata() { Taskid = task.Taskid, Metadatatype = (int)MetaDataType.emPlanMetaData, Metadatalong = PlanningMeta });
-            }
-            if (!string.IsNullOrEmpty(CaptureMeta))
-            {
-                await _virtualDbContext.InsertAsync(new DbpTaskMetadata() { Taskid = task.Taskid, Metadatatype = (int)MetaDataType.emCapatureMetaData, Metadatalong = CaptureMeta });
-            }
-            if (!string.IsNullOrEmpty(SplitMeta))
-            {
-                await _virtualDbContext.InsertAsync(new DbpTaskMetadata() { Taskid = task.Taskid, Metadatatype = (int)MetaDataType.emSplitData, Metadatalong = SplitMeta });
-            }
+                if (!string.IsNullOrEmpty(ContentMeta))
+                {
+                    await _virtualDbContext.InsertAsync(new DbpTaskMetadata() { Taskid = task.Taskid, Metadatatype = (int)MetaDataType.emContentMetaData, Metadatalong = ContentMeta });
+                }
+                if (!string.IsNullOrEmpty(MatiralMeta))
+                {
+                    await _virtualDbContext.InsertAsync(new DbpTaskMetadata() { Taskid = task.Taskid, Metadatatype = (int)MetaDataType.emStoreMetaData, Metadatalong = MatiralMeta });
+                }
+                if (!string.IsNullOrEmpty(PlanningMeta))
+                {
+                    await _virtualDbContext.InsertAsync(new DbpTaskMetadata() { Taskid = task.Taskid, Metadatatype = (int)MetaDataType.emPlanMetaData, Metadatalong = PlanningMeta });
+                }
+                if (!string.IsNullOrEmpty(CaptureMeta))
+                {
+                    await _virtualDbContext.InsertAsync(new DbpTaskMetadata() { Taskid = task.Taskid, Metadatatype = (int)MetaDataType.emCapatureMetaData, Metadatalong = CaptureMeta });
+                }
+                if (!string.IsNullOrEmpty(SplitMeta))
+                {
+                    await _virtualDbContext.InsertAsync(new DbpTaskMetadata() { Taskid = task.Taskid, Metadatatype = (int)MetaDataType.emSplitData, Metadatalong = SplitMeta });
+                }
 
-            try
-            {
-                await _virtualDbContext.SaveChangesAsync();
-                return task;
+                try
+                {
+                    await _virtualDbContext.SaveChangesAsync();
+                    return task;
+                }
+                catch (DbUpdateException e)
+                {
+                    throw e;
+                }
             }
-            catch (DbUpdateException e)
-            {
-                throw e;
-            }
+            
             return null;
         }
 
