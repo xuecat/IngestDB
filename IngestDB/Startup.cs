@@ -136,12 +136,6 @@ namespace IngestDB
                 return;
             }
 
-            services.AddSingleton<IHttpContextAccessor, HttpContextAccessor>();
-
-            //services.AddDbContext<CoreDbContext>(options =>
-            //{
-            //    options.UseMySql(configuration["Data:DefaultConnection:ConnectionString"]);
-            //});
             var apppart = services.FirstOrDefault(x => x.ServiceType == typeof(ApplicationPartManager))?.ImplementationInstance;
             if (apppart != null)
             {
@@ -247,17 +241,12 @@ namespace IngestDB
                                && (!maps.Any() || maps.Any(v => $"v{v.MajorVersion.ToString()}" == version));
                     });
                 });
+
+                services.AddMiniProfiler(options =>
+                {
+                    options.RouteBasePath = "/profiler";
+                });
             }
-
-            services.AddMiniProfiler(options =>
-            {
-                // All of this is optional. You can simply call .AddMiniProfiler() for all defaults
-
-                // (Optional) Path to use for profiler URLs, default is /mini-profiler-resources
-                options.RouteBasePath = "/profiler";
-
-            });
-
             //插件加载之后引用
             services.AddAutoMapper(applicationContext.AdditionalAssembly);
         }
@@ -332,6 +321,7 @@ namespace IngestDB
                     c.IndexStream = () => cassembly.GetManifestResourceStream(cassembly.GetName().Name + "." + "index.html");
                     //c.ShowRequestHeaders();
                 });
+                app.UseMiniProfiler();
             }
 
             //需要吗？？？
@@ -343,13 +333,11 @@ namespace IngestDB
             //});
 
             // ...existing configuration...
-            app.UseMiniProfiler();
+            
 
             //app.UseHttpsRedirection();
             //app.UseMvc();
-            var shardingBootstrapper = app.ApplicationServices.GetRequiredService<ShardingCore.IShardingBootstrapper>();
-            shardingBootstrapper.Start();
-
+            app.ApplicationServices.GetRequiredService<ShardingCore.IShardingBootstrapper>()?.Start();
             app.UseRouting();
             app.UseEndpoints(endpoints =>
             {

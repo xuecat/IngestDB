@@ -76,6 +76,23 @@ namespace IngestTaskPlugin.Stores
 
             return query.Invoke(_virtualDbContext.Set<DbpTask>()).ToShardingListAsync();
         }
+        public async Task<bool> AddTaskList(List<DbpTask> tasks, bool savechange)
+        {
+            if (tasks != null && tasks.Count > 0)
+            {
+                await _virtualDbContext.InsertRangeTailAsync(tasks, "");
+            }
+
+            if (savechange)
+            {
+                return await _virtualDbContext.SaveChangesAsync() > 0;
+            }
+            else
+            {
+                return true;
+            }
+
+        }
         /*
          * 由于按照endtime分表，一定要传enditme才找得到物理表
          */
@@ -3116,23 +3133,7 @@ namespace IngestTaskPlugin.Stores
         /////////////////////
         ///
 
-        public async Task<bool> AddTaskList(List<DbpTask> tasks, bool savechange)
-        {
-            if (tasks != null && tasks.Count > 0)
-            {
-                await _virtualDbContext.InsertRangeAsync(tasks);
-            }
-
-            if (savechange)
-            {
-                return await Context.SaveChangesAsync() > 0;
-            }
-            else
-            {
-                return true;
-            }
-
-        }
+        
 
         public async Task<bool> AddPolicyTask(List<DbpPolicytask> policytasks, bool submitFlag)
         {
@@ -3172,12 +3173,6 @@ namespace IngestTaskPlugin.Stores
         {
             return null;
         }
-
-        public Task<bool> AddTask(DbpTask tasks, bool savechange)
-        {
-            throw new NotImplementedException();
-        }
-
 
 
         #endregion

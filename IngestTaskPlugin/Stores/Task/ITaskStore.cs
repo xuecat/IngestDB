@@ -42,6 +42,7 @@ namespace IngestTaskPlugin.Stores
         Task<TResult> GetTaskNotrackAsync<TResult>(Func<IQueryable<DbpTask>, IQueryable<TResult>> query);
         Task<List<TResult>> GetTaskListNotrackAsync<TResult>(Func<IQueryable<DbpTask>, IQueryable<TResult>> query);
 
+        Task<bool> AddTaskList(List<DbpTask> tasks, bool savechange);
         Task UpdateTaskAsync(DbpTask item, string tail, bool savechange, params Expression<Func<DbpTask, object>>[] getUpdatePropertyNames);
         Task UpdateTaskListAsync(List<DbpTask> lst, string tail, bool savechange);
         Task UpdateTaskListAsync(List<Tuple<string, DbpTask>> lst, bool savechange);
@@ -109,9 +110,6 @@ namespace IngestTaskPlugin.Stores
 
         Task<bool> AddPolicyTask(List<DbpPolicytask> policytasks);
 
-
-        Task<bool> AddTask(DbpTask tasks, bool savechange);
-        Task<bool> AddTaskList(List<DbpTask> tasks, bool savechange);
         Task<bool> AddPolicyTask(List<DbpPolicytask> policytasks, bool submitFlag);
         
         
