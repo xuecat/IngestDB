@@ -3173,6 +3173,11 @@ namespace IngestTaskPlugin.Stores
             return null;
         }
 
+        public Task<bool> AddTask(DbpTask tasks, bool savechange)
+        {
+            throw new NotImplementedException();
+        }
+
 
 
         #endregion
