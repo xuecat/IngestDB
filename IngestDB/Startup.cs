@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Net.Http;
+using System.Reflection;
 using System.Threading.Tasks;
 using System.Xml.Linq;
 using AutoMapper;
@@ -12,6 +13,7 @@ using IngestDBCore.Plugin;
 using IngestDBCore.Tool;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.ApplicationParts;
 using Microsoft.Extensions.Configuration;
@@ -38,7 +40,7 @@ namespace IngestDB
         public void ConfigureServices(IServiceCollection services)
         {
             #region polly熔断机制
-            var CircuitBreakerOpenTriggerCount= Convert.ToInt32(Configuration["PollySetting:CircuitBreakerOpenTriggerCount"]);
+            var CircuitBreakerOpenTriggerCount = Convert.ToInt32(Configuration["PollySetting:CircuitBreakerOpenTriggerCount"]);
             //通用策略
             services.AddHttpClientPolly("ApiClient", options =>
             {
@@ -70,7 +72,8 @@ namespace IngestDB
             //    .AddJsonOptions(options => { options.SerializerSettings.ContractResolver = new ShouldSerializeContractResolver(); });
 
             services
-                .AddControllers(option => {
+                .AddControllers(option =>
+                {
                     option.Filters.Add(typeof(IngestAuthentication));
                 })
                 //.SetCompatibilityVersion(CompatibilityVersion.Version_3_0)
@@ -123,15 +126,17 @@ namespace IngestDB
                 catch (Exception e)
                 {
 
-                    logger.Error("ConfigureServices load json error " +e.Message);
+                    logger.Error("ConfigureServices load json error " + e.Message);
                 }
-                
+
             }
             else
             { //此处加日志
                 logger.Error("no file xml");
                 return;
             }
+
+            services.AddSingleton<IHttpContextAccessor, HttpContextAccessor>();
 
             //services.AddDbContext<CoreDbContext>(options =>
             //{
@@ -148,7 +153,7 @@ namespace IngestDB
                     apm.ApplicationParts.Add(new AssemblyPart(a));
                 });
             }
-            
+
             //单例注入RestClient等
             services.AddToolDefined();
             bool InitIsOk = applicationContext.Init().Result;
@@ -205,12 +210,12 @@ namespace IngestDB
                         License = new OpenApiLicense { Name = "Sobey", Url = new Uri("http://www.sobey.com") }
                         //TermsOfService = new Uri("None"),
                     });
-                    
+
                     c.OrderActionsBy((apiDesc) => $"{apiDesc.ActionDescriptor.RouteValues["controller"]}_{apiDesc.HttpMethod}");
-                   
+
                     // http://localhost:9024/swagger/v1/swagger.json
                     // http://localhost:9024/swagger/
-                    
+
                     c.IncludeXmlComments(xmlPath1);
                     c.IncludeXmlComments(xmlPath2);
                     c.IncludeXmlComments(xmlPath3);
@@ -244,6 +249,14 @@ namespace IngestDB
                 });
             }
 
+            services.AddMiniProfiler(options =>
+            {
+                // All of this is optional. You can simply call .AddMiniProfiler() for all defaults
+
+                // (Optional) Path to use for profiler URLs, default is /mini-profiler-resources
+                options.RouteBasePath = "/profiler";
+
+            });
 
             //插件加载之后引用
             services.AddAutoMapper(applicationContext.AdditionalAssembly);
@@ -311,10 +324,12 @@ namespace IngestDB
             {
                 app.UseSwagger().UseSwaggerUI(c =>
                 {
-                    
+
                     c.SwaggerEndpoint("/swagger/v1/swagger.json", "IngestGateway API V1");
                     c.SwaggerEndpoint("/swagger/v2/swagger.json", "IngestGateway API V2");
                     c.SwaggerEndpoint("/swagger/v3/swagger.json", "IngestGateway API V3");
+                    var cassembly = GetType().GetTypeInfo().Assembly;
+                    c.IndexStream = () => cassembly.GetManifestResourceStream(cassembly.GetName().Name + "." + "index.html");
                     //c.ShowRequestHeaders();
                 });
             }
@@ -326,6 +341,9 @@ namespace IngestDB
             //Path.Combine(Directory.GetCurrentDirectory(), @"MyStaticFiles")),
             //    RequestPath = new PathString("/StaticFiles")         
             //});
+
+            // ...existing configuration...
+            app.UseMiniProfiler();
 
             //app.UseHttpsRedirection();
             //app.UseMvc();
